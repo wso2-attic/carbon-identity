@@ -38,6 +38,7 @@ import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.workflow.WorkFlowExecutor;
 
 import java.util.ArrayList;
@@ -47,19 +48,9 @@ public class RequestExecutor implements WorkFlowExecutor {
 
     private static Log log = LogFactory.getLog(RequestExecutor.class);
     private static final String EXECUTOR_NAME = "BPELExecutor";
-    /*private static final Set<String> REQUIRED_PARAMS;
-
-    static {
-        REQUIRED_PARAMS = new HashSet<>();
-        REQUIRED_PARAMS.add(WFConstant.TemplateConstants.HOST);
-        REQUIRED_PARAMS.add(WFConstant.TemplateConstants.WORKFLOW_NAME);
-        REQUIRED_PARAMS.add(WFConstant.TemplateConstants.SERVICE_ACTION);
-        REQUIRED_PARAMS.add(WFConstant.TemplateConstants.AUTH_USER);
-        REQUIRED_PARAMS.add(WFConstant.TemplateConstants.AUTH_USER_PASSWORD);
-    }*/
 
     private List<Parameter> parameterList;
-    private BPSProfile bpsProfile ;
+    private BPSProfile bpsProfile;
 
     @Override
     public boolean canHandle(WorkflowRequest workFlowRequest) {
@@ -72,11 +63,11 @@ public class RequestExecutor implements WorkFlowExecutor {
 
         this.parameterList = parameterList;
 
-        Parameter bpsProfileParameter = Parameter
+        Parameter bpsProfileParameter = WorkflowManagementUtil
                 .getParameter(parameterList, WFImplConstant.ParameterName.BPS_PROFILE, WFConstant.ParameterHolder
                         .WORKFLOW_IMPL);
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        if(bpsProfileParameter != null) {
+        if (bpsProfileParameter != null) {
             String bpsProfileName = bpsProfileParameter.getParamValue();
             try {
                 bpsProfile = WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService().getBPSProfile
@@ -84,7 +75,7 @@ public class RequestExecutor implements WorkFlowExecutor {
             } catch (WorkflowImplException e) {
                 String errorMsg = "Error occurred while reading bps profile, " + e.getMessage();
                 log.error(errorMsg);
-                throw new WorkflowException(errorMsg,e);
+                throw new WorkflowException(errorMsg, e);
             }
         }
     }
@@ -115,12 +106,6 @@ public class RequestExecutor implements WorkFlowExecutor {
         if (parameterList == null) {
             throw new InternalWorkflowException("Init params for the BPELExecutor is null.");
         }
-        /*for (String requiredParam : REQUIRED_PARAMS) {
-            if (!initParams.containsKey(requiredParam) || initParams.get(requiredParam) == null) {
-                throw new InternalWorkflowException("Init params doesn't contain the required parameter " +
-                                                    ":" + requiredParam);
-            }
-        }*/
     }
 
     private void callService(OMElement messagePayload) throws AxisFault {
@@ -132,7 +117,11 @@ public class RequestExecutor implements WorkFlowExecutor {
         options.setAction(WFImplConstant.DEFAULT_APPROVAL_BPEL_SOAP_ACTION);
 
         String host = bpsProfile.getWorkerHostURL();
-        String serviceName = Parameter.getParameter(parameterList,WFConstant.ParameterName.WORKFLOW_NAME,WFConstant.ParameterHolder.WORKFLOW_IMPL).getParamValue();
+        String serviceName = StringUtils.deleteWhitespace(WorkflowManagementUtil
+                                                                  .getParameter(parameterList, WFConstant
+                                                                          .ParameterName.WORKFLOW_NAME, WFConstant
+                                                                          .ParameterHolder.WORKFLOW_IMPL)
+                                                                  .getParamValue());
         serviceName = StringUtils.deleteWhitespace(serviceName);
 
         String endpoint;
@@ -144,7 +133,8 @@ public class RequestExecutor implements WorkFlowExecutor {
 
         options.setTo(new EndpointReference(endpoint));
 
-        options.setProperty(org.apache.axis2.Constants.Configuration.MESSAGE_TYPE, SOAP11Constants.SOAP_11_CONTENT_TYPE);
+        options.setProperty(org.apache.axis2.Constants.Configuration.MESSAGE_TYPE, SOAP11Constants
+                .SOAP_11_CONTENT_TYPE);
 
         HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
         auth.setUsername(bpsProfile.getUsername());

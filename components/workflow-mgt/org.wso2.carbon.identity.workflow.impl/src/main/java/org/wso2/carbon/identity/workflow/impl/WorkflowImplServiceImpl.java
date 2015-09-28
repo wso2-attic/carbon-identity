@@ -5,7 +5,6 @@ import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.dao.BPSProfileDAO;
 
 import java.util.List;
-import java.util.Map;
 
 public class WorkflowImplServiceImpl implements WorkflowImplService {
 
@@ -31,12 +30,6 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         bpsProfileDAO.removeBPSProfile(profileName);
     }
 
-
-    /*@Override
-    public Map<String, Object> getBPSProfileParams(String profileName) throws WorkflowImplException {
-
-        return bpsProfileDAO.getBPELProfileParams(profileName);
-    }*/
 
     @Override
     public BPSProfile getBPSProfile(String profileName, int tenantId) throws WorkflowImplException {

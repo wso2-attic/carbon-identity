@@ -66,7 +66,7 @@
         association.setEventCategory(operationCategory);
 
         session.setAttribute("add-association", association);
-        forwardTo = "add-wf-wizard.jsp?path=add-association" ;
+        forwardTo = "add-wf-wizard.jsp?"+WorkflowUIConstants.PARAM_REQUEST_PATH+"=add-association" ;
 
     }else if("finish".equals(wizard)){
         association = (Association)session.getAttribute("add-association");
@@ -194,7 +194,7 @@
         paramDefs["<%=event.getEventId()%>"]["<%=parameter.getParamName()%>"] = "<%=parameter.getParamValue()%>";
         <%
                     }else {
-                    System.out.println(event.getEventId()+" "+event.getParameters().length);
+
                     }
                 }
             }

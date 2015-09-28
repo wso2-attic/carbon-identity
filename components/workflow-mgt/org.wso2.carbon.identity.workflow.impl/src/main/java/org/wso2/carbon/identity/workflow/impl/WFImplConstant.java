@@ -30,11 +30,6 @@ public class WFImplConstant {
         public static final String HT_DESCRIPTION = "HTDescription";
 
     }
-    public static final String WORKFLOW_TEMPLATE_ID = "MultiStepApprovalTemplate" ;
-
-
-    public static final String WORKFLOW_IMPL_NAME = "ApprovalWorkflow";
-    public static final String WORKFLOW_IMPL_ID = "ApprovalWorkflow";
     public static final String DEFAULT_APPROVAL_BPEL_SOAP_ACTION = "http://bpel.mgt.workflow.carbon.wso2" +
                                                                    ".org/approvalProcess/initiate";
 }

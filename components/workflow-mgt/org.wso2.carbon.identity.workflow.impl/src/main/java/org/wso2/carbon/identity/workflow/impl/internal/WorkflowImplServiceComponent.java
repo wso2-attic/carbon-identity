@@ -27,7 +27,8 @@ import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.workflow.impl.ApprovalWorkflow;
-import org.wso2.carbon.identity.workflow.impl.ApprovalWorkflowTwo;
+import org.wso2.carbon.identity.workflow.impl.BPELDeployer;
+import org.wso2.carbon.identity.workflow.impl.RequestExecutor;
 import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplService;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplServiceImpl;
@@ -39,6 +40,8 @@ import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
+import org.wso2.carbon.identity.workflow.mgt.workflow.TemplateInitializer;
+import org.wso2.carbon.identity.workflow.mgt.workflow.WorkFlowExecutor;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -62,11 +65,42 @@ import java.net.URISyntaxException;
  * interface="org.wso2.carbon.utils.ConfigurationContextService"
  * cardinality="1..1" policy="dynamic"  bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
- *
  */
 public class WorkflowImplServiceComponent {
 
     private static Log log = LogFactory.getLog(WorkflowImplServiceComponent.class);
+
+    protected void activate(ComponentContext context) {
+
+        BundleContext bundleContext = context.getBundleContext();
+
+        try {
+            String metaDataXML =
+                    readWorkflowImplParamMetaDataXML(WFImplConstant.WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME);
+
+            TemplateInitializer templateInitializer = new BPELDeployer();
+            WorkFlowExecutor workFlowExecutor = new RequestExecutor();
+            bundleContext
+                    .registerService(AbstractWorkflow.class, new ApprovalWorkflow(templateInitializer,
+                                                                                  workFlowExecutor, metaDataXML), null);
+
+            WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
+
+            WorkflowImplTenantMgtListener workflowTenantMgtListener = new WorkflowImplTenantMgtListener();
+            ServiceRegistration tenantMgtListenerSR = bundleContext.registerService(
+                    TenantMgtListener.class.getName(), workflowTenantMgtListener, null);
+            if (tenantMgtListenerSR != null) {
+                log.debug("Workflow Management - WorkflowTenantMgtListener registered");
+            } else {
+                log.error("Workflow Management - WorkflowTenantMgtListener could not be registered");
+            }
+
+            this.addDefaultBPSProfile();
+        } catch (Throwable e) {
+            log.error("Error occurred while activating WorkflowImplServiceComponent bundle, " + e.getMessage());
+        }
+
+    }
 
 
     protected void setWorkflowManagementService(WorkflowManagementService workflowManagementService) {
@@ -100,36 +134,6 @@ public class WorkflowImplServiceComponent {
         WorkflowImplServiceDataHolder.getInstance().setConfigurationContextService(contextService);
     }
 
-    protected void activate(ComponentContext context) {
-
-        BundleContext bundleContext = context.getBundleContext();
-
-        try {
-            String metaDataXML = readWorkflowImplParamMetaDataXML(WFImplConstant.WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME);
-            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(metaDataXML), null);
-
-            String metaDataXMLTwo = readWorkflowImplParamMetaDataXML("WorkflowParamMetaDataTTwo.xml");
-            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflowTwo(metaDataXMLTwo), null);
-
-            WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
-
-
-            WorkflowImplTenantMgtListener workflowTenantMgtListener = new WorkflowImplTenantMgtListener();
-            ServiceRegistration tenantMgtListenerSR = bundleContext.registerService(
-                    TenantMgtListener.class.getName(), workflowTenantMgtListener, null);
-            if (tenantMgtListenerSR != null) {
-                log.debug("Workflow Management - WorkflowTenantMgtListener registered");
-            } else {
-                log.error("Workflow Management - WorkflowTenantMgtListener could not be registered");
-            }
-
-            this.addDefaultBPSProfile();
-        } catch (Throwable e) {
-            log.error("Error occurred while activating WorkflowImplServiceComponent bundle, " + e.getMessage());
-        }
-
-    }
-
 
     private void addDefaultBPSProfile() {
 
@@ -141,8 +145,6 @@ public class WorkflowImplServiceComponent {
 
             if (currentBpsProfile == null) {
                 BPSProfile bpsProfileDTO = new BPSProfile();
-                //String hostName = WorkflowImplServiceDataHolder.getInstance().getServerConfigurationService().getFirstProperty(IdentityCoreConstants.HOST_NAME);
-                //String offset = WorkflowImplServiceDataHolder.getInstance().getServerConfigurationService().getFirstProperty(IdentityCoreConstants.PORTS_OFFSET);
                 String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
                 String offset = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.PORTS_OFFSET);
 
@@ -186,22 +188,22 @@ public class WorkflowImplServiceComponent {
     }
 
     private String readWorkflowImplParamMetaDataXML(String fileName) throws WorkflowRuntimeException {
-        String content = null ;
+        String content = null;
         try {
             InputStream resourceAsStream = this.getClass().getClassLoader()
                     .getResourceAsStream(fileName);
             content = WorkflowManagementUtil.readFileFromResource(resourceAsStream);
 
-        }  catch (IOException e) {
-            String errorMsg = "Error occurred while reading file from class path, " + e.getMessage() ;
+        } catch (IOException e) {
+            String errorMsg = "Error occurred while reading file from class path, " + e.getMessage();
             log.error(errorMsg);
-            throw new WorkflowRuntimeException(errorMsg,e);
+            throw new WorkflowRuntimeException(errorMsg, e);
         } catch (URISyntaxException e) {
-            String errorMsg = "Error occurred while reading file from class path, " + e.getMessage() ;
+            String errorMsg = "Error occurred while reading file from class path, " + e.getMessage();
             log.error(errorMsg);
-            throw new WorkflowRuntimeException(errorMsg,e);
+            throw new WorkflowRuntimeException(errorMsg, e);
         }
-        return content ;
+        return content;
     }
 
 

@@ -2,9 +2,7 @@
     <met:Template>
         <met:TemplateId>MultiStepApprovalTemplate</met:TemplateId>
         <met:TemplateName>Multi-Step User/Role Approval</met:TemplateName>
-        <!--Optional:-->
         <met:TemplateDescription>Multi-Step User/Role Approval</met:TemplateDescription>
-        <!--Optional:-->
         <met:ParametersMetaData xmlns:met="http://metadata.bean.mgt.workflow.identity.carbon.wso2.org">
             <met:ParameterMetaData Name="UserAndRole" InputType="Multiple_Steps_User_Role" isRequired="true">
                 <met:DisplayName>User and Role</met:DisplayName>

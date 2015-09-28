@@ -14,8 +14,6 @@ public interface WorkflowImplService {
 
     void removeBPSProfile(String profileName) throws WorkflowImplException;
 
-    //Map<String, Object> getBPSProfileParams(String profileName) throws WorkflowImplException;
-
     BPSProfile getBPSProfile(String profileName, int tenantId) throws WorkflowImplException;
 
     void updateBPSProfile(BPSProfile bpsProfileDTO, int tenantId) throws WorkflowImplException;

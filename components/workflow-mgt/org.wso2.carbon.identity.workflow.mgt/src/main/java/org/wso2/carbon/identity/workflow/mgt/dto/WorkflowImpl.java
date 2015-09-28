@@ -18,15 +18,18 @@
 
 package org.wso2.carbon.identity.workflow.mgt.dto;
 
-import org.wso2.carbon.identity.workflow.mgt.bean.TemplateParameterDef;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParametersMetaData;
 
+/**
+ * WorkflowImpl class is a DTO that is represent basic Workflow Implementation
+ * based on a Template and the Workflow Implementation specific MetaData
+ */
 public class WorkflowImpl {
     private String workflowImplId;
     private String workflowImplName;
-    private ParametersMetaData parametersMetaData ;
+    private ParametersMetaData parametersMetaData;
 
-    private String templateId ;
+    private String templateId;
 
     public String getWorkflowImplId() {
         return workflowImplId;

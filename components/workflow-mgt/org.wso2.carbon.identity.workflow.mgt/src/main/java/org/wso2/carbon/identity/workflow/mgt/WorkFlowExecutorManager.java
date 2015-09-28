@@ -26,22 +26,21 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jaxen.JaxenException;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
-import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
-import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestAssociationDAO;
-import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
-import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
+import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestAssociationDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestBuilder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
+import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.user.api.UserStoreException;
 
 import java.util.List;
@@ -97,16 +96,18 @@ public class WorkFlowExecutorManager {
                     requestToSend.setUuid(relationshipId);
                     AbstractWorkflow templateImplementation = WorkflowServiceDataHolder.getInstance()
                             .getWorkflowImpls().get(association.getTemplateId()).get(association.getImplId());
-                    List<Parameter> parameterList= workflowDAO.getWorkflowParams(association.getWorkflowId());
+                    List<Parameter> parameterList = workflowDAO.getWorkflowParams(association.getWorkflowId());
                     templateImplementation.initializeExecutor(parameterList);
                     templateImplementation.execute(requestToSend);
                     workflowRequestAssociationDAO.addNewRelationship(relationshipId, association.getWorkflowId(),
-                            workFlowRequest.getUuid(), WorkflowRequestStatus.PENDING.toString());
+                                                                     workFlowRequest
+                                                                             .getUuid(), WorkflowRequestStatus.PENDING
+                                                                             .toString());
                 }
             } catch (JaxenException e) {
                 if (log.isDebugEnabled()) {
                     log.debug("Error when executing the xpath expression:" + association.getCondition() + " , on " +
-                            xmlRequest, e);
+                              xmlRequest, e);
                 }
             } catch (CloneNotSupportedException e) {
                 log.error("Error while cloning workflowRequest object at executor manager.", e);
@@ -128,7 +129,8 @@ public class WorkFlowExecutorManager {
             workflowRequestAssociationDAO.updateStatusOfRelationship(requestWorkflowId, status);
             workflowRequestDAO.updateLastUpdatedTimeOfRequest(requestId);
             if (StringUtils.isNotBlank(requestWorkflowId) && workflowRequestDAO.retrieveStatusOfWorkflow(request
-                    .getUuid()).equals(WorkflowRequestStatus.DELETED.toString())) {
+                                                                                                                 .getUuid())
+                    .equals(WorkflowRequestStatus.DELETED.toString())) {
                 log.info("Callback received for request " + requestId + " which is already deleted by user. ");
                 return;
             }

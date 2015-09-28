@@ -23,12 +23,12 @@ public class Association {
     private String associationId;
     private String associationName;
     private String workflowName;
-    private String workflowId ;
+    private String workflowId;
     private String eventName;
     private String eventId;
     private String condition;
-    private String eventCategory ;
-    private boolean enabled ;
+    private String eventCategory;
+    private boolean enabled;
 
     public String getAssociationId() {
 

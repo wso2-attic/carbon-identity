@@ -131,10 +131,7 @@
     <script type="text/javascript">
 
         function doCancel() {
-            function cancel() {
-                location.href = '<%=requestPath%>.jsp?wizard=finish';
-            }
-            CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.add.abort"/> ' + name + '?', cancel, null);
+            location.href = '<%=requestPath%>.jsp?wizard=finish';
         }
 
         function submitPage(){

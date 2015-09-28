@@ -62,8 +62,9 @@ public class WorkflowImplTenantMgtListener implements TenantMgtListener {
             bpsProfileDTO.setCallbackPassword(tenantInfoBean.getAdminPassword());
             bpsProfileDTO.setProfileName(WFConstant.DEFAULT_BPS_PROFILE);
 
-            WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService().addBPSProfile(bpsProfileDTO, tenantInfoBean
-                    .getTenantId());
+            WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService()
+                    .addBPSProfile(bpsProfileDTO, tenantInfoBean
+                            .getTenantId());
 
         } catch (SocketException e) {
             //This is not thrown exception because this is not blocked to the other functionality. User can create

@@ -61,11 +61,11 @@
             <groupId>commons-lang.wso2</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-xjc-plugin</artifactId>
             <version>3.0.5</version>
-        </dependency>
+        </dependency-->
 
     </dependencies>
 
@@ -106,7 +106,7 @@
                     </instructions>
                 </configuration>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-xjc-plugin</artifactId>
                 <executions>
@@ -122,7 +122,7 @@
                         <xsdOption>
                             <extension>true</extension>
                             <xsd>${basedir}/src/main/resources/MetaDataType.xsd</xsd>
-                            <!--xsd>${basedir}/src/main/resources/ParameterMetaData.xsd</xsd-->
+                            <xsd>${basedir}/src/main/resources/ParameterMetaData.xsd</xsd>
                             <extensionArgs>
                                 <arg>-Xdv</arg>
                             </extensionArgs>
@@ -132,7 +132,7 @@
                         <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.3.0</extension>
                     </extensions>
                 </configuration>
-            </plugin>
+            </plugin-->
         </plugins>
     </build>
 </project>

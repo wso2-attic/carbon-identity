@@ -43,7 +43,7 @@
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     WorkflowAdminServiceClient client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
-
+    String reqPath = request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH);
 
 
     String forwardTo = "list-workflows.jsp";
@@ -56,8 +56,8 @@
 
         WorkflowWizard workflowWizard = (WorkflowWizard)session.getAttribute(requestToken);
         WorkflowUIUtil.loadWorkflowImplParameters(request.getParameterMap(),workflowWizard);
-        if(request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH) != null && !request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH).isEmpty()){
-            forwardTo = request.getParameter(WorkflowUIConstants.PARAM_REQUEST_PATH)+".jsp?wizard=finish&" + WorkflowUIConstants.PARAM_WORKFLOW_NAME + "=" +workflowWizard.getWorkflowName() ;
+        if(StringUtils.isNotBlank(reqPath)){
+            forwardTo = reqPath +".jsp?wizard=finish&" + WorkflowUIConstants.PARAM_WORKFLOW_NAME + "=" +workflowWizard.getWorkflowName() ;
         }
         try {
             client.addWorkflow(workflowWizard);

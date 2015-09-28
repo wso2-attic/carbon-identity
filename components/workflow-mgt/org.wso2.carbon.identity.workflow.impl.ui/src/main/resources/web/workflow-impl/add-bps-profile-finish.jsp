@@ -29,7 +29,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.impl.stub.bean.BPSProfile" %>
 
 <%
-    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    String bundle = "org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
 
     String profileName = request.getParameter(WorkflowUIConstants.PARAM_BPS_PROFILE_NAME);

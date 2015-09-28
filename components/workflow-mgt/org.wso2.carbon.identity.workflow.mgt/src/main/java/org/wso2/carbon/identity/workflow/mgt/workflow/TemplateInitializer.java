@@ -22,7 +22,6 @@ import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.util.List;
-import java.util.Map;
 
 public interface TemplateInitializer {
 

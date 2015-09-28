@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.workflow.impl;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
@@ -56,7 +57,7 @@ public class BPELDeployer implements TemplateInitializer {
 
     private static Log log = LogFactory.getLog(BPELDeployer.class);
 
-    private BPSProfile bpsProfile = null ;
+    private BPSProfile bpsProfile = null;
 
     private String processName;
     private String htName;
@@ -68,7 +69,6 @@ public class BPELDeployer implements TemplateInitializer {
 
         return false;
     }
-    //jayasundara
 
     @Override
     public void initialize(List<Parameter> parameterList) throws WorkflowImplException {
@@ -77,22 +77,22 @@ public class BPELDeployer implements TemplateInitializer {
             throw new WorkflowRuntimeException("Workflow initialization failed, required parameter is missing");
         }
 
-        Parameter wfNameParameter = Parameter
+        Parameter wfNameParameter = WorkflowManagementUtil
                 .getParameter(parameterList, WFConstant.ParameterName.WORKFLOW_NAME, WFConstant.ParameterHolder
                         .WORKFLOW_IMPL);
 
-        if(wfNameParameter != null) {
-            processName = wfNameParameter.getParamValue();
+        if (wfNameParameter != null) {
+            processName = StringUtils.deleteWhitespace(wfNameParameter.getParamValue());
             role = WorkflowManagementUtil
-                    .getWorkflowRoleName(wfNameParameter.getParamValue());
+                    .createWorkflowRoleName(StringUtils.deleteWhitespace(wfNameParameter.getParamValue()));
         }
 
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
-        Parameter bpsProfileParameter = Parameter
+        Parameter bpsProfileParameter = WorkflowManagementUtil
                 .getParameter(parameterList, WFImplConstant.ParameterName.BPS_PROFILE, WFConstant.ParameterHolder
                         .WORKFLOW_IMPL);
-        if(bpsProfileParameter != null) {
+        if (bpsProfileParameter != null) {
             String bpsProfileName = bpsProfileParameter.getParamValue();
             bpsProfile = WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService().getBPSProfile
                     (bpsProfileName, tenantId);
@@ -102,7 +102,7 @@ public class BPELDeployer implements TemplateInitializer {
         generateAndDeployArtifacts();
     }
 
-    private boolean validateParams(List< Parameter> parameterList) {
+    private boolean validateParams(List<Parameter> parameterList) {
         //todo: implement
         return true;
     }
@@ -130,7 +130,9 @@ public class BPELDeployer implements TemplateInitializer {
         String archiveHome = System.getProperty(BPELDeployer.Constants.TEMP_DIR_PROPERTY) + File.separator;
         DataSource bpelDataSource = new FileDataSource(archiveHome + bpelArchiveName);
         WorkflowDeployerClient workflowDeployerClient = new WorkflowDeployerClient(bpsProfile.getManagerHostURL(),
-                                                                                   bpsProfile.getUsername(), bpsProfile.getPassword().toCharArray());
+                                                                                   bpsProfile.getUsername(), bpsProfile
+                                                                                           .getPassword()
+                                                                                           .toCharArray());
         workflowDeployerClient.uploadBPEL(getBPELUploadedFileItem(new DataHandler(bpelDataSource),
                                                                   bpelArchiveName, BPELDeployer.Constants.ZIP_TYPE));
         String htArchiveName = htName + BPELDeployer.Constants.ZIP_EXT;
@@ -172,10 +174,14 @@ public class BPELDeployer implements TemplateInitializer {
         Map<String, String> placeHolderValues = new HashMap<>();
         placeHolderValues.put(BPELDeployer.Constants.BPEL_PROCESS_NAME, processName);
         placeHolderValues.put(BPELDeployer.Constants.HT_SERVICE_NAME, htName);
-        placeHolderValues.put(BPELDeployer.Constants.BPS_HOST_NAME, (bpsProfile.getWorkerHostURL()!=null ? bpsProfile.getWorkerHostURL(): ""));
+        placeHolderValues.put(BPELDeployer.Constants.BPS_HOST_NAME, (bpsProfile.getWorkerHostURL() != null ?
+                                                                     bpsProfile.getWorkerHostURL() : ""));
         placeHolderValues.put(BPELDeployer.Constants.CARBON_HOST_NAME, BPELDeployer.Constants.CARBON_HOST_URL);
-        placeHolderValues.put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_USER, (bpsProfile.getCallbackUser()!=null ? bpsProfile.getCallbackUser(): ""));
-        placeHolderValues.put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_PASSWORD, (bpsProfile.getCallbackPassword()!=null ? bpsProfile.getCallbackPassword(): ""));
+        placeHolderValues.put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_USER, (bpsProfile.getCallbackUser() != null ?
+                                                                                 bpsProfile.getCallbackUser() : ""));
+        placeHolderValues
+                .put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_PASSWORD, (bpsProfile.getCallbackPassword() != null ?
+                                                                            bpsProfile.getCallbackPassword() : ""));
         placeHolderValues.put(BPELDeployer.Constants.HT_OWNER_ROLE, role);
         placeHolderValues.put(BPELDeployer.Constants.HT_ADMIN_ROLE, role);
         return placeHolderValues;
@@ -205,7 +211,8 @@ public class BPELDeployer implements TemplateInitializer {
         Set<String> filesToAdd = new HashSet<>();
         String taskWsdl, ws_humantask = null; //to keep without deleting for human task
         String resourceHomePath =
-                BPELDeployer.Constants.TEMPLATE_RESOURCE_LOCATION + File.separator + BPELDeployer.Constants.BPEL_RESOURCE_LOCATION +
+                BPELDeployer.Constants.TEMPLATE_RESOURCE_LOCATION + File.separator +
+                BPELDeployer.Constants.BPEL_RESOURCE_LOCATION +
                 File.separator + BPELDeployer.Constants.APPROVAL_SERVICE_RESOURCE_LOCATION + File.separator;
         String outputPath = System.getProperty(BPELDeployer.Constants.TEMP_DIR_PROPERTY) + File.separator;
         //process.wsdl
@@ -273,7 +280,8 @@ public class BPELDeployer implements TemplateInitializer {
 
         Set<String> filesToAdd = new HashSet<>();
         String resourceHomePath =
-                BPELDeployer.Constants.TEMPLATE_RESOURCE_LOCATION + File.separator + BPELDeployer.Constants.HT_RESOURCE_LOCATION +
+                BPELDeployer.Constants.TEMPLATE_RESOURCE_LOCATION + File.separator +
+                BPELDeployer.Constants.HT_RESOURCE_LOCATION +
                 File.separator + BPELDeployer.Constants.APPROVAL_HT_RESOURCE_LOCATION + File.separator;
         String outputPath = System.getProperty(BPELDeployer.Constants.TEMP_DIR_PROPERTY) + File.separator;
         //task.ht
@@ -297,13 +305,15 @@ public class BPELDeployer implements TemplateInitializer {
         filesToAdd.add(outputFile);
         //task-output.jsp
         outputFile =
-                outputPath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + File.separator + htName + BPELDeployer.Constants.OUTPUT_JSP_SUFFIX;
+                outputPath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + File.separator + htName +
+                BPELDeployer.Constants.OUTPUT_JSP_SUFFIX;
         removePlaceHolders(resourceHomePath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + File.separator +
                            BPELDeployer.Constants.TASK_OUTPUT_JSP_FILE, outputFile);
         filesToAdd.add(outputFile);
         //task-response.jsp
         outputFile =
-                outputPath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + File.separator + htName + BPELDeployer.Constants.RESPONSE_JSP_SUFFIX;
+                outputPath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + File.separator + htName +
+                BPELDeployer.Constants.RESPONSE_JSP_SUFFIX;
         removePlaceHolders(resourceHomePath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + File.separator +
                            BPELDeployer.Constants.TASK_RESPONSE_JSP_FILE, outputFile);
         filesToAdd.add(outputFile);

@@ -23,10 +23,10 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementServiceImpl;
+import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
-import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementServiceImpl;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
@@ -57,6 +57,19 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  */
 public class WorkflowMgtServiceComponent {
 
+
+    protected void activate(ComponentContext context) {
+
+        BundleContext bundleContext = context.getBundleContext();
+        WorkflowManagementService workflowService = new WorkflowManagementServiceImpl();
+
+        bundleContext.registerService(WorkflowManagementService.class, workflowService, null);
+        WorkflowServiceDataHolder.getInstance().setWorkflowService(workflowService);
+
+
+        WorkflowServiceDataHolder.getInstance().setBundleContext(bundleContext);
+    }
+
     private static Log log = LogFactory.getLog(WorkflowMgtServiceComponent.class);
 
     protected void setRealmService(RealmService realmService) {
@@ -78,22 +91,6 @@ public class WorkflowMgtServiceComponent {
 
         WorkflowServiceDataHolder.getInstance().setConfigurationContextService(contextService);
     }
-
-    protected void activate(ComponentContext context) {
-
-        BundleContext bundleContext = context.getBundleContext();
-        WorkflowManagementService workflowService = new WorkflowManagementServiceImpl();
-
-        bundleContext.registerService(WorkflowManagementService.class, workflowService, null);
-        WorkflowServiceDataHolder.getInstance().setWorkflowService(workflowService);
-
-
-        WorkflowServiceDataHolder.getInstance().setBundleContext(bundleContext);
-
-
-    }
-
-
 
     protected void setWorkflowRequestHandler(WorkflowRequestHandler workflowRequestHandler) {
 

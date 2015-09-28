@@ -48,7 +48,7 @@ public class WorkflowRequestAssociationDAO {
      * @throws InternalWorkflowException
      */
     public void addNewRelationship(String relationshipId, String workflowId, String requestId, String status) throws
-            InternalWorkflowException {
+                                                                                                              InternalWorkflowException {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_WORKFLOW_REQUEST_RELATIONSHIP;
@@ -131,7 +131,7 @@ public class WorkflowRequestAssociationDAO {
      * @throws InternalWorkflowException
      */
     public void updateStatusOfRelationshipsOfPendingRequest(String requestId, String status) throws
-            InternalWorkflowException {
+                                                                                             InternalWorkflowException {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
@@ -234,7 +234,7 @@ public class WorkflowRequestAssociationDAO {
                 workflowDTO.setWorkflowId(resultSet.getString(SQLConstants.ID_COLUMN));
                 workflowDTO.setWorkflowName(resultSet.getString(SQLConstants.WF_NAME_COLUMN));
                 workflowDTO.setLastUpdatedTime(resultSet.getTimestamp(SQLConstants.REQUEST_UPDATED_AT_COLUMN)
-                        .toString());
+                                                       .toString());
                 workflowDTO.setStatus(resultSet.getString(SQLConstants.REQUEST_STATUS_COLUMN));
                 workflowDTOs.add(workflowDTO);
             }

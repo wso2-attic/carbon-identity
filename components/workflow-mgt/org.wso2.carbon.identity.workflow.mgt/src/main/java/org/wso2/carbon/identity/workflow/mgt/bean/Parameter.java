@@ -19,9 +19,19 @@
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
 import java.io.Serializable;
-import java.util.List;
 
-public class Parameter implements Serializable{
+/**
+ * This is the Bean class that represent the Parameter per workflow.
+ *
+ * workflowId : Unique Id for the workflow
+ * paramName : Parameter Name that is defined in the metafile
+ * paramValue : Value for this parameter
+ * qName :  Fully qualified name for this parameter. There can be more than one Parameter in same ParamName and but unique by qName.
+ * holder : This is represent either template or workflowImpl
+ *
+ *
+ */
+public class Parameter implements Serializable {
 
     private String workflowId;
     private String paramName;
@@ -29,8 +39,18 @@ public class Parameter implements Serializable{
     private String qName;
     private String holder;
 
-    public Parameter(){}
+    public Parameter() {
+    }
 
+
+    /**
+     *
+     * @param workflowId
+     * @param paramName
+     * @param paramValue
+     * @param qName
+     * @param holder
+     */
     public Parameter(String workflowId, String paramName, String paramValue, String qName, String holder) {
         this.workflowId = workflowId;
         this.paramName = paramName;
@@ -79,24 +99,6 @@ public class Parameter implements Serializable{
         this.holder = holder;
     }
 
-    public static Parameter getParameter(List<Parameter> parameterList, String paramName, String qName, String holder){
-        for (Parameter parameter:parameterList){
-            if(parameter.getParamName().equals(paramName) && parameter.getqName().equals(qName) &&
-               parameter.getHolder().equals(holder)){
-                return parameter ;
-            }
-        }
-        return null ;
-    }
-    public static Parameter getParameter(List<Parameter> parameterList, String paramName, String holder){
-        for (Parameter parameter:parameterList){
-            if(parameter.getParamName().equals(paramName) && parameter.getqName().equals(paramName) &&
-               parameter.getHolder().equals(holder)){
-                return parameter ;
-            }
-        }
-        return null ;
-    }
 
     @Override
     public boolean equals(Object o) {

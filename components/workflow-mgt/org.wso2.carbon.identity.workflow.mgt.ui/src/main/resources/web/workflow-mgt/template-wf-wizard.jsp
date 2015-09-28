@@ -43,12 +43,17 @@
 <%@ page import="java.util.Set" %>
 
 
+<script type="text/javascript" src="extensions/js/vui.js"></script>
+<script type="text/javascript" src="../extensions/core/js/vui.js"></script>
+<script type="text/javascript" src="../admin/js/main.js"></script>
+
 <%
 
     WorkflowAdminServiceClient client;
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     String forwardTo = null;
+
 
     String requestPath = "list-workflows";
     //'path' parameter to use to track parent wizard path if this wizard trigger by another wizard
@@ -180,14 +185,18 @@
             topPage="false"
             request="<%=request%>"/>
 
+
+    <script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+    <script type="text/javascript" src="js/tokenizer.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/input_style.css">
+
+
     <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
     <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 
     <!-- Override carbon jquery from latest release of it, because this tokenizer support for latest one -->
-    <script type="text/javascript" src="js/jquery-1.11.3.js"></script>
-    <script type="text/javascript" src="js/tokenizer.js"></script>
-    <link rel="stylesheet" type="text/css" href="css/input_style.css">
+
 
     <style>
 
@@ -212,10 +221,7 @@
         }
 
         function doCancel() {
-            function cancel() {
-                location.href = '<%=requestPath%>.jsp?wizard=finish';
-            }
-            CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.add.abort"/> ' + name + '?', cancel, null);
+            location.href = '<%=requestPath%>.jsp?wizard=finish';
         }
 
 
@@ -229,7 +235,13 @@
 
         var stepOrder = 0;
         function nextWizard(){
+            //alert("before");
+            if(!validateInputs()){
+                alert("Required fields are missing");
+                return ;
+            }
 
+            //alert("after");
             try {
                 for (var currentStep = 1; currentStep <= stepOrder; currentStep++) {
                     var newValues = $("#p-step-" + currentStep + "-users").tokenizer('get');
@@ -245,6 +257,55 @@
             nextWizardForm.submit();
         }
 
+
+
+        function validateInputs(){
+            //alert("cleanSteps");
+            cleanSteps();
+            //alert("in");
+            <%
+            if(template !=null && template.getParametersMetaData() !=null && template.getParametersMetaData().getParameterMetaData() !=null){
+                ParameterMetaData[] parameterMetaData = template.getParametersMetaData().getParameterMetaData();
+                for(ParameterMetaData parameterMetaDataTmp : parameterMetaData){
+                    if(parameterMetaDataTmp.getIsRequired()){
+                        if(parameterMetaDataTmp.getInputType().equals(InputType.TEXT.value()) || parameterMetaDataTmp.getInputType().equals(InputType.TEXT_AREA.value())){
+            %>
+            if($("#<%=parameterMetaDataTmp.getName()%>").val() == ""){
+                return false ;
+            }
+            <%
+                         }else if(parameterMetaDataTmp.getInputType().equals(InputType.SELECT.value())){
+
+            %>
+            //alert($("#<%=parameterMetaDataTmp.getName()%>").val());
+            if($("#<%=parameterMetaDataTmp.getName()%>").val() == "<fmt:message key="select"/>"){
+                return false ;
+            }
+
+            <%
+                        }else if(parameterMetaDataTmp.getInputType().equals(InputType.MULTIPLE_STEPS_USER_ROLE.value())){
+
+            %>
+            //alert(stepOrder);
+            if(stepOrder > 0){
+                //alert($("#p-step-1-users").tokenizer('get'));
+            }
+            if(stepOrder == 0 || ( $("#p-step-1-users").tokenizer('get') == ""  && $("#p-step-1-roles").tokenizer('get') == "" ) ){
+                return false ;
+            }
+
+            <%
+                        }
+                    }
+                }
+            }
+
+            %>
+            //alert("out");
+            return true ;
+
+        }
+
     </script>
 
     <div id="middle">
@@ -254,7 +315,6 @@
         <div id="workArea">
 
             <%
-                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>2");
                 if(templateList != null && templateList.length > 1){
             %>
 
@@ -270,9 +330,7 @@
                                     style="min-width: 30%">
                                     <option value="" selected><fmt:message key="select"/></option>
                                 <%
-                                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>3");
                                     for (Template templateTmp : templateList) {
-                                        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4");
                                         String selected = "" ;
                                         if(template!=null && templateTmp.getTemplateId().equals(template.getTemplateId())){
                                             selected = "selected" ;
@@ -313,11 +371,8 @@
                         <td class="formRow">
                             <table class="normal" style="width: 100%;">
                                 <%
-                                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>6");
                                     ParameterMetaData[] parameterMetaData = template.getParametersMetaData().getParameterMetaData();
-                                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>7");
                                     if (parameterMetaData.length==0) {
-                                        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>8");
                                 %>
                                 <tr>
                                     <td colspan="2"><fmt:message key="workflow.template.has.no.params"/></td>
@@ -325,7 +380,6 @@
                                 <%
                                 } else {
                                     for (ParameterMetaData metaData : parameterMetaData) {
-                                        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>9");
                                         if (metaData != null) {
                                 %>
                                 <tr>
@@ -333,8 +387,6 @@
                                 </tr>
                                 <tr>
                                     <%
-                                        //Text
-                                        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>10 " + metaData.getInputType() + "    "  + InputType.TEXT.value());
                                         if(metaData.getInputType().equals(InputType.TEXT.value())){
                                             String textTypeValue = "" ;
                                             if(parameterValues.get(metaData.getName()) != null && parameterValues.get(metaData.getName()).get(metaData.getName()) != null){
@@ -342,7 +394,7 @@
                                             }
                                     %>
                                     <td>
-                                        <input name="<%=metaData.getName()%>"
+                                        <input id="<%=metaData.getName()%>" name="<%=metaData.getName()%>"
                                                   title="<%=metaData.getDisplayName()%>" style="min-width: 30%" value="<%=textTypeValue%>"/>
                                     </td>
                                     <%
@@ -352,7 +404,7 @@
                                             textAreaTypeValue = parameterValues.get(metaData.getName()).get(metaData.getName()).getParamValue();
                                         }
                                     %>
-                                    <td><textarea name="<%=metaData.getName()%>" title="<%=metaData.getDisplayName()%>" style="min-width: 30%">
+                                    <td><textarea id="<%=metaData.getName()%>" name="<%=metaData.getName()%>" title="<%=metaData.getDisplayName()%>" style="min-width: 30%">
                                         <%= textAreaTypeValue%></textarea>
                                     </td>
                                     <%
@@ -366,7 +418,8 @@
                                         Item[] items = mapType.getItem();
                                     %>
                                     <td>
-                                        <select name="<%=metaData.getName()%>" style="min-width: 30%">
+                                        <select id="<%=metaData.getName()%>" name="<%=metaData.getName()%>" style="min-width: 30%">
+                                            <option value="<fmt:message key="select"/>"><fmt:message key="select"/></option>
                                         <%
                                             for (Item item: items) {
                                                 if (item != null) {
@@ -390,13 +443,9 @@
 
                                         <%
 
-                                        System.out.println("==============================================    1  ");
                                         Map<String,Map<String,String>> stepMap = new HashMap<String,Map<String,String>>();
-                                        System.out.println("==============================================    3  ");
                                         if(stringParameterMap !=null ) {
-                                            System.out.println("==============================================    4  ");
                                             Set<String> keys = stringParameterMap.keySet();
-                                            System.out.println("==============================================    5  ");
                                             for (String key : keys) {
                                                 String[] split = key.split("-");
                                                 Map<String, String> stringStringMap = stepMap.get(split[2]);
@@ -409,12 +458,7 @@
                                             }
                                         }
                                         WorkflowUIUtil.test("S",stepMap);
-                                        System.out.println("==============================================    6  ");
                                         %>
-
-
-
-
                                         jQuery(document).ready(function(){
 
                                             jQuery('h2.trigger').click(function(){
@@ -428,7 +472,7 @@
                                             });
 
                                             jQuery('#stepsAddLink').click(function(){
-
+                                                cleanSteps();
                                                 addStep("","");
 
                                             });
@@ -436,13 +480,9 @@
                                             <%
 
                                                for(int a =0 ; a<stepMap.size();a++) {
-                                                   System.out.println("==============================================    7  ");
                                                    Map<String, String> stringStringMap = stepMap.get((a + 1) + "");
-                                                   System.out.println("==============================================    8  ");
                                                    String users = stringStringMap.get("users");
                                                    String roles = stringStringMap.get("roles");
-                                                   System.out.println("==============================================    9  ");
-
                                             %>
 
                                                 try {
@@ -471,7 +511,7 @@
                                                            '<h2 id="step_head_'+stepOrder+'" class="trigger active step_heads" style="background-color: beige; clear: both;">' +
                                                            '<input type="hidden" value="'+stepOrder+'" name="approve_step" id="approve_step">' +
                                                            '<a class="step_order_header" href="#">Step '+stepOrder+'</a>' +
-                                                           '<a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;"></a>' +
+                                                           '<a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;" name="delete-obj" id="delete-obj-'+stepOrder+'"></a>' +
                                                            '</h2>' +
                                                            '<table style="width:100%;">' +
                                                            '<tr><td id="search_step_head_'+stepOrder+'"></td></tr>' +
@@ -544,6 +584,8 @@
                                                     //Changes in header
                                                     $(this).attr('id','step_head_'+newStepOrderVal);
                                                     $(this).find('input[name="approve_step"]').val(newStepOrderVal);
+                                                    $(this).find('a[name="delete-obj"]').attr('id','delete-obj-'+newStepOrderVal);
+
                                                     $(this).find('.step_order_header').text('Step '+newStepOrderVal);
 
                                                     var textArea_Users = $('#p-step-'+oldApproveStepVal+'-users');
@@ -576,6 +618,18 @@
                                             }
 
 
+                                        }
+
+                                        function cleanSteps(){
+                                            //alert("cl");
+                                            for(var x = 1 ; x<= stepOrder ;  ){
+                                                //alert(x);
+                                                if($("#p-step-"+x+"-users").tokenizer('get') == "" && $("#p-step-"+x+"-roles").tokenizer('get') == ""){
+                                                    deleteStep(document.getElementById("delete-obj-"+x));
+                                                }else{
+                                                    x++ ;
+                                                }
+                                            }
                                         }
                                     </script>
                                     <td>

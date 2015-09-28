@@ -94,26 +94,18 @@
         if (workflowImplList == null || workflowImplList.length == 0) {
             throw new WorkflowAdminServiceWorkflowException("There is no any registered workflow implementation for the template :" + workflowWizard.getTemplate().getName());
         }
-        System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 1");
         if(workflowWizard.getWorkflowImpl() == null){
             if(workflowImplList.length == 1){
-                System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 2");
                 workflowImpl = workflowImplList[0] ;
             }else if(StringUtils.isNotBlank(workflowImplId)){
-                System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 3");
                 workflowImpl = client.getWorkflowImp(workflowWizard.getTemplate().getTemplateId(),workflowImplId);
             }
-            System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 4");
             workflowWizard.setWorkflowImpl(workflowImpl);
         }else {
-            System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 5");
             if(StringUtils.isNotBlank(workflowImplId) && !workflowWizard.getWorkflowImpl().getWorkflowImplId().equals(workflowImplId)){
-                System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 6");
                 workflowImpl = client.getWorkflowImp(workflowWizard.getTemplate().getTemplateId(), workflowImplId);
                 workflowWizard.setWorkflowImpl(workflowImpl);
-                System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 7");
             }else{
-                System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 8");
                 workflowImpl = workflowWizard.getWorkflowImpl();
             }
         }
@@ -123,7 +115,7 @@
         }
 
 
-        Parameter[] wfParameters = workflowWizard.getTemplateParameters();
+        Parameter[] wfParameters = workflowWizard.getWorkflowImplParameters();
         if(wfParameters != null && wfParameters.length > 0){
             for (Parameter parameter: wfParameters){
                 Map<String, Parameter> stringParameterMap = parameterValues.get(parameter.getParamName());
@@ -205,10 +197,7 @@
         }
 
         function doCancel() {
-            function cancel() {
-                location.href = '<%=requestPath%>.jsp?wizard=finish';
-            }
-            CARBON.showConfirmationDialog('<fmt:message key="confirmation.workflow.add.abort"/> ' + name + '?', cancel, null);
+            location.href = '<%=requestPath%>.jsp?wizard=finish';
         }
 
         function selectTemplate(){
@@ -219,7 +208,10 @@
         var stepOrder = 0;
 
         function nextWizard(){
-            alert("ddddd");
+            if(!validateInputs()){
+                alert("Required fields are missing");
+                return ;
+            }
             try {
                 for (var currentStep = 1; currentStep <= stepOrder; currentStep++) {
                     var newValues = $("#p-step-" + currentStep + "-users").tokenizer('get');
@@ -228,11 +220,55 @@
                     $("#p-step-" + currentStep + "-roles").val(newValues);
                 }
             }catch(e){
-                alert(e);
+
             }
 
             var nextWizardForm = document.getElementById("id_nextwizard");
             nextWizardForm.submit();
+        }
+
+        function validateInputs(){
+            <%
+            if(workflowImpl !=null && workflowImpl.getParametersMetaData() !=null && workflowImpl.getParametersMetaData().getParameterMetaData() !=null){
+                ParameterMetaData[] parameterMetaData = workflowImpl.getParametersMetaData().getParameterMetaData();
+                for(ParameterMetaData parameterMetaDataTmp : parameterMetaData){
+                    if(parameterMetaDataTmp.getIsRequired()){
+                        if(parameterMetaDataTmp.getInputType().equals(InputType.TEXT.value()) || parameterMetaDataTmp.getInputType().equals(InputType.TEXT_AREA.value())){
+            %>
+            if($("#<%=parameterMetaDataTmp.getName()%>").val() == ""){
+                return false ;
+            }
+
+            <%
+                         }else if(parameterMetaDataTmp.getInputType().equals(InputType.SELECT.value())){
+
+            %>
+            if($("#<%=parameterMetaDataTmp.getName()%>").val() == "<fmt:message key="select"/>"){
+                return false ;
+            }
+
+            <%
+                        }else if(parameterMetaDataTmp.getInputType().equals(InputType.MULTIPLE_STEPS_USER_ROLE.value())){
+
+            %>
+            if(stepOrder == 0){
+                return false ;
+            }
+
+            <%
+
+                        }
+
+
+                    }
+
+
+                }
+            }
+
+            %>
+            return true ;
+
         }
 
     </script>
@@ -244,9 +280,7 @@
         <div id="workArea">
 
             <%
-                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>2");
                 if(workflowImplList != null && workflowImplList.length > 1){
-                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>2XXXX");
             %>
 
             <form id="id_workflow_workflowimpl" method="post" name="serviceAdd" action="workflowimpl-wf-wizard.jsp">
@@ -261,12 +295,9 @@
                                     style="min-width: 30%">
                                     <option value="" selected><fmt:message key="select"/></option>
                                 <%
-                                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>3");
                                     for (WorkflowImpl workflowImplTmp : workflowImplList) {
                                         String selected = "" ;
-                                        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4 " + workflowImplTmp);
                                         if(workflowImpl!=null && workflowImplTmp.getWorkflowImplId().equals(workflowImpl.getWorkflowImplId())){
-                                            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ccccc " + workflowImplTmp);
                                             selected = "selected" ;
                                         }
                                 %>
@@ -283,17 +314,13 @@
             </form>
 
             <%
-                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4 >>  XXXX ");
                 }
             %>
 
             </br>
 
              <%
-                 System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4 >>  PPPP2 " + workflowImpl );
-                 System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4 >>  PPPP3 " + workflowImpl.getWorkflowImplId() );
                 if(workflowImpl!=null && workflowImpl.getWorkflowImplId() != null ){
-                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>4 >>  NNNN ");
             %>
                 <form method="post" name="serviceAdd" id="id_nextwizard" action="finish-wf-wizard.jsp">
                     <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=requestToken%>"/>
@@ -310,11 +337,9 @@
                             <td class="formRow">
                                 <table class="normal" style="width: 100%;">
                                     <%
-                                        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>6");
                                         ParameterMetaData[] parameterMetaData = workflowImpl.getParametersMetaData().getParameterMetaData();
-                                        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>7");
+
                                         if (parameterMetaData.length==0) {
-                                            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>8");
                                     %>
                                     <tr>
                                         <td colspan="2"><fmt:message key="workflow.template.has.no.params"/></td>
@@ -322,7 +347,6 @@
                                     <%
                                     } else {
                                         for (ParameterMetaData metaData : parameterMetaData) {
-                                            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>9");
                                             if (metaData != null) {
                                     %>
                                     <tr>
@@ -330,32 +354,28 @@
                                     </tr>
                                     <tr>
                                         <%
-                                            //Text
-                                            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>10 " + metaData.getInputType() + "    "  + InputType.TEXT.value());
                                             if(metaData.getInputType().equals(InputType.TEXT.value())){
                                                 String textTypeValue = "" ;
-                                                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>aaaaaaaaaaaa");
                                                 if(parameterValues.get(metaData.getName()) != null && parameterValues.get(metaData.getName()).get(metaData.getName()) != null){
                                                     textTypeValue = parameterValues.get(metaData.getName()).get(metaData.getName()).getParamValue();
-                                                    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>ffff " + textTypeValue );
                                                 }
                                         %>
                                         <td>
-                                            <input name="<%=metaData.getName()%>"
+                                            <input id="<%=metaData.getName()%>" name="<%=metaData.getName()%>"
                                                    title="<%=metaData.getDisplayName()%>" style="min-width: 30%" value="<%=textTypeValue%>"/>
                                         </td>
                                         <%
-                                            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>dfdfdfdfdf " );
+
                                         } else if(metaData.getInputType().equals(InputType.TEXT_AREA.value())){
-                                                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>area "  );
+
+
                                             String textAreaTypeValue = "" ;
                                             if(parameterValues.get(metaData.getName()) != null && parameterValues.get(metaData.getName()).get(metaData.getName()) != null){
                                                 textAreaTypeValue = parameterValues.get(metaData.getName()).get(metaData.getName()).getParamValue();
-                                                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>textAreaTypeValue " + textAreaTypeValue );
                                             }
                                         %>
-                                        <td><textarea name="<%=metaData.getName()%>" title="<%=metaData.getDisplayName()%>" style="min-width: 30%">
-                                        <%= textAreaTypeValue%></textarea>
+                                        <td>
+                                            <textarea id="<%=metaData.getName()%>" name="<%=metaData.getName()%>" title="<%=metaData.getDisplayName()%>" style="min-width: 30%"><%= textAreaTypeValue%></textarea>
                                         </td>
                                         <%
                                         } else if(metaData.getInputType().equals(InputType.SELECT.value())){
@@ -368,7 +388,8 @@
                                             Item[] items = mapType.getItem();
                                         %>
                                         <td>
-                                            <select name="<%=metaData.getName()%>" style="min-width: 30%">
+                                            <select id="<%=metaData.getName()%>" name="<%=metaData.getName()%>" style="min-width: 30%">
+                                                <option value="<fmt:message key="select"/>"><fmt:message key="select"/></option>
                                                 <%
                                                     for (Item item: items) {
                                                         if (item != null) {
@@ -391,14 +412,9 @@
 
 
                                             <%
-
-                                            System.out.println("==============================================    1  ");
                                             Map<String,Map<String,String>> stepMap = new HashMap<String,Map<String,String>>();
-                                            System.out.println("==============================================    3  ");
                                             if(stringParameterMap !=null ) {
-                                                System.out.println("==============================================    4  ");
                                                 Set<String> keys = stringParameterMap.keySet();
-                                                System.out.println("==============================================    5  ");
                                                 for (String key : keys) {
                                                     String[] split = key.split("-");
                                                     Map<String, String> stringStringMap = stepMap.get(split[2]);
@@ -411,12 +427,7 @@
                                                 }
                                             }
                                             WorkflowUIUtil.test("S",stepMap);
-                                            System.out.println("==============================================    6  ");
                                             %>
-
-
-
-
                                             jQuery(document).ready(function(){
 
                                                 jQuery('h2.trigger').click(function(){
@@ -438,12 +449,9 @@
                                                 <%
 
                                                    for(int a =0 ; a<stepMap.size();a++) {
-                                                       System.out.println("==============================================    7  ");
                                                        Map<String, String> stringStringMap = stepMap.get((a + 1) + "");
-                                                       System.out.println("==============================================    8  ");
                                                        String users = stringStringMap.get("users");
                                                        String roles = stringStringMap.get("roles");
-                                                       System.out.println("==============================================    9  ");
 
                                                 %>
 
@@ -617,7 +625,7 @@
                         <tr>
                             <td class="buttonRow">
                                 <input class="button" value="<fmt:message key="back"/>" type="button" onclick="goBack();">
-                                <input class="button" value="<fmt:message key="next"/>" type="button" onclick="nextWizard();"/>
+                                <input class="button" value="<fmt:message key="finish"/>" type="button" onclick="nextWizard();"/>
                                 <input class="button" value="<fmt:message key="cancel"/>" type="button"
                                        onclick="doCancel();"/>
                             </td>

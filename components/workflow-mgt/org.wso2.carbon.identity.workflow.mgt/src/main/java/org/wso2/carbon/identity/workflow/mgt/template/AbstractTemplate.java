@@ -33,13 +33,12 @@ import javax.xml.bind.JAXBException;
 /**
  * Abstract Template class can be extend to create concrete
  * template that is providing its own details and metadata
- *
  */
 public abstract class AbstractTemplate {
 
     private Log log = LogFactory.getLog(AbstractTemplate.class);
-    private ParametersMetaData parametersMetaData = null ;
-    private MetaData metaData ;
+    private ParametersMetaData parametersMetaData = null;
+    private MetaData metaData;
 
     protected abstract InputData getInputData(String parameterName) throws WorkflowException;
 
@@ -52,7 +51,7 @@ public abstract class AbstractTemplate {
     public AbstractTemplate(String metaDataXML) throws WorkflowRuntimeException {
         try {
             this.metaData = WorkflowManagementUtil.unmarshalXML(metaDataXML, MetaData.class);
-            if(this.metaData == null || this.metaData.getTemplate() == null ){
+            if (this.metaData == null || this.metaData.getTemplate() == null) {
                 throw new WorkflowRuntimeException("Error occurred while Loading Template Meta Data");
             }
             this.parametersMetaData = this.metaData.getTemplate().getParametersMetaData();
@@ -68,11 +67,11 @@ public abstract class AbstractTemplate {
      *
      * @return ParametersMetaData object that is contain all the template specific parameter metadata.
      */
-    public ParametersMetaData getParametersMetaData() throws WorkflowException{
-        if(parametersMetaData != null){
-            ParameterMetaData[] parameterMetaData  = parametersMetaData.getParameterMetaData();
-            for(ParameterMetaData metaData: parameterMetaData){
-                if(metaData.isIsInputDataRequired()){
+    public ParametersMetaData getParametersMetaData() throws WorkflowException {
+        if (parametersMetaData != null) {
+            ParameterMetaData[] parameterMetaData = parametersMetaData.getParameterMetaData();
+            for (ParameterMetaData metaData : parameterMetaData) {
+                if (metaData.isIsInputDataRequired()) {
                     InputData inputData = getInputData(metaData.getName());
                     metaData.setInputData(inputData);
                 }
@@ -88,17 +87,19 @@ public abstract class AbstractTemplate {
 
     /**
      * Template Id is unique representation of the template
+     *
      * @return String templateId
      */
-    public String getTemplateId(){
+    public String getTemplateId() {
         return this.metaData.getTemplate().getTemplateId();
     }
 
     /**
      * Template Name
+     *
      * @return String Template Name
      */
-    public String getName(){
+    public String getName() {
         return this.metaData.getTemplate().getTemplateName();
     }
 
@@ -107,7 +108,7 @@ public abstract class AbstractTemplate {
      *
      * @return String description
      */
-    public String getDescription(){
+    public String getDescription() {
         return this.metaData.getTemplate().getTemplateDescription();
     }
 }

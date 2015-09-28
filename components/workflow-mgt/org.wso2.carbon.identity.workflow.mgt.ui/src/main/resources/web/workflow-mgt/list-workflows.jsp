@@ -140,7 +140,7 @@
                 <thead>
                 <tr>
                     <th width="15%"><fmt:message key="workflow.name"/></th>
-                    <th width="20%"><fmt:message key="workflow.description"/></th>
+                    <th width="30%"><fmt:message key="workflow.description"/></th>
                     <th width="20%"><fmt:message key="workflow.template"/></th>
                     <th width="20%"><fmt:message key="workflow.template.impl"/></th>
                     <th><fmt:message key="actions"/></th>

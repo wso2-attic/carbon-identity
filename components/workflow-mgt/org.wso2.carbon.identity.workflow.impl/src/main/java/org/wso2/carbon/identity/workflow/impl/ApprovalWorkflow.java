@@ -27,58 +27,30 @@ import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.InputData;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.Item;
 import org.wso2.carbon.identity.workflow.mgt.bean.metadata.MapType;
+import org.wso2.carbon.identity.workflow.mgt.bean.metadata.ParameterMetaData;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
-import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.identity.workflow.mgt.workflow.TemplateInitializer;
 import org.wso2.carbon.identity.workflow.mgt.workflow.WorkFlowExecutor;
 
 import java.util.List;
-import java.util.Map;
 
 public class ApprovalWorkflow extends AbstractWorkflow {
 
     private static Log log = LogFactory.getLog(ApprovalWorkflow.class);
 
-    static {
-        /*
-        Object[][] paramDef = {
-                {WorkFlowConstants.TemplateConstants.BPEL_IMPL_BPS_PROFILE, "BPEL Engine profile",
-                 WorkflowTemplateParamType.BPS_PROFILE, "", true},
-                {WorkFlowConstants.TemplateConstants.HT_SUBJECT, "Approval Request Subject",
-                 WorkflowTemplateParamType.STRING, "Approval required", true},
-                {WorkFlowConstants.TemplateConstants.HT_DESCRIPTION, "Approval Request Body",
-                 WorkflowTemplateParamType.LONG_STRING,
-                 "A request has been made with following details. Please approve to proceed.", true},
-        };
-        PARAMETER_DEFINITIONS = new TemplateParameterDef[paramDef.length];
-        for (int i = 0; i < paramDef.length; i++) {
-            Object[] def = paramDef[i];
-            TemplateParameterDef parameterDef = new TemplateParameterDef();
-            parameterDef.setParamName((String) def[0]);
-            parameterDef.setDisplayName((String) def[1]);
-            parameterDef.setParamType((String) def[2]);
-            parameterDef.setDefaultValue((String) def[3]);
-            parameterDef.setMandatory((boolean) def[4]);
-            PARAMETER_DEFINITIONS[i] = parameterDef;
-        }
-        */
-    }
-
-    private TemplateInitializer initializer;
-    private WorkFlowExecutor executor;
-
     @Override
-    protected InputData getInputData(String parameterName) throws WorkflowException {
+    protected InputData getInputData(ParameterMetaData parameterMetaData) throws WorkflowException {
         InputData inputData = null;
-        if(parameterName != null){
-            if(parameterName.equals(WFImplConstant.ParameterName.BPS_PROFILE)){
+        if (parameterMetaData != null && parameterMetaData.getName() != null) {
+            String parameterName = parameterMetaData.getName();
+            if (parameterName.equals(WFImplConstant.ParameterName.BPS_PROFILE)) {
 
                 int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
                 try {
                     List<BPSProfile> bpsProfiles = WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService()
                             .listBPSProfiles(tenantId);
-                    if(bpsProfiles != null && bpsProfiles.size() > 0) {
+                    if (bpsProfiles != null && bpsProfiles.size() > 0) {
                         inputData = new InputData();
                         MapType mapType = new MapType();
                         inputData.setMapType(mapType);
@@ -95,69 +67,25 @@ public class ApprovalWorkflow extends AbstractWorkflow {
                 } catch (WorkflowImplException e) {
                     String errorMsg = "Error occurred while reading BPSProfiles, " + e.getMessage();
                     log.error(errorMsg);
-                    throw new WorkflowException(errorMsg,e);
+                    throw new WorkflowException(errorMsg, e);
                 }
             }
         }
         return inputData;
     }
 
-    public ApprovalWorkflow(String metaDataXML) {
-        super(metaDataXML);
-        setExecutor(new RequestExecutor());
+    public ApprovalWorkflow(TemplateInitializer templateInitializer, WorkFlowExecutor workFlowExecutor,
+                            String metaDataXML) {
+        super(templateInitializer, workFlowExecutor, metaDataXML);
     }
 
     @Override
-    public void deploy(List<Parameter>  parameterList) throws WorkflowException {
-
-        //Map<String, Object> bpelProfileParams =
-                //WorkflowImplServiceDataHolder.getInstance().getBpelService().getBPSProfileParams(
-                        //(String) initParams.get(WorkFlowConstants.TemplateConstants.BPEL_IMPL_BPS_PROFILE));
-        //initParams.putAll(bpelProfileParams);
-        setInitializer(new BPELDeployer());
+    public void deploy(List<Parameter> parameterList) throws WorkflowException {
         super.deploy(parameterList);
     }
 
     @Override
-    protected TemplateInitializer getInitializer() {
-
-        return initializer;
-    }
-
-    protected void setInitializer(TemplateInitializer initializer) {
-
-        this.initializer = initializer;
-    }
-
-    @Override
-    protected WorkFlowExecutor getExecutor() {
-
-        return executor;
-    }
-
-    protected void setExecutor(WorkFlowExecutor executor) {
-
-        this.executor = executor;
-    }
-
-    @Override
-    public void initializeExecutor(List<Parameter>  parameterList) throws WorkflowException {
-        //read profile and add its params
-        /*Map<String, Object> bpelProfileParams =
-                WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService().getBPSProfileParams(
-                        (String) initParams.get(WFConstant.TemplateConstants.BPEL_IMPL_BPS_PROFILE));
-        initParams.putAll(bpelProfileParams);*/
-
+    public void initializeExecutor(List<Parameter> parameterList) throws WorkflowException {
         super.initializeExecutor(parameterList);
-    }
-
-    @Override
-    public String getWorkflowImplId() {
-        return WFImplConstant.WORKFLOW_IMPL_ID;
-    }
-
-    @Override
-    public String getWorkflowImplName() {
-        return WFImplConstant.WORKFLOW_IMPL_NAME;
     }
 }

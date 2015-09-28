@@ -42,7 +42,7 @@
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     client = new WorkflowImplAdminServiceClient(cookie, backendServerURL, configContext);
 
-    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    String bundle = "org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     String forwardTo = "update-bps-profile-finish.jsp";
 
@@ -55,10 +55,10 @@
 %>
 
 
-<fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
+<fmt:bundle basename="org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources">
     <carbon:breadcrumb
             label="workflow.mgt"
-            resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
+            resourceBundle="org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources"
             topPage="true"
             request="<%=request%>"/>
 

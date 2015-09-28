@@ -19,8 +19,12 @@
 package org.wso2.carbon.identity.workflow.mgt.dto;
 
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
-import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 
+/**
+ * WorkflowWizard is a DTO that represent the complete Workflow related information in one class.
+ * UI Workflow Wizard based on this class
+ *
+ */
 public class WorkflowWizard{
 
     private String workflowId;

@@ -48,7 +48,7 @@ public class WorkflowImplServiceDataHolder {
         this.serverConfigurationService = serverConfigurationService;
     }
 
-    private WorkflowManagementService workflowManagementService ;
+    private WorkflowManagementService workflowManagementService;
 
     public WorkflowManagementService getWorkflowManagementService() {
         return workflowManagementService;

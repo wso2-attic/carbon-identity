@@ -23,18 +23,9 @@ import java.util.Set;
 
 public class WFConstant {
 
-    public static final String WF_STATUS_NO_MATCHING_EXECUTORS = "NO_MATCHING_EXECUTOR";
     public static final String DEFAULT_BPS_PROFILE = "embeded_bps";
-    public static final String PROFILE = "profile";
-    public static final String DEFAULT_CARBON_PROFILE = "default";
-    public static final String WORKFLOW_PROFILE = "workflow" ;
-
-    public static final String WORKFLOW_DOMAIN = "Workflow";
-
     public static final String REQUEST_ID = "REQUEST ID";
 
-    public static final String HT_STATE_RESERVED = "RESERVED";
-    public static final String HT_STATE_READY = "READY";
     public static final String HT_STATE_SKIPPED = "SKIPPED";
     public static final String HT_STATE_PENDING = "PENDING";
 
@@ -52,27 +43,9 @@ public class WFConstant {
     }
 
     public static class TemplateConstants {
-
-
-        //public static final String BPEL_IMPL_BPS_PROFILE = "BPELEngineProfile";
-
-        //public static final String HOST = "Host";
-
-        //public static final String WORKFLOW_NAME = "WorkflowName";
-        //public static final String AUTH_USER = "User";
-        //public static final String AUTH_USER_PASSWORD = "UserPassword";
-
-        public static final String CALLBACK_USER = "CarbonUser";
-        public static final String CALLBACK_USER_PASSWORD = "CarbonUserPassword";
-
-        //public static final String HT_SUBJECT = "HTSubject";
-        //public static final String HT_DESCRIPTION = "HTDescription";
-        //public static final String SERVICE_ACTION = "ServiceAction";
         public static final String SERVICE_SUFFIX = "Service";
 
-
     }
-
 
     public static class ParameterName {
         //Template specific parameters

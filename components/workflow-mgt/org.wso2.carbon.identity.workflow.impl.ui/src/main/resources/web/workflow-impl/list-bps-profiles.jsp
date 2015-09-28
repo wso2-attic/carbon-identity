@@ -35,7 +35,7 @@
             (ConfigurationContext) config.getServletContext()
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     String paginationValue = null;
-    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    String bundle = "org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     String forwardTo = null;
     int pageNumberInt = 0;
@@ -95,10 +95,10 @@
     }
 %>
 
-<fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
+<fmt:bundle basename="org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources">
     <carbon:breadcrumb
             label="workflow.mgt"
-            resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
+            resourceBundle="org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources"
             topPage="true"
             request="<%=request%>"/>
 
@@ -130,9 +130,9 @@
             <table class="styledLeft" id="servicesTable">
                 <thead>
                 <tr>
-                    <th width="15%"><fmt:message key="workflow.bps.profile.name"/></th>
-                    <th width="30%"><fmt:message key="workflow.bps.profile.manager.host"/></th>
-                    <th width="30%"><fmt:message key="workflow.bps.profile.worker.host"/></th>
+                    <th width="12%"><fmt:message key="workflow.bps.profile.name"/></th>
+                    <th width="20%"><fmt:message key="workflow.bps.profile.manager.host"/></th>
+                    <th width="20%"><fmt:message key="workflow.bps.profile.worker.host"/></th>
                     <th width="15%"><fmt:message key="workflow.bps.profile.auth.user"/></th>
                     <th width="15%"><fmt:message key="workflow.bps.profile.callback.user"/></th>
                     <th><fmt:message key="actions"/></th>

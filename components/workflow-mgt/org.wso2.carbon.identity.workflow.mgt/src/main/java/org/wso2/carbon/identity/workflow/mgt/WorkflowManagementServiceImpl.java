@@ -18,57 +18,41 @@
 
 package org.wso2.carbon.identity.workflow.mgt;
 
-import org.apache.axiom.om.OMAttribute;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
-import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
-import org.apache.axis2.databinding.types.NCName;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.base.CarbonBaseUtils;
-import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
-import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
-import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.dto.Association;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
-import org.wso2.carbon.identity.workflow.mgt.dto.Template;
-import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowImpl;
-import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowEvent;
+import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociation;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestAssociationDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
-import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
+import org.wso2.carbon.identity.workflow.mgt.dto.Association;
+import org.wso2.carbon.identity.workflow.mgt.dto.Template;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowEvent;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowImpl;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
-import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
+import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 
-import javax.xml.stream.XMLStreamException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -80,7 +64,6 @@ import java.util.Map;
 
 /**
  * WorkflowService class provides all the common functionality for the basic workflows.
- *
  */
 public class WorkflowManagementServiceImpl implements WorkflowManagementService {
 
@@ -97,13 +80,13 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     @Override
     public Workflow getWorkflow(String workflowId) throws WorkflowException {
         Workflow workflowBean = workflowDAO.getWorkflow(workflowId);
-        return workflowBean ;
+        return workflowBean;
     }
 
     @Override
     public List<Parameter> getWorkflowParameters(String workflowId) throws WorkflowException {
         List<Parameter> workflowParams = workflowDAO.getWorkflowParams(workflowId);
-        return workflowParams ;
+        return workflowParams;
     }
 
 
@@ -190,7 +173,8 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
 
     @Override
     public List<WorkflowImpl> listWorkflowImpls(String templateId) throws WorkflowException {
-        Map<String, AbstractWorkflow> abstractWorkflowMap = WorkflowServiceDataHolder.getInstance().getWorkflowImpls().get(templateId);
+        Map<String, AbstractWorkflow> abstractWorkflowMap =
+                WorkflowServiceDataHolder.getInstance().getWorkflowImpls().get(templateId);
         List<AbstractWorkflow> abstractWorkflowList = new ArrayList<>(abstractWorkflowMap.values());
         List<WorkflowImpl> workflowList = new ArrayList<WorkflowImpl>();
         if (workflowList != null) {
@@ -209,8 +193,8 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     @Override
     public Template getTemplate(String templateId) throws WorkflowException {
         AbstractTemplate abstractTemplate = WorkflowServiceDataHolder.getInstance().getTemplates().get(templateId);
-        Template template = null ;
-        if(abstractTemplate != null) {
+        Template template = null;
+        if (abstractTemplate != null) {
             template = new Template();
             template.setTemplateId(abstractTemplate.getTemplateId());
             template.setName(abstractTemplate.getName());
@@ -224,7 +208,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     @Override
     public WorkflowImpl getWorkflowImpl(String templateId, String workflowImplId) throws WorkflowException {
 
-        WorkflowImpl workflowImpl = null ;
+        WorkflowImpl workflowImpl = null;
         Map<String, AbstractWorkflow> abstractWorkflowMap =
                 WorkflowServiceDataHolder.getInstance().getWorkflowImpls().get(templateId);
         if (abstractWorkflowMap != null) {
@@ -241,37 +225,39 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     }
 
 
-
     @Override
     public void addWorkflow(Workflow workflow,
-                            List< Parameter> parameterList, int tenantId) throws WorkflowException {
+                            List<Parameter> parameterList, int tenantId) throws WorkflowException {
 
 
         //TODO:Workspace Name may contain spaces , so we need to remove spaces and prepare process for that
-        Parameter workflowNameParameter = new Parameter(workflow.getWorkflowId(), WFConstant.ParameterName.WORKFLOW_NAME,
-                                                        workflow.getWorkflowName(), WFConstant.ParameterName.WORKFLOW_NAME,
-                                                    WFConstant.ParameterHolder.WORKFLOW_IMPL);
+        Parameter workflowNameParameter =
+                new Parameter(workflow.getWorkflowId(), WFConstant.ParameterName.WORKFLOW_NAME,
+                              workflow.getWorkflowName(), WFConstant.ParameterName.WORKFLOW_NAME,
+                              WFConstant.ParameterHolder.WORKFLOW_IMPL);
 
-        if(!parameterList.contains(workflowNameParameter)) {
+        if (!parameterList.contains(workflowNameParameter)) {
             parameterList.add(workflowNameParameter);
-        }else{
+        } else {
             workflowNameParameter = parameterList.get(parameterList.indexOf(workflowNameParameter));
         }
-        if(!workflowNameParameter.getParamValue().equals(workflow.getWorkflowName())) {
+        if (!workflowNameParameter.getParamValue().equals(workflow.getWorkflowName())) {
             workflowNameParameter.setParamValue(workflow.getWorkflowName());
-            //TODO:Since the user has changed the workflow name, we have to undeploy bpel package that is already deployed using previous workflow name.
+            //TODO:Since the user has changed the workflow name, we have to undeploy bpel package that is already
+            // deployed using previous workflow name.
         }
 
         AbstractWorkflow abstractWorkflow =
-                WorkflowServiceDataHolder.getInstance().getWorkflowImpls().get(workflow.getTemplateId()).get(workflow.getWorkflowImplId());
+                WorkflowServiceDataHolder.getInstance().getWorkflowImpls().get(workflow.getTemplateId())
+                        .get(workflow.getWorkflowImplId());
         //deploying the template
         abstractWorkflow.deploy(parameterList);
 
         //add workflow to the database
-        if(workflowDAO.getWorkflow(workflow.getWorkflowId())==null) {
+        if (workflowDAO.getWorkflow(workflow.getWorkflowId()) == null) {
             workflowDAO.addWorkflow(workflow, tenantId);
-            WorkflowManagementUtil.createAppRole(workflow.getWorkflowName());
-        }else{
+            WorkflowManagementUtil.createAppRole(StringUtils.deleteWhitespace(workflow.getWorkflowName()));
+        } else {
             workflowDAO.removeWorkflowParams(workflow.getWorkflowId());
             workflowDAO.updateWorkflow(workflow);
         }
@@ -282,7 +268,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
 
     @Override
     public void addAssociation(String associationName, String workflowId, String eventId, String condition) throws
-            WorkflowException {
+                                                                                                            WorkflowException {
 
         if (StringUtils.isBlank(workflowId)) {
             log.error("Null or empty string given as workflow id to be associated to event.");
@@ -295,7 +281,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
 
         if (StringUtils.isBlank(condition)) {
             log.error("Null or empty string given as condition expression when associating " + workflowId +
-                    " to event " + eventId);
+                      " to event " + eventId);
             throw new InternalWorkflowException("Condition cannot be null");
         }
 
@@ -321,8 +307,8 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     public void removeWorkflow(String workflowId) throws WorkflowException {
         Workflow workflow = workflowDAO.getWorkflow(workflowId);
         //Deleting the role that is created for per workflow
-        if(workflow!=null) {
-            WorkflowManagementUtil.deleteWorkflowRole(workflow.getWorkflowName());
+        if (workflow != null) {
+            WorkflowManagementUtil.deleteWorkflowRole(StringUtils.deleteWhitespace(workflow.getWorkflowName()));
             workflowDAO.removeWorkflowParams(workflowId);
             workflowDAO.removeWorkflow(workflowId);
         }
@@ -333,7 +319,6 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
 
         workflowDAO.removeAssociation(associationId);
     }
-
 
 
     @Override
@@ -381,7 +366,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     }
 
 
-/**
+    /**
      * Add a new relationship between a workflow request and an entity.
      *
      * @param requestId
@@ -418,7 +403,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      */
     @Override
     public boolean entityHasPendingWorkflowsOfType(Entity entity, String requestType) throws
-            InternalWorkflowException {
+                                                                                      InternalWorkflowException {
         return requestEntityRelationshipDAO.entityHasPendingWorkflowsOfType(entity, requestType);
     }
 
@@ -432,7 +417,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      */
     @Override
     public boolean areTwoEntitiesRelated(Entity entity1, Entity entity2) throws
-            InternalWorkflowException {
+                                                                         InternalWorkflowException {
         return requestEntityRelationshipDAO.twoEntitiesAreRelated(entity1, entity2);
     }
 
@@ -459,7 +444,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     /**
      * Returns array of requests initiated by a user.
      *
-     * @param user User to get requests of, empty String to retrieve requests of all users
+     * @param user     User to get requests of, empty String to retrieve requests of all users
      * @param tenantId tenant id of currently logged in user
      * @return
      * @throws WorkflowException
@@ -495,11 +480,12 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         if (WorkflowRequestStatus.DELETED.toString().equals(newState)) {
             String loggedUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
             if (!loggedUser.equals(workflowRequestDAO.retrieveCreatedUserOfRequest(requestId))) {
-                throw  new WorkflowException("User not authorized to delete this request");
+                throw new WorkflowException("User not authorized to delete this request");
             }
             //deleteHumanTasks(requestId);
             workflowRequestDAO.updateStatusOfRequest(requestId, newState);
-            workflowRequestAssociationDAO.updateStatusOfRelationshipsOfPendingRequest(requestId, WFConstant.HT_STATE_SKIPPED);
+            workflowRequestAssociationDAO
+                    .updateStatusOfRelationshipsOfPendingRequest(requestId, WFConstant.HT_STATE_SKIPPED);
         }
         requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
     }
@@ -507,11 +493,11 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     /**
      * get requests list according to createdUser, createdTime, and lastUpdatedTime
      *
-     * @param user User to get requests of, empty String to retrieve requests of all users
-     * @param beginDate lower limit of date range to filter
-     * @param endDate upper limit of date range to filter
+     * @param user         User to get requests of, empty String to retrieve requests of all users
+     * @param beginDate    lower limit of date range to filter
+     * @param endDate      upper limit of date range to filter
      * @param dateCategory filter by created time or last updated time ?
-     * @param tenantId tenant id of currently logged in user
+     * @param tenantId     tenant id of currently logged in user
      * @return
      * @throws WorkflowException
      */
@@ -542,7 +528,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
             return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory, tenantId, status);
         } else {
             return workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory,
-                    tenantId, status);
+                                                                      tenantId, status);
         }
 
     }
@@ -559,7 +545,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      */
     @Override
     public List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID) throws
-            InternalWorkflowException {
+                                                                                                                  InternalWorkflowException {
         return requestEntityRelationshipDAO.getEntityNamesOfRequest(wfOperationType, wfStatus, entityType, tenantID);
     }
 
@@ -657,7 +643,8 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
 
     }*/
 
-    private void authenticate(ServiceClient client, String accessUsername, String accessPassword) throws WorkflowException {
+    private void authenticate(ServiceClient client, String accessUsername, String accessPassword)
+            throws WorkflowException {
 
         if (accessUsername != null && accessPassword != null) {
             Options option = client.getOptions();

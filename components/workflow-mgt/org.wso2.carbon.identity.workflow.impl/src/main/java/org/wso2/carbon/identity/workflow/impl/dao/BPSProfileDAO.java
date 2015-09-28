@@ -26,8 +26,6 @@ import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.mgt.util.SQLConstants;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -40,6 +38,13 @@ import java.util.Map;
 
 public class BPSProfileDAO {
 
+    /**
+     *
+     *
+     * @param bpsProfileDTO
+     * @param tenantId
+     * @throws WorkflowImplException
+     */
     public void addProfile(BPSProfile bpsProfileDTO, int tenantId)
             throws WorkflowImplException {
 
@@ -52,7 +57,7 @@ public class BPSProfileDAO {
         String encryptPassword;
         String encryptCallBackPassword;
 
-        
+
         try {
             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
             encryptPassword = cryptoUtil.
@@ -83,6 +88,14 @@ public class BPSProfileDAO {
         }
     }
 
+
+    /**
+     *
+     *
+     * @param bpsProfile
+     * @param tenantId
+     * @throws WorkflowImplException
+     */
     public void updateProfile(BPSProfile bpsProfile, int tenantId)
             throws WorkflowImplException {
 
@@ -126,12 +139,22 @@ public class BPSProfileDAO {
         }
     }
 
+    /**
+     *
+     *
+     * @param profileName
+     * @param tenantId
+     * @param isWithPasswords
+     * @return
+     * @throws WorkflowImplException
+     */
     public BPSProfile getBPSProfile(String profileName, int tenantId, boolean isWithPasswords) throws
-                                                                                                  WorkflowImplException {
+                                                                                               WorkflowImplException {
 
         BPSProfile bpsProfileDTO = null;
 
-        Connection connection = IdentityDatabaseUtil.getDBConnection();;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        ;
         PreparedStatement prepStmt = null;
         ResultSet rs;
         Map<String, Object> profileParams = new HashMap<>();
@@ -185,57 +208,18 @@ public class BPSProfileDAO {
         }
         return bpsProfileDTO;
     }
-/*
-    public Map<String, Object> getBPELProfileParams(String profileName) throws WorkflowImplException {
 
-        Connection connection = null;
-        PreparedStatement prepStmt = IdentityDatabaseUtil.getDBConnection();
-        ResultSet rs;
-        Map<String, Object> profileParams = new HashMap<>();
-        String query = SQLConstants.GET_BPS_PROFILE_QUERY;
-        String decryptPassword;
-        String decryptCallBackPassword;
 
-        try {
-            prepStmt = connection.prepareStatement(query);
-            prepStmt.setString(1, profileName);
-            rs = prepStmt.executeQuery();
-            if (rs.next()) {
-                String hostName = rs.getString(SQLConstants.HOST_URL_COLUMN);
-                String user = rs.getString(SQLConstants.USERNAME_COLUMN);
-                String password = rs.getString(SQLConstants.PASSWORD_COLUMN);
-                String callbackUser = rs.getString(SQLConstants.CALLBACK_USER_COLUMN);
-                String callbackPassword = rs.getString(SQLConstants.CALLBACK_PASSWORD_COLUMN);
-
-                try {
-                    CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-                    byte[] decryptedPasswordBytes = cryptoUtil.base64DecodeAndDecrypt(password);
-                    decryptPassword = new String(decryptedPasswordBytes, "UTF-8");
-                    byte[] decryptedCallBackPasswordBytes = cryptoUtil.base64DecodeAndDecrypt(callbackPassword);
-                    decryptCallBackPassword = new String(decryptedCallBackPasswordBytes, "UTF-8");
-
-                } catch (CryptoException | UnsupportedEncodingException e) {
-                    throw new WorkflowImplException("Error while decrypting the password for BPEL Profile" + " " +
-                                                    profileName, e);
-                }
-
-                profileParams.put(WFConstant.TemplateConstants.HOST, hostName);
-                profileParams.put(WFConstant.TemplateConstants.AUTH_USER, user);
-                profileParams.put(WFConstant.TemplateConstants.AUTH_USER_PASSWORD, decryptPassword);
-                profileParams.put(WFConstant.TemplateConstants.CALLBACK_USER, callbackUser);
-                profileParams.put(WFConstant.TemplateConstants.CALLBACK_USER_PASSWORD, decryptCallBackPassword);
-            }
-        } catch (SQLException e) {
-            throw new WorkflowImplException("Error when executing the sql.", e);
-        } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
-        }
-        return profileParams;
-    }
-*/
+    /**
+     *
+     *
+     * @param tenantId
+     * @return
+     * @throws WorkflowImplException
+     */
     public List<BPSProfile> listBPSProfiles(int tenantId) throws WorkflowImplException {
 
-    Connection connection = IdentityDatabaseUtil.getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs;
         List<BPSProfile> profiles = new ArrayList<>();
@@ -255,7 +239,7 @@ public class BPSProfileDAO {
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String name = rs.getString(SQLConstants.PROFILE_NAME_COLUMN);
-                if (classCheckresult == null && name.equals("embeded_bps")){
+                if (classCheckresult == null && name.equals("embeded_bps")) {
                     continue;
                 }
                 String managerHostName = rs.getString(SQLConstants.HOST_URL_MANAGER_COLUMN);
@@ -272,7 +256,7 @@ public class BPSProfileDAO {
 
                 } catch (CryptoException | UnsupportedEncodingException e) {
                     throw new WorkflowImplException("Error while decrypting the password for BPEL Profile" + " " +
-                            name, e);
+                                                    name, e);
                 }
                 BPSProfile profileBean = new BPSProfile();
                 profileBean.setManagerHostURL(managerHostName);
@@ -292,6 +276,12 @@ public class BPSProfileDAO {
         return profiles;
     }
 
+
+    /**
+     *
+     * @param profileName
+     * @throws WorkflowImplException
+     */
     public void removeBPSProfile(String profileName) throws WorkflowImplException {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();

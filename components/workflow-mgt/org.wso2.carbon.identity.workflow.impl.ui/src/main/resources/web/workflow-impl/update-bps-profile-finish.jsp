@@ -40,7 +40,7 @@
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     client = new WorkflowImplAdminServiceClient(cookie, backendServerURL, configContext);
 
-    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    String bundle = "org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     String forwardTo = "list-bps-profiles.jsp";
 

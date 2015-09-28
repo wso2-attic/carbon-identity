@@ -24,10 +24,10 @@
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
-<fmt:bundle basename="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources">
+<fmt:bundle basename="org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources">
     <carbon:breadcrumb
             label="workflow.mgt"
-            resourceBundle="org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources"
+            resourceBundle="org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources"
             topPage="true"
             request="<%=request%>"/>
 

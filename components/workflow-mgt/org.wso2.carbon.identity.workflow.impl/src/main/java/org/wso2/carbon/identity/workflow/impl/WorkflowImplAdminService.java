@@ -47,7 +47,8 @@ public class WorkflowImplAdminService {
         List<BPSProfile> bpsProfiles = null;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
-            bpsProfiles = WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService().listBPSProfiles(tenantId);
+            bpsProfiles =
+                    WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService().listBPSProfiles(tenantId);
         } catch (WorkflowImplException e) {
             log.error("Server error when listing BPS profiles", e);
             throw new WorkflowImplException("Server error occurred when listing BPS profiles");
@@ -89,7 +90,8 @@ public class WorkflowImplAdminService {
 
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
-            WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService().updateBPSProfile(bpsProfileDTO, tenantId);
+            WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService()
+                    .updateBPSProfile(bpsProfileDTO, tenantId);
         } catch (WorkflowImplException e) {
             log.error("Server error when updating the BPS profile", e);
             throw new WorkflowImplException("Server error occurred when updating the BPS profile");
