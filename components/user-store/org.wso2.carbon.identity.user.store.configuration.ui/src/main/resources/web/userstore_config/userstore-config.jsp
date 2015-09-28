@@ -484,11 +484,11 @@
                             if (propertyName != null && propertyName.trim().length() > 0) {
 
                         %>
-                        <td class="leftCol-med" width="50%" style="text-align:left;"><%=Encode.forHtml(propertyName)%>
+                        <td class="leftCol-med" width="50%" style="text-align:left;"><%=propertyName%>
                         <span class="required">*</span></td>
-                        <input type="hidden" name=<%=Encode.forHtmlAttribute(name)%>
-                        id=<%=Encode.forHtmlAttribute(name)%>
-                        value="<%=Encode.forHtmlAttribute(mandatories[j].getName())%>"/>
+                        <input type="hidden" name=<%=name%>
+                        id=<%=name%>
+                        value="<%=mandatories[j].getName()%>"/>
 
                         <%
                         } else {
@@ -643,10 +643,10 @@
                                 if( !("UniqueID".equalsIgnoreCase(propertyName) ) ){
                         %>
                         <td class="leftCol-med" width="50%" style="text-align:left;"
-                        id="<%=Encode.forHtmlAttribute(name)%>"><%=propertyName%>
+                        id="<%=name%>"><%=propertyName%>
                         </td>
-                        <input type="hidden" name=<%=Encode.forHtmlAttribute(name)%>
-                        id=<%=Encode.forHtmlAttribute(name)%>
+                        <input type="hidden" name=<%=name%>
+                        id=<%=name%>
                         value="<%=Encode.forHtmlAttribute(optionals[x].getName())%>"/>
                         </td>
                         <td style="width:30%" style="text-align:left;">
@@ -683,10 +683,10 @@
                     <%
                                 }else{
                                     %>
-                                   <td class="leftCol-med" width="50%" style="display:none;" id="<%=Encode.forHtmlAttribute(name)%>"><%=Encode.forHtml(propertyName)%>
+                                   <td class="leftCol-med" width="50%" style="display:none;" id="<%=name%>"><%=propertyName%>
                                     </td>
-                                    <input type="hidden" name=<%=Encode.forHtmlAttribute(name)%>
-                                    id=<%=Encode.forHtmlAttribute(name)%>
+                                    <input type="hidden" name=<%=name%>
+                                    id=<%=name%>
                                     value="<%=Encode.forHtmlAttribute(optionals[x].getName())%>"/>
                                     </td>
                                     <td style="width:30%" style="display:none;">
@@ -779,10 +779,10 @@
 
                         %>
                         <td class="leftCol-med" width="50%" style="text-align:left;"
-                        id="<%=Encode.forHtmlAttribute(name)%>"><%=Encode.forHtml(propertyName)%>
+                        id="<%=name%>"><%=propertyName%>
                         </td>
-                        <input type="hidden" name=<%=Encode.forHtmlAttribute(name)%>
-                        id=<%=Encode.forHtmlAttribute(name)%>
+                        <input type="hidden" name=<%=name%>
+                        id=<%=name%>
                         value="<%=Encode.forHtmlAttribute(advancedProperties[x].getName())%>"/>
                         </td>
                         <td style="width:30%" style="text-align:left;">
@@ -828,7 +828,7 @@
             //no advanced properties
         }
     %>
-    <input type="hidden" name="defaultProperties" id="defaultProperties" value=<%=Encode.forHtmlAttribute(i)%>/>
+    <input type="hidden" name="defaultProperties" id="defaultProperties" value=<%=i%>/>
 
 </div>
 
