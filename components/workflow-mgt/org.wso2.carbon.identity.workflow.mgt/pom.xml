@@ -53,11 +53,11 @@
             <groupId>org.wso2.carbon.commons</groupId>
             <artifactId>org.wso2.carbon.tenant.common</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-xjc-plugin</artifactId>
             <version>3.0.5</version>
-        </dependency>
+        </dependency-->
 
 
 
@@ -69,7 +69,7 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-xjc-plugin</artifactId>
                 <executions>
@@ -85,7 +85,7 @@
                         <xsdOption>
                             <extension>true</extension>
                             <xsd>${basedir}/src/main/resources/MetaDataType.xsd</xsd>
-                            <!--xsd>${basedir}/src/main/resources/MetaData.xsd</xsd-->
+                            <xsd>${basedir}/src/main/resources/MetaData.xsd</xsd>
                             <extensionArgs>
                                 <arg>-Xdv</arg>
                             </extensionArgs>
@@ -95,7 +95,7 @@
                         <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.3.0</extension>
                     </extensions>
                 </configuration>
-            </plugin>
+            </plugin-->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
