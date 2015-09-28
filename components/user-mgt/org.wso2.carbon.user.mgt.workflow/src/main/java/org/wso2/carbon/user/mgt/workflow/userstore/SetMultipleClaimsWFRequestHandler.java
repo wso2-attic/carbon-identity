@@ -132,7 +132,8 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().setUserClaimValues(userName, claims, profile);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting setUserClaimValues operation for " + userName, e);
+                // Sending e.getMessage() since it is required to give error message to end user.
+                throw new WorkflowException(e.getMessage(), e);
             }
         } else {
             if (retryNeedAtCallback()) {

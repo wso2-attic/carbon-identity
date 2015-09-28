@@ -1,4 +1,4 @@
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax2385="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://mgt.workflow.identity.carbon.wso2.org" xmlns:ax2383="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://mgt.workflow.identity.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax2385="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://mgt.workflow.identity.carbon.wso2.org" xmlns:ax2383="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://mgt.workflow.identity.carbon.wso2.org">
     <wsdl:documentation>WorkflowAdminService</wsdl:documentation>
     <wsdl:types>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd">
@@ -7,32 +7,6 @@
             </xs:complexType>
         </xs:schema>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd">
-            <xs:complexType name="TemplateDTO">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="implementations" nillable="true" type="ax2383:TemplateImplDTO"/>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="true" type="ax2383:TemplateParameterDef"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="TemplateImplDTO">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="implementationId" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="implementationName" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="implementationParams" nillable="true" type="ax2383:TemplateParameterDef"/>
-                    <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="TemplateParameterDef">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="defaultValue" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="mandatory" type="xs:boolean"/>
-                    <xs:element minOccurs="0" name="paramName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="paramType" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:complexType name="BPSProfileDTO">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="callbackPassword" nillable="true" type="xs:string"/>
@@ -64,7 +38,7 @@
                     <xs:element minOccurs="0" name="eventDescription" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="eventFriendlyName" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="eventId" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="parameterDTOs" nillable="true" type="ax2383:ParameterDTO"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="parameterDTOs" nillable="true" type="ax2385:ParameterDTO"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="TemplateBean">
@@ -72,6 +46,32 @@
                     <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="TemplateDTO">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="implementations" nillable="true" type="ax2385:TemplateImplDTO"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="parameters" nillable="true" type="ax2385:TemplateParameterDef"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="TemplateImplDTO">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="implementationId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="implementationName" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="implementationParams" nillable="true" type="ax2385:TemplateParameterDef"/>
+                    <xs:element minOccurs="0" name="templateId" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="TemplateParameterDef">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="defaultValue" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="mandatory" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="paramName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="paramType" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="AssociationDTO">
@@ -107,9 +107,89 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax2384="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ax2386="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://mgt.workflow.identity.carbon.wso2.org/xsd">
-            <xs:import namespace="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd"/>
+        <xs:schema xmlns:ax2384="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ax2386="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://mgt.workflow.identity.carbon.wso2.org/xsd">
             <xs:import namespace="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd"/>
+            <xs:import namespace="http://bean.mgt.workflow.identity.carbon.wso2.org/xsd"/>
+            <xs:element name="WorkflowAdminServiceWorkflowException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="WorkflowException" nillable="true" type="ax2384:WorkflowException"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listBPSProfiles">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listBPSProfilesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2385:BPSProfileDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getBPSProfile">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="bpsProfileName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getBPSProfileResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2385:BPSProfileDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="updateBPSProfile">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="bpsProfileDTO" nillable="true" type="ax2385:BPSProfileDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="removeBPSProfile">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="profileName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addWorkflow">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="workflowDTO" nillable="true" type="ax2385:WorkflowDTO"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="templateParams" nillable="true" type="ax2385:ParameterDTO"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="implParams" nillable="true" type="ax2385:ParameterDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listWorkflowEvents">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listWorkflowEventsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2385:WorkflowEventDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listWorkflowTemplates">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="listWorkflowTemplatesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2385:TemplateBean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="getTemplateDTO">
                 <xs:complexType>
                     <xs:sequence>
@@ -120,7 +200,7 @@
             <xs:element name="getTemplateDTOResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2384:TemplateDTO"/>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2385:TemplateDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -135,94 +215,14 @@
             <xs:element name="getTemplateImplDTOResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2384:TemplateImplDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="WorkflowAdminServiceWorkflowException">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="WorkflowException" nillable="true" type="ax2385:WorkflowException"/>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2385:TemplateImplDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="addBPSProfile">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="bpsProfileDTO" nillable="true" type="ax2384:BPSProfileDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listBPSProfiles">
-                <xs:complexType>
-                    <xs:sequence/>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listBPSProfilesResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2384:BPSProfileDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getBPSProfile">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="bpsProfileName" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="getBPSProfileResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2384:BPSProfileDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="updateBPSProfile">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="bpsProfileDTO" nillable="true" type="ax2384:BPSProfileDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="removeBPSProfile">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="profileName" nillable="true" type="xs:string"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="addWorkflow">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="workflowDTO" nillable="true" type="ax2384:WorkflowDTO"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="templateParams" nillable="true" type="ax2384:ParameterDTO"/>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="implParams" nillable="true" type="ax2384:ParameterDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listWorkflowEvents">
-                <xs:complexType>
-                    <xs:sequence/>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listWorkflowEventsResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2384:WorkflowEventDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listWorkflowTemplates">
-                <xs:complexType>
-                    <xs:sequence/>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="listWorkflowTemplatesResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2384:TemplateBean"/>
+                        <xs:element minOccurs="0" name="bpsProfileDTO" nillable="true" type="ax2385:BPSProfileDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -242,7 +242,7 @@
             <xs:element name="listWorkflowsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2384:WorkflowDTO"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2385:WorkflowDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -263,7 +263,7 @@
             <xs:element name="listAssociationsForWorkflowResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2384:AssociationDTO"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2385:AssociationDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -275,7 +275,7 @@
             <xs:element name="listAllAssociationsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2384:AssociationDTO"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2385:AssociationDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -286,13 +286,14 @@
                         <xs:element minOccurs="0" name="beginDate" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="endDate" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="dateCategory" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getRequestsCreatedByUserResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2384:WorkflowRequestDTO"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2385:WorkflowRequestDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -302,13 +303,14 @@
                         <xs:element minOccurs="0" name="beginDate" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="endDate" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="dateCategory" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="status" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="getRequestsInFilterResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2384:WorkflowRequestDTO"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2385:WorkflowRequestDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -329,14 +331,7 @@
             <xs:element name="getWorkflowsOfRequestResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2384:WorkflowRequestAssociationDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="removeAssociation">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="associationId" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2385:WorkflowRequestAssociationDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -350,6 +345,13 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="removeAssociation">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="associationId" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="getEvent">
                 <xs:complexType>
                     <xs:sequence>
@@ -360,7 +362,7 @@
             <xs:element name="getEventResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2384:WorkflowEventDTO"/>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax2385:WorkflowEventDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>

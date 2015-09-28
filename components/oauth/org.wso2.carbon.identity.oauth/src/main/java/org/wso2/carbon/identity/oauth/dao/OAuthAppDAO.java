@@ -21,9 +21,7 @@ package org.wso2.carbon.identity.oauth.dao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
@@ -66,12 +64,11 @@ public class OAuthAppDAO {
     }
 
     public void addOAuthApplication(OAuthAppDO consumerAppDO) throws IdentityOAuthAdminException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         if (!isDuplicateApplication(consumerAppDO.getUserName(), consumerAppDO.getTenantId(), consumerAppDO)) {
             try {
-                connection = JDBCPersistenceManager.getInstance().getDBConnection();
                 prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.ADD_OAUTH_APP);
                 prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerAppDO.getOauthConsumerKey()));
                 prepStmt.setString(2, persistenceProcessor.getProcessedClientSecret(consumerAppDO.getOauthConsumerSecret()));
@@ -84,11 +81,12 @@ public class OAuthAppDAO {
                 prepStmt.execute();
                 connection.commit();
 
-            } catch (IdentityException e) {
-                String errorMsg = "Error when getting an Identity Persistence Store instance.";
-                throw new IdentityOAuthAdminException(errorMsg, e);
             } catch (SQLException e) {
-                throw new IdentityOAuthAdminException("Error when executing the SQL : " + SQLQueries.OAuthAppDAOSQLQueries.ADD_OAUTH_APP);
+                throw new IdentityOAuthAdminException("Error when executing the SQL : " +
+                        SQLQueries.OAuthAppDAOSQLQueries.ADD_OAUTH_APP);
+            } catch (IdentityOAuth2Exception e) {
+                throw new IdentityOAuthAdminException("Error occurred while processing the client id and client " +
+                        "secret by TokenPersistenceProcessor");
             } finally {
                 IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }
@@ -99,7 +97,7 @@ public class OAuthAppDAO {
     }
 
     public String[] addOAuthConsumer(String username, int tenantId) throws IdentityOAuthAdminException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String sqlStmt = null;
         String consumerKey;
@@ -111,7 +109,6 @@ public class OAuthAppDAO {
         while (isDuplicateConsumer(consumerKey));
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             sqlStmt = SQLQueries.OAuthAppDAOSQLQueries.ADD_OAUTH_CONSUMER;
             prepStmt = connection.prepareStatement(sqlStmt);
             prepStmt.setString(1, consumerKey);
@@ -124,8 +121,6 @@ public class OAuthAppDAO {
 
             connection.commit();
 
-        } catch (IdentityException e) {
-            throw new IdentityOAuthAdminException("Error when getting an Identity Persistence Store instance.", e);
         } catch (SQLException e) {
             throw new IdentityOAuthAdminException("Error when executing the SQL : " + sqlStmt, e);
         } finally {
@@ -135,7 +130,7 @@ public class OAuthAppDAO {
     }
 
     public OAuthAppDO[] getOAuthConsumerAppsOfUser(String username, int tenantId) throws IdentityOAuthAdminException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
         OAuthAppDO[] oauthAppsOfUser;
@@ -147,7 +142,6 @@ public class OAuthAppDAO {
             String tenantUnawareUserName = tenantAwareUserName + "@" + tenantDomain;
             boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(tenantUnawareUserName);
 
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String sql = SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER_WITH_TENANTAWARE_OR_TENANTUNAWARE_USERNAME;
             if (!isUsernameCaseSensitive){
                 sql = sql.replace("USERNAME", "LOWER(USERNAME)");
@@ -182,12 +176,13 @@ public class OAuthAppDAO {
             }
             oauthAppsOfUser = oauthApps.toArray(new OAuthAppDO[oauthApps.size()]);
             connection.commit();
-        } catch (IdentityException e) {
-            throw new IdentityOAuthAdminException("Error when getting an Identity Persistence Store instance.", e);
         } catch (SQLException e) {
-            throw new IdentityOAuthAdminException("Error when executing the SQL : " + SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER, e);
+            throw new IdentityOAuthAdminException("Error occurred while retrieving OAuth consumer apps of user", e);
         } catch (UserStoreException e) {
             throw new IdentityOAuthAdminException("Error while retrieving Tenant Domain for tenant ID : " + tenantId, e);
+        } catch (IdentityOAuth2Exception e) {
+            throw new IdentityOAuthAdminException("Error occurred while processing client id and client secret by " +
+                    "TokenPersistenceProcessor", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }
@@ -195,13 +190,12 @@ public class OAuthAppDAO {
     }
 
     public OAuthAppDO getAppInformation(String consumerKey) throws InvalidOAuthClientException, IdentityOAuth2Exception {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
         OAuthAppDO oauthApp = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.GET_APP_INFO);
             prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerKey));
 
@@ -240,8 +234,6 @@ public class OAuthAppDAO {
                 throw new InvalidOAuthClientException("Cannot find an application associated with the given consumer key : " + consumerKey);
             }
             connection.commit();
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error while retrieving database connection" ,e);
         } catch (SQLException e) {
             throw new IdentityOAuth2Exception("Error while retrieving the app information", e);
         } finally {
@@ -251,14 +243,13 @@ public class OAuthAppDAO {
     }
 
     public OAuthAppDO getAppInformationByAppName(String appName) throws InvalidOAuthClientException, IdentityOAuth2Exception {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
         OAuthAppDO oauthApp = null;
 
         try {
             int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.GET_APP_INFO_BY_APP_NAME);
             prepStmt.setString(1, appName);
             prepStmt.setInt(2, tenantID);
@@ -295,12 +286,12 @@ public class OAuthAppDAO {
                  * a null values not supported error when it tries to cache this info
                  */
                 String message = "Cannot find an application associated with the given consumer key : " + appName;
-                log.debug(message);
+                if(log.isDebugEnabled()) {
+                    log.debug(message);
+                }
                 throw new InvalidOAuthClientException(message);
             }
             connection.commit();
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error while retrieving database connection", e);
         } catch (SQLException e) {
             throw new IdentityOAuth2Exception("Error while retrieving the app information", e);
         } finally {
@@ -310,11 +301,10 @@ public class OAuthAppDAO {
     }
 
     public void updateConsumerApplication(OAuthAppDO oauthAppDO) throws IdentityOAuthAdminException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.UPDATE_CONSUMER_APP);
             prepStmt.setString(1, oauthAppDO.getApplicationName());
             prepStmt.setString(2, oauthAppDO.getCallbackUrl());
@@ -328,29 +318,27 @@ public class OAuthAppDAO {
             }
             connection.commit();
 
-        } catch (IdentityException e) {
-            throw new IdentityOAuthAdminException("Error when getting an Identity Persistence Store instance.", e);
         } catch (SQLException e) {
-            throw new IdentityOAuthAdminException("Error when executing the SQL : " + SQLQueries.OAuthAppDAOSQLQueries.UPDATE_CONSUMER_APP, e);
+            throw new IdentityOAuthAdminException("Error when updating OAuth application", e);
+        } catch (IdentityOAuth2Exception e) {
+            throw new IdentityOAuthAdminException("Error occurred while processing client id and client secret by " +
+                    "TokenPersistenceProcessor", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
     }
 
     public void removeConsumerApplication(String consumerKey) throws IdentityOAuthAdminException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.REMOVE_APPLICATION);
             prepStmt.setString(1, consumerKey);
 
             prepStmt.execute();
             connection.commit();
 
-        } catch (IdentityException e) {
-            throw new IdentityOAuthAdminException("Error when getting an Identity Persistence Store instance.", e);
         } catch (SQLException e) {;
             throw new IdentityOAuthAdminException("Error when executing the SQL : " + SQLQueries.OAuthAppDAOSQLQueries.REMOVE_APPLICATION, e);
         } finally {
@@ -359,7 +347,7 @@ public class OAuthAppDAO {
     }
 
     private boolean isDuplicateApplication(String username, int tenantId, OAuthAppDO consumerAppDTO) throws IdentityOAuthAdminException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
 
@@ -367,7 +355,6 @@ public class OAuthAppDAO {
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(username);
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String sql = SQLQueries.OAuthAppDAOSQLQueries.CHECK_EXISTING_APPLICATION;
             if (!isUsernameCaseSensitive){
                 sql = sql.replace("USERNAME", "LOWER(USERNAME)");
@@ -386,8 +373,6 @@ public class OAuthAppDAO {
                 isDuplicateApp = true;
             }
             connection.commit();
-        } catch (IdentityException e) {
-            throw new IdentityOAuthAdminException("Error when getting an Identity Persistence Store instance.", e);
         } catch (SQLException e) {
             throw new IdentityOAuthAdminException("Error when executing the SQL : " + SQLQueries.OAuthAppDAOSQLQueries.CHECK_EXISTING_APPLICATION, e);
         } finally {
@@ -397,14 +382,13 @@ public class OAuthAppDAO {
     }
 
     private boolean isDuplicateConsumer(String consumerKey) throws IdentityOAuthAdminException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
 
         boolean isDuplicateConsumer = false;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.CHECK_EXISTING_CONSUMER);
             prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerKey));
 
@@ -413,8 +397,8 @@ public class OAuthAppDAO {
                 isDuplicateConsumer = true;
             }
             connection.commit();
-        } catch (IdentityException e) {
-            throw new IdentityOAuthAdminException("Error when getting an Identity Persistence Store instance.", e);
+        } catch (IdentityOAuth2Exception e) {
+            throw new IdentityOAuthAdminException("Error occurred while processing the client id by TokenPersistenceProcessor");
         } catch (SQLException e) {
             throw new IdentityOAuthAdminException("Error when executing the SQL : " + SQLQueries.OAuthAppDAOSQLQueries.CHECK_EXISTING_CONSUMER);
         } finally {
