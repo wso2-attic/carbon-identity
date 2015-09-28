@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * This encapsulates the user's data that is related user's login information
@@ -44,6 +45,7 @@ public class UserIdentityClaimsDO implements Serializable {
     private long unlockTime;
     private long lastLogonTime;
     private long lastFailAttemptTime;
+    private long passwordTimeStamp;
     private int failedAttempts;
     private boolean accountLock;
     private boolean passwordChangeRequired;
@@ -51,6 +53,12 @@ public class UserIdentityClaimsDO implements Serializable {
     private Map<String, String> userIdentityDataMap = new HashMap<String, String>();
     private char[] temporaryPassword = null;
     private String confirmationCode = null;
+
+    // key: timestamp
+    // value: encrypted password
+    private Map<Long, Object> usedPasswordMap = new TreeMap<Long, Object>();
+    private String saltValue;
+    private int passwordUseFrequency;
 
     public UserIdentityClaimsDO(String userName) {
         this.userName = userName;
@@ -98,6 +106,14 @@ public class UserIdentityClaimsDO implements Serializable {
         }
         if (userDataMap.get(UserIdentityDataStore.ACCOUNT_LOCK) != null) {
             setAccountLock(Boolean.parseBoolean(userDataMap.get(UserIdentityDataStore.ACCOUNT_LOCK)));
+        }
+        if (userDataMap.get(UserIdentityDataStore.PASSWORD_TIME_STAMP) != null) {
+            String passwordTs = userDataMap.get(UserIdentityDataStore.PASSWORD_TIME_STAMP).trim();
+            if (!passwordTs.isEmpty()) {
+                setPasswordTimeStamp(Long.parseLong(passwordTs));
+            } else {
+                setPasswordTimeStamp(0);
+            }
         }
     }
 
@@ -232,7 +248,24 @@ public class UserIdentityClaimsDO implements Serializable {
             setLastLogonTime(Long.parseLong(value));
         } else if (UserIdentityDataStore.ACCOUNT_LOCK.equalsIgnoreCase(claim)) {
             setAccountLock(Boolean.parseBoolean(value));
+        } else if (UserIdentityDataStore.PASSWORD_TIME_STAMP.equalsIgnoreCase(claim)) {
+            setPasswordTimeStamp(Long.parseLong(value));
         }
+    }
+
+    public long getPasswordTimeStamp() {
+        return passwordTimeStamp;
+    }
+
+    /**
+     * @param passwordTimeStamp
+     * @return
+     */
+    public UserIdentityClaimsDO setPasswordTimeStamp(long passwordTimeStamp) {
+        this.passwordTimeStamp = passwordTimeStamp;
+        this.userIdentityDataMap.put(UserIdentityDataStore.PASSWORD_TIME_STAMP,
+                Long.toString(passwordTimeStamp));
+        return this;
     }
 
     public int getTenantId() {
@@ -262,6 +295,40 @@ public class UserIdentityClaimsDO implements Serializable {
 
     public void setConfirmationCode(String confirmationCode) {
         this.confirmationCode = confirmationCode;
+    }
+
+    public void setUsedPasswordMap(Map<Long, Object> usedPasswordMap) {
+        this.usedPasswordMap = usedPasswordMap;
+    }
+
+    public Map<Long, Object> getUsedPasswordMap() {
+        return usedPasswordMap;
+    }
+
+    public void setSaltValue(String saltValue) {
+        this.saltValue = saltValue;
+    }
+
+    public String getSaltValue() {
+        return saltValue;
+    }
+
+    public int getPasswordUseFrequency() {
+        return passwordUseFrequency;
+    }
+
+    public UserIdentityClaimsDO setPasswordUseFrequency() {
+        this.passwordUseFrequency++;
+        this.userIdentityDataMap.put(UserIdentityDataStore.PASSWORD_USE_FREQUENCY,
+                Long.toString(passwordUseFrequency));
+        return this;
+    }
+
+    public UserIdentityClaimsDO setPasswordUseFrequency(int passwordChangeFrequency) {
+        this.passwordUseFrequency = passwordChangeFrequency;
+        this.userIdentityDataMap.put(UserIdentityDataStore.PASSWORD_USE_FREQUENCY,
+                Long.toString(passwordChangeFrequency));
+        return this;
     }
 
     /**
