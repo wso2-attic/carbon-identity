@@ -914,12 +914,14 @@ function clearAll() {
                         }
                         if (signAlgorithm != null && signingAlgo.equals(signAlgorithm)) {
             %>
-            <option value="<%=signingAlgo%>" selected><%=signingAlgo%>
+            <option value="<%=Encode.forHtmlAttribute(signingAlgo)%>" selected>
+                <%=Encode.forHtml(signingAlgo)%>
             </option>
             <%
             } else {
             %>
-            <option value="<%=signingAlgo%>"><%=signingAlgo%>
+            <option value="<%=Encode.forHtmlAttribute(signingAlgo)%>">
+                <%=Encode.forHtml(signingAlgo)%>
             </option>
             <%
                         }
@@ -949,12 +951,14 @@ function clearAll() {
                         }
                         if (digestAlgorithm != null && digestAlgo.equals(digestAlgorithm)) {
             %>
-            <option value="<%=digestAlgo%>" selected><%=digestAlgo%>
+            <option value="<%=Encode.forHtmlAttribute(digestAlgo)%>" selected>
+                <%=Encode.forHtml(digestAlgo)%>
             </option>
             <%
             } else {
             %>
-            <option value="<%=digestAlgo%>"><%=digestAlgo%>
+            <option value="<%=Encode.forHtmlAttribute(digestAlgo)%>">
+                <%=Encode.forHtml(digestAlgo)%>
             </option>
             <%
                         }
