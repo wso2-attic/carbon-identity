@@ -73,8 +73,7 @@ public final class SessionCleanUpService {
 
             log.debug("Start running the Session Data cleanup task.");
             Date date = new Date();
-            int sessionTimeout = IdPManagementUtil.getCleanUpTimeout(CarbonContext
-                    .getThreadLocalCarbonContext().getTenantDomain());
+            int sessionTimeout = IdPManagementUtil.getMaxCleanUpTimeout();
             Timestamp timestamp = new Timestamp((date.getTime() - (sessionTimeout * 60 * 1000)));
             SessionDataStore.getInstance().removeExpiredSessionData(timestamp);
             log.debug("Stop running the Session Data cleanup task.");

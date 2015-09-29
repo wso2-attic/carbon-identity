@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>agents</artifactId>
-        <version>4.5.5-SNAPSHOT</version>
+        <version>4.6.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -34,6 +34,10 @@
     <url>http://www.wso2.com</url>
 
     <dependencies>
+        <dependency>
+            <groupId>commons-collections.wso2</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.core</artifactId>
@@ -46,16 +50,15 @@
         </dependency>
         <dependency>
             <groupId>org.openid4java</groupId>
-            <artifactId>openid4java-consumer</artifactId>
-            <type>pom</type>
+            <artifactId>openid4java</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.amber</groupId>
-            <artifactId>amber-oauth2-client</artifactId>
+            <groupId>org.apache.oltu.oauth2</groupId>
+            <artifactId>org.apache.oltu.oauth2.client</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -104,6 +107,7 @@
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
                             org.wso2.carbon.identity.core.util;
                             version="${carbon.identity.package.import.version.range}",
+                            org.apache.commons.collections; version="${commons-collections.wso2.osgi.version.range}",
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.identity.sso.agent.*; version="${carbon.identity.package.export.version}",

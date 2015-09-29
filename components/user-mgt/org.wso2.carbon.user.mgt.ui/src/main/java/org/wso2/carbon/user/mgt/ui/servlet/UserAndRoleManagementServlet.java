@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -33,6 +33,8 @@ import org.wso2.carbon.user.mgt.ui.UserAdminClient;
 import org.wso2.carbon.user.mgt.ui.UserAdminUIConstants;
 import org.wso2.carbon.user.mgt.ui.UserBean;
 import org.wso2.carbon.user.mgt.ui.Util;
+import org.wso2.carbon.user.mgt.ui.bean.RoleSearchResult;
+import org.wso2.carbon.user.mgt.ui.bean.UserSearchResult;
 import org.wso2.carbon.utils.ServerConstants;
 
 import javax.servlet.ServletException;
@@ -49,6 +51,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+/**
+ * Service to get Users and Roles
+ *
+ */
 public class UserAndRoleManagementServlet extends HttpServlet {
 
     private static final Log log = LogFactory.getLog(UserAndRoleManagementServlet.class);
@@ -101,7 +107,6 @@ public class UserAndRoleManagementServlet extends HttpServlet {
             session.removeAttribute(UserAdminUIConstants.USER_LIST_CACHE);
 
             // retrieve session attributes
-            String currentUser = (String) session.getAttribute("logged-user");
             UserRealmInfo userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
             if (userRealmInfo != null) {
                 multipleUserStores = userRealmInfo.getMultipleUserStore();
@@ -466,59 +471,3 @@ public class UserAndRoleManagementServlet extends HttpServlet {
     }
 }
 
-class SearchResult{
-
-    private int pageNumber ;
-    private int numberOfPages ;
-    private int noOfPageLinksToDisplay ;
-
-    public int getPageNumber() {
-        return pageNumber;
-    }
-
-    public void setPageNumber(int pageNumber) {
-        this.pageNumber = pageNumber;
-    }
-
-    public int getNumberOfPages() {
-        return numberOfPages;
-    }
-
-    public void setNumberOfPages(int numberOfPages) {
-        this.numberOfPages = numberOfPages;
-    }
-
-    public int getNoOfPageLinksToDisplay() {
-        return noOfPageLinksToDisplay;
-    }
-
-    public void setNoOfPageLinksToDisplay(int noOfPageLinksToDisplay) {
-        this.noOfPageLinksToDisplay = noOfPageLinksToDisplay;
-    }
-}
-
-class UserSearchResult extends SearchResult{
-
-    UserBean[] userBeans = null ;
-
-    public UserBean[] getUserBeans() {
-        return userBeans;
-    }
-
-    public void setUserBeans(UserBean[] userBeans) {
-        this.userBeans = userBeans;
-    }
-}
-
-class RoleSearchResult extends SearchResult{
-
-    RoleBean[] roleBeans = null ;
-
-    public RoleBean[] getRoleBeans() {
-        return roleBeans;
-    }
-
-    public void setRoleBeans(RoleBean[] roleBeans) {
-        this.roleBeans = roleBeans;
-    }
-}

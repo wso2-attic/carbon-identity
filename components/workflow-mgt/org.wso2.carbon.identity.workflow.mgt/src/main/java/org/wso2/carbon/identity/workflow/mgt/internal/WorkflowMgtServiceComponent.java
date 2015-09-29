@@ -18,16 +18,15 @@
 
 package org.wso2.carbon.identity.workflow.mgt.internal;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
-import org.wso2.carbon.identity.workflow.mgt.template.impl.AlwaysDenyTemplate;
-import org.wso2.carbon.identity.workflow.mgt.template.impl.BPELApprovalTemplateImpl;
-import org.wso2.carbon.identity.workflow.mgt.template.impl.DefaultImmediateDenyImpl;
-import org.wso2.carbon.identity.workflow.mgt.template.impl.SimpleApprovalTemplate;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementServiceImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
+import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
@@ -42,15 +41,15 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  * bind="setWorkflowRequestHandler"
  * unbind="unsetWorkflowRequestHandler"
  * @scr.reference name="workflow.template.service"
- * interface="org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate"
+ * interface="org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate"
  * cardinality="0..n" policy="dynamic"
- * bind="setWorkflowTemplate"
- * unbind="unsetWorkflowTemplate"
- * @scr.reference name="workflow.template.impl.service"
- * interface="org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl"
+ * bind="setTemplate"
+ * unbind="unsetTemplate"
+ * @scr.reference name="workflow.impl.service"
+ * interface="org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow"
  * cardinality="0..n" policy="dynamic"
- * bind="setTemplateImplementation"
- * unbind="unsetTemplateImplementation"
+ * bind="setWorkflowImplementation"
+ * unbind="unsetWorkflowImplementation"
  * @scr.reference name="config.context.service"
  * interface="org.wso2.carbon.utils.ConfigurationContextService"
  * cardinality="1..1" policy="dynamic"  bind="setConfigurationContextService"
@@ -58,26 +57,24 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  */
 public class WorkflowMgtServiceComponent {
 
-    protected void setRealmService(RealmService realmService) {
-
-        WorkflowServiceDataHolder.getInstance().setRealmService(realmService);
-    }
-
-    protected void setConfigurationContextService(ConfigurationContextService contextService) {
-
-        WorkflowServiceDataHolder.getInstance().setConfigurationContextService(contextService);
-    }
 
     protected void activate(ComponentContext context) {
 
         BundleContext bundleContext = context.getBundleContext();
-        WorkflowService workflowService = new WorkflowService();
-        bundleContext.registerService(WorkflowService.class, workflowService, null);
+        WorkflowManagementService workflowService = new WorkflowManagementServiceImpl();
+
+        bundleContext.registerService(WorkflowManagementService.class, workflowService, null);
+        WorkflowServiceDataHolder.getInstance().setWorkflowService(workflowService);
+
+
         WorkflowServiceDataHolder.getInstance().setBundleContext(bundleContext);
-        setWorkflowTemplate(new SimpleApprovalTemplate());
-        setTemplateImplementation(new BPELApprovalTemplateImpl());
-        //setWorkflowTemplate(new AlwaysDenyTemplate());
-        //setTemplateImplementation(new DefaultImmediateDenyImpl());
+    }
+
+    private static Log log = LogFactory.getLog(WorkflowMgtServiceComponent.class);
+
+    protected void setRealmService(RealmService realmService) {
+
+        WorkflowServiceDataHolder.getInstance().setRealmService(realmService);
     }
 
     protected void unsetRealmService(RealmService realmService) {
@@ -90,6 +87,11 @@ public class WorkflowMgtServiceComponent {
         WorkflowServiceDataHolder.getInstance().setConfigurationContextService(null);
     }
 
+    protected void setConfigurationContextService(ConfigurationContextService contextService) {
+
+        WorkflowServiceDataHolder.getInstance().setConfigurationContextService(contextService);
+    }
+
     protected void setWorkflowRequestHandler(WorkflowRequestHandler workflowRequestHandler) {
 
         WorkflowServiceDataHolder.getInstance().addWorkflowRequestHandler(workflowRequestHandler);
@@ -100,23 +102,25 @@ public class WorkflowMgtServiceComponent {
         WorkflowServiceDataHolder.getInstance().removeWorkflowRequestHandler(workflowRequestHandler);
     }
 
-    protected void setWorkflowTemplate(AbstractWorkflowTemplate template) {
+    protected void setTemplate(AbstractTemplate template) {
 
         WorkflowServiceDataHolder.getInstance().addTemplate(template);
     }
 
-    protected void unsetWorkflowTemplate(AbstractWorkflowTemplate template) {
+    protected void unsetTemplate(AbstractTemplate template) {
 
         WorkflowServiceDataHolder.getInstance().removeTemplate(template);
     }
 
-    protected void setTemplateImplementation(AbstractWorkflowTemplateImpl templateImpl) {
+    protected void setWorkflowImplementation(AbstractWorkflow workflowImplementation) {
 
-        WorkflowServiceDataHolder.getInstance().addTemplateImpl(templateImpl);
+        WorkflowServiceDataHolder.getInstance().addWorkflowImplementation(workflowImplementation);
     }
 
-    protected void unsetTemplateImplementation(AbstractWorkflowTemplateImpl templateImpl) {
+    protected void unsetWorkflowImplementation(AbstractWorkflow workflowImplementation) {
 
-        WorkflowServiceDataHolder.getInstance().removeTemplateImpl(templateImpl);
+        WorkflowServiceDataHolder.getInstance().removeWorkflowImplementation(workflowImplementation);
     }
+
+
 }

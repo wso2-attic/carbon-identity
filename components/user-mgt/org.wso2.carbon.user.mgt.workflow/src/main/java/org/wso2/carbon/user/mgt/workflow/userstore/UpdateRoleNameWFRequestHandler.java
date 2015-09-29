@@ -22,7 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -63,7 +63,7 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
     public boolean startUpdateRoleNameFlow(String userStoreDomain, String roleName, String newRoleName) throws
             WorkflowException {
 
-        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
         int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String fullyQualifiedOldName = UserCoreUtil.addDomainToName(roleName, userStoreDomain);
         String fullyQualifiedNewName = UserCoreUtil.addDomainToName(newRoleName, userStoreDomain);
@@ -74,10 +74,8 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         String uuid = UUID.randomUUID().toString();
         if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.UPDATE_ROLE_NAME_EVENT) && !Boolean.TRUE
-                .equals
-                (getWorkFlowCompleted()) && !isValidOperation(new Entity[]{new Entity
-                (fullyQualifiedOldName, UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant), new Entity
-                (fullyQualifiedNewName,
+                .equals(getWorkFlowCompleted()) && !isValidOperation(new Entity[]{new Entity(fullyQualifiedOldName,
+                UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant), new Entity(fullyQualifiedNewName,
                 UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant)})) {
             throw new WorkflowException("Operation is not valid.");
         }
@@ -128,8 +126,8 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().updateRoleName(roleName, newRoleName);
             } catch (UserStoreException e) {
-                log.error("Error when re-requesting updateRoleName operation for " + roleName, e);
-                throw new WorkflowException(e);
+                // Sending e.getMessage() since it is required to give error message to end user.
+                throw new WorkflowException(e.getMessage(), e);
             }
         } else {
             if (retryNeedAtCallback()) {
@@ -176,18 +174,12 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
     @Override
     public boolean isValidOperation(Entity[] entities) throws WorkflowException {
 
-        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
         for (int i = 0; i < entities.length; i++) {
-            try {
-                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && workflowService
+            if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && workflowService
                         .entityHasPendingWorkflows(entities[i])) {
 
-                    throw new WorkflowException("One or more roles assigned has pending workflows which " +
-                            "blocks this operation.");
-
-                }
-            } catch (InternalWorkflowException e) {
-                throw new WorkflowException(e.getMessage(), e);
+                    throw new WorkflowException("Role has pending workflows which  blocks this operation.");
             }
         }
         return true;

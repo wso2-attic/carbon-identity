@@ -18,6 +18,7 @@
 package org.wso2.carbon.sts;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.AxisModule;
 import org.apache.axis2.description.AxisService;
@@ -30,6 +31,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.neethi.Policy;
+import org.apache.neethi.PolicyEngine;
 import org.apache.rahas.impl.AbstractIssuerConfig;
 import org.apache.rahas.impl.SAMLTokenIssuerConfig;
 import org.apache.rahas.impl.TokenIssuerUtil;
@@ -40,6 +43,8 @@ import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.deployment.DeploymentInterceptor;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
+import org.wso2.carbon.registry.api.RegistryException;
+import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
@@ -50,6 +55,10 @@ import org.wso2.carbon.security.util.ServerCrypto;
 import org.wso2.carbon.sts.internal.STSServiceDataHolder;
 import org.wso2.carbon.utils.ServerConstants;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -273,12 +282,58 @@ public class STSDeploymentInterceptor implements AxisObserver {
         if (event.getEventType() == AxisEvent.SERVICE_DEPLOY
             && ServerConstants.STS_NAME.equals(service.getName())) {
             try {
+                applyPolicy(service);
                 updateSTSService(service.getAxisConfiguration());
             } catch (Exception e) {
                 log.error("Error while updating " + ServerConstants.STS_NAME
                           + " in STSDeploymentInterceptor", e);
             }
         }
+    }
+
+    private void applyPolicy(AxisService service) {
+        try {
+            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            Registry configRegistry = STSServiceDataHolder.getInstance().getRegistryService()
+                    .getConfigSystemRegistry(tenantId);
+            String servicePath = getRegistryServicePath(service);
+            String policyResourcePath = servicePath + RegistryResources.POLICIES;
+            if (configRegistry.resourceExists(policyResourcePath)) {
+                Resource resource = configRegistry.get(policyResourcePath);
+                if (resource instanceof Collection) {
+                    for (String policyPath : ((Collection) resource).getChildren()) {
+                        Resource res = configRegistry.get(policyPath);
+                        Policy policy = loadPolicy(res);
+                        service.getPolicySubject().attachPolicy(policy);
+                    }
+                }
+            }
+        } catch (RegistryException e) {
+            log.error("Error occurred while persisting policy", e);
+        } catch (XMLStreamException e) {
+            log.error("Error occurred while persisting policy", e);
+        }
+    }
+
+    private Policy loadPolicy(Resource resource) throws RegistryException, XMLStreamException {
+
+        InputStream in = resource.getContentStream();
+        XMLStreamReader parser = XMLInputFactory.newInstance().createXMLStreamReader(in);
+        StAXOMBuilder builder = new StAXOMBuilder(parser);
+
+        OMElement policyElement = builder.getDocumentElement();
+        return PolicyEngine.getPolicy(policyElement);
+
+    }
+
+    private String getRegistryServicePath(AxisService service) {
+
+        StringBuilder pathValue = new StringBuilder();
+        return (pathValue
+                .append(RegistryResources.SERVICE_GROUPS)
+                .append(service.getAxisServiceGroup().getServiceGroupName())
+                .append(RegistryResources.SERVICES)
+                .append(service.getName())).toString();
     }
 
     /**

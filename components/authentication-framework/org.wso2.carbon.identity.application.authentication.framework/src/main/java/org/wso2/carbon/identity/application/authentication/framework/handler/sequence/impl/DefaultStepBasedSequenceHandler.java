@@ -41,6 +41,7 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationManag
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.user.profile.mgt.UserProfileAdmin;
 import org.wso2.carbon.identity.user.profile.mgt.UserProfileException;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -240,9 +241,14 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
 
             if (authenticator instanceof FederatedApplicationAuthenticator) {
 
-                ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
+                ExternalIdPConfig externalIdPConfig = null;
+                try {
+                    externalIdPConfig = ConfigurationFacade.getInstance()
                         .getIdPConfigByName(stepConfig.getAuthenticatedIdP(),
                                             context.getTenantDomain());
+                } catch (IdentityProviderManagementException e) {
+                    log.error("Exception while getting IdP by name", e);
+                }
 
                 context.setExternalIdP(externalIdPConfig);
 
@@ -286,7 +292,8 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                             stepConfig.getAuthenticatedUser().setTenantDomain(context.getTenantDomain());
                             stepConfig.setAuthenticatedUser(stepConfig.getAuthenticatedUser());
                         } catch (UserProfileException e) {
-                            throw new FrameworkException("Error while getting associated local user ID for "+originalExternalIdpSubjectValueForThisStep, e);
+                            throw new FrameworkException("Error while getting associated local user ID for "
+                                    + originalExternalIdpSubjectValueForThisStep, e);
                         } finally {
                             // end tenant flow
                             FrameworkUtils.endTenantFlow();

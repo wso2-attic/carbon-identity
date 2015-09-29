@@ -24,19 +24,19 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequest" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowEvent" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -44,28 +44,25 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    String taskTypeFilter =
-            CharacterEncoder.getSafeText(request.getParameter("requestTypeFilter"));
-    String statusToFilter = CharacterEncoder.getSafeText(request.getParameter("requestStatusFilter"));
-    String lowerBound =
-            CharacterEncoder.getSafeText(request.getParameter("createdAtFrom"));
-    String upperBound =
-            CharacterEncoder.getSafeText(request.getParameter("createdAtTo"));
-    String timeFilterCategory = CharacterEncoder.getSafeText(request.getParameter("timeCategoryToFilter"));
+    String taskTypeFilter = request.getParameter("requestTypeFilter");
+    String statusToFilter = request.getParameter("requestStatusFilter");
+    String lowerBound = request.getParameter("createdAtFrom");
+    String upperBound = request.getParameter("createdAtTo");
+    String timeFilterCategory = request.getParameter("timeCategoryToFilter");
     String loggedUser = (String) session.getAttribute("logged-user");
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
-    WorkflowRequestDTO[] associationToDisplay = new WorkflowRequestDTO[0];
-    WorkflowRequestDTO[] requestList = null;
+    WorkflowRequest[] associationToDisplay = new WorkflowRequest[0];
+    WorkflowRequest[] requestList = null;
     String paginationValue = "region=region1";
 
-    String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
+    String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
     int numberOfPages = 0;
-    WorkflowEventDTO[] workflowEvents;
-    Map<String, List<WorkflowEventDTO>> events = new HashMap<String, List<WorkflowEventDTO>>();
+    WorkflowEvent[] workflowEvents;
+    Map<String, List<WorkflowEvent>> events = new HashMap<String, List<WorkflowEvent>>();
 
     if (pageNumber != null) {
         try {
@@ -100,30 +97,31 @@
 
 
         if (taskTypeFilter.equals("allTasks")) {
-            requestList = client.getAllRequests(lowerBound, upperBound, timeFilterCategory);
+            requestList = client.getAllRequests(lowerBound, upperBound, timeFilterCategory, statusToFilter);
         } else {
-            requestList = client.getRequestsCreatedByUser(loggedUser, lowerBound, upperBound, timeFilterCategory);
+            requestList = client.getRequestsCreatedByUser(loggedUser, lowerBound, upperBound, timeFilterCategory,
+                    statusToFilter);
         }
 
         if (requestList == null) {
-            requestList = new WorkflowRequestDTO[0];
+            requestList = new WorkflowRequest[0];
         }
 
         numberOfPages = (int) Math.ceil((double) requestList.length / WorkflowUIConstants.RESULTS_PER_PAGE);
 
         int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
         int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.RESULTS_PER_PAGE;
-        associationToDisplay = new WorkflowRequestDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
+        associationToDisplay = new WorkflowRequest[WorkflowUIConstants.RESULTS_PER_PAGE];
 
         for (int i = startIndex, j = 0; i < endIndex && i < requestList.length; i++, j++) {
             associationToDisplay[j] = requestList[i];
         }
 
         workflowEvents = client.listWorkflowEvents();
-        for (WorkflowEventDTO event : workflowEvents) {
+        for (WorkflowEvent event : workflowEvents) {
             String category = event.getEventCategory();
             if (!events.containsKey(category)) {
-                events.put(category, new ArrayList<WorkflowEventDTO>());
+                events.put(category, new ArrayList<WorkflowEvent>());
             }
             events.get(category).add(event);
         }
@@ -185,11 +183,11 @@
         var eventsObj = {};
         var lastSelectedCategory = '';
         <%
-            for (Map.Entry<String,List<WorkflowEventDTO>> eventCategory : events.entrySet()) {
+            for (Map.Entry<String,List<WorkflowEvent>> eventCategory : events.entrySet()) {
             %>
         eventsObj["<%=eventCategory.getKey()%>"] = [];
         <%
-            for (WorkflowEventDTO event : eventCategory.getValue()) {
+            for (WorkflowEvent event : eventCategory.getValue()) {
                 %>
         var eventObj = {};
         eventObj.displayName = "<%=event.getEventFriendlyName()%>";
@@ -425,7 +423,7 @@
                 <tbody>
                 <%
                     if (requestList != null && requestList.length > 0) {
-                        for (WorkflowRequestDTO workflowReq : associationToDisplay) {
+                        for (WorkflowRequest workflowReq : associationToDisplay) {
                             if (workflowReq != null && (statusToFilter == null || statusToFilter == ""
                                     || statusToFilter.equals("allTasks") || workflowReq.getStatus().equals(statusToFilter))) {
                 %>
@@ -446,7 +444,8 @@
                            onclick="listWorkflows('<%=workflowReq.getRequestId()%>');return false;"
                            href="#" style="background-image: url(images/list.png);"
                            class="icon-link"><fmt:message key='workflows'/></a>
-                        <% if (workflowReq.getStatus().equals("PENDING")) { %>
+                        <% if (workflowReq.getCreatedBy() != null && workflowReq.getStatus().equals("PENDING") &&
+                                workflowReq.getCreatedBy().equals(loggedUser)) { %>
                         <a title="<fmt:message key='workflow.request.delete.title'/>"
                            onclick="removeRequest('<%=workflowReq.getRequestId()%>');return false;"
                            href="#" style="background-image: url(images/delete.gif);"

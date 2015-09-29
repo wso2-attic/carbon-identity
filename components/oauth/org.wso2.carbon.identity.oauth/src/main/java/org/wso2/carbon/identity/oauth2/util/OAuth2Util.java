@@ -41,8 +41,6 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.ClientCredentialDO;
 import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -50,6 +48,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -94,7 +93,7 @@ public class OAuth2Util {
     }
 
     /**
-     * Build a comma separated list of scopes passed as a String set by Amber.
+     * Build a comma separated list of scopes passed as a String set by OLTU.
      *
      * @param scopes set of scopes
      * @return Comma separated list of scopes
@@ -229,7 +228,7 @@ public class OAuth2Util {
 
         boolean cacheHit = false;
         String username = null;
-        boolean isUsernameCaseSensitive = OAuth2Util.isUsernameCaseSensitive(username);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(username);
 
         if (OAuth2Util.authenticateClient(clientId, clientSecretProvided)) {
             // check cache
@@ -540,37 +539,6 @@ public class OAuth2Util {
         }
     }
 
-    public static boolean isUsernameCaseSensitive(String username) {
-        boolean isUsernameCaseSensitive = false;
-        try {
-            String tenantDomain = MultitenantUtils.getTenantDomain(username);
-            int tenantId = OAuthComponentServiceHolder.getRealmService().getTenantManager().getTenantId(tenantDomain);
-
-            UserStoreManager userStoreManager = (UserStoreManager) OAuthComponentServiceHolder.getRealmService()
-                    .getTenantUserRealm(tenantId).getUserStoreManager();
-            UserStoreManager UserAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
-                    (UserCoreUtil.extractDomainFromName(username));
-            String caseInsensitiveUsername = UserAvailableUserStoreManager.getRealmConfiguration().getUserStoreProperty("CaseInsensitiveUsername");
-            if (caseInsensitiveUsername != null) {
-                isUsernameCaseSensitive = !Boolean.parseBoolean(caseInsensitiveUsername);
-            }
-        } catch (UserStoreException e) {
-            if (log.isDebugEnabled()){
-                log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as false.");
-            }
-        }
-        return isUsernameCaseSensitive;
-    }
-
-    public static String getDomainFromName(String name) {
-        int index;
-        if ((index = name.indexOf("/")) > 0) {
-            String domain = name.substring(0, index);
-            return domain;
-        }
-        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
-    }
-
     public static User getUserFromUserName(String username) throws IllegalArgumentException{
         if (StringUtils.isNotBlank(username)) {
             String tenantDomain = MultitenantUtils.getTenantDomain(username);
@@ -644,5 +612,18 @@ public class OAuth2Util {
             }
             return oauth2UserInfoEPUrl;
         }
+    }
+
+    public static boolean isOIDCAuthzRequest(Set<String> scope) {
+        return scope.contains(OAuthConstants.Scope.OPENID);
+    }
+
+    public static boolean isOIDCAuthzRequest(String[] scope) {
+        for(String openidscope : scope) {
+            if (openidscope.equals(OAuthConstants.Scope.OPENID)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

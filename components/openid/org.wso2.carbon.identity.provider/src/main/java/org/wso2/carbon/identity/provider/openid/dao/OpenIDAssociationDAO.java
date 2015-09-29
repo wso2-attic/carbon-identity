@@ -22,8 +22,6 @@ import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.association.Association;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.provider.openid.OpenIDServerConstants;
 
@@ -77,11 +75,10 @@ public class OpenIDAssociationDAO {
      */
     public void storeAssociation(Association association) {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
 //            if (!isAssociationExist(connection, association.getHandle())) {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.STORE_ASSOCIATION);
@@ -92,14 +89,15 @@ public class OpenIDAssociationDAO {
                 prepStmt.setString(5, associationStore);
                 prepStmt.execute();
                 connection.commit();
-                log.debug("Association " + association.getHandle() + " successfully stored in the database.");
+                if(log.isDebugEnabled()) {
+                    log.debug("Association " + association.getHandle() + " successfully stored in the database");
+                }
 //            } else {
 //                log.debug("Association " + association.getHandle() + " already exist in the database.");
 //            }
             connection.commit();
-        } catch (SQLException | IdentityException e) {
-            log.error("Failed to store the association " + association.getHandle() +
-                      ". Error while accessing the database. ", e);
+        } catch (SQLException e) {
+            log.error("Failed to store the association " + association.getHandle(), e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -114,12 +112,11 @@ public class OpenIDAssociationDAO {
      */
     public Association loadAssociation(String handle) {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet results = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_ASSOCIATION);
             prepStmt.setString(1, handle);
             results = prepStmt.executeQuery();
@@ -129,13 +126,14 @@ public class OpenIDAssociationDAO {
                 return buildAssociationObject(results);
             }
             connection.commit();
-        } catch (SQLException | IdentityException e) {
-            log.error("Failed to load the association " + handle +
-                    ". Error while accessing the database. ", e);
+        } catch (SQLException e) {
+            log.error("Failed to load the association " + handle, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, results, prepStmt);
         }
-        log.debug("Failed to load the association " + handle + " from the database.");
+        if(log.isDebugEnabled()) {
+            log.debug("Failed to load the association " + handle + " from the database");
+        }
         return null;
     }
 
@@ -147,27 +145,27 @@ public class OpenIDAssociationDAO {
      */
     public void removeAssociation(String handle) {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
             if (isAssociationExist(connection, handle)) {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.REMOVE_ASSOCIATION);
                 prepStmt.setString(1, handle);
                 prepStmt.execute();
                 connection.commit();
-                log.debug("Association " + handle + " successfully removed from the database.");
-
+                if(log.isDebugEnabled()) {
+                    log.debug("Association " + handle + " successfully removed from the database");
+                }
             } else {
-                log.debug("Association " + handle + " does not exist in the databse.");
+                if(log.isDebugEnabled()) {
+                    log.debug("Association " + handle + " does not exist in the database");
+                }
             }
 
         } catch (SQLException e) {
-            log.error("Failed to remove the association " + handle + ". Error while accessing the database. ", e);
-        } catch (IdentityException e) {
-            log.error("Failed to remove the association " + handle + ". Error while accessing the database. ", e);
+            log.error("Failed to remove the association " + handle, e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);

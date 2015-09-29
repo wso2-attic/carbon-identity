@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.mgt.services;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -27,7 +28,10 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.ChallengeQuestionProcessor;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
@@ -49,6 +53,7 @@ import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.claim.Claim;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
@@ -65,6 +70,21 @@ import java.util.Map;
 public class UserInformationRecoveryService {
 
     Log log = LogFactory.getLog(UserInformationRecoveryService.class);
+    private static final String EXISTING_USER = "UserAlreadyExisting";
+    private static final String INVALID_CLAIM_URL = "InvalidClaimUrl";
+    private static final String INVALID_USER_NAME = "InvalidUserName";
+    private static final String EXISTING_ROLE = "RoleExisting";
+    private static final String READ_ONLY_STORE = "ReadOnlyUserStoreManager";
+    private static final String READ_ONLY_PRIMARY_STORE = "ReadOnlyPrimaryUserStoreManager";
+    private static final String INVALID_ROLE = "InvalidRole";
+    private static final String ANONYMOUS_USER = "AnonymousUser";
+    private static final String INVALID_OPERATION = "InvalidOperation";
+    private static final String NO_READ_WRITE_PERMISSIONS = "NoReadWritePermission";
+    private static final String PASSWORD_INVALID = "PasswordInvalid";
+    private static final String SHARED_USER_ROLES = "SharedUserRoles";
+    private static final String REMOVE_ADMIN_USER = "RemoveAdminUser";
+    private static final String LOGGED_IN_USER = "LoggedInUser";
+    private static final String ADMIN_USER = "AdminUser";
 
     public CaptchaInfoBean getCaptcha() throws IdentityMgtServiceException {
 
@@ -794,10 +814,20 @@ public class UserInformationRecoveryService {
                         new String[]{userName});
             }
 
+            IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+                    (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
+
+            boolean isListenerEnable = true;
+
+            if (identityEventListener != null) {
+                if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
+                    isListenerEnable = Boolean.parseBoolean(identityEventListener.getEnable());
+                }
+            }
 
             IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
-            if (config.isListenerEnable() && config.isAuthPolicyAccountLockOnCreation()) {
+            if (isListenerEnable && config.isAuthPolicyAccountLockOnCreation()) {
                 UserDTO userDTO = new UserDTO(userName);
                 userDTO.setTenantId(tenantId);
 
@@ -821,16 +851,14 @@ public class UserInformationRecoveryService {
                 vBean.setVerified(true);
             }
         } catch (UserStoreException | IdentityException e) {
-            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
-                    + " Error occurred while registering user : " + userName, e);
+            UserIdentityManagementUtil.getCustomErrorMessages(e, userName);
             //Rollback if user exists
             try {
                 if (userStoreManager.isExistingUser(userName)) {
                     userStoreManager.deleteUser(userName);
                 }
             } catch (org.wso2.carbon.user.core.UserStoreException e1) {
-                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
-                        + " Error occurred while rollback registered user : " + userName, e);
+                UserIdentityManagementUtil.getCustomErrorMessages(e1, userName);
             }
 
             return vBean;

@@ -19,7 +19,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="java.util.ResourceBundle" %>
@@ -28,7 +28,7 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestAssociationDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestAssociation" %>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
 
@@ -37,12 +37,11 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    //ToDo Use encode at request sender and remove getSafeText, do input validation
-    String requestId = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_REQUEST_ID));
+    String requestId = request.getParameter(WorkflowUIConstants.PARAM_REQUEST_ID);
     WorkflowAdminServiceClient client = null;
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
-    String pageNumber = CharacterEncoder.getSafeText(request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER));
+    String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
     int numberOfPages = 0;
     String forwardTo = null;
@@ -61,13 +60,13 @@
             (ConfigurationContext) config.getServletContext()
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-    WorkflowRequestAssociationDTO[] workflowRequestAssociationDTOs = client.getWorkflowsOfRequest(requestId);
-    WorkflowRequestAssociationDTO[] workflowsToDisplay;
+    WorkflowRequestAssociation[] workflowRequestAssociationDTOs = client.getWorkflowsOfRequest(requestId);
+    WorkflowRequestAssociation[] workflowsToDisplay;
     numberOfPages = (int) Math.ceil((double) workflowRequestAssociationDTOs.length / WorkflowUIConstants.RESULTS_PER_PAGE);
 
     int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
     int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.RESULTS_PER_PAGE;
-    workflowsToDisplay = new WorkflowRequestAssociationDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
+    workflowsToDisplay = new WorkflowRequestAssociation[WorkflowUIConstants.RESULTS_PER_PAGE];
 
     for (int i = startIndex, j = 0; i < endIndex && i < workflowRequestAssociationDTOs.length; i++, j++) {
         workflowsToDisplay[j] = workflowRequestAssociationDTOs[i];
@@ -99,7 +98,7 @@
                 </thead>
                 <tbody>
                 <%
-                    for (WorkflowRequestAssociationDTO workflow : workflowRequestAssociationDTOs) {
+                    for (WorkflowRequestAssociation workflow : workflowRequestAssociationDTOs) {
                 %>
                 <tr>
                     <td><%=workflow.getWorkflowId()%>

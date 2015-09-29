@@ -20,15 +20,16 @@ package org.wso2.carbon.idp.mgt.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.idp.mgt.internal.IdPManagementServiceComponent;
+import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
 
@@ -105,8 +106,33 @@ public class IdPManagementUtil {
             Property property = IdentityApplicationManagementUtil.getProperty(federatedAuthenticatorConfig.getProperties()
                     , timeOutPropertyName);
             timeout = Integer.parseInt(property.getValue()) * 60;
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityProviderManagementException e) {
             log.error("Error when accessing the IdentityProviderManager for tenant : " +tenantDomain, e);
+        }
+        return timeout;
+    }
+
+    /**
+     * Tenant specific clean up timeout can be configured. From this method can get the maximum timeout configured
+     * Ex this can be used for clean up tasks.
+     *
+     * @return
+     */
+    public static int getMaxCleanUpTimeout() {
+
+        int timeout = Integer.parseInt(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT_DEFAULT);
+
+        try {
+            Tenant[] allTenants = IdPManagementServiceComponent.getRealmService().getTenantManager().getAllTenants();
+            for (Tenant tenant : allTenants) {
+                int tenantCleanupTimeout = IdPManagementUtil.getTimeoutProperty(
+                        IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT, tenant.getDomain(), timeout);
+                if (tenantCleanupTimeout > timeout) {
+                    timeout = tenantCleanupTimeout;
+                }
+            }
+        } catch (UserStoreException e) {
+            log.error("Error when accessing the tenant list", e);
         }
         return timeout;
     }

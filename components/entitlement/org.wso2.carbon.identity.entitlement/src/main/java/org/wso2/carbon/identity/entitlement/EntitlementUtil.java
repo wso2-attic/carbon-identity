@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.entitlement;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.wso2.balana.AbstractPolicy;
@@ -52,20 +54,25 @@ import org.wso2.balana.xacml3.Attributes;
 import org.wso2.carbon.identity.entitlement.cache.EntitlementBaseCache;
 import org.wso2.carbon.identity.entitlement.cache.IdentityCacheEntry;
 import org.wso2.carbon.identity.entitlement.cache.IdentityCacheKey;
+import org.wso2.carbon.identity.entitlement.common.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.dto.AttributeDTO;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementExtensionBuilder;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
+import org.wso2.carbon.identity.entitlement.pap.EntitlementAdminEngine;
 import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStore;
 import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStoreManager;
 import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStoreReader;
+import org.wso2.carbon.identity.entitlement.policy.publisher.PolicyPublisher;
 import org.wso2.carbon.identity.entitlement.policy.store.PolicyStoreManageModule;
+import org.wso2.carbon.identity.entitlement.policy.version.PolicyVersionManager;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.identity.entitlement.util.CarbonEntityResolver;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -75,6 +82,7 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.Validator;
+import javax.xml.XMLConstants;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -95,6 +103,9 @@ import java.util.Set;
 public class EntitlementUtil {
 
     private static Log log = LogFactory.getLog(EntitlementUtil.class);
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
 
 
     /**
@@ -226,9 +237,7 @@ public class EntitlementUtil {
 
             if (schema != null) {
                 //build XML document
-                DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-                documentBuilderFactory.setNamespaceAware(true);
-                DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+                DocumentBuilder documentBuilder = getSecuredDocumentBuilder(false);
                 InputStream stream = new ByteArrayInputStream(policy.getPolicy().getBytes());
                 Document doc = documentBuilder.parse(stream);
                 //Do the DOM validation
@@ -258,11 +267,10 @@ public class EntitlementUtil {
 
         try {
             //build XML document
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            DocumentBuilder documentBuilder = getSecuredDocumentBuilder(false);
             InputStream stream = new ByteArrayInputStream(policy.getBytes());
             Document doc = documentBuilder.parse(stream);
+
 
             //get policy version
             Element policyElement = doc.getDocumentElement();
@@ -444,7 +452,14 @@ public class EntitlementUtil {
                         "An Entitlement Policy with the given ID already exists");
             }
 
-            policyDTO.setPromote(true);
+            policyDTO.setPromote(promote);
+            PolicyVersionManager versionManager = EntitlementAdminEngine.getInstance().getVersionManager();
+            try {
+                String version = versionManager.createVersion(policyDTO);
+                policyDTO.setVersion(version);
+            } catch (EntitlementException e) {
+                log.error("Policy versioning is not supported", e);
+            }
             policyAdmin.addOrUpdatePolicy(policyDTO);
 
             PAPPolicyStoreReader reader = new PAPPolicyStoreReader(policyStore);
@@ -455,6 +470,8 @@ public class EntitlementUtil {
             policyStoreDTO.setPolicy(policyDTO.getPolicy());
             policyStoreDTO.setPolicyOrder(policyDTO.getPolicyOrder());
             policyStoreDTO.setAttributeDTOs(policyDTO.getAttributeDTOs());
+            policyStoreDTO.setActive(policyDTO.isActive());
+            policyStoreDTO.setSetActive(policyDTO.isActive());
 
             if (promote) {
                 addPolicyToPDP(policyStoreDTO);
@@ -471,14 +488,11 @@ public class EntitlementUtil {
 
     public static AbstractPolicy getPolicy(String policy) {
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setIgnoringComments(true);
-        factory.setNamespaceAware(true);
         DocumentBuilder builder;
         InputStream stream = null;
         // now use the factory to create the document builder
         try {
-            builder = factory.newDocumentBuilder();
+            builder = getSecuredDocumentBuilder(true);
             stream = new ByteArrayInputStream(policy.getBytes("UTF-8"));
             Document doc = builder.parse(stream);
             Element root = doc.getDocumentElement();
@@ -535,7 +549,7 @@ public class EntitlementUtil {
         String policyStorePath = entry.getValue().getProperty("policyStorePath");
 
         if (policyStorePath == null) {
-            policyStorePath = "/repository/identity/Entitlement/actualStore/";
+            policyStorePath = "/repository/identity/entitlement/policy/pdp/";
         }
 
         if (policyStoreDTO == null || policyStoreDTO.getPolicy() == null
@@ -567,11 +581,29 @@ public class EntitlementUtil {
             resource.setProperty("policyOrder", Integer.toString(policyStoreDTO.getPolicyOrder()));
             resource.setContent(policyStoreDTO.getPolicy());
             resource.setMediaType("application/xacml-policy+xml");
+            resource.setProperty("active", String.valueOf(policyStoreDTO.isActive()));
             AttributeDTO[] attributeDTOs = policyStoreDTO.getAttributeDTOs();
             if (attributeDTOs != null) {
                 setAttributesAsProperties(attributeDTOs, resource);
             }
             registry.put(policyPath, resource);
+            //Enable published policies in PDP
+            PAPPolicyStoreManager storeManager = EntitlementAdminEngine.getInstance().getPapPolicyStoreManager();
+            if (storeManager.isExistPolicy(policyStoreDTO.getPolicyId())) {
+
+                PolicyPublisher publisher = EntitlementAdminEngine.getInstance().getPolicyPublisher();
+                String[] subscribers = new String[]{EntitlementConstants.PDP_SUBSCRIBER_ID};
+
+                if (policyStoreDTO.isActive()) {
+                    publisher.publishPolicy(new String[]{policyStoreDTO.getPolicyId()}, null,
+                            EntitlementConstants.PolicyPublish.ACTION_ENABLE, false, 0, subscribers, null);
+
+                } else {
+                    publisher.publishPolicy(new String[]{policyStoreDTO.getPolicyId()}, null,
+                            EntitlementConstants.PolicyPublish.ACTION_DISABLE, false, 0, subscribers, null);
+                }
+            }
+
         } catch (RegistryException e) {
             log.error(e);
             throw new EntitlementException("Error while adding policy to PDP", e);
@@ -597,5 +629,29 @@ public class EntitlementUtil {
                 attributeElementNo++;
             }
         }
+    }
+
+    /**
+     * * This method provides a secured document builder which will secure XXE attacks.
+     *
+     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderFactory.
+     * @return DocumentBuilder
+     * @throws ParserConfigurationException
+     */
+    private static DocumentBuilder getSecuredDocumentBuilder(boolean setIgnoreComments) throws
+            ParserConfigurationException {
+
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setIgnoringComments(setIgnoreComments);
+        documentBuilderFactory.setNamespaceAware(true);
+        documentBuilderFactory.setExpandEntityReferences(false);
+        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        SecurityManager securityManager = new SecurityManager();
+        securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+        documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        documentBuilder.setEntityResolver(new CarbonEntityResolver());
+        return documentBuilder;
+
     }
 }
