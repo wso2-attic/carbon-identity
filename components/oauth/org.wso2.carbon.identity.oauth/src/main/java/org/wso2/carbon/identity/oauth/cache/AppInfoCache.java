@@ -70,8 +70,8 @@ public class AppInfoCache extends BaseCache<String, OAuthAppDO> {
     @Override
     public OAuthAppDO getValueFromCache(String key) {
         OAuthAppDO oAuthAppDO = super.getValueFromCache(key);
-        if(oAuthAppDO==null){
-            oAuthAppDO = (OAuthAppDO)SessionDataStore.getInstance().getSessionData(key, OAUTH_APP_INFO_CACHE_NAME);
+        if (oAuthAppDO == null) {
+            oAuthAppDO = (OAuthAppDO) SessionDataStore.getInstance().getSessionData(key, OAUTH_APP_INFO_CACHE_NAME);
         }
         return oAuthAppDO;
     }

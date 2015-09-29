@@ -41,6 +41,7 @@ import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorCo
 import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -425,47 +426,47 @@ public class IdentityProviderManager {
         FederatedAuthenticatorConfig sessionTimeoutConfig = IdentityApplicationManagementUtil
                 .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
                         IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
-        if(sessionTimeoutConfig == null){
+        if (sessionTimeoutConfig == null) {
             sessionTimeoutConfig = new FederatedAuthenticatorConfig();
             sessionTimeoutConfig.setName(IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
         }
         propertiesList = new ArrayList<Property>(Arrays.asList(sessionTimeoutConfig.getProperties()));
-        if(IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
-                IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT) == null){
+        if (IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
+                IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT) == null) {
             Property sessionIdletimeOutProp = new Property();
             sessionIdletimeOutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT);
-            String idleTimeout = IdentityUtil.getProperty("TimeConfig.SessionIdleTimeout");
-            if(StringUtils.isEmpty(idleTimeout)){
+            String idleTimeout = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SESSION_IDLE_TIMEOUT);
+            if (StringUtils.isBlank(idleTimeout)) {
                 idleTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT;
-            }else if(!StringUtils.isNumeric(idleTimeout)){
+            } else if (!StringUtils.isNumeric(idleTimeout)) {
                 log.warn("SessionIdleTimeout in identity.xml should be a numeric value");
                 idleTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT;
             }
             sessionIdletimeOutProp.setValue(idleTimeout);
             propertiesList.add(sessionIdletimeOutProp);
         }
-        if(IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
-                IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT) == null){
+        if (IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
+                IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT) == null) {
             Property rememberMeTimeOutProp = new Property();
             rememberMeTimeOutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT);
-            String rememberMeTimeout = IdentityUtil.getProperty("TimeConfig.RememberMeTimeout");
-            if(StringUtils.isEmpty(rememberMeTimeout)){
+            String rememberMeTimeout = IdentityUtil.getProperty(IdentityConstants.ServerConfig.REMEMBER_ME_TIME_OUT);
+            if (StringUtils.isBlank(rememberMeTimeout)) {
                 rememberMeTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT;
-            }else if(!StringUtils.isNumeric(rememberMeTimeout)){
+            } else if (!StringUtils.isNumeric(rememberMeTimeout)) {
                 log.warn("RememberMeTimeout in identity.xml should be a numeric value");
                 rememberMeTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT;
             }
             rememberMeTimeOutProp.setValue(rememberMeTimeout);
             propertiesList.add(rememberMeTimeOutProp);
         }
-        if(IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
-                IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD) == null){
+        if (IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
+                IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD) == null) {
             Property cleanUpPeriodProp = new Property();
             cleanUpPeriodProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD);
-            String cleanUpPeriod = IdentityUtil.getProperty("TimeConfig.PersistanceCleanUpPeriod");
-            if(StringUtils.isEmpty(cleanUpPeriod)){
+            String cleanUpPeriod = IdentityUtil.getProperty(IdentityConstants.ServerConfig.CLEAN_UP_PERIOD);
+            if (StringUtils.isBlank(cleanUpPeriod)) {
                 cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
-            }else if(!StringUtils.isNumeric(cleanUpPeriod)){
+            } else if (!StringUtils.isNumeric(cleanUpPeriod)) {
                 log.warn("PersistanceCleanUpPeriod in identity.xml should be a numeric value");
                 cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
             }
@@ -569,8 +570,8 @@ public class IdentityProviderManager {
                 IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT) == null){
             Property sessionIdletimeOutProp = new Property();
             sessionIdletimeOutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT);
-            String idleTimeout = IdentityUtil.getProperty("TimeConfig.SessionIdleTimeout");
-            if(StringUtils.isEmpty(idleTimeout)){
+            String idleTimeout = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SESSION_IDLE_TIMEOUT);
+            if(StringUtils.isBlank(idleTimeout)){
                 idleTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT;
             }else if(!StringUtils.isNumeric(idleTimeout)){
                 log.warn("SessionIdleTimeout in identity.xml should be a numeric value");
@@ -583,8 +584,8 @@ public class IdentityProviderManager {
                 IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT) == null){
             Property rememberMeTimeOutProp = new Property();
             rememberMeTimeOutProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT);
-            String rememberMeTimeout = IdentityUtil.getProperty("TimeConfig.RememberMeTimeout");
-            if(StringUtils.isEmpty(rememberMeTimeout)){
+            String rememberMeTimeout = IdentityUtil.getProperty(IdentityConstants.ServerConfig.REMEMBER_ME_TIME_OUT);
+            if(StringUtils.isBlank(rememberMeTimeout)){
                 rememberMeTimeout = IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT;
             }else if(!StringUtils.isNumeric(rememberMeTimeout)){
                 log.warn("RememberMeTimeout in identity.xml should be a numeric value");
@@ -597,8 +598,8 @@ public class IdentityProviderManager {
                 IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD) == null){
             Property cleanUpPeriodProp = new Property();
             cleanUpPeriodProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD);
-            String cleanUpPeriod = IdentityUtil.getProperty("TimeConfig.PersistanceCleanUpPeriod");
-            if(StringUtils.isEmpty(cleanUpPeriod)){
+            String cleanUpPeriod = IdentityUtil.getProperty(IdentityConstants.ServerConfig.CLEAN_UP_PERIOD);
+            if(StringUtils.isBlank(cleanUpPeriod)){
                 cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
             }else if(!StringUtils.isNumeric(cleanUpPeriod)){
                 log.warn("PersistanceCleanUpPeriod in identity.xml should be a numeric value");
