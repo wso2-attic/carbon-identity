@@ -67,6 +67,9 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
+    /**
+     * Provisioning the added user
+     */
     public boolean doPreAddUser(String userName, Object credential, String[] roleList,
                                 Map<String, String> inboundAttributes, String profile, UserStoreManager userStoreManager)
             throws UserStoreException {
@@ -155,6 +158,9 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
+    /**
+     * Provisioning the user with added user claim values
+     */
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> inboundAttributes,
                                            String profileName, UserStoreManager userStoreManager) throws UserStoreException {
 
@@ -224,6 +230,9 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
+    /**
+     * Provisioning the user with deleted user claim values
+     */
     public boolean doPreDeleteUserClaimValues(String userName, String[] attributesToDelete,
                                               String profileName, UserStoreManager userStoreManager) throws UserStoreException {
         try {
@@ -293,12 +302,9 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
-    public boolean doPostDeleteUserClaimValues(String userName, UserStoreManager userStoreManager)
-            throws UserStoreException {
-        return true;
-    }
-
-    @Override
+    /**
+     * Provisioning the user with the deleted user claim value
+     */
     public boolean doPreDeleteUserClaimValue(String userName, String attributeToDelete, String profileName,
                                              UserStoreManager userStoreManager) throws UserStoreException {
         try {
@@ -366,12 +372,9 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
-    public boolean doPostDeleteUserClaimValue(String userName, UserStoreManager userStoreManager)
-            throws UserStoreException {
-        return true;
-    }
-
-    @Override
+    /**
+     * Provisioning the deleted user
+     */
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
         if (!isEnable()) {
@@ -433,6 +436,9 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
+    /**
+     * Provisioning the update of user list of a role
+     */
     public boolean doPostUpdateUserListOfRole(String roleName, String[] deletedUsers,
                                               String[] newUsers, UserStoreManager userStoreManager) throws UserStoreException {
 
@@ -602,6 +608,9 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
+    /**
+     * Provisioning the added role
+     */
     public boolean doPreAddRole(String roleName, String[] userList, Permission[] permissions,
                                 UserStoreManager userStoreManager) throws UserStoreException {
 
@@ -672,6 +681,9 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
     }
 
     @Override
+    /**
+     * Provisioning the deleted role
+     */
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
