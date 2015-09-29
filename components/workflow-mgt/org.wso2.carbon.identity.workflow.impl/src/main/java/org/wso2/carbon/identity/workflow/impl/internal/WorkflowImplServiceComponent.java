@@ -26,6 +26,8 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.impl.ApprovalWorkflow;
 import org.wso2.carbon.identity.workflow.impl.BPELDeployer;
 import org.wso2.carbon.identity.workflow.impl.RequestExecutor;
@@ -61,6 +63,9 @@ import java.net.URISyntaxException;
  * interface="org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService"
  * cardinality="0..n" policy="dynamic" bind="setWorkflowManagementService"
  * unbind="unsetWorkflowManagementService"
+ * @scr.reference name="identityCoreInitializedEventService"
+ * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
+ * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
  * @scr.reference name="config.context.service"
  * interface="org.wso2.carbon.utils.ConfigurationContextService"
  * cardinality="1..1" policy="dynamic"  bind="setConfigurationContextService"
@@ -82,7 +87,7 @@ public class WorkflowImplServiceComponent {
             WorkFlowExecutor workFlowExecutor = new RequestExecutor();
             bundleContext
                     .registerService(AbstractWorkflow.class, new ApprovalWorkflow(templateInitializer,
-                                                                                  workFlowExecutor, metaDataXML), null);
+                            workFlowExecutor, metaDataXML), null);
 
             WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
 
@@ -141,9 +146,9 @@ public class WorkflowImplServiceComponent {
             WorkflowImplService workflowImplService =
                     WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
             BPSProfile currentBpsProfile = workflowImplService.getBPSProfile(WFConstant.DEFAULT_BPS_PROFILE,
-                                                                             MultitenantConstants.SUPER_TENANT_ID);
-
-            if (currentBpsProfile == null) {
+                    MultitenantConstants.SUPER_TENANT_ID);
+            String url = IdentityUtil.getServerURL("");
+            if (currentBpsProfile == null || !currentBpsProfile.getWorkerHostURL().equals(url)) {
                 BPSProfile bpsProfileDTO = new BPSProfile();
                 String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
                 String offset = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.PORTS_OFFSET);
@@ -159,7 +164,7 @@ public class WorkflowImplServiceComponent {
                 if (hostName == null) {
                     hostName = NetworkUtils.getLocalHostname();
                 }
-                String url = "https://" + hostName + ":" + (9443 + Integer.parseInt(offset));
+
 
                 bpsProfileDTO.setManagerHostURL(url);
                 bpsProfileDTO.setWorkerHostURL(url);
@@ -168,11 +173,15 @@ public class WorkflowImplServiceComponent {
                 bpsProfileDTO.setCallbackUser(userName);
                 bpsProfileDTO.setCallbackPassword(password);
                 bpsProfileDTO.setProfileName(WFConstant.DEFAULT_BPS_PROFILE);
-
-                workflowImplService.addBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);
-                if (log.isDebugEnabled()) {
-                    log.info("Default BPS profile added to the DB");
+                if (currentBpsProfile == null) {
+                    workflowImplService.addBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);
+                    if (log.isDebugEnabled()) {
+                        log.info("Default BPS profile added to the DB");
+                    }
+                } else if (!currentBpsProfile.getWorkerHostURL().equals(url)) {
+                    workflowImplService.updateBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);
                 }
+
             }
         } catch (SocketException e) {
             //This is not thrown exception because this is not blocked to the other functionality. User can create
@@ -206,5 +215,14 @@ public class WorkflowImplServiceComponent {
         return content;
     }
 
+    protected void unsetIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
+        /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
+         is started */
+    }
+
+    protected void setIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
+        /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
+         is started */
+    }
 
 }
