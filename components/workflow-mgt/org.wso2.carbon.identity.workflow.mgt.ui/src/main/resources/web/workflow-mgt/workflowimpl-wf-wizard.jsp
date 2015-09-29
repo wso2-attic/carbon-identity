@@ -194,7 +194,7 @@
     <script type="text/javascript">
 
         function goBack() {
-            location.href = "template-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_BACK%>=true&<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=Encode.forJavaScriptBlock(requestToken)%>";
+            location.href = "template-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_BACK%>=true&<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(requestToken))%>";
         }
 
         function doCancel() {
@@ -331,7 +331,7 @@
                     <table class="styledLeft">
                         <thead>
                         <tr>
-                            <th><fmt:message key='workflow.template'/> : <%= Encode.forHtmlAttribute(workflowImpl.getWorkflowImplName()) %></th>
+                            <th><fmt:message key='workflow.template'/> : <%= Encode.forHtml(workflowImpl.getWorkflowImplName()) %></th>
                         </tr>
                         </thead>
                         <tr>
@@ -457,7 +457,7 @@
                                                 %>
 
                                                 try {
-                                                    addStep("<%=Encode.forJavaScriptAttribute(users)%>", "<%=Encode.forJavaScriptAttribute(roles)%>");
+                                                    addStep("<%=Encode.forJavaScriptBlock(users)%>", "<%=Encode.forJavaScriptBlock(roles)%>");
                                                 }catch(e){
 
                                                 }

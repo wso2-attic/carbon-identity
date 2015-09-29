@@ -218,7 +218,7 @@
     <script type="text/javascript">
 
         function goBack() {
-            location.href = "add-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_BACK%>=true&<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=Encode.forJavaScriptBlock(requestToken)%>";
+            location.href = "add-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_BACK%>=true&<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(requestToken))%>";
         }
 
         function doCancel() {
@@ -337,7 +337,7 @@
                                             selected = "selected" ;
                                         }
                                 %>
-                                    <option value="<%=Encode.forHtmlAttribute(templateTmp.getTemplateId())%>" <%=Encode.forHtmlAttribute(selected)%>>
+                                    <option value="<%=Encode.forHtmlAttribute(templateTmp.getTemplateId())%>" <%=selected%>>
                                         <%=Encode.forHtmlContent(templateTmp.getName())%>
                                     </option>
                                 <%
@@ -365,7 +365,7 @@
                 <table class="styledLeft">
                     <thead>
                     <tr>
-                        <th><fmt:message key='workflow.template'/> : <%= Encode.forHtmlAttribute(template.getName())%></th>
+                        <th><fmt:message key='workflow.template'/> : <%= Encode.forHtml(template.getName())%></th>
                     </tr>
                     </thead>
                     <tr>
@@ -487,7 +487,7 @@
                                             %>
 
                                                 try {
-                                                    addStep("<%=Encode.forJavaScriptAttribute(users)%>", "<%=Encode.forJavaScriptAttribute(roles)%>");
+                                                    addStep("<%=Encode.forJavaScriptBlock(users)%>", "<%=Encode.forJavaScriptBlock(roles)%>");
                                                 }catch(e){
 
                                                 }
@@ -519,14 +519,14 @@
                                                            '<tr id="id_step_roles_'+stepOrder+'" style="display:none;">' +
                                                            '<td style="width:100%;">' +
                                                            '<table  style="width:100%;">' +
-                                                           '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input readonly  name="<%=Encode.forJavaScriptAttribute(metaData.getName())%>-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text"  class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                           '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input readonly  name="<%=Encode.forJavaScriptBlock(Encode.forHtmlAttribute(metaData.getName()))%>-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text"  class="tokenizer_'+stepOrder+'"/></td></tr>' +
                                                            '</table>' +
                                                            '</td>' +
                                                            '</tr>' +
                                                            '<tr id="id_step_users_'+stepOrder+'" style="width:100%;display:none;">' +
                                                            '<td style="width:100%;">' +
                                                            '<table style="width:100%;">' +
-                                                           '<tr><td width="40px">Users</td><td onclick="moveSearchController(\''+stepOrder+'\',\'users\', false);"><input readonly  name="<%=Encode.forJavaScriptAttribute(metaData.getName())%>-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                           '<tr><td width="40px">Users</td><td onclick="moveSearchController(\''+stepOrder+'\',\'users\', false);"><input readonly  name="<%=Encode.forJavaScriptBlock(Encode.forHtmlAttribute(metaData.getName()))%>-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
                                                            '</table>' +
                                                            '</td>' +
                                                            '</tr>' +

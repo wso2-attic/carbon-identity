@@ -217,7 +217,7 @@
                                         <table class="styledLeft noBorders" style="margin-top: 10px">
                                             <thead>
                                             <tr>
-                                                <th colspan="2"><%=key%></th>
+                                                <th colspan="2"><%=Encode.forHtmlContent(key)%></th>
                                             </tr>
                                             </thead>
                                             <tbody>
