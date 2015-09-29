@@ -123,7 +123,7 @@ try {
 	                  </tr>
 	                  <tr>
 	                      <td><fmt:message key='valid.period'/><font class="required">*</font> </td>  
-	                      <td><input type="text" name="validPeriod" id="validPeriod" value="<%=Encode.forHtmlAttribute(String.valueOf(cardIssuer.getValidPeriodInDays()))%>" /></td>
+	                      <td><input type="text" name="validPeriod" id="validPeriod" value="<%=cardIssuer.getValidPeriodInDays()%>" /></td>
 	                  </tr>
 	                    <tr>
 	                      <td><fmt:message key='supporting.token.types'/><font class="required">*</font></td>
