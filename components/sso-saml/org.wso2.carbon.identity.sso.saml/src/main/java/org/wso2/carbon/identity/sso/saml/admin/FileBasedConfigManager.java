@@ -141,6 +141,12 @@ public class FileBasedConfigManager {
             } else {
                 spDO.setSigningAlgorithmUri(IdentityApplicationManagementUtil.getSigningAlgoURIByConfig());
             }
+            if (getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SSO_DEFAULT_DIGEST_ALGORITHM) != null) {
+                spDO.setDigestAlgorithmUri(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig
+                        .SSO_DEFAULT_DIGEST_ALGORITHM));
+            } else {
+                spDO.setDigestAlgorithmUri(IdentityApplicationManagementUtil.getDigestAlgoURIByConfig());
+            }
             if (validateSignature || encryptAssertion) {
                 certAlias = getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CERT_ALIAS);
                 if (certAlias == null) {
