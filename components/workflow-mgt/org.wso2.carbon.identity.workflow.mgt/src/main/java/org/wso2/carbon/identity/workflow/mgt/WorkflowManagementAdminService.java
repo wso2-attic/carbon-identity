@@ -354,7 +354,7 @@ public class WorkflowManagementAdminService {
     public void deleteWorkflowRequest(String requestId) throws WorkflowException {
 
         WorkflowServiceDataHolder.getInstance().getWorkflowService()
-                .updateStatusOfRequest(requestId, WorkflowRequestStatus.DELETED.toString());
+                .deleteWorkflowRequest(requestId);
     }
 
     /**

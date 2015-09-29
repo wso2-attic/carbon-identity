@@ -34,9 +34,11 @@ import org.wso2.carbon.identity.workflow.impl.WorkflowImplService;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplServiceImpl;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplTenantMgtListener;
+import org.wso2.carbon.identity.workflow.impl.listener.WorkflowRequestDeleteListenerImpl;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowRequestDeleteListener;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
@@ -53,15 +55,15 @@ import java.net.SocketException;
 import java.net.URISyntaxException;
 
 /**
- * @scr.component name="identity.workflow.impl" immediate="true"
- * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
+ * @scr.component name="org.wso2.carbon.identity.workflow.impl" immediate="true"
+ * @scr.reference name="org.wso2.carbon.user.core.service.realmservice" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
- * @scr.reference name="workflow.service"
+ * @scr.reference name="org.wso2.carbon.identity.workflow.mgt.workflowservice"
  * interface="org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService"
  * cardinality="0..n" policy="dynamic" bind="setWorkflowManagementService"
  * unbind="unsetWorkflowManagementService"
- * @scr.reference name="config.context.service"
+ * @scr.reference name="org.wso2.carbon.utils.contextservice"
  * interface="org.wso2.carbon.utils.ConfigurationContextService"
  * cardinality="1..1" policy="dynamic"  bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
@@ -80,9 +82,8 @@ public class WorkflowImplServiceComponent {
 
             TemplateInitializer templateInitializer = new BPELDeployer();
             WorkFlowExecutor workFlowExecutor = new RequestExecutor();
-            bundleContext
-                    .registerService(AbstractWorkflow.class, new ApprovalWorkflow(templateInitializer,
-                                                                                  workFlowExecutor, metaDataXML), null);
+            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(templateInitializer,workFlowExecutor, metaDataXML), null);
+            bundleContext.registerService(WorkflowRequestDeleteListener.class, new WorkflowRequestDeleteListenerImpl(), null);
 
             WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
 

@@ -35,7 +35,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
- * @scr.component name="identity.workflow.template" immediate="true"
+ * @scr.component name="org.wso2.carbon.identity.workflow.template" immediate="true"
  */
 public class WorkflowTemplateServiceComponent {
 
@@ -50,8 +50,8 @@ public class WorkflowTemplateServiceComponent {
             String templateParamMetaDataXML = readTemplateParamMetaDataXML(TemplateConstant.TEMPLATE_PARAMETER_METADATA_FILE_NAME);
             bundleContext.registerService(AbstractTemplate.class, new MultiStepApprovalTemplate(templateParamMetaDataXML),null);
 
-        }catch(Throwable e2){
-            e2.printStackTrace();
+        }catch(Throwable e){
+            log.error("Error occurred while activating WorkflowTemplateServiceComponent bundle, " + e.getMessage());
         }
     }
 
