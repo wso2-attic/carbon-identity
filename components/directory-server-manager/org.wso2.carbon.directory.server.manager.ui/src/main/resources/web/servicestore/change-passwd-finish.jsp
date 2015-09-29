@@ -22,7 +22,6 @@
 <%@page import="org.wso2.carbon.directory.server.manager.ui.DirectoryServerManagerClient" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@page import="java.text.MessageFormat" %>
 <%@ page import="org.owasp.encoder.Encode" %>
@@ -72,7 +71,7 @@
         String message = MessageFormat.format(resourceBundle.getString(e.getMessage()),
                 new Object[]{servicePrincipleName});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "change-passwd.jsp?spnName=" + servicePrincipleName;
+        forwardTo = "change-passwd.jsp?spnName=" + Encode.forUriComponent(servicePrincipleName);
     }
 %>
 

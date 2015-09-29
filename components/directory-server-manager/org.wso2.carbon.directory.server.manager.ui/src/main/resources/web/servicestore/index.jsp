@@ -155,9 +155,9 @@
                                 <td><%=Encode.forHtml(principle.getServerName())%></td>
                                 <td><%=Encode.forHtml(principle.getServerDescription())%></td>
                                 <td>
-                                    <a href="#" onclick="changeSpnPassword('<%=Encode.forHtmlAttribute(principle.getServerName())%>')" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit"/></a>
+                                    <a href="#" onclick="changeSpnPassword('<%=Encode.forJavascriptAttribute(principle.getServerName())%>')" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit"/></a>
                                      &nbsp;
-                                    <a href="#" onclick="deleteServicePrinciple('<%=Encode.forHtmlAttribute(principle.getServerName())%>')" class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
+                                    <a href="#" onclick="deleteServicePrinciple('<%=Encode.forJavascriptAttribute(principle.getServerName())%>')" class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
                                 </td>
                             </tr>
 

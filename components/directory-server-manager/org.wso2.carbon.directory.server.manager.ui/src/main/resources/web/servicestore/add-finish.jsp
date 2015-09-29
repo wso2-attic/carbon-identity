@@ -91,7 +91,7 @@
         }
     }else {
     %>
-    location.href = '<%=Encode.forJavaScriptBlock(forwardTo)%>';
+    location.href = '<%=forwardTo%>';
     <% } %>
 
 </script>

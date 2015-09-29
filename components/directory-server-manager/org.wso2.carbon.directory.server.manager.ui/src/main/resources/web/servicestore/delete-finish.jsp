@@ -22,7 +22,6 @@
 <%@page import="org.wso2.carbon.directory.server.manager.ui.DirectoryServerManagerClient" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@page import="java.text.MessageFormat" %>
 <%@ page import="org.owasp.encoder.Encode" %>
@@ -87,7 +86,7 @@
         }
     }else {
     %>
-    location.href = '<%=Encode.forUriComponent(forwardTo)%>';
+    location.href = '<%=forwardTo%>';
     <% } %>
 </script>
 
