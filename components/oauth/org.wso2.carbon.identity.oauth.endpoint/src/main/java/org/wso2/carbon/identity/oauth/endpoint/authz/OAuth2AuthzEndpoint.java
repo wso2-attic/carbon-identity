@@ -28,12 +28,10 @@ import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
@@ -171,8 +169,7 @@ public class OAuth2AuthzEndpoint {
                 OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
                 AuthenticationResult authnResult = getAuthenticationResultFromCache(sessionDataKeyFromLogin);
                 if (authnResult != null) {
-                    AuthenticationResultCache.getInstance(0).
-                            clearCacheEntry(new AuthenticationResultCacheKey(sessionDataKeyFromLogin));
+                    FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKeyFromLogin);
 
                     String redirectURL = null;
                     if (authnResult.isAuthenticated()) {
@@ -478,9 +475,6 @@ public class OAuth2AuthzEndpoint {
             params.setACRValues(list);
         }
         String prompt = oauthRequest.getParam(OAuthConstants.OAuth20Params.PROMPT);
-        if (StringUtils.isBlank(prompt)) {
-            prompt = "consent";
-        }
         params.setPrompt(prompt);
 
         /**
@@ -516,10 +510,13 @@ public class OAuth2AuthzEndpoint {
         boolean forceAuthenticate = false;
         boolean checkAuthentication = false;
 
-            // values {none, login, consent, select_profile}
-            String[] prompts = prompt.trim().split("\\s");
-            boolean containsNone = prompt.contains(OAuthConstants.Prompt.NONE);
-            if (prompts.length > 1 && containsNone) {
+        // values {none, login, consent, select_profile}
+        boolean contains_none = (OAuthConstants.Prompt.NONE).equals(prompt);
+        String[] prompts = null;
+        if (StringUtils.isNotBlank(prompt)) {
+            prompts = prompt.trim().split("\\s");
+            contains_none = (OAuthConstants.Prompt.NONE).equals(prompt);
+            if (prompts.length > 1 && contains_none) {
                 if (log.isDebugEnabled()) {
                     log.debug("Invalid prompt variable combination. The value 'none' cannot be used with others " +
                             "prompts. Prompt: " + prompt);
@@ -530,14 +527,15 @@ public class OAuth2AuthzEndpoint {
                                 "with others prompts.").location(params.getRedirectURI())
                         .setState(params.getState()).buildQueryMessage().getLocationUri();
             }
+        }
 
-        if (prompt.contains(OAuthConstants.Prompt.LOGIN)) { // prompt for authentication
+        if ((OAuthConstants.Prompt.LOGIN).equals(prompt)) { // prompt for authentication
             checkAuthentication = false;
             forceAuthenticate = true;
-        } else if (containsNone) {
+        } else if (contains_none) {
             checkAuthentication = true;
             forceAuthenticate = false;
-        } else if (prompt.contains(OAuthConstants.Prompt.CONSENT)) {
+        } else if ((OAuthConstants.Prompt.CONSENT).equals(prompt)) {
             checkAuthentication = false;
             forceAuthenticate = false;
         }
@@ -625,24 +623,29 @@ public class OAuth2AuthzEndpoint {
                 OAuth2Util.isOIDCAuthzRequest(oauth2Params.getScopes()) ? true : false);
 
         //Skip the consent page if User has provided approve always or skip consent from file
-        if (oauth2Params.getPrompt().contains(OAuthConstants.Prompt.CONSENT) ||
-                oauth2Params.getPrompt().contains(OAuthConstants.Prompt.LOGIN)) {
+        if ((OAuthConstants.Prompt.CONSENT).equals(oauth2Params.getPrompt())) {
             return consentUrl;
 
-        } else if (oauth2Params.getPrompt().contains(OAuthConstants.Prompt.NONE)) {
+        } else if ((OAuthConstants.Prompt.NONE).equals(oauth2Params.getPrompt())) {
             //Returning error if the user has not previous session
             if (sessionDataCacheEntry.getLoggedInUser() == null) {
                 return errorResponse;
             } else {
                 if (skipConsent || hasUserApproved) {
-                    return handleUserConsent(request, OAuthConstants.Consent.APPROVE, oauth2Params, sessionDataCacheEntry);
+                    return handleUserConsent(request, APPROVE, oauth2Params, sessionDataCacheEntry);
                 } else {
                     return errorResponse;
                 }
             }
 
+        } else if (((OAuthConstants.Prompt.LOGIN).equals(oauth2Params.getPrompt()) || StringUtils.isBlank(oauth2Params.getPrompt()))) {
+            if (skipConsent || hasUserApproved) {
+                return handleUserConsent(request, APPROVE, oauth2Params, sessionDataCacheEntry);
+            } else {
+                return consentUrl;
+            }
         } else {
-            return consentUrl;
+            return StringUtils.EMPTY;
         }
 
     }
@@ -679,13 +682,9 @@ public class OAuth2AuthzEndpoint {
     }
 
     private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
-
-        AuthenticationResultCacheKey authResultCacheKey = new AuthenticationResultCacheKey(sessionDataKey);
-        CacheEntry cacheEntry = AuthenticationResultCache.getInstance(0).getValueFromCache(authResultCacheKey);
         AuthenticationResult authResult = null;
-
-        if (cacheEntry != null) {
-            AuthenticationResultCacheEntry authResultCacheEntry = (AuthenticationResultCacheEntry) cacheEntry;
+        AuthenticationResultCacheEntry authResultCacheEntry = FrameworkUtils.getAuthenticationResultFromCache(sessionDataKey);
+        if (authResultCacheEntry != null) {
             authResult = authResultCacheEntry.getResult();
         } else {
             log.error("Cannot find AuthenticationResult from the cache");

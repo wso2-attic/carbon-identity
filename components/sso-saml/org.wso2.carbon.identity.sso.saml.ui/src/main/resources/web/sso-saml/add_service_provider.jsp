@@ -89,6 +89,7 @@ function doValidation() {
         return false;
     }
 
+    
     var fld3 = document.getElementsByName("logoutURL")[0];
     var value = fld3.value;
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
@@ -893,6 +894,76 @@ function clearAll() {
 <%		}
 	}%>
 
+<!--selectResponseSignAlgo-->
+<tr id="defaultSigningAlgorithmRow">
+    <td>
+        <fmt:message key="sp.signingAlgorithm"/>
+        <font color="red">*</font>
+    </td>
+    <td>
+        <select id="signingAlgorithm" name="signingAlgorithm">
+            <%
+                if (spConfigClient.getSigningAlgorithmUris() != null) {
+                    for (String signingAlgo : spConfigClient.getSigningAlgorithmUris()) {
+                        String signAlgorithm = null;
+                        if (provider != null) {
+                            signAlgorithm = provider.getSigningAlgorithmURI();
+                        }
+                        else{
+                            signAlgorithm = spConfigClient.getSigningAlgorithmUriByConfig();
+                        }
+                        if (signAlgorithm != null && signingAlgo.equals(signAlgorithm)) {
+            %>
+            <option value="<%=signingAlgo%>" selected><%=signingAlgo%>
+            </option>
+            <%
+            } else {
+            %>
+            <option value="<%=signingAlgo%>"><%=signingAlgo%>
+            </option>
+            <%
+                        }
+                    }
+                }
+            %>
+        </select>
+    </td>
+</tr>
+
+<!--digestAlgorithmRow-->
+<tr id="digestAlgorithmRow">
+    <td>
+        <fmt:message key="sp.digestAlgorithm"/>
+        <font color="red">*</font>
+    </td>
+    <td>
+        <select id="digestAlgorithm" name="digestAlgorithm">
+            <%
+                if (spConfigClient.getDigestAlgorithmURIs() != null) {
+                    for (String digestAlgo : spConfigClient.getDigestAlgorithmURIs()) {
+                        String digestAlgorithm = null;
+                        if (provider != null) {
+                            digestAlgorithm = provider.getDigestAlgorithmURI();
+                        } else {
+                            digestAlgorithm = spConfigClient.getDigestAlgorithmURIByConfig();
+                        }
+                        if (digestAlgorithm != null && digestAlgo.equals(digestAlgorithm)) {
+            %>
+            <option value="<%=digestAlgo%>" selected><%=digestAlgo%>
+            </option>
+            <%
+            } else {
+            %>
+            <option value="<%=digestAlgo%>"><%=digestAlgo%>
+            </option>
+            <%
+                        }
+                    }
+                }
+            %>
+        </select>
+    </td>
+</tr>
 <tr>
     <td colspan="2">
         <input type="checkbox" name="enableResponseSignature" value="true"

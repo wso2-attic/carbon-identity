@@ -21,10 +21,7 @@ import org.wso2.carbon.identity.application.common.cache.CacheKey;
 
 public class IdPHomeRealmIdCacheKey extends CacheKey {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 8614291529494760436L;
     private String homeRealmId;
 
     public IdPHomeRealmIdCacheKey(String homeRealmId, String tenantDomain) {
