@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.application.authentication.framework.handler.req
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 
 import javax.servlet.ServletException;
@@ -99,15 +100,15 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                     sequenceConfig.getAuthenticatedReqPathAuthenticator() != null) {
                     idpName = FrameworkConstants.LOCAL_IDP_NAME;
                 }
-                ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
-                        .getIdPConfigByName(idpName, context.getTenantDomain());
-                context.setExternalIdP(externalIdPConfig);
-                context.setAuthenticatorProperties(FrameworkUtils
-                                                           .getAuthenticatorPropertyMapFromIdP(
-                                                                   externalIdPConfig, authenticator.getName()));
-                context.setStateInfo(authenticatorConfig.getAuthenticatorStateInfo());
-
                 try {
+                    ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
+                            .getIdPConfigByName(idpName, context.getTenantDomain());
+                    context.setExternalIdP(externalIdPConfig);
+                    context.setAuthenticatorProperties(FrameworkUtils
+                            .getAuthenticatorPropertyMapFromIdP(
+                                    externalIdPConfig, authenticator.getName()));
+                    context.setStateInfo(authenticatorConfig.getAuthenticatorStateInfo());
+
                     AuthenticatorFlowStatus status = authenticator.process(request, response, context);
 
                     if (!status.equals(AuthenticatorFlowStatus.INCOMPLETE)) {
@@ -117,12 +118,12 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                         continue;
                     }
                     // sends the logout request to the external IdP
-                    FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(),context
-                            , IdPManagementUtil.getIdleSessionTimeOut(CarbonContext.
-                                                  getThreadLocalCarbonContext().getTenantDomain()));
+                    FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(), context);
                     return;
                 } catch (AuthenticationFailedException | LogoutFailedException e) {
-                    throw new FrameworkException(e.getMessage(), e);
+                    throw new FrameworkException("Exception while handling logout request", e);
+                } catch (IdentityProviderManagementException e) {
+                    log.error("Exception while getting IdP by name", e);
                 }
             }
         }
@@ -165,8 +166,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
             }
 
             // Put the result in the
-            FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult,
-                                                          FrameworkUtils.getMaxInactiveInterval());
+            FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
 
             redirectURL = context.getCallerPath() + "?sessionDataKey=" + context.getCallerSessionKey();
         } else {

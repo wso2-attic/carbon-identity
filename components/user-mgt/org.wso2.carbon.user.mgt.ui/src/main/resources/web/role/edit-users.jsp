@@ -408,9 +408,9 @@
                                                         String doEdit = "";
                                                         String doCheck = "";
                                                         String userName = users[i].getItemName();
-                                                        String disPlayName = users[i].getItemDisplayName();
-                                                        if (disPlayName == null || disPlayName.trim().length() == 0) {
-                                                            disPlayName = userName;
+                                                        String displayName = users[i].getItemDisplayName();
+                                                        if (displayName == null || displayName.trim().length() == 0) {
+                                                            displayName = userName;
                                                         }
                                                         if (users[i].getItemName()
                                                                 .equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
@@ -434,7 +434,7 @@
                                         <%
                                         } else {
                                         %>
-                                        <%=Encode.forHtml(disPlayName)%>
+                                        <%=Encode.forHtml(displayName)%>
                                         <%
                                             }
                                         %>

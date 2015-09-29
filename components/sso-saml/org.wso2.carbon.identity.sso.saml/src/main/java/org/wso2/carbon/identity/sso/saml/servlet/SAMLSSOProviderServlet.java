@@ -436,8 +436,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         // Creating cache entry and adding entry to the cache before calling to commonauth
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                 (authenticationRequest);
-        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
-                IdPManagementUtil.getIdleSessionTimeOut(sessionDTO.getTenantDomain()));
+        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
         StringBuilder queryStringBuilder = new StringBuilder();
         queryStringBuilder.append(commonAuthURL).
                 append("?").
@@ -505,8 +504,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                 (authenticationRequest);
-        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
-                                                       IdPManagementUtil.getIdleSessionTimeOut(CarbonContext.getThreadLocalCarbonContext().getTenantDomain()));
+        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
         String queryParams = "?" + SAMLSSOConstants.SESSION_DATA_KEY + "=" + sessionDataKey
                              + "&" + "type" + "=" + "samlsso";
 
@@ -848,13 +846,9 @@ public class SAMLSSOProviderServlet extends HttpServlet {
     }
 
     private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
-
-        AuthenticationResultCacheKey authResultCacheKey = new AuthenticationResultCacheKey(sessionDataKey);
-        CacheEntry cacheEntry = AuthenticationResultCache.getInstance(0).getValueFromCache(authResultCacheKey);
         AuthenticationResult authResult = null;
-
-        if (cacheEntry != null) {
-            AuthenticationResultCacheEntry authResultCacheEntry = (AuthenticationResultCacheEntry) cacheEntry;
+        AuthenticationResultCacheEntry authResultCacheEntry = FrameworkUtils.getAuthenticationResultFromCache(sessionDataKey);
+        if (authResultCacheEntry != null) {
             authResult = authResultCacheEntry.getResult();
         } else {
             log.error("Cannot find AuthenticationResult from the cache");
@@ -868,8 +862,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      */
     private void removeAuthenticationResultFromCache(String sessionDataKey) {
         if (sessionDataKey != null) {
-            AuthenticationResultCacheKey cacheKey = new AuthenticationResultCacheKey(sessionDataKey);
-            AuthenticationResultCache.getInstance(0).clearCacheEntry(cacheKey);
+            FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKey);
         }
     }
 

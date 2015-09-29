@@ -116,6 +116,8 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.apache.neethi; version="${neethi.osgi.version.range}",
                             org.apache.axiom.*; version="${axiom.osgi.version.range}",
+                            org.wso2.carbon.security.*,
+                            javax.cache
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.sts.internal,

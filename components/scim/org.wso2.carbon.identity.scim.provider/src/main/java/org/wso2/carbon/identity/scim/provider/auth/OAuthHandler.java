@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.message.Message;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.ProvisioningServiceProviderType;
 import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
@@ -33,6 +34,7 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.scim.provider.util.SCIMProviderConstants;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.wso2.charon.core.schema.SCIMConstants;
 
@@ -119,6 +121,8 @@ public class OAuthHandler implements SCIMAuthenticationHandler {
                     authzHeaders.set(0, userName);
 
                     // setup thread local variable to be consumed by the provisioning framework.
+                    RealmService realmService = (RealmService) PrivilegedCarbonContext
+                            .getThreadLocalCarbonContext().getOSGiService(RealmService.class);
                     ThreadLocalProvisioningServiceProvider serviceProvider = new ThreadLocalProvisioningServiceProvider();
                     serviceProvider.setServiceProviderName(validationApp.getConsumerKey());
                     serviceProvider
@@ -127,7 +131,12 @@ public class OAuthHandler implements SCIMAuthenticationHandler {
                     serviceProvider.setTenantDomain(MultitenantUtils.getTenantDomain(userName));
                     IdentityApplicationManagementUtil
                             .setThreadLocalProvisioningServiceProvider(serviceProvider);
-
+                    PrivilegedCarbonContext.startTenantFlow();
+                    PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                    String tenantDomain = MultitenantUtils.getTenantDomain(userName);
+                    carbonContext.setUsername(userName);
+                    carbonContext.setTenantId(realmService.getTenantManager().getTenantId(tenantDomain));
+                    carbonContext.setTenantDomain(tenantDomain);
                     return true;
                 }
             } catch (Exception e) {

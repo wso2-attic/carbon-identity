@@ -712,7 +712,6 @@ public class UserRealmProxy {
                     .append(userName);
             userName = builder.toString();
         }
-
         return userName;
     }
 

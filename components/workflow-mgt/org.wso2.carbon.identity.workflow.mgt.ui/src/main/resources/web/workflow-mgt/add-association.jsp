@@ -23,10 +23,6 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.ParameterDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -38,6 +34,10 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.Association" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowEvent" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowWizard" %>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -46,7 +46,7 @@
 <%
     String wizard = request.getParameter("wizard");
     String forwardTo = null;
-    AssociationDTO associationDTO = new AssociationDTO();
+    Association association = new Association();
     String workflowName = "" ;
 
     String workflowId = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID);
@@ -59,17 +59,17 @@
         String operationCategory =
                 request.getParameter(WorkflowUIConstants.PARAM_OPERATION_CATEGORY);
         String condition = request.getParameter(WorkflowUIConstants.PARAM_ASSOCIATION_CONDITION);
-        associationDTO = new AssociationDTO();
-        associationDTO.setAssociationName(name);
-        associationDTO.setEventName(operation);
-        associationDTO.setCondition(condition);
-        associationDTO.setEventCategory(operationCategory);
+        association = new Association();
+        association.setAssociationName(name);
+        association.setEventName(operation);
+        association.setCondition(condition);
+        association.setEventCategory(operationCategory);
 
-        session.setAttribute("add-association", associationDTO);
-        forwardTo = "add-workflow.jsp?path=add-association" ;
+        session.setAttribute("add-association", association);
+        forwardTo = "add-wf-wizard.jsp?"+WorkflowUIConstants.PARAM_REQUEST_PATH+"=add-association" ;
 
     }else if("finish".equals(wizard)){
-        associationDTO = (AssociationDTO)session.getAttribute("add-association");
+        association = (Association)session.getAttribute("add-association");
         workflowName = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_NAME);
     }
 
@@ -78,8 +78,8 @@
     WorkflowAdminServiceClient client = null;
 
 
-    WorkflowEventDTO[] workflowEvents = null;
-    Map<String, List<WorkflowEventDTO>> events = new HashMap<String, List<WorkflowEventDTO>>();
+    WorkflowEvent[] workflowEvents = null;
+    Map<String, List<WorkflowEvent>> events = new HashMap<String, List<WorkflowEvent>>();
 
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -90,10 +90,10 @@
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
 
         workflowEvents = client.listWorkflowEvents();
-        for (WorkflowEventDTO event : workflowEvents) {
+        for (WorkflowEvent event : workflowEvents) {
             String category = event.getEventCategory();
             if (!events.containsKey(category)) {
-                events.put(category, new ArrayList<WorkflowEventDTO>());
+                events.put(category, new ArrayList<WorkflowEvent>());
             }
             events.get(category).add(event);
         }
@@ -130,11 +130,11 @@
         var lastSelectedCategory = '';
 
         <%
-            for (Map.Entry<String,List<WorkflowEventDTO>> eventCategory : events.entrySet()) {
+            for (Map.Entry<String,List<WorkflowEvent>> eventCategory : events.entrySet()) {
         %>
                 eventsObj["<%=eventCategory.getKey()%>"] = [];
         <%
-                for (WorkflowEventDTO event : eventCategory.getValue()) {
+                for (WorkflowEvent event : eventCategory.getValue()) {
         %>
                     var eventObj = {};
                     eventObj.displayName = "<%=event.getEventFriendlyName()%>";
@@ -183,18 +183,18 @@
         var selectionType = "applyToAll";
         <%
         if (workflowEvents != null) {
-        for (WorkflowEventDTO event : workflowEvents) {
+        for (WorkflowEvent event : workflowEvents) {
         %>
         paramDefs["<%=event.getEventId()%>"] = {};
         <%
-                for (ParameterDTO parameter : event.getParameterDTOs()) {
+                for (Parameter parameter : event.getParameters()) {
                     if(parameter!=null){
 
             %>
         paramDefs["<%=event.getEventId()%>"]["<%=parameter.getParamName()%>"] = "<%=parameter.getParamValue()%>";
         <%
                     }else {
-                    System.out.println(event.getEventId()+" "+event.getParameterDTOs().length);
+
                     }
                 }
             }
@@ -408,9 +408,9 @@
                             <td width="30%"><fmt:message key="workflow.service.association.name"/></td>
                             <td>
                                 <%
-                                    if(associationDTO != null && associationDTO.getAssociationName() != null && !associationDTO.getAssociationName().isEmpty()){
+                                    if(association != null && association.getAssociationName() != null && !association.getAssociationName().isEmpty()){
                                 %>
-                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" id="id_<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" style="min-width: 30%;" value="<%=associationDTO.getAssociationName()%>">
+                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" id="id_<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" style="min-width: 30%;" value="<%=association.getAssociationName()%>">
                                 <%
                                     }else{
                                 %>
@@ -428,7 +428,7 @@
                                     <option  selected value=""><fmt:message key="select"/></option>
                                     <%
                                         for (String key : events.keySet()) {
-                                            if(key.equals(associationDTO.getEventCategory())){
+                                            if(key.equals(association.getEventCategory())){
                                     %>
                                                 <option selected value="<%=key%>"><%=key%>
                                                 </option>
@@ -452,11 +452,11 @@
                                 <select id="actionDropdown" onchange="updateParams();" style="min-width: 30%;" name="<%=WorkflowUIConstants.PARAM_OPERATION%>" class="enableOnCategorySel">
                                     <option  selected value=""><fmt:message key="select"/></option>
                                     <%
-                                        if(associationDTO != null && associationDTO.getEventCategory() != null && !associationDTO.getEventCategory().isEmpty()){
-                                            for (Map.Entry<String,List<WorkflowEventDTO>> eventCategory : events.entrySet()) {
-                                                if(eventCategory.getKey().equals(associationDTO.getEventCategory())){
-                                                    for (WorkflowEventDTO event : eventCategory.getValue()) {
-                                                        if(event.getEventId().equals(associationDTO.getEventName())){
+                                        if(association != null && association.getEventCategory() != null && !association.getEventCategory().isEmpty()){
+                                            for (Map.Entry<String,List<WorkflowEvent>> eventCategory : events.entrySet()) {
+                                                if(eventCategory.getKey().equals(association.getEventCategory())){
+                                                    for (WorkflowEvent event : eventCategory.getValue()) {
+                                                        if(event.getEventId().equals(association.getEventName())){
                                     %>
                                                             <option selected value="<%=event.getEventId()%>"><%=event.getEventId()%>
                                     <%
@@ -502,7 +502,7 @@
                                     <option value=""><fmt:message key="select"/></option>
                                     <option value="create_new_workflow">Create New WorkFlow...</option>
                                     <%
-                                        for (WorkflowDTO workflowBean : client.listWorkflows()) {
+                                        for (WorkflowWizard workflowBean : client.listWorkflows()) {
                                             if (workflowBean != null) {
                                                 boolean select = false;
                                                 if (StringUtils.equals(workflowId, workflowBean.getWorkflowId()) || StringUtils.equals(workflowName, workflowBean.getWorkflowName())) {

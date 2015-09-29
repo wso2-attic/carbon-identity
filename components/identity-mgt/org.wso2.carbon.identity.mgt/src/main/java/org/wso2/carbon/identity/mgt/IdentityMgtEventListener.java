@@ -85,6 +85,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     private static final String USER_IDENTITY_DO = "UserIdentityDO";
     private static final String EMAIL_NOTIFICATION_TYPE = "EMAIL";
     private static final String UNLOCK_ADMIN_SYS_PROP = "unlockAdmin";
+    private static final String PASSWORD_INVALID = "PasswordInvalid";
     PolicyRegistry policyRegistry = null;
     private UserIdentityDataStore module;
     private IdentityMgtConfig identityMgtConfig;
@@ -94,6 +95,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     private static final String DO_POST_ADD_USER = "doPostAddUser";
     private static final String DO_PRE_SET_USER_CLAIM_VALUES = "doPreSetUserClaimValues";
     private static final String DO_POST_UPDATE_CREDENTIAL = "doPostUpdateCredential";
+    private static final String ASK_PASSWORD_FEATURE_IS_DISABLED = "Ask Password Feature is disabled";
+
 
 
 
@@ -449,7 +452,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
         if (!isEnable()) {
             if (credential == null || StringUtils.isBlank(credential.toString())) {
                 log.error("Identity Management listener is disabled");
-                throw new UserStoreException("Ask Password Feature is disabled");
+                throw new UserStoreException(PASSWORD_INVALID + ASK_PASSWORD_FEATURE_IS_DISABLED);
             }
             return true;
         }
@@ -476,7 +479,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
             if (!config.isEnableTemporaryPassword()) {
                 log.error("Temporary password property is disabled");
-                throw new UserStoreException("Ask Password Feature is disabled");
+                throw new UserStoreException(ASK_PASSWORD_FEATURE_IS_DISABLED);
             }
             if (log.isDebugEnabled()) {
                 log.debug("Credentials are null. Using a temporary password as credentials");
