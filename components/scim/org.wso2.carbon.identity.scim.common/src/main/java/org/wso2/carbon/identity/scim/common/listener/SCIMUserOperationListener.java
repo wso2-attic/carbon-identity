@@ -148,26 +148,25 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
             return true;
         }
 
+        //update last-modified-date
         try {
-            //update last-modified-date
-            try {
-                if (userStoreManager.isSCIMEnabled()) {
-                    Date date = new Date();
-                    String lastModifiedDate = AttributeUtil.formatDateTime(date);
-                    userStoreManager.setUserClaimValue(
-                            userName, SCIMConstants.META_LAST_MODIFIED_URI, lastModifiedDate, null);
-                }
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                log.debug(e);
-                throw new UserStoreException(
-                        "Error in obtaining user store information: isSCIMEnabled", e);
+            if (userStoreManager.isSCIMEnabled()) {
+                Date date = new Date();
+                String lastModifiedDate = AttributeUtil.formatDateTime(date);
+                userStoreManager.setUserClaimValue(
+                        userName, SCIMConstants.META_LAST_MODIFIED_URI, lastModifiedDate, null);
             }
-            return true;
-
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(e);
+            if (e.getMessage().contains("UserNotFound")) {
+                if (log.isDebugEnabled()) {
+                    log.debug("User " + userName + " doesn't exist");
+                }
+            } else {
+                throw new UserStoreException("Error updating SCIM metadata in doPostUpdateCredentialByAdmin " +
+                        "listener", e);
+            }
         }
-
+        return true;
     }
 
     @Override
