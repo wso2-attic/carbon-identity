@@ -140,7 +140,7 @@
                                 <td><fmt:message key="user.id"/></td>
                                 <td colspan="2"><input readonly="true" type="text" name="userName"
                                                        id="userName"
-                                                       style="width:400px" value="<%=userName%>"/>
+                                                       style="width:400px" value="<%=Encode.forHtmlAttribute(userName)%>"/>
                             </tr>
                             <tr>
                                 <td><input type="hidden"  name="secretKey" id="secretKey"
@@ -212,7 +212,7 @@
         </form>
     </div>
     <script type="text/javascript">
-        showCaptcha('<%=Encode.forJavaScriptAttribute(captchaImageUrl)%>');
+        showCaptcha('<%=Encode.forJavaScriptBlock(captchaImageUrl)%>');
     </script>
 
     <% } else { %>

@@ -152,7 +152,7 @@
         </table>
 
         <script type="text/javascript">
-              showCaptcha('<%=Encode.forJavaScriptAttribute(captchaImageUrl)%>');
+              showCaptcha('<%=Encode.forJavaScriptBlock(captchaImageUrl)%>');
         </script>
     </form>
 </fmt:bundle>

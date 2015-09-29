@@ -42,7 +42,7 @@
 <%@ page import="org.owasp.encoder.Encode" %>
 
 <%
-	String username = request.getParameter("username");
+    String username = request.getParameter("username");
     String forwardTo = null;
     IdentityManagementAdminClient client = null;
     UserInformationRecoveryClient infoClient = null;
