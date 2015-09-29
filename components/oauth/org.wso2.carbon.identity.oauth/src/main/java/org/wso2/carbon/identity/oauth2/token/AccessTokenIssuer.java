@@ -18,11 +18,10 @@
 
 package org.wso2.carbon.identity.oauth2.token;
 
-import org.apache.amber.oauth2.common.error.OAuthError;
-import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.oltu.openidconnect.as.util.OIDCAuthzServerUtil;
+import org.apache.oltu.oauth2.common.error.OAuthError;
+import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
@@ -212,7 +211,7 @@ public class AccessTokenIssuer {
                     "" + "user-name=" + userName + " to application=" + applicationName);
         }
 
-        if (tokReqMsgCtx.getScope() != null && OIDCAuthzServerUtil.isOIDCAuthzRequest(tokReqMsgCtx.getScope())) {
+        if (tokReqMsgCtx.getScope() != null && OAuth2Util.isOIDCAuthzRequest(tokReqMsgCtx.getScope())) {
             IDTokenBuilder builder = OAuthServerConfiguration.getInstance().getOpenIDConnectIDTokenBuilder();
             tokenRespDTO.setIDToken(builder.buildIDToken(tokReqMsgCtx, tokenRespDTO));
         }

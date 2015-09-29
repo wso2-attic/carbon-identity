@@ -36,9 +36,9 @@
         <schema schemaNamespace="http://mgt.workflow.identity.carbon.wso2.org/xsd"
                 elementFormDefaultQualified="true"/>
         <description>
-            Handles callbacks from the WS workflow executors.
+            Provide Workflow Admin Serivces
         </description>
-        <parameter name="ServiceClass">org.wso2.carbon.identity.workflow.mgt.WorkflowAdminService
+        <parameter name="ServiceClass">org.wso2.carbon.identity.workflow.mgt.WorkflowManagementAdminService
         </parameter>
     </service>
     <!--todo: define a new permission?-->

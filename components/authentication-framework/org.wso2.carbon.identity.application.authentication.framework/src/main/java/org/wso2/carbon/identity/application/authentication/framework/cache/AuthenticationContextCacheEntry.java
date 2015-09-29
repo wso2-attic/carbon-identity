@@ -28,6 +28,10 @@ public class AuthenticationContextCacheEntry extends CacheEntry {
     AuthenticationContext context;
     String loggedInUser;
 
+    public AuthenticationContextCacheEntry(AuthenticationContext authenticationContext) {
+        this.context = authenticationContext;
+    }
+
     public AuthenticationContext getContext() {
         return context;
     }

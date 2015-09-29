@@ -18,16 +18,15 @@
 
 package org.wso2.carbon.identity.oauth.endpoint.token;
 
-import org.apache.amber.oauth2.as.response.OAuthASResponse;
-import org.apache.amber.oauth2.as.response.OAuthASResponse.OAuthTokenResponseBuilder;
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.exception.OAuthProblemException;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.OAuthResponse;
-import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.oltu.openidconnect.as.OIDC;
+import org.apache.oltu.oauth2.as.response.OAuthASResponse;
+import org.apache.oltu.oauth2.as.response.OAuthASResponse.OAuthTokenResponseBuilder;
+import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.message.OAuthResponse;
+import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -119,6 +118,10 @@ public class OAuth2TokenEndpoint {
                     // if there is an auth failure, HTTP 401 Status Code should be sent back to the client.
                     if (OAuth2ErrorCodes.INVALID_CLIENT.equals(oauth2AccessTokenResp.getErrorCode())) {
                         return handleBasicAuthFailure();
+                    } else if ("sql_error".equals(oauth2AccessTokenResp.getErrorCode())){
+                        return handleSQLError();
+                    } else if (OAuth2ErrorCodes.SERVER_ERROR.equals(oauth2AccessTokenResp.getErrorCode())) {
+                        return handleServerError();
                     } else {
                         // Otherwise send back HTTP 400 Status Code
                         OAuthResponse.OAuthErrorResponseBuilder oAuthErrorResponseBuilder = OAuthASResponse
@@ -152,7 +155,8 @@ public class OAuth2TokenEndpoint {
 
                     // OpenID Connect ID token
                     if (oauth2AccessTokenResp.getIDToken() != null) {
-                        oAuthRespBuilder.setParam(OIDC.Response.ID_TOKEN, oauth2AccessTokenResp.getIDToken());
+                        oAuthRespBuilder.setParam(OAuthConstants.ID_TOKEN,
+                                oauth2AccessTokenResp.getIDToken());
                     }
                     OAuthResponse response = oAuthRespBuilder.buildJSONMessage();
                     ResponseHeader[] headers = oauth2AccessTokenResp.getResponseHeaders();
@@ -195,6 +199,23 @@ public class OAuth2TokenEndpoint {
         return Response.status(response.getResponseStatus())
                 .header(OAuthConstants.HTTP_RESP_HEADER_AUTHENTICATE, EndpointUtil.getRealmInfo())
                 .entity(response.getBody()).build();
+    }
+
+    private Response handleServerError() throws OAuthSystemException {
+        OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).
+                setError(OAuth2ErrorCodes.SERVER_ERROR).setErrorDescription("Internal Server Error.").buildJSONMessage();
+
+        return Response.status(response.getResponseStatus()).header(OAuthConstants.HTTP_RESP_HEADER_AUTHENTICATE,
+                        EndpointUtil.getRealmInfo()).entity(response.getBody()).build();
+
+    }
+
+    private Response handleSQLError() throws OAuthSystemException {
+        OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_GATEWAY).
+                setError(OAuth2ErrorCodes.SERVER_ERROR).setErrorDescription("Service Unavailable Error.").buildJSONMessage();
+
+        return Response.status(response.getResponseStatus()).header(OAuthConstants.HTTP_RESP_HEADER_AUTHENTICATE,
+                EndpointUtil.getRealmInfo()).entity(response.getBody()).build();
     }
 
     private void logAccessTokenRequest(HttpServletRequest request) {

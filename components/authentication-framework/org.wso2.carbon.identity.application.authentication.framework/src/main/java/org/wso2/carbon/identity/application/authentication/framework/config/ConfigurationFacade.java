@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.application.authentication.framework.config.mode
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 
 import java.util.List;
@@ -65,7 +66,8 @@ public class ConfigurationFacade {
                                                                      relyingParty, tenantDomain);
     }
 
-    public ExternalIdPConfig getIdPConfigByName(String idpName, String tenantDomain) {
+    public ExternalIdPConfig getIdPConfigByName(String idpName, String tenantDomain)
+            throws IdentityProviderManagementException {
 
         ExternalIdPConfig externalIdPConfig = null;
         IdentityProvider idpDO = null;
@@ -90,14 +92,15 @@ public class ConfigurationFacade {
                     log.debug("A registered IdP was not found the given name");
                 }
             }
-        } catch (IdentityApplicationManagementException e) {
-            log.error("Exception while getting IdP by name", e);
+        } catch (IdentityProviderManagementException e) {
+            throw new IdentityProviderManagementException("Exception while getting IdP by name", e);
         }
 
         return externalIdPConfig;
     }
 
-    public ExternalIdPConfig getIdPConfigByRealm(String realm, String tenantDomain) {
+    public ExternalIdPConfig getIdPConfigByRealm(String realm, String tenantDomain)
+            throws IdentityProviderManagementException {
 
         ExternalIdPConfig externalIdPConfig = null;
         IdentityProvider idpDO = null;
@@ -123,8 +126,8 @@ public class ConfigurationFacade {
                     log.debug("A registered IdP was not found the given realm");
                 }
             }
-        } catch (IdentityApplicationManagementException e) {
-            log.error("Exception while getting IdP by realm", e);
+        } catch (IdentityProviderManagementException e) {
+            throw new IdentityProviderManagementException("Exception while getting IdP by realm", e);
         }
 
         return externalIdPConfig;

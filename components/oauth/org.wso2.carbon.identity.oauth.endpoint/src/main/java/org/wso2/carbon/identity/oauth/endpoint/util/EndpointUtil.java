@@ -17,11 +17,11 @@
  */
 package org.wso2.carbon.identity.oauth.endpoint.util;
 
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
@@ -149,7 +149,7 @@ public class EndpointUtil {
                 return userNamePassword.split(":");
             }
         }
-        String errMsg = "Error decoding authorization header. Could not retrieve client id and client secret.";
+        String errMsg = "Error decoding authorization header. Space delimited \"<authMethod> <base64Hash>\" format violated.";
         throw new OAuthClientException(errMsg);
     }
 
