@@ -98,7 +98,7 @@
             jQuery("a.trigger-title").click(triggerHandler);
         });
         function removeItem(dialect, claim, length) {
-            var defaultDialect = "<%=Encode.forJavaScriptBlock(UserCoreConstants.DEFAULT_CARBON_DIALECT)%>";
+            var defaultDialect = "<%=UserCoreConstants.DEFAULT_CARBON_DIALECT%>";
             if ((dialect == defaultDialect) && (length < 2 )) {
                 CARBON.showWarningDialog('<fmt:message key="cannot.remove.default.carbon.dialect.all.claims"/>');
                 return false;
@@ -227,7 +227,7 @@
                 <a href="update-claim.jsp?dialect=<%=Encode.forUriComponent(dialectUri)%>&claimUri=<%=Encode.forUriComponent(claims[j].getClaim().getClaimUri())%>"
                    class="editLink icon-link">Edit</a>
                 <a href="#" class="icon-link deleteLink" style="background-image:url(../claim-mgt/images/delete.gif);"
-                   onclick="removeItem('<%=Encode.forHtmlAttribute(dialectUri)%>','<%=Encode.forHtmlAttribute(claims[j].getClaim().getClaimUri())%>','<%=Encode.forHtmlAttribute(String.valueOf(claims.length))%>'  );return false;"><fmt:message
+                   onclick="removeItem('<%=Encode.forJavaScriptAttribute(dialectUri)%>','<%=Encode.forJavaScriptAttribute(claims[j].getClaim().getClaimUri())%>','<%=Encode.forJavaScriptAttribute(String.valueOf(claims.length))%>'  );return false;"><fmt:message
                         key='remove.claim.mapping'/></a>
 
                 <div style="clear:both"></div>

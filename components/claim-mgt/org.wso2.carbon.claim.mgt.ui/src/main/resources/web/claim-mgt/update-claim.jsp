@@ -85,14 +85,14 @@
                     }
                 }
                 function removeItem(dialect, claim, length) {
-                    var defaultDialect = "<%=Encode.forJavaScriptBlock(UserCoreConstants.DEFAULT_CARBON_DIALECT)%>";
+                    var defaultDialect = "<%=UserCoreConstants.DEFAULT_CARBON_DIALECT%>";
                     if ((dialect == defaultDialect) && (length < 2 )) {
                         CARBON.showWarningDialog('<fmt:message key="cannot.remove.default.carbon.dialect.all.claims"/>');
                         return false;
                     } else {
-                        CARBON.showConfirmationDialog('<fmt:message key="remove.message1"/>' + Encode.forJavaScriptAttribute(claim) + '<fmt:message key="remove.message2"/>',
+                        CARBON.showConfirmationDialog('<fmt:message key="remove.message1"/>' + claim + '<fmt:message key="remove.message2"/>',
                                 function () {
-                                    location.href = "remove-claim.jsp?dialect=" + Encode.forJavaScriptAttribute(dialect) + "&claimUri=" + Encode.forJavaScriptAttribute(claim);
+                                    location.href = "remove-claim.jsp?dialect=" + dialect + "&claimUri=" + claim;
                                 }, null);
                     }
                 }
@@ -182,7 +182,7 @@
                             ClaimMappingDTO[] claims = claimMappping[i].getClaimMappings();
                 %>
                 <a href="#" class="icon-link" style="background-image:url(../claim-mgt/images/delete.gif);"
-                   onclick="removeItem('<%=dialectUri%>','<%=claimUri%>','<%=claims.length%>'  );return false;"><fmt:message
+                   onclick="removeItem('<%=Encode.forJavaScriptAttribute(dialectUri)%>','<%=Encode.forJavaScriptAttribute(claimUri)%>','<%=Encode.forJavaScriptAttribute(String.valueOf(claims.length))%>'  );return false;"><fmt:message
                         key='remove.claim.mapping'/></a>
             </div>
 
