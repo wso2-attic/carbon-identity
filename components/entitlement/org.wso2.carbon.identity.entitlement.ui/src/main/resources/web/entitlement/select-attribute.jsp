@@ -267,14 +267,14 @@
                 createInputs(paths[i].name);
             }
         }
-        document.attributeValueForm.action = "<%=Encode.forUriComponent(returnPage)%>.jsp?category="
+        document.attributeValueForm.action = "<%=Encode.forJavaScriptBlock(returnPage)%>.jsp?category="
                 + '<%=Encode.forUriComponent(category)%>' +"&ruleId=" + '<%=Encode.forUriComponent(ruleId)%>' ;
         document.attributeValueForm.submit();
     }
 
     function doCancel(){
         preSubmit();
-        document.attributeValueForm.action = "<%=Encode.forUriComponent(returnPage)%>.jsp?ruleId=" + '<%=Encode.forUriComponent(ruleId)%>';
+        document.attributeValueForm.action = "<%=Encode.forJavaScriptBlock(returnPage)%>.jsp?ruleId=" + '<%=Encode.forUriComponent(ruleId)%>';
         document.attributeValueForm.submit();
     }
 
@@ -419,7 +419,7 @@
                                 </td>
                                 <td>
                                     <input type="text" name="searchString" id="searchString"
-                                           value="<%= Encode.forHtmlAttribute(searchString) != null? searchString :""%>"/>
+                                           value="<%= searchString != null? Encode.forHtmlAttribute(searchString) :""%>"/>
                                 </td>
                                 <td style="border:0; !important">
                                     <a class="icon-link" href="#" style="background-image: url(images/search.gif);"

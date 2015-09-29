@@ -79,7 +79,7 @@
     } catch (Exception e) {
 %>
 <script type="text/javascript">
-    CARBON.showErrorDialog('<%=e.getMessage()%>', function () {
+    CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(e.getMessage()))%>', function () {
         location.href = "index.jsp";
     });
 </script>
@@ -99,7 +99,7 @@
     function getSelectedType() {
         var comboBox = document.getElementById("typeFilter");
         var typeFilter = comboBox[comboBox.selectedIndex].value;
-        location.href = 'show-policy-status.jsp?typeFilter=' + typeFilter + "&policyid=" +  "<%=Encode.forHtmlContent(policyId)%>";
+        location.href = 'show-policy-status.jsp?typeFilter=' + typeFilter + "&policyid=" +  "<%=Encode.forJavaScriptBlock(Encode.forUriComponent(policyId))%>";
     }
 </script>
 

@@ -79,7 +79,7 @@
     } catch (Exception e) {
 %>
 <script type="text/javascript">
-    CARBON.showErrorDialog('<%=e.getMessage()%>', function () {
+    CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(e.getMessage()))%>', function () {
         location.href = "index.jsp";
     });
 </script>
@@ -99,7 +99,7 @@
     function getSelectedType() {
         var comboBox = document.getElementById("typeFilter");
         var typeFilter = comboBox[comboBox.selectedIndex].value;
-        location.href = 'show-subscriber-status.jsp?typeFilter=' + typeFilter + "&policyid=" +  "<%=Encode.forJavaScriptBlock(subscriberId)%>";
+        location.href = 'show-subscriber-status.jsp?typeFilter=' + typeFilter + "&policyid=" +  "<%=Encode.forJavaScriptBlock(Encode.forUriComponent(subscriberId))%>";
     }
 </script>
 
@@ -187,7 +187,7 @@
                 if(dto != null && dto.getTimeInstance() != null){
         %>
         <tr>
-            <td><%=(Encode.forHtml(new Date(Long.parseLong(dto.getTimeInstance()))).toString())%></td>
+            <td><%=(new Date(Long.parseLong(dto.getTimeInstance()))).toString()%></td>
             <td><% if(dto.getType() != null){%> <%=Encode.forHtml(dto.getType())%><%}%></td>
             <td><% if(dto.getUser() != null){%> <%=Encode.forHtml(dto.getUser())%><%}%></td>
             <td><% if(dto.getTarget() != null){%> <%=Encode.forHtml(dto.getTarget())%><%}%></td>

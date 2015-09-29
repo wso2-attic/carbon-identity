@@ -248,14 +248,14 @@
                 createInputs(paths[i].name);
             }
         }
-        document.attributeValueForm.action = "<%=Encode.forUriComponent(returnPage)%>?category="
+        document.attributeValueForm.action = "<%=Encode.forJavaScriptBlock(returnPage)%>?category="
                 + '<%=Encode.forUriComponent(category)%>' +"&ruleId=" + '<%=Encode.forUriComponent(ruleId)%>' ;
         document.attributeValueForm.submit();
     }
 
     function doCancel(){
         preSubmit();
-        document.attributeValueForm.action = "<%=Encode.forUriComponent(returnPage)%>?ruleId=" + '<%=Encode.forUriComponent(ruleId)%>';
+        document.attributeValueForm.action = "<%=Encode.forJavaScriptBlock(returnPage)%>?ruleId=" + '<%=Encode.forUriComponent(ruleId)%>';
         document.attributeValueForm.submit();
     }
 

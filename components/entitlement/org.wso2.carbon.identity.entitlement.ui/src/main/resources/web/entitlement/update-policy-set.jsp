@@ -15,11 +15,11 @@
 * limitations under the License.
 */
 -->
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.ObligationDTO" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.PolicyRefIdDTO" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RowDTO" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.TargetDTO" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <jsp:useBean id="entitlementPolicyBean" type="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean"
@@ -199,18 +199,18 @@
     if("true".equals(delete)){
         forwardTo = "delete-policy-entry.jsp";
         if(policyRefId != null && policyRefId.trim().length() > 0){
-            forwardTo = forwardTo + "?policyRefId=" + policyRefId;
+            forwardTo = forwardTo + "?policyRefId=" + Encode.forUriComponent(policyRefId);
         }
     } else if(categoryType != null && categoryType.trim().length() > 0){
         forwardTo = forwardTo + "?category=" + categoryType + "&returnPage=create-policy-set";
         if(selectedAttributeDataType != null && selectedAttributeDataType.trim().length() > 0){
-            forwardTo = forwardTo + "&selectedAttributeDataType=" + selectedAttributeDataType;
+            forwardTo = forwardTo + "&selectedAttributeDataType=" + Encode.forUriComponent(selectedAttributeDataType);
         }
         if(selectedAttributeId != null && selectedAttributeId.trim().length() > 0){
-            forwardTo = forwardTo + "&selectedAttributeId=" + selectedAttributeId;
+            forwardTo = forwardTo + "&selectedAttributeId=" + Encode.forUriComponent(selectedAttributeId);
         }
     } else if(policySearchString != null && policySearchString.trim().length() > 0){
-        forwardTo = forwardTo + "?policySearchString=" + policySearchString;
+        forwardTo = forwardTo + "?policySearchString=" + Encode.forUriComponent(policySearchString);
     }
 %>
 

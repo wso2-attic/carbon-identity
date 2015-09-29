@@ -147,7 +147,7 @@
         String message = resourceBundle.getString("error.loading.subscribers") + e.getMessage();
 %>
 <script type="text/javascript">
-    CARBON.showErrorDialog('<%=message%>', function () {
+    CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>', function () {
         location.href = "index.jsp";
     });
 </script>
@@ -198,7 +198,7 @@
 
         var selectorElement = document.getElementById('policyOrderSelect');
         selectorElement.innerHTML = '<label for="policyOrder"></label>' +
-                '<input type="text" name="policyOrder" id="policyOrder" value="<%=policyOrder%>"/>';
+                '<input type="text" name="policyOrder" id="policyOrder" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(policyOrder))%>"/>';
     }
 
     function disableOrder(){
@@ -630,7 +630,7 @@
                         <nobr>
                             <fmt:message key="search"/>
                             <input type="text" name="subscriberSearchString"
-                                   value="<%= subscriberSearchString != null? subscriberSearchString :""%>"/>&nbsp;
+                                   value="<%= subscriberSearchString != null? Encode.forHtmlAttribute(subscriberSearchString) :""%>"/>&nbsp;
                         </nobr>
                     </td>
                     <td>
@@ -652,10 +652,10 @@
             <tr>
                 <td width="10px" style="text-align:center; !important">
                     <input type="checkbox" name="subscribersList"
-                           value="<%=subscriber%>"
+                           value="<%=Encode.forHtmlAttribute(subscriber)%>"
                            onclick="resetVars()" class="chkBox" />
                 </td>
-                <td><%=subscriber%>
+                <td><%=Encode.forHtml(subscriber)%>
                 </td>
             </tr>
             <%

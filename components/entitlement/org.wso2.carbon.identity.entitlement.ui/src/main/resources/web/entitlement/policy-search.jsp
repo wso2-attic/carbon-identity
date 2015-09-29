@@ -242,7 +242,7 @@
                 %>
                 <tr>
                     <td width="50%">
-                        <a href="policy-view.jsp?policyid=<%=Encode.forUriComponent(policyDTO.getPolicyId())%>"><%=Encode.forUriComponent(policyDTO.getPolicyId())%></a>
+                        <a href="policy-view.jsp?policyid=<%=Encode.forUriComponent(policyDTO.getPolicyId())%>"><%=Encode.forHtml(policyDTO.getPolicyId())%></a>
                     </td>
 
                     <td width="20px" style="text-align:left;">

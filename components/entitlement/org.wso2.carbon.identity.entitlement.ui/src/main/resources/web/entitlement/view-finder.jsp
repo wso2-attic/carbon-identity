@@ -91,7 +91,7 @@
     } catch (Exception e) {
 %>
 <script type="text/javascript">
-    CARBON.showErrorDialog('<%=Encode.forJavaScript(e.getMessage())%>', function () {
+    CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(e.getMessage()))%>', function () {
         location.href = "index.jsp";
     });
 </script>
