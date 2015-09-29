@@ -52,7 +52,9 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
     }
 
     public void setDigestAlgorithmUri(String digestAlgorithmUri) {
-        this.digestAlgorithmUri = digestAlgorithmUri;
+        if (StringUtils.isNotBlank(digestAlgorithmUri)) {
+            this.digestAlgorithmUri = digestAlgorithmUri;
+        }
     }
 
     public String getSigningAlgorithmUri() {

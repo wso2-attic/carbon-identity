@@ -172,7 +172,9 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     }
 
     public void setDigestAlgorithmUri(String digestAlgorithmUri) {
-        this.digestAlgorithmUri = digestAlgorithmUri;
+        if (StringUtils.isNotEmpty(digestAlgorithmUri)) {
+            this.digestAlgorithmUri = digestAlgorithmUri;
+        }
     }
     /**
      * @return the requestedClaims
