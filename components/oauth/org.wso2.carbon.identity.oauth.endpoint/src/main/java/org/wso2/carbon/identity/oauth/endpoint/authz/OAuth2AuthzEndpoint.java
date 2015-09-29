@@ -515,7 +515,7 @@ public class OAuth2AuthzEndpoint {
         String[] prompts = null;
         if (StringUtils.isNotBlank(prompt)) {
             prompts = prompt.trim().split("\\s");
-            contains_none = prompt.contains(OAuthConstants.Prompt.NONE);
+            contains_none = (OAuthConstants.Prompt.NONE).equals(prompt);
             if (prompts.length > 1 && contains_none) {
                 if (log.isDebugEnabled()) {
                     log.debug("Invalid prompt variable combination. The value 'none' cannot be used with others " +
@@ -529,13 +529,13 @@ public class OAuth2AuthzEndpoint {
             }
         }
 
-        if (prompt.contains(OAuthConstants.Prompt.LOGIN)) { // prompt for authentication
+        if ((OAuthConstants.Prompt.LOGIN).equals(prompt)) { // prompt for authentication
             checkAuthentication = false;
             forceAuthenticate = true;
         } else if (contains_none) {
             checkAuthentication = true;
             forceAuthenticate = false;
-        } else if (prompt.contains(OAuthConstants.Prompt.CONSENT)) {
+        } else if ((OAuthConstants.Prompt.CONSENT).equals(prompt)) {
             checkAuthentication = false;
             forceAuthenticate = false;
         }
