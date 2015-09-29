@@ -171,8 +171,9 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
             samlAssertion.setConditions(conditions);
 
             if (authReqDTO.getDoSignAssertions()) {
-                SAMLSSOUtil.setSignature(samlAssertion, authReqDTO.getSigningAlgorithmUri(), new SignKeyDataHolder
-                        (authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
+                SAMLSSOUtil.setSignature(samlAssertion, authReqDTO.getSigningAlgorithmUri(), authReqDTO
+                        .getDigestAlgorithmUri(), new SignKeyDataHolder(authReqDTO.getUser()
+                        .getAuthenticatedSubjectIdentifier()));
             }
 
             return samlAssertion;

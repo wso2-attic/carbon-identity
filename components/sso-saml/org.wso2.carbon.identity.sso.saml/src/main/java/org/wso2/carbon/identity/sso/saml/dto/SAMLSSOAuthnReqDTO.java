@@ -61,6 +61,15 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private String tenantDomain;
     private String certAlias;
     private String signingAlgorithmUri;
+    private String digestAlgorithmUri;
+
+    public String getDigestAlgorithmUri() {
+        return digestAlgorithmUri;
+    }
+
+    public void setDigestAlgorithmUri(String digestAlgorithmUri) {
+        this.digestAlgorithmUri = digestAlgorithmUri;
+    }
 
     public String getSigningAlgorithmUri() {
         return signingAlgorithmUri;

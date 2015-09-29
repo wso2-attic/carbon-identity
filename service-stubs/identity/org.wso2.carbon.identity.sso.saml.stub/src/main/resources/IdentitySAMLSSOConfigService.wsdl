@@ -11,20 +11,6 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="addRPServiceProvider">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="spDto" nillable="true" type="ax2358:SAMLSSOServiceProviderDTO"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="addRPServiceProviderResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
             <xs:element name="getServiceProviders">
                 <xs:complexType>
                     <xs:sequence/>
@@ -61,12 +47,24 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getSigningAlgorithmUriByConfig">
+            <xs:element name="getDigestAlgorithmURIs">
                 <xs:complexType>
                     <xs:sequence/>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getSigningAlgorithmUriByConfigResponse">
+            <xs:element name="getDigestAlgorithmURIsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getDigestAlgorithmURIByConfig">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getDigestAlgorithmURIByConfigResponse">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
@@ -99,8 +97,41 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="addRPServiceProvider">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="spDto" nillable="true" type="ax2358:SAMLSSOServiceProviderDTO"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addRPServiceProviderResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getSigningAlgorithmUriByConfig">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getSigningAlgorithmUriByConfigResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:schema>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.saml.sso.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="SAMLSSOServiceProviderInfoDTO">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="pubCertFilePath" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="serviceProviders" nillable="true" type="ax2357:SAMLSSOServiceProviderDTO"/>
+                    <xs:element minOccurs="0" name="tenantZero" type="xs:boolean"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:complexType name="SAMLSSOServiceProviderDTO">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="assertionConsumerUrl" nillable="true" type="xs:string"/>
@@ -108,6 +139,7 @@
                     <xs:element minOccurs="0" name="attributeConsumingServiceIndex" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="certAlias" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="defaultAssertionConsumerUrl" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="digestAlgorithmURI" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="doEnableEncryptedAssertion" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="doSignAssertions" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="doSignResponse" type="xs:boolean"/>
@@ -128,13 +160,6 @@
                     <xs:element minOccurs="0" name="signingAlgorithmURI" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="sloRequestURL" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="sloResponseURL" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="SAMLSSOServiceProviderInfoDTO">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="pubCertFilePath" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="serviceProviders" nillable="true" type="ax2357:SAMLSSOServiceProviderDTO"/>
-                    <xs:element minOccurs="0" name="tenantZero" type="xs:boolean"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
@@ -183,11 +208,23 @@
     <wsdl:message name="addRPServiceProviderResponse">
         <wsdl:part name="parameters" element="ns1:addRPServiceProviderResponse"/>
     </wsdl:message>
+    <wsdl:message name="getDigestAlgorithmURIByConfigRequest">
+        <wsdl:part name="parameters" element="ns1:getDigestAlgorithmURIByConfig"/>
+    </wsdl:message>
+    <wsdl:message name="getDigestAlgorithmURIByConfigResponse">
+        <wsdl:part name="parameters" element="ns1:getDigestAlgorithmURIByConfigResponse"/>
+    </wsdl:message>
     <wsdl:message name="getSigningAlgorithmUrisRequest">
         <wsdl:part name="parameters" element="ns1:getSigningAlgorithmUris"/>
     </wsdl:message>
     <wsdl:message name="getSigningAlgorithmUrisResponse">
         <wsdl:part name="parameters" element="ns1:getSigningAlgorithmUrisResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getDigestAlgorithmURIsRequest">
+        <wsdl:part name="parameters" element="ns1:getDigestAlgorithmURIs"/>
+    </wsdl:message>
+    <wsdl:message name="getDigestAlgorithmURIsResponse">
+        <wsdl:part name="parameters" element="ns1:getDigestAlgorithmURIsResponse"/>
     </wsdl:message>
     <wsdl:portType name="IdentitySAMLSSOConfigServicePortType">
         <wsdl:operation name="removeServiceProvider">
@@ -219,9 +256,17 @@
             <wsdl:output message="tns:addRPServiceProviderResponse" wsaw:Action="urn:addRPServiceProviderResponse"/>
             <wsdl:fault message="tns:IdentitySAMLSSOConfigServiceIdentityException" name="IdentitySAMLSSOConfigServiceIdentityException" wsaw:Action="urn:addRPServiceProviderIdentitySAMLSSOConfigServiceIdentityException"/>
         </wsdl:operation>
+        <wsdl:operation name="getDigestAlgorithmURIByConfig">
+            <wsdl:input message="tns:getDigestAlgorithmURIByConfigRequest" wsaw:Action="urn:getDigestAlgorithmURIByConfig"/>
+            <wsdl:output message="tns:getDigestAlgorithmURIByConfigResponse" wsaw:Action="urn:getDigestAlgorithmURIByConfigResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="getSigningAlgorithmUris">
             <wsdl:input message="tns:getSigningAlgorithmUrisRequest" wsaw:Action="urn:getSigningAlgorithmUris"/>
             <wsdl:output message="tns:getSigningAlgorithmUrisResponse" wsaw:Action="urn:getSigningAlgorithmUrisResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getDigestAlgorithmURIs">
+            <wsdl:input message="tns:getDigestAlgorithmURIsRequest" wsaw:Action="urn:getDigestAlgorithmURIs"/>
+            <wsdl:output message="tns:getDigestAlgorithmURIsResponse" wsaw:Action="urn:getDigestAlgorithmURIsResponse"/>
         </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="IdentitySAMLSSOConfigServiceSoap11Binding" type="tns:IdentitySAMLSSOConfigServicePortType">
@@ -297,6 +342,24 @@
         </wsdl:operation>
         <wsdl:operation name="getSigningAlgorithmUris">
             <soap:operation soapAction="urn:getSigningAlgorithmUris" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getDigestAlgorithmURIByConfig">
+            <soap:operation soapAction="urn:getDigestAlgorithmURIByConfig" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getDigestAlgorithmURIs">
+            <soap:operation soapAction="urn:getDigestAlgorithmURIs" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -385,6 +448,24 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="getDigestAlgorithmURIByConfig">
+            <soap12:operation soapAction="urn:getDigestAlgorithmURIByConfig" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getDigestAlgorithmURIs">
+            <soap12:operation soapAction="urn:getDigestAlgorithmURIs" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
     </wsdl:binding>
     <wsdl:binding name="IdentitySAMLSSOConfigServiceHttpBinding" type="tns:IdentitySAMLSSOConfigServicePortType">
         <http:binding verb="POST"/>
@@ -444,6 +525,24 @@
         </wsdl:operation>
         <wsdl:operation name="getSigningAlgorithmUris">
             <http:operation location="getSigningAlgorithmUris"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getDigestAlgorithmURIByConfig">
+            <http:operation location="getDigestAlgorithmURIByConfig"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getDigestAlgorithmURIs">
+            <http:operation location="getDigestAlgorithmURIs"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>

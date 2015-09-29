@@ -58,6 +58,13 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             serviceProviderDO.setSigningAlgorithmUri(IdentityCoreConstants.XML_SIGNATURE_ALGORITHM_RSA_SHA1_URI);
         }
 
+        if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DIGEST_ALGORITHM) != null) {
+            serviceProviderDO.setDigestAlgorithmUri(resource.getProperty(IdentityRegistryResources
+                    .PROP_SAML_SSO_DIGEST_ALGORITHM));
+        } else {
+            serviceProviderDO.setDigestAlgorithmUri(IdentityCoreConstants.XML_DIGEST_ALGORITHM_SHA1);
+        }
+
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DO_SINGLE_LOGOUT) != null) {
             serviceProviderDO.setDoSingleLogout(new Boolean(resource.getProperty(
                     IdentityRegistryResources.PROP_SAML_SSO_DO_SINGLE_LOGOUT).trim()));
@@ -190,6 +197,8 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                     serviceProviderDO.getNameIDFormat());
             resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_SIGNING_ALGORITHM, serviceProviderDO
                     .getSigningAlgorithmUri());
+            resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_DIGEST_ALGORITHM, serviceProviderDO
+                    .getDigestAlgorithmUri());
             if (serviceProviderDO.getNameIdClaimUri() != null
                     && serviceProviderDO.getNameIdClaimUri().trim().length() > 0) {
                 resource.addProperty(

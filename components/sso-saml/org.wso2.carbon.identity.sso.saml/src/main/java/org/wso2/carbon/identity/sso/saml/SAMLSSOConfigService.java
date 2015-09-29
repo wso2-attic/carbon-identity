@@ -118,6 +118,15 @@ public class SAMLSSOConfigService extends AbstractAdmin {
     public String getSigningAlgorithmUriByConfig() {
         return IdentityApplicationManagementUtil.getSigningAlgoURIByConfig();
     }
+
+    public String[] getDigestAlgorithmURIs() {
+        Collection<String> digestAlgoUris = IdentityApplicationManagementUtil.getXMLDigestAlgorithms().values();
+        return digestAlgoUris.toArray(new String[digestAlgoUris.size()]);
+    }
+
+    public String getDigestAlgorithmURIByConfig() {
+        return IdentityApplicationManagementUtil.getDigestAlgoURIByConfig();
+    }
     /**
      * @param issuer
      * @return

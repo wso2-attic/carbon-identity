@@ -57,6 +57,7 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
     private String signingAlgorithmUri;
+    private String digestAlgorithmUri;
 
     public String getNameIDFormat() {
         return nameIDFormat;
@@ -166,6 +167,13 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         }
     }
 
+    public String getDigestAlgorithmUri() {
+        return digestAlgorithmUri;
+    }
+
+    public void setDigestAlgorithmUri(String digestAlgorithmUri) {
+        this.digestAlgorithmUri = digestAlgorithmUri;
+    }
     /**
      * @return the requestedClaims
      */

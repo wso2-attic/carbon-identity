@@ -81,8 +81,8 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         }
 
         if (authReqDTO.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, authReqDTO.getSigningAlgorithmUri(), new SignKeyDataHolder(authReqDTO
-                    .getUser().getAuthenticatedSubjectIdentifier()));
+            SAMLSSOUtil.setSignature(response, authReqDTO.getSigningAlgorithmUri(), authReqDTO.getDigestAlgorithmUri
+                    (), new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
         }
         return response;
     }
@@ -105,8 +105,8 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         response.setIssueInstant(issueInstant);
         response.getAssertions().add(assertion);
         if (authReqDTO.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, authReqDTO.getSigningAlgorithmUri(), new SignKeyDataHolder(authReqDTO
-                    .getUser().getAuthenticatedSubjectIdentifier()));
+            SAMLSSOUtil.setSignature(response, authReqDTO.getSigningAlgorithmUri(), authReqDTO.getDigestAlgorithmUri
+                    (), new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
         }
         return response;
     }

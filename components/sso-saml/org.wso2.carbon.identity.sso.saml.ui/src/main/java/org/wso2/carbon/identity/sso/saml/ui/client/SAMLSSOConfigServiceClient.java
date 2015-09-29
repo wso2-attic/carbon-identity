@@ -148,4 +148,24 @@ public class SAMLSSOConfigServiceClient {
         }
         return signingAlgo;
     }
+
+    public String[] getDigestAlgorithmURIs() throws IdentityRuntimeException {
+        String[] digestAlgorithms;
+        try {
+            digestAlgorithms = stub.getDigestAlgorithmURIs();
+        } catch (RemoteException e) {
+            throw new IdentityRuntimeException(e.getMessage(), e);
+        }
+        return digestAlgorithms;
+    }
+
+    public String getDigestAlgorithmURIByConfig() throws IdentityRuntimeException {
+        String digestAlgo;
+        try {
+            digestAlgo = stub.getDigestAlgorithmURIByConfig();
+        } catch (RemoteException e) {
+            throw new IdentityRuntimeException(e.getMessage(), e);
+        }
+        return digestAlgo;
+    }
 }
