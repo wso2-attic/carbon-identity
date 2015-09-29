@@ -18,9 +18,6 @@
 
 package org.wso2.carbon.identity.workflow.mgt;
 
-import org.apache.axis2.client.Options;
-import org.apache.axis2.client.ServiceClient;
-import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -177,7 +174,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         Map<String, AbstractWorkflow> abstractWorkflowMap =
                 WorkflowServiceDataHolder.getInstance().getWorkflowImpls().get(templateId);
         List<WorkflowImpl> workflowList = new ArrayList<WorkflowImpl>();
-        if(abstractWorkflowMap!=null) {
+        if (abstractWorkflowMap != null) {
             List<AbstractWorkflow> abstractWorkflowList = new ArrayList<>(abstractWorkflowMap.values());
             for (AbstractWorkflow abstractWorkflow : abstractWorkflowList) {
                 WorkflowImpl workflow = new WorkflowImpl();
@@ -484,8 +481,14 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         workflowRequest.setRequestId(requestId);
         workflowRequest.setCreatedBy(createdUser);
 
-        for(WorkflowRequestDeleteListener workflowRequestDeleteListener : workflowRequestDeleteListenerList){
-            workflowRequestDeleteListener.doPreDeleteWorkflowRequest(workflowRequest);
+        for (WorkflowRequestDeleteListener workflowRequestDeleteListener : workflowRequestDeleteListenerList) {
+            try {
+                workflowRequestDeleteListener.doPreDeleteWorkflowRequest(workflowRequest);
+            } catch (WorkflowException e) {
+                throw new WorkflowException(
+                        "Error occurred while calling doPreDeleteWorkflowRequest in WorkflowRequestDeleteListener ," +
+                        workflowRequestDeleteListener.getClass().getName(), e);
+            }
         }
 
         workflowRequestDAO.updateStatusOfRequest(requestId, WorkflowRequestStatus.DELETED.toString());
@@ -493,8 +496,14 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
                 .updateStatusOfRelationshipsOfPendingRequest(requestId, WFConstant.HT_STATE_SKIPPED);
         requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
 
-        for(WorkflowRequestDeleteListener workflowRequestDeleteListener : workflowRequestDeleteListenerList){
-            workflowRequestDeleteListener.doPostDeleteWorkflowRequest(workflowRequest);
+        for (WorkflowRequestDeleteListener workflowRequestDeleteListener : workflowRequestDeleteListenerList) {
+            try {
+                workflowRequestDeleteListener.doPostDeleteWorkflowRequest(workflowRequest);
+            } catch (WorkflowException e) {
+                throw new WorkflowException(
+                        "Error occurred while calling doPostDeleteWorkflowRequest in WorkflowRequestDeleteListener ," +
+                        workflowRequestDeleteListener.getClass().getName(), e);
+            }
         }
     }
 
@@ -558,20 +567,4 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     }
 
 
-    private void authenticate(ServiceClient client, String accessUsername, String accessPassword)
-            throws WorkflowException {
-
-        if (accessUsername != null && accessPassword != null) {
-            Options option = client.getOptions();
-            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-            auth.setUsername(accessUsername);
-            auth.setPassword(accessPassword);
-            auth.setPreemptiveAuthentication(true);
-            option.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
-            option.setManageSession(true);
-
-        } else {
-            throw new WorkflowException("Authentication username or password not set");
-        }
-    }
 }

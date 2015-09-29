@@ -54,7 +54,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class WorkflowRequestDeleteListenerImpl implements WorkflowRequestDeleteListener{
+public class WorkflowRequestDeleteListenerImpl implements WorkflowRequestDeleteListener {
     @Override
     public void doPreDeleteWorkflowRequest(WorkflowRequest workflowRequest) throws WorkflowException {
 
@@ -98,7 +98,7 @@ public class WorkflowRequestDeleteListenerImpl implements WorkflowRequestDeleteL
                 TTaskSimpleQueryResultSet results = stub.simpleQuery(input);
                 TTaskSimpleQueryResultRow[] arr = results.getRow();
                 for (int j = 0; j < arr.length; j++) {
-                    Object task = stub.getInput(arr[j].getId(),new NCName(""));
+                    Object task = stub.getInput(arr[j].getId(), new NCName(""));
                     InputStream stream = new ByteArrayInputStream(task.toString().getBytes(StandardCharsets.UTF_8));
                     OMElement taskXML = new StAXOMBuilder(stream).getDocumentElement();
                     Iterator<OMElementImpl> iterator = taskXML.getChildElements();
@@ -133,7 +133,8 @@ public class WorkflowRequestDeleteListenerImpl implements WorkflowRequestDeleteL
     private void checkMatchingTaskAndDelete(String requestId, HumanTaskClientAPIAdminStub stub,
                                             TTaskSimpleQueryResultRow[] resultsList, int resultIndex, OMElementImpl
                                                     taskElement) throws RemoteException, IllegalStateFault,
-            IllegalOperationFault, IllegalArgumentFault, IllegalAccessFault {
+                                                                        IllegalOperationFault, IllegalArgumentFault,
+                                                                        IllegalAccessFault {
         if (taskElement.getLocalName().equals(WFImplConstant.HT_PARAMETER_LIST_ELEMENT)) {
             Iterator<OMElementImpl> parameters = taskElement.getChildElements();
             while (parameters.hasNext()) {
@@ -141,8 +142,9 @@ public class WorkflowRequestDeleteListenerImpl implements WorkflowRequestDeleteL
                 Iterator<OMAttribute> attributes = parameter.getAllAttributes();
                 while (attributes.hasNext()) {
                     OMAttribute currentAttribute = attributes.next();
-                    if (currentAttribute.getLocalName().equals(WFImplConstant.HT_ITEM_NAME_ATTRIBUTE) && currentAttribute
-                            .getAttributeValue().equals(WFImplConstant.HT_REQUEST_ID_ATTRIBUTE_VALUE)) {
+                    if (currentAttribute.getLocalName().equals(WFImplConstant.HT_ITEM_NAME_ATTRIBUTE) &&
+                        currentAttribute
+                                .getAttributeValue().equals(WFImplConstant.HT_REQUEST_ID_ATTRIBUTE_VALUE)) {
                         Iterator<OMElementImpl> itemValues = parameter.getChildElements();
                         if (itemValues.hasNext()) {
                             String taskRequestId = itemValues.next().getText();
@@ -161,7 +163,8 @@ public class WorkflowRequestDeleteListenerImpl implements WorkflowRequestDeleteL
 
     }
 
-    private void authenticate(ServiceClient client, String accessUsername, String accessPassword) throws WorkflowException {
+    private void authenticate(ServiceClient client, String accessUsername, String accessPassword)
+            throws WorkflowException {
 
         if (accessUsername != null && accessPassword != null) {
             Options option = client.getOptions();
