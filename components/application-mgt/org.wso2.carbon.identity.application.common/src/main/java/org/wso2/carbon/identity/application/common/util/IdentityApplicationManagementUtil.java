@@ -21,6 +21,7 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.Base64;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
@@ -33,6 +34,10 @@ import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 
 import javax.crypto.Mac;
@@ -1119,5 +1124,22 @@ public class IdentityApplicationManagementUtil {
     
     public static Set<String> getSAMLAuthnContextClassNames() {
         return samlAuthnContextClasses.keySet();
+    }
+
+    public static String getSigningAlgoURIByConfig() {
+        if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig
+                .SSO_DEFAULT_SIGNING_ALGORITHM))) {
+            return IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_SIGNING_ALGORITHM).trim();
+        } else {
+            return IdentityApplicationConstants.XML.SignatureAlgorithmURI.RSA_SHA1;
+        }
+    }
+    public static String getDigestAlgoURIByConfig() {
+        if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig
+                .SSO_DEFAULT_DIGEST_ALGORITHM))) {
+            return IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_DEFAULT_DIGEST_ALGORITHM).trim();
+        } else {
+            return IdentityApplicationConstants.XML.DigestAlgorithmURI.SHA1;
+        }
     }
 }

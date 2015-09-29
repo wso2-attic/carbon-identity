@@ -116,9 +116,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         if (context.getSequenceConfig().isCompleted()) {
             concludeFlow(request, response, context);
         } else { // redirecting outside
-            FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(), context,
-                    IdPManagementUtil.getIdleSessionTimeOut(CarbonContext.
-                                                  getThreadLocalCarbonContext().getTenantDomain()));
+            FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(), context);
         }
     }
 
@@ -270,9 +268,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                 sessionContext.getAuthenticatedIdPs().putAll(context.getCurrentAuthenticatedIdPs());
                 // TODO add to cache?
                 // store again. when replicate  cache is used. this may be needed.
-                FrameworkUtils.addSessionContextToCache(commonAuthCookie, sessionContext,
-                        IdPManagementUtil.getIdleSessionTimeOut(CarbonContext.
-                                                  getThreadLocalCarbonContext().getTenantDomain()));
+                FrameworkUtils.addSessionContextToCache(commonAuthCookie, sessionContext);
             } else {
                 sessionContext = new SessionContext();
                 sessionContext.getAuthenticatedSequences().put(appConfig.getApplicationName(),
@@ -280,9 +276,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                 sessionContext.setAuthenticatedIdPs(context.getCurrentAuthenticatedIdPs());
                 sessionContext.setRememberMe(context.isRememberMe());
                 String sessionKey = UUIDGenerator.generateUUID();
-                FrameworkUtils.addSessionContextToCache(sessionKey, sessionContext,
-                        IdPManagementUtil.getIdleSessionTimeOut(CarbonContext.
-                                                  getThreadLocalCarbonContext().getTenantDomain()));
+                FrameworkUtils.addSessionContextToCache(sessionKey, sessionContext);
 
                 setAuthCookie(request, response, context, sessionKey, authenticatedUserTenantDomain);
             }
@@ -310,9 +304,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         // Put the result in the cache using calling servlet's sessionDataKey as the cache key Once
         // the redirect is done to that servlet, it will retrieve the result from the cache using
         // that key.
-        FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(),
-                authenticationResult, IdPManagementUtil.getIdleSessionTimeOut(CarbonContext.
-                                                  getThreadLocalCarbonContext().getTenantDomain()));
+        FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
 
         /*
          * TODO Cache retaining is a temporary fix. Remove after Google fixes

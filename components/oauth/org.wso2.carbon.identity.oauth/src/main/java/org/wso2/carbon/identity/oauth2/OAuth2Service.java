@@ -49,6 +49,7 @@ import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -210,7 +211,11 @@ public class OAuth2Service extends AbstractAdmin {
                     ", Scope : " + Arrays.toString(tokenReqDTO.getScope()) + " and Grant Type : " + tokenReqDTO.getGrantType(), e);
             OAuth2AccessTokenRespDTO tokenRespDTO = new OAuth2AccessTokenRespDTO();
             tokenRespDTO.setError(true);
-            tokenRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
+            if (e.getCause().getCause() instanceof SQLIntegrityConstraintViolationException){
+                tokenRespDTO.setErrorCode("sql_error");
+            } else {
+                tokenRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
+            }
             tokenRespDTO.setErrorMsg("Server Error");
             return tokenRespDTO;
         }
