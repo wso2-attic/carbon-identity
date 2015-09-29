@@ -368,5 +368,13 @@
                        orderId="60" enable="false"/>
         <EventListener type="org.wso2.carbon.user.core.listener.UserOperationEventListener" name="org.wso2.carbon.identity.provider.openid.listener.IdentityOpenIDUserEventListener"
                        orderId="70" enable="false"/>
+
+        <EventListener type="org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener" name="org.wso2.carbon.identity.provisioning.listener.ApplicationMgtProvisioningListener"
+                       orderId="10" enable="false"/>
+
+        <EventListener type="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener" name="org.wso2.carbon.identity.application.mgt.listener.IdentityProviderMgtApplicationListener"
+                       orderId="10" enable="false"/>
+        <EventListener type="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener" name="org.wso2.carbon.identity.provisioning.listener.IdentityProviderMgtProvisioningListener"
+                       orderId="20" enable="false"/>
     </EventListeners>
 </Server>
