@@ -225,6 +225,7 @@ public class SecurityConfigAdmin {
     }
 
     public void disableSecurityOnService(String serviceName) throws SecurityConfigException {
+
         if (log.isDebugEnabled()) {
             log.debug("Disabling security on service :" + serviceName);
         }
@@ -238,7 +239,6 @@ public class SecurityConfigAdmin {
             return;
         }
         removeSecurityPolicy(service, scenario.getWsuId());
-
         String[] moduleNames = scenario.getModules().toArray(new String[scenario.getModules().size()]);
 
         // disengage modules
@@ -423,6 +423,7 @@ public class SecurityConfigAdmin {
     }
 
     private String getEncryptedPassword(String password) throws SecurityConfigException {
+
         CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
         try {
             return cryptoUtil.encryptAndBase64Encode(password.getBytes());
@@ -519,7 +520,6 @@ public class SecurityConfigAdmin {
         }
 
         Policy policy = PolicyEngine.getPolicy(policyElement);
-
         try {
             persistPolicy(service, policyElement, policy.getId());
             applyPolicy(service, policy, carbonSecConfigs);
@@ -532,13 +532,11 @@ public class SecurityConfigAdmin {
                             UserCoreConstants.INVOKE_SERVICE_PERMISSION);
                 }
             }
-
             if (policyPath != null &&
                     scenarioId.equals(SecurityConstants.POLICY_FROM_REG_SCENARIO)) {
                 Parameter pathParam = new Parameter(SecurityConstants.SECURITY_POLICY_PATH,
                         policyPath);
                 service.addParameter(pathParam);
-
             }
 
         } catch (Exception e) {
@@ -618,7 +616,6 @@ public class SecurityConfigAdmin {
         } catch (ServerException e) {
             throw new SecurityConfigException("Error while adding policy to bindings", e);
         }
-
     }
 
     private OMElement buildRampartConfigXML(String privateStore, String[] trustedStores,
@@ -679,7 +676,7 @@ public class SecurityConfigAdmin {
                                         boolean isTrusEnabled) throws SecurityConfigException {
 
         if(log.isDebugEnabled()){
-            log.debug("Adding user parameters to policy element : "+ policyElement);
+            log.debug("Adding user parameters to policy element : " + policyElement);
         }
         OMFactory factory = OMAbstractFactory.getOMFactory();
         OMNamespace secElement = factory.createOMNamespace(SecurityConstants.SECURITY_NAMESPACE, SEC_LABEL);
@@ -691,8 +688,8 @@ public class SecurityConfigAdmin {
             if(log.isDebugEnabled()){
                 log.debug("Adding trust element to policy");
             }
-            trustElement = factory.createOMElement(SecurityConstants.TRUST, secElement);
 
+            trustElement = factory.createOMElement(SecurityConstants.TRUST, secElement);
             if (trustedStores != null && trustedStores.length > 0) {
                 OMElement trustStorePropertyElement = factory.createOMElement(SecurityConstants.PROPERTY_LABEL,
                         secElement);
@@ -778,7 +775,6 @@ public class SecurityConfigAdmin {
                 kerberosElement.addChild(principalPasswordPropertyElement);
 
             }
-
             carbonSecElement.addChild(kerberosElement);
         }
         policyElement.addChild(carbonSecElement);
@@ -835,7 +831,6 @@ public class SecurityConfigAdmin {
         } catch (XMLStreamException e) {
             throw new SecurityConfigException("Error occurred while loading policy.", e);
         }
-
     }
 
 
@@ -888,26 +883,21 @@ public class SecurityConfigAdmin {
             log.error(e);
             throw new SecurityConfigException("disablingREST", e);
         }
-
     }
 
 
     public void populateRampartConfig(RampartConfig rampartConfig, Properties props,
                                       KerberosConfigData kerberosConfigurations)
             throws SecurityConfigException {
-        if (rampartConfig != null) {
 
+        if (rampartConfig != null) {
             if (kerberosConfigurations != null) {
 
                 Properties kerberosProperties = new Properties();
                 kerberosProperties.setProperty(KerberosConfig.SERVICE_PRINCIPLE_NAME,
                         kerberosConfigurations.getServicePrincipleName());
-
                 KerberosConfig kerberosConfig = new KerberosConfig();
                 kerberosConfig.setProp(kerberosProperties);
-
-                // Set system wide kerberos configurations
-
                 String carbonSecurityConfigurationPath = CarbonUtils.getCarbonConfigDirPath() + File.separatorChar +
                         IDENTITY_CONFIG_DIR;
 
@@ -973,8 +963,8 @@ public class SecurityConfigAdmin {
 
     public Properties getServerCryptoProperties(String privateStore, String[] trustedCertStores)
             throws Exception {
-        Properties props = new Properties();
 
+        Properties props = new Properties();
         int tenantId = ((UserRegistry) registry).getTenantId();
 
         if (trustedCertStores != null && trustedCertStores.length > 0) {
@@ -1007,7 +997,6 @@ public class SecurityConfigAdmin {
             props.setProperty(ServerCrypto.PROP_ID_TENANT_ID,
                     Integer.toString(tenantId));
         }
-
         return props;
     }
 
@@ -1057,7 +1046,6 @@ public class SecurityConfigAdmin {
             Iterator alternatives = policy.getAlternatives();
             if (alternatives.hasNext()) {
                 List it = (List) alternatives.next();
-
                 RampartPolicyData rampartPolicyData = RampartPolicyBuilder.build(it);
                 if (rampartPolicyData.isTransportBinding()) {
                     httpsRequired = true;
@@ -1076,7 +1064,6 @@ public class SecurityConfigAdmin {
             log.error("Error in checking http transport only", e);
             throw new SecurityConfigException("Error in checking http transport only", e);
         }
-
         return httpsRequired;
     }
 
@@ -1122,7 +1109,6 @@ public class SecurityConfigAdmin {
             if (scenarioId == null) {
                 return data;
             }
-
             /**
              * Scenario ID can either be a default one (out of 15) or "policyFromRegistry", which
              * means the current scenario refers to a custom policy from registry. If that is the
@@ -1148,9 +1134,7 @@ public class SecurityConfigAdmin {
             KerberosConfigData kerberosData = this.readKerberosConfigurations(carbonSecConfig);
 
             data = new SecurityConfigData();
-
             data.setKerberosConfigurations(kerberosData);
-
             //may be we don't need this in the new persistence model
             // String serviceXPath = PersistenceUtils.getResourcePath(service);
             AuthorizationManager acReader = realm.getAuthorizationManager();
@@ -1169,7 +1153,6 @@ public class SecurityConfigAdmin {
             if (StringUtils.isNotBlank(trustedStores)) {
                 data.setTrustedKeyStores(trustedStores.split(","));
             }
-
             return data;
 
         } catch (UserStoreException e) {
@@ -1200,7 +1183,6 @@ public class SecurityConfigAdmin {
             // after this point, we are going to do some policy related operations in the
             // AxisService object. Therefore, if the existing service is a ghost service, deploy
             // the actual one
-
             if (GhostDeployerUtils.isGhostService(service)) {
                 service = GhostDeployerUtils.deployActualService(axisConfig, service);
             }
@@ -1265,13 +1247,11 @@ public class SecurityConfigAdmin {
                     }
                 }
             }
-
             return scenario;
         } catch (Exception e) {
             log.error("Error while reading Security Scenario", e);
             throw new SecurityConfigException("readingSecurity", e);
         }
-
     }
 
     /**
@@ -1313,6 +1293,7 @@ public class SecurityConfigAdmin {
     }
 
     private Map<String, String> getProperties(OMElement parentElement) {
+
         Map<String, String> properties = new HashMap<>();
         if (parentElement != null) {
             Iterator iterator = parentElement.getChildElements();
@@ -1324,14 +1305,12 @@ public class SecurityConfigAdmin {
                 properties.put(nameAttribute, value);
             }
         }
-
         return properties;
     }
 
     private String getProperty(RampartConfig rampartConfig, Map<String, String> trustProperties, String propertyName) {
 
         String propertyValue = null;
-
         if (trustProperties != null) {
             trustProperties.get(propertyName);
             if (StringUtils.isNotEmpty(propertyValue)) {
@@ -1371,6 +1350,7 @@ public class SecurityConfigAdmin {
     }
 
     private Policy getCurrentPolicy(AxisService service) throws SecurityConfigException {
+
         try {
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             Registry configRegistry = SecurityMgtServiceComponent.getRegistryService()
@@ -1412,6 +1392,5 @@ public class SecurityConfigAdmin {
         service.addParameter(RahasUtil.getSCTIssuerConfigParameter(
                 ServerCrypto.class.getName(), cryptoProps, -1, null, true, true));
         service.addParameter(RahasUtil.getTokenCancelerConfigParameter());
-
     }
 }
