@@ -20,6 +20,16 @@ package org.wso2.carbon.identity.workflow.impl;
 public class WFImplConstant {
 
     public static final String WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME = "WorkflowImplMetaData.xml" ;
+    public static final String HT_STATE_RESERVED = "RESERVED" ;
+    public static final String HT_STATE_READY = "READY" ;
+
+    public static final String HT_PARAMETER_LIST_ELEMENT = "parametersList";
+    public static final String HT_ITEM_NAME_ATTRIBUTE = "itemName";
+    public static final String HT_REQUEST_ID_ATTRIBUTE_VALUE = "REQUEST ID";
+    public static final String HT_SERVICES_URL = "services/HumanTaskClientAPIAdmin";
+
+
+
     public static class ParameterName {
         //Template Parameter List
         public static final String STEPS_USER_AND_ROLE = "UserAndRole" ;

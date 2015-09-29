@@ -85,7 +85,13 @@ public interface WorkflowManagementService {
 
     WorkflowRequestAssociation[] getWorkflowsOfRequest(String requestId) throws WorkflowException;
 
-    void updateStatusOfRequest(String requestId, String newState) throws WorkflowException;
+    /**
+     * Update state of a existing workflow request
+     *
+     * @param requestId
+     * @throws WorkflowException
+     */
+    void deleteWorkflowRequest(String requestId) throws WorkflowException;
 
     WorkflowRequest[] getRequestsFromFilter(String user, String beginDate, String endDate, String
             dateCategory, int tenantId, String status) throws WorkflowException;

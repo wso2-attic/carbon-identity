@@ -318,7 +318,7 @@ public class SQLConstants {
     public static final String UPDATE_STATUS_OF_RELATIONSHIP = "UPDATE WF_WORKFLOW_REQUEST_RELATION SET STATUS = " +
                                                                "? , UPDATED_AT = ? WHERE RELATIONSHIP_ID = ?";
 
-    public static final String UPDATE_STATUS_OF_RELATIONSHIPS_OF_REQUEST = "UPDATE WORKFLOW_REQUEST_RELATION SET " +
+    public static final String UPDATE_STATUS_OF_RELATIONSHIPS_OF_REQUEST = "UPDATE WF_WORKFLOW_REQUEST_RELATION SET " +
                                                                            "STATUS = ? , UPDATED_AT = ? WHERE " +
                                                                            "REQUEST_ID = ? AND STATUS = ?";
 

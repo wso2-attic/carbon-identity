@@ -36,9 +36,11 @@ import org.wso2.carbon.identity.workflow.impl.WorkflowImplService;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplServiceImpl;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplTenantMgtListener;
+import org.wso2.carbon.identity.workflow.impl.listener.WorkflowRequestDeleteListenerImpl;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowRequestDeleteListener;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
@@ -55,18 +57,18 @@ import java.net.SocketException;
 import java.net.URISyntaxException;
 
 /**
- * @scr.component name="identity.workflow.impl" immediate="true"
- * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
+ * @scr.component name="org.wso2.carbon.identity.workflow.impl" immediate="true"
+ * @scr.reference name="org.wso2.carbon.user.core.service.realmservice" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
- * @scr.reference name="workflow.service"
+ * @scr.reference name="org.wso2.carbon.identity.workflow.mgt.workflowservice"
  * interface="org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService"
  * cardinality="0..n" policy="dynamic" bind="setWorkflowManagementService"
  * unbind="unsetWorkflowManagementService"
  * @scr.reference name="identityCoreInitializedEventService"
  * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
  * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
- * @scr.reference name="config.context.service"
+ * @scr.reference name="org.wso2.carbon.utils.contextservice"
  * interface="org.wso2.carbon.utils.ConfigurationContextService"
  * cardinality="1..1" policy="dynamic"  bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
@@ -85,9 +87,8 @@ public class WorkflowImplServiceComponent {
 
             TemplateInitializer templateInitializer = new BPELDeployer();
             WorkFlowExecutor workFlowExecutor = new RequestExecutor();
-            bundleContext
-                    .registerService(AbstractWorkflow.class, new ApprovalWorkflow(templateInitializer,
-                            workFlowExecutor, metaDataXML), null);
+            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(templateInitializer,workFlowExecutor, metaDataXML), null);
+            bundleContext.registerService(WorkflowRequestDeleteListener.class, new WorkflowRequestDeleteListenerImpl(), null);
 
             WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
 
@@ -150,22 +151,12 @@ public class WorkflowImplServiceComponent {
             String url = IdentityUtil.getServerURL("");
             if (currentBpsProfile == null || !currentBpsProfile.getWorkerHostURL().equals(url)) {
                 BPSProfile bpsProfileDTO = new BPSProfile();
-                String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
-                String offset = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.PORTS_OFFSET);
-
-
                 String userName =
                         WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
                                 .getAdminUserName();
                 String password =
                         WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
                                 .getAdminPassword();
-
-                if (hostName == null) {
-                    hostName = NetworkUtils.getLocalHostname();
-                }
-
-
                 bpsProfileDTO.setManagerHostURL(url);
                 bpsProfileDTO.setWorkerHostURL(url);
                 bpsProfileDTO.setUsername(userName);
@@ -183,12 +174,7 @@ public class WorkflowImplServiceComponent {
                 }
 
             }
-        } catch (SocketException e) {
-            //This is not thrown exception because this is not blocked to the other functionality. User can create
-            // default profile by manually.
-            String errorMsg = "Error while trying to read hostname, " + e.getMessage();
-            log.error(errorMsg);
-        } catch (WorkflowException e) {
+        }  catch (WorkflowException e) {
             //This is not thrown exception because this is not blocked to the other functionality. User can create
             // default profile by manually.
             String errorMsg = "Error occured while adding default bps profile, " + e.getMessage();
