@@ -114,8 +114,8 @@
                 forwardTo = "../user/user-mgt.jsp?ordinal=1";
             } else {
                 forwardTo = "edit.jsp?username=" + Encode.forUriComponent(username) + "&profile=" +
-                        Encode.forUriComponent(profiles[0].getProfileName()) + "&fromUserMgt="+
-                        Encode.forUriComponent(fromUserMgt)+"&noOfProfiles=1";
+                            Encode.forUriComponent(profiles[0].getProfileName()) + "&fromUserMgt=" +
+                            Encode.forUriComponent(fromUserMgt) + "&noOfProfiles=1";
             }
         } else {
             
