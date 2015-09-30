@@ -181,7 +181,7 @@ public class PassiveSTS extends HttpServlet {
 
         String pageWithReplyAction = pageWithReply.replace("$action", Encode.forHtml(String.valueOf(action)));
         String pageWithReplyActionResult = pageWithReplyAction.replace("$result",
-                StringEscapeUtils.escapeHtml(Encode.forHtml(String.valueOf(respToken.getResults()))));
+                Encode.forHtml(String.valueOf(respToken.getResults())));
         String pageWithReplyActionResultContext;
         if(respToken.getContext() !=null) {
             pageWithReplyActionResultContext = pageWithReplyActionResult.replace(
