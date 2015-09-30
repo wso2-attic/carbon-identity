@@ -31,6 +31,7 @@ import org.wso2.carbon.identity.mgt.RecoveryProcessor;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
 import org.wso2.carbon.identity.mgt.listener.UserOperationsNotificationListener;
+import org.wso2.carbon.identity.mgt.store.RegistryCleanUpService;
 import org.wso2.carbon.identity.notification.mgt.NotificationSender;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
@@ -62,6 +63,8 @@ import java.util.List;
 
 public class IdentityMgtServiceComponent {
 
+    public static final int INITIAL_DELAY = 1;
+    public static final int DELAY_BETWEEN_RUNS = 1;
     private static Log log = LogFactory.getLog(IdentityMgtServiceComponent.class);
 
     private static RealmService realmService;
@@ -192,6 +195,9 @@ public class IdentityMgtServiceComponent {
         if(log.isDebugEnabled()) {
             log.debug("Identity Management bundle is activated");
         }
+
+        RegistryCleanUpService registryCleanUpService = new RegistryCleanUpService(INITIAL_DELAY, DELAY_BETWEEN_RUNS);
+        registryCleanUpService.activateCleanUp();
     }
 
     protected void deactivate(ComponentContext context) {
