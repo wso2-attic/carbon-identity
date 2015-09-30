@@ -41,7 +41,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
-import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowRequestDeleteListener;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
@@ -306,9 +306,34 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         Workflow workflow = workflowDAO.getWorkflow(workflowId);
         //Deleting the role that is created for per workflow
         if (workflow != null) {
+
+            List<WorkflowListener> workflowListenerList =
+                    WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
+
+            for (WorkflowListener workflowListener : workflowListenerList) {
+                try {
+                    workflowListener.doPreDeleteWorkflow(workflow);
+                } catch (WorkflowException e) {
+                    throw new WorkflowException(
+                            "Error occurred while calling doPreDeleteWorkflow in WorkflowListener ," +
+                            workflowListener.getClass().getName(), e);
+                }
+            }
+
             WorkflowManagementUtil.deleteWorkflowRole(StringUtils.deleteWhitespace(workflow.getWorkflowName()));
             workflowDAO.removeWorkflowParams(workflowId);
             workflowDAO.removeWorkflow(workflowId);
+
+            for (WorkflowListener workflowListener : workflowListenerList) {
+                try {
+                    workflowListener.doPostDeleteWorkflow(workflow);
+                } catch (WorkflowException e) {
+                    throw new WorkflowException(
+                            "Error occurred while calling doPreDeleteWorkflow in WorkflowListener ," +
+                            workflowListener.getClass().getName(), e);
+                }
+            }
+
         }
     }
 
@@ -474,20 +499,20 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         if (!loggedUser.equals(createdUser)) {
             throw new WorkflowException("User not authorized to delete this request");
         }
-        List<WorkflowRequestDeleteListener> workflowRequestDeleteListenerList =
-                WorkflowServiceDataHolder.getInstance().getWorkflowRequestDeleteListenerList();
+        List<WorkflowListener> workflowListenerList =
+                WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
 
         WorkflowRequest workflowRequest = new WorkflowRequest();
         workflowRequest.setRequestId(requestId);
         workflowRequest.setCreatedBy(createdUser);
 
-        for (WorkflowRequestDeleteListener workflowRequestDeleteListener : workflowRequestDeleteListenerList) {
+        for (WorkflowListener workflowListener : workflowListenerList) {
             try {
-                workflowRequestDeleteListener.doPreDeleteWorkflowRequest(workflowRequest);
+                workflowListener.doPreDeleteWorkflowRequest(workflowRequest);
             } catch (WorkflowException e) {
                 throw new WorkflowException(
-                        "Error occurred while calling doPreDeleteWorkflowRequest in WorkflowRequestDeleteListener ," +
-                        workflowRequestDeleteListener.getClass().getName(), e);
+                        "Error occurred while calling doPreDeleteWorkflowRequest in WorkflowListener ," +
+                        workflowListener.getClass().getName(), e);
             }
         }
 
@@ -496,13 +521,13 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
                 .updateStatusOfRelationshipsOfPendingRequest(requestId, WFConstant.HT_STATE_SKIPPED);
         requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
 
-        for (WorkflowRequestDeleteListener workflowRequestDeleteListener : workflowRequestDeleteListenerList) {
+        for (WorkflowListener workflowListener : workflowListenerList) {
             try {
-                workflowRequestDeleteListener.doPostDeleteWorkflowRequest(workflowRequest);
+                workflowListener.doPostDeleteWorkflowRequest(workflowRequest);
             } catch (WorkflowException e) {
                 throw new WorkflowException(
-                        "Error occurred while calling doPostDeleteWorkflowRequest in WorkflowRequestDeleteListener ," +
-                        workflowRequestDeleteListener.getClass().getName(), e);
+                        "Error occurred while calling doPostDeleteWorkflowRequest in WorkflowListener ," +
+                        workflowListener.getClass().getName(), e);
             }
         }
     }

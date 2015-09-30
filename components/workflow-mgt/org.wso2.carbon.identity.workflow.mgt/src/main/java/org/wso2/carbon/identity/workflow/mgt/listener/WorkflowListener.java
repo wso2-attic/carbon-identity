@@ -18,13 +18,14 @@
 
 package org.wso2.carbon.identity.workflow.mgt.listener;
 
+import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 /**
  * Listener for Workflow Request Delete Process
  */
-public interface WorkflowRequestDeleteListener {
+public interface WorkflowListener {
 
     /**
      * Trigger before delete the request
@@ -41,5 +42,23 @@ public interface WorkflowRequestDeleteListener {
      * @throws WorkflowException
      */
     void doPostDeleteWorkflowRequest(WorkflowRequest workflowRequest) throws WorkflowException;
+
+    /**
+     * Trigger before delete the workflow
+     *
+     * @param workflow
+     * @throws WorkflowException
+     */
+    void doPreDeleteWorkflow(Workflow workflow) throws WorkflowException;
+
+
+    /**
+     *
+     * Trigger after delete the workflow
+     *
+     * @param workflow
+     * @throws WorkflowException
+     */
+    void doPostDeleteWorkflow(Workflow workflow) throws WorkflowException;
 
 }

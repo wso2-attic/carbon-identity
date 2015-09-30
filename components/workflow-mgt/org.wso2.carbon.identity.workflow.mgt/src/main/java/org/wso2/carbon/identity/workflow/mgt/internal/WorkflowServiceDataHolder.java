@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowRequestDeleteListener;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -45,15 +45,15 @@ public class WorkflowServiceDataHolder {
 
     private Map<String, WorkflowRequestHandler> workflowRequestHandlers =  new HashMap<String, WorkflowRequestHandler>();
 
-    private List<WorkflowRequestDeleteListener> workflowRequestDeleteListenerList = new ArrayList<>();
+    private List<WorkflowListener> workflowListenerList = new ArrayList<>();
 
-    public List<WorkflowRequestDeleteListener> getWorkflowRequestDeleteListenerList() {
-        return workflowRequestDeleteListenerList;
+    public List<WorkflowListener> getWorkflowListenerList() {
+        return workflowListenerList;
     }
 
-    public void setWorkflowRequestDeleteListenerList(
-            List<WorkflowRequestDeleteListener> workflowRequestDeleteListenerList) {
-        this.workflowRequestDeleteListenerList = workflowRequestDeleteListenerList;
+    public void setWorkflowListenerList(
+            List<WorkflowListener> workflowListenerList) {
+        this.workflowListenerList = workflowListenerList;
     }
 
     private Map<String, AbstractTemplate> templates = new HashMap<String, AbstractTemplate>();
