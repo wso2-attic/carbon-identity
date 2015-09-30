@@ -147,7 +147,16 @@ public abstract class AbstractApplicationAuthenticator implements ApplicationAut
 
     @Override
     public List<Property> getConfigurationProperties() {
-        return new ArrayList<Property>();
+        List<Property> properties = new ArrayList<>();
+        AuthenticatorConfig authenticatorConfig = getAuthenticatorConfig();
+        Map<String, String> paramMap = authenticatorConfig.getParameterMap();
+        for (Map.Entry<String, String> entry : paramMap.entrySet()) {
+            Property property = new Property();
+            property.setName(entry.getKey());
+            property.setValue(entry.getValue());
+            properties.add(property);
+        }
+        return properties;
     }
 
     protected String getUserStoreAppendedName(String userName) {

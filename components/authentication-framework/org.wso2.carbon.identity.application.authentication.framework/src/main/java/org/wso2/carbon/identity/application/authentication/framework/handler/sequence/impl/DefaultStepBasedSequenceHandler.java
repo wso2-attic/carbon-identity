@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
@@ -412,18 +413,21 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                         authenticatedUserAttributes = FrameworkUtils.buildClaimMappings(mappedAttrs);
                     }
 
-                }
+                    // do user provisioning. we should provision the user with the original external
+                    // subject identifier.
+                    if (externalIdPConfig.isProvisioningEnabled()) {
 
-                // do user provisioning. we should provision the user with the original external
-                // subject identifier.
-                if (externalIdPConfig.isProvisioningEnabled()) {
+                        if (localClaimValues == null) {
+                            localClaimValues = new HashMap<>();
+                        }
 
-                    if (localClaimValues == null) {
-                        localClaimValues = new HashMap<>();
+                        String provisioningClaimUri = context.getExternalIdP().getProvisioningUserStoreClaimURI();
+                        String provisioningUserStoreId = context.getExternalIdP().getProvisioningUserStoreId();
+
+                        handleJitProvisioning(originalExternalIdpSubjectValueForThisStep, context,
+                                locallyMappedUserRoles, localClaimValues, provisioningClaimUri, provisioningUserStoreId);
                     }
 
-                    handleJitProvisioning(originalExternalIdpSubjectValueForThisStep, context,
-                            locallyMappedUserRoles, localClaimValues);
                 }
 
             } else {
@@ -440,6 +444,9 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                 }
 
                 if (stepConfig.isSubjectAttributeStep()) {
+                    String originalIdpSubjectValueForThisStep =
+                            stepConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier();
+
                     subjectAttributesFoundInStep = true;
                     // local authentications
                     mappedAttrs = handleClaimMappings(stepConfig, context, null, false);
@@ -448,16 +455,47 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
 
                     String roleAttr = mappedAttrs.get(spRoleUri);
 
+                    String[] mappedRoles = new String[0];
+
                     if (roleAttr != null && roleAttr.trim().length() > 0) {
 
-                        String[] roles = roleAttr.split(",");
+                        mappedRoles = roleAttr.split(",");
                         mappedAttrs.put(
                                 spRoleUri,
                                 getServiceProviderMappedUserRoles(sequenceConfig,
-                                                                  Arrays.asList(roles)));
+                                                                  Arrays.asList(mappedRoles)));
                     }
 
                     authenticatedUserAttributes = FrameworkUtils.buildClaimMappings(mappedAttrs);
+
+                    List<Property> configProperties = authenticator.getConfigurationProperties();
+                    String provisioningClaimUri = null;
+                    String provisioningUserStoreId = null;
+
+                    boolean isJitProvisioningEnabled = false;
+                    for (Property property : configProperties) {
+                        if (property.getName().equals("jitProvisioningEnabled")) {
+                            isJitProvisioningEnabled = Boolean.parseBoolean(property.getValue());
+                        }
+                        if (property.getName().equals("provisioningClaimUri")) {
+                            provisioningClaimUri = property.getValue();
+                        }
+                        if (property.getName().equals("provisioningUserStore")) {
+                            provisioningUserStoreId = property.getValue();
+                        }
+                    }
+
+                    // do user provisioning. we should provision the user with the original external
+                    // subject identifier.
+                    if (isJitProvisioningEnabled) {
+
+                        if (mappedAttrs == null) {
+                            mappedAttrs = new HashMap<>();
+                        }
+
+                        handleJitProvisioning(originalIdpSubjectValueForThisStep, context,
+                                Arrays.asList(mappedRoles), mappedAttrs, provisioningClaimUri, provisioningUserStoreId);
+                    }
                 }
             }
         }
@@ -683,16 +721,13 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
      * @param extAttributesValueMap
      */
     protected void handleJitProvisioning(String subjectIdentifier, AuthenticationContext context,
-                                         List<String> mappedRoles, Map<String, String> extAttributesValueMap)
+                                         List<String> mappedRoles, Map<String, String> extAttributesValueMap,
+                                         String provisioningClaimUri, String provisioningUserStoreId)
             throws FrameworkException {
 
         try {
             @SuppressWarnings("unchecked")
             String userStoreDomain = null;
-            String provisioningClaimUri = context.getExternalIdP()
-                    .getProvisioningUserStoreClaimURI();
-            String provisioningUserStoreId = context.getExternalIdP().getProvisioningUserStoreId();
-
             if (provisioningUserStoreId != null) {
                 userStoreDomain = provisioningUserStoreId;
             } else if (provisioningClaimUri != null) {
