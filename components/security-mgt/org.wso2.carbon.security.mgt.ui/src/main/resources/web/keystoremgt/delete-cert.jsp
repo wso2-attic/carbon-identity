@@ -41,7 +41,7 @@
         KeyStoreAdminClient client = new KeyStoreAdminClient(cookie, backendServerURL, configContext);
 		client.removeCertificateFromKeyStore(keyStore, certificateAlias);
         String message = resourceBundle.getString("cert.delete");
-        forwardTo = "view-keystore.jsp?keyStore="+keyStore;
+        forwardTo = "view-keystore.jsp?keyStore=" + Encode.forUriComponent(keyStore);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("cert.cannot.delete"),
