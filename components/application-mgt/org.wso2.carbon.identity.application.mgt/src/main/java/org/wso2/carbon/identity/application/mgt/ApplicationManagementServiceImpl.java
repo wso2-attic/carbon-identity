@@ -739,7 +739,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             throws IdentityApplicationManagementException {
         List<ApplicationPermission> permissionList = ApplicationMgtUtil.loadPermissions(serviceProviderName);
 
-        if (permissionList != null) {
+        if (permissionList.size() > 0) {
             PermissionsAndRoleConfig permissionAndRoleConfig;
             if (serviceProvider.getPermissionAndRoleConfig() == null) {
                 permissionAndRoleConfig = new PermissionsAndRoleConfig();
