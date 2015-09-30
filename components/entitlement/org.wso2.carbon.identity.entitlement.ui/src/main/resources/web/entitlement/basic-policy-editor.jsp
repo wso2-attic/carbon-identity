@@ -643,7 +643,7 @@
         <%
             if(entitlementPolicyBean.getPolicyDescription() != null) {
         %>
-        <td><textarea name="policyDescription" id="policyDescription" value="<%=Encode.forHtmlContent(entitlementPolicyBean.getPolicyDescription())%>" class="text-box-big">
+        <td><textarea name="policyDescription" id="policyDescription" value="<%=Encode.forHtmlAttribute(entitlementPolicyBean.getPolicyDescription())%>" class="text-box-big">
             <%=Encode.forHtmlContent(entitlementPolicyBean.getPolicyDescription())%></textarea></td>
         <%
         } else {
@@ -833,7 +833,8 @@
         </td>
 
         <td>
-            <input type="hidden" name="actionIdTarget" id="actionIdTarget" value="<%=Encode.forHtmlContent(actionIdTarget)%>" />
+            <input type="hidden" name="actionIdTarget" id="actionIdTarget"
+                   value="<%=Encode.forHtmlAttribute(actionIdTarget)%>"/>
         </td>
         </tr>
         </table>
@@ -856,7 +857,7 @@
                 <%
                 } else {
                 %>
-                <option value="<%=Encode.forHtmlContent(id)%>"><%=Encode.forHtmlContent(id)%></option>
+                <option value="<%=Encode.forHtmlAttribute(id)%>"><%=Encode.forHtmlContent(id)%></option>
                 <%
                         }
                     }

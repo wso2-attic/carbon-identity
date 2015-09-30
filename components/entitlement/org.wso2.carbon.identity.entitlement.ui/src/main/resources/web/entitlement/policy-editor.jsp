@@ -691,7 +691,7 @@ function preSubmit(){
         if (entitlementPolicyBean.getPolicyDescription() != null) {
     %>
     <td><textarea name="policyDescription" id="policyDescription"
-                  value="<%=Encode.forHtmlContent(entitlementPolicyBean.getPolicyDescription())%>"
+                  value="<%=Encode.forHtmlAttribute(entitlementPolicyBean.getPolicyDescription())%>"
                   class="text-box-big"><%=Encode.forHtmlContent(entitlementPolicyBean.getPolicyDescription())%>
     </textarea></td>
     <%

@@ -34,7 +34,7 @@
             String message = resourceBundle.getString("policy.editor.config.update");
             %>
             <script type="text/javascript">
-                CARBON.showInfoDialog('<%=Encode.forJavaScriptAttribute(message)%>', null, null);
+                CARBON.showInfoDialog('<%=message%>', null, null);
             </script>
             <%
         } catch (PolicyEditorException e) {

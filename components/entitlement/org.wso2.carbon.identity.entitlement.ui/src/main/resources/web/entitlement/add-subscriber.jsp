@@ -306,13 +306,13 @@
                     </td>
                     <td>
                         <% if(dto.getValue() != null) {%>
-                            <input type="<%=Encode.forHtmlAttribute(inputType)%>" name="<%=Encode.forHtmlAttribute(dto.getId())%>"
+                            <input type="<%=inputType%>" name="<%=Encode.forHtmlAttribute(dto.getId())%>"
                                    id="<%=Encode.forHtmlAttribute(dto.getId())%>" value="<%=Encode.forHtmlAttribute(dto.getValue())%>"
                                     <% if("subscriberId".equals(dto.getId())){ %> readonly='readonly' <% } %> />
                         <%
                             } else {
                         %>
-                            <input type="<%=Encode.forHtmlAttribute(inputType)%>" name="<%=Encode.forHtmlAttribute(dto.getId())%>"
+                            <input type="<%=inputType%>" name="<%=Encode.forHtmlAttribute(dto.getId())%>"
                                    id="<%=Encode.forHtmlAttribute(dto.getId())%>"/>
                         <%
                             }
