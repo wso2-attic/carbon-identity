@@ -505,6 +505,8 @@ public class IdPManagementUIUtil {
         Property userEpProp = null;
         Property groupEpProp = null;
         Property scimUserStoreDomain = null;
+        Property scimEnablePwdProvisioning = null;
+        Property defaultPwdProp = null;
 
         if (paramMap.get("scimProvEnabled") != null && "on".equals(paramMap.get("scimProvEnabled"))) {
             proConnector.setEnabled(true);
@@ -547,8 +549,21 @@ public class IdPManagementUIUtil {
             scimUserStoreDomain.setValue(paramMap.get("scim-user-store-domain"));
         }
 
+        if (paramMap.get("scimPwdProvEnabled") != null && "on".equals(paramMap.get("scimPwdProvEnabled"))) {
+            scimEnablePwdProvisioning = new Property();
+            scimEnablePwdProvisioning.setName("scim-enable-pwd-provisioning");
+            scimEnablePwdProvisioning.setDefaultValue("false");
+            scimEnablePwdProvisioning.setValue("true");
+        }
+
+        if (paramMap.get("scim-default-pwd") != null) {
+            defaultPwdProp = new Property();
+            defaultPwdProp.setName("scim-default-pwd");
+            defaultPwdProp.setValue(paramMap.get("scim-default-pwd"));
+        }
+
         Property[] proProperties = new Property[]{userNameProp, passwordProp, userEpProp,
-                groupEpProp, scimUserStoreDomain};
+                groupEpProp, scimUserStoreDomain, scimEnablePwdProvisioning, defaultPwdProp};
 
         proConnector.setProvisioningProperties(proProperties);
 

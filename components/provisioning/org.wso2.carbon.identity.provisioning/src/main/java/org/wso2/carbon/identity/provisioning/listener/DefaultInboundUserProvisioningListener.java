@@ -609,4 +609,83 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
             IdentityApplicationManagementUtil.resetThreadLocalProvisioningServiceProvider();
         }
     }
+
+    @Override
+    public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager)
+            throws UserStoreException {
+        try {
+            Map<ClaimMapping, List<String>> outboundAttributes = new HashMap<ClaimMapping, List<String>>();
+
+            if (credential != null) {
+                outboundAttributes.put(ClaimMapping.build(
+                                               IdentityProvisioningConstants.PASSWORD_CLAIM_URI, null, null, false),
+                                       Arrays.asList(credential.toString()));
+            }
+
+            if (userName != null) {
+                outboundAttributes.put(ClaimMapping.build(
+                                               IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
+                                       Arrays.asList(userName));
+            }
+
+            String domainName = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+            if (log.isDebugEnabled()) {
+                log.debug("Adding domain name : " + domainName + " to user : " + userName);
+            }
+            String domainAwareName = UserCoreUtil.addDomainToName(userName, domainName);
+
+            ProvisioningEntity provisioningEntity = new ProvisioningEntity(
+                    ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PATCH,
+                    outboundAttributes);
+
+            String tenantDomainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+
+            ThreadLocalProvisioningServiceProvider threadLocalServiceProvider;
+            threadLocalServiceProvider = IdentityApplicationManagementUtil
+                    .getThreadLocalProvisioningServiceProvider();
+
+            if (threadLocalServiceProvider != null) {
+                String serviceProvider = threadLocalServiceProvider.getServiceProviderName();
+                tenantDomainName = threadLocalServiceProvider.getTenantDomain();
+                if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
+                    try {
+                        serviceProvider = ApplicationManagementService.getInstance()
+                                .getServiceProviderNameByClientId(
+                                        threadLocalServiceProvider.getServiceProviderName(),
+                                        "oauth2", tenantDomainName);
+                    } catch (IdentityApplicationManagementException e) {
+                        log.error("Error while provisioning", e);
+                        return true;
+                    }
+                }
+                // call framework method to provision the user.
+                OutboundProvisioningManager.getInstance().provision(provisioningEntity,
+                                                                    serviceProvider,
+                                                                    threadLocalServiceProvider.getClaimDialect(),
+                                                                    tenantDomainName,
+                                                                    threadLocalServiceProvider.isJustInTimeProvisioning());
+            } else {
+                // call framework method to provision the user.
+                OutboundProvisioningManager.getInstance()
+                        .provision(provisioningEntity, ApplicationConstants.LOCAL_SP,
+                                   WSO2_CARBON_DIALECT, tenantDomainName, false);
+            }
+
+            return true;
+        } finally {
+            ThreadLocalProvisioningServiceProvider threadLocalSP = IdentityApplicationManagementUtil
+                    .getThreadLocalProvisioningServiceProvider();
+            //check bulk user flag before reset ThreadLocalProvisioningServiceProvider, reset does not happen in the
+            // middle of bulk user add operation
+            if (threadLocalSP != null && !threadLocalSP.isBulkUserAdd()) {
+                IdentityApplicationManagementUtil.resetThreadLocalProvisioningServiceProvider();
+            }
+        }
+    }
+
+    @Override
+    public boolean doPostUpdateCredentialByAdmin(String userName, Object credential, UserStoreManager userStoreManager)
+            throws UserStoreException {
+        return doPostUpdateCredential(userName,credential, userStoreManager);
+    }
 }
