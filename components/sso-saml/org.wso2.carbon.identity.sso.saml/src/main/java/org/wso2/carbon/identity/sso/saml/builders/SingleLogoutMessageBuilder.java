@@ -109,8 +109,9 @@ public class SingleLogoutMessageBuilder {
         return logoutReq;
     }
 
-    public LogoutResponse buildLogoutResponse(String id, String status, String statMsg, String destination, String
-            tenantDomain, String responseSigningAlgorithmUri, String responseDigestAlgoUri) throws IdentityException {
+    public LogoutResponse buildLogoutResponse(String id, String status, String statMsg, String destination, boolean
+            isSignResponse, String tenantDomain, String responseSigningAlgorithmUri, String responseDigestAlgoUri)
+            throws IdentityException {
 
         LogoutResponse logoutResp = new LogoutResponseBuilder().buildObject();
         logoutResp.setID(SAMLSSOUtil.createID());
@@ -121,7 +122,7 @@ public class SingleLogoutMessageBuilder {
         logoutResp.setDestination(destination);
 
         // Currently, does not sign the error response since this message pass through a url to the error page
-        if (SAMLSSOConstants.StatusCodes.SUCCESS_CODE.equals(status)) {
+        if (isSignResponse && SAMLSSOConstants.StatusCodes.SUCCESS_CODE.equals(status)) {
             int tenantId;
             if (StringUtils.isEmpty(tenantDomain)) {
                 tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
