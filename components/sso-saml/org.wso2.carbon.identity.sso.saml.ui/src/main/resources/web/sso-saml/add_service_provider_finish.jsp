@@ -26,6 +26,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.identity.core.util.IdentityUtil" %>
 
 <jsp:useBean id="samlSsoServuceProviderConfigBean"
@@ -255,9 +256,15 @@
     if (applicationComponentFound) {
         if (status) {
     %>
-    location.href = '../application/configure-service-provider.jsp?action=update&display=samlIssuer&spName=<%=spName%>&samlIssuer=<%=serviceProviderDTO.getIssuer()%>&attrConServIndex=<%=attributeConsumingServiceIndex%>';
+    location.href = '../application/configure-service-provider.jsp?action=update&display=samlIssuer&spName=' +
+            '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&samlIssuer='+
+            '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(serviceProviderDTO.getIssuer()))%>' +
+            '&attrConServIndex=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(attributeConsumingServiceIndex))%>';
     <% } else { %>
-    location.href = '../application/configure-service-provider.jsp?action=delete&display=samlIssuer&spName=<%=spName%>&samlIssuer=<%=serviceProviderDTO.getIssuer()%>&attrConServIndex=<%=attributeConsumingServiceIndex%>';
+    location.href = '../application/configure-service-provider.jsp?action=delete&display=samlIssuer&spName=' +
+            '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&samlIssuer='+
+    '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(serviceProviderDTO.getIssuer()))%>&attrConServIndex=' +
+            '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(attributeConsumingServiceIndex))%>';
 
     <% } } else { %>
     location.href = 'manage_service_providers.jsp?region=region1&item=manage_saml_sso';
