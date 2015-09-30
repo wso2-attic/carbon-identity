@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityRegistryResources;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
-import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
@@ -51,18 +50,14 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         serviceProviderDO.setCertAlias(resource
                 .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ISSUER_CERT_ALIAS));
 
-        if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_SIGNING_ALGORITHM) != null) {
+        if (StringUtils.isNotEmpty(resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_SIGNING_ALGORITHM))) {
             serviceProviderDO.setSigningAlgorithmUri(resource.getProperty(IdentityRegistryResources
                     .PROP_SAML_SSO_SIGNING_ALGORITHM));
-        } else {
-            serviceProviderDO.setSigningAlgorithmUri(IdentityCoreConstants.XML_SIGNATURE_ALGORITHM_RSA_SHA1_URI);
         }
 
-        if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DIGEST_ALGORITHM) != null) {
+        if (StringUtils.isNotEmpty(resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DIGEST_ALGORITHM))) {
             serviceProviderDO.setDigestAlgorithmUri(resource.getProperty(IdentityRegistryResources
                     .PROP_SAML_SSO_DIGEST_ALGORITHM));
-        } else {
-            serviceProviderDO.setDigestAlgorithmUri(IdentityCoreConstants.XML_DIGEST_ALGORITHM_SHA1);
         }
 
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DO_SINGLE_LOGOUT) != null) {
