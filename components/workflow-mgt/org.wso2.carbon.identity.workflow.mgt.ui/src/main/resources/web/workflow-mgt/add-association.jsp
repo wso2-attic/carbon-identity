@@ -524,14 +524,14 @@
                         </tr>
                         <tr>
                             <td colspan="2">
-                                <input type="radio" name="conditionType" value="applyToAll"  checked="checked"
+                                <input type="radio" name="conditionType" value="applyToAll" disabled  checked="checked"
                                        onclick="handleRadioInput(this);" class="enableOnOperationSel">
                                 Apply to all Requests
                             </td>
                         </tr>
                         <tr>
                             <td colspan="2">
-                                <input type="radio" name="conditionType" value="applyIf"
+                                <input type="radio" name="conditionType" value="applyIf" disabled
                                        class="enableOnOperationSel" onclick="handleRadioInput(this);">
                                 Apply if,
                             </td>
@@ -544,10 +544,10 @@
                                             <select id="paramSelect" onchange="updateOperator()"></select>
                                         </td>
                                         <td>
-                                            <select id="operationSelect" disabled=""></select>
+                                            <select id="operationSelect" disabled="disabled"></select>
                                         </td>
                                         <td>
-                                            <input id="val1" type="text" disabled=""/>
+                                            <input id="val1" type="text" disabled="disabled"/>
                                         </td>
                                     </tr>
                                 </table>

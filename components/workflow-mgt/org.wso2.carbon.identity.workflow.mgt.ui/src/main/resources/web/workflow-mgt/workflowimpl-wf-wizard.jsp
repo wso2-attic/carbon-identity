@@ -351,9 +351,8 @@
                                             if (metaData != null) {
                                     %>
                                     <tr>
-                                        <td width="200px" style="vertical-align: top !important;"><%=Encode.forHtmlContent(metaData.getDisplayName())%></td>
-                                    </tr>
-                                    <tr>
+                                        <td width="120px" style="vertical-align: top !important;"><%=Encode.forHtmlContent(metaData.getDisplayName())%><%=metaData.getIsRequired()?"<span style=\"color:red\">*</span>":""%></td>
+
                                         <%
                                             if(metaData.getInputType().equals(InputType.TEXT.value())){
                                                 String textTypeValue = "" ;
