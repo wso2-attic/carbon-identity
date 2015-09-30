@@ -23,6 +23,7 @@
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
 
@@ -40,19 +41,19 @@
         KeyStoreAdminClient client = new KeyStoreAdminClient(cookie, backendServerURL, configContext);
 		client.removeCertificateFromKeyStore(keyStore, certificateAlias);
         String message = resourceBundle.getString("cert.delete");
-        forwardTo = "view-keystore.jsp?keyStore="+keyStore;
+        forwardTo = "view-keystore.jsp?keyStore=" + Encode.forUriComponent(keyStore);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("cert.cannot.delete"),
                 new Object[]{e.getMessage()});
-        forwardTo = "view-keystore.jsp?keyStore="+keyStore;
+        forwardTo = "view-keystore.jsp?keyStore=" + Encode.forUriComponent(keyStore);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
     }
 %>
 
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 

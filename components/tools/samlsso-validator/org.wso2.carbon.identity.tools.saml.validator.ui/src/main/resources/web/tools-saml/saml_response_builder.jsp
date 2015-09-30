@@ -26,6 +26,7 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page
 	import="java.util.ResourceBundle"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
@@ -58,7 +59,7 @@
 	ConfigurationContext configContext;
 	String cookie;
 	SAMLSSOValidatorServiceClient client;
-	String buildResponse = SAMLSSOUIUtil.getSafeInput(request, "buildResponse");
+	String buildResponse = request.getParameter("buildResponse");
 	String[] issuers = null;
 	GeneratedResponseDTO responseDTO = null;
 	boolean isBuildResponse = false;
@@ -79,8 +80,8 @@
 		client = new SAMLSSOValidatorServiceClient(cookie, backendServerURL, configContext);
 		issuers = client.getIssuersOfSAMLServiceProviders();
 		if (isBuildResponse) {
-			issuer = SAMLSSOUIUtil.getSafeInput(request, "issuer");
-			userName = SAMLSSOUIUtil.getSafeInput(request, "userName");
+			issuer = request.getParameter("issuer");
+			userName = request.getParameter("userName");
 			responseDTO = client.buildResponse(issuer, userName);
 		}
 	} catch (Exception e) {
@@ -96,7 +97,7 @@
 				<div id="workArea">
 					<div style="padding-bottom: 10px;">
 						<div style="font-weight: bold; padding-bottom: 5px;">Building Response Failed</div>
-						<div style="padding-left: 10px; color:#E01212;"><%=responseDTO.getMessage()%></div>
+						<div style="padding-left: 10px; color:#E01212;"><%=Encode.forHtml(responseDTO.getMessage())%></div>
 					</div>
 				</div>
 				<%
@@ -107,7 +108,7 @@
 							<div style="width: 100%;">
 								<div style="width: 100%;"><textarea type="text"
 								name="samlResponse" id="samlResponse" class="text-box-big"
-								style="width: 99%; height: 250px; background: #FFFFFF;" autocomplete="off" readonly><%=responseDTO.getXmlResponse()%></textarea></div>
+								style="width: 99%; height: 250px; background: #FFFFFF;" autocomplete="off" readonly><%=Encode.forHtmlContent(responseDTO.getXmlResponse())%></textarea></div>
 							</div>
 						</div>
 					<h2 style="padding-top: 20px" >Encoded SAML Response</h2>
@@ -115,7 +116,7 @@
 							<div style="width: 100%;">
 								<div style="width: 100%;"><textarea type="text"
 								name="samlResponse" id="samlResponse" class="text-box-big"
-								style="width: 99%; height: 250px; background: #FFFFFF;" autocomplete="off" readonly><%=responseDTO.getEncodedResponse()%></textarea></div>
+								style="width: 99%; height: 250px; background: #FFFFFF;" autocomplete="off" readonly><%=Encode.forHtmlContent(responseDTO.getEncodedResponse())%></textarea></div>
 							</div>
 						</div>
 			<%
@@ -138,7 +139,7 @@
 							<select id="issuer" name="issuer" class="text-box-big">
 							<% for(String issuerItem : issuers){ 
 									if(issuerItem != null) {%>
-									<option value="<%=issuerItem%>" <%=(issuer != null && issuer.equals(issuerItem)) ? "selected" : ""%>><%=issuerItem%></option>
+									<option value="<%=Encode.forHtmlAttribute(issuerItem)%>" <%=(issuer != null && issuer.equals(issuerItem)) ? "selected" : ""%>><%=Encode.forHtmlContent(issuerItem)%></option>
 									<%
 									}
 								}
@@ -154,7 +155,7 @@
 					</tr>
 					<tr>
 						<td class="leftCol-small">User Name <span class="required">*</span></td>
-						<td><input type="text" id="userName" name="userName" value="<%=userName != null ? userName : ""%>"></td>
+						<td><input type="text" id="userName" name="userName" value="<%=userName != null ? Encode.forHtmlAttribute(userName) : ""%>"></td>
 					</tr>
 					<tr>
 						<td class="buttonRow" colspan="2"><input class="button"

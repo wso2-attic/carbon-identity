@@ -372,12 +372,10 @@ public class RecoveryProcessor {
                     success = true;
                 }
             } else {
-                if (log.isDebugEnabled()) {
-                    log.error("User with user name : " + userId
-                            + " does not exists in tenant domain : " + userDTO.getTenantDomain());
-                    bean = new VerificationBean(VerificationBean.ERROR_CODE_INVALID_USER + " "
-                            + "User does not exists");
-                }
+                log.error("User with user name : " + userId
+                        + " does not exists in tenant domain : " + userDTO.getTenantDomain());
+                bean = new VerificationBean(VerificationBean.ERROR_CODE_INVALID_USER + " "
+                        + "User does not exists");
             }
 
             if (success) {

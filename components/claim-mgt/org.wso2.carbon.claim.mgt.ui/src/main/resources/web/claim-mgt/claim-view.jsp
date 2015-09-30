@@ -33,6 +33,7 @@
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String serverURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -200,7 +201,7 @@
 
     </style>
     <div id="middle">
-        <h2><fmt:message key='available.claims.for'/><%=dialectUri%>
+        <h2><fmt:message key='available.claims.for'/><%=Encode.forHtml(dialectUri)%>
         </h2>
 
         <div id="workArea">
@@ -222,11 +223,11 @@
                 if (claims[j].getClaim().getDisplayTag() != null) {%>
             <div class="trigger-title-container">
                 <a href="#" class="trigger-title"><i class="claim-arrow-down"></i>
-                    <span><%=claims[j].getClaim().getDisplayTag()%></span></a>
-                <a href="update-claim.jsp?dialect=<%=dialectUri%>&claimUri=<%=claims[j].getClaim().getClaimUri()%>"
+                    <span><%=Encode.forHtmlContent(claims[j].getClaim().getDisplayTag())%></span></a>
+                <a href="update-claim.jsp?dialect=<%=Encode.forUriComponent(dialectUri)%>&claimUri=<%=Encode.forUriComponent(claims[j].getClaim().getClaimUri())%>"
                    class="editLink icon-link">Edit</a>
                 <a href="#" class="icon-link deleteLink" style="background-image:url(../claim-mgt/images/delete.gif);"
-                   onclick="removeItem('<%=dialectUri%>','<%=claims[j].getClaim().getClaimUri()%>','<%=claims.length%>'  );return false;"><fmt:message
+                   onclick="removeItem('<%=Encode.forJavaScriptAttribute(dialectUri)%>','<%=Encode.forJavaScriptAttribute(claims[j].getClaim().getClaimUri())%>','<%=Encode.forJavaScriptAttribute(String.valueOf(claims.length))%>'  );return false;"><fmt:message
                         key='remove.claim.mapping'/></a>
 
                 <div style="clear:both"></div>
@@ -236,13 +237,13 @@
                     <tbody>
                     <tr>
                         <td class="leftCol-small"><fmt:message key='description'/></td>
-                        <td class="leftCol-big"><%=claims[j].getClaim().getDescription()%>
+                        <td class="leftCol-big"><%=Encode.forHtmlContent(claims[j].getClaim().getDescription())%>
                         </td>
                     </tr>
 
                     <tr>
                         <td class="leftCol-small"><fmt:message key='claim.uri'/></td>
-                        <td class="leftCol-big"><%=claims[j].getClaim().getClaimUri()%>
+                        <td class="leftCol-big"><%=Encode.forHtmlContent(claims[j].getClaim().getClaimUri())%>
                         </td>
                     </tr>
                     <%
@@ -280,7 +281,7 @@
 
                     <tr>
                         <td class="leftCol-small"><fmt:message key='mapped.attribute'/></td>
-                        <td class="leftCol-big"><%=claims[j].getMappedAttribute()%>
+                        <td class="leftCol-big"><%=Encode.forHtmlContent(claims[j].getMappedAttribute())%>
                         </td>
                     </tr>
 
@@ -290,13 +291,13 @@
                         <td class="leftCol-big"><%="" %>
                         </td>
                         <% } else {%>
-                        <td class="leftCol-big"><%=claims[j].getClaim().getRegEx() %>
+                        <td class="leftCol-big"><%=Encode.forHtmlContent(claims[j].getClaim().getRegEx()) %>
                         </td>
                         <% } %>
                     </tr>
                     <tr>
                         <td class="leftCol-small"><fmt:message key='display.order'/></td>
-                        <td class="leftCol-big"><%=claims[j].getClaim().getDisplayOrder()%>
+                        <td class="leftCol-big"><%=Encode.forHtmlContent(String.valueOf(claims[j].getClaim().getDisplayOrder()))%>
                         </td>
                     </tr>
                     <tr>

@@ -1,6 +1,7 @@
 package org.wso2.carbon.identity.workflow.impl;
 
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -17,4 +18,6 @@ public interface WorkflowImplService {
     BPSProfile getBPSProfile(String profileName, int tenantId) throws WorkflowImplException;
 
     void updateBPSProfile(BPSProfile bpsProfileDTO, int tenantId) throws WorkflowImplException;
+
+    void deleteHumanTask(WorkflowRequest workflowRequest) throws WorkflowImplException;
 }

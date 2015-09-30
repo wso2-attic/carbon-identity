@@ -37,6 +37,7 @@
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequest" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowEvent" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -141,7 +142,7 @@
 %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 
@@ -190,10 +191,10 @@
             for (WorkflowEvent event : eventCategory.getValue()) {
                 %>
         var eventObj = {};
-        eventObj.displayName = "<%=event.getEventFriendlyName()%>";
-        eventObj.value = "<%=event.getEventId()%>";
-        eventObj.title = "<%=event.getEventDescription()!=null?event.getEventDescription():""%>";
-        eventsObj["<%=eventCategory.getKey()%>"].push(eventObj);
+        eventObj.displayName = "<%=Encode.forJavaScriptBlock(event.getEventFriendlyName())%>";
+        eventObj.value = "<%=Encode.forJavaScriptBlock(event.getEventId())%>";
+        eventObj.title = "<%=event.getEventDescription()!=null?Encode.forJavaScriptBlock(event.getEventDescription()):""%>";
+        eventsObj["<%=Encode.forJavaScriptBlock(eventCategory.getKey())%>"].push(eventObj);
         <%
                     }
             }
@@ -428,16 +429,16 @@
                                     || statusToFilter.equals("allTasks") || workflowReq.getStatus().equals(statusToFilter))) {
                 %>
                 <tr>
-                    <td><%=workflowReq.getEventType()%>
+                    <td><%=Encode.forHtmlContent(workflowReq.getEventType())%>
                     </td>
-                    <td><%=workflowReq.getCreatedAt()%>
+                    <td><%=Encode.forHtmlContent(workflowReq.getCreatedAt())%>
                     </td>
-                    <td><%=workflowReq.getUpdatedAt()%>
+                    <td><%=Encode.forHtmlContent(workflowReq.getUpdatedAt())%>
                     </td>
 
-                    <td><%=workflowReq.getStatus()%>
+                    <td><%=Encode.forHtmlContent(workflowReq.getStatus())%>
                     </td>
-                    <td><%=workflowReq.getRequestParams()%>
+                    <td><%=Encode.forHtmlContent(workflowReq.getRequestParams())%>
                     </td>
                     <td>
                         <a title="<fmt:message key='workflow.request.list.title'/>"

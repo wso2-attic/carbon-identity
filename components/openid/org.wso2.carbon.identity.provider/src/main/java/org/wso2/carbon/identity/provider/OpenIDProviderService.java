@@ -58,7 +58,7 @@ import org.wso2.carbon.identity.provider.openid.OpenIDProvider;
 import org.wso2.carbon.identity.provider.openid.OpenIDRememberMeTokenManager;
 import org.wso2.carbon.identity.provider.openid.OpenIDServerConstants;
 import org.wso2.carbon.identity.provider.openid.OpenIDUtil;
-import org.wso2.carbon.identity.provider.openid.dao.OpenIDUserRPDAO;
+import org.wso2.carbon.identity.core.dao.OpenIDUserRPDAO;
 import org.wso2.carbon.identity.provider.openid.extensions.OpenIDExtension;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationRequest;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDExtensionFactory;

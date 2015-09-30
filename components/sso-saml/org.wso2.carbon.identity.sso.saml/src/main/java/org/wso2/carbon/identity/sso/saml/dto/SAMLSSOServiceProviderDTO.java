@@ -72,7 +72,9 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     }
 
     public void setDigestAlgorithmURI(String digestAlgorithmURI) {
-        this.digestAlgorithmURI = digestAlgorithmURI;
+        if (StringUtils.isNotBlank(digestAlgorithmURI)) {
+            this.digestAlgorithmURI = digestAlgorithmURI;
+        }
     }
 
     public String getNameIDFormat() {
