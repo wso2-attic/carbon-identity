@@ -43,6 +43,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.util.WorkflowUIUtil" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.bean.ParametersMetaData" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 
 <%
@@ -141,7 +142,7 @@
 %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 
@@ -193,7 +194,7 @@
     <script type="text/javascript">
 
         function goBack() {
-            location.href = "template-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_BACK%>=true&<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=requestToken%>";
+            location.href = "template-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_BACK%>=true&<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(requestToken))%>";
         }
 
         function doCancel() {
@@ -284,8 +285,8 @@
             %>
 
             <form id="id_workflow_workflowimpl" method="post" name="serviceAdd" action="workflowimpl-wf-wizard.jsp">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=requestToken%>"/>
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_REQUEST_PATH%>" value="<%=requestPath%>"/>
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=Encode.forHtmlAttribute(requestToken)%>"/>
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_REQUEST_PATH%>" value="<%=Encode.forHtmlAttribute(requestPath)%>"/>
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SELECT_ITEM%>" value="true"/>
                 <table border="1">
                     <tr>
@@ -301,8 +302,8 @@
                                             selected = "selected" ;
                                         }
                                 %>
-                                    <option value="<%=workflowImplTmp.getWorkflowImplId()%>"  <%=selected%> >
-                                        <%=workflowImplTmp.getWorkflowImplName()%>
+                                    <option value="<%=Encode.forHtmlAttribute(workflowImplTmp.getWorkflowImplId())%>"  <%=selected%> >
+                                        <%=Encode.forHtmlContent(workflowImplTmp.getWorkflowImplName())%>
                                     </option>
                                 <%
                                     }
@@ -323,14 +324,14 @@
                 if(workflowImpl!=null && workflowImpl.getWorkflowImplId() != null ){
             %>
                 <form method="post" name="serviceAdd" id="id_nextwizard" action="finish-wf-wizard.jsp">
-                    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=requestToken%>"/>
-                    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_REQUEST_PATH%>" value="<%=requestPath%>"/>
+                    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=Encode.forHtmlAttribute(requestToken)%>"/>
+                    <input type="hidden" name="<%=WorkflowUIConstants.PARAM_REQUEST_PATH%>" value="<%=Encode.forHtmlAttribute(requestPath)%>"/>
                     <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>" value="<%=WorkflowUIConstants.ACTION_VALUE_ADD%>">
 
                     <table class="styledLeft">
                         <thead>
                         <tr>
-                            <th><fmt:message key='workflow.template'/> : <%= workflowImpl.getWorkflowImplName() %></th>
+                            <th><fmt:message key='workflow.template'/> : <%= Encode.forHtml(workflowImpl.getWorkflowImplName()) %></th>
                         </tr>
                         </thead>
                         <tr>
@@ -350,7 +351,7 @@
                                             if (metaData != null) {
                                     %>
                                     <tr>
-                                        <td width="200px" style="vertical-align: top !important;"><%=metaData.getDisplayName()%></td>
+                                        <td width="200px" style="vertical-align: top !important;"><%=Encode.forHtmlContent(metaData.getDisplayName())%></td>
                                     </tr>
                                     <tr>
                                         <%
@@ -361,8 +362,8 @@
                                                 }
                                         %>
                                         <td>
-                                            <input id="<%=metaData.getName()%>" name="<%=metaData.getName()%>"
-                                                   title="<%=metaData.getDisplayName()%>" style="min-width: 30%" value="<%=textTypeValue%>"/>
+                                            <input id="<%=Encode.forHtmlAttribute(metaData.getName())%>" name="<%=Encode.forHtmlAttribute(metaData.getName())%>"
+                                                   title="<%=Encode.forHtmlAttribute(metaData.getDisplayName())%>" style="min-width: 30%" value="<%=Encode.forHtmlAttribute(textTypeValue)%>"/>
                                         </td>
                                         <%
 
@@ -375,7 +376,7 @@
                                             }
                                         %>
                                         <td>
-                                            <textarea id="<%=metaData.getName()%>" name="<%=metaData.getName()%>" title="<%=metaData.getDisplayName()%>" style="min-width: 30%"><%= textAreaTypeValue%></textarea>
+                                            <textarea id="<%=Encode.forHtmlAttribute(metaData.getName())%>" name="<%=Encode.forHtmlAttribute(metaData.getName())%>" title="<%=Encode.forHtmlAttribute(metaData.getDisplayName())%>" style="min-width: 30%"><%= Encode.forHtmlContent(textAreaTypeValue)%></textarea>
                                         </td>
                                         <%
                                         } else if(metaData.getInputType().equals(InputType.SELECT.value())){
@@ -395,7 +396,7 @@
                                                         if (item != null) {
                                                             boolean select = item.getValue().equals(selectedValue);
                                                 %>
-                                                <option value="<%=item.getKey()%>" <%=select ? "selected" :""%>><%=item.getValue()%></option>
+                                                <option value="<%=Encode.forHtmlAttribute(item.getKey())%>" <%=select ? "selected" :""%>><%=Encode.forHtmlContent(item.getValue())%></option>
                                                 <%
                                                         }
                                                     }
@@ -456,7 +457,7 @@
                                                 %>
 
                                                 try {
-                                                    addStep("<%=users%>", "<%=roles%>");
+                                                    addStep("<%=Encode.forJavaScriptBlock(users)%>", "<%=Encode.forJavaScriptBlock(roles)%>");
                                                 }catch(e){
 
                                                 }
