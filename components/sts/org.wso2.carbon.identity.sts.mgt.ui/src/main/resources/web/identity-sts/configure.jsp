@@ -25,6 +25,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="global-params.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
@@ -118,11 +119,11 @@ try {
 				<table class="normal" cellspacing="0">
 		          <tr>
 	                      <td><fmt:message key='card.name'/><font class="required">*</font> </td>
-	                      <td> <input type="text" name="cardName" id="cardName" value="<%=cardIssuer.getCardName()%>" /></td>	                     
+	                      <td> <input type="text" name="cardName" id="cardName" value="<%=Encode.forHtmlAttribute(cardIssuer.getCardName())%>" /></td>
 	                  </tr>
 	                  <tr>
 	                      <td><fmt:message key='valid.period'/><font class="required">*</font> </td>  
-	                      <td><input type="text" name="validPeriod" id="validPeriod" value="<%=cardIssuer.getValidPeriodInDays()%>" /></td>                  
+	                      <td><input type="text" name="validPeriod" id="validPeriod" value="<%=cardIssuer.getValidPeriodInDays()%>" /></td>
 	                  </tr>
 	                    <tr>
 	                      <td><fmt:message key='supporting.token.types'/><font class="required">*</font></td>
@@ -131,13 +132,13 @@ try {
 	                         if (cardIssuer.getSupportedTokenTypes()[i].getSupported()) {
 	                       %> 
 	                       <div>
-	                          <input type="hidden" name='<%=cardIssuer.getSupportedTokenTypes()[i].getTokenType() + "hidden"%>' id='<%=cardIssuer.getSupportedTokenTypes()[i].getTokenType() + "hidden"%>' value="true"/>
-	                          <input type='checkbox' name='<%=cardIssuer.getSupportedTokenTypes()[i].getTokenType()%>' id='<%=cardIssuer.getSupportedTokenTypes()[i].getTokenType()%>' checked='checked' onclick="setValue('<%=cardIssuer.getSupportedTokenTypes()[i].getTokenType()%>','<%=cardIssuer.getSupportedTokenTypes()[i].getTokenType()+"hidden"%>')" /> <%=cardIssuer.getSupportedTokenTypes()[i].getTokenType()%> &nbsp;
+	                          <input type="hidden" name='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType()) + "hidden"%>' id='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType()) + "hidden"%>' value="true"/>
+	                          <input type='checkbox' name='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%>' id='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%>' checked='checked' onclick="setValue('<%=Encode.forJavaScriptAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%>','<%=Encode.forJavaScriptAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())+"hidden"%>')" /> <%=Encode.forHtmlContent(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%> &nbsp;
 	                       </div>
 	                       <% } else { %>
 	                       <div>
-	                          <input type="hidden" name='<%=cardIssuer.getSupportedTokenTypes()[i].getTokenType() + "hidden"%>' id='<%=cardIssuer.getSupportedTokenTypes()[i].getTokenType() + "hidden"%>' value="false"/>
-	                          <input type='checkbox' name='<%=cardIssuer.getSupportedTokenTypes()[i].getTokenType()%>' id='<%=cardIssuer.getSupportedTokenTypes()[i].getTokenType()%>' onclick="setValue('<%=cardIssuer.getSupportedTokenTypes()[i].getTokenType()%>','<%=cardIssuer.getSupportedTokenTypes()[i].getTokenType()+"hidden"%>')" /> <%=cardIssuer.getSupportedTokenTypes()[i].getTokenType()%> &nbsp;
+	                          <input type="hidden" name='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())+ "hidden"%>' id='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())+ "hidden"%>' value="false"/>
+	                          <input type='checkbox' name='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%>' id='<%=Encode.forHtmlAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%>' onclick="setValue('<%=Encode.forJavaScriptAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%>','<%=Encode.forJavaScriptAttribute(cardIssuer.getSupportedTokenTypes()[i].getTokenType())+"hidden"%>')" /> <%=Encode.forHtmlContent(cardIssuer.getSupportedTokenTypes()[i].getTokenType())%> &nbsp;
 	                       </div>
 	                       <%} }%>	                      
 	                      </td>	                     
@@ -162,7 +163,7 @@ try {
 	                  <tr>
 			            <td colspan="2"  class="buttonRow">
                            <input class="button" type="button" value="<fmt:message key='update'/>" onclick="javascript: validate(document.configuration)"/>  
-                           <input class="button" type="reset" value="<fmt:message key='cancel'/>"  onclick="javascript:document.location.href='index.jsp?region=region1&item=sts_menu&ordinal=0'"/ >                        
+                           <input class="button" type="reset" value="<fmt:message key='cancel'/>"  onclick="javascript:document.location.href='index.jsp?region=region1&item=sts_menu&ordinal=0'"/>
                         </td>
 			         </tr>	
           </table>
