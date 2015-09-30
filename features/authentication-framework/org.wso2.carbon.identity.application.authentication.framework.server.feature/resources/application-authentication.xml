@@ -70,9 +70,15 @@
     -->
 	<AuthenticatorConfigs>
 		<AuthenticatorConfig name="BasicAuthenticator" enabled="true">
+<<<<<<< Updated upstream
             <Parameter name="jitProvisioningEnabled">true</Parameter>
             <Parameter name="provisioningClaimUri"></Parameter>
             <Parameter name="provisioningUserStore"></Parameter>
+=======
+			<Parameter name="jitProvisioningEnabled">true</Parameter>
+			<Parameter name="provisioningClaimUri"></Parameter>
+			<Parameter name="provisioningUserStore"></Parameter>
+>>>>>>> Stashed changes
 			<!--Parameter name="UserNameAttributeClaimUri">http://wso2.org/claims/emailaddress</Parameter-->
 			<!--Parameter name="showAuthFailureReason">true</Parameter-->
 		</AuthenticatorConfig>
