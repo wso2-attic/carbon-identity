@@ -84,10 +84,10 @@ public class OAuthServlet extends HttpServlet {
                 oauthToken = token.getOauthToken();
                 oauthTokenSecret = token.getOauthTokenSecret();
                 oauthCallbackConfirmed = "true";
-                reqToken = OAuthConstants.OAUTH_TOKEN + "=" + oauthToken + "&"
-                        + OAuthConstants.OAUTH_TOKEN_SECRET + "=" + oauthTokenSecret + "&"
-                        + OAuthConstants.OAUTH_CALLBACK_CONFIRMED + "=" + oauthCallbackConfirmed;
-                out.write(Encode.forUriComponent(reqToken));
+                reqToken = OAuthConstants.OAUTH_TOKEN + "=" + Encode.forUriComponent(oauthToken) + "&"
+                        + OAuthConstants.OAUTH_TOKEN_SECRET + "=" + Encode.forUriComponent(oauthTokenSecret) + "&"
+                        + OAuthConstants.OAUTH_CALLBACK_CONFIRMED + "=" + Encode.forUriComponent(oauthCallbackConfirmed);
+                out.write(reqToken);
                 out.close();
                 resp.setStatus(200);
             } else if (requestType.indexOf(OAuthConstants.OAuth10AEndpoints.AUTHORIZE_TOKEN_URL) > -1) {
@@ -115,9 +115,9 @@ public class OAuthServlet extends HttpServlet {
                 String accessToken = null;
                 PrintWriter out = resp.getWriter();
                 token = client.getAccessToken(params);
-                accessToken = OAuthConstants.OAUTH_TOKEN + "=" + token.getOauthToken() + "&"
-                        + OAuthConstants.OAUTH_TOKEN_SECRET + "=" + token.getOauthTokenSecret();
-                out.write(Encode.forUriComponent(accessToken));
+                accessToken = OAuthConstants.OAUTH_TOKEN + "=" + Encode.forUriComponent(token.getOauthToken()) + "&"
+                        + OAuthConstants.OAUTH_TOKEN_SECRET + "=" + Encode.forUriComponent(token.getOauthTokenSecret());
+                out.write(accessToken);
                 out.close();
                 resp.setStatus(200);
             }
