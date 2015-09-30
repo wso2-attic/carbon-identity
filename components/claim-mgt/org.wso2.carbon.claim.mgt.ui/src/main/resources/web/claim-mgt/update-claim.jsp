@@ -182,7 +182,7 @@
                             ClaimMappingDTO[] claims = claimMappping[i].getClaimMappings();
                 %>
                 <a href="#" class="icon-link" style="background-image:url(../claim-mgt/images/delete.gif);"
-                   onclick="removeItem('<%=Encode.forJavaScriptAttribute(dialectUri)%>','<%=Encode.forJavaScriptAttribute(claimUri)%>','<%=Encode.forJavaScriptAttribute(String.valueOf(claims.length))%>'  );return false;"><fmt:message
+                   onclick="removeItem('<%=Encode.forJavaScriptAttribute(dialectUri)%>','<%=Encode.forJavaScriptAttribute(claimUri)%>','<%=claims.length%>'  );return false;"><fmt:message
                         key='remove.claim.mapping'/></a>
             </div>
 
