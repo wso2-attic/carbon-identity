@@ -265,6 +265,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                 Map<String, String> extAttibutesValueMap;
                 Map<String, String> localClaimValues = null;
                 Map<String, String> idpClaimValues = null;
+                List<String> locallyMappedUserRoles = null;
 
                 extAttrs = stepConfig.getAuthenticatedUser().getUserAttributes();
                 extAttibutesValueMap = FrameworkUtils.getClaimMappings(extAttrs, false);
@@ -372,7 +373,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
 
                     String idpRoleClaimUri = getIdpRoleClaimUri(externalIdPConfig);
 
-                    List<String> locallyMappedUserRoles = getLocallyMappedUserRoles(sequenceConfig,
+                    locallyMappedUserRoles = getLocallyMappedUserRoles(sequenceConfig,
                             externalIdPConfig, extAttibutesValueMap, idpRoleClaimUri);
 
                     if (idpRoleClaimUri != null && getServiceProviderMappedUserRoles(sequenceConfig,
@@ -411,18 +412,18 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                         authenticatedUserAttributes = FrameworkUtils.buildClaimMappings(mappedAttrs);
                     }
 
-                    // do user provisioning. we should provision the user with the original external
-                    // subject identifier.
-                    if (externalIdPConfig.isProvisioningEnabled()) {
+                }
 
-                        if (localClaimValues == null) {
-                            localClaimValues = new HashMap<>();
-                        }
+                // do user provisioning. we should provision the user with the original external
+                // subject identifier.
+                if (externalIdPConfig.isProvisioningEnabled()) {
 
-                        handleJitProvisioning(originalExternalIdpSubjectValueForThisStep, context,
-                                              locallyMappedUserRoles, localClaimValues);
+                    if (localClaimValues == null) {
+                        localClaimValues = new HashMap<>();
                     }
 
+                    handleJitProvisioning(originalExternalIdpSubjectValueForThisStep, context,
+                            locallyMappedUserRoles, localClaimValues);
                 }
 
             } else {

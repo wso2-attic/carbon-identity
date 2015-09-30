@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.application.mgt.dao.impl;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -2355,8 +2357,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             throws IdentityApplicationManagementException, SQLException {
         List<ApplicationPermission> loadPermissions = ApplicationMgtUtil.loadPermissions(applicationName);
         List<ApplicationPermission> removedPermissions = null;
-        if (loadPermissions != null && loadPermissions.size() > 0) {
-            if (permissions == null || permissions.length == 0) {
+        if (!CollectionUtils.isEmpty(loadPermissions)) {
+            if (ArrayUtils.isEmpty(permissions)) {
                 removedPermissions = new ArrayList<ApplicationPermission>(loadPermissions);
             } else {
                 removedPermissions = new ArrayList<ApplicationPermission>();
@@ -2374,7 +2376,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
             }
         }
-        if (removedPermissions != null && removedPermissions.size() > 0) {
+        if (!CollectionUtils.isEmpty(removedPermissions)) {
             //delete permissions
             for (ApplicationPermission applicationPermission : removedPermissions) {
                 String permissionValue = ApplicationMgtUtil.PATH_CONSTANT +

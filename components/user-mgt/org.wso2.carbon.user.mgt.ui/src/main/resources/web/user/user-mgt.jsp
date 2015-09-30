@@ -41,6 +41,7 @@
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
@@ -101,7 +102,7 @@
     java.lang.String errorAttribute = (java.lang.String) session.getAttribute(UserAdminUIConstants.DO_USER_LIST);
 
     String claimUri = request.getParameter("claimUri");
-    if (claimUri == null || claimUri.length() == 0) {
+    if (StringUtils.isBlank(claimUri)) {
         claimUri = (java.lang.String) session.getAttribute(UserAdminUIConstants.USER_CLAIM_FILTER);
     }
     session.setAttribute(UserAdminUIConstants.USER_CLAIM_FILTER, claimUri);

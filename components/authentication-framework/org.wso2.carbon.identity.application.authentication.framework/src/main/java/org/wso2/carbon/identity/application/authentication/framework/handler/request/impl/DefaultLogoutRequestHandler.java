@@ -118,7 +118,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                         continue;
                     }
                     // sends the logout request to the external IdP
-                    FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(),context);
+                    FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(), context);
                     return;
                 } catch (AuthenticationFailedException | LogoutFailedException e) {
                     throw new FrameworkException("Exception while handling logout request", e);

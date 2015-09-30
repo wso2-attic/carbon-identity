@@ -94,12 +94,10 @@ public class OAuth2AuthzEndpoint {
         carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
         carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
-        String clientId = CharacterEncoder.getSafeText(request.getParameter("client_id"));
+        String clientId = request.getParameter("client_id");
 
-        String sessionDataKeyFromLogin = CharacterEncoder.getSafeText(request.getParameter(
-                OAuthConstants.SESSION_DATA_KEY));
-        String sessionDataKeyFromConsent = CharacterEncoder.getSafeText(request.getParameter(
-                OAuthConstants.SESSION_DATA_KEY_CONSENT));
+        String sessionDataKeyFromLogin = request.getParameter(OAuthConstants.SESSION_DATA_KEY);
+        String sessionDataKeyFromConsent = request.getParameter(OAuthConstants.SESSION_DATA_KEY_CONSENT);
         CacheKey cacheKey = null;
         Object resultFromLogin = null;
         Object resultFromConsent = null;
@@ -215,7 +213,7 @@ public class OAuth2AuthzEndpoint {
 
                 sessionDataCacheEntry = ((SessionDataCacheEntry) resultFromConsent);
                 OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
-                String consent = CharacterEncoder.getSafeText(request.getParameter("consent"));
+                String consent = request.getParameter("consent");
                 if (consent != null) {
 
                     if (OAuthConstants.Consent.DENY.equals(consent)) {
@@ -423,7 +421,7 @@ public class OAuth2AuthzEndpoint {
             throws OAuthSystemException, OAuthProblemException {
 
         OAuth2ClientValidationResponseDTO clientDTO = null;
-        String redirectUri = CharacterEncoder.getSafeText(req.getParameter("redirect_uri"));
+        String redirectUri = req.getParameter("redirect_uri");
         if (StringUtils.isBlank(clientId)) {
             if (log.isDebugEnabled()) {
                 log.debug("Client Id is not present in the authorization request");
@@ -515,7 +513,7 @@ public class OAuth2AuthzEndpoint {
         String[] prompts = null;
         if (StringUtils.isNotBlank(prompt)) {
             prompts = prompt.trim().split("\\s");
-            contains_none = prompt.contains(OAuthConstants.Prompt.NONE);
+            contains_none = (OAuthConstants.Prompt.NONE).equals(prompt);
             if (prompts.length > 1 && contains_none) {
                 if (log.isDebugEnabled()) {
                     log.debug("Invalid prompt variable combination. The value 'none' cannot be used with others " +
@@ -529,13 +527,13 @@ public class OAuth2AuthzEndpoint {
             }
         }
 
-        if (prompt.contains(OAuthConstants.Prompt.LOGIN)) { // prompt for authentication
+        if ((OAuthConstants.Prompt.LOGIN).equals(prompt)) { // prompt for authentication
             checkAuthentication = false;
             forceAuthenticate = true;
         } else if (contains_none) {
             checkAuthentication = true;
             forceAuthenticate = false;
-        } else if (prompt.contains(OAuthConstants.Prompt.CONSENT)) {
+        } else if ((OAuthConstants.Prompt.CONSENT).equals(prompt)) {
             checkAuthentication = false;
             forceAuthenticate = false;
         }

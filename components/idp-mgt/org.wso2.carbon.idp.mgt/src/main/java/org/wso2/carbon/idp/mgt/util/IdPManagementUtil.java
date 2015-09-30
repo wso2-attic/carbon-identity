@@ -70,41 +70,40 @@ public class IdPManagementUtil {
     }
 
     public static int getIdleSessionTimeOut(String tenantDomain) {
-        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator
-                        .IDPProperties.SESSION_IDLE_TIME_OUT,
-                tenantDomain, Integer.parseInt
-                        (IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT));
+        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.
+                SESSION_IDLE_TIME_OUT, tenantDomain, Integer.parseInt(IdentityApplicationConstants.
+                        Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT));
     }
 
     public static int getRememberMeTimeout(String tenantDomain) {
-        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT,
-                tenantDomain, Integer.parseInt
-                        (IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT));
+        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.
+                REMEMBER_ME_TIME_OUT, tenantDomain, Integer.parseInt(IdentityApplicationConstants.Authenticator.
+                        IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT));
     }
 
     public static int getCleanUpTimeout(String tenantDomain) {
-        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT,
-                tenantDomain, Integer.parseInt
-                        (IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT_DEFAULT));
+        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.
+                CLEAN_UP_TIMEOUT, tenantDomain, Integer.parseInt(IdentityApplicationConstants.Authenticator.
+                        IDPProperties.CLEAN_UP_TIMEOUT_DEFAULT));
     }
 
-    public static int getCleanUpPeriod(String tenantDomain){
-        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD,
-                tenantDomain, Integer.parseInt
-                        (IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT));
+    public static int getCleanUpPeriod(String tenantDomain) {
+        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.
+                CLEAN_UP_PERIOD, tenantDomain, Integer.parseInt(IdentityApplicationConstants.Authenticator.
+                        IDPProperties.CLEAN_UP_PERIOD_DEFAULT));
     }
 
-    private static int getTimeoutProperty(String timeOutPropertyName,String tenantDomain,int defaultVal) {
+    private static int getTimeoutProperty(String timeOutPropertyName, String tenantDomain, int defaultVal) {
         IdentityProviderManager identityProviderManager = IdentityProviderManager.getInstance();
         IdentityProvider identityProvider = null;
         int timeout = defaultVal;
         try {
             identityProvider = identityProviderManager.getResidentIdP(tenantDomain);
-            FederatedAuthenticatorConfig federatedAuthenticatorConfig = IdentityApplicationManagementUtil
-                    .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
+            FederatedAuthenticatorConfig federatedAuthenticatorConfig = IdentityApplicationManagementUtil.
+                    getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
                             IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
-            Property property = IdentityApplicationManagementUtil.getProperty(federatedAuthenticatorConfig.getProperties()
-                    , timeOutPropertyName);
+            Property property = IdentityApplicationManagementUtil.getProperty(federatedAuthenticatorConfig.
+                    getProperties(), timeOutPropertyName);
             timeout = Integer.parseInt(property.getValue()) * 60;
         } catch (IdentityProviderManagementException e) {
             log.error("Error when accessing the IdentityProviderManager for tenant : " +tenantDomain, e);

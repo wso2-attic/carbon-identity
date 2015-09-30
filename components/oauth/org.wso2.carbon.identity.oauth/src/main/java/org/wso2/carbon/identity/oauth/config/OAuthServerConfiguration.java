@@ -806,25 +806,25 @@ public class OAuthServerConfiguration {
 
         OMElement appInfoCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
                 getQNameWithIdentityNS(ConfigElements.APP_INFO_CACHE_TIMEOUT));
-        if(appInfoCacheTimeoutElem!=null){
+        if (appInfoCacheTimeoutElem != null) {
             appInfoCacheTimeout = Integer.parseInt(appInfoCacheTimeoutElem.getText());
         }
 
         OMElement authorizationGrantCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
                 getQNameWithIdentityNS(ConfigElements.AUTHORIZATION_GRANT_CACHE_TIMEOUT));
-        if(appInfoCacheTimeoutElem!=null){
+        if (appInfoCacheTimeoutElem != null) {
             authorizationGrantCacheTimeout = Integer.parseInt(authorizationGrantCacheTimeoutElem.getText());
         }
 
         OMElement sessionDataCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
                 getQNameWithIdentityNS(ConfigElements.SESSION_DATA_CACHE_TIMEOUT));
-        if(appInfoCacheTimeoutElem!=null){
+        if (appInfoCacheTimeoutElem != null) {
             sessionDataCacheTimeout = Integer.parseInt(sessionDataCacheTimeoutElem.getText());
         }
 
         OMElement claimCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
                 getQNameWithIdentityNS(ConfigElements.AUTHORIZATION_GRANT_CACHE_TIMEOUT));
-        if(appInfoCacheTimeoutElem!=null){
+        if (appInfoCacheTimeoutElem != null) {
             claimCacheTimeout = Integer.parseInt(claimCacheTimeoutElem.getText());
         }
 
