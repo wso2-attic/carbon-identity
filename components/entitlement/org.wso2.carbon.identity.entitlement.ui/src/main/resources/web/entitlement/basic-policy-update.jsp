@@ -285,9 +285,9 @@
     }
 
     if(completedRule != null && completedRule.equals("true")){
-        forwardTo = Encode.forUriComponent(nextPage) + ".jsp?";
+        forwardTo = nextPage + ".jsp?";
     } else {
-        forwardTo = Encode.forUriComponent(nextPage) + ".jsp?ruleId=" + Encode.forUriComponent(ruleId);
+        forwardTo = nextPage + ".jsp?ruleId=" + Encode.forUriComponent(ruleId);
         if(category != null && category.trim().length() > 0){
             forwardTo = forwardTo + "&category=" + Encode.forUriComponent(category);
         }

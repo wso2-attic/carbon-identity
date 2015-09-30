@@ -89,7 +89,7 @@
             </script>
 
             <script type="text/javascript">
-                showErrorBox("<%=Encode.forJavaScriptAttribute(results.getMessage())%>");
+                showErrorBox("<%=Encode.forJavaScriptAttribute(Encode.forHtml(results.getMessage()))%>");
             </script>
 <%
             } else {

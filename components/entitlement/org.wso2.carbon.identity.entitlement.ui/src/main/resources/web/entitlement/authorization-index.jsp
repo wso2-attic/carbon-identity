@@ -197,7 +197,7 @@
                                 &nbsp;&nbsp;&nbsp;
                                 <fmt:message key="search.policy"/>
                                 <input type="text" name="policySearchString"
-                                       value="<%= Encode.forHtmlAttribute(policySearchString) != null? Encode.forHtmlAttribute(policySearchString) :""%>"/>&nbsp;
+                                       value="<%= policySearchString != null? Encode.forHtmlAttribute(policySearchString) :""%>"/>&nbsp;
                             </nobr>
                         </td>
                         <td style="border:0; !important">
@@ -240,9 +240,9 @@
             %>
             <tr>
                 <td style="width:100px;">
-                    <a class="icon-link" onclick="updownthis(this,'up',<%=Encode.forHtmlContent(request.getParameter("pageNumber"))%>,
+                    <a class="icon-link" onclick="updownthis(this,'up',<%=Encode.forJavaScriptAttribute(request.getParameter("pageNumber"))%>,
                             <%=numberOfPages%>)" style="background-image:url(../admin/images/up-arrow.gif)"></a>
-                    <a class="icon-link" onclick="updownthis(this,'down',<%=Encode.forHtmlContent(request.getParameter("pageNumber"))%>,
+                    <a class="icon-link" onclick="updownthis(this,'down',<%=Encode.forJavaScriptAttribute(request.getParameter("pageNumber"))%>,
                             <%=numberOfPages%>)" style="background-image:url(../admin/images/down-arrow.gif)"></a>
                     <input type="hidden" value="<%=policies[i].getPolicyId()%>"/>                    
                 </td>
@@ -259,7 +259,7 @@
                 </td>
 
                 <td width="40%">
-                    <a title="<fmt:message key='edit.policy'/>" onclick="edit('<%=Encode.forJavaScriptAttribute(policies[i].getPolicyId())%>');return false;"
+                    <a title="<fmt:message key='edit.policy'/>" onclick="edit('<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(policies[i].getPolicyId()))%>');return false;"
                      href="#" style="background-image: url(images/edit.gif);" class="icon-link"> <fmt:message key='edit'/></a>
                 </td>
             </tr>
