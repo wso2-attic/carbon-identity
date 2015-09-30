@@ -162,7 +162,7 @@
                         <td class="formRow">
                             <table class="normal">
                                 <tr>
-                                    <td width="130px"><fmt:message key='workflow.name'/></td>
+                                    <td width="130px"><fmt:message key='workflow.name'/> <span style="color:red">*</span></td>
                                     <td>
                                         <input size="30" id="id_workflow_name" type="text" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=(workflowWizard != null && workflowWizard.getWorkflowName() != null) ? workflowWizard.getWorkflowName() : ""%>" style="min-width: 30%"/>
                                     </td>

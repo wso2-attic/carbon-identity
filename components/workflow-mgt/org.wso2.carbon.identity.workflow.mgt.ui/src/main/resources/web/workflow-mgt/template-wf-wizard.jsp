@@ -375,7 +375,7 @@
                                     if (parameterMetaData.length==0) {
                                 %>
                                 <tr>
-                                    <td colspan="2"><fmt:message key="workflow.template.has.no.params"/></td>
+                                    <td colspan="1"><fmt:message key="workflow.template.has.no.params"/></td>
                                 </tr>
                                 <%
                                 } else {
@@ -383,7 +383,8 @@
                                         if (metaData != null) {
                                 %>
                                 <tr>
-                                    <td width="200px" style="vertical-align: top !important;"><%=metaData.getDisplayName()%></td>
+                                    <td width="200px" style="vertical-align: top !important;"><%=metaData.getDisplayName()%><%=metaData.getIsRequired()?"<span style=\"color:red\">*</span>":""%>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <%
