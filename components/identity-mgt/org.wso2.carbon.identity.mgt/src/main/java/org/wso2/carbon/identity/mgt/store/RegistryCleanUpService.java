@@ -20,8 +20,17 @@ package org.wso2.carbon.identity.mgt.store;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
+import org.wso2.carbon.registry.api.Resource;
+import org.wso2.carbon.registry.core.Collection;
+import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.exceptions.ResourceNotFoundException;
+import org.wso2.carbon.user.api.Tenant;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -45,7 +54,7 @@ public class RegistryCleanUpService {
     }
 
     /**
-     *
+     * Activate clean up task.
      */
     public void activateCleanUp() {
         Runnable registryCleanUpTask = new RegistryCleanUpTask();
@@ -54,24 +63,92 @@ public class RegistryCleanUpService {
 
     }
 
-    /**
-     *
-     *
-     */
     private static final class RegistryCleanUpTask implements Runnable {
+
+        private static final String CONFIRMATION_REGISTRY_RESOURCE_PATH = "/repository/components/org.wso2.carbon" +
+                ".identity.mgt/data";
+        private static final String EXPIRE_TIME_PROPERTY = "expireTime";
 
         @Override
         public void run() {
 
-            log.debug("Start running the Identity-Management registry Data cleanup task.");
-            Date date = new Date();
-            log.error("Running-------------------------------------");
-//            int sessionTimeout = IdPManagementUtil.getMaxCleanUpTimeout();
-//            Timestamp timestamp = new Timestamp((date.getTime() - (sessionTimeout * 60 * 1000)));
-//            SessionDataStore.getInstance().removeExpiredSessionData(timestamp);
-            log.debug("Stop running the Identity-Management registry Data cleanup task.");
+            if (log.isDebugEnabled()) {
+                log.debug("Start running the Identity-Management registry Data cleanup task.");
+            }
+            Registry registry;
+            Collection identityDataResource;
+            try {
+                Tenant[] tenants = IdentityMgtServiceComponent.getRealmService().getTenantManager().getAllTenants();
+                for (int i = 0; i < tenants.length + 1; i++) {
+                    Tenant tenant;
+                    if ( i == tenants.length) {
+                        tenant = new Tenant();
+                        tenant.setDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+                        tenant.setId(MultitenantConstants.SUPER_TENANT_ID);
+                    } else {
+                        tenant = tenants[i];
+                    }
+                    PrivilegedCarbonContext.startTenantFlow();
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant.getDomain());
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenant.getId());
+                    try {
+                        registry = IdentityMgtServiceComponent.getRegistryService().
+                            getConfigSystemRegistry(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
+                        identityDataResource = (Collection) registry.get(CONFIRMATION_REGISTRY_RESOURCE_PATH);
+                        String[] identityResourcesPaths = identityDataResource.getChildren();
+                        for (int j = 0; j < identityResourcesPaths.length; j++) {
+                            try {
+                                Resource currentResource = registry.get(identityResourcesPaths[j]);
+                                if (currentResource instanceof Collection) {
+                                    Collection secondaryStoreCollection = (Collection) currentResource;
+                                    String[] secondaryStoreResourcePaths = secondaryStoreCollection.getChildren();
+                                    for (int k = 0; k < secondaryStoreResourcePaths.length; k++) {
+
+                                        checkAndDeleteRegistryResource(registry, secondaryStoreResourcePaths[k]);
+                                    }
+                                } else {
+                                    checkAndDeleteRegistryResource(registry, identityResourcesPaths[j]);
+                                }
+                            } catch (RegistryException e) {
+                                log.error("Error while retrieving resource at " + identityResourcesPaths[j]);
+                            }
+                        }
+                    } catch (ResourceNotFoundException e) {
+                        log.error("No resource found for tenant " + tenant.getDomain(), e);
+                    } catch (RegistryException e) {
+                        log.error("Error while deleting the expired confirmation code.", e);
+                    }
+                    PrivilegedCarbonContext.endTenantFlow();
+                }
+            } catch (UserStoreException e) {
+                log.error("Error while getting the tenant manager.", e);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Stop running the Identity-Management registry Data cleanup task.");
+            }
             log.info("Identity-Management registry Data cleanup task finished for removing expired Data");
         }
+
+        /**
+         * Check if resource has expired and delete.
+         *
+         * @param registry Registry instance to use.
+         * @param resourcePath Path of resource to be deleted.
+         * @throws RegistryException
+         */
+        private static void checkAndDeleteRegistryResource (Registry registry, String resourcePath) throws
+                RegistryException {
+
+            Resource resource = registry.get(resourcePath);
+            long currentEpochTime = System.currentTimeMillis();
+            long resourceExpireTime = Long.parseLong(resource.getProperty(EXPIRE_TIME_PROPERTY));
+            if (currentEpochTime > resourceExpireTime) {
+
+                registry.delete(resource.getId());
+            }
+        }
+
     }
+
 
 }

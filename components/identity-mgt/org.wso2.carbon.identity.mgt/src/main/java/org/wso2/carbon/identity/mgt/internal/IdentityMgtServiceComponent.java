@@ -25,6 +25,8 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.RecoveryProcessor;
@@ -59,12 +61,15 @@ import java.util.List;
  * interface="org.wso2.carbon.identity.notification.mgt.NotificationSender"
  * cardinality="1..1" policy="dynamic" bind="setNotificationSender"
  * unbind="unsetNotificationSender"
+ * @scr.reference name="identityCoreInitializedEventService"
+ * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
+ * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
+
  */
 
 public class IdentityMgtServiceComponent {
 
-    public static final int INITIAL_DELAY = 1;
-    public static final int DELAY_BETWEEN_RUNS = 1;
+    private static final String DELAY_BETWEEN_RUNS = "TimeConfig.RegistryCleanUpPeriod";
     private static Log log = LogFactory.getLog(IdentityMgtServiceComponent.class);
 
     private static RealmService realmService;
@@ -196,7 +201,9 @@ public class IdentityMgtServiceComponent {
             log.debug("Identity Management bundle is activated");
         }
 
-        RegistryCleanUpService registryCleanUpService = new RegistryCleanUpService(INITIAL_DELAY, DELAY_BETWEEN_RUNS);
+        RegistryCleanUpService registryCleanUpService = new RegistryCleanUpService(Long.parseLong(IdentityUtil
+                .getProperty(DELAY_BETWEEN_RUNS)), Long.parseLong(IdentityUtil
+                .getProperty(DELAY_BETWEEN_RUNS)));
         registryCleanUpService.activateCleanUp();
     }
 
@@ -235,6 +242,16 @@ public class IdentityMgtServiceComponent {
 
     public static NotificationSender getNotificationSender() {
         return IdentityMgtServiceComponent.notificationSender;
+    }
+
+    protected void unsetIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
+        /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
+         is started */
+    }
+
+    protected void setIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
+        /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
+         is started */
     }
 
 }
