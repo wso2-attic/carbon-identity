@@ -1473,7 +1473,7 @@ var roleMappinRowID = -1;
                     			 <tr>
                     			 <td>
                     			 	<input name="req_path_auth" id="req_path_auth" type="hidden" value="<%=Encode.forHtmlAttribute(reqAth.getName())%>" />
-                    			 	<input name="req_path_auth_<%=reqAth.getName()%>" id="req_path_auth_<%=Encode.forHtmlAttribute(reqAth.getName())%>" type="hidden" value="<%=Encode.forHtmlAttribute(reqAth.getName())%>" />
+                    			 	<input name="req_path_auth_<%=Encode.forHtmlAttribute(reqAth.getName())%>" id="req_path_auth_<%=Encode.forHtmlAttribute(reqAth.getName())%>" type="hidden" value="<%=Encode.forHtmlAttribute(reqAth.getName())%>" />
                     			 	
                     			 	<%=Encode.forHtmlContent(reqAth.getName())%>
                     			 </td>
@@ -1593,7 +1593,7 @@ var roleMappinRowID = -1;
 							      	      		</td>
 							      	      		<td> 
 							      	      			<% if(selectedProIdpConnectors.get(idp.getIdentityProviderName()) != null) { %>
-							      	      				<select name="provisioning_con_idp_<%=idp.getIdentityProviderName()%>" style="float: left; min-width: 150px;font-size:13px;"><%=selectedProIdpConnectors.get(Encode.forHtmlContent(idp.getIdentityProviderName()))%></select>
+							      	      				<select name="provisioning_con_idp_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" style="float: left; min-width: 150px;font-size:13px;"><%=selectedProIdpConnectors.get(Encode.forHtmlContent(idp.getIdentityProviderName()))%></select>
 							      	      			<% } %>
 							      	      		</td>
 							      	      		 <td>

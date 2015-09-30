@@ -493,7 +493,7 @@ var img = "";
 							      	      			<%=Encode.forHtmlContent(idp.getIdentityProviderName()) + (idpEnableStatus.get(idp.getIdentityProviderName()) != null && idpEnableStatus.get(idp.getIdentityProviderName()) ? "" : disbleText) %>
 							      	      		</td>
 							      	      		<td>
-                                                    <select name="step_<%=step.getStepOrder()%>idp<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>fed_authenticator" style="float: left; min-width: 150px;font-size:13px;"><%=Encode.forHtmlContent(stepIdpAuthenticators.get(step.getStepOrder()) +""+ Encode.forHtmlContent(idp.getIdentityProviderName()))%></select>
+                                                    <select name="step_<%=step.getStepOrder()%>_idp_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>_fed_authenticator" style="float: left; min-width: 150px;font-size:13px;"><%=Encode.forHtmlContent(stepIdpAuthenticators.get(step.getStepOrder()) +"_"+ Encode.forHtmlContent(idp.getIdentityProviderName()))%></select>
 							      	      		</td>
 							      	      		<td class="leftCol-small" >
 							      	      		<a onclick="deleteIDPRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
