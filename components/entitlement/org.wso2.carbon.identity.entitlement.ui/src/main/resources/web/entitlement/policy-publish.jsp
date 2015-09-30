@@ -15,6 +15,7 @@
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
@@ -354,20 +355,20 @@
             <tr>
                 <td width="10px" style="text-align:center; !important">
                     <input type="checkbox" name="subscribers"
-                           value="<%=subscriber%>"
+                           value="<%=Encode.forHtmlAttribute(subscriber)%>"
                            onclick="resetVars()" class="chkBox"/>
                 </td>
-                <td><%=subscriber%></td>
+                <td><%=Encode.forHtmlContent(subscriber)%></td>
                 <td>
-                    <a onclick="editSubscriber('<%=subscriber%>');return false;"
+                    <a onclick="editSubscriber('<%=Encode.forJavaScriptAttribute(subscriber)%>');return false;"
                        href="#" style="background-image: url(images/edit.gif);"
                        class="icon-link">
                         <fmt:message key='edit'/></a>
-                    <a onclick="viewSubscriber('<%=subscriber%>');return false;"
+                    <a onclick="viewSubscriber('<%=Encode.forJavaScriptAttribute(subscriber)%>');return false;"
                        href="#" style="background-image: url(images/view.gif);"
                        class="icon-link">
                         <fmt:message key='view'/></a>
-                    <a onclick="viewSubscriberStatus('<%=subscriber%>');return false;"
+                    <a onclick="viewSubscriberStatus('<%=Encode.forJavaScriptAttribute(subscriber)%>');return false;"
                        href="#" style="background-image: url(images/view.gif);"
                        class="icon-link">
                         <fmt:message key='view.status'/></a>
@@ -386,7 +387,7 @@
                           numberOfPages="<%=numberOfPages%>"
                           page="policy-publish.jsp"
                           pageNumberParameterName="pageNumber"
-                          parameters="<%=paginationValue%>"
+                          parameters="<%=Encode.forHtmlAttribute(paginationValue)%>"
                           resourceBundle="org.wso2.carbon.identity.entitlement.ui.i18n.Resources"
                           prevKey="prev" nextKey="next"/>
         </form>
