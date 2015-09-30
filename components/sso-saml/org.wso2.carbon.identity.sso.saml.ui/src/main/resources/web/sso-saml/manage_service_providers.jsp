@@ -220,7 +220,7 @@
                     </td>
                     <td style="width:200px;white-space:nowrap;">
                         <a title="Edit Service Providers"
-                           onclick="edit('<%=Encode.forJavaScriptAttribute(Encode.forUri(sp.getIssuer()))%>');return false;"
+                           onclick="edit('<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(sp.getIssuer()))%>');return false;"
                            href="#"
                            class="icon-link"
                            style="background-image: url(../admin/images/edit.gif)">Edit</a>
