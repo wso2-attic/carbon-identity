@@ -24,13 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
-import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
-import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
+import org.wso2.carbon.identity.provisioning.*;
 import org.wso2.carbon.identity.scim.common.impl.ProvisioningClient;
 import org.wso2.carbon.identity.scim.common.utils.AttributeMapper;
 import org.wso2.carbon.identity.scim.common.utils.SCIMCommonConstants;
@@ -335,7 +329,8 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
                     group.setMember(members);
                 }
             }
-            String oldGroupName = getOldGroupName(groupEntity);
+            String oldGroupName = ProvisioningUtil.getAttributeValue(groupEntity,
+                                                                IdentityProvisioningConstants.OLD_GROUP_NAME_CLAIM_URI);
             ProvisioningClient scimProvsioningClient = null;
             if (StringUtils.isEmpty(oldGroupName)) {
                 scimProvsioningClient = new ProvisioningClient(scimProvider, group, httpMethod, null);
@@ -382,21 +377,6 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
 
     public boolean isEnabled() throws IdentityProvisioningException {
         return true;
-    }
-
-    private String getOldGroupName(ProvisioningEntity provisioningEntity) {
-        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> attributeMap =
-                provisioningEntity.getAttributes();
-        if (attributeMap != null) {
-            List<String> oldUserNameAsList =
-                    attributeMap.get(org.wso2.carbon.identity.application.common.model.ClaimMapping
-                                             .build(IdentityProvisioningConstants.OLD_GROUP_NAME_CLAIM_URI,
-                                                    null, null, false));
-            if (!oldUserNameAsList.isEmpty()) {
-                return oldUserNameAsList.get(0);
-            }
-        }
-        return null;
     }
 
 }

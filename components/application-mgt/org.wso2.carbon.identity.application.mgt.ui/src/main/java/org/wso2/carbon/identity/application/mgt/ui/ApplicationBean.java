@@ -56,6 +56,7 @@ public class ApplicationBean {
     public static final String IDP_LOCAL_NAME = "LOCAL";
 
     public static final String LOCAL_IDP = "wso2carbon-local-idp";
+    public static final String DUMB = "dumb";
 
     private ServiceProvider serviceProvider;
     private IdentityProvider[] federatedIdentityProviders;
@@ -925,7 +926,7 @@ public class ApplicationBean {
     public void update(HttpServletRequest request) {
 
         // update basic info.
-        serviceProvider.setDumbMode(Boolean.parseBoolean(CharacterEncoder.getSafeText(request.getParameter("dumb"))));
+        serviceProvider.setDumbMode(Boolean.parseBoolean(CharacterEncoder.getSafeText(request.getParameter(DUMB))));
         serviceProvider.setApplicationName(CharacterEncoder.getSafeText(request.getParameter("spName")));
         serviceProvider.setDescription(CharacterEncoder.getSafeText(request.getParameter("sp-description")));
         String isSasApp = CharacterEncoder.getSafeText(request.getParameter("isSaasApp"));
