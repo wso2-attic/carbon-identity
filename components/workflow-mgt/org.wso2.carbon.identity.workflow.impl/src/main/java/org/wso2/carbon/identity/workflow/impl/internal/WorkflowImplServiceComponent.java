@@ -24,8 +24,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.impl.ApprovalWorkflow;
@@ -36,11 +34,11 @@ import org.wso2.carbon.identity.workflow.impl.WorkflowImplService;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplServiceImpl;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplTenantMgtListener;
-import org.wso2.carbon.identity.workflow.impl.listener.WorkflowRequestDeleteListenerImpl;
+import org.wso2.carbon.identity.workflow.impl.listener.WorkflowListenerImpl;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
-import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowRequestDeleteListener;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
@@ -49,11 +47,9 @@ import org.wso2.carbon.identity.workflow.mgt.workflow.WorkFlowExecutor;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
-import org.wso2.carbon.utils.NetworkUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.SocketException;
 import java.net.URISyntaxException;
 
 /**
@@ -88,7 +84,7 @@ public class WorkflowImplServiceComponent {
             TemplateInitializer templateInitializer = new BPELDeployer();
             WorkFlowExecutor workFlowExecutor = new RequestExecutor();
             bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(templateInitializer,workFlowExecutor, metaDataXML), null);
-            bundleContext.registerService(WorkflowRequestDeleteListener.class, new WorkflowRequestDeleteListenerImpl(), null);
+            bundleContext.registerService(WorkflowListener.class, new WorkflowListenerImpl(), null);
 
             WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
 

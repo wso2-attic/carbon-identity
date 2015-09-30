@@ -25,7 +25,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementServiceImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowRequestDeleteListener;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -56,7 +56,7 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  * cardinality="1..1" policy="dynamic"  bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
  * @scr.reference name="org.wso2.carbon.identity.workflow.mgt.listener.deleterequest"
- * interface="org.wso2.carbon.identity.workflow.mgt.listener.WorkflowRequestDeleteListener"
+ * interface="org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener"
  * cardinality="0..n" policy="dynamic"
  * bind="setWorkflowRequestDeleteListener"
  * unbind="unsetWorkflowRequestDeleteListener"
@@ -129,17 +129,17 @@ public class WorkflowMgtServiceComponent {
     }
 
 
-    protected void setWorkflowRequestDeleteListener(WorkflowRequestDeleteListener workflowRequestDeleteListener) {
-        if(workflowRequestDeleteListener!=null) {
-            WorkflowServiceDataHolder.getInstance().getWorkflowRequestDeleteListenerList()
-                    .add(workflowRequestDeleteListener);
+    protected void setWorkflowRequestDeleteListener(WorkflowListener workflowListener) {
+        if(workflowListener !=null) {
+            WorkflowServiceDataHolder.getInstance().getWorkflowListenerList()
+                    .add(workflowListener);
         }
     }
 
-    protected void unsetWorkflowRequestDeleteListener(WorkflowRequestDeleteListener workflowRequestDeleteListener) {
-        if(workflowRequestDeleteListener!=null) {
-            WorkflowServiceDataHolder.getInstance().getWorkflowRequestDeleteListenerList()
-                    .remove(workflowRequestDeleteListener);
+    protected void unsetWorkflowRequestDeleteListener(WorkflowListener workflowListener) {
+        if(workflowListener !=null) {
+            WorkflowServiceDataHolder.getInstance().getWorkflowListenerList()
+                    .remove(workflowListener);
         }
     }
 
