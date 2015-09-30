@@ -578,7 +578,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             PrintWriter out = resp.getWriter();
             out.println("<html>");
             out.println("<body>");
-            out.println("<p>You are now redirected back to " + Encode.forHtmlAttribute(acUrl));
+            out.println("<p>You are now redirected back to " + Encode.forHtmlContent(acUrl));
             out.println(" If the redirection fails, please click the post button.</p>");
             out.println("<form method='post' action='" + acUrl + "'>");
             out.println("<p>");
