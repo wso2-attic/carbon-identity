@@ -41,6 +41,7 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowWizard" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -164,7 +165,7 @@
 %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 
@@ -217,7 +218,7 @@
     <script type="text/javascript">
 
         function goBack() {
-            location.href = "add-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_BACK%>=true&<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=requestToken%>";
+            location.href = "add-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_BACK%>=true&<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(requestToken))%>";
         }
 
         function doCancel() {
@@ -319,8 +320,8 @@
             %>
 
             <form id="id_workflow_template" method="post" name="serviceAdd" action="template-wf-wizard.jsp">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=requestToken%>"/>
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_REQUEST_PATH%>" value="<%=requestPath%>"/>
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=Encode.forHtmlAttribute(requestToken)%>"/>
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_REQUEST_PATH%>" value="<%=Encode.forHtmlAttribute(requestPath)%>"/>
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_SELECT_ITEM%>" value="true"/>
                 <table border="1">
                     <tr>
@@ -336,8 +337,8 @@
                                             selected = "selected" ;
                                         }
                                 %>
-                                    <option value="<%=templateTmp.getTemplateId()%>" <%=selected%>>
-                                        <%=templateTmp.getName()%>
+                                    <option value="<%=Encode.forHtmlAttribute(templateTmp.getTemplateId())%>" <%=selected%>>
+                                        <%=Encode.forHtmlContent(templateTmp.getName())%>
                                     </option>
                                 <%
                                     }
@@ -358,13 +359,13 @@
                 if(template != null ){
             %>
             <form method="post" name="serviceAdd" id="id_nextwizard" action="workflowimpl-wf-wizard.jsp">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=requestToken%>"/>
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_REQUEST_PATH%>" value="<%=requestPath%>"/>
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=Encode.forHtmlAttribute(requestToken)%>"/>
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_REQUEST_PATH%>" value="<%=Encode.forHtmlAttribute(requestPath)%>"/>
 
                 <table class="styledLeft">
                     <thead>
                     <tr>
-                        <th><fmt:message key='workflow.template'/> : <%= template.getName() %></th>
+                        <th><fmt:message key='workflow.template'/> : <%= Encode.forHtml(template.getName())%></th>
                     </tr>
                     </thead>
                     <tr>
@@ -383,7 +384,7 @@
                                         if (metaData != null) {
                                 %>
                                 <tr>
-                                    <td width="200px" style="vertical-align: top !important;"><%=metaData.getDisplayName()%><%=metaData.getIsRequired()?"<span style=\"color:red\">*</span>":""%>
+                                    <td width="200px" style="vertical-align: top !important;"><%=Encode.forHtmlContent(metaData.getDisplayName())%><%=metaData.getIsRequired()?"<span style=\"color:red\">*</span>":""%>
                                     </td>
                                 </tr>
                                 <tr>
@@ -395,8 +396,8 @@
                                             }
                                     %>
                                     <td>
-                                        <input id="<%=metaData.getName()%>" name="<%=metaData.getName()%>"
-                                                  title="<%=metaData.getDisplayName()%>" style="min-width: 30%" value="<%=textTypeValue%>"/>
+                                        <input id="<%=Encode.forHtmlAttribute(metaData.getName())%>" name="<%=Encode.forHtmlAttribute(metaData.getName())%>"
+                                                  title="<%=Encode.forHtmlAttribute(metaData.getDisplayName())%>" style="min-width: 30%" value="<%=Encode.forHtmlAttribute(textTypeValue)%>"/>
                                     </td>
                                     <%
                                     } else if(metaData.getInputType().equals(InputType.TEXT_AREA.value())){
@@ -405,8 +406,8 @@
                                             textAreaTypeValue = parameterValues.get(metaData.getName()).get(metaData.getName()).getParamValue();
                                         }
                                     %>
-                                    <td><textarea id="<%=metaData.getName()%>" name="<%=metaData.getName()%>" title="<%=metaData.getDisplayName()%>" style="min-width: 30%">
-                                        <%= textAreaTypeValue%></textarea>
+                                    <td><textarea id="<%=Encode.forHtmlAttribute(metaData.getName())%>" name="<%=Encode.forHtmlAttribute(metaData.getName())%>" title="<%=Encode.forHtmlAttribute(metaData.getDisplayName())%>" style="min-width: 30%">
+                                        <%= Encode.forHtmlContent(textAreaTypeValue)%></textarea>
                                     </td>
                                     <%
                                     } else if(metaData.getInputType().equals(InputType.SELECT.value())){
@@ -419,14 +420,14 @@
                                         Item[] items = mapType.getItem();
                                     %>
                                     <td>
-                                        <select id="<%=metaData.getName()%>" name="<%=metaData.getName()%>" style="min-width: 30%">
+                                        <select id="<%=Encode.forHtmlAttribute(metaData.getName())%>" name="<%=Encode.forHtmlAttribute(metaData.getName())%>" style="min-width: 30%">
                                             <option value="<fmt:message key="select"/>"><fmt:message key="select"/></option>
                                         <%
                                             for (Item item: items) {
                                                 if (item != null) {
                                                     boolean select = item.getValue().equals(selectedValue);
                                         %>
-                                            <option value="<%=item.getKey()%>" <%=select ? "selected" :""%>><%=item.getValue()%></option>
+                                            <option value="<%=Encode.forHtmlAttribute(item.getKey())%>" <%=select ? "selected" :""%>><%=Encode.forHtmlContent(item.getValue())%></option>
                                         <%
                                                 }
                                             }
@@ -487,7 +488,7 @@
                                             %>
 
                                                 try {
-                                                    addStep("<%=users%>", "<%=roles%>");
+                                                    addStep("<%=Encode.forJavaScriptBlock(users)%>", "<%=Encode.forJavaScriptBlock(roles)%>");
                                                 }catch(e){
 
                                                 }
@@ -519,14 +520,14 @@
                                                            '<tr id="id_step_roles_'+stepOrder+'" style="display:none;">' +
                                                            '<td style="width:100%;">' +
                                                            '<table  style="width:100%;">' +
-                                                           '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input readonly  name="<%=metaData.getName()%>-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text"  class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                           '<tr><td width="40px">Roles</td><td onclick="moveSearchController(\''+stepOrder+'\',\'roles\', false);"><input readonly  name="<%=Encode.forJavaScriptBlock(Encode.forHtmlAttribute(metaData.getName()))%>-step-'+stepOrder+'-roles" id="p-step-'+stepOrder+'-roles"  type="text"  class="tokenizer_'+stepOrder+'"/></td></tr>' +
                                                            '</table>' +
                                                            '</td>' +
                                                            '</tr>' +
                                                            '<tr id="id_step_users_'+stepOrder+'" style="width:100%;display:none;">' +
                                                            '<td style="width:100%;">' +
                                                            '<table style="width:100%;">' +
-                                                           '<tr><td width="40px">Users</td><td onclick="moveSearchController(\''+stepOrder+'\',\'users\', false);"><input readonly  name="<%=metaData.getName()%>-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
+                                                           '<tr><td width="40px">Users</td><td onclick="moveSearchController(\''+stepOrder+'\',\'users\', false);"><input readonly  name="<%=Encode.forJavaScriptBlock(Encode.forHtmlAttribute(metaData.getName()))%>-step-'+stepOrder+'-users" id="p-step-'+stepOrder+'-users" type="text" class="tokenizer_'+stepOrder+'"/></td></tr>' +
                                                            '</table>' +
                                                            '</td>' +
                                                            '</tr>' +

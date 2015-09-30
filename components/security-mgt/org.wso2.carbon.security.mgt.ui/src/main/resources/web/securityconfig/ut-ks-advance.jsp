@@ -40,6 +40,7 @@
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <link href="../../styles/main.css" rel="stylesheet" type="text/css" media="all"/>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../../main/admin/js/main.js" type="text/javascript"></script>
@@ -281,7 +282,7 @@
 <h2><fmt:message key="activate.security"/></h2>
 
 <div id="workArea">
-<p><%=info%>
+<p><%=Encode.forHtmlAttribute(info)%>
 </p>
 
 <p>&nbsp;</p>
@@ -310,12 +311,14 @@
                     for (String domainName : domainNames) {
                         if (selectedDomain.equals(domainName)) {
                 %>
-                <option selected="selected" value="<%=domainName%>"><%=domainName%>
+                <option selected="selected" value="<%=Encode.forHtmlAttribute(domainName)%>">
+                    <%=Encode.forHtmlContent(domainName)%>
                 </option>
                 <%
                 } else {
                 %>
-                <option value="<%=domainName%>"><%=domainName%>
+                <option value="<%=Encode.forHtmlAttribute(domainName)%>">
+                    <%=Encode.forHtmlContent(domainName)%>
                 </option>
                 <%
                         }
@@ -333,7 +336,7 @@
                     key="list.roles"/></td>
             <td>
                 <input type="text" name="<%=SecurityUIConstants.ROLE_LIST_FILTER%>"
-                       value="<%=filter%>"/>
+                       value="<%=Encode.forHtmlAttribute(filter)%>"/>
 
                 <input class="button" type="submit"
                        value="<fmt:message key="role.search"/>"/>
@@ -349,9 +352,9 @@
 <form method="post" action="add-security.jsp" name="dataForm"
       onsubmit="return doValidation(<%= isPolicyFromRegistry%>, <%=kerberosScenario%>)">
 <input type="hidden" name="scenarioId" id="scenarioId"
-       value="<%= scenId%>"/>
+       value="<%= Encode.forHtmlAttribute(scenId)%>"/>
 <input type="hidden" name="policyPath" id="policyPath"
-       value="<%= registryPolicyPath%>"/>
+       value="<%= Encode.forHtmlAttribute(registryPolicyPath)%>"/>
 <%
     if (category.contains("ut")) {
 %>
@@ -381,7 +384,8 @@
                 %>
                 <tr>
                     <td><input type="checkbox" name="userGroups"
-                               value="<%=data.getItemName()%>" <%=checked%>/> <%=data.getItemName()%>
+                               value="<%=Encode.forHtmlAttribute(data.getItemName())%>"
+                            <%=checked%>/> <%=Encode.forHtmlContent(data.getItemName())%>
                     </td>
                 </tr>
                 <%
@@ -435,7 +439,8 @@
                 %>
                 <tr>
                     <td><input type="checkbox" name="trustStore"
-                               value="<%=data.getKeyStoreName()%>" <%=checked%>/> <%=data.getKeyStoreName()%>
+                               value="<%=Encode.forHtmlAttribute(data.getKeyStoreName())%>" <%=checked%>/>
+                        <%=Encode.forHtmlContent(data.getKeyStoreName())%>
                     </td>
                 </tr>
                 <%
@@ -471,7 +476,8 @@
                                             }
 
                             %>
-                            <option value="<%=data.getKeyStoreName()%>" <%=selected %>><%=data.getKeyStoreName()%>
+                            <option value="<%=Encode.forHtmlAttribute(data.getKeyStoreName())%>"
+                                    <%=selected%>><%=Encode.forHtmlContent(data.getKeyStoreName())%>
                             </option>
                             <%
                                         }
@@ -521,7 +527,7 @@
                     </td>
                     <td>
                         <input type="text" name="org.wso2.kerberos.service.principal.name"
-                               value="<%=servicePrincipleName%>"/>
+                               value="<%=Encode.forHtmlAttribute(servicePrincipleName)%>"/>
                     </td>
                 </tr>
                 <tr>
@@ -531,7 +537,7 @@
                     </td>
                     <td>
                         <input type="password" name="org.wso2.kerberos.service.principal.password"
-                               value="<%=servicePrinciplePassword%>"/>
+                               value="<%=Encode.forHtmlAttribute(servicePrinciplePassword)%>"/>
                     </td>
                 </tr>
             </table>
@@ -551,10 +557,10 @@
     <tr class="buttonRow">
         <td>
             <input class="button" type="button" value="< <fmt:message key="back"/>"
-                   onclick="location.href = 'index.jsp?serviceName=<%=serviceName%>'"/>
+                   onclick="location.href = 'index.jsp?serviceName=<%=Encode.forUriComponent(serviceName)%>'"/>
             <input class="button" type="submit" value="<fmt:message key="finish"/>"/>
             <input class="button" type="button" value="<fmt:message key="cancel"/>"
-                   onclick="location.href = '<%=cancelLink%>'"/>
+                   onclick="location.href = '<%=Encode.forJavaScriptBlock(cancelLink)%>'"/>
         </td>
     </tr>
 </table>

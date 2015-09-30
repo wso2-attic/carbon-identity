@@ -26,6 +26,7 @@
 <%@page import="org.wso2.carbon.security.ui.client.KeyStoreAdminClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
@@ -129,7 +130,7 @@
 	                            key="filter.keystore.label"/></td>
 	                    <td>
 	                        <input type="text" name="<%=SecurityUIConstants.KEYSTORE_LIST_FILTER%>"
-	                               value="<%=filter%>"/>
+	                               value="<%=Encode.forHtmlAttribute(filter)%>"/>
 	
 	                        <input class="button" type="submit"
 	                               value="<fmt:message key="filter.keystore.search"/>"/>
@@ -154,16 +155,23 @@
                             if (data != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug in Axis!!
                 %>
                 <tr>
-                    <td><%=data.getKeyStoreName()%>
+                    <td><%=Encode.forHtmlContent(data.getKeyStoreName())%>
                     </td>
-                    <td><%=data.getKeyStoreType()%>
+                    <td><%=Encode.forHtmlContent(data.getKeyStoreType())%>
                     </td>
                     <td>
-<a href="import-cert.jsp?keyStore=<%=data.getKeyStoreName()%>" class="icon-link" style="background-image:url(images/import.gif);"><fmt:message key="import.cert"/></a>
-<a href="view-keystore.jsp?keyStore=<%=data.getKeyStoreName()%>" class="icon-link" style="background-image:url(images/view.gif);"><fmt:message key="view"/></a>
-<a href="#" onclick="deleteKeystore('<%=data.getKeyStoreName()%>')" class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
+<a href="import-cert.jsp?keyStore=<%=Encode.forUriComponent(data.getKeyStoreName())%>"
+   class="icon-link"
+   style="background-image:url(images/import.gif);"><fmt:message key="import.cert"/></a>
+<a href="view-keystore.jsp?keyStore=<%=Encode.forUriComponent(data.getKeyStoreName())%>"
+   class="icon-link"
+   style="background-image:url(images/view.gif);"><fmt:message key="view"/></a>
+<a href="#"
+   onclick="deleteKeystore('<%=Encode.forJavaScriptAttribute(data.getKeyStoreName())%>')" class="icon-link"
+   style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
                     <%if(data.getPubKeyFilePath() != null){ %>
-<a href="<%=data.getPubKeyFilePath()%>" class="icon-link" style="background-image:url(images/view.gif);"><fmt:message key="download.pub.key"/></a>
+<a href="<%=Encode.forHtmlAttribute(data.getPubKeyFilePath())%>" class="icon-link"
+   style="background-image:url(images/view.gif);"><fmt:message key="download.pub.key"/></a>
                         <%}%>
                     </td>
                 </tr>

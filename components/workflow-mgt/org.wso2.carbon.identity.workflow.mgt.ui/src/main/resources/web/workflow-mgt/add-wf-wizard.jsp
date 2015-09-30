@@ -33,6 +33,7 @@
 <%@ page import="java.util.UUID" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.util.WorkflowUIUtil" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowWizard" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -102,7 +103,7 @@
 %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 
@@ -150,8 +151,8 @@
 
         <div id="workArea">
             <form id="id_workflow" method="post" name="serviceAdd" action="template-wf-wizard.jsp">
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=requestToken%>"/>
-                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_REQUEST_PATH%>" value="<%=requestPath%>"/>
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>" value="<%=Encode.forHtmlAttribute(requestToken)%>"/>
+                <input type="hidden" name="<%=WorkflowUIConstants.PARAM_REQUEST_PATH%>" value="<%=Encode.forHtmlAttribute(requestPath)%>"/>
                 <table class="styledLeft">
                     <thead>
                     <tr>
@@ -164,13 +165,13 @@
                                 <tr>
                                     <td width="130px"><fmt:message key='workflow.name'/> <span style="color:red">*</span></td>
                                     <td>
-                                        <input size="30" id="id_workflow_name" type="text" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=(workflowWizard != null && workflowWizard.getWorkflowName() != null) ? workflowWizard.getWorkflowName() : ""%>" style="min-width: 30%"/>
+                                        <input size="30" id="id_workflow_name" type="text" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_NAME%>" value="<%=(workflowWizard != null && workflowWizard.getWorkflowName() != null) ? Encode.forHtmlAttribute(workflowWizard.getWorkflowName()) : ""%>" style="min-width: 30%"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><fmt:message key='workflow.description'/></td>
                                     <td>
-                                        <textarea name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>" cols="60" rows="4"><%=(workflowWizard != null && workflowWizard.getWorkflowDescription() != null) ? workflowWizard.getWorkflowDescription() : ""%></textarea>
+                                        <textarea name="<%=WorkflowUIConstants.PARAM_WORKFLOW_DESCRIPTION%>" cols="60" rows="4"><%=(workflowWizard != null && workflowWizard.getWorkflowDescription() != null) ? Encode.forHtmlAttribute(workflowWizard.getWorkflowDescription()) : ""%></textarea>
                                     </td>
                                 </tr>
                             </table>
