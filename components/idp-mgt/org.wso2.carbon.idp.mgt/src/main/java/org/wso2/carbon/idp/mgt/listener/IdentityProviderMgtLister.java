@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -16,17 +16,18 @@
  *  under the License.
  *
  */
-package org.wso2.carbon.identity.application.mgt.listener;
+package org.wso2.carbon.idp.mgt.listener;
 
-import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 
-public interface ApplicationMgtListener {
+public interface IdentityProviderMgtLister {
 
-    public void createApplication(ServiceProvider serviceProvider);
+    public void updateResidentIdP(IdentityProvider identityProvider);
 
-    public void updateApplication(ServiceProvider serviceProvider);
+    public void addIdP(IdentityProvider identityProvider);
 
-    public void deleteApplication(String applicationName);
+    public void deleteIdP(String idPName);
 
+    public void updateIdP(String oldIdPName, IdentityProvider identityProvider);
 
 }

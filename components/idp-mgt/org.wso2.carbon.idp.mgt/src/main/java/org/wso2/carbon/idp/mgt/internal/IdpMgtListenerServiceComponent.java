@@ -18,62 +18,37 @@
 
 package org.wso2.carbon.idp.mgt.internal;
 
-import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @scr.component name="org.wso2.carbon.idp.mgt.listener" immediate="true"
  * @scr.reference name="idp.mgt.event.listener.service"
- * interface="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener"
+ * interface="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister"
  * cardinality="0..n" policy="dynamic"
- * bind="setIdentityProviderMgtListenerService"
- * unbind="unsetIdentityProviderMgtListenerService"
+ * bind="setIdentityProviderMgtListerService"
+ * unbind="unsetIdentityProviderMgtListerService" *
  */
 public class IdpMgtListenerServiceComponent {
 
-    private static Map<Integer, IdentityProviderMgtListener> idpMgtListeners;
-    private static Comparator<Integer> idpMgtListenerComparator = new Comparator<Integer>(){
+    private static List<IdentityProviderMgtLister> listeners = new ArrayList<>();
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int compare(Integer orderId1, Integer orderId2) {
-            if (orderId1 > orderId2) {
-                return 1;
-            } else if (orderId1 < orderId2) {
-                return -1;
-            } else {
-                return 0;
-            }
-        }
-    };
+    public static void setIdentityProviderMgtListerService(
+            IdentityProviderMgtLister identityProviderMgtListerService) {
 
-    protected static synchronized void setIdentityProviderMgtListenerService(
-            IdentityProviderMgtListener applicationMgtListenerService) {
-        if (idpMgtListeners == null) {
-            idpMgtListeners = new TreeMap<>(idpMgtListenerComparator);
-        }
-        idpMgtListeners.put(applicationMgtListenerService.getExecutionOrderId(),
-                applicationMgtListenerService);
+        listeners.add(identityProviderMgtListerService);
     }
 
-    protected static synchronized void unsetIdentityProviderMgtListenerService(
-            IdentityProviderMgtListener applicationMgtListenerService) {
-        if (applicationMgtListenerService != null &&
-                idpMgtListeners != null) {
-            idpMgtListeners = null;
-        }
+    public static void unsetIdentityProviderMgtListerService(
+            IdentityProviderMgtLister identityProviderMgtListerService) {
+
+        listeners.remove(identityProviderMgtListerService);
     }
 
-    public static synchronized Collection<IdentityProviderMgtListener> getIdpMgtListeners() {
-        if (idpMgtListeners == null) {
-            idpMgtListeners = new TreeMap<>(idpMgtListenerComparator);
-        }
-        return idpMgtListeners.values();
+    public static List<IdentityProviderMgtLister> getListners() {
+        return listeners;
     }
+
 }

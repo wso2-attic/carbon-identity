@@ -28,7 +28,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
-import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.ProvisioningConnectorService;
 import org.wso2.carbon.identity.application.common.model.ClaimConfig;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -86,14 +86,35 @@ public class IdentityProviderManager {
     }
 
     /**
+     * Get the tenant id of the given tenant domain.
+     *
+     * @param tenantDomain Tenant Domain
+     * @return Tenant Id of domain user belongs to.
+     * @throws IdentityApplicationManagementException Error when getting tenant id from tenant
+     *                                                domain
+     */
+    private static int getTenantIdOfDomain(String tenantDomain)
+            throws IdentityApplicationManagementException {
+
+        try {
+            return IdPManagementUtil.getTenantIdOfDomain(tenantDomain);
+        } catch (UserStoreException e) {
+            log.error(e.getMessage(), e);
+            String msg = "Error occurred while getting Tenant Id from Tenant domain "
+                    + tenantDomain;
+            throw new IdentityApplicationManagementException(msg);
+        }
+    }
+
+    /**
      * Retrieves resident Identity provider for a given tenant
      *
      * @param tenantDomain Tenant domain whose resident IdP is requested
      * @return <code>LocalIdentityProvider</code>
-     * @throws IdentityProviderManagementException Error when getting Resident Identity Providers
+     * @throws IdentityApplicationManagementException Error when getting Resident Identity Providers
      */
     public IdentityProvider getResidentIdP(String tenantDomain)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
 
         String tenantContext = "";
         if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equalsIgnoreCase(tenantDomain)) {
@@ -220,18 +241,18 @@ public class IdentityProviderManager {
 
         IdentityProvider identityProvider = dao.getIdPByName(null,
                 IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME,
-                IdentityTenantUtil.getTenantId(tenantDomain), tenantDomain);
+                getTenantIdOfDomain(tenantDomain), tenantDomain);
         if (identityProvider == null) {
             String message = "Could not find Resident Identity Provider for tenant " + tenantDomain;
             log.error(message);
-            throw new IdentityProviderManagementException(message);
+            throw new IdentityApplicationManagementException(message);
         }
 
         int tenantId = -1;
         try {
             tenantId = IdPManagementServiceComponent.getRealmService().getTenantManager().getTenantId(tenantDomain);
         } catch (UserStoreException e) {
-            throw new IdentityProviderManagementException(
+            throw new IdentityApplicationManagementException(
                     "Exception occurred while retrieving Tenant ID from Tenant Domain " + tenantDomain, e);
         }
         X509Certificate cert = null;
@@ -249,20 +270,20 @@ public class IdentityProviderManager {
                 cert = keyStoreManager.getDefaultPrimaryCertificate();
             }
         } catch (Exception e) {
-            String msg = "Error retrieving primary certificate for tenant : " + tenantDomain;
-            log.error(msg, e);
-            throw new IdentityProviderManagementException(msg, e);
+            log.error(e.getMessage(), e);
+            throw new IdentityApplicationManagementException(
+                    "Error retrieving primary certificate for tenant : " + tenantDomain);
         }
         if (cert == null) {
-            throw new IdentityProviderManagementException(
+            throw new IdentityApplicationManagementException(
                     "Cannot find the primary certificate for tenant " + tenantDomain);
         }
         try {
             identityProvider.setCertificate(Base64.encode(cert.getEncoded()));
         } catch (CertificateEncodingException e) {
-            String msg = "Error occurred while encoding primary certificate for tenant domain " + tenantDomain;
-            log.error(msg, e);
-            throw new IdentityProviderManagementException(msg, e);
+            log.error(e.getMessage(), e);
+            throw new IdentityApplicationManagementException(
+                    "Error occurred while encoding primary certificate for tenant domain " + tenantDomain);
         }
 
         List<FederatedAuthenticatorConfig> fedAuthnCofigs = new ArrayList<FederatedAuthenticatorConfig>();
@@ -515,15 +536,15 @@ public class IdentityProviderManager {
      *
      * @param identityProvider <code>IdentityProvider</code>
      * @param tenantDomain     Tenant domain whose resident IdP is requested
-     * @throws IdentityProviderManagementException Error when adding Resident Identity Provider
+     * @throws IdentityApplicationManagementException Error when adding Resident Identity Provider
      */
     public void addResidentIdP(IdentityProvider identityProvider, String tenantDomain)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
 
         if (StringUtils.isEmpty(identityProvider.getHomeRealmId())) {
             String msg = "Invalid argument: Resident Identity Provider Home Realm Identifier value is empty";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
         if (identityProvider.getFederatedAuthenticatorConfigs() == null) {
             identityProvider.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[0]);
@@ -614,7 +635,7 @@ public class IdentityProviderManager {
         identityProvider.setFederatedAuthenticatorConfigs(IdentityApplicationManagementUtil
                 .concatArrays(identityProvider.getFederatedAuthenticatorConfigs(), federatedAuthenticatorConfigs));
 
-        dao.addIdP(identityProvider, IdentityTenantUtil.getTenantId(tenantDomain), tenantDomain);
+        dao.addIdP(identityProvider, getTenantIdOfDomain(tenantDomain), tenantDomain);
     }
 
     /**
@@ -622,15 +643,15 @@ public class IdentityProviderManager {
      *
      * @param identityProvider <code>IdentityProvider</code>
      * @param tenantDomain     Tenant domain whose resident IdP is requested
-     * @throws IdentityProviderManagementException Error when updating Resident Identity Provider
+     * @throws IdentityApplicationManagementException Error when updating Resident Identity Provider
      */
     public void updateResidentIdP(IdentityProvider identityProvider, String tenantDomain)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
 
         if (StringUtils.isEmpty(identityProvider.getHomeRealmId())) {
             String msg = "Invalid argument: Resident Identity Provider Home Realm Identifier value is empty";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
         if (identityProvider.getFederatedAuthenticatorConfigs() == null) {
             identityProvider.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[0]);
@@ -639,7 +660,7 @@ public class IdentityProviderManager {
         IdentityProvider currentIdP = IdentityProviderManager.getInstance().getIdPByName(
                 IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME, tenantDomain, true);
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        int tenantId = getTenantIdOfDomain(tenantDomain);
         validateUpdateOfIdPEntityId(currentIdP.getFederatedAuthenticatorConfigs(),
                 identityProvider.getFederatedAuthenticatorConfigs(), tenantId, tenantDomain);
 
@@ -652,12 +673,12 @@ public class IdentityProviderManager {
      * @param tenantDomain Tenant domain whose IdP names are requested
      * @return Set of <code>IdentityProvider</code>. IdP names, primary IdP and home realm
      * identifiers of each IdP
-     * @throws IdentityProviderManagementException Error when getting list of Identity Providers
+     * @throws IdentityApplicationManagementException Error when getting list of Identity Providers
      */
     public List<IdentityProvider> getIdPs(String tenantDomain)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        int tenantId = getTenantIdOfDomain(tenantDomain);
         return dao.getIdPs(null, tenantId, tenantDomain);
 
     }
@@ -668,10 +689,10 @@ public class IdentityProviderManager {
      * @param tenantDomain Tenant domain whose IdP names are requested
      * @return Set of <code>IdentityProvider</code>. IdP names, primary IdP and home realm
      * identifiers of each IdP
-     * @throws IdentityProviderManagementException Error when getting list of Identity Providers
+     * @throws IdentityApplicationManagementException Error when getting list of Identity Providers
      */
     public List<IdentityProvider> getEnabledIdPs(String tenantDomain)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
         List<IdentityProvider> enabledIdentityProviders = new ArrayList<IdentityProvider>();
         List<IdentityProvider> identityProviers = getIdPs(tenantDomain);
 
@@ -689,16 +710,16 @@ public class IdentityProviderManager {
      * @param tenantDomain
      * @param ignoreFileBasedIdps
      * @return
-     * @throws IdentityProviderManagementException
+     * @throws IdentityApplicationManagementException
      */
     public IdentityProvider getIdPByName(String idPName, String tenantDomain,
-                                         boolean ignoreFileBasedIdps) throws IdentityProviderManagementException {
+                                         boolean ignoreFileBasedIdps) throws IdentityApplicationManagementException {
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        int tenantId = getTenantIdOfDomain(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
 
         IdentityProvider identityProvider = dao.getIdPByName(null, idPName, tenantId, tenantDomain);
@@ -723,10 +744,10 @@ public class IdentityProviderManager {
      * @param tenantDomain
      * @param ignoreFileBasedIdps
      * @return
-     * @throws IdentityProviderManagementException
+     * @throws IdentityApplicationManagementException
      */
     public IdentityProvider getEnabledIdPByName(String idPName, String tenantDomain,
-                                                boolean ignoreFileBasedIdps) throws IdentityProviderManagementException {
+                                                boolean ignoreFileBasedIdps) throws IdentityApplicationManagementException {
 
         IdentityProvider idp = getIdPByName(idPName, tenantDomain, ignoreFileBasedIdps);
         if (idp != null && idp.isEnable()) {
@@ -741,11 +762,11 @@ public class IdentityProviderManager {
      * @param idPName      Unique name of the Identity provider of whose information is requested
      * @param tenantDomain Tenant domain whose information is requested
      * @return <code>IdentityProvider</code> Identity Provider information
-     * @throws IdentityProviderManagementException Error when getting Identity Provider
+     * @throws IdentityApplicationManagementException Error when getting Identity Provider
      *                                                information by IdP name
      */
     public IdentityProvider getIdPByName(String idPName, String tenantDomain)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
         return getIdPByName(idPName, tenantDomain, false);
     }
 
@@ -754,19 +775,19 @@ public class IdentityProviderManager {
      * @param value        Value associated with given Property
      * @param tenantDomain
      * @return <code>IdentityProvider</code> Identity Provider information
-     * @throws IdentityProviderManagementException Error when getting Identity Provider
+     * @throws IdentityApplicationManagementException Error when getting Identity Provider
      *                                                information by authenticator property value
      */
     public IdentityProvider getIdPByAuthenticatorPropertyValue(String property, String value, String tenantDomain,
                                                                boolean ignoreFileBasedIdps)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        int tenantId = getTenantIdOfDomain(tenantDomain);
 
         if (StringUtils.isEmpty(property) || StringUtils.isEmpty(value)) {
             String msg = "Invalid argument: Authenticator property or property value is empty";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
 
         IdentityProvider identityProvider = dao.getIdPByAuthenticatorPropertyValue(
@@ -786,11 +807,11 @@ public class IdentityProviderManager {
      * @param idPName      Unique name of the Identity provider of whose information is requested
      * @param tenantDomain Tenant domain whose information is requested
      * @return <code>IdentityProvider</code> Identity Provider information
-     * @throws IdentityProviderManagementException Error when getting Identity Provider
+     * @throws IdentityApplicationManagementException Error when getting Identity Provider
      *                                                information by IdP name
      */
     public IdentityProvider getEnabledIdPByName(String idPName, String tenantDomain)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
 
         IdentityProvider idp = getIdPByName(idPName, tenantDomain);
         if (idp != null && idp.isEnable()) {
@@ -805,17 +826,17 @@ public class IdentityProviderManager {
      * @param realmId      Unique realm identifier of the Identity provider of whose information is
      *                     requested
      * @param tenantDomain Tenant domain whose information is requested
-     * @throws IdentityProviderManagementException Error when getting Identity Provider
+     * @throws IdentityApplicationManagementException Error when getting Identity Provider
      *                                                information by IdP home realm identifier
      */
     public IdentityProvider getIdPByRealmId(String realmId, String tenantDomain)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        int tenantId = getTenantIdOfDomain(tenantDomain);
         if (StringUtils.isEmpty(realmId)) {
             String msg = "Invalid argument: Identity Provider Home Realm Identifier value is empty";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
         IdentityProvider identityProvider = dao.getIdPByRealmId(realmId, tenantId, tenantDomain);
 
@@ -832,11 +853,11 @@ public class IdentityProviderManager {
      * @param realmId      Unique realm identifier of the Identity provider of whose information is
      *                     requested
      * @param tenantDomain Tenant domain whose information is requested
-     * @throws IdentityProviderManagementException Error when getting Identity Provider
+     * @throws IdentityApplicationManagementException Error when getting Identity Provider
      *                                                information by IdP home realm identifier
      */
     public IdentityProvider getEnabledIdPByRealmId(String realmId, String tenantDomain)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
 
         IdentityProvider idp = getIdPByRealmId(realmId, tenantDomain);
         if (idp != null && idp.isEnable()) {
@@ -851,17 +872,17 @@ public class IdentityProviderManager {
      * @param idPName      Unique Name of the IdP to which the given IdP claim URIs need to be mapped
      * @param tenantDomain The tenant domain of whose local claim URIs to be mapped
      * @param idPClaimURIs IdP claim URIs which need to be mapped to tenant's local claim URIs
-     * @throws IdentityProviderManagementException Error when getting claim mappings
+     * @throws IdentityApplicationManagementException Error when getting claim mappings
      */
     public Set<ClaimMapping> getMappedLocalClaims(String idPName, String tenantDomain,
                                                   List<String> idPClaimURIs) throws
-            IdentityProviderManagementException {
+            IdentityApplicationManagementException {
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        int tenantId = getTenantIdOfDomain(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
 
         IdentityProvider identityProvider = dao.getIdPByName(null, idPName, tenantId, tenantDomain);
@@ -904,11 +925,11 @@ public class IdentityProviderManager {
      * @param idPName      Unique Name of the IdP to which the given IdP claim URIs need to be mapped
      * @param tenantDomain The tenant domain of whose local claim URIs to be mapped
      * @param idPClaimURIs IdP claim URIs which need to be mapped to tenant's local claim URIs
-     * @throws IdentityProviderManagementException Error when getting claim mappings
+     * @throws IdentityApplicationManagementException Error when getting claim mappings
      */
     public Map<String, String> getMappedLocalClaimsMap(String idPName, String tenantDomain,
                                                        List<String> idPClaimURIs) throws
-            IdentityProviderManagementException {
+            IdentityApplicationManagementException {
 
         Set<ClaimMapping> claimMappings = getMappedLocalClaims(idPName, tenantDomain, idPClaimURIs);
         Map<String, String> returnMap = new HashMap<String, String>();
@@ -925,17 +946,17 @@ public class IdentityProviderManager {
      * @param idPName        Unique Name of the IdP to which the given local claim URIs need to be mapped
      * @param tenantDomain   The tenant domain of whose local claim URIs to be mapped
      * @param localClaimURIs Local claim URIs which need to be mapped to IdP's claim URIs
-     * @throws IdentityProviderManagementException Error when getting claim mappings
+     * @throws IdentityApplicationManagementException Error when getting claim mappings
      */
     public Set<ClaimMapping> getMappedIdPClaims(String idPName, String tenantDomain,
                                                 List<String> localClaimURIs) throws
-            IdentityProviderManagementException {
+            IdentityApplicationManagementException {
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        int tenantId = getTenantIdOfDomain(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
 
         IdentityProvider identityProvider = dao.getIdPByName(null, idPName, tenantId, tenantDomain);
@@ -977,11 +998,11 @@ public class IdentityProviderManager {
      * @param idPName        Unique Name of the IdP to which the given local claim URIs need to be mapped
      * @param tenantDomain   The tenant domain of whose local claim URIs to be mapped
      * @param localClaimURIs Local claim URIs which need to be mapped to IdP's claim URIs
-     * @throws IdentityProviderManagementException Error when getting claim mappings
+     * @throws IdentityApplicationManagementException Error when getting claim mappings
      */
     public Map<String, String> getMappedIdPClaimsMap(String idPName, String tenantDomain,
                                                      List<String> localClaimURIs) throws
-            IdentityProviderManagementException {
+            IdentityApplicationManagementException {
 
         Set<ClaimMapping> claimMappings = getMappedIdPClaims(idPName, tenantDomain, localClaimURIs);
         Map<String, String> returnMap = new HashMap<String, String>();
@@ -998,16 +1019,16 @@ public class IdentityProviderManager {
      * @param idPName      Unique name of the IdP to which the given IdP roles need to be mapped
      * @param tenantDomain The tenant domain of whose local roles to be mapped
      * @param idPRoles     IdP roles which need to be mapped to local roles
-     * @throws IdentityProviderManagementException Error when getting role mappings
+     * @throws IdentityApplicationManagementException Error when getting role mappings
      */
     public Set<RoleMapping> getMappedLocalRoles(String idPName, String tenantDomain,
-                                                String[] idPRoles) throws IdentityProviderManagementException {
+                                                String[] idPRoles) throws IdentityApplicationManagementException {
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        int tenantId = getTenantIdOfDomain(tenantDomain);
 
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
 
         IdentityProvider identityProvider = dao.getIdPByName(null, idPName, tenantId, tenantDomain);
@@ -1048,10 +1069,10 @@ public class IdentityProviderManager {
      * @param idPName      Unique name of the IdP to which the given IdP roles need to be mapped
      * @param tenantDomain The tenant domain of whose local roles to be mapped
      * @param idPRoles     IdP roles which need to be mapped to local roles
-     * @throws IdentityProviderManagementException Error when getting role mappings
+     * @throws IdentityApplicationManagementException Error when getting role mappings
      */
     public Map<String, LocalRole> getMappedLocalRolesMap(String idPName, String tenantDomain,
-                                                         String[] idPRoles) throws IdentityProviderManagementException {
+                                                         String[] idPRoles) throws IdentityApplicationManagementException {
 
         Set<RoleMapping> roleMappings = getMappedLocalRoles(idPName, tenantDomain, idPRoles);
         Map<String, LocalRole> returnMap = new HashMap<String, LocalRole>();
@@ -1067,16 +1088,16 @@ public class IdentityProviderManager {
      * @param idPName      Unique name of the IdP to which the given local roles need to be mapped
      * @param tenantDomain The tenant domain of whose local roles need to be mapped
      * @param localRoles   Local roles which need to be mapped to IdP roles
-     * @throws IdentityProviderManagementException Error when getting role mappings
+     * @throws IdentityApplicationManagementException Error when getting role mappings
      */
     public Set<RoleMapping> getMappedIdPRoles(String idPName, String tenantDomain,
-                                              LocalRole[] localRoles) throws IdentityProviderManagementException {
+                                              LocalRole[] localRoles) throws IdentityApplicationManagementException {
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        int tenantId = getTenantIdOfDomain(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
         IdentityProvider identityProvider = dao.getIdPByName(null, idPName, tenantId, tenantDomain);
 
@@ -1116,11 +1137,11 @@ public class IdentityProviderManager {
      * @param idPName      Unique name of the IdP to which the given local roles need to be mapped
      * @param tenantDomain The tenant domain of whose local roles need to be mapped
      * @param localRoles   Local roles which need to be mapped to IdP roles
-     * @throws IdentityProviderManagementException Error when getting role mappings
+     * @throws IdentityApplicationManagementException Error when getting role mappings
      */
     public Map<LocalRole, String> getMappedIdPRolesMap(String idPName, String tenantDomain,
                                                        LocalRole[] localRoles) throws
-            IdentityProviderManagementException {
+            IdentityApplicationManagementException {
 
         Set<RoleMapping> roleMappings = getMappedIdPRoles(idPName, tenantDomain, localRoles);
         Map<LocalRole, String> returnMap = new HashMap<LocalRole, String>();
@@ -1135,13 +1156,13 @@ public class IdentityProviderManager {
      *
      * @param tenantDomain The tenant domain of whose primary IdP needs to be retrieved
      * @return primary Identity Provider name and home realm identifier
-     * @throws IdentityProviderManagementException Error when getting primary Identity Provider
+     * @throws IdentityApplicationManagementException Error when getting primary Identity Provider
      *                                                information
      */
     public IdentityProvider getPrimaryIdP(String tenantDomain)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        int tenantId = getTenantIdOfDomain(tenantDomain);
         IdentityProvider identityProvider = dao.getPrimaryIdP(null, tenantId, tenantDomain);
         if (identityProvider != null) {
             return identityProvider;
@@ -1156,25 +1177,25 @@ public class IdentityProviderManager {
      * Adds an Identity Provider to the given tenant
      *
      * @param identityProvider new Identity Provider information
-     * @throws IdentityProviderManagementException Error when adding Identity Provider
+     * @throws IdentityApplicationManagementException Error when adding Identity Provider
      *                                                information
      */
     public void addIdP(IdentityProvider identityProvider, String tenantDomain)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        int tenantId = getTenantIdOfDomain(tenantDomain);
 
         if (StringUtils.isEmpty(identityProvider.getIdentityProviderName())) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
 
         if (IdPManagementServiceComponent.getFileBasedIdPs().containsKey(identityProvider.getIdentityProviderName())
                 && !identityProvider.getIdentityProviderName().startsWith(IdPManagementConstants.SHARED_IDP_PREFIX)) {
             //If an IDP with name starting with "SHARED_" is added from UI, It's blocked at the service class
             // before calling this method
-            throw new IdentityProviderManagementException("Identity provider with the name" + identityProvider
+            throw new IdentityApplicationManagementException("Identity provider with the name" + identityProvider
                     .getIdentityProviderName() + "exists in the file system.");
         }
 
@@ -1197,12 +1218,12 @@ public class IdentityProviderManager {
                     } else {
                         String msg = "Cannot find tenant role " + role + " for tenant "
                                 + tenantDomain;
-                        throw new IdentityProviderManagementException(msg);
+                        throw new IdentityApplicationManagementException(msg);
                     }
                 } catch (UserStoreException e) {
                     String msg = "Error occurred while retrieving UserStoreManager for tenant "
                             + tenantDomain;
-                    throw new IdentityProviderManagementException(msg, e);
+                    throw new IdentityApplicationManagementException(msg, e);
                 }
             }
         }
@@ -1211,7 +1232,7 @@ public class IdentityProviderManager {
                 identityProvider.getIdentityProviderName(), tenantDomain, true) != null) {
             String msg = "An Identity Provider has already been registered with the name "
                     + identityProvider.getIdentityProviderName() + " for tenant " + tenantDomain;
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
 
         validateIdPEntityId(identityProvider.getFederatedAuthenticatorConfigs(), tenantId, tenantDomain);
@@ -1223,17 +1244,17 @@ public class IdentityProviderManager {
      * Deletes an Identity Provider from a given tenant
      *
      * @param idPName Name of the IdP to be deleted
-     * @throws IdentityProviderManagementException Error when deleting Identity Provider
+     * @throws IdentityApplicationManagementException Error when deleting Identity Provider
      *                                                information
      */
     public void deleteIdP(String idPName, String tenantDomain)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        int tenantId = getTenantIdOfDomain(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
         dao.deleteIdP(idPName, tenantId, tenantDomain);
     }
@@ -1243,30 +1264,30 @@ public class IdentityProviderManager {
      *
      * @param oldIdPName          existing Identity Provider name
      * @param newIdentityProvider new IdP information
-     * @throws IdentityProviderManagementException Error when updating Identity Provider
+     * @throws IdentityApplicationManagementException Error when updating Identity Provider
      *                                                information
      */
     public void updateIdP(String oldIdPName, IdentityProvider newIdentityProvider,
-                          String tenantDomain) throws IdentityProviderManagementException {
+                          String tenantDomain) throws IdentityApplicationManagementException {
 
         if (newIdentityProvider == null) {
             String msg = "Invalid argument: 'newIdentityProvider' is NULL\'";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
 
         if (IdPManagementServiceComponent.getFileBasedIdPs().containsKey(
                 newIdentityProvider.getIdentityProviderName())) {
-            throw new IdentityProviderManagementException(
+            throw new IdentityApplicationManagementException(
                     "Identity provider with the same name exists in the file system.");
         }
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+        int tenantId = getTenantIdOfDomain(tenantDomain);
 
         if (StringUtils.isEmpty(oldIdPName)) {
             String msg = "Invalid argument: Existing Identity Provider Name value is empty";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
 
         IdentityProvider currentIdentityProvider = this
@@ -1274,20 +1295,20 @@ public class IdentityProviderManager {
         if (currentIdentityProvider == null) {
             String msg = "Identity Provider with name " + oldIdPName + " does not exist";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
 
         if (currentIdentityProvider.isPrimary() == true && newIdentityProvider.isPrimary() == false) {
             String msg = "Invalid argument: Cannot unset Identity Provider from primary. "
                     + "Alternatively set new Identity Provider to primary";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
 
         if (StringUtils.isEmpty(newIdentityProvider.getIdentityProviderName())) {
             String msg = "Invalid argument: Identity Provider Name value is empty for \'newIdentityProvider\'";
             log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+            throw new IdentityApplicationManagementException(msg);
         }
 
         if (newIdentityProvider.getPermissionAndRoleConfig() != null
@@ -1311,13 +1332,13 @@ public class IdentityProviderManager {
                     } else {
                         String msg = "Cannot find tenant role " + role + " for tenant "
                                 + tenantDomain;
-                        throw new IdentityProviderManagementException(msg);
+                        throw new IdentityApplicationManagementException(msg);
                     }
                 } catch (UserStoreException e) {
                     String msg = "Error occurred while retrieving UserStoreManager for tenant "
                             + tenantDomain;
                     log.error(msg,e);
-                    throw new IdentityProviderManagementException(msg,e);
+                    throw new IdentityApplicationManagementException(msg,e);
                 }
             }
         }
@@ -1333,11 +1354,11 @@ public class IdentityProviderManager {
      * Get the authenticators registered in the system.
      *
      * @return <code>FederatedAuthenticatorConfig</code> array.
-     * @throws IdentityProviderManagementException Error when getting authenticators registered
+     * @throws IdentityApplicationManagementException Error when getting authenticators registered
      *                                                in the system
      */
     public FederatedAuthenticatorConfig[] getAllFederatedAuthenticators()
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
         List<FederatedAuthenticatorConfig> appConfig = ApplicationAuthenticatorService
                 .getInstance().getFederatedAuthenticators();
         if (CollectionUtils.isNotEmpty(appConfig)) {
@@ -1350,10 +1371,10 @@ public class IdentityProviderManager {
      * Get the Provisioning Connectors registered in the system.
      *
      * @return <code>ProvisioningConnectorConfig</code> array.
-     * @throws IdentityProviderManagementException
+     * @throws IdentityApplicationManagementException
      */
     public ProvisioningConnectorConfig[] getAllProvisioningConnectors()
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
         List<ProvisioningConnectorConfig> connectorConfigs = ProvisioningConnectorService
                 .getInstance().getProvisioningConnectorConfigs();
         if (connectorConfigs != null && connectorConfigs.size() > 0) {
@@ -1363,7 +1384,7 @@ public class IdentityProviderManager {
     }
 
     private boolean validateIdPEntityId(FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs,
-                                        int tenantId, String tenantDomain) throws IdentityProviderManagementException {
+                                        int tenantId, String tenantDomain) throws IdentityApplicationManagementException {
         if (federatedAuthenticatorConfigs != null) {
             for (FederatedAuthenticatorConfig authConfig : federatedAuthenticatorConfigs) {
                 if (IdentityApplicationConstants.Authenticator.SAML2SSO.FED_AUTH_NAME.equals(authConfig.getName()) ||
@@ -1376,7 +1397,7 @@ public class IdentityProviderManager {
                                 if (dao.isSimilarIdPEntityIdsAvailble(property.getValue(), tenantId)) {
                                     String msg = "An Identity Provider Entity Id has already been registered with the " +
                                             "name '" + property.getValue() + "' for tenant '" + tenantDomain + "'";
-                                    throw new IdentityProviderManagementException(msg);
+                                    throw new IdentityApplicationManagementException(msg);
                                 }
                                 return true;
                             }
@@ -1391,7 +1412,7 @@ public class IdentityProviderManager {
     private boolean validateUpdateOfIdPEntityId(FederatedAuthenticatorConfig[] currentFederatedAuthConfigs,
                                                 FederatedAuthenticatorConfig[] newFederatedAuthConfigs,
                                                 int tenantId, String tenantDomain)
-            throws IdentityProviderManagementException {
+            throws IdentityApplicationManagementException {
         String currentIdentityProviderEntityId = null;
         if (currentFederatedAuthConfigs != null) {
             for (FederatedAuthenticatorConfig fedAuthnConfig : currentFederatedAuthConfigs) {
@@ -1429,7 +1450,7 @@ public class IdentityProviderManager {
                                         String msg = "An Identity Provider Entity Id has already been registered " +
                                                 "with the name '" +
                                                 property.getValue() + "' for tenant '" + tenantDomain + "'";
-                                        throw new IdentityProviderManagementException(msg);
+                                        throw new IdentityApplicationManagementException(msg);
                                     }
                                     return true;
                                 }
@@ -1443,6 +1464,5 @@ public class IdentityProviderManager {
 
         return true;
     }
-
 
 }
