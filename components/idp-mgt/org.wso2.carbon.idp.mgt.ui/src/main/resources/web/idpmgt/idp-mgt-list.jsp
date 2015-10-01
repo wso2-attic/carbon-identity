@@ -92,12 +92,12 @@
                                 <td>
                                  	<% if (enable) { %>
                     						<a title="<fmt:message key='disable.policy'/>"
-                       						onclick="disable('<%=identityProvidersList.get(i).getIdentityProviderName()%>');return false;"
+                       						onclick="disable('<%=Encode.forJavaScriptAttribute(identityProvidersList.get(i).getIdentityProviderName())%>');return false;"
                        						href="#" style="background-image: url(images/disable.gif);" class="icon-link">
                         					<fmt:message key='disable.policy'/></a>
                     				<% } else { %>
                     						<a title="<fmt:message key='enable.policy'/>"
-                       						onclick="enable('<%=identityProvidersList.get(i).getIdentityProviderName()%>');return false;"
+                       						onclick="enable('<%=Encode.forJavaScriptAttribute(identityProvidersList.get(i).getIdentityProviderName())%>');return false;"
                        						href="#" style="background-image: url(images/enable2.gif);" class="icon-link">
                        						 <fmt:message key='enable.policy'/></a>
                    				   <% } %>

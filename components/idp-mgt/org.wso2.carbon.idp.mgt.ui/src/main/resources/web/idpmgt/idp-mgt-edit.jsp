@@ -2394,14 +2394,14 @@ function idpMgtUpdate() {
                                                                                     },
                                                                                     function () {
                                                                                         location.href =
-                                                                                                "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                                                                "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                                                     });
                                                                         } else {
                                                                             doEditFinish();
                                                                         }
                                                                     },
                                                                     function () {
-                                                                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                                     });
                                                         } else {
                                                             if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2417,7 +2417,7 @@ function idpMgtUpdate() {
                                                                         },
                                                                         function () {
                                                                             location.href =
-                                                                                    "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                                                    "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                                         });
                                                             } else {
                                                                 doEditFinish();
@@ -2425,7 +2425,7 @@ function idpMgtUpdate() {
                                                         }
                                                     },
                                                     function () {
-                                                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                     });
                                         } else {
                                             if (jQuery('#deleteClaimMappings').val() == 'true') {
@@ -2440,7 +2440,7 @@ function idpMgtUpdate() {
 
                                                         },
                                                         function () {
-                                                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                         });
                                             } else {
                                                 if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2455,7 +2455,7 @@ function idpMgtUpdate() {
                                                                 doEditFinish();
                                                             },
                                                             function () {
-                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                             });
                                                 } else {
                                                     doEditFinish();
@@ -2464,7 +2464,7 @@ function idpMgtUpdate() {
                                         }
                                     },
                                     function () {
-                                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                     });
                         } else {
                             if (allDeletedRoleStr != "") {
@@ -2483,7 +2483,7 @@ function idpMgtUpdate() {
 
                                                         },
                                                         function () {
-                                                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                         });
                                             } else {
                                                 if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2498,7 +2498,7 @@ function idpMgtUpdate() {
                                                                 doEditFinish();
                                                             },
                                                             function () {
-                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                             });
                                                 } else {
                                                     doEditFinish();
@@ -2506,7 +2506,7 @@ function idpMgtUpdate() {
                                             }
                                         },
                                         function () {
-                                            location.href = "idp-mgt-edit.jsp?idPName=Encode.forJavaScriptBlock(idPName)%>";
+                                            location.href = "idp-mgt-edit.jsp?idPName=Encode.forUriComponent(idPName)%>";
                                         });
                             } else {
                                 if (jQuery('#deleteClaimMappings').val() == 'true') {
@@ -2530,14 +2530,14 @@ function idpMgtUpdate() {
                                                                 doEditFinish();
                                                             },
                                                             function () {
-                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                             });
                                                 } else {
                                                     doEditFinish();
                                                 }
                                             },
                                             function () {
-                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                             });
                                 } else {
                                     if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2552,7 +2552,7 @@ function idpMgtUpdate() {
                                                     doEditFinish();
                                                 },
                                                 function () {
-                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                 });
                                     } else {
                                         doEditFinish();
@@ -2562,7 +2562,7 @@ function idpMgtUpdate() {
                         }
                     },
                     function () {
-                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                     });
         } else {
             if (allDeletedClaimStr != "") {
@@ -2585,7 +2585,7 @@ function idpMgtUpdate() {
 
                                                         },
                                                         function () {
-                                                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                         });
                                             } else {
                                                 if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2600,7 +2600,7 @@ function idpMgtUpdate() {
                                                                 doEditFinish();
                                                             },
                                                             function () {
-                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                             });
                                                 } else {
                                                     doEditFinish();
@@ -2608,7 +2608,7 @@ function idpMgtUpdate() {
                                             }
                                         },
                                         function () {
-                                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                         });
                             } else {
                                 if (jQuery('#deleteClaimMappings').val() == 'true') {
@@ -2632,14 +2632,14 @@ function idpMgtUpdate() {
                                                                 doEditFinish();
                                                             },
                                                             function () {
-                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                             });
                                                 } else {
                                                     doEditFinish();
                                                 }
                                             },
                                             function () {
-                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                             });
                                 } else {
                                     if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2654,7 +2654,7 @@ function idpMgtUpdate() {
                                                     doEditFinish();
                                                 },
                                                 function () {
-                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                 });
                                     } else {
                                         doEditFinish();
@@ -2663,7 +2663,7 @@ function idpMgtUpdate() {
                             }
                         },
                         function () {
-                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                         });
             } else {
                 if (allDeletedRoleStr != "") {
@@ -2691,14 +2691,14 @@ function idpMgtUpdate() {
                                                                 doEditFinish();
                                                             },
                                                             function () {
-                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                             });
                                                 } else {
                                                     doEditFinish();
                                                 }
                                             },
                                             function () {
-                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                             });
                                 } else {
                                     if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2713,7 +2713,7 @@ function idpMgtUpdate() {
                                                     doEditFinish();
                                                 },
                                                 function () {
-                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                 });
                                     } else {
                                         doEditFinish();
@@ -2721,7 +2721,7 @@ function idpMgtUpdate() {
                                 }
                             },
                             function () {
-                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                             });
                 } else {
                     if (jQuery('#deleteClaimMappings').val() == 'true') {
@@ -2745,14 +2745,14 @@ function idpMgtUpdate() {
                                                     doEditFinish();
                                                 },
                                                 function () {
-                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                 });
                                     } else {
                                         doEditFinish();
                                     }
                                 },
                                 function () {
-                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                 });
                     } else {
                         if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2767,7 +2767,7 @@ function idpMgtUpdate() {
                                         doEditFinish();
                                     },
                                     function () {
-                                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forJavaScriptBlock(idPName)%>";
+                                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                     });
                         } else {
                             doEditFinish();
@@ -3127,7 +3127,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='home.realm.id'/>:</td>
             <td>
-                <input id="realmId" name="realmId" type="text" value="<%=realmId%>" autofocus/>
+                <input id="realmId" name="realmId" type="text" value="<%=Encode.forHtmlAttribute(realmId)%>" autofocus/>
 
                 <div class="sectionHelp">
                     <fmt:message key='home.realm.id.help'/>
@@ -3286,7 +3286,7 @@ function doValidation() {
                     <% for (int i = 0; i < claimMappings.length; i++) { %>
                     <tr>
                         <td><input type="text" style=" width: 90%; " class="claimrow"
-                                   value="<%=claimMappings[i].getRemoteClaim().getClaimUri()%>" id="claimrowid_<%=i%>"
+                                   value="<%=Encode.forHtmlAttribute(claimMappings[i].getRemoteClaim().getClaimUri())%>" id="claimrowid_<%=i%>"
                                    name="claimrowname_<%=i%>"/></td>
                         <td>
                             <select id="claimrow_id_wso2_<%=i%>" class="claimrow_wso2" name="claimrow_name_wso2_<%=i%>">
@@ -3747,7 +3747,7 @@ function doValidation() {
             <td>
                 <div class="sectionCheckbox">
                     <input id="IsEnableAssetionEncription" name="IsEnableAssetionEncription"
-                           type="checkbox" <%=Encode.forHtmlAttribute(enableAssertinEncriptionChecked)%>/>
+                           type="checkbox" <%=enableAssertinEncriptionChecked%>/>
                                 <span style="display:inline-block" class="sectionHelp">
                                     <fmt:message key='authn.enable.assertion.encryption.help'/>
                                 </span>
@@ -3763,7 +3763,7 @@ function doValidation() {
             <td>
                 <div class="sectionCheckbox">
                     <input id="isEnableAssertionSigning" name="isEnableAssertionSigning"
-                           type="checkbox" <%=Encode.forHtmlAttribute(enableAssertionSigningChecked)%>/>
+                           type="checkbox" <%=enableAssertionSigningChecked%>/>
                                 <span style="display:inline-block" class="sectionHelp">
                                     <fmt:message key='authn.enable.assertion.signing.help'/>
                                 </span>
@@ -3777,7 +3777,7 @@ function doValidation() {
             </td>
             <td>
                 <div class="sectionCheckbox">
-                    <input id="sloEnabled" name="sloEnabled" type="checkbox" <%=Encode.forHtmlAttribute(sloEnabledChecked)%>/>
+                    <input id="sloEnabled" name="sloEnabled" type="checkbox" <%=sloEnabledChecked%>/>
                                 <span style="display:inline-block" class="sectionHelp">
                                     <fmt:message key='logout.enabled.help'/>
                                 </span>
@@ -3787,7 +3787,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='logout.url'/>:</td>
             <td>
-                <input id="logoutUrl" name="logoutUrl" type="text" value=<%=Encode.forHtmlAttribute(logoutUrl)%>>
+                <input id="logoutUrl" name="logoutUrl" type="text" value=<%=logoutUrl%>>
 
                 <div class="sectionHelp">
                     <fmt:message key='logout.url.help'/>
@@ -3801,7 +3801,7 @@ function doValidation() {
             <td>
                 <div class="sectionCheckbox">
                     <input id="logoutRequestSigned" name="logoutRequestSigned"
-                           type="checkbox" <%=Encode.forHtmlAttribute(logoutRequestSignedChecked)%>/>
+                           type="checkbox" <%=logoutRequestSignedChecked%>/>
                                 <span style="display:inline-block" class="sectionHelp">
                                     <fmt:message key='logout.request.signed.help'/>
                                 </span>
@@ -3815,7 +3815,7 @@ function doValidation() {
             <td>
                 <div class="sectionCheckbox">
                     <input id="authnResponseSigned" name="authnResponseSigned"
-                           type="checkbox" <%=Encode.forHtmlAttribute(authnResponseSignedChecked)%>/>
+                           type="checkbox" <%=authnResponseSignedChecked%>/>
                                 <span style="display:inline-block" class="sectionHelp">
                                     <fmt:message key='authn.response.signed.help'/>
                                 </span>

@@ -206,7 +206,7 @@ jQuery(document).ready(function(){
                     <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='openid.url'/>:</td>
-                            <td><%=Encode.forHtmlAttribute(openidUrl)%></td>
+                            <td><%=Encode.forHtml(openidUrl)%></td>
                         </tr>
                     </table>
                     </div>
@@ -300,7 +300,7 @@ jQuery(document).ready(function(){
                                     <td class="leftCol-med labelField" style="padding-top: 5px"><fmt:message key='sts.url'/>:</td>
                                     <td>
                                         <a href="javascript:document.location.href='<%=
-                                        Encode.forJavaScriptBlock(stsUrl)+"?wsdl"%>'"
+                                        Encode.forUriComponent(stsUrl)+"?wsdl"%>'"
                                            class="icon-link"
                                            style="background-image:url(images/sts.gif);margin-left: 0"><%=Encode.forHtmlContent(stsUrl)%>
                                         </a>
