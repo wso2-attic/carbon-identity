@@ -34,7 +34,6 @@
         <RememberMeTimeout>20160</RememberMeTimeout>
         <PersistanceCleanUpTimeout>20160</PersistanceCleanUpTimeout>
         <PersistanceCleanUpPeriod>1140</PersistanceCleanUpPeriod>
-        <RegistryCleanUpPeriod>1440</RegistryCleanUpPeriod>
     </TimeConfig>
 
     <!-- Security configurations -->

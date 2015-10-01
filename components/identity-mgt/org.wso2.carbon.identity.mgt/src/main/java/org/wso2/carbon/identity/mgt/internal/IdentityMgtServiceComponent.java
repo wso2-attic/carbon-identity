@@ -61,10 +61,6 @@ import java.util.List;
  * interface="org.wso2.carbon.identity.notification.mgt.NotificationSender"
  * cardinality="1..1" policy="dynamic" bind="setNotificationSender"
  * unbind="unsetNotificationSender"
- * @scr.reference name="identityCoreInitializedEventService"
- * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
- * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
-
  */
 
 public class IdentityMgtServiceComponent {
@@ -201,9 +197,8 @@ public class IdentityMgtServiceComponent {
             log.debug("Identity Management bundle is activated");
         }
 
-        RegistryCleanUpService registryCleanUpService = new RegistryCleanUpService(Long.parseLong(IdentityUtil
-                .getProperty(DELAY_BETWEEN_RUNS)), Long.parseLong(IdentityUtil
-                .getProperty(DELAY_BETWEEN_RUNS)));
+        RegistryCleanUpService registryCleanUpService = new RegistryCleanUpService(IdentityMgtConfig.getInstance()
+                .getRegistryCleanUpPeriod(), IdentityMgtConfig.getInstance().getRegistryCleanUpPeriod());
         registryCleanUpService.activateCleanUp();
     }
 
@@ -242,16 +237,6 @@ public class IdentityMgtServiceComponent {
 
     public static NotificationSender getNotificationSender() {
         return IdentityMgtServiceComponent.notificationSender;
-    }
-
-    protected void unsetIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
-        /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
-         is started */
-    }
-
-    protected void setIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
-        /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
-         is started */
     }
 
 }
