@@ -65,7 +65,7 @@ public interface WorkflowManagementService {
 
     List<Association> getAssociationsForWorkflow(String workflowId) throws WorkflowException;
 
-    List<Association> listAllAssociations() throws WorkflowException;
+    List<Association> listAllAssociations(int tenantId) throws WorkflowException;
 
     void changeAssociationState(String associationId, boolean isEnable) throws WorkflowException;
 
