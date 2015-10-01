@@ -18,10 +18,12 @@
 
 package org.wso2.carbon.identity.mgt.store;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.mgt.RecoveryProcessor;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.UserRecoveryDataDO;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
@@ -102,6 +104,7 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
                         dataDO.setSecret(resource.getProperty(key));
                     } else if (key.equals(EXPIRE_TIME)) {
                         String time = resource.getProperty(key);
+                        dataDO.setExpireTime(time);
 
                         if (System.currentTimeMillis() > Long.parseLong(time)) {
                             dataDO.setValid(false);
@@ -138,7 +141,25 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
 
     @Override
     public void invalidate(String userId, int tenantId) throws IdentityException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        Registry registry = null;
+        try {
+            registry = IdentityMgtServiceComponent.getRegistryService().
+                    getConfigSystemRegistry(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
+            registry.beginTransaction();
+            deleteOldResourcesIfFound(registry, userId, IdentityMgtConstants.IDENTITY_MANAGEMENT_DATA);
+
+        } catch (RegistryException e) {
+            log.error(e);
+            throw new IdentityException("Error while persisting user recovery data for user : " + userId);
+        } finally {
+            if (registry != null) {
+                try {
+                    registry.commitTransaction();
+                } catch (RegistryException e) {
+                    log.error("Error while processing registry transaction", e);
+                }
+            }
+        }
     }
 
     @Override
@@ -155,7 +176,9 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
                     String[] splittedResource = resource.split("___");
                     if (splittedResource.length == 3) {
                         //PRIMARY USER STORE
-                        if (resource.contains("___" + userName + "___")) {
+                        if (resource.contains("___" + userName + "___") && (RecoveryProcessor
+                                .getConfirmationKeyToKeep() == null || !StringUtils.equals(RecoveryProcessor
+                                .getConfirmationKeyToKeep(), resource.split("/")[5]))) {
                             registry.delete(resource);
                         }
                     } else if (splittedResource.length == 2) {
@@ -168,5 +191,6 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
         } catch (RegistryException e) {
             log.error("Error while deleting the old confirmation code \n" + e);
         }
+
     }
 }

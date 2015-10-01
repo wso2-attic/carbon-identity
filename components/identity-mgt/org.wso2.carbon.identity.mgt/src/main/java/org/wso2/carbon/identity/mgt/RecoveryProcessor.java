@@ -77,6 +77,27 @@ public class RecoveryProcessor {
     private NotificationSender notificationSender;
     private ChallengeQuestionProcessor questionProcessor;
 
+    /**
+     * Used to avoid deleting confirmation code at verifying confirmation, so if password update failed, it can be
+     * used again
+     */
+    private static ThreadLocal<String> confirmationKeyToKeep = new ThreadLocal<>();
+
+    public static void unsetConfirmationKeyToKeep() {
+
+        RecoveryProcessor.confirmationKeyToKeep.remove();
+    }
+
+    public static String getConfirmationKeyToKeep() {
+
+        return confirmationKeyToKeep.get();
+    }
+
+    public static void setConfirmationKeyToKeep(String confirmationKeyToKeep) {
+
+        RecoveryProcessor.confirmationKeyToKeep.set(confirmationKeyToKeep);
+    }
+
     public RecoveryProcessor() {
 
         List<NotificationSendingModule> notificationSendingModules =
@@ -307,6 +328,13 @@ public class RecoveryProcessor {
 
         try {
             dataDO = dataStore.load(internalCode);
+            if (sequence == 2) {
+                RecoveryProcessor.unsetConfirmationKeyToKeep();
+                RecoveryProcessor.setConfirmationKeyToKeep(internalCode);
+                dataDO.setCode(internalCode);
+                dataStore.store(dataDO);
+            }
+
         } catch (IdentityException e) {
             throw new IdentityException("Error loading recovery data for user : " + username, e);
         }
