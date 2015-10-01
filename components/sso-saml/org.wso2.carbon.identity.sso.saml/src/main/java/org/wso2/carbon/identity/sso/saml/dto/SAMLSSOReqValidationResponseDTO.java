@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.identity.sso.saml.dto;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.Serializable;
 
 public class SAMLSSOReqValidationResponseDTO implements Serializable {
@@ -42,6 +44,29 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
     private boolean logoutFromAuthFramework;
     private boolean isIdPInitSLO;
     private String returnToURL;
+    private boolean doSignResponse;
+    private String signingAlgorithmUri;
+    private String digestAlgorithmUri;
+
+    public String getDigestAlgorithmUri() {
+        return digestAlgorithmUri;
+    }
+
+    public void setDigestAlgorithmUri(String digestAlgorithmUri) {
+        if (StringUtils.isNotBlank(digestAlgorithmUri)) {
+            this.digestAlgorithmUri = digestAlgorithmUri;
+        }
+    }
+
+    public String getSigningAlgorithmUri() {
+        return signingAlgorithmUri;
+    }
+
+    public void setSigningAlgorithmUri(String signingAlgorithmUri) {
+        if (StringUtils.isNotBlank(signingAlgorithmUri)) {
+            this.signingAlgorithmUri = signingAlgorithmUri;
+        }
+    }
 
     public boolean isValid() {
         return isValid;
@@ -240,5 +265,19 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
 
     public void setReturnToURL(String returnToURL) {
         this.returnToURL = returnToURL;
+    }
+
+    /**
+     * @return the doSignResponse
+     */
+    public boolean isDoSignResponse() {
+        return doSignResponse;
+    }
+
+    /**
+     * @param doSignResponse the doSignResponse to set
+     */
+    public void setDoSignResponse(boolean doSignResponse) {
+        this.doSignResponse = doSignResponse;
     }
 }

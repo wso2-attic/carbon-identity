@@ -29,7 +29,7 @@ import org.wso2.carbon.identity.provisioning.AbstractProvisioningConnectorFactor
 import org.wso2.carbon.identity.provisioning.listener.ApplicationMgtProvisioningListener;
 import org.wso2.carbon.identity.provisioning.listener.DefaultInboundUserProvisioningListener;
 import org.wso2.carbon.identity.provisioning.listener.IdentityProviderMgtProvisioningListener;
-import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -113,7 +113,7 @@ public class IdentityProvisionServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("Application Management Event listener registered successfully");
             }
-            ProvisioningServiceDataHolder.getInstance().getBundleContext().registerService(IdentityProviderMgtLister.class.getName(), new IdentityProviderMgtProvisioningListener(), null);
+            ProvisioningServiceDataHolder.getInstance().getBundleContext().registerService(IdentityProviderMgtListener.class.getName(), new IdentityProviderMgtProvisioningListener(), null);
             if (log.isDebugEnabled()) {
                 log.debug("Identity Provider Management Event listener registered successfully");
             }

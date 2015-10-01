@@ -25,7 +25,6 @@
 <%@page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo"%>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -36,12 +35,12 @@
 <%@page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants"%>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     boolean readOnlyUserStore = false;
-    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
+    String username = request.getParameter("username");
     String forwardTo = null;
     String fromUserMgt = null;
     UserProfileCient client = null;
@@ -56,8 +55,9 @@
     fromUserMgt = request.getParameter("fromUserMgt");
     
     if (fromUserMgt==null) fromUserMgt = "false";
-    
-    String addAction = "add.jsp?username="+URLEncoder.encode(username)+"&fromUserMgt="+ fromUserMgt;
+
+    String addAction = "add.jsp?username=" + Encode.forUriComponent(username) + "&fromUserMgt=" +
+            Encode.forUriComponent(fromUserMgt);
 
     UserProfileDTO[] profiles = new UserProfileDTO[0];
     String BUNDLE = "org.wso2.carbon.identity.user.profile.ui.i18n.Resources";
@@ -113,8 +113,9 @@
             if("true".equals(editCancel) && "true".equals(fromUserMgt)){
                 forwardTo = "../user/user-mgt.jsp?ordinal=1";
             } else {
-                forwardTo = "edit.jsp?username=" + URLEncoder.encode(username) + "&profile=" + profiles[0].getProfileName()
-                            + "&fromUserMgt="+fromUserMgt+"&noOfProfiles=1";
+                forwardTo = "edit.jsp?username=" + Encode.forUriComponent(username) + "&profile=" +
+                            Encode.forUriComponent(profiles[0].getProfileName()) + "&fromUserMgt=" +
+                            Encode.forUriComponent(fromUserMgt) + "&noOfProfiles=1";
             }
         } else {
             
@@ -134,7 +135,7 @@
 %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 
@@ -161,7 +162,7 @@
         <%
         	if ("true".equals(fromUserMgt)) {
         %>
-       		<h2><fmt:message key='user.profiles1'/><%=username%></h2>
+       		<h2><fmt:message key='user.profiles1'/><%=Encode.forHtml(username)%></h2>
         <%
         	} else {
         %>
@@ -178,14 +179,15 @@
                  }
         	     CARBON.showConfirmationDialog("<fmt:message key='remove.message1'/>"+ profile +"<fmt:message key='remove.message2'/>",
                     function() {
-              	       location.href ="remove-profile.jsp?username="+URLEncoder.encode(username)+"&profile="+profile+"&fromUserMgt=<%=fromUserMgt%>";
+              	       location.href = "remove-profile.jsp?username=" + username + "&profile=" + profile +
+                                     "&fromUserMgt=<%=Encode.forUriComponent(fromUserMgt)%>";
                      }, null);
                  }
             </script>
             <% if(!readOnlyUserStore) {%>
             <div style="height:30px;">
                 <%if (multipleProfilesEnabled) {%>
-                <a href="javascript:document.location.href='<%=addAction%>'" class="icon-link"
+                <a href="javascript:document.location.href='<%=Encode.forJavaScript(addAction)%>'" class="icon-link"
                    style="background-image:url(../admin/images/add.gif);"><fmt:message
                         key='add.new.profiles'/></a>
                 <%}%>
@@ -201,16 +203,22 @@
            <%
            	if (profiles != null && profiles.length > 0) {
            			for (int i = 0; i < profiles.length; i++) { 
-           				String profileName = CharacterEncoder.getSafeText(profiles[i].getProfileName());
+           				String profileName = profiles[i].getProfileName();
            %>		
 			<tr>
-				<td width="50%"><a href="edit.jsp?username=<%=URLEncoder.encode(username)%>&profile=<%=profileName%>&fromUserMgt=<%=fromUserMgt%>"><%=profileName%></a></td>
+                <td width="50%">
+                    <a href="edit.jsp?username=<%=Encode.forUriComponent(username)%>&profile=
+				        <%=Encode.forUriComponent(profileName)%>&fromUserMgt=<%=Encode.forUriComponent(fromUserMgt)%>">
+                        <%=Encode.forHtmlContent(profileName)%>
+                    </a>
+                </td>
 				<td width="50%">
 				<%
                     if (readOnlyUserStore == false && !"default".equals(profileName)) {
                 %>
 				<a title="<fmt:message key='remove.profile'/>"
-                                   onclick="removeProfile('<%=username%>','<%=profileName%>');return false;"
+                                   onclick="removeProfile('<%=Encode.forJavaScriptAttribute(username)%>',
+                                           '<%=Encode.forJavaScriptAttribute(profileName)%>');return false;"
                                    href="#" style="background-image: url(../userprofile/images/delete.gif);" class="icon-link">
                                     <fmt:message key='delete'/></a>
                 <%

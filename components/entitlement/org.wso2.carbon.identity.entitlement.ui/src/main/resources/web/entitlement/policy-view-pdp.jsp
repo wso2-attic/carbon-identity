@@ -15,6 +15,7 @@
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon"%>
@@ -91,7 +92,7 @@
                             <input type="hidden" name="editorConfig" id="editorConfig">
                             <textarea  readonly="true" name="editorConfigText"  id="editorConfigText"  rows="50" cols="50"
                                       style="border: 1px solid rgb(204, 204, 204); width: 90%;">
-                                <%=policy%>
+                                <%=Encode.forHtmlContent(policy)%>
                             </textarea>
                         </td>
                     </tr>

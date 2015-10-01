@@ -49,7 +49,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
 
     @Override
     public int getExecutionOrderId() {
-        int orderId = getOrderId(SCIMUserOperationListener.class.getName());
+        int orderId = getOrderId();
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -67,7 +67,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                       UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -86,7 +86,14 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
             return true;
 
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(e);
+            if (e.getMessage().contains("UserNotFound")){
+                if (log.isDebugEnabled()){
+                    log.debug("Error looking for user: ", e);
+                }
+                return false;
+            }
+                throw new UserStoreException(e);
+
         }
 
     }
@@ -96,7 +103,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                 Map<String, String> claims, String profile,
                                 UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -144,30 +151,29 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                                  UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
+        //update last-modified-date
         try {
-            //update last-modified-date
-            try {
-                if (userStoreManager.isSCIMEnabled()) {
-                    Date date = new Date();
-                    String lastModifiedDate = AttributeUtil.formatDateTime(date);
-                    userStoreManager.setUserClaimValue(
-                            userName, SCIMConstants.META_LAST_MODIFIED_URI, lastModifiedDate, null);
-                }
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                log.debug(e);
-                throw new UserStoreException(
-                        "Error in obtaining user store information: isSCIMEnabled", e);
+            if (userStoreManager.isSCIMEnabled()) {
+                Date date = new Date();
+                String lastModifiedDate = AttributeUtil.formatDateTime(date);
+                userStoreManager.setUserClaimValue(
+                        userName, SCIMConstants.META_LAST_MODIFIED_URI, lastModifiedDate, null);
             }
-            return true;
-
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(e);
+            if (e.getMessage().contains("UserNotFound")) {
+                if (log.isDebugEnabled()) {
+                    log.debug("User " + userName + " doesn't exist");
+                }
+            } else {
+                throw new UserStoreException("Error updating SCIM metadata in doPostUpdateCredentialByAdmin " +
+                        "listener", e);
+            }
         }
-
+        return true;
     }
 
     @Override
@@ -210,7 +216,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                             String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -272,7 +278,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                  org.wso2.carbon.user.api.Permission[] permissions,
                                  UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -310,7 +316,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -355,7 +361,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                         UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 

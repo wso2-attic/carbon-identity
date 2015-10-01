@@ -22,7 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -66,7 +66,7 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
     public boolean startUpdateUserRolesFlow(String userStoreDomain, String userName, String[] deletedRoles, String[]
             newRoles) throws WorkflowException {
 
-        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
         int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
@@ -181,8 +181,8 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().updateRoleListOfUser(userName, deletedRoles, newRoles);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting updateRoleListOfUser operation for " + userName,
-                        e);
+                // Sending e.getMessage() since it is required to give error message to end user.
+                throw new WorkflowException(e.getMessage(), e);
             }
         } else {
             if (retryNeedAtCallback()) {
@@ -190,9 +190,8 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
                 unsetWorkFlowCompleted();
             }
             if (log.isDebugEnabled()) {
-                log.debug(
-                        "Updating user roles is aborted for user '" + userName + "', Reason: Workflow response was " +
-                                status);
+                log.debug("Updating user roles is aborted for user '" + userName + "', Reason: Workflow response was " +
+                        status);
             }
         }
     }
@@ -200,7 +199,7 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
     @Override
     public boolean isValidOperation(Entity[] entities) throws WorkflowException {
 
-        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
         for (int i = 0; i < entities.length; i++) {
             try {
                 if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService

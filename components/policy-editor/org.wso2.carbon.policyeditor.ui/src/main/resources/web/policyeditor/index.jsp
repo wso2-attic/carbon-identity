@@ -168,11 +168,11 @@
     // store the policy metadata to be used by javascript code
 
     // If the policy is to be loaded from a URL
-    var currentPolicyURL = '<%=policyURL%>';
+    var currentPolicyURL = '<%=Encode.forJavaScriptBlock(policyURL)%>';
 
     // If the policy is posted to the editor with additional meta-data
-    var policyText = '<%=policyText%>';
-    var callbackURL = '<%=callbackURL%>';
+    var policyText = '<%=Encode.forJavaScriptBlock(policyText)%>';
+    var callbackURL = '<%=Encode.forJavaScriptBlock(callbackURL)%>';
 
     // Create design and source view tabs
     var tabView = new YAHOO.widget.TabView('editor-canvas');
@@ -185,7 +185,7 @@
         disableLastBreadcrumbLink();
 
         if (currentPolicyURL != "null") {
-            getPolicyDoc('<%=policyURL%>');
+            getPolicyDoc('<%=Encode.forJavaScriptAttribute(policyURL)%>');
         } else if (policyText != "") {
             // loading the Policy document to Raw View
             syncRawPolicyView(policyText);

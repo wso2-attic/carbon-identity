@@ -20,7 +20,6 @@ package org.wso2.carbon.identity.sso.saml.builders.assertion;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.common.SAMLVersion;
@@ -172,8 +171,9 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
             samlAssertion.setConditions(conditions);
 
             if (authReqDTO.getDoSignAssertions()) {
-                SAMLSSOUtil.setSignature(samlAssertion, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                        new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
+                SAMLSSOUtil.setSignature(samlAssertion, authReqDTO.getSigningAlgorithmUri(), authReqDTO
+                        .getDigestAlgorithmUri(), new SignKeyDataHolder(authReqDTO.getUser()
+                        .getAuthenticatedSubjectIdentifier()));
             }
 
             return samlAssertion;

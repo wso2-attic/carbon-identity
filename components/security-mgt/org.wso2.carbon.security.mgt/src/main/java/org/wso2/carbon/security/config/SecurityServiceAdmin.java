@@ -50,33 +50,15 @@ public class SecurityServiceAdmin {
 
     private static Log log = LogFactory.getLog(SecurityServiceAdmin.class);
     protected AxisConfiguration axisConfig = null;
-    private PersistenceFactory persistenceFactory;
 
-    private ServiceGroupFilePersistenceManager serviceGroupFilePM;
-
-    private ModuleFilePersistenceManager moduleFilePM;
 
     public SecurityServiceAdmin(AxisConfiguration config) throws ServerException {
         this.axisConfig = config;
-        try {
-            persistenceFactory = PersistenceFactory.getInstance(config);
-            serviceGroupFilePM = persistenceFactory.getServiceGroupFilePM();
-            moduleFilePM = persistenceFactory.getModuleFilePM();
-        } catch (Exception e) {
-            log.error("Error creating an PersistenceFactory instance", e);
-            throw new ServerException("Error creating an PersistenceFactory instance", e);
-        }
+
     }
 
     public SecurityServiceAdmin(AxisConfiguration config, Registry registry) {
         this.axisConfig = config;
-        try {
-            persistenceFactory = PersistenceFactory.getInstance(config);
-            serviceGroupFilePM = persistenceFactory.getServiceGroupFilePM();
-            moduleFilePM = persistenceFactory.getModuleFilePM();
-        } catch (Exception e) {
-            log.error("Error creating an PersistenceFactory instance", e);
-        }
     }
 
     /**
@@ -90,15 +72,12 @@ public class SecurityServiceAdmin {
     public void addSecurityPolicyToAllBindings(AxisService axisService, Policy policy)
             throws ServerException {
         String serviceGroupId = axisService.getAxisServiceGroup().getServiceGroupName();
-        boolean isProxyService = PersistenceUtils.isProxyService(axisService);
         try {
             if (policy.getId() == null) {
-                // Generate an ID
                 policy.setId(UUIDGenerator.getUUID());
             }
 
             Map endPointMap = axisService.getEndpoints();
-            List<String> lst = new ArrayList<>();
             for (Object o : endPointMap.entrySet()) {
                 Map.Entry entry = (Map.Entry) o;
                 AxisEndpoint point = (AxisEndpoint) entry.getValue();
@@ -110,46 +89,29 @@ public class SecurityServiceAdmin {
                         (!policy.getAttributes().containsValue("UTOverTransport"))) {
                     continue;
                 }
-
                 binding.getPolicySubject().attachPolicy(policy);
-                if (lst.contains(bindingName)) {
-                    continue;
-                } else {
-                    lst.add(bindingName);
-                }
-                // Add the new policy to the registry
+
             }
         } catch (Exception e) {
             log.error("Error in adding security policy to all bindings", e);
-            serviceGroupFilePM.rollbackTransaction(serviceGroupId);
             throw new ServerException("addPoliciesToService", e);
         }
     }
 
     public void removeSecurityPolicyFromAllBindings(AxisService axisService, String uuid)
             throws ServerException {
-        //todo apparently policyFromRegistry in bindings didn't got removed1 - kasung
-        String serviceGroupId = axisService.getAxisServiceGroup().getServiceGroupName();
-
-            String serviceXPath = PersistenceUtils.getResourcePath(axisService);
-
-            Map endPointMap = axisService.getEndpoints();
-            List<String> lst = new ArrayList<>();
-            for (Object o : endPointMap.entrySet()) {
-                Map.Entry entry = (Map.Entry) o;
-                AxisEndpoint point = (AxisEndpoint) entry.getValue();
-                AxisBinding binding = point.getBinding();
-                if (binding.getPolicySubject().getAttachedPolicyComponent(uuid) != null) {
-                    binding.getPolicySubject().detachPolicyComponent(uuid);
-                    String bindingName = binding.getName().getLocalPart();
-                    if (lst.contains(bindingName)) {
-                        continue;
-                    } else {
-                        lst.add(bindingName);
-                    }
-                }
-                // Add the new policy to the registry
+        if (log.isDebugEnabled()) {
+            log.debug("Removing  security policy from all bindings.");
+        }
+        Map endPointMap = axisService.getEndpoints();
+        for (Object o : endPointMap.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
+            AxisEndpoint point = (AxisEndpoint) entry.getValue();
+            AxisBinding binding = point.getBinding();
+            if (binding.getPolicySubject().getAttachedPolicyComponent(uuid) != null) {
+                binding.getPolicySubject().detachPolicyComponent(uuid);
             }
+        }
     }
 
     public void setServiceParameterElement(String serviceName, Parameter parameter)

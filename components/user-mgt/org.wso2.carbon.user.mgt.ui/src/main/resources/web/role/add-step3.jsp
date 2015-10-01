@@ -118,7 +118,7 @@
 
             if (filter.length() > 0) {
                 FlaggedName[] datas;
-                if (UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)) {
+                if (UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)) {
                     datas = client.listAllUsers(filter, -1);
                 } else {
                     datas = client.getUsersOfRole(roleName, filter, -1);
@@ -217,7 +217,7 @@
 
 
     <div id="middle">
-        <%if (UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)) {%>
+        <%if (UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)) {%>
         <h2><fmt:message key="add.internal.user.role"/></h2>
         <%} else { %>
         <h2><fmt:message key="add.user.role"/></h2>
@@ -306,16 +306,16 @@
                                         for (FlaggedName user : users) {
                                             if (user != null) {
                                                 String userName = user.getItemName();
-                                                String disPlayName = user.getItemDisplayName();
-                                                if (disPlayName == null || disPlayName.trim().length() == 0) {
-                                                    disPlayName = userName;
+                                                String displayName = user.getItemDisplayName();
+                                                if (displayName == null || displayName.trim().length() == 0) {
+                                                    displayName = userName;
                                                 }
 
                                                 String doCheck = "";
                                                 String doEdit = "";
                                                 if (CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
                                                     continue;
-                                                } else if (!UserAdminUIConstants.INTERNAL_ROLE.equals(roleType) &&
+                                                } else if (!UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType) &&
                                                            !user.getEditable()) {
                                                     doEdit = "disabled=\"disabled\"";
                                                 } else if (session.getAttribute("checkedUsersMap") != null &&
@@ -333,7 +333,7 @@
                                     <td>
                                         <input type="checkbox" name="roleUsers"
                                                value="<%=Encode.forHtmlAttribute(userName)%>" <%=doEdit%>
-                                                <%=doCheck%>/><%=Encode.forHtml(disPlayName)%>
+                                                <%=doCheck%>/><%=Encode.forHtml(displayName)%>
                                         <%if (!user.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                                     </td>
 

@@ -24,6 +24,7 @@ import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.core.util.KeyStoreUtil;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
@@ -39,6 +40,8 @@ import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
+import java.util.Collection;
 
 public class SAMLSSOConfigService extends AbstractAdmin {
 
@@ -107,6 +110,23 @@ public class SAMLSSOConfigService extends AbstractAdmin {
         throw new IdentityException("Primary Keystore cannot be found.");
     }
 
+    public String[] getSigningAlgorithmUris() {
+        Collection<String> uris = IdentityApplicationManagementUtil.getXMLSignatureAlgorithms().values();
+        return uris.toArray(new String[uris.size()]);
+    }
+
+    public String getSigningAlgorithmUriByConfig() {
+        return IdentityApplicationManagementUtil.getSigningAlgoURIByConfig();
+    }
+
+    public String[] getDigestAlgorithmURIs() {
+        Collection<String> digestAlgoUris = IdentityApplicationManagementUtil.getXMLDigestAlgorithms().values();
+        return digestAlgoUris.toArray(new String[digestAlgoUris.size()]);
+    }
+
+    public String getDigestAlgorithmURIByConfig() {
+        return IdentityApplicationManagementUtil.getDigestAlgoURIByConfig();
+    }
     /**
      * @param issuer
      * @return

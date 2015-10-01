@@ -147,4 +147,8 @@ public class SecurityMgtServiceComponent {
         this.registryService = registryService;
         SecurityServiceHolder.setRegistryService(registryService);  // TODO: Serious OSGi bug here. FIXME Thilina
     }
+
+    public static RegistryService getRegistryService(){
+        return registryService;
+    }
 }

@@ -24,8 +24,8 @@
 <%@page import="org.wso2.carbon.directory.server.manager.ui.DirectoryServerManagerClient"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
@@ -71,13 +71,13 @@
     <script type="text/javascript">
 
         function doCancel() {
-            location.href = '../application/configure-service-provider.jsp?action=cancel&display=kerberos&spName=<%=applicationSPName%>';
+            location.href = '../application/configure-service-provider.jsp?action=cancel&display=kerberos&spName=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(applicationSPName))%>';
         }
 
         function doValidation() {
             var reason = "";
 
-            reason = validatePasswordOnCreation("newPassword", "checkPassword", "<%=serverManager.getPasswordConformanceRegularExpression()%>");
+            reason = validatePasswordOnCreation("newPassword", "checkPassword", "<%=Encode.forJavaScriptBlock(serverManager.getPasswordConformanceRegularExpression())%>");
             if (reason != "") {
                 if (reason == "Empty Password") {
                     CARBON.showWarningDialog("<fmt:message key="enter.the.same.password.twice"/>");
@@ -97,12 +97,12 @@
 
     </script>
     <div id="middle">
-        <h2><fmt:message key="change.password.spn"/> <%=spnName%></h2>
+        <h2><fmt:message key="change.password.spn"/> <%=Encode.forHml(spnName)%></h2>
 
         <div id="workArea">
             <form name="chgPassWdForm" method="post"
                   onsubmit="return doValidation();" action="change-passwd-finish.jsp">
-                <input type="hidden" name="spnName" value="<%=spnName%>"/>
+                <input type="hidden" name="spnName" value="<%=Encode.forHtmlAttribute(spnName)%>"/>
 
                 <table class="styledLeft" id="changePassword" width="60%">
                     <thead>
