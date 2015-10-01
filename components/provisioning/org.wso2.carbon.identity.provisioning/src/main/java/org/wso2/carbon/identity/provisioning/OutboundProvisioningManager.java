@@ -42,7 +42,6 @@ import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningCo
 import org.wso2.carbon.identity.provisioning.dao.CacheBackedProvisioningMgtDAO;
 import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
 import org.wso2.carbon.identity.provisioning.internal.IdentityProvisionServiceComponent;
-import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -236,7 +235,7 @@ public class OutboundProvisioningManager {
                         }
                     }
 
-                } catch (IdentityProviderManagementException e) {
+                } catch (IdentityApplicationManagementException e) {
                     throw new IdentityProvisioningException("Error while retrieving idp configuration for "
                             + fIdP.getIdentityProviderName(), e);
                 }
@@ -278,14 +277,14 @@ public class OutboundProvisioningManager {
      * @param tenantDomainName
      * @param enableJitProvisioning
      * @return
-     * @throws IdentityProviderManagementException
+     * @throws IdentityApplicationManagementException
      * @throws UserStoreException
      */
     private AbstractOutboundProvisioningConnector getOutboundProvisioningConnector(
             IdentityProvider fIdP,
             Map<String, AbstractProvisioningConnectorFactory> registeredConnectorFactories,
             String tenantDomainName, boolean enableJitProvisioning)
-            throws IdentityProviderManagementException, IdentityProvisioningException {
+            throws IdentityApplicationManagementException, IdentityProvisioningException {
 
         String idpName = fIdP.getIdentityProviderName();
 
@@ -570,7 +569,7 @@ public class OutboundProvisioningManager {
                 executors.shutdown();
             }
 
-        } catch (CarbonException | IdentityApplicationManagementException | IdentityProviderManagementException | UserStoreException e) {
+        } catch (CarbonException | IdentityApplicationManagementException | UserStoreException e) {
             throw new IdentityProvisioningException("Error occurred while checking for user " +
                     "provisioning", e);
         }

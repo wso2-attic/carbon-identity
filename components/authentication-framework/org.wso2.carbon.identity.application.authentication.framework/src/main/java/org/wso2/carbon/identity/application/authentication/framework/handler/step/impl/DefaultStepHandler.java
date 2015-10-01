@@ -37,7 +37,6 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
-import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -144,12 +143,8 @@ public class DefaultStepHandler implements StepHandler {
                         log.debug("Re-authenticating with " + idp + " IdP");
                     }
 
-                    try {
-                        context.setExternalIdP(ConfigurationFacade.getInstance().getIdPConfigByName(
-                                idp, context.getTenantDomain()));
-                    } catch (IdentityProviderManagementException e) {
-                        log.error("Exception while getting IdP by name", e);
-                    }
+                    context.setExternalIdP(ConfigurationFacade.getInstance().getIdPConfigByName(
+                            idp, context.getTenantDomain()));
                     doAuthentication(request, response, context, authenticatorConfig);
                     return;
                 } else {
@@ -190,13 +185,9 @@ public class DefaultStepHandler implements StepHandler {
                         }
 
                         // set the IdP to be called in the context
-                        try {
-                            context.setExternalIdP(ConfigurationFacade.getInstance()
-                                                           .getIdPConfigByName(authenticatorConfig.getIdpNames().get(0),
-                                                                               context.getTenantDomain()));
-                        } catch (IdentityProviderManagementException e) {
-                            log.error("Exception while getting IdP by name", e);
-                        }
+                        context.setExternalIdP(ConfigurationFacade.getInstance()
+                                                       .getIdPConfigByName(authenticatorConfig.getIdpNames().get(0),
+                                                                           context.getTenantDomain()));
                     }
 
                     doAuthentication(request, response, context, authenticatorConfig);
@@ -270,13 +261,8 @@ public class DefaultStepHandler implements StepHandler {
         }
 
         // try to find an IdP with the retrieved realm
-        ExternalIdPConfig externalIdPConfig = null;
-        try {
-             externalIdPConfig = ConfigurationFacade.getInstance()
+        ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
                 .getIdPConfigByRealm(homeRealm, context.getTenantDomain());
-        } catch (IdentityProviderManagementException e) {
-            log.error("Exception while getting IdP by realm", e);
-        }
         // if an IdP exists
         if (externalIdPConfig != null) {
             String idpName = externalIdPConfig.getIdPName();
@@ -345,14 +331,10 @@ public class DefaultStepHandler implements StepHandler {
                 log.debug("User has selected IdP: " + selectedIdp);
             }
 
-            try {
-                ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
+            ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
                     .getIdPConfigByName(selectedIdp, context.getTenantDomain());
-                // TODO [IMPORTANT] validate the idp is inside the step.
-                context.setExternalIdP(externalIdPConfig);
-            } catch (IdentityProviderManagementException e) {
-                log.error("Exception while getting IdP by name", e);
-            }
+            // TODO [IMPORTANT] validate the idp is inside the step.
+            context.setExternalIdP(externalIdPConfig);
         }
 
         for (AuthenticatorConfig authenticatorConfig : stepConfig.getAuthenticatorList()) {

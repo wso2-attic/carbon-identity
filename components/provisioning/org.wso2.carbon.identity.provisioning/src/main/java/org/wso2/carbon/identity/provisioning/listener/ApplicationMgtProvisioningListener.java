@@ -21,46 +21,35 @@ package org.wso2.carbon.identity.provisioning.listener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.application.mgt.listener.AbstractApplicationMgtListener;
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
-import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-public class ApplicationMgtProvisioningListener extends AbstractApplicationMgtListener {
+public class ApplicationMgtProvisioningListener implements ApplicationMgtListener {
 
     private static Log log = LogFactory.getLog(ApplicationMgtProvisioningListener.class);
 
     @Override
-    public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
-            throws IdentityApplicationManagementException {
-        if (!isEnable()) {
-            return true;
-        }
-        if(log.isDebugEnabled()){
-            log.debug("Clearing cache entry for " + serviceProvider.getApplicationName());
-        }
-        destroySpProvConnectors(serviceProvider.getApplicationName(), tenantDomain);
-        return true;
+    public void createApplication(ServiceProvider serviceProvider) {
+        // TODO Auto-generated method stub
+
     }
 
     @Override
-    public boolean doPreDeleteApplication(String applicationName, String tenantDomain, String userName)
-            throws IdentityApplicationManagementException {
-        if (!isEnable()) {
-            return true;
-        }
-        if(log.isDebugEnabled()){
-            log.debug("Clearing cache entry for " + applicationName);
-        }
+    public void updateApplication(ServiceProvider serviceProvider) {
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        log.debug("Clearing cache entry for " + serviceProvider.getApplicationName());
+        destroySpProvConnectors(serviceProvider.getApplicationName(), tenantDomain);
+    }
+
+    @Override
+    public void deleteApplication(String applicationName) {
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        log.debug("Clearing cache entry for " + applicationName);
         destroySpProvConnectors(applicationName, tenantDomain);
-        return true;
     }
 
     private void destroySpProvConnectors(String applicationName, String tenantDomain) {
@@ -98,7 +87,4 @@ public class ApplicationMgtProvisioningListener extends AbstractApplicationMgtLi
 
     }
 
-    public int getDefaultOrderId(){
-        return 10;
-    }
 }

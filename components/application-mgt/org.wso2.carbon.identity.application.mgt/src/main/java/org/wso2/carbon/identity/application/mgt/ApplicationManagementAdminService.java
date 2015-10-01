@@ -47,10 +47,10 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
      * @return application id
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
-    public void createApplication(ServiceProvider serviceProvider)
+    public int createApplication(ServiceProvider serviceProvider)
             throws IdentityApplicationManagementException {
         applicationMgtService = ApplicationManagementService.getInstance();
-        applicationMgtService.createApplication(serviceProvider, getTenantDomain(), getUsername());
+        return applicationMgtService.createApplication(serviceProvider, getTenantDomain(), getUsername());
     }
 
     /**
