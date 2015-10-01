@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
@@ -133,6 +134,18 @@ public class FileBasedConfigManager {
             }
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION)) != null) {
                 encryptAssertion = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION));
+            }
+            if (getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SSO_DEFAULT_SIGNING_ALGORITHM) != null) {
+                spDO.setSigningAlgorithmUri(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig
+                        .SSO_DEFAULT_SIGNING_ALGORITHM));
+            } else {
+                spDO.setSigningAlgorithmUri(IdentityApplicationManagementUtil.getSigningAlgoURIByConfig());
+            }
+            if (getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SSO_DEFAULT_DIGEST_ALGORITHM) != null) {
+                spDO.setDigestAlgorithmUri(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig
+                        .SSO_DEFAULT_DIGEST_ALGORITHM));
+            } else {
+                spDO.setDigestAlgorithmUri(IdentityApplicationManagementUtil.getDigestAlgoURIByConfig());
             }
             if (validateSignature || encryptAssertion) {
                 certAlias = getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CERT_ALIAS);

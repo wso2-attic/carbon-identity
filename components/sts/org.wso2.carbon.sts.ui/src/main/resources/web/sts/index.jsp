@@ -21,6 +21,7 @@
 <%@ page import="org.wso2.carbon.sts.ui.STSUtil" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <fmt:bundle basename="org.wso2.carbon.sts.ui.i18n.Resources">
@@ -108,13 +109,13 @@
                             for (TrustedServiceData service : services) {
                     %>
                     <tr>
-                        <td width="40%"><%=service.getServiceAddress()%>
+                        <td width="40%"><%=Encode.forHtmlContent(service.getServiceAddress())%>
                         </td>
-                        <td width="40%">&nbsp;&nbsp;<%=service.getCertAlias()%>
+                        <td width="40%">&nbsp;&nbsp;<%=Encode.forHtmlContent(service.getCertAlias())%>
                         </td>
                         <td width="20%">
                             <a title="Remove Trusted RP"
-                               onclick="remove('<%=service.getServiceAddress()%>');return false;"
+                               onclick="remove('<%=Encode.forJavaScriptAttribute(service.getServiceAddress())%>');return false;"
                                href="#">
                                 <img src="images/delete.gif" alt="Remove Trusted Service"/>
                             </a>
@@ -162,7 +163,8 @@
                                                     for (String alias : aliases) {
                                                         if (alias != null) {
                                             %>
-                                            <option value="<%=alias%>"><%=alias%>
+                                            <option value="<%=Encode.forHtmlAttribute(alias)%>">
+                                                <%=Encode.forHtmlContent(alias)%>
                                             </option>
                                             <%
                                                         }

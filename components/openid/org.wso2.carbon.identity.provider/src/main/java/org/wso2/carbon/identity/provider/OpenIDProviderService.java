@@ -58,7 +58,7 @@ import org.wso2.carbon.identity.provider.openid.OpenIDProvider;
 import org.wso2.carbon.identity.provider.openid.OpenIDRememberMeTokenManager;
 import org.wso2.carbon.identity.provider.openid.OpenIDServerConstants;
 import org.wso2.carbon.identity.provider.openid.OpenIDUtil;
-import org.wso2.carbon.identity.provider.openid.dao.OpenIDUserRPDAO;
+import org.wso2.carbon.identity.core.dao.OpenIDUserRPDAO;
 import org.wso2.carbon.identity.provider.openid.extensions.OpenIDExtension;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDAuthenticationRequest;
 import org.wso2.carbon.identity.provider.openid.handlers.OpenIDExtensionFactory;
@@ -679,7 +679,7 @@ public class OpenIDProviderService {
             rpdo.setUuid(new String(Hex.encodeHex(digest)));
 
             dao.createOrUpdate(rpdo);
-        } catch (IdentityException | NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             throw new IdentityProviderException("Error while updating DAO for " + domainName, e);
         }
 
@@ -703,15 +703,10 @@ public class OpenIDProviderService {
         String domainName = MultitenantUtils.getDomainNameFromOpenId(openID);
 
         OpenIDUserRPDO[] rpdos = null;
-        OpenIDUserRPDAO dao;
-        try {
-            dao = new OpenIDUserRPDAO();
-            rpdos = dao.getOpenIDUserRPs(username);
-            if (rpdos == null) {
-                return new OpenIDUserRPDTO[0];
-            }
-        } catch (IdentityException e) {
-            throw new IdentityProviderException("Error while using DAO for " + domainName, e);
+        OpenIDUserRPDAO dao = new OpenIDUserRPDAO();
+        rpdos = dao.getOpenIDUserRPs(username);
+        if (rpdos == null) {
+            return new OpenIDUserRPDTO[0];
         }
 
         OpenIDUserRPDTO[] rpdto = new OpenIDUserRPDTO[rpdos.length];
@@ -742,15 +737,10 @@ public class OpenIDProviderService {
         String domainName = MultitenantUtils.getTenantDomain(userName);
 
         OpenIDUserRPDO rpdo = null;
-        OpenIDUserRPDAO dao;
-        try {
-            dao = new OpenIDUserRPDAO();
-            rpdo = dao.getOpenIDUserRP(userName, rpUrl);
-            if (rpdo == null) {
-                return null;
-            }
-        } catch (IdentityException e) {
-            throw new IdentityProviderException("Error while using DAO for " + domainName, e);
+        OpenIDUserRPDAO dao = new OpenIDUserRPDAO();
+        rpdo = dao.getOpenIDUserRP(userName, rpUrl);
+        if (rpdo == null) {
+            return null;
         }
         return new OpenIDUserRPDTO(rpdo);
     }

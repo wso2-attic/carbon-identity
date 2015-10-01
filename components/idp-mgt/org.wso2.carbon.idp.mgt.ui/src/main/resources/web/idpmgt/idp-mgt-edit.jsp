@@ -173,6 +173,9 @@
     String scimGroupEp = null;
     String scimUserEp = null;
     String scimUserStoreDomain = null;
+    boolean isSCIMPwdProvEnabled = false;
+    String scimDefaultPwd = null;
+    String disableDefaultPwd = "";
 
     boolean isSpmlProvEnabled = false;
     boolean isSpmlProvDefault = false;
@@ -677,6 +680,10 @@
                         scimGroupEp = scimProperty.getValue();
                     } else if ("scim-user-store-domain".equals(scimProperty.getName())) {
                         scimUserStoreDomain = scimProperty.getValue();
+                    } else if ("scim-enable-pwd-provisioning".equals(scimProperty.getName())) {
+                      isSCIMPwdProvEnabled = Boolean.parseBoolean(scimProperty.getValue());
+                    } else if ("scim-default-pwd".equals(scimProperty.getName())){
+                        scimDefaultPwd = scimProperty.getValue();
                     }
                 }
             }
@@ -1137,6 +1144,7 @@
 
     String scimProvEnabledChecked = "";
     String scimProvDefaultDisabled = "";
+    String scimPwdProvEnabledChecked = "";
     String scimProvDefaultChecked = "disabled=\'disabled\'";
     if (identityProvider != null) {
         if (isScimProvEnabled) {
@@ -1145,6 +1153,10 @@
             if (isScimProvDefault) {
                 scimProvDefaultChecked = "checked=\'checked\'";
             }
+        }
+        if(isSCIMPwdProvEnabled){
+            scimPwdProvEnabledChecked = "checked=\'checked\'";
+            disableDefaultPwd = "disabled=\'disabled\'";
         }
     }
 
@@ -1162,6 +1174,9 @@
     }
     if (scimUserStoreDomain == null) {
         scimUserStoreDomain = "";
+    }
+    if (scimDefaultPwd == null){
+        scimDefaultPwd = "";
     }
 
     String sfProvEnabledChecked = "";
@@ -1441,6 +1456,11 @@ function deleteRow(obj) {
 
 }
 
+function disableDefaultPwd(chkbx) {
+    document.getElementById("scim-default-pwd").value = "";
+    var disabled = chkbx.checked ? "disabled" : "";
+    document.getElementById("scim-default-pwd").setAttribute("disabled", disabled);
+}
 
 jQuery(document).ready(function () {
     jQuery('#outBoundAuth').hide();
@@ -5037,6 +5057,26 @@ function doValidation() {
             <td class="leftCol-med labelField">User Store Domain:</td>
             <td><input class="text-box-big" id="scim-user-store-domain" name="scim-user-store-domain" type="text"
                        value=<%=scimUserStoreDomain%>></td>
+        </tr>
+        <tr>
+            <td class="leftCol-med labelField"><label><fmt:message
+                    key='scim.password.provisioning.enabled'/>:</label></td>
+            <td>
+                <div class="sectionCheckbox">
+                    <!-- -->
+                    <input id="scimPwdProvEnabled" name="scimPwdProvEnabled"
+                           type="checkbox" <%=scimPwdProvEnabledChecked%> onclick="disableDefaultPwd(this);"/>
+                    <span style="display: inline-block" class="sectionHelp"> <fmt:message
+                        key='scim.password.provisioning.enabled.help'/>
+                                        </span>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="leftCol-med labelField">
+                <fmt:message key='scim.default.password'/>:</td>
+            <td><input class="text-box-big" id="scim-default-pwd" <%=disableDefaultPwd%>
+                       name="scim-default-pwd" type="text" value=<%=scimDefaultPwd%>></td>
         </tr>
     </table>
 
