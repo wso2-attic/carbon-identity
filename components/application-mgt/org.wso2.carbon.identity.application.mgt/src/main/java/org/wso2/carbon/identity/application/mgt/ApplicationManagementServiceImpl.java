@@ -579,7 +579,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         List<String> reqClaims = appDAO.getAllRequestedClaimsByServiceProvider(serviceProviderName,
-                tenantDomain);
+                                                                               tenantDomain);
 
         if (reqClaims == null
             || reqClaims.isEmpty()
