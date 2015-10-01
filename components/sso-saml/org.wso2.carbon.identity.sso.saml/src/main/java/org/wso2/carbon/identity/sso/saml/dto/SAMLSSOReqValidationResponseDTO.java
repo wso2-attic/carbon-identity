@@ -44,6 +44,7 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
     private boolean logoutFromAuthFramework;
     private boolean isIdPInitSLO;
     private String returnToURL;
+    private boolean doSignResponse;
     private String signingAlgorithmUri;
     private String digestAlgorithmUri;
 
@@ -264,5 +265,19 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
 
     public void setReturnToURL(String returnToURL) {
         this.returnToURL = returnToURL;
+    }
+
+    /**
+     * @return the doSignResponse
+     */
+    public boolean isDoSignResponse() {
+        return doSignResponse;
+    }
+
+    /**
+     * @param doSignResponse the doSignResponse to set
+     */
+    public void setDoSignResponse(boolean doSignResponse) {
+        this.doSignResponse = doSignResponse;
     }
 }

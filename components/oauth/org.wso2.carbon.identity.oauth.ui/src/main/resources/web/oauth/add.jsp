@@ -17,6 +17,7 @@
  -->
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.oauth.common.OAuthConstants" %>
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthAdminClient" %>
@@ -132,7 +133,7 @@
                             <%if  (applicationSPName!= null) {%>
                              <tr style="display: none;">
 		                        <td colspan="2" style="display: none;"><input class="text-box-big" type="hidden" id="application" name="application"
-		                                   value="<%=applicationSPName%>" /></td>
+		                                   value="<%=Encode.forHtmlAttribute(applicationSPName)%>" /></td>
 		                    </tr>
                             <% } else { %>
 		                    <tr>

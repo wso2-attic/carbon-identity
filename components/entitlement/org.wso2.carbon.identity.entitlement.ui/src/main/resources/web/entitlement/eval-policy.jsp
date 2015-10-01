@@ -24,6 +24,7 @@
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
@@ -228,10 +229,10 @@
             <td>
                 <div>
                 <textarea id="txtRequestTemp" name="txtRequestTemp" rows="30" cols="120">
-                    <%if(showResponse){%> <%=responseString%> <% } else {%> <%=requestString%> <%}%>
+                    <%if(showResponse){%> <%=Encode.forHtmlContent(responseString)%> <% } else {%> <%=Encode.forHtmlContent(requestString)%> <%}%>
                 </textarea>
                 <textarea name="txtRequest" id="txtRequest" style="display:none">
-                    <%if(showResponse){%> <%=responseString%> <% } else {%> <%=requestString%> <%}%>
+                    <%if(showResponse){%> <%=Encode.forHtmlContent(responseString)%> <% } else {%> <%=Encode.forHtmlContent(requestString)%> <%}%>
                 </textarea>
                 <input type="hidden" id="forwardTo" name="forwardTo" value="eval-policy.jsp" />
                 </div>

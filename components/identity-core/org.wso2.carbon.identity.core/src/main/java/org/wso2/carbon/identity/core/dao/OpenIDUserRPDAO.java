@@ -1,133 +1,100 @@
 /*
- * Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * 
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *   Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *   WSO2 Inc. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ * /
  */
 package org.wso2.carbon.identity.core.dao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.IdentityRegistryResources;
 import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
-import org.wso2.carbon.registry.core.Association;
-import org.wso2.carbon.registry.core.Collection;
-import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.registry.core.RegistryConstants;
-import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.registry.core.exceptions.RegistryException;
-import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
+import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-public class OpenIDUserRPDAO extends AbstractDAO<OpenIDUserRPDO> {
+public class OpenIDUserRPDAO {
 
-    protected Log log = LogFactory.getLog(OpenIDUserRPDAO.class);
-
-    /**
-     * @param registry
-     */
-    public OpenIDUserRPDAO(Registry registry) {
-        this.registry = registry;
-    }
+    private static final Log log = LogFactory.getLog(OpenIDUserRPDAO.class);
 
     /**
-     * Creates a Relying Party and asscociates it with the User
+     * Creates a Relying Party and associates it with the User.
+     * If the entry exist, then update with the new data
      *
-     * @param oprp
-     * @throws IdentityException
+     * @param rpdo
      */
-    public void create(OpenIDUserRPDO oprp) throws IdentityException {
-        String path = null;
-        Resource resource = null;
-        Collection userResource = null;
+    public void createOrUpdate(OpenIDUserRPDO rpdo) {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Creating an OpenID user relying party");
-        }
+        // first we try to get DO from the database. Return null if no data
+        OpenIDUserRPDO existingdo = getOpenIDUserRP(rpdo.getUserName(), rpdo.getRpUrl());
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
 
         try {
-            path = IdentityRegistryResources.OPENID_USER_RP_ROOT + oprp.getUuid();
-            if (registry.resourceExists(path)) {
-                log.info("OpenID user RP trying to create already exists");
-                return;
+
+            if (existingdo != null) { // data found in the database
+                // we should update the entry
+                prepStmt = connection.prepareStatement(OpenIDSQLQueries.UPDATE_USER_RP);
+
+                prepStmt.setString(5, rpdo.getUserName());
+                prepStmt.setInt(6, IdentityTenantUtil.getTenantIdOfUser(rpdo.getUserName()));
+                prepStmt.setString(7, rpdo.getRpUrl());
+                prepStmt.setString(1, rpdo.isTrustedAlways() ? "TRUE" : "FALSE");
+
+                // we set the new current date
+                prepStmt.setDate(2, new java.sql.Date(new Date().getTime()));
+                // we increment the value which is in the database
+                prepStmt.setInt(3, existingdo.getVisitCount() + 1); // increase visit count
+
+                prepStmt.setString(4, rpdo.getDefaultProfileName());
+
+                prepStmt.execute();
+                connection.commit();
+            } else {
+                // data not found, we should create the entry
+                prepStmt = connection.prepareStatement(OpenIDSQLQueries.STORE_USER_RP);
+
+                prepStmt.setString(1, rpdo.getUserName());
+                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(rpdo.getUserName()));
+                prepStmt.setString(3, rpdo.getRpUrl());
+                prepStmt.setString(4, rpdo.isTrustedAlways() ? "TRUE" : "FALSE");
+
+                // we set the current date
+                prepStmt.setDate(5, new java.sql.Date(new Date().getTime()));
+                // ok, this is the first visit
+                prepStmt.setInt(6, 1);
+
+                prepStmt.setString(7, rpdo.getDefaultProfileName());
+
+                prepStmt.execute();
+                connection.commit();
             }
-            /*
-			 * rp = getFirstObjectWithPropertyValue(IdentityRegistryResources.
-			 * OPENID_USER_RP_ROOT,
-			 * IdentityRegistryResources.PROP_RP_URL, oprp.getRpUrl());
-			 * 
-			 * if (rp != null) {
-			 * log.info("OpenID user RP trying to create already exists");
-			 * return;
-			 * }
-			 */
-
-            resource = registry.newResource();
-            resource.setProperty(IdentityRegistryResources.PROP_RP_URL, oprp.getRpUrl());
-            resource.setProperty(IdentityRegistryResources.PROP_IS_TRUSTED_ALWAYS,
-                    Boolean.toString(oprp.isTrustedAlways()));
-            resource.setProperty(IdentityRegistryResources.PROP_VISIT_COUNT,
-                    Integer.toString(oprp.getVisitCount()));
-            resource.setProperty(IdentityRegistryResources.PROP_LAST_VISIT,
-                    new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(oprp.getLastVisit()));
-            resource.setProperty(IdentityRegistryResources.PROP_DEFAULT_PROFILE_NAME,
-                    oprp.getDefaultProfileName());
-            resource.setProperty(IdentityRegistryResources.PROP_USER_ID, oprp.getUserName());
-
-            boolean transactionStarted = Transaction.isStarted();
-
-            try {
-                if (!transactionStarted) {
-                    registry.beginTransaction();
-                }
-                registry.put(path, resource);
-                if (!registry.resourceExists(RegistryConstants.PROFILES_PATH + oprp.getUserName())) {
-                    userResource = registry.newCollection();
-                    registry.put(RegistryConstants.PROFILES_PATH + oprp.getUserName(), userResource);
-                } else {
-                    userResource =
-                            (Collection) registry.get(RegistryConstants.PROFILES_PATH +
-                                    oprp.getUserName());
-                }
-                registry.addAssociation(RegistryConstants.PROFILES_PATH + oprp.getUserName(), path,
-                        IdentityRegistryResources.ASSOCIATION_USER_OPENID_RP);
-                if (!transactionStarted) {
-                    registry.commitTransaction();
-                }
-            } catch (Exception e) {
-                if (!transactionStarted) {
-                    registry.rollbackTransaction();
-                }
-                if (e instanceof RegistryException) {
-                    throw (RegistryException) e;
-                } else {
-                    throw new IdentityException(
-                            "Error occured while creating an OpenID user relying party",
-                            e);
-                }
-            }
-
-        } catch (RegistryException e) {
-            log.error("Error occured while creating an OpenID user relying party", e);
-            throw new IdentityException(
-                    "Error occured while creating an OpenID user relying party",
-                    e);
+        } catch (SQLException e) {
+            log.error("Failed to store RP:  " + rpdo.getRpUrl() + " for user: " +
+                    rpdo.getUserName() + " Error while accessing the database", e);
+        } finally {
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
         }
     }
 
@@ -135,101 +102,69 @@ public class OpenIDUserRPDAO extends AbstractDAO<OpenIDUserRPDO> {
      * Updates the Relying Party if exists, if not, then creates a new Relying
      * Party
      *
-     * @param oprp
-     * @throws IdentityException
+     * @param rpdo
      */
-    public void update(OpenIDUserRPDO oprp) throws IdentityException {
-        String path = null;
-        Resource resource = null;
+    public void update(OpenIDUserRPDO rpdo) {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Updating an OpenID user relying party");
-        }
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
 
         try {
-            path = IdentityRegistryResources.OPENID_USER_RP_ROOT + oprp.getUuid();
-            if (!registry.resourceExists(path)) {
-                log.info("OpenID user RP trying to update does not exist");
-                return;
+            if (isUserRPExist(connection, rpdo)) {
+                // we should update the entry
+                prepStmt = connection.prepareStatement(OpenIDSQLQueries.UPDATE_USER_RP);
+
+                prepStmt.setString(1, rpdo.getUserName());
+                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(rpdo.getUserName()));
+                prepStmt.setString(3, rpdo.getRpUrl());
+                prepStmt.setString(4, rpdo.isTrustedAlways() ? "TRUE" : "FALSE");
+                prepStmt.setDate(5, new java.sql.Date(rpdo.getLastVisit().getTime()));
+                prepStmt.setInt(6, rpdo.getVisitCount() + 1);
+                prepStmt.setString(7, rpdo.getDefaultProfileName());
+                prepStmt.execute();
+                connection.commit();
+            } else {
+                // we should create the entry
+                if(log.isDebugEnabled()) {
+                    log.debug("Failed to update RP: " + rpdo.getRpUrl() + " for user: " + rpdo.getUserName() + ". " +
+                            "Entry does not exist in the database.");
+                }
             }
-
-			/*
-			 * rp =
-			 * getFirstObjectWithPropertyValue(IdentityRegistryResources.
-			 * OPENID_USER_RP_ROOT,
-			 * IdentityRegistryResources.PROP_RP_URL,
-			 * oprp.getRpUrl());
-			 * 
-			 * if (rp == null) {
-			 * log.info("OpenID user RP trying to update does not exist");
-			 * return;
-			 * }
-			 */
-
-            resource = registry.get(path);
-            resource.setProperty(IdentityRegistryResources.PROP_RP_URL, oprp.getRpUrl());
-            resource.setProperty(IdentityRegistryResources.PROP_IS_TRUSTED_ALWAYS,
-                    Boolean.toString(oprp.isTrustedAlways()));
-            resource.setProperty(IdentityRegistryResources.PROP_VISIT_COUNT,
-                    Integer.toString(oprp.getVisitCount()));
-            resource.setProperty(IdentityRegistryResources.PROP_LAST_VISIT,
-                    new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(oprp.getLastVisit()));
-            resource.setProperty(IdentityRegistryResources.PROP_DEFAULT_PROFILE_NAME,
-                    oprp.getDefaultProfileName());
-            resource.setProperty(IdentityRegistryResources.PROP_USER_ID, oprp.getUserName());
-            registry.put(path, resource);
-
-        } catch (RegistryException e) {
-            log.error("Error occured while updating an OpenID user relying party", e);
-            throw new IdentityException(
-                    "Error occured while updating an OpenID user relying party",
-                    e);
+        } catch (SQLException e) {
+            log.error("Failed to update RP:  " + rpdo.getRpUrl() + " for user: " +
+                    rpdo.getUserName() + " Error while accessing the database", e);
+        } finally {
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
         }
     }
 
     /**
-     * @param oprp
-     * @throws IdentityException
+     * Remove the entry from the database.
+     *
+     * @param opdo
      */
-    public void delete(OpenIDUserRPDO oprp) throws IdentityException {
-        String path = null;
+    public void delete(OpenIDUserRPDO opdo) {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Deleting an OpenID user relying party");
-        }
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
 
         try {
-            path = IdentityRegistryResources.OPENID_USER_RP_ROOT + oprp.getUuid();
-            boolean transactionStarted = Transaction.isStarted();
-            try {
-                if (!transactionStarted) {
-                    registry.beginTransaction();
-                }
-                registry.removeAssociation(RegistryConstants.PROFILES_PATH + oprp.getUserName(),
-                        path,
-                        IdentityRegistryResources.ASSOCIATION_USER_OPENID_RP);
-                registry.delete(path);
-                if (!transactionStarted) {
-                    registry.commitTransaction();
-                }
-            } catch (Exception e) {
-                if (!transactionStarted) {
-                    registry.rollbackTransaction();
-                }
-                if (e instanceof RegistryException) {
-                    throw (RegistryException) e;
-                } else {
-                    throw new IdentityException(
-                            "Error occured while deleting an OpenID user relying party",
-                            e);
-                }
+
+            if (isUserRPExist(connection, opdo)) {
+                prepStmt = connection.prepareStatement(OpenIDSQLQueries.REMOVE_USER_RP);
+                prepStmt.setString(1, opdo.getUserName());
+                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(opdo.getUserName()));
+                prepStmt.setString(3, opdo.getRpUrl());
+                prepStmt.execute();
+                connection.commit();
             }
 
-        } catch (RegistryException e) {
-            log.error("Error occured while deleting an OpenID user relying party", e);
-            throw new IdentityException(
-                    "Error occured while deleting an OpenID user relying party",
-                    e);
+        } catch (SQLException e) {
+            log.error("Failed to remove RP: " + opdo.getRpUrl() + " of user: " + opdo.getUserName(), e);
+        } finally {
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
         }
     }
 
@@ -240,66 +175,76 @@ public class OpenIDUserRPDAO extends AbstractDAO<OpenIDUserRPDO> {
      * @param rpUrl    Relying party urlupdateOpenIDUserRPInfo
      * @return A set of OpenIDUserRPDO, corresponding to the provided user name
      * and RP url.
-     * @throws IdentityException
      */
-    public OpenIDUserRPDO getOpenIDUserRP(String userName, String rpUrl) throws IdentityException {
-        OpenIDUserRPDO rp = null;
-        Association[] assoc = null;
+    public OpenIDUserRPDO getOpenIDUserRP(String userName, String rpUrl) {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Retreiving OpenID user relying party");
-        }
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
+        OpenIDUserRPDO rpdo = new OpenIDUserRPDO();
+        rpdo.setUserName(userName);
+        rpdo.setRpUrl(rpUrl);
 
         try {
-            if (registry.resourceExists(RegistryConstants.PROFILES_PATH + userName)) {
-                assoc =
-                        registry.getAssociations(RegistryConstants.PROFILES_PATH + userName,
-                                IdentityRegistryResources.ASSOCIATION_USER_OPENID_RP);
-                for (Association association : assoc) {
-                    rp = resourceToObject(registry.get(association.getDestinationPath()));
-                    if (rp.getRpUrl().equals(rpUrl)) {
-                        return rp;
-                    }
+            if (isUserRPExist(connection, rpdo)) {
+                prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_USER_RP);
+                prepStmt.setString(1, userName);
+                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(userName));
+                prepStmt.setString(3, rpUrl);
+                OpenIDUserRPDO openIDUserRPDO = buildUserRPDO(prepStmt.executeQuery(), userName);
+                connection.commit();
+                return openIDUserRPDO;
+            } else {
+                if(log.isDebugEnabled()) {
+                    log.debug("RP: " + rpUrl + " of user: " + userName + " not found in the database");
                 }
             }
-        } catch (RegistryException e) {
-            log.error("Error occured while retreiving OpenID user relying party", e);
-            throw new IdentityException("Error occured while retreiving OpenID user relying party",
-                    e);
+        } catch (SQLException e) {
+            log.error("Failed to load RP: " + rpUrl + " for user: " + userName, e);
+        } finally {
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
         }
-        return rp;
+        return null;
     }
 
     /**
+     * Returns all registered relying parties
+     *
      * @return
-     * @throws IdentityException
      */
-    public OpenIDUserRPDO[] getAllOpenIDUserRP() throws IdentityException {
-        List<OpenIDUserRPDO> rpdos = null;
-        Collection rps = null;
-        String[] children = null;
-
-        if (log.isDebugEnabled()) {
-            log.debug("Retrieving all OP RPs");
-        }
+    public OpenIDUserRPDO[] getAllOpenIDUserRP() {
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
+        ResultSet results = null;
+        OpenIDUserRPDO[] rpDOs = null;
+        List<OpenIDUserRPDO> rpdos = new ArrayList<>();
 
         try {
-            rps = (Collection) registry.get(IdentityRegistryResources.OPENID_USER_RP_ROOT);
-            rpdos = new ArrayList<OpenIDUserRPDO>();
+            prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_ALL_USER_RPS);
+            results = prepStmt.executeQuery();
 
-            if (rps != null && rps.getChildCount() > 0) {
-                children = rps.getChildren();
-                for (String child : children) {
-                    rpdos.add(resourceToObject(registry.get(child)));
-                }
+            while (results.next()) {
+                OpenIDUserRPDO rpdo = new OpenIDUserRPDO();
+                rpdo.setUserName(results.getString(1));
+                rpdo.setRpUrl(results.getString(3));
+                rpdo.setTrustedAlways(Boolean.parseBoolean(results.getString(4)));
+                rpdo.setLastVisit(results.getDate(5));
+                rpdo.setVisitCount(results.getInt(6));
+                rpdo.setDefaultProfileName(results.getString(7));
+                rpdos.add(rpdo);
             }
 
-        } catch (RegistryException e) {
-            log.error("Error occured while retreiving all OP RPs", e);
-            throw new IdentityException("Error occured while retreiving all OP RPs", e);
+            rpDOs = new OpenIDUserRPDO[rpdos.size()];
+            rpDOs = rpdos.toArray(rpDOs);
+            connection.commit();
+        } catch (SQLException e) {
+            log.error("Error while accessing the database to load RPs.", e);
+        } finally {
+            IdentityDatabaseUtil.closeResultSet(results);
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
         }
-
-        return rpdos.toArray(new OpenIDUserRPDO[rpdos.size()]);
+        return rpDOs;
     }
 
     /**
@@ -308,37 +253,43 @@ public class OpenIDUserRPDAO extends AbstractDAO<OpenIDUserRPDO> {
      * @param userName Unique user name
      * @return OpenIDUserRPDO, corresponding to the provided user name and RP
      * url.
-     * @throws IdentityException
      */
-    public OpenIDUserRPDO[] getOpenIDUserRPs(String userName) throws IdentityException {
-        List<OpenIDUserRPDO> lst = null;
-        Association[] assoc = null;
-        OpenIDUserRPDO rp = null;
+    public OpenIDUserRPDO[] getOpenIDUserRPs(String userName) {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Retreiving OpenID user relying parties");
-        }
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
+        ResultSet results = null;
+        OpenIDUserRPDO[] rpDOs = null;
+        List<OpenIDUserRPDO> rpdos = new ArrayList<>();
 
         try {
-            lst = new ArrayList<OpenIDUserRPDO>();
+            prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_USER_RPS);
+            prepStmt.setString(1, userName);
+            prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(userName));
+            results = prepStmt.executeQuery();
 
-            if (registry.resourceExists(RegistryConstants.PROFILES_PATH + userName)) {
-                assoc =
-                        registry.getAssociations(RegistryConstants.PROFILES_PATH + userName,
-                                IdentityRegistryResources.ASSOCIATION_USER_OPENID_RP);
-                for (Association association : assoc) {
-                    rp = resourceToObject(registry.get(association.getDestinationPath()));
-                    rp.setUserName(userName);
-                    lst.add(rp);
-                }
+            while (results.next()) {
+                OpenIDUserRPDO rpdo = new OpenIDUserRPDO();
+                rpdo.setUserName(results.getString(1));
+                rpdo.setRpUrl(results.getString(3));
+                rpdo.setTrustedAlways(Boolean.parseBoolean(results.getString(4)));
+                rpdo.setLastVisit(results.getDate(5));
+                rpdo.setVisitCount(results.getInt(6));
+                rpdo.setDefaultProfileName(results.getString(7));
+                rpdos.add(rpdo);
             }
-        } catch (RegistryException e) {
-            log.error("Error occured while retreiving OpenID user relying parties", e);
-            throw new IdentityException(
-                    "Error occured while retreiving OpenID user relying parties",
-                    e);
+
+            rpDOs = new OpenIDUserRPDO[rpdos.size()];
+            rpDOs = rpdos.toArray(rpDOs);
+
+        } catch (SQLException e) {
+            log.error("Error while accessing the database to load RPs", e);
+        } finally {
+            IdentityDatabaseUtil.closeResultSet(results);
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
         }
-        return lst.toArray(new OpenIDUserRPDO[lst.size()]);
+        return rpDOs;
     }
 
     /**
@@ -348,50 +299,99 @@ public class OpenIDUserRPDAO extends AbstractDAO<OpenIDUserRPDO> {
      * @param userName Unique user name
      * @param rpUrl    Relying party URL
      * @return Default user profile
-     * @throws IdentityException
      */
-    public String getOpenIDDefaultUserProfile(String userName, String rpUrl)
-            throws IdentityException {
-        OpenIDUserRPDO oprp = null;
+    public String getOpenIDDefaultUserProfile(String userName, String rpUrl) {
 
-        if (log.isDebugEnabled()) {
-            log.debug("Retreiving OpenID default user profile for user " + userName);
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
+
+        OpenIDUserRPDO rpdo = new OpenIDUserRPDO();
+        rpdo.setUserName(userName);
+        rpdo.setRpUrl(rpUrl);
+
+        try {
+
+            if (isUserRPExist(connection, rpdo)) {
+                prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_USER_RP_DEFAULT_PROFILE);
+                prepStmt.setString(1, userName);
+                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(userName));
+                prepStmt.setString(3, rpUrl);
+                return prepStmt.executeQuery().getString(7);
+            } else {
+                if(log.isDebugEnabled()) {
+                    log.debug("RP: " + rpUrl + " of user: " + userName + " not found in the database");
+                }
+            }
+        } catch (SQLException e) {
+            log.error("Failed to load RP: " + rpUrl + " for user: " + userName, e);
+        } finally {
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
         }
-
-        oprp = getOpenIDUserRP(userName, rpUrl);
-        return oprp.getDefaultProfileName();
+        return null;
     }
 
     /**
-     * Returns user name,number of total visits, last login time and OpenID, of
-     * all the users who at
-     * least used his OpenID once.
+     * Checks if the entry exist in the database;
      *
-     * @return user data
+     * @param connection
+     * @param rpDo
+     * @return
+     * @throws SQLException
      */
-    protected OpenIDUserRPDO resourceToObject(Resource resource) {
-        OpenIDUserRPDO rp = null;
+    private boolean isUserRPExist(Connection connection, OpenIDUserRPDO rpDo) throws SQLException {
 
-        if (resource != null) {
-            rp = new OpenIDUserRPDO();
-            String path = resource.getPath();
-            String[] values = path.split("/");
-            String uuid = values[values.length - 1];
+        PreparedStatement prepStmt = null;
+        ResultSet results = null;
+        boolean result = false;
 
-            rp.setUuid(uuid);
-            rp.setRpUrl(resource.getProperty(IdentityRegistryResources.PROP_RP_URL));
-            rp.setTrustedAlways(Boolean.parseBoolean(resource.getProperty(IdentityRegistryResources.PROP_IS_TRUSTED_ALWAYS)));
-            rp.setVisitCount(Integer.parseInt(resource.getProperty(IdentityRegistryResources.PROP_VISIT_COUNT)));
-            try {
-                rp.setLastVisit(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").parse(resource.getProperty(IdentityRegistryResources.PROP_LAST_VISIT)));
-            } catch (ParseException e) {
-                if (log.isDebugEnabled()) {
-                    log.error("Error while parsing resourceToObject", e);
-                }
+        try {
+            prepStmt = connection.prepareStatement(OpenIDSQLQueries.CHECK_USER_RP_EXIST);
+            prepStmt.setString(1, rpDo.getUserName());
+            prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(rpDo.getUserName()));
+            prepStmt.setString(3, rpDo.getRpUrl());
+            results = prepStmt.executeQuery();
+
+            if (results != null && results.next()) {
+                result = true;
             }
-            rp.setDefaultProfileName(resource.getProperty(IdentityRegistryResources.PROP_DEFAULT_PROFILE_NAME));
-            rp.setUserName(resource.getProperty(IdentityRegistryResources.PROP_USER_ID));
+
+        } finally {
+            IdentityDatabaseUtil.closeResultSet(results);
+            IdentityDatabaseUtil.closeStatement(prepStmt);
+
         }
-        return rp;
+        return result;
     }
+
+    /**
+     * Builds the OpenIDUserRPDO using the results
+     *
+     * @param results
+     * @param userName
+     * @return
+     */
+    private OpenIDUserRPDO buildUserRPDO(ResultSet results, String userName) {
+
+        OpenIDUserRPDO rpdo = new OpenIDUserRPDO();
+
+        try {
+            if (!results.next()) {
+                log.debug("RememberMe token not found for the user " + userName);
+                return null;
+            }
+
+            rpdo.setUserName(results.getString(1));
+            rpdo.setRpUrl(results.getString(3));
+            rpdo.setTrustedAlways(Boolean.parseBoolean(results.getString(4)));
+            rpdo.setLastVisit(results.getDate(5));
+            rpdo.setVisitCount(results.getInt(6));
+            rpdo.setDefaultProfileName(results.getString(7));
+
+        } catch (SQLException e) {
+            log.error("Error while accessing the database", e);
+        }
+        return rpdo;
+    }
+
 }

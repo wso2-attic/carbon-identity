@@ -30,6 +30,7 @@
 <%@ page import="java.util.HashSet" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
     String subjectType = "";
     String action = "";
@@ -88,7 +89,7 @@
             </script>
 
             <script type="text/javascript">
-                showErrorBox("<%=results.getMessage()%>");
+                showErrorBox("<%=Encode.forJavaScriptAttribute(Encode.forHtml(results.getMessage()))%>");
             </script>
 <%
             } else {
@@ -194,7 +195,7 @@
                 if (subjectName != null && !subjectName.equals("")) {
             %>
             <input type="text" name="subjectName" id="subjectName"
-                       value="<%=subjectName%>" class="text-box-big"/>
+                       value="<%=Encode.forHtmlAttribute(subjectName)%>" class="text-box-big"/>
             <%
                 } else {
             %>
@@ -220,7 +221,7 @@
             <%
                 if (action != null && !action.equals("")) {
             %>
-            <input type="text" name="action" id="action" value="<%=action%>"
+            <input type="text" name="action" id="action" value="<%=Encode.forHtmlAttribute(action)%>"
                        class="text-box-big"/>
             <%
                 } else {
@@ -238,7 +239,7 @@
             <%
                 if (resourceName != null && !resourceName.equals("")) {
             %>
-            <input type="text" name="resourceName" id="resourceName" value="<%=resourceName%>"
+            <input type="text" name="resourceName" id="resourceName" value="<%=Encode.forHtmlAttribute(resourceName)%>"
                        class="text-box-big"/>
             <%
                 } else {
@@ -298,7 +299,7 @@
                         for(String resource : resourceSet){
                 %>
                 <tr>
-                        <td><%=resource%></td>
+                        <td><%=Encode.forHtmlContent(resource)%></td>
                         <%
 
                             if(action == null || action.trim().length() < 1){
@@ -328,7 +329,7 @@
                                     }
                                 }
                         %>
-                                 <td><%=actionNames%></td>
+                                 <td><%=Encode.forHtmlContent(actionNames)%></td>
                         <%
                             }
                         %>
