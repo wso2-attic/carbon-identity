@@ -20,8 +20,11 @@ package org.wso2.carbon.identity.workflow.impl.listener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplException;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHolder;
@@ -29,7 +32,10 @@ import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 import org.wso2.carbon.stratos.common.exception.StratosException;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.NetworkUtils;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.net.SocketException;
 
@@ -39,26 +45,15 @@ public class WorkflowImplTenantMgtListener implements TenantMgtListener {
 
     @Override
     public void onTenantCreate(TenantInfoBean tenantInfoBean) throws StratosException {
-
-
+        String fullName = tenantInfoBean.getAdmin() + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantInfoBean.getTenantDomain() ;
         BPSProfile bpsProfileDTO = new BPSProfile();
-        String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
-        String offset = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.PORTS_OFFSET);
-        String userName = WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
-                .getAdminUserName();
-        String password = WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
-                .getAdminPassword();
+        String url = IdentityUtil.getServerURL("");
         try {
-            if (hostName == null) {
-                hostName = NetworkUtils.getLocalHostname();
-            }
-            String url = "https://" + hostName + ":" + (9443 + Integer.parseInt(offset));
-
             bpsProfileDTO.setManagerHostURL(url);
             bpsProfileDTO.setWorkerHostURL(url);
-            bpsProfileDTO.setUsername(tenantInfoBean.getAdmin());
+            bpsProfileDTO.setUsername(fullName);
             bpsProfileDTO.setPassword(tenantInfoBean.getAdminPassword());
-            bpsProfileDTO.setCallbackUser(tenantInfoBean.getAdmin());
+            bpsProfileDTO.setCallbackUser(fullName);
             bpsProfileDTO.setCallbackPassword(tenantInfoBean.getAdminPassword());
             bpsProfileDTO.setProfileName(WFConstant.DEFAULT_BPS_PROFILE);
 
@@ -66,12 +61,7 @@ public class WorkflowImplTenantMgtListener implements TenantMgtListener {
                     .addBPSProfile(bpsProfileDTO, tenantInfoBean
                             .getTenantId());
 
-        } catch (SocketException e) {
-            //This is not thrown exception because this is not blocked to the other functionality. User can create
-            // default profile by manually.
-            String errorMsg = "Error while trying to read hostname, " + e.getMessage();
-            log.error(errorMsg);
-        } catch (WorkflowImplException e) {
+        }catch (WorkflowImplException e) {
             //This is not thrown exception because this is not blocked to the other functionality. User can create
             // default profile by manually.
             String errorMsg = "Error occured while adding default bps profile, " + e.getMessage();
