@@ -23,7 +23,6 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -740,7 +739,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             throws IdentityApplicationManagementException {
         List<ApplicationPermission> permissionList = ApplicationMgtUtil.loadPermissions(serviceProviderName);
 
-        if ((CollectionUtils.isNotEmpty(permissionList))) {
+        if (permissionList != null) {
             PermissionsAndRoleConfig permissionAndRoleConfig;
             if (serviceProvider.getPermissionAndRoleConfig() == null) {
                 permissionAndRoleConfig = new PermissionsAndRoleConfig();
