@@ -309,16 +309,6 @@
     </PassiveSTS>
 
     <EntitlementSettings>
-        <!-- Uncomment this to enable on-demand policy loading -->
-        <!--OnDemandPolicyLoading> <Enable>true</Enable> <MaxInMemoryPolicies>100</MaxInMemoryPolicies>
-            </OnDemandPolicyLoading -->
-        <DecisionCaching>
-            <Enable>true</Enable>
-            <CachingInterval>36000</CachingInterval>
-        </DecisionCaching>
-        <AttributeCaching>
-            <Enable>true</Enable>
-        </AttributeCaching>
         <ThirftBasedEntitlementConfig>
             <EnableThriftService>false</EnableThriftService>
             <ReceivePort>${Ports.ThriftEntitlementReceivePort}</ReceivePort>
