@@ -163,7 +163,9 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             ServiceProvider serviceProvider = appDAO.getApplication(applicationName, tenantDomain);
-            loadApplicationPermissions(applicationName, serviceProvider);
+            if (serviceProvider != null) {
+                loadApplicationPermissions(applicationName, serviceProvider);
+            }
             return serviceProvider;
         } catch (Exception e) {
             String error = "Error occurred while retrieving the application, " + applicationName;
