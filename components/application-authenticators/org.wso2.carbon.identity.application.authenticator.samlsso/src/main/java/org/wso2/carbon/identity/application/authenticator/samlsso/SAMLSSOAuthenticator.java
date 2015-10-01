@@ -432,7 +432,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                 out.println(" If the redirection fails, please click the post button.</p>");
                 out.println("<form method='post' action='" + Encode.forHtmlAttribute(url) + "'>");
                 out.println("<p>");
-                out.println(Encode.forHtml(postPageInputs));
+                out.println(postPageInputs);
                 out.println("<button type='submit'>POST</button>");
                 out.println("</p>");
                 out.println("</form>");
