@@ -23,6 +23,7 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -579,7 +580,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         List<String> reqClaims = appDAO.getAllRequestedClaimsByServiceProvider(serviceProviderName,
-                                                                               tenantDomain);
+                tenantDomain);
 
         if (reqClaims == null
             || reqClaims.isEmpty()
@@ -739,7 +740,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             throws IdentityApplicationManagementException {
         List<ApplicationPermission> permissionList = ApplicationMgtUtil.loadPermissions(serviceProviderName);
 
-        if (permissionList.size() > 0) {
+        if ((CollectionUtils.isNotEmpty(permissionList))) {
             PermissionsAndRoleConfig permissionAndRoleConfig;
             if (serviceProvider.getPermissionAndRoleConfig() == null) {
                 permissionAndRoleConfig = new PermissionsAndRoleConfig();
