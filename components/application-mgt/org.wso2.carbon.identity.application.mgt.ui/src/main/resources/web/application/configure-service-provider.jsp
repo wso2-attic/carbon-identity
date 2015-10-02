@@ -205,7 +205,7 @@ location.href = 'list-service-provider.jsp';
 				proIdpConnector.put(idp.getIdentityProviderName(), connType.toString());
 				if(idp.getEnable()){
 					enabledProIdpConnector.put(idp.getIdentityProviderName(), enabledConnType.toString());
-					idpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+ Encode.forHtmlContent(provisioningConnectors.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOPtion);
+					idpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+Encode.forHtmlAttribute(provisioningConnectors.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOPtion);
 				}
 			} 
 		}
@@ -219,7 +219,6 @@ location.href = 'list-service-provider.jsp';
 				ProvisioningConnectorConfig proIdp = idp.getDefaultProvisioningConnectorConfig();
 				String options = proIdpConnector.get(idp.getIdentityProviderName());
 				if (proIdp!=null && options != null) {
-					String conName = proIdp.getName();
 					String oldOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + middleOption + Encode.forHtmlContent(proIdp.getName()) + endOPtion;
 					String newOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName())+ (IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) != null && IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) ? "" : disbleText) + endOPtion;
 					if(options.contains(oldOption)) {

@@ -78,9 +78,9 @@
 					} else {
 						provisioningConnectors.append(proConnector.getEnabled() ? proConnector.getName() + "," : "");
 					}
-					connType.append(startOption + proConnector.getName() + middleOption + proConnector.getName() + endOPtion);
+					connType.append(startOption + Encode.forHtmlAttribute(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOPtion);
 					if(proConnector.getEnabled()){
-						enabledConnType.append(startOption + proConnector.getName() + middleOption + proConnector.getName() + endOPtion);	
+						enabledConnType.append(startOption + Encode.forHtmlAttribute(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOPtion);
 					}
 					IdpProConnectorsStatus.put(idp.getIdentityProviderName()+"_"+proConnector.getName(), proConnector.getEnabled());
 					i++;
@@ -88,7 +88,7 @@
 				proIdpConnector.put(idp.getIdentityProviderName(), connType.toString());
 				if(idp.getEnable()){
 					enabledProIdpConnector.put(idp.getIdentityProviderName(), enabledConnType.toString());
-					idpType.append(startOption + idp.getIdentityProviderName() + "\" data=\""+provisioningConnectors.toString() + "\" >" + idp.getIdentityProviderName() + endOPtion); 
+					idpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+Encode.forHtmlAttribute(provisioningConnectors.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOPtion);
 				}
 			} 
 		}
@@ -102,9 +102,8 @@
 				ProvisioningConnectorConfig proIdp = idp.getDefaultProvisioningConnectorConfig();
 				String options = proIdpConnector.get(idp.getIdentityProviderName());
 				if (proIdp!=null && options != null) {
-					String conName = proIdp.getName();
-					String oldOption = startOption + proIdp.getName() + middleOption + proIdp.getName() + endOPtion;
-					String newOption = startOption + proIdp.getName() + "\" selected=\"selected" + middleOption + proIdp.getName()+ (IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) != null && IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) ? "" : disbleText) + endOPtion;
+					String oldOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + middleOption + Encode.forHtmlContent(proIdp.getName()) + endOPtion;
+					String newOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName())+ (IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) != null && IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) ? "" : disbleText) + endOPtion;
 					if(options.contains(oldOption)) {
 						options = options.replace(oldOption, newOption);
 					} else {
@@ -112,7 +111,7 @@
 					}
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), options);
 				} else if(proIdp!=null && options == null) {
-					String disabledOption = startOption + proIdp.getName() + "\" selected=\"selected" + middleOption + proIdp.getName() + disbleText + endOPtion;
+					String disabledOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName()) + disbleText + endOPtion;
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), disabledOption);
 				} else {
 					options = enabledProIdpConnector.get(idp.getIdentityProviderName());
