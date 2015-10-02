@@ -459,7 +459,6 @@
                                                         .put(split[3], stringParameterMap.get(key).getParamValue());
                                             }
                                         }
-                                        WorkflowUIUtil.test("S",stepMap);
                                         %>
                                         jQuery(document).ready(function(){
 
