@@ -162,7 +162,7 @@ location.href = 'list-service-provider.jsp';
 
 	if (requestPathAuthenticators!=null && requestPathAuthenticators.length>0){
 		for(RequestPathAuthenticatorConfig reqAuth : requestPathAuthenticators) {
-			requestPathAuthTypes.append(startOption + Encode.forHtmlAttribute((reqAuth.getName()) + middleOption + Encode.forHtmlContent(reqAuth.getDisplayName()) + endOPtion);
+			requestPathAuthTypes.append(startOption + Encode.forHtmlAttribute(reqAuth.getName()) + middleOption + Encode.forHtmlContent(reqAuth.getDisplayName()) + endOPtion);
 		}
 	}
 	
