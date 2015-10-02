@@ -21,93 +21,66 @@ package org.wso2.carbon.identity.workflow.mgt.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
-import org.wso2.carbon.identity.workflow.mgt.bean.BPSProfileDTO;
-import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
-import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
-import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowTenantMgtListener;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
-import org.wso2.carbon.identity.workflow.mgt.template.impl.BPELApprovalTemplateImpl;
-import org.wso2.carbon.identity.workflow.mgt.template.impl.SimpleApprovalTemplate;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementServiceImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
-import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
-import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
+import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
-import org.wso2.carbon.utils.NetworkUtils;
-
-import java.net.SocketException;
 
 /**
- * @scr.component name="identity.workflow" immediate="true"
+ * @scr.component name="org.wso2.carbon.identity.workflow.mgt" immediate="true"
  * @scr.reference name="user.realmservice.default" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
- * @scr.reference name="workflow.request.handler.service"
+ * @scr.reference name="org.wso2.carbon.identity.workflow.mgt.extension.requesthandler"
  * interface="org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler"
  * cardinality="0..n" policy="dynamic"
  * bind="setWorkflowRequestHandler"
  * unbind="unsetWorkflowRequestHandler"
- * @scr.reference name="workflow.template.service"
- * interface="org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate"
+ * @scr.reference name="org.wso2.carbon.identity.workflow.mgt.template.abtracttemplate"
+ * interface="org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate"
  * cardinality="0..n" policy="dynamic"
- * bind="setWorkflowTemplate"
- * unbind="unsetWorkflowTemplate"
- * @scr.reference name="workflow.template.impl.service"
- * interface="org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl"
+ * bind="setTemplate"
+ * unbind="unsetTemplate"
+ * @scr.reference name="org.wso2.carbon.identity.workflow.mgt.workflow.abstractworkflow"
+ * interface="org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow"
  * cardinality="0..n" policy="dynamic"
- * bind="setTemplateImplementation"
- * unbind="unsetTemplateImplementation"
- * @scr.reference name="config.context.service"
+ * bind="setWorkflowImplementation"
+ * unbind="unsetWorkflowImplementation"
+ * @scr.reference name="org.wso2.carbon.utils.contextservice"
  * interface="org.wso2.carbon.utils.ConfigurationContextService"
  * cardinality="1..1" policy="dynamic"  bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
+ * @scr.reference name="org.wso2.carbon.identity.workflow.mgt.listener.deleterequest"
+ * interface="org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener"
+ * cardinality="0..n" policy="dynamic"
+ * bind="setWorkflowRequestDeleteListener"
+ * unbind="unsetWorkflowRequestDeleteListener"
  */
 public class WorkflowMgtServiceComponent {
+
+
+    protected void activate(ComponentContext context) {
+
+        BundleContext bundleContext = context.getBundleContext();
+        WorkflowManagementService workflowService = new WorkflowManagementServiceImpl();
+
+        bundleContext.registerService(WorkflowManagementService.class, workflowService, null);
+        WorkflowServiceDataHolder.getInstance().setWorkflowService(workflowService);
+
+
+        WorkflowServiceDataHolder.getInstance().setBundleContext(bundleContext);
+    }
 
     private static Log log = LogFactory.getLog(WorkflowMgtServiceComponent.class);
 
     protected void setRealmService(RealmService realmService) {
 
         WorkflowServiceDataHolder.getInstance().setRealmService(realmService);
-    }
-
-    protected void setConfigurationContextService(ConfigurationContextService contextService) {
-
-        WorkflowServiceDataHolder.getInstance().setConfigurationContextService(contextService);
-    }
-
-    protected void activate(ComponentContext context) {
-
-        BundleContext bundleContext = context.getBundleContext();
-        WorkflowService workflowService = new WorkflowService();
-
-        bundleContext.registerService(WorkflowService.class, workflowService, null);
-        WorkflowServiceDataHolder.getInstance().setWorkflowService(workflowService);
-
-
-        WorkflowServiceDataHolder.getInstance().setBundleContext(bundleContext);
-        setWorkflowTemplate(new SimpleApprovalTemplate());
-        setTemplateImplementation(new BPELApprovalTemplateImpl());
-
-        WorkflowTenantMgtListener workflowTenantMgtListener = new WorkflowTenantMgtListener();
-        ServiceRegistration tenantMgtListenerSR = bundleContext.registerService(
-                TenantMgtListener.class.getName(), workflowTenantMgtListener, null);
-        if (tenantMgtListenerSR != null) {
-            log.debug("Workflow Management - WorkflowTenantMgtListener registered");
-        } else {
-            log.error("Workflow Management - WorkflowTenantMgtListener could not be registered");
-        }
-
-        this.addDefaultBPSProfile();
-
-
     }
 
     protected void unsetRealmService(RealmService realmService) {
@@ -120,6 +93,11 @@ public class WorkflowMgtServiceComponent {
         WorkflowServiceDataHolder.getInstance().setConfigurationContextService(null);
     }
 
+    protected void setConfigurationContextService(ConfigurationContextService contextService) {
+
+        WorkflowServiceDataHolder.getInstance().setConfigurationContextService(contextService);
+    }
+
     protected void setWorkflowRequestHandler(WorkflowRequestHandler workflowRequestHandler) {
 
         WorkflowServiceDataHolder.getInstance().addWorkflowRequestHandler(workflowRequestHandler);
@@ -130,69 +108,40 @@ public class WorkflowMgtServiceComponent {
         WorkflowServiceDataHolder.getInstance().removeWorkflowRequestHandler(workflowRequestHandler);
     }
 
-    protected void setWorkflowTemplate(AbstractWorkflowTemplate template) {
+    protected void setTemplate(AbstractTemplate template) {
 
         WorkflowServiceDataHolder.getInstance().addTemplate(template);
     }
 
-    protected void unsetWorkflowTemplate(AbstractWorkflowTemplate template) {
+    protected void unsetTemplate(AbstractTemplate template) {
 
         WorkflowServiceDataHolder.getInstance().removeTemplate(template);
     }
 
-    protected void setTemplateImplementation(AbstractWorkflowTemplateImpl templateImpl) {
+    protected void setWorkflowImplementation(AbstractWorkflow workflowImplementation) {
 
-        WorkflowServiceDataHolder.getInstance().addTemplateImpl(templateImpl);
+        WorkflowServiceDataHolder.getInstance().addWorkflowImplementation(workflowImplementation);
     }
 
-    protected void unsetTemplateImplementation(AbstractWorkflowTemplateImpl templateImpl) {
+    protected void unsetWorkflowImplementation(AbstractWorkflow workflowImplementation) {
 
-        WorkflowServiceDataHolder.getInstance().removeTemplateImpl(templateImpl);
+        WorkflowServiceDataHolder.getInstance().removeWorkflowImplementation(workflowImplementation);
     }
 
-    private void addDefaultBPSProfile(){
 
-        BPSProfileDTO bpsProfileDTO = new BPSProfileDTO();
-        String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
-        String offset = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.PORTS_OFFSET);
-        String userName = WorkflowServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
-                .getAdminUserName();
-        String password = WorkflowServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
-                .getAdminPassword();
-        try {
-            if (hostName == null) {
-                hostName = NetworkUtils.getLocalHostname();
-            }
-            String url = "https://" + hostName + ":" + (9443 + Integer.parseInt(offset));
-
-            bpsProfileDTO.setHost(url);
-            bpsProfileDTO.setUsername(userName);
-            bpsProfileDTO.setPassword(password);
-            bpsProfileDTO.setCallbackUser(userName);
-            bpsProfileDTO.setCallbackPassword(password);
-            bpsProfileDTO.setProfileName(WorkFlowConstants.DEFAULT_BPS_PROFILE);
-
-            WorkflowService workflowService = WorkflowServiceDataHolder.getInstance().getWorkflowService();
-            BPSProfileDTO currentBpsProfile = workflowService
-                    .getBPSProfile(WorkFlowConstants.DEFAULT_BPS_PROFILE, MultitenantConstants.SUPER_TENANT_ID);
-            if(currentBpsProfile == null) {
-                workflowService.addBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);
-                if(log.isDebugEnabled()){
-                    log.info("Default BPS profile added to the DB");
-                }
-            }
-        } catch (SocketException e) {
-            //This is not thrown exception because this is not blocked to the other functionality. User can create default profile by manually.
-            String errorMsg = "Error while trying to read hostname, " + e.getMessage() ;
-            log.error(errorMsg);
-        } catch (InternalWorkflowException e) {
-            //This is not thrown exception because this is not blocked to the other functionality. User can create default profile by manually.
-            String errorMsg = "Error occured while adding default bps profile, " + e.getMessage() ;
-            log.error(errorMsg);
-        } catch (WorkflowException e) {
-            //This is not thrown exception because this is not blocked to the other functionality. User can create default profile by manually.
-            String errorMsg = "Error occured while adding default bps profile, " + e.getMessage() ;
-            log.error(errorMsg);
+    protected void setWorkflowRequestDeleteListener(WorkflowListener workflowListener) {
+        if(workflowListener !=null) {
+            WorkflowServiceDataHolder.getInstance().getWorkflowListenerList()
+                    .add(workflowListener);
         }
     }
+
+    protected void unsetWorkflowRequestDeleteListener(WorkflowListener workflowListener) {
+        if(workflowListener !=null) {
+            WorkflowServiceDataHolder.getInstance().getWorkflowListenerList()
+                    .remove(workflowListener);
+        }
+    }
+
+
 }

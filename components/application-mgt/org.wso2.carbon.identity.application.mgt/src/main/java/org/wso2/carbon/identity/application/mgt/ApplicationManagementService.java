@@ -53,7 +53,7 @@ public abstract class ApplicationManagementService {
      * @return
      * @throws IdentityApplicationManagementException
      */
-    public abstract int createApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+    public abstract void createApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
             throws IdentityApplicationManagementException;
 
     /**

@@ -25,12 +25,15 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.RecoveryProcessor;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
 import org.wso2.carbon.identity.mgt.listener.UserOperationsNotificationListener;
+import org.wso2.carbon.identity.mgt.store.RegistryCleanUpService;
 import org.wso2.carbon.identity.notification.mgt.NotificationSender;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
@@ -62,6 +65,7 @@ import java.util.List;
 
 public class IdentityMgtServiceComponent {
 
+    private static final String DELAY_BETWEEN_RUNS = "TimeConfig.RegistryCleanUpPeriod";
     private static Log log = LogFactory.getLog(IdentityMgtServiceComponent.class);
 
     private static RealmService realmService;
@@ -192,6 +196,10 @@ public class IdentityMgtServiceComponent {
         if(log.isDebugEnabled()) {
             log.debug("Identity Management bundle is activated");
         }
+
+        RegistryCleanUpService registryCleanUpService = new RegistryCleanUpService(IdentityMgtConfig.getInstance()
+                .getRegistryCleanUpPeriod(), IdentityMgtConfig.getInstance().getRegistryCleanUpPeriod());
+        registryCleanUpService.activateCleanUp();
     }
 
     protected void deactivate(ComponentContext context) {

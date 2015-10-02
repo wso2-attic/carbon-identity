@@ -15,6 +15,7 @@
 * limitations under the License.
 */
 -->
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.common.EntitlementConstants" %>
@@ -29,7 +30,6 @@
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.util.PolicyEditorUtil" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
@@ -54,13 +54,13 @@
     int maxActionRow = 0;
     int maxEnvironmentRow = 0;
     int maxRows = 0;
-    String dynamicCategory = CharacterEncoder.getSafeText(request.getParameter("policyApplied"));
-    String policyId = CharacterEncoder.getSafeText(request.getParameter("policyId"));
-    String policyDescription = CharacterEncoder.getSafeText(request.getParameter("policyDescription"));
-    String maxUserRowString = CharacterEncoder.getSafeText(request.getParameter("maxUserRow"));
-    String maxResourceRowString = CharacterEncoder.getSafeText(request.getParameter("maxResourceRow"));
-    String maxActionRowString = CharacterEncoder.getSafeText(request.getParameter("maxActionRow"));
-    String maxEnvironmentRowString = CharacterEncoder.getSafeText(request.getParameter("maxEnvironmentRow"));
+    String dynamicCategory = request.getParameter("policyApplied");
+    String policyId = request.getParameter("policyId");
+    String policyDescription = request.getParameter("policyDescription");
+    String maxUserRowString = request.getParameter("maxUserRow");
+    String maxResourceRowString = request.getParameter("maxResourceRow");
+    String maxActionRowString = request.getParameter("maxActionRow");
+    String maxEnvironmentRowString = request.getParameter("maxEnvironmentRow");
     if(maxResourceRowString != null){
         try{
             maxResourceRow = Integer.parseInt(maxResourceRowString);
@@ -106,28 +106,28 @@
         List<SimplePolicyEditorElementDTO>  elementDTOs = new ArrayList<SimplePolicyEditorElementDTO>();
 
         if(PolicyEditorConstants.SOA_CATEGORY_RESOURCE.equals(dynamicCategory)){
-            String resourceValue = CharacterEncoder.getSafeText(request.getParameter("resourceValue"));
-            String function = CharacterEncoder.getSafeText(request.getParameter("function"));
+            String resourceValue = request.getParameter("resourceValue");
+            String function = request.getParameter("function");
             editorDTO.setResourceValue(resourceValue);
             editorDTO.setFunction(function);
             maxRows = maxResourceRow;
         } else if(PolicyEditorConstants.SOA_CATEGORY_USER.equals(dynamicCategory)){
-            String userAttributeValue = CharacterEncoder.getSafeText(request.getParameter("userAttributeValue"));
-            String userAttributeId = CharacterEncoder.getSafeText(request.getParameter("userAttributeId"));
-            String function = CharacterEncoder.getSafeText(request.getParameter("function"));
+            String userAttributeValue = request.getParameter("userAttributeValue");
+            String userAttributeId = request.getParameter("userAttributeId");
+            String function = request.getParameter("function");
             editorDTO.setUserAttributeId(userAttributeId);
             editorDTO.setUserAttributeValue(userAttributeValue);
             editorDTO.setFunction(function);
             maxRows = maxUserRow;
         } else if(PolicyEditorConstants.SOA_CATEGORY_ACTION.equals(dynamicCategory)){
-            String actionValue = CharacterEncoder.getSafeText(request.getParameter("actionValue"));
-            String function = CharacterEncoder.getSafeText(request.getParameter("function"));
+            String actionValue = request.getParameter("actionValue");
+            String function = request.getParameter("function");
             editorDTO.setActionValue(actionValue);
             editorDTO.setFunction(function);
             maxRows = maxActionRow;
         } else if(PolicyEditorConstants.SOA_CATEGORY_ENVIRONMENT.equals(dynamicCategory)){
-            String actionValue = CharacterEncoder.getSafeText(request.getParameter("environmentValue"));
-            String environmentId = CharacterEncoder.getSafeText(request.getParameter("environmentId"));
+            String actionValue = request.getParameter("environmentValue");
+            String environmentId = request.getParameter("environmentId");
             editorDTO.setEnvironmentValue(actionValue);
             editorDTO.setEnvironmentId(environmentId);
             maxRows = maxEnvironmentRow;
@@ -137,14 +137,12 @@
 
             SimplePolicyEditorElementDTO elementDTO = new SimplePolicyEditorElementDTO();
 
-            String userAttributeId = CharacterEncoder.getSafeText(request.
-                    getParameter("userRuleAttributeId_" + rowNumber));
+            String userAttributeId = request.getParameter("userRuleAttributeId_" + rowNumber);
             if(userAttributeId != null && userAttributeId.trim().length() > 0){
                 elementDTO.setUserAttributeId(userAttributeId);
             }
 
-            String userAttributeValue = CharacterEncoder.getSafeText(request.
-                    getParameter("userRuleAttributeValue_" + rowNumber));
+            String userAttributeValue = request.getParameter("userRuleAttributeValue_" + rowNumber);
             if(userAttributeValue != null && userAttributeValue.trim().length() > 0){
                 elementDTO.setUserAttributeValue(userAttributeValue);
             } else {
@@ -154,14 +152,12 @@
                 }
             }
             
-            String actionValue = CharacterEncoder.getSafeText(request.
-                    getParameter("actionRuleValue_" + rowNumber));
+            String actionValue = request.getParameter("actionRuleValue_" + rowNumber);
             if(actionValue != null && actionValue.trim().length() > 0){
                 elementDTO.setActionValue(actionValue);
             }
 
-            String resourceValue = CharacterEncoder.getSafeText(request.
-                    getParameter("resourceRuleValue_" + rowNumber));
+            String resourceValue = request.getParameter("resourceRuleValue_" + rowNumber);
             if(resourceValue != null && resourceValue.trim().length() > 0){
                 elementDTO.setResourceValue(resourceValue);
             } else {
@@ -170,38 +166,32 @@
                 }
             }
 
-            String environmentId = CharacterEncoder.getSafeText(request.
-                    getParameter("environmentRuleId_" + rowNumber));
+            String environmentId = request.getParameter("environmentRuleId_" + rowNumber);
             if(environmentId != null && environmentId.trim().length() > 0){
                 elementDTO.setEnvironmentId(environmentId);
             }
 
-            String environmentValue = CharacterEncoder.getSafeText(request.
-                    getParameter("environmentRuleValue_" + rowNumber));
+            String environmentValue = request.getParameter("environmentRuleValue_" + rowNumber);
             if(environmentValue != null && environmentValue.trim().length() > 0){
                 elementDTO.setEnvironmentValue(environmentValue);
             }
 
-            String operationType = CharacterEncoder.getSafeText(request.
-                    getParameter("operationRuleType_" + rowNumber));
+            String operationType = request.getParameter("operationRuleType_" + rowNumber);
             if(operationType != null && operationType.trim().length() > 0){
                 elementDTO.setOperationType(operationType);
             }
 
-            String resourceFunction = CharacterEncoder.getSafeText(request.
-                    getParameter("resourceRuleFunction_" + rowNumber));
+            String resourceFunction = request.getParameter("resourceRuleFunction_" + rowNumber);
             if(resourceFunction != null && resourceFunction.trim().length() > 0){
                 elementDTO.setFunctionOnResources(resourceFunction);
             }
 
-            String userFunction = CharacterEncoder.getSafeText(request.
-                    getParameter("userRuleFunction_" + rowNumber));
+            String userFunction = request.getParameter("userRuleFunction_" + rowNumber);
             if(userFunction != null && userFunction.trim().length() > 0){
                 elementDTO.setFunctionOnUsers(userFunction);
             }
 
-            String actionFunction = CharacterEncoder.getSafeText(request.
-                    getParameter("actionRuleFunction_" + rowNumber));
+            String actionFunction = request.getParameter("actionRuleFunction_" + rowNumber);
             if(actionFunction != null && actionFunction.trim().length() > 0){
                 elementDTO.setFunctionOnActions(actionFunction);
             }

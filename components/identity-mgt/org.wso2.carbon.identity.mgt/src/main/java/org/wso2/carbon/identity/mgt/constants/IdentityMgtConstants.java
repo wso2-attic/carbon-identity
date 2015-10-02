@@ -173,6 +173,8 @@ public class IdentityMgtConstants {
 
         public static final String PASSWORD_LENGTH_MAX = "Password.policy.max.length";
 
+        public static final String REGISTRY_CLEANUP_PERIOD = "Identity.Mgt.Registry.CleanUpPeriod";
+
         private PropertyConfig(){
         }
     }

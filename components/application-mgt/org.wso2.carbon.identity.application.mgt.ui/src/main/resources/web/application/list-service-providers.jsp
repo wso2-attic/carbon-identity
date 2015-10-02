@@ -140,9 +140,9 @@
                                     if (app != null) {
                             %>
                             <tr>
-                                <td><%=Encode.forHtmlAttribute(app.getApplicationName())%>
+                                <td><%=Encode.forHtml(app.getApplicationName())%>
                                 </td>
-                                <td><%=Encode.forHtmlAttribute(app.getDescription()) != null ? Encode.forHtmlAttribute(app.getDescription()) : ""%>
+                                <td><%=app.getDescription() != null ? Encode.forHtml(app.getDescription()) : ""%>
                                 </td>
                                 <td style="width: 100px; white-space: nowrap;"><a
                                         title="Edit Service Providers"
@@ -151,7 +151,7 @@
                                         style="background-image: url(../admin/images/edit.gif)">Edit</a>
 
                                     <a title="Remove Service Providers"
-                                       onclick="removeItem('<%=Encode.forUriComponent(app.getApplicationName())%>');return false;" href="#"
+                                       onclick="removeItem('<%=Encode.forJavaScriptAttribute(app.getApplicationName())%>');return false;" href="#"
                                        class="icon-link"
                                        style="background-image: url(../admin/images/delete.gif)">Delete
                                     </a></td>

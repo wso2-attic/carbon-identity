@@ -277,7 +277,7 @@
 					<tr>
 						<td>				             	  
 							 <select name="provisioning_idps" style="float: left; min-width: 150px;font-size:13px;">
-							             			<%=Encode.forHtmlContent(idpType.toString())%>
+							             			<%=idpType.toString()%>
 							 </select>
 						     <a id="provisioningIdpAdd" onclick="addIDPRow(this);return false;" class="icon-link" style="background-image:url(images/add.gif);"></a>
 						</td>
@@ -313,16 +313,16 @@
 							      	       <tr>
 							      	      	   <td>
 							      	      		<input name="provisioning_idp" id="" type="hidden" value="<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" />
-							      	      			<%=Encode.forHtmlContent(idp.getIdentityProviderName()) + Encode.forHtmlContent((idpStatus.get(idp.getIdentityProviderName())) != null && Encode.forHtmlContent(idpStatus.get(idp.getIdentityProviderName())) ? "" : disbleText)%>
+                                                   <%=Encode.forHtmlContent(idp.getIdentityProviderName()) + (idpStatus.get(idp.getIdentityProviderName()) != null && idpStatus.get(idp.getIdentityProviderName()) ? "" : disbleText)%>
 							      	      		</td>
 							      	      		<td> 
 							      	      			<% if(selectedProIdpConnectors.get(idp.getIdentityProviderName()) != null) { %>
-							      	      				<select name="provisioning_con_idp_<%=idp.getIdentityProviderName()%>" style="float: left; min-width: 150px;font-size:13px;"><%=Encode.forHtmlContent(selectedProIdpConnectors.get(idp.getIdentityProviderName()))%></select>
+							      	      				<select name="provisioning_con_idp_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" style="float: left; min-width: 150px;font-size:13px;"><%=selectedProIdpConnectors.get(idp.getIdentityProviderName())%></select>
 							      	      			<% } %>
 							      	      		</td>
 							      	      		 <td>
                             						<div class="sectionCheckbox">
-                                						<input type="checkbox" id="blocking_prov_<%=idp.getIdentityProviderName()%>" name="blocking_prov_<%=idp.getIdentityProviderName()%>" <%=Encode.forHtmlAttribute(blocking) ? "checked" : "" %>>Blocking
+                                						<input type="checkbox" id="blocking_prov_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" name="blocking_prov_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" <%=blocking ? "checked" : "" %>>Blocking
                    									</div>
                         						</td>
 							      	      		 <td>

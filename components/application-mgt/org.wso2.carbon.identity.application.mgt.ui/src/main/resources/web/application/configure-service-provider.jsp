@@ -162,7 +162,7 @@ location.href = 'list-service-provider.jsp';
 
 	if (requestPathAuthenticators!=null && requestPathAuthenticators.length>0){
 		for(RequestPathAuthenticatorConfig reqAuth : requestPathAuthenticators) {
-			requestPathAuthTypes.append(startOption + reqAuth.getName() + middleOption + reqAuth.getDisplayName() + endOPtion);
+			requestPathAuthTypes.append(startOption + Encode.forHtmlAttribute(reqAuth.getName()) + middleOption + Encode.forHtmlContent(reqAuth.getDisplayName()) + endOPtion);
 		}
 	}
 	
@@ -195,9 +195,9 @@ location.href = 'list-service-provider.jsp';
 					} else {
 						provisioningConnectors.append(proConnector.getEnabled() ? proConnector.getName() + "," : "");
 					}
-					connType.append(startOption + proConnector.getName() + middleOption + proConnector.getName() + endOPtion);
+					connType.append(startOption + Encode.forHtmlAttribute(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOPtion);
 					if(proConnector.getEnabled()){
-						enabledConnType.append(startOption + proConnector.getName() + middleOption + proConnector.getName() + endOPtion);	
+						enabledConnType.append(startOption + Encode.forHtmlAttribute(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOPtion);
 					}
 					IdpProConnectorsStatus.put(idp.getIdentityProviderName()+"_"+proConnector.getName(), proConnector.getEnabled());
 					i++;
@@ -205,7 +205,7 @@ location.href = 'list-service-provider.jsp';
 				proIdpConnector.put(idp.getIdentityProviderName(), connType.toString());
 				if(idp.getEnable()){
 					enabledProIdpConnector.put(idp.getIdentityProviderName(), enabledConnType.toString());
-					idpType.append(startOption + idp.getIdentityProviderName() + "\" data=\""+provisioningConnectors.toString() + "\" >" + idp.getIdentityProviderName() + endOPtion); 
+					idpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+ Encode.forHtmlContent(provisioningConnectors.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOPtion);
 				}
 			} 
 		}
@@ -220,8 +220,8 @@ location.href = 'list-service-provider.jsp';
 				String options = proIdpConnector.get(idp.getIdentityProviderName());
 				if (proIdp!=null && options != null) {
 					String conName = proIdp.getName();
-					String oldOption = startOption + proIdp.getName() + middleOption + proIdp.getName() + endOPtion;
-					String newOption = startOption + proIdp.getName() + "\" selected=\"selected" + middleOption + proIdp.getName()+ (IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) != null && IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) ? "" : disbleText) + endOPtion;
+					String oldOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + middleOption + Encode.forHtmlContent(proIdp.getName()) + endOPtion;
+					String newOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName())+ (IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) != null && IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) ? "" : disbleText) + endOPtion;
 					if(options.contains(oldOption)) {
 						options = options.replace(oldOption, newOption);
 					} else {
@@ -229,7 +229,7 @@ location.href = 'list-service-provider.jsp';
 					}
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), options);
 				} else if(proIdp!=null && options == null) {
-					String disabledOption = startOption + proIdp.getName() + "\" selected=\"selected" + middleOption + proIdp.getName() + disbleText + endOPtion;
+					String disabledOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName()) + disbleText + endOPtion;
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), disabledOption);
 				} else {
 					options = enabledProIdpConnector.get(idp.getIdentityProviderName());
@@ -256,7 +256,7 @@ location.href = 'list-service-provider.jsp';
 
 
 <% if(claimMapping != null) {%>
-var claimMappinRowID = <%=Encode.forJavaScriptBlock(claimMapping.size()) -1 %>;
+var claimMappinRowID = <%=claimMapping.size() -1 %>;
 <%} else {%>
 var claimMappinRowID = -1;
 <%}%>
@@ -264,13 +264,13 @@ var claimMappinRowID = -1;
 var reqPathAuth = 0;
 
 <%if(appBean.getServiceProvider().getRequestPathAuthenticatorConfigs() != null){%>
-var reqPathAuth = <%=Encode.forJavaScriptBlock(appBean.getServiceProvider().getRequestPathAuthenticatorConfigs().length)%>;
+var reqPathAuth = <%=appBean.getServiceProvider().getRequestPathAuthenticatorConfigs().length%>;
 <%} else {%>
 var reqPathAuth = 0;
 <%}%>
 
 <% if(roleMapping != null) {%>
-var roleMappinRowID = <%=Encode.forJavaScriptBlock(roleMapping.size()) -1 %>;
+var roleMappinRowID = <%=roleMapping.size() -1 %>;
 <% } else { %>
 var roleMappinRowID = -1;
 <% } %>
@@ -501,7 +501,7 @@ var roleMappinRowID = -1;
     				.parent()
     				.parent()
     				.append(
-    						jQuery('<tr><td><input name="req_path_auth' + '" id="req_path_auth" type="hidden" value="' + Encode.forHtmlAttribute(selectedRePathAuthenticator) + '" />'+Encode.forHtmlContent(selectedRePathAuthenticator) +'</td><td class="leftCol-small" ><a onclick="deleteReqPathRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a></td></tr>'));
+    						jQuery('<tr><td><input name="req_path_auth' + '" id="req_path_auth" type="hidden" value="' + selectedRePathAuthenticator + '" />'+ selectedRePathAuthenticator +'</td><td class="leftCol-small" ><a onclick="deleteReqPathRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a></td></tr>'));
     		
         });
         
@@ -641,7 +641,7 @@ var roleMappinRowID = -1;
 
 		//var stepID = jQuery(obj).parent().children()[1].value;
 		var dataArray =  selectedObj.attr('data').split(',');
-		var newRow = '<tr><td><input name="provisioning_idp" id="" type="hidden" value="' + Encode.forHtmlAttribute(selectedIDPName) + '" />' + Encode.forHtmlContent(selectedIDPName) + ' </td><td> <select name="provisioning_con_idp_' + selectedIDPName + '" style="float: left; min-width: 150px;font-size:13px;">';
+		var newRow = '<tr><td><input name="provisioning_idp" id="" type="hidden" value="' + selectedIDPName + '" />' + selectedIDPName + ' </td><td> <select name="provisioning_con_idp_' + selectedIDPName + '" style="float: left; min-width: 150px;font-size:13px;">';
 		for(var i=0;i<dataArray.length;i++){
 			if(dataArray[i].length > 0){
 				newRow+='<option>'+dataArray[i]+'</option>';					
@@ -699,7 +699,7 @@ var roleMappinRowID = -1;
         </h2>
         <div id="workArea">
             <form id="configure-sp-form" method="post" name="configure-sp-form" method="post" action="configure-service-provider-finish.jsp" >
-            <input type="hidden" id="isNeedToUpdate" value="<%=Encode.forHtmlAttribute(isNeedToUpdate)%>">
+            <input type="hidden" id="isNeedToUpdate" value="<%=isNeedToUpdate%>">
             <div class="sectionSeperator togglebleTitle"><fmt:message key='title.config.app.basic.config'/></div>
             <div class="sectionSub">
                 <table class="carbonFormTable">
@@ -715,7 +715,7 @@ var roleMappinRowID = -1;
                     <tr>
                        <td style="width:15%" class="leftCol-med labelField">Description:</td>                   
                      <td>
-                        <textarea style="width:50%" type="text" name="sp-description" id="sp-description" class="text-box-big"><%=Encode.forHtmlContent(appBean.getServiceProvider().getDescription()) != null ? Encode.forHtmlContent(appBean.getServiceProvider().getDescription()) : "" %></textarea>
+                        <textarea style="width:50%" type="text" name="sp-description" id="sp-description" class="text-box-big"><%=appBean.getServiceProvider().getDescription() != null ? Encode.forHtmlContent(appBean.getServiceProvider().getDescription()) : "" %></textarea>
                         <div class="sectionHelp">
                                 <fmt:message key='help.desc'/>
                             </div>
@@ -723,7 +723,7 @@ var roleMappinRowID = -1;
                     </tr>
                     <tr>
                     	<td class="leftCol-med">
-                             <input type="checkbox"  id="isSaasApp" name="isSaasApp" <%=Encode.forHtmlAttribute(appBean.getServiceProvider().getSaasApp()) ? "checked" : "" %>/><label for="isSaasApp"><fmt:message key="config.application.isSaasApp"/></label>
+                             <input type="checkbox"  id="isSaasApp" name="isSaasApp" <%=appBean.getServiceProvider().getSaasApp() ? "checked" : "" %>/><label for="isSaasApp"><fmt:message key="config.application.isSaasApp"/></label>
                         </td>
                         <td></td>
                     </tr>
@@ -740,21 +740,21 @@ var roleMappinRowID = -1;
                     			<fmt:message key="config.application.claim.dialect.select" />:
                     		</td>
                     		<td class="leftCol-med">
-                    			<input type="radio" id="claim_dialect_wso2" name="claim_dialect" value="local" <%=Encode.forHtmlAttribute(isLocalClaimsSelected) ? "checked" : ""%>><label for="claim_dialect_wso2" style="cursor: pointer;"><fmt:message key="config.application.claim.dialect.local"/></label>
+                    			<input type="radio" id="claim_dialect_wso2" name="claim_dialect" value="local" <%=isLocalClaimsSelected ? "checked" : ""%>><label for="claim_dialect_wso2" style="cursor: pointer;"><fmt:message key="config.application.claim.dialect.local"/></label>
                     		</td>
                     	</tr>
                 		<tr>
                 		    <td style="width:15%" class="leftCol-med labelField">
                     		</td>
                 			<td class="leftCol-med">
-                    			<input type="radio" id="claim_dialect_custom" name="claim_dialect" value="custom" <%=!Encode.forHtmlAttribute(isLocalClaimsSelected) ? "checked" : ""%>><label for="claim_dialect_custom" style="cursor: pointer;"><fmt:message key="config.application.claim.dialect.custom"/></label>
+                    			<input type="radio" id="claim_dialect_custom" name="claim_dialect" value="custom" <%=!isLocalClaimsSelected ? "checked" : ""%>><label for="claim_dialect_custom" style="cursor: pointer;"><fmt:message key="config.application.claim.dialect.custom"/></label>
                     		</td>
                     	</tr>
                     </table>
                     <table  class="carbonFormTable">
 					<tr>
 						<td class="leftCol-med labelField" style="width:15%">
-							<label id="addClaimUrisLbl"><%=Encode.forHtmlContent(isLocalClaimsSelected) ? "Requested Claims:" : "Identity Provider Claim URIs:"%></label>
+							<label id="addClaimUrisLbl"><%=isLocalClaimsSelected ? "Requested Claims:" : "Identity Provider Claim URIs:"%></label>
 						</td>
 						<td class="leftCol-med">
 							<a id="claimMappingAddLink" class="icon-link" style="background-image: url(images/add.gif); margin-top: 0px !important; margin-bottom: 5px !important; margin-left: 5px;"><fmt:message key='button.add.claim.mapping' /></a>
@@ -1039,7 +1039,7 @@ var roleMappinRowID = -1;
                                 	</td>
                                 		<td style="white-space: nowrap;">
                                 			<a title="Edit Service Providers" onclick="updateBeanAndRedirect('../sso-saml/add_service_provider.jsp?SPAction=editServiceProvider&issuer=<%=Encode.forUriComponent(appBean.getSAMLIssuer())%>&spName=<%=Encode.forUriComponent(spName)%>');"  class="icon-link" style="background-image: url(../admin/images/edit.gif)">Edit</a>
-                                			<a title="Delete Service Providers" onclick="updateBeanAndRedirect('../sso-saml/remove_service_providers.jsp?issuer=<%=appBean.getSAMLIssuer()%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
+                                			<a title="Delete Service Providers" onclick="updateBeanAndRedirect('../sso-saml/remove_service_providers.jsp?issuer=<%=Encode.forUriComponent(appBean.getSAMLIssuer())%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
                                 		</td>
                                 	</tr>
                                 </tbody>
@@ -1419,25 +1419,25 @@ var roleMappinRowID = -1;
                   <table class="carbonFormTable" style="padding-top: 5px;">
                    		<tr>
 							<td class="leftCol-med">
-                                <input type="checkbox"  id="always_send_local_subject_id" name="always_send_local_subject_id" <%=Encode.forHtmlAttribute(appBean.isAlwaysSendMappedLocalSubjectId()) ? "checked" : "" %>/><label for="always_send_local_subject_id"><fmt:message key="config.application.claim.assert.local.select"/></label>
+                                <input type="checkbox"  id="always_send_local_subject_id" name="always_send_local_subject_id" <%=appBean.isAlwaysSendMappedLocalSubjectId() ? "checked" : "" %>/><label for="always_send_local_subject_id"><fmt:message key="config.application.claim.assert.local.select"/></label>
                         	</td>
                     	</tr>
                     	<tr>
 							<td class="leftCol-med">
-                                <input type="checkbox"  id="always_send_auth_list_of_idps" name="always_send_auth_list_of_idps" <%=Encode.forHtmlAttribute(appBean.isAlwaysSendBackAuthenticatedListOfIdPs()) ? "checked" : "" %>/><label for="always_send_auth_list_of_idps"><fmt:message key="config.application.claim.always.auth.list"/></label>
+                                <input type="checkbox"  id="always_send_auth_list_of_idps" name="always_send_auth_list_of_idps" <%=appBean.isAlwaysSendBackAuthenticatedListOfIdPs() ? "checked" : "" %>/><label for="always_send_auth_list_of_idps"><fmt:message key="config.application.claim.always.auth.list"/></label>
                         	</td>
                     	</tr>
 					  <tr>
 						  <td class="leftCol-med">
 							  <input type="checkbox"  id="use_tenant_domain_in_local_subject_identifier"
-									 name="use_tenant_domain_in_local_subject_identifier" <%=Encode.forHtmlAttribute(appBean.isUseTenantDomainInLocalSubjectIdentifier()) ? "checked"
+									 name="use_tenant_domain_in_local_subject_identifier" <%=appBean.isUseTenantDomainInLocalSubjectIdentifier() ? "checked"
 									  : "" %>/><label for="use_tenant_domain_in_local_subject_identifier"><fmt:message key="config.application.use.tenant.domain.in.local.subject.identifier"/></label>
 						  </td>
 					  </tr>
 					  <tr>
 						  <td class="leftCol-med">
 							  <input type="checkbox"  id="use_userstore_domain_in_local_subject_identifier"
-									 name="use_userstore_domain_in_local_subject_identifier" <%=Encode.forHtmlAttribute(appBean.isUseUserstoreDomainInLocalSubjectIdentifier()) ?
+									 name="use_userstore_domain_in_local_subject_identifier" <%=appBean.isUseUserstoreDomainInLocalSubjectIdentifier() ?
 									  "checked" : "" %>/><label
 								  for="use_userstore_domain_in_local_subject_identifier"><fmt:message
 								  key="config.application.use.userstore.domain.in.local.subject.identifier"/></label>
@@ -1454,7 +1454,7 @@ var roleMappinRowID = -1;
                     	<thead>
                     	<tr>
                     		<td>
-                    			<select name="reqPathAuthType" style="float: left; min-width: 150px;font-size:13px;"><%=Encode.forHtmlContent(requestPathAuthTypes.toString())%></select>
+                    			<select name="reqPathAuthType" style="float: left; min-width: 150px;font-size:13px;"><%=requestPathAuthTypes.toString()%></select>
                     			<a id="reqPathAuthenticatorAddLink" class="icon-link" style="background-image:url(images/add.gif);">Add</a>
                     			<div style="clear:both"></div>
                            		<div class="sectionHelp">
@@ -1473,7 +1473,7 @@ var roleMappinRowID = -1;
                     			 <tr>
                     			 <td>
                     			 	<input name="req_path_auth" id="req_path_auth" type="hidden" value="<%=Encode.forHtmlAttribute(reqAth.getName())%>" />
-                    			 	<input name="req_path_auth_<%=reqAth.getName()%>" id="req_path_auth_<%=reqAth.getName()%>" type="hidden" value="<%=Encode.forHtmlAttribute(reqAth.getName())%>" />
+                    			 	<input name="req_path_auth_<%=Encode.forHtmlAttribute(reqAth.getName())%>" id="req_path_auth_<%=Encode.forHtmlAttribute(reqAth.getName())%>" type="hidden" value="<%=Encode.forHtmlAttribute(reqAth.getName())%>" />
                     			 	
                     			 	<%=Encode.forHtmlContent(reqAth.getName())%>
                     			 </td>
@@ -1553,7 +1553,7 @@ var roleMappinRowID = -1;
 					<tr>
 						<td>				             	  
 							 <select name="provisioning_idps" style="float: left; min-width: 150px;font-size:13px;">
-							             			<%=Encode.forHtmlContent(idpType.toString())%>
+							 <%=idpType.toString()%>
 							 </select>
 						     <a id="provisioningIdpAdd" onclick="addIDPRow(this);return false;" class="icon-link" style="background-image:url(images/add.gif);"></a>
 						</td>
@@ -1589,21 +1589,21 @@ var roleMappinRowID = -1;
 							      	       <tr>
 							      	      	   <td>
 							      	      		<input name="provisioning_idp" id="" type="hidden" value="<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" />
-							      	      			<%=Encode.forHtmlContent(idp.getIdentityProviderName()) + Encode.forHtmlContent((idpStatus.get(idp.getIdentityProviderName())) != null && Encode.forHtmlContent(idpStatus.get(idp.getIdentityProviderName())) ? "" : disbleText)%>
+                                                    <%=idp.getIdentityProviderName() + (idpStatus.get(idp.getIdentityProviderName()) != null && idpStatus.get(idp.getIdentityProviderName()) ? "" : disbleText) %>
 							      	      		</td>
 							      	      		<td> 
 							      	      			<% if(selectedProIdpConnectors.get(idp.getIdentityProviderName()) != null) { %>
-							      	      				<select name="provisioning_con_idp_<%=idp.getIdentityProviderName()%>" style="float: left; min-width: 150px;font-size:13px;"><%=Encode.forHtmlContent(selectedProIdpConnectors.get(idp.getIdentityProviderName()))%></select>
+							      	      				<select name="provisioning_con_idp_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" style="float: left; min-width: 150px;font-size:13px;"><%=selectedProIdpConnectors.get(idp.getIdentityProviderName())%></select>
 							      	      			<% } %>
 							      	      		</td>
 							      	      		 <td>
                             						<div class="sectionCheckbox">
-                                						<input type="checkbox" id="blocking_prov_<%=idp.getIdentityProviderName()%>" name="blocking_prov_<%=idp.getIdentityProviderName()%>" <%=Encode.forHtmlAttribute(blocking) ? "checked" : "" %>>Blocking
+                                						<input type="checkbox" id="blocking_prov_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" name="blocking_prov_<%=idp.getIdentityProviderName()%>" <%=blocking ? "checked" : "" %>>Blocking
                    									</div>
                         						</td>
 							      	      		 <td>
                             						<div class="sectionCheckbox">
-                                						<input type="checkbox" id="provisioning_jit_<%=idp.getIdentityProviderName()%>" name="provisioning_jit_<%=idp.getIdentityProviderName()%>" <%=Encode.forHtmlAttribute(jitEnabled) ? "checked" : "" %>>Enable JIT
+                                						<input type="checkbox" id="provisioning_jit_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" name="provisioning_jit_<%=idp.getIdentityProviderName()%>" <%=jitEnabled ? "checked" : "" %>>Enable JIT
                    									</div>
                         						</td>
 							      	      		<td class="leftCol-small" >

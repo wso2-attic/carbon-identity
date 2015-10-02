@@ -30,6 +30,7 @@
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:useBean id="entitlementPolicyBean" type="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean"
              class="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean" scope="session"/>
 <jsp:setProperty name="entitlementPolicyBean" property="*" />
@@ -350,12 +351,12 @@
                                         for (String policyType : policyTypes) {
                                             if (policyTypeFilter.equals(policyType)) {
                                     %>
-                                    <option value="<%= policyType%>" selected="selected"><%= policyType%>
+                                    <option value="<%=Encode.forHtmlAttribute(policyType)%>" selected="selected"><%=Encode.forHtmlContent(policyType)%>
                                     </option>
                                     <%
                                     } else {
                                     %>
-                                    <option value="<%= policyType%>"><%= policyType%>
+                                    <option value="<%=Encode.forHtmlAttribute(policyType)%>"><%=Encode.forHtmlContent(policyType)%>
                                     </option>
                                     <%
                                             }
@@ -365,7 +366,7 @@
                                 &nbsp;&nbsp;&nbsp;
                                 <fmt:message key="search.policy"/>
                                 <input type="text" name="policySearchString"
-                                       value="<%= policySearchString != null? policySearchString :""%>"/>&nbsp;
+                                       value="<%= policySearchString != null? Encode.forHtmlAttribute(policySearchString) :""%>"/>&nbsp;
                             </nobr>
                         </td>
                         <td style="border:0; !important">
@@ -436,12 +437,12 @@
             <tr>
                 <td width="10px" style="text-align:center; !important">
                     <input type="checkbox" name="policies"
-                           value="<%=policies[i].getPolicyId()%>"
+                           value="<%=Encode.forHtmlAttribute(policies[i].getPolicyId())%>"
                            onclick="resetVars()" class="chkBox" />
                 </td>
 
                 <td>
-                    <a href="policy-view.jsp?policyid=<%=policies[i].getPolicyId()%>"><%=policies[i].getPolicyId()%></a>
+                    <a href="policy-view.jsp?policyid=<%=Encode.forUriComponent(policies[i].getPolicyId())%>"><%=Encode.forHtmlContent(policies[i].getPolicyId())%></a>
                 </td>
 
                 <td width="20px" style="text-align:left;">
@@ -451,10 +452,10 @@
                         }
                     %>
                     <nobr>
-                    <img src="images/<%= policies[i].getPolicyType()%>-type.gif"
-                         title="<%= policies[i].getPolicyType()%>"
-                         alt="<%= policies[i].getPolicyType()%>"/>
-                        <%= policies[i].getPolicyType()%>
+                    <img src="images/<%=Encode.forUriComponent(policies[i].getPolicyType())%>-type.gif"
+                         title="<%=Encode.forHtmlAttribute(policies[i].getPolicyType())%>"
+                         alt="<%=Encode.forHtmlAttribute(policies[i].getPolicyType())%>"/>
+                        <%=Encode.forHtmlContent(policies[i].getPolicyType())%>
                     </nobr>
                 </td>
                 
@@ -472,7 +473,7 @@
                         if (canEdit) {
                     %>
                     <a title="<fmt:message key='edit.policy'/>"
-                     onclick="edit('<%=policies[i].getPolicyId()%>');return false;"
+                     onclick="edit('<%=Encode.forJavaScriptAttribute(policies[i].getPolicyId())%>');return false;"
                     href="#" style="background-image: url(images/edit.gif);" class="icon-link">
                     <fmt:message key='edit'/></a>
                     <%
@@ -480,7 +481,7 @@
                         if (canViewVersions) {
                     %>
                     <a title="<fmt:message key='versions'/>"
-                       onclick="showVersions('<%=policies[i].getPolicyId()%>');return false;"
+                       onclick="showVersions('<%=Encode.forJavaScriptAttribute(policies[i].getPolicyId())%>');return false;"
                        href="#" style="background-image: url(images/edit.gif);" class="icon-link">
                         <fmt:message key='versions'/></a>
                     <%
@@ -488,7 +489,7 @@
                         if (canPublish) {
                     %>
                     <a title="<fmt:message key='publish.to.pdp'/>"   id="publish"
-                       onclick="publishPolicyToPDP('<%=policies[i].getPolicyId()%>');return false;"
+                       onclick="publishPolicyToPDP('<%=Encode.forJavaScriptAttribute(policies[i].getPolicyId())%>');return false;"
                        href="#" style="background-image: url(images/publish.gif);" class="icon-link">
                         <fmt:message key='publish.to.pdp'/></a>
                     <%
@@ -496,7 +497,7 @@
                         if (canTryIt) {
                     %>
                     <a title="<fmt:message key='try.this'/>"
-                       onclick="tryPolicy('<%=policies[i].getPolicyId()%>');return false;"
+                       onclick="tryPolicy('<%=Encode.forJavaScriptAttribute(policies[i].getPolicyId())%>');return false;"
                        href="#" style="background-image: url(images/evaluate.png);" class="icon-link">
                         <fmt:message key='try.this'/></a>
                     <%
@@ -504,7 +505,7 @@
                         if (canViewStatus) {
                     %>
                     <a title="<fmt:message key='view'/>"
-                       onclick="viewStatus('<%=policies[i].getPolicyId()%>');return false;"
+                       onclick="viewStatus('<%=Encode.forJavaScriptAttribute(policies[i].getPolicyId())%>');return false;"
                        href="#" style="background-image: url(images/view.gif);" class="icon-link">
                         <fmt:message key='view.status'/></a>
                     <%

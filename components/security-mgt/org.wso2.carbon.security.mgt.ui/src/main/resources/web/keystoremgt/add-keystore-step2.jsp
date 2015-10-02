@@ -33,6 +33,7 @@
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.List" %>
 <%@page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="../securityconfig/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
@@ -144,7 +145,7 @@
         <div id="workArea">
             <form method="post" action="add-keystore-finish.jsp" name="keystoreFinish">
                 <h3><fmt:message key="step.2.specify.private.key.password"/></h3>
-                <input type="hidden" name="keyStoreName" value="<%=fileName%>"/>
+                <input type="hidden" name="keyStoreName" value="<%=Encode.forHtmlAttribute(fileName)%>"/>
                 <input type="hidden" name="addKeystore" value="true"/>
                 <table class="styledLeft">
                     <thead>
@@ -179,7 +180,7 @@
     %>
                 <script type="text/javascript">
                     function forward() {
-                        location.href = "<%=forwardTo%>";
+                        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
                     }
                 </script>
 
