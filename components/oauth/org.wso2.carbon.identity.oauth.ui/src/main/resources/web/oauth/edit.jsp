@@ -37,6 +37,7 @@
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
 
@@ -140,6 +141,13 @@
 
         <div id="workArea">
    			<script type="text/javascript">
+                function onClickUpdate() {
+                    var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.http'/>",
+                            validate, null, null);
+                    if (isValidated) {
+                        validate();
+                    }
+                }
                 function validate() {
                     var value = document.getElementsByName("application")[0].value;
                     if (value == '') {
@@ -208,8 +216,9 @@
 		                    <%} %>
 		                    <tr id="callback_row">
 		                        <td class="leftCol-small"><fmt:message key='callback'/><span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="callback" name="callback"
-                                           type="text" value="<%=Encode.forHtmlAttribute(app.getCallbackUrl())%>" /></td>
+                                <td><input class="text-box-big" id="callback" name="callback"
+                                           type="text" value="<%=Encode.forHtmlAttribute(app.getCallbackUrl())%>"
+                                           black-list-patterns="http-url"/></td>
 		                    </tr>
                             <script>
                                 if(<%=app.getOAuthVersion().equals(OAuthConstants.OAuthVersions.VERSION_1A)%> || <%=codeGrant%> || <%=implicitGrant%>){
@@ -303,7 +312,7 @@
                     <tr>
                         <td class="buttonRow">
                            <input name="update"
-                                   type="button" class="button" value="<fmt:message key='update'/>" onclick="validate();"/>
+                                   type="button" class="button" value="<fmt:message key='update'/>" onclick="onClickUpdate();"/>
                              <%                           
                             boolean applicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
                             if (applicationComponentFound) {                            

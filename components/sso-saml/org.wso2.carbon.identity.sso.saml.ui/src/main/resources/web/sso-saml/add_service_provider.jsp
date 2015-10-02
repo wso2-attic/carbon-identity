@@ -55,6 +55,7 @@
 <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
 <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
 <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 
 <script type="text/javascript">
 
@@ -285,6 +286,14 @@ function addAssertionConsumerURL() {
     }
     $("#assertionConsumerURLTxt").val("");
     $("#currentColumnId").val(parseInt(currentColumnId) + 1);
+}
+
+function onClickAddACRUrl() {
+    var isValidated = doValidateInputToConfirm(document.getElementById('assertionConsumerURLTxt'), "<fmt:message key='sp.enter.http.endpoint.address'/>",
+            addAssertionConsumerURL, null, null);
+    if (isValidated) {
+        addAssertionConsumerURL();
+    }
 }
 
 function removeAssertionConsumerURL(assertionConsumerURL, columnId) {
@@ -726,9 +735,9 @@ function clearAll() {
         <font color="red">*</font>
     </td>
     <td>
-        <input type="text" id="assertionConsumerURLTxt" class="text-box-big" value=""/>
+        <input type="text" id="assertionConsumerURLTxt" class="text-box-big" value="" black-list-patterns="http-url"/>
         <input id="addAssertionConsumerURLBtn" type="button" value="<fmt:message key="saml.sso.add.acs"/>"
-               onclick="addAssertionConsumerURL()"/>
+               onclick="onClickAddACRUrl()"/>
     </td>
 </tr>
 <%
