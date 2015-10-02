@@ -77,27 +77,6 @@ public class RecoveryProcessor {
     private NotificationSender notificationSender;
     private ChallengeQuestionProcessor questionProcessor;
 
-    /**
-     * Used to avoid deleting confirmation code at verifying confirmation, so if password update failed, it can be
-     * used again
-     */
-    private static ThreadLocal<String> confirmationKeyToKeep = new ThreadLocal<>();
-
-    public static void unsetConfirmationKeyToKeep() {
-
-        RecoveryProcessor.confirmationKeyToKeep.remove();
-    }
-
-    public static String getConfirmationKeyToKeep() {
-
-        return confirmationKeyToKeep.get();
-    }
-
-    public static void setConfirmationKeyToKeep(String confirmationKeyToKeep) {
-
-        RecoveryProcessor.confirmationKeyToKeep.set(confirmationKeyToKeep);
-    }
-
     public RecoveryProcessor() {
 
         List<NotificationSendingModule> notificationSendingModules =
@@ -260,8 +239,8 @@ public class RecoveryProcessor {
         if (persistData) {
             UserRecoveryDataDO recoveryDataDO =
                     new UserRecoveryDataDO(userId, tenantId, internalCode, secretKey);
+            dataStore.invalidate(userId, tenantId);
             dataStore.store(recoveryDataDO);
-
         }
 
         if (IdentityMgtConfig.getInstance().isNotificationInternallyManaged()) {
@@ -291,6 +270,7 @@ public class RecoveryProcessor {
 
         try {
             dataDO = dataStore.load(confirmationKey);
+            dataStore.invalidate(dataDO);
         } catch (IdentityException e) {
             log.error("Invalid User for confirmation code", e);
             return new VerificationBean(VerificationBean.ERROR_CODE_INVALID_USER);
@@ -328,11 +308,8 @@ public class RecoveryProcessor {
 
         try {
             dataDO = dataStore.load(internalCode);
-            if (sequence == 2) {
-                RecoveryProcessor.unsetConfirmationKeyToKeep();
-                RecoveryProcessor.setConfirmationKeyToKeep(internalCode);
-                dataDO.setCode(internalCode);
-                dataStore.store(dataDO);
+            if (sequence != 2) {
+                dataStore.invalidate(dataDO);
             }
 
         } catch (IdentityException e) {
@@ -359,6 +336,9 @@ public class RecoveryProcessor {
         UserRecoveryDataDO recoveryDataDO = new UserRecoveryDataDO(username,
                 tenantId, confirmationKey, secretKey);
 
+        if (sequence != 3) {
+            dataStore.invalidate(username, tenantId);
+        }
         dataStore.store(recoveryDataDO);
         String externalCode = null;
         try {
@@ -411,6 +391,9 @@ public class RecoveryProcessor {
                 String key = UUID.randomUUID().toString();
                 UserRecoveryDataDO dataDO =
                         new UserRecoveryDataDO(userId, tenantId, internalCode, key);
+                if (sequence != 3) {
+                    dataStore.invalidate(userId, tenantId);
+                }
                 dataStore.store(dataDO);
                 log.info("User verification successful for user : " + userId +
                         " from tenant domain :" + userDTO.getTenantDomain());
@@ -434,6 +417,7 @@ public class RecoveryProcessor {
         String key = UUID.randomUUID().toString();
         UserRecoveryDataDO dataDO =
                 new UserRecoveryDataDO(userDTO.getUserId(), userDTO.getTenantId(), key, code);
+        dataStore.invalidate(userDTO.getUserId(), userDTO.getTenantId());
         dataStore.store(dataDO);
     }
 

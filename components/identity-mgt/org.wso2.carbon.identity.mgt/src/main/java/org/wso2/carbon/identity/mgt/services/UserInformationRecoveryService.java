@@ -299,7 +299,6 @@ public class UserInformationRecoveryService {
             if (IdentityMgtConfig.getInstance().isSaasEnabled()) {
                 PrivilegedCarbonContext.endTenantFlow();
             }
-            RecoveryProcessor.unsetConfirmationKeyToKeep();
         }
 
         return bean;
