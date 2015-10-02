@@ -234,8 +234,8 @@
                 changeMonth: true,
                 numberOfMonths: 1,
                 onClose: function (selectedDate) {
-                    $("#createdAtTo").datepicker("option", "minDate",
-                            new Date($('#createdAtFrom').datepicker("getDate")));
+                    $("#createdAtTo").datepicker({minDate:
+                            new Date($('#createdAtFrom').datepicker("getDate"))});
                 }
             });
             $("#createdAtTo").datepicker({
@@ -243,8 +243,8 @@
                 changeMonth: true,
                 numberOfMonths: 1,
                 onClose: function (selectedDate) {
-                    $("#createdAtFrom").datepicker("option", "maxDate", new
-                            Date($('#createdAtTo').datepicker("getDate")));
+                    $("#createdAtFrom").datepicker({maxDate: new
+                            Date($('#createdAtTo').datepicker("getDate"))});
                 }
             });
         });
