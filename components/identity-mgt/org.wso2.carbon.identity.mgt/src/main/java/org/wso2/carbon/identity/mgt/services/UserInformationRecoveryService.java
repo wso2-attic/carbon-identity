@@ -348,6 +348,7 @@ public class UserInformationRecoveryService {
                 Utils.updatePassword(userDTO.getUserId(), tenantId, newPassword);
                 log.info("Credential is updated for user : " + userDTO.getUserId()
                         + " and tenant domain : " + userDTO.getTenantDomain());
+                IdentityMgtConfig.getInstance().getRecoveryDataStore().invalidate(userDTO.getUserId(), tenantId);
                 bean = new VerificationBean(true);
             } else {
                 String msg = "Invalid user tried to update credential with user Id : "
