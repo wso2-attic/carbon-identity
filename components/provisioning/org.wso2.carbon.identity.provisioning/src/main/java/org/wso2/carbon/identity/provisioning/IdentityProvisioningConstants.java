@@ -36,7 +36,6 @@ public class IdentityProvisioningConstants {
     public static final String LOCAL_SP = ApplicationConstants.LOCAL_SP;
     public static final String JIT_PROVISIONING_ENABLED = "jitProvisioningEnabled";
 
-
     public static class SQLQueries {
 
         public static final String ADD_PROVISIONING_ENTITY_SQL = "INSERT INTO IDP_PROVISIONING_ENTITY (PROVISIONING_CONFIG_ID, ENTITY_TYPE, "
