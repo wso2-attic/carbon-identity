@@ -27,7 +27,6 @@ public class IdentityProvisioningConstants {
 
     public static final String WSO2_CARBON_DIALECT = "http://wso2.org/claims";
     public static final String USERNAME_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:username";
-    public static final String USER_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:user";
     public static final String NEW_USER_CLAIM_URI = "org:wso2:carbon:identity:provisioning:new:claim:user";
     public static final String DELETED_USER_CLAIM_URI = "org:wso2:carbon:identity:provisioning:deleted:claim:user";
     public static final String GROUP_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:group";
@@ -36,7 +35,6 @@ public class IdentityProvisioningConstants {
     public static final String PASSWORD_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:password";
     public static final String LOCAL_SP = ApplicationConstants.LOCAL_SP;
     public static final String JIT_PROVISIONING_ENABLED = "jitProvisioningEnabled";
-    public static final String PARAM_ENABLE_DEFAULT_INBOUND_PROV_LISTENER = "Provisioning.EnableDefaultInboundUserProvisioningListener";
 
 
     public static class SQLQueries {
