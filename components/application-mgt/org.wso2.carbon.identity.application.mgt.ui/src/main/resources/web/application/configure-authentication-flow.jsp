@@ -79,11 +79,11 @@ var authMap = {};
 				int i = 1;
 				for (FederatedAuthenticatorConfig fedAuth : idp.getFederatedAuthenticatorConfigs()){
 					if (i==idp.getFederatedAuthenticatorConfigs().length){
-						fedAuthenticatorDisplayType.append(Encode.forHtmlContent(fedAuth.getDisplayName()));
-						fedAuthenticatorType.append(Encode.forHtmlContent(fedAuth.getName()));
+						fedAuthenticatorDisplayType.append(fedAuth.getDisplayName());
+						fedAuthenticatorType.append(fedAuth.getName());
 					}else{
-						fedAuthenticatorDisplayType.append(Encode.forHtmlContent(fedAuth.getDisplayName() + ","));
-						fedAuthenticatorType.append(Encode.forHtmlContent(fedAuth.getName() + ","));
+						fedAuthenticatorDisplayType.append(fedAuth.getDisplayName() + ",");
+						fedAuthenticatorType.append(fedAuth.getName() + ",");
 					}
 					
 					fedAuthType.append(startOption + Encode.forHtmlAttribute(fedAuth.getName()) + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOPtion);
@@ -94,8 +94,8 @@ var authMap = {};
 					i++;
 				}
 				
-				idpAuthenticators.put(idp.getIdentityProviderName(), Encode.forHtmlContent(fedAuthType.toString()));
-				enabledIdpAuthenticators.put(idp.getIdentityProviderName(), Encode.forHtmlContent(enabledfedAuthType.toString()));
+				idpAuthenticators.put(idp.getIdentityProviderName(), fedAuthType.toString());
+				enabledIdpAuthenticators.put(idp.getIdentityProviderName(), enabledfedAuthType.toString());
 				
 				idpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+ Encode.forHtmlAttribute(fedAuthenticatorDisplayType.toString()) + "\""+ " data-values=\""+ Encode.forHtmlAttribute(fedAuthenticatorType.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOPtion);
 				if(idp.getEnable() && enabledfedAuthType.length() > 0){
