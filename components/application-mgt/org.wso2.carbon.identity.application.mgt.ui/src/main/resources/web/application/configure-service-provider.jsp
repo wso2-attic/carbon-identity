@@ -1629,5 +1629,13 @@ var roleMappinRowID = -1;
             </form>
         </div>
     </div>
+	<script>
+		update();
+		function update() {
+			if (window.location.href.indexOf("action=delete") > -1) {
+				createAppOnclick();
+			}
+		}
+	</script>
 
 </fmt:bundle>
