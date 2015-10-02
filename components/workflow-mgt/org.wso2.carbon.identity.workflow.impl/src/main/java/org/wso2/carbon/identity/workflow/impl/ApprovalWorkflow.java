@@ -74,9 +74,9 @@ public class ApprovalWorkflow extends AbstractWorkflow {
         return inputData;
     }
 
-    public ApprovalWorkflow(TemplateInitializer templateInitializer, WorkFlowExecutor workFlowExecutor,
+    public ApprovalWorkflow(Class<? extends TemplateInitializer> templateInitializerClass, Class<? extends WorkFlowExecutor> workFlowExecutorClass,
                             String metaDataXML) {
-        super(templateInitializer, workFlowExecutor, metaDataXML);
+        super(templateInitializerClass, workFlowExecutorClass, metaDataXML);
     }
 
     @Override
@@ -84,8 +84,4 @@ public class ApprovalWorkflow extends AbstractWorkflow {
         super.deploy(parameterList);
     }
 
-    @Override
-    public void initializeExecutor(List<Parameter> parameterList) throws WorkflowException {
-        super.initializeExecutor(parameterList);
-    }
 }

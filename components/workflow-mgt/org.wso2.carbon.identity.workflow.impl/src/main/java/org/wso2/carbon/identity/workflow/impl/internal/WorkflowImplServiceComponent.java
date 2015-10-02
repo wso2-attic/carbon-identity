@@ -81,9 +81,7 @@ public class WorkflowImplServiceComponent {
             String metaDataXML =
                     readWorkflowImplParamMetaDataXML(WFImplConstant.WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME);
 
-            TemplateInitializer templateInitializer = new BPELDeployer();
-            WorkFlowExecutor workFlowExecutor = new RequestExecutor();
-            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(templateInitializer,workFlowExecutor, metaDataXML), null);
+            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(BPELDeployer.class,RequestExecutor.class, metaDataXML), null);
             bundleContext.registerService(WorkflowListener.class, new WorkflowListenerImpl(), null);
 
             WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
