@@ -29,21 +29,21 @@
 <%@ page import="org.wso2.carbon.identity.mgt.ui.IdentityManagementAdminClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.List" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
     String selectedChallenge = null;
     List<ChallengeQuestionDTO> challenges = null;
-    String deleteRowId =  CharacterEncoder.getSafeText(request.getParameter("deleteRowId"));
-    String editRowId =  CharacterEncoder.getSafeText(request.getParameter("editRowId"));
-    String addRowId = CharacterEncoder.getSafeText(request.getParameter("addRowId"));
-    String setName = CharacterEncoder.getSafeText(request.getParameter("setName"));
+    String deleteRowId = request.getParameter("deleteRowId");
+    String editRowId = request.getParameter("editRowId");
+    String addRowId = request.getParameter("addRowId");
+    String setName = request.getParameter("setName");
     challenges = (List<ChallengeQuestionDTO>) session.
                                     getAttribute(IdentityManagementAdminClient.CHALLENGE_QUESTION);
     
@@ -158,7 +158,7 @@
                            if(setName != null && setName.trim().length() > 0){
                        %>
                             <td  style="padding-top:8px;"> Challenge Question Set Id :</td>
-                            <td><input name="setName" id="setName"  value="<%=setName%>" readonly="readonly" size="35" /></td>
+                            <td><input name="setName" id="setName"  value="<%=Encode.forHtmlAttribute(setName)%>" readonly="readonly" size="35" /></td>
                        <%
                            } else {
                        %>
@@ -173,7 +173,7 @@
                            if(selectedChallenge != null && selectedChallenge.trim().length() > 0){
                        %>
                             <td style="padding-top:8px;"> Edit Challenge Question :</td>
-                            <td><input size="70" name="question0" id="question0"  value="<%=selectedChallenge%>"  /></td>
+                            <td><input size="70" name="question0" id="question0"  value="<%=Encode.forHtmlAttribute(selectedChallenge)%>"  /></td>
 <!--                             <td>
                                 <a onclick="addRow()" style='background-image:url(images/add.gif);' type="button" class="icon-link">Update</a>
                             </td> -->
@@ -233,7 +233,7 @@
                              %>
                             <tr>
                                 <td width="60%">
-                                	<%=challenges.get(i).getQuestion()%>
+                                	<%=Encode.forHtmlContent(challenges.get(i).getQuestion())%>
                                 </td>
                                 <td width="40%">
                                     <a onclick="removeRow('<%=i%>')" style='background-image:url(images/delete.gif);' type="button" class="icon-link">Delete</a>
@@ -246,15 +246,15 @@
                                          %>
 
                                         <input type="hidden" name="question<%=i+1%>" id="question<%=i+1%>"
-                                               size="60" value="<%=challenges.get(i).getQuestion()%>"/>
+                                               size="60" value="<%=Encode.forHtmlAttribute(challenges.get(i).getQuestion())%>"/>
 
                                          <%
                                         }
 %>
                                         <input type="hidden" name="setId<%=i+1%>" id="setId<%=i+1%>"
-                                               size="60" value="<%=challenges.get(i).getQuestionSetId()%>"/>
+                                               size="60" value="<%=Encode.forHtmlAttribute(challenges.get(i).getQuestionSetId())%>"/>
                                         <input type="hidden" name="question<%=i+1%>" id="question<%=i+1%>"
-                                               size="60" value="<%=challenges.get(i).getQuestion()%>"/>
+                                               size="60" value="<%=Encode.forHtmlAttribute(challenges.get(i).getQuestion())%>"/>
 <%
                                     }
                                 }

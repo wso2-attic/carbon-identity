@@ -79,12 +79,12 @@
             <artifactId>axiom</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openid4java.wso2</groupId>
-            <artifactId>openid4java-nodeps</artifactId>
+            <groupId>org.wso2.orbit.org.openid4java</groupId>
+            <artifactId>openid4java</artifactId>
         </dependency>
         <dependency>
-            <groupId>opensaml.wso2</groupId>
-            <artifactId>opensaml2</artifactId>
+            <groupId>org.wso2.orbit.org.opensaml</groupId>
+            <artifactId>opensaml</artifactId>
         </dependency>
         <dependency>
             <groupId>opensaml.wso2</groupId>
@@ -113,6 +113,10 @@
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
+            <artifactId>encoder</artifactId>
         </dependency>
     </dependencies>
 
@@ -185,6 +189,8 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.application.common.model;
                             version="${carbon.identity.package.import.version.range}",
+                            org.owasp.encoder; version ="${encoder.wso2.imp.pkg.version.range}",
+
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.provider.internal,

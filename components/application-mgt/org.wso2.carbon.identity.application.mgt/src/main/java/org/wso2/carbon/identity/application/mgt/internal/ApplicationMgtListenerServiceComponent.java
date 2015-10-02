@@ -20,8 +20,10 @@ package org.wso2.carbon.identity.application.mgt.internal;
 
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @scr.component name="org.wso2.carbon.identity.application.mgt.listener"
@@ -30,27 +32,48 @@ import java.util.List;
  * interface="org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener"
  * cardinality="0..n" policy="dynamic"
  * bind="setApplicationMgtListenerService"
- * unbind="unsetApplicationMgtListenerService" *
+ * unbind="unsetApplicationMgtListenerService"
  */
 public class ApplicationMgtListenerServiceComponent {
 
-    private static List<ApplicationMgtListener> listners = new ArrayList<ApplicationMgtListener>();
+    private static Map<Integer, ApplicationMgtListener> applicationMgtListeners;
+    private static Comparator<Integer> appMgtListenerComparator = new Comparator<Integer>(){
 
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int compare(Integer orderId1, Integer orderId2) {
+            if (orderId1 > orderId2) {
+                return 1;
+            } else if (orderId1 < orderId2) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
 
-    public static void setApplicationMgtListenerService(
-            ApplicationMgtListener identityProviderMgtListerService) {
-
-        listners.add(identityProviderMgtListerService);
+    protected static synchronized void setApplicationMgtListenerService(
+            ApplicationMgtListener applicationMgtListenerService) {
+        if (applicationMgtListeners == null) {
+            applicationMgtListeners = new TreeMap<>(appMgtListenerComparator);
+        }
+        applicationMgtListeners.put(applicationMgtListenerService.getExecutionOrderId(), applicationMgtListenerService);
     }
 
-    public static void unsetApplicationMgtListenerService(
-            ApplicationMgtListener identityProviderMgtListerService) {
-
-        listners.remove(identityProviderMgtListerService);
+    protected static synchronized void unsetApplicationMgtListenerService(
+            ApplicationMgtListener applicationMgtListenerService) {
+        if (applicationMgtListenerService != null &&
+                applicationMgtListeners != null) {
+            applicationMgtListeners = null;
+        }
     }
 
-    public static List<ApplicationMgtListener> getListners() {
-        return listners;
+    public static synchronized Collection getApplicationMgtListeners() {
+        if (applicationMgtListeners == null) {
+            applicationMgtListeners = new TreeMap<>(appMgtListenerComparator);
+        }
+        return applicationMgtListeners.values();
     }
-
 }

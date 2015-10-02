@@ -20,8 +20,9 @@ package org.wso2.carbon.identity.provider.openid.cache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.association.Association;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 
-import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 
@@ -34,11 +35,6 @@ public class OpenIDAssociationCache extends OpenIDBaseCache<OpenIDIdentityCacheK
     private static OpenIDAssociationCache associationCache = null;
     private static final Log log = LogFactory.getLog(OpenIDAssociationCache.class);
 
-    /**
-     * Private constructor
-     *
-     * @param cacheName
-     */
     private OpenIDAssociationCache() {
         super(OPENID_ASSOCIATION_CACHE);
     }
@@ -61,18 +57,17 @@ public class OpenIDAssociationCache extends OpenIDBaseCache<OpenIDIdentityCacheK
      * @param association
      */
     public void addToCache(Association association) {
-        if (log.isDebugEnabled()) {
-            log.debug("Trying to add to cache.");
+
+        if(association == null){
+            throw new IllegalArgumentException("Association is \'Null\'");
         }
-        if (association != null && association.getHandle() != null) {
-            OpenIDIdentityCacheKey cacheKey = new OpenIDIdentityCacheKey(0, association.getHandle());
-            OpenIDIdentityCacheEntry cacheEntry =
-                    new OpenIDIdentityCacheEntry(association.getType(), association.getMacKey(),
-                                                 association.getExpiry());
-            associationCache.addToCache(cacheKey, cacheEntry);
-            if (log.isDebugEnabled()) {
-                log.debug("New entry is added to cache  : " + association.getHandle());
-            }
+        OpenIDIdentityCacheKey cacheKey = new OpenIDIdentityCacheKey(0, association.getHandle());
+        OpenIDIdentityCacheEntry cacheEntry =
+                new OpenIDIdentityCacheEntry(association.getType(), association.getMacKey(),
+                                             association.getExpiry());
+        associationCache.addToCache(cacheKey, cacheEntry);
+        if (log.isDebugEnabled()) {
+            log.debug("New entry is added to cache for handle : " + association.getHandle());
         }
     }
 
@@ -85,42 +80,45 @@ public class OpenIDAssociationCache extends OpenIDBaseCache<OpenIDIdentityCacheK
      * @return <code>Association<code>
      */
     public Association getFromCache(String handle) {
-        if (log.isDebugEnabled()) {
-            log.debug("Trying to get from cache.");
-        }
-        if (handle != null) {
-            OpenIDIdentityCacheKey cacheKey = new OpenIDIdentityCacheKey(0, handle);
-            OpenIDIdentityCacheEntry cacheEntry = associationCache.getValueFromCache(cacheKey);
-            if (cacheEntry != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cache hit for handle : " + handle);
-                }
-                Date expiry = cacheEntry.getDate();
-                String type = cacheEntry.getCacheEntry();
-                Key secretKey = cacheEntry.getSecretKey();
 
-                if (expiry != null && type != null && secretKey != null) {
-                    return new Association(type, handle, (SecretKey) secretKey, expiry);
-                    /*
-                     * We are not removing expired handles from the cache. If we
-                     * do, then at a lookup for a expired search, it will fall
-                     * back to a database lookup which costs a lot. JCache
-                     * should remove an entry if an entry was never called.
-                     *
-                     * if(association.hasExpired()){
-                     * associationCache.removeCacheEntry(handle);
-                     * if(log.isDebugEnabled()){
-                     * log.debug("Expired entry in cache for handle : " +
-                     * handle); } } else { return association; }
-                     */
-                }
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Cache miss for handle : " + handle);
-                }
-            }
+        if(IdentityUtil.isBlank(handle)){
+            throw new IllegalArgumentException("Handle is \'NULL\'");
         }
-        return null;
+        OpenIDIdentityCacheKey cacheKey = new OpenIDIdentityCacheKey(0, handle);
+        OpenIDIdentityCacheEntry cacheEntry = associationCache.getValueFromCache(cacheKey);
+        if (cacheEntry != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Cache hit for handle : " + handle);
+            }
+            Date expiry = cacheEntry.getDate();
+            String type = cacheEntry.getCacheEntry();
+            Key secretKey = cacheEntry.getSecretKey();
+            if(Association.TYPE_HMAC_SHA1.equals(type)){
+                return Association.createHmacSha1(handle, secretKey.getEncoded(), expiry);
+            } else if(Association.TYPE_HMAC_SHA256.equals(type)) {
+                return Association.createHmacSha256(handle, secretKey.getEncoded(), expiry);
+            } else {
+                throw new IdentityRuntimeException("Invalid algorithm " + type);
+            }
+
+            /*
+             * We are not removing expired handles from the cache. If we
+             * do, then at a lookup for a expired search, it will fall
+             * back to a database lookup which costs a lot. JCache
+             * should remove an entry if an entry was never called.
+             *
+             * if(association.hasExpired()){
+             * associationCache.removeCacheEntry(handle);
+             * if(log.isDebugEnabled()){
+             * log.debug("Expired entry in cache for handle : " +
+             * handle); } } else { return association; }
+             */
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Cache miss for handle : " + handle);
+            }
+            return null;
+        }
     }
 
     /**

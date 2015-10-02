@@ -119,14 +119,14 @@
 
     UserRealmInfo userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
     String userName = request.getParameter("username");
-    String disPlayName = request.getParameter("disPlayName");
-    if (StringUtils.isNotBlank(disPlayName)) {
-        disPlayName = (String) session.getAttribute(UserAdminUIConstants.USER_DISPLAY_NAME);
-        if (StringUtils.isNotBlank(disPlayName)) {
-            disPlayName = userName;
+    String displayName = request.getParameter("displayName");
+    if (StringUtils.isBlank(displayName)) {
+        displayName = (String) session.getAttribute(UserAdminUIConstants.USER_DISPLAY_NAME);
+        if (StringUtils.isBlank(displayName)) {
+            displayName = userName;
         }
     } else {
-        session.setAttribute(UserAdminUIConstants.USER_DISPLAY_NAME, disPlayName);
+        session.setAttribute(UserAdminUIConstants.USER_DISPLAY_NAME, displayName);
     }
     exceededDomains = (FlaggedName) session.getAttribute(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_CACHE_EXCEEDED);
 
@@ -325,7 +325,7 @@
 
 
     <div id="middle">
-        <h2><fmt:message key="roles.list.in.user"/> <%=Encode.forHtml(disPlayName)%>
+        <h2><fmt:message key="roles.list.in.user"/> <%=Encode.forHtml(displayName)%>
         </h2>
 
         <script type="text/javascript">

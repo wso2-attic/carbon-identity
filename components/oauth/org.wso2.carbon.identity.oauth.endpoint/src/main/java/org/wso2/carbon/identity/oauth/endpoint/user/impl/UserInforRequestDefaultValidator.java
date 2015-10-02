@@ -17,7 +17,7 @@
  */
 package org.wso2.carbon.identity.oauth.endpoint.user.impl;
 
-import org.apache.amber.oauth2.common.error.OAuthError;
+import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.wso2.carbon.identity.oauth.user.UserInfoEndpointException;
 import org.wso2.carbon.identity.oauth.user.UserInfoRequestValidator;
 import org.wso2.carbon.ui.util.CharacterEncoder;
@@ -35,7 +35,7 @@ public class UserInforRequestDefaultValidator implements UserInfoRequestValidato
     @Override
     public String validateRequest(HttpServletRequest request) throws UserInfoEndpointException {
 
-        String schema = CharacterEncoder.getSafeText(request.getParameter("schema"));
+        String schema = request.getParameter("schema");
         String authzHeaders = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (!"openid".equals(schema)) {

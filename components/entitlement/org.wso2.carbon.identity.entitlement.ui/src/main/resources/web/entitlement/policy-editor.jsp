@@ -32,6 +32,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <jsp:useBean id="entitlementPolicyBean"
@@ -160,11 +161,11 @@
         String tmp = "";
         if(PolicyEditorConstants.DYNAMIC_SELECTOR_FUNCTION.equals(selector)){
             for(String function : ruleFunctions){
-                tmp += "<option value=\"" + function + "\" >" + function + "</option>";
+                tmp += "<option value=\"" + Encode.forHtmlAttribute(function) + "\" >" + Encode.forHtmlContent(function) + "</option>";
             }
         } else {
             for(String category : categories){
-                tmp += "<option value=\"" + category + "\" >" + category + "</option>";
+                tmp += "<option value=\"" + Encode.forHtmlAttribute(category) + "\" >" + Encode.forHtmlContent(category) + "</option>";
             }
         }
 %>
@@ -210,15 +211,15 @@
             jQuery('.newTargetRow').attr('disabled','disabled');
             var rowIndex =  jQuery('#multipleTargetTable tr').last().attr('data-value');
             var index = parseInt(rowIndex, 10) + 1;
-            jQuery('#multipleTargetTable > tbody:last').append('<tr data-value="'+ index +'"><td style="padding-left:0px !important;padding-right:0px !important"><select id="targetCategory_'  + index + '" name="targetCategory_'  + index + '" > <%for (String category : categories) { if(currentCategory != null && category.equals(currentCategory)){%> <option value="<%=category%>" selected="selected"><%=currentCategory%> </option> <%} else {%> <option value="<%=category%>"><%=category%> </option> <%} }%></select></td>' +
+            jQuery('#multipleTargetTable > tbody:last').append('<tr data-value="'+ index +'"><td style="padding-left:0px !important;padding-right:0px !important"><select id="targetCategory_'  + index + '" name="targetCategory_'  + index + '" > <%for (String category : categories) { if(currentCategory != null && category.equals(currentCategory)){%> <option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(category))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(currentCategory))%> </option> <%} else {%> <option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(category))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(category))%> </option> <%} }%></select></td>' +
                 '<td style="padding-left:0px !important;padding-right:0px !important"><select id="targetPreFunction_'  + index + '" name="targetPreFunction_'  + index + '"><%for (String targetPreFunction : targetPreFunctions) {if (currentPreFunction != null && targetPreFunction.equals(currentPreFunction)) {%><option value="<%=targetPreFunction%>" selected="selected"><%=targetPreFunction%></option><%} else {%><option value="<%=targetPreFunction%>"><%=targetPreFunction%></option><%}}%></select></td>' +
                 '<td style="padding-left:0px !important;padding-right:0px !important"><select id="targetFunction_'  + index + '" name="targetFunction_'  + index + '" class="leftCol-small"><%for (String targetFunction : targetFunctions) {if (currentFunction != null && targetFunction.equals(currentFunction)) {%><option value="<%=targetFunction%>" selected="selected"><%=targetFunction%></option><%} else {%><option value="<%=targetFunction%>"><%=targetFunction%></option><%}}%></select></td>' +
-                '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentAttributeValue != null && !"".equals(currentAttributeValue)) {%><input type="text" size="60" name="targetAttributeValue_'  + index + '" id="targetAttributeValue_'  + index + '" value="<%=currentAttributeValue%>" class="text-box-big"/><%} else {%><input type="text" size="60" name="targetAttributeValue_'  + index + '" id="targetAttributeValue_'  + index + '" class="text-box-big"/><%}%></td>' +
+                '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentAttributeValue != null && !"".equals(currentAttributeValue)) {%><input type="text" size="60" name="targetAttributeValue_'  + index + '" id="targetAttributeValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentAttributeValue))%>" class="text-box-big"/><%} else {%><input type="text" size="60" name="targetAttributeValue_'  + index + '" id="targetAttributeValue_'  + index + '" class="text-box-big"/><%}%></td>' +
                 '<td><a title="Select Resources Names" class="icon-link" onclick="selectAttributesForTarget(' + index + ');" style="background-image:url(images/registry.gif);"></a></td>' +
                 '<td style="padding-left:0px !important;padding-right:0px !important"><select id="targetCombineFunctions_'  + index + '" name="targetCombineFunctions_'  + index + '" class="newTargetRow" onchange="createNewTargetRow(this.options[this.selectedIndex].value)"><%for (String combineFunction : combineFunctions) {if (currentCombineFunction != null && combineFunction.equals(currentCombineFunction)) {%><option value="<%=combineFunction%>" selected="selected"><%=combineFunction%></option><%} else {%><option value="<%=combineFunction%>"><%=combineFunction%></option><%}}%></select></td>' +
                 '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
-                '<td><input type="hidden" name="targetAttributeId_'  + index +  '" id="targetAttributeId_'  + index + '" value="<%=currentAttributeId%>"/></td>' +
-                '<td><input type="hidden" name="targetAttributeTypes_'  + index + '" id="targetAttributeTypes_'  + index +  '" value="<%=currentAttributeDataType%>"/></td>' +
+                '<td><input type="hidden" name="targetAttributeId_'  + index +  '" id="targetAttributeId_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentAttributeId))%>"/></td>' +
+                '<td><input type="hidden" name="targetAttributeTypes_'  + index + '" id="targetAttributeTypes_'  + index +  '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentAttributeDataType))%>"/></td>' +
                 '</tr>');
         }
     }
@@ -228,15 +229,15 @@
             jQuery('.newRuleTargetRow').attr('disabled','disabled');
             var rowIndex =  jQuery('#multipleRuleTargetTable tr').last().attr('data-value');
             var index = parseInt(rowIndex, 10) + 1;
-            jQuery('#multipleRuleTargetTable > tbody:last').append('<tr data-value="'+ index +'"><td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleTargetCategory_'  + index + '" name="ruleTargetCategory_'  + index + '" > <%for (String category : categories) { if(currentRuleTargetCategory != null && category.equals(currentRuleTargetCategory)){%> <option value="<%=category%>" selected="selected"><%=currentCategory%> </option> <%} else {%> <option value="<%=category%>"><%=category%> </option> <%} }%></select></td>' +
+            jQuery('#multipleRuleTargetTable > tbody:last').append('<tr data-value="'+ index +'"><td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleTargetCategory_'  + index + '" name="ruleTargetCategory_'  + index + '" > <%for (String category : categories) { if(currentRuleTargetCategory != null && category.equals(currentRuleTargetCategory)){%> <option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(category))%>" selected="selected"><%=currentCategory%> </option> <%} else {%> <option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(category))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(category))%> </option> <%} }%></select></td>' +
                 '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleTargetPreFunction_'  + index + '" name="ruleTargetPreFunction_'  + index + '" ><%for (String targetPreFunction : targetPreFunctions) {if (currentRuleTargetPreFunction != null && targetPreFunction.equals(currentRuleTargetPreFunction)) {%><option value="<%=targetPreFunction%>" selected="selected"><%=targetPreFunction%></option><%} else {%><option value="<%=targetPreFunction%>"><%=targetPreFunction%></option><%}}%></select></td>' +
-                '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleTargetFunction_'  + index + '" name="ruleTargetFunction_'  + index + '" class="leftCol-small"><%for (String targetFunction : targetFunctions) {if (currentRuleTargetFunction != null && targetFunction.equals(currentRuleTargetFunction)) {%><option value="<%=targetFunction%>" selected="selected"><%=targetFunction%></option><%} else {%><option value="<%=targetFunction%>"><%=targetFunction%></option><%}}%></select></td>' +
-                '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleTargetAttributeValue != null && !"".equals(currentRuleTargetAttributeValue)) {%><input type="text" size="60" name="ruleTargetAttributeValue_'  + index + '" id="ruleTargetAttributeValue_'  + index + '" value="<%=currentAttributeValue%>" class="text-box-big"/><%} else {%><input type="text" size="60" name="ruleTargetAttributeValue_'  + index + '" id="ruleTargetAttributeValue_'  + index + '" class="text-box-big"/><%}%></td>' +
+                '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleTargetFunction_'  + index + '" name="ruleTargetFunction_'  + index + '" class="leftCol-small"><%for (String targetFunction : targetFunctions) {if (currentRuleTargetFunction != null && targetFunction.equals(currentRuleTargetFunction)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(targetFunction))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(targetFunction))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(targetFunction))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(targetFunction))%></option><%}}%></select></td>' +
+                '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleTargetAttributeValue != null && !"".equals(currentRuleTargetAttributeValue)) {%><input type="text" size="60" name="ruleTargetAttributeValue_'  + index + '" id="ruleTargetAttributeValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentAttributeValue))%>" class="text-box-big"/><%} else {%><input type="text" size="60" name="ruleTargetAttributeValue_'  + index + '" id="ruleTargetAttributeValue_'  + index + '" class="text-box-big"/><%}%></td>' +
                 '<td><a title="Select Resources Names" class="icon-link" onclick="selectAttributesForRuleTarget(' + index + ');" style="background-image:url(images/registry.gif);"></a></td>' +
-                '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleTargetCombineFunctions_'  + index + '" name="ruleTargetCombineFunctions_'  + index + '" class="newRuleTargetRow" onchange="createNewRuleTargetRow(this.options[this.selectedIndex].value)"><%for (String combineFunction : combineFunctions) {if (currentRuleTargetCombineFunction != null && combineFunction.equals(currentRuleTargetCombineFunction)) {%><option value="<%=combineFunction%>" selected="selected"><%=combineFunction%></option><%} else {%><option value="<%=combineFunction%>"><%=combineFunction%></option><%}}%></select></td>' +
+                '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleTargetCombineFunctions_'  + index + '" name="ruleTargetCombineFunctions_'  + index + '" class="newRuleTargetRow" onchange="createNewRuleTargetRow(this.options[this.selectedIndex].value)"><%for (String combineFunction : combineFunctions) {if (currentRuleTargetCombineFunction != null && combineFunction.equals(currentRuleTargetCombineFunction)) {%><option value="<%=combineFunction%>" selected="selected"><%=combineFunction%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(combineFunction))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(combineFunction))%></option><%}}%></select></td>' +
                 '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
-                '<td><input type="hidden" name="ruleTargetAttributeId_'  + index +  '" id="ruleTargetAttributeId_'  + index + '" value="<%=currentRuleTargetAttributeId%>"/></td>' +
-                '<td><input type="hidden" name="ruleTargetAttributeTypes_'  + index + '" id="ruleTargetAttributeTypes_'  + index +  '" value="<%=currentRuleTargetAttributeDataType%>"/></td>' +
+                '<td><input type="hidden" name="ruleTargetAttributeId_'  + index +  '" id="ruleTargetAttributeId_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleTargetAttributeId))%>"/></td>' +
+                '<td><input type="hidden" name="ruleTargetAttributeTypes_'  + index + '" id="ruleTargetAttributeTypes_'  + index +  '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleTargetAttributeDataType))%>"/></td>' +
                 '</tr>');
         }
     }
@@ -246,15 +247,15 @@
             jQuery('.newRuleRow').attr('disabled','disabled');
             var rowIndex =  jQuery('#multipleRuleTable tr').last().attr('data-value');
             var index = parseInt(rowIndex, 10) + 1;
-            jQuery('#multipleRuleTable > tbody:last').append('<tr data-value="'+ index +'"><td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleCategory_'  + index + '" name="ruleCategory_'  + index + '" > <%for (String category : categories) { if(currentRuleCategory != null && category.equals(currentRuleCategory)){%> <option value="<%=category%>" selected="selected"><%=category%> </option> <%} else {%> <option value="<%=category%>"><%=category%> </option> <%} }%></select></td>' +
+            jQuery('#multipleRuleTable > tbody:last').append('<tr data-value="'+ index +'"><td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleCategory_'  + index + '" name="ruleCategory_'  + index + '" > <%for (String category : categories) { if(currentRuleCategory != null && category.equals(currentRuleCategory)){%> <option value="<%=category%>" selected="selected"><%=category%> </option> <%} else {%> <option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(category))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(category))%> </option> <%} }%></select></td>' +
                 '<td style="padding-left:0px !important;padding-right:0px !important"><select id="rulePreFunction_'  + index + '" name="rulePreFunction_'  + index + '" ><%for (String rulePreFunction : rulePreFunctions) {if (currentRulePreFunction != null && rulePreFunction.equals(currentPreFunction)) {%><option value="<%=rulePreFunction%>" selected="selected"><%=rulePreFunction%></option><%} else {%><option value="<%=rulePreFunction%>"><%=rulePreFunction%></option><%}}%></select></td>' +
-                '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleFunction_'  + index + '" name="ruleFunction_'  + index + '" class="leftCol-small"><%for (String ruleFunction : ruleFunctions) {if (currentRuleFunction != null && ruleFunction.equals(currentRuleFunction)) {%><option value="<%=ruleFunction%>" selected="selected"><%=ruleFunction%></option><%} else {%><option value="<%=ruleFunction%>"><%=ruleFunction%></option><%}}%></select></td>' +
-                '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleAttributeValue != null && !"".equals(currentRuleAttributeValue)) {%><input type="text" size="60" name="ruleAttributeValue_'  + index + '" id="ruleAttributeValue_'  + index + '" value="<%=currentRuleAttributeValue%>" class="text-box-big"/><%} else {%><input type="text" size="60" name="ruleAttributeValue_'  + index + '" id="ruleAttributeValue_'  + index + '" class="text-box-big"/><%}%></td>' +
+                '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleFunction_'  + index + '" name="ruleFunction_'  + index + '" class="leftCol-small"><%for (String ruleFunction : ruleFunctions) {if (currentRuleFunction != null && ruleFunction.equals(currentRuleFunction)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(ruleFunction))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(ruleFunction))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(ruleFunction))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(ruleFunction))%></option><%}}%></select></td>' +
+                '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleAttributeValue != null && !"".equals(currentRuleAttributeValue)) {%><input type="text" size="60" name="ruleAttributeValue_'  + index + '" id="ruleAttributeValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleAttributeValue))%>" class="text-box-big"/><%} else {%><input type="text" size="60" name="ruleAttributeValue_'  + index + '" id="ruleAttributeValue_'  + index + '" class="text-box-big"/><%}%></td>' +
                 '<td><a title="Select Resources Names" class="icon-link" onclick="selectAttributesForRule(' + index + ');" style="background-image:url(images/registry.gif);"></a></td>' +
                 '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleCombineFunctions_'  + index + '" name="ruleCombineFunctions_'  + index + '" class="newRuleRow" onchange="createNewRuleRow(this.options[this.selectedIndex].value)"><%for (String combineFunction : combineFunctions) {if (currentCombineFunction != null && combineFunction.equals(currentRuleCombineFunction)) {%><option value="<%=combineFunction%>" selected="selected"><%=combineFunction%></option><%} else {%><option value="<%=combineFunction%>"><%=combineFunction%></option><%}}%></select></td>' +
                 '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
-                '<td><input type="hidden" name="ruleAttributeId_'  + index +  '" id="ruleAttributeId_'  + index + '" value="<%=currentRuleAttributeId%>"/></td>' +
-                '<td><input type="hidden" name="ruleAttributeTypes_'  + index + '" id="ruleAttributeTypes_'  + index +  '" value="<%=currentRuleAttributeDataType%>"/></td>' +
+                '<td><input type="hidden" name="ruleAttributeId_'  + index +  '" id="ruleAttributeId_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleAttributeId))%>"/></td>' +
+                '<td><input type="hidden" name="ruleAttributeTypes_'  + index + '" id="ruleAttributeTypes_'  + index +  '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleAttributeDataType))%>"/></td>' +
                 '</tr>');
         }
     }
@@ -264,8 +265,8 @@
         var index = parseInt(rowIndex, 10) + 1;
         jQuery('#obligationRuleTable > tbody:last').append('<tr data-value="'+ index +'">' +
             '<td style="padding-left:0px !important;padding-right:0px !important"><select id="obligationRuleType_' + index +'" name="obligationRuleType_' + index +'" ><%for (String type : obligationTypes) {if (currentRuleObligationType != null && type.equals(currentRuleObligationType)) {%><option value="<%=type%>" selected="selected"><%=type%></option><%} else {%><option value="<%=type%>"><%=type%></option><%}}%></select></td>' +
-            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleObligationId != null && currentRuleObligationId.trim().length() > 0) {%><input type="text" size="20" name="obligationRuleId_' + index +'" id="obligationRuleId_' + index +'" value="<%=currentRuleObligationId%>" /><%} else {%><input type="text" size="20" name="obligationRuleId_' + index +'" id="obligationRuleId_' + index +'" /><%}%></td>'+
-            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleObligationAttributeValue != null && currentRuleObligationAttributeValue.trim().length() > 0) {%><input type="text" size="40" name="obligationRuleAttributeValue_' + index +'" id="obligationRuleAttributeValue_' + index +'" value="<%=currentRuleObligationAttributeValue%>" /> <%} else {%><input type="text" size="40" name="obligationRuleAttributeValue_' + index +'" id="obligationRuleAttributeValue_' + index +'"/><%}%></td>'+
+            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleObligationId != null && currentRuleObligationId.trim().length() > 0) {%><input type="text" size="20" name="obligationRuleId_' + index +'" id="obligationRuleId_' + index +'" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleObligationId))%>" /><%} else {%><input type="text" size="20" name="obligationRuleId_' + index +'" id="obligationRuleId_' + index +'" /><%}%></td>'+
+            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleObligationAttributeValue != null && currentRuleObligationAttributeValue.trim().length() > 0) {%><input type="text" size="40" name="obligationRuleAttributeValue_' + index +'" id="obligationRuleAttributeValue_' + index +'" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleObligationAttributeValue))%>" /> <%} else {%><input type="text" size="40" name="obligationRuleAttributeValue_' + index +'" id="obligationRuleAttributeValue_' + index +'"/><%}%></td>'+
             <%--'<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleObligationAttributeId != null && currentRuleObligationAttributeId.trim().length() > 0) {%><input type="text" size="40" name="obligationRuleAttributeId_' + index +'" id="obligationRuleAttributeId_' + index +'" value="<%=currentRuleObligationAttributeId%>" /><%} else {%><input type="text" size="40" name="obligationRuleAttributeId_' + index +'" id="obligationRuleAttributeId_' + index +'"/><%}%></td>' +--%>
             '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
             '</tr>');
@@ -277,8 +278,8 @@
         jQuery('#obligationTable > tbody:last').append('<tr data-value="'+ index +'">' +
             '<td style="padding-left:0px !important;padding-right:0px !important"><select id="obligationType_' + index +'" name="obligationType_' + index +'"><%for (String type : obligationTypes) {if (currentObligationType != null && type.equals(currentObligationType)) {%><option value="<%=type%>" selected="selected"><%=type%></option><%} else {%><option value="<%=type%>"><%=type%></option><%}}%></select></td>' +
             '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentObligationId != null && currentObligationId.trim().length() > 0) {%><input type="text" size="20" name="obligationId_' + index +'" id="obligationId_' + index +'" value="<%=currentObligationId%>" /><%} else {%><input type="text" size="20" name="obligationId_' + index +'" id="obligationId_' + index +'" /><%}%></td>'+
-            '<td style="padding-left:0px !important;padding-right:0px !important"><select id="obligationEffect_' + index +'" name="obligationEffect_' + index +'"><%if (ruleEffects != null) {for (String effect : ruleEffects) {if (effect.equals(currentObligationEffect)) {%><option value="<%=effect%>" selected="selected"><%=effect%></option><%} else {%><option value="<%=effect%>"><%=effect%></option><%}}}%></select></td>' +
-            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentObligationAttributeValue != null && currentObligationAttributeValue.trim().length() > 0) {%><input type="text" size="40" name="obligationAttributeValue_" '+ index +' id="obligationAttributeValue_" '+ index +' value="<%=currentObligationAttributeValue%>" /> <%} else {%><input type="text" size="40" name="obligationAttributeValue_' + index +'" id="obligationAttributeValue_' + index +'" /><%}%></td>'+
+            '<td style="padding-left:0px !important;padding-right:0px !important"><select id="obligationEffect_' + index +'" name="obligationEffect_' + index +'"><%if (ruleEffects != null) {for (String effect : ruleEffects) {if (effect.equals(currentObligationEffect)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(effect))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(effect))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(effect))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(effect))%></option><%}}}%></select></td>' +
+            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentObligationAttributeValue != null && currentObligationAttributeValue.trim().length() > 0) {%><input type="text" size="40" name="obligationAttributeValue_" '+ index +' id="obligationAttributeValue_" '+ index +' value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentObligationAttributeValue))%>" /> <%} else {%><input type="text" size="40" name="obligationAttributeValue_' + index +'" id="obligationAttributeValue_' + index +'" /><%}%></td>'+
             <%--'<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentObligationAttributeId != null && currentObligationAttributeId.trim().length() > 0) {%><input type="text" size="40" name="obligationAttributeId_' + index +'" id="obligationAttributeId_' + index +'" value="<%=currentObligationAttributeId%>" /><%} else {%><input type="text" size="40" name="obligationAttributeId_' + index +'" id="obligationAttributeId_' + index +'"/><%}%></td>' +--%>
             '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
             '</tr>');
@@ -287,8 +288,8 @@
     function createNewExtendAttributeValueRow() {
         var  index = jQuery('#extendAttributeTable tr').length;
         jQuery('#extendAttributeTable > tbody:last').append('<tr>' + 
-            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentDynamicId != null && currentDynamicId.trim().length() > 0) {%><input  name="dynamicId_0"  id="dynamicId_0" value="<%=currentDynamicId%>" /><%} else {%><input  name="dynamicId_0" id="dynamicId_0" /><%}%></td>' +
-            '<td style="padding-left:0px !important;padding-right:0px !important"><select id="dynamicSelector_0" name="dynamicSelector_0" class="leftCol-small"><%for (String selector : dynamicSelectors) { if (currentDynamicSelector != null && selector.equals(currentDynamicSelector)) {%><option value="<%=selector%>" selected="selected"><%=selector%></option><%} else {%><option value="<%=selector%>"><%=selector%></option><%}}%></select></td>' +
+            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentDynamicId != null && currentDynamicId.trim().length() > 0) {%><input  name="dynamicId_0"  id="dynamicId_0" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentDynamicId))%>" /><%} else {%><input  name="dynamicId_0" id="dynamicId_0" /><%}%></td>' +
+            '<td style="padding-left:0px !important;padding-right:0px !important"><select id="dynamicSelector_0" name="dynamicSelector_0" class="leftCol-small"><%for (String selector : dynamicSelectors) { if (currentDynamicSelector != null && selector.equals(currentDynamicSelector)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selector))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(selector))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selector))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(selector))%></option><%}}%></select></td>' +
             '</tr>');
     }
 
@@ -647,7 +648,7 @@ function preSubmit(){
         if (entitlementPolicyBean.getPolicyName() != null) {
     %>
     <td><input type="text" name="policyName" id="policyName"
-               value="<%=entitlementPolicyBean.getPolicyName()%>" class="text-box-big"/></td>
+               value="<%=Encode.forHtmlAttribute(entitlementPolicyBean.getPolicyName())%>" class="text-box-big"/></td>
     <%
     } else {
     %>
@@ -666,13 +667,13 @@ function preSubmit(){
                     for (String algorithmName : ruleCombingAlgorithm) {
                         if (algorithmName.equals(entitlementPolicyBean.getAlgorithmName())) {
             %>
-            <option value="<%=algorithmName%>"
-                    selected="selected"><%=entitlementPolicyBean.getAlgorithmName()%>
+            <option value="<%=Encode.forHtmlAttribute(algorithmName)%>"
+                    selected="selected"><%=Encode.forHtmlContent(entitlementPolicyBean.getAlgorithmName())%>
             </option>
             <%
             } else {
             %>
-            <option value="<%=algorithmName%>"><%=algorithmName%>
+            <option value="<%=Encode.forHtmlAttribute(algorithmName)%>"><%=Encode.forHtmlContent(algorithmName)%>
             </option>
             <%
                         }
@@ -690,8 +691,8 @@ function preSubmit(){
         if (entitlementPolicyBean.getPolicyDescription() != null) {
     %>
     <td><textarea name="policyDescription" id="policyDescription"
-                  value="<%=entitlementPolicyBean.getPolicyDescription()%>"
-                  class="text-box-big"><%=entitlementPolicyBean.getPolicyDescription()%>
+                  value="<%=Encode.forHtmlAttribute(entitlementPolicyBean.getPolicyDescription())%>"
+                  class="text-box-big"><%=Encode.forHtmlContent(entitlementPolicyBean.getPolicyDescription())%>
     </textarea></td>
     <%
     } else {
@@ -763,11 +764,11 @@ function preSubmit(){
                                             for (String category : categories) {
                                                 if (currentCategory != null && category.equals(currentCategory)) {
                                         %>
-                                        <option value="<%=category%>" selected="selected"><%=category%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(category)%>" selected="selected"><%=Encode.forHtmlContent(category)%></option>
                                         <%
                                                 } else {
                                         %>
-                                        <option value="<%=category%>"><%=category%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(category)%>"><%=Encode.forHtmlContent(category)%></option>
                                         <%
                                                     }
                                                 }
@@ -805,13 +806,13 @@ function preSubmit(){
                                             for (String targetFunction : targetFunctions) {
                                                 if (currentFunction != null && targetFunction.equals(currentFunction)) {
                                         %>
-                                        <option value="<%=targetFunction%>"
-                                                selected="selected"><%=targetFunction%>
+                                        <option value="<%=Encode.forHtmlAttribute(targetFunction)%>"
+                                                selected="selected"><%=Encode.forHtmlContent(targetFunction)%>
                                         </option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=targetFunction%>"><%=targetFunction%>
+                                        <option value="<%=Encode.forHtmlAttribute(targetFunction)%>"><%=Encode.forHtmlContent(targetFunction)%>
                                         </option>
                                         <%
                                                 }
@@ -828,7 +829,7 @@ function preSubmit(){
                                     %>
                                     <input type="text" size="60" name="targetAttributeValue_0"
                                            id="targetAttributeValue_0"
-                                           value="<%=currentAttributeValue%>" class="text-box-big"/>
+                                           value="<%=Encode.forHtmlAttribute(currentAttributeValue)%>" class="text-box-big"/>
                                     <%
                                     } else {
                                     %>
@@ -852,13 +853,13 @@ function preSubmit(){
                                             for (String combineFunction : combineFunctions) {
                                                 if (currentCombineFunction != null && combineFunction.equals(currentCombineFunction)) {
                                         %>
-                                        <option value="<%=combineFunction%>"
-                                                selected="selected"><%=combineFunction%>
+                                        <option value="<%=Encode.forHtmlAttribute(combineFunction)%>"
+                                                selected="selected"><%=Encode.forHtmlContent(combineFunction)%>
                                         </option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=combineFunction%>"><%=combineFunction%>
+                                        <option value="<%=Encode.forHtmlAttribute(combineFunction)%>"><%=Encode.forHtmlContent(combineFunction)%>
                                         </option>
                                         <%
                                                 }
@@ -868,13 +869,13 @@ function preSubmit(){
                                 </td>
                                 <td>
                                     <input type="hidden" name="targetAttributeId_0"
-                                           id="targetAttributeId_0" value="<%=currentAttributeId%>"/>
+                                           id="targetAttributeId_0" value="<%=Encode.forHtmlAttribute(currentAttributeId)%>"/>
                                 </td>
 
                                 <td>
                                     <input type="hidden" name="targetAttributeTypes_0"
                                            id="targetAttributeTypes_0"
-                                           value="<%=currentAttributeDataType%>"/>
+                                           value="<%=Encode.forHtmlAttribute(currentAttributeDataType)%>"/>
                                 </td>
                             </tr>
                         </table>
@@ -917,15 +918,15 @@ function preSubmit(){
                         jQuery('.newTargetRow').attr('disabled','disabled');
                         var rowIndex =  jQuery('#multipleTargetTable tr').last().attr('data-value');
                         var index = parseInt(rowIndex, 10) + 1;
-                        jQuery('#multipleTargetTable > tbody:last').append('<tr  data-value="' + index +'"><td style="padding-left:0px !important;padding-right:0px !important"><select id="targetCategory_'  + index + '" name="targetCategory_'  + index + '" > <%for (String category : categories) { if(currentCategory != null && category.equals(currentCategory)){%> <option value="<%=category%>" selected="selected"><%=currentCategory%> </option> <%} else {%> <option value="<%=category%>"><%=category%> </option> <%} }%></select></td>' +
+                        jQuery('#multipleTargetTable > tbody:last').append('<tr  data-value="' + index +'"><td style="padding-left:0px !important;padding-right:0px !important"><select id="targetCategory_'  + index + '" name="targetCategory_'  + index + '" > <%for (String category : categories) { if(currentCategory != null && category.equals(currentCategory)){%> <option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(category))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(currentCategory))%> </option> <%} else {%> <option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(category))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(category))%> </option> <%} }%></select></td>' +
                                 '<td style="padding-left:0px !important;padding-right:0px !important"><select id="targetPreFunction_'  + index + '" name="targetPreFunction_'  + index + '" ><%for (String targetPreFunction : targetPreFunctions) {if (currentPreFunction != null && targetPreFunction.equals(currentPreFunction)) {%><option value="<%=targetPreFunction%>" selected="selected"><%=targetPreFunction%></option><%} else {%><option value="<%=targetPreFunction%>"><%=targetPreFunction%></option><%}}%></select></td>' +
-                                '<td style="padding-left:0px !important;padding-right:0px !important"><select id="targetFunction_'  + index + '" name="targetFunction_'  + index + '" class="leftCol-small"><%for (String targetFunction : targetFunctions) {if (currentFunction != null && targetFunction.equals(currentFunction)) {%><option value="<%=targetFunction%>" selected="selected"><%=targetFunction%></option><%} else {%><option value="<%=targetFunction%>"><%=targetFunction%></option><%}}%></select></td>' +
-                                '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentAttributeValue != null && !"".equals(currentAttributeValue)) {%><input type="text" size="60" name="targetAttributeValue_'  + index + '" id="targetAttributeValue_'  + index + '" value="<%=currentAttributeValue%>" class="text-box-big"/><%} else {%><input type="text" size="60" name="targetAttributeValue_'  + index + '" id="targetAttributeValue_'  + index + '" class="text-box-big"/><%}%></td>' +
+                                '<td style="padding-left:0px !important;padding-right:0px !important"><select id="targetFunction_'  + index + '" name="targetFunction_'  + index + '" class="leftCol-small"><%for (String targetFunction : targetFunctions) {if (currentFunction != null && targetFunction.equals(currentFunction)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(targetFunction))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(targetFunction))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(targetFunction))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(targetFunction))%></option><%}}%></select></td>' +
+                                '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentAttributeValue != null && !"".equals(currentAttributeValue)) {%><input type="text" size="60" name="targetAttributeValue_'  + index + '" id="targetAttributeValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentAttributeValue))%>" class="text-box-big"/><%} else {%><input type="text" size="60" name="targetAttributeValue_'  + index + '" id="targetAttributeValue_'  + index + '" class="text-box-big"/><%}%></td>' +
                                 '<td><a title="Select Resources Names" class="icon-link" onclick="selectAttributesForTarget(' + index + ');" style="background-image:url(images/registry.gif);"></a></td>' +
                                 '<td style="padding-left:0px !important;padding-right:0px !important"><select id="targetCombineFunctions_'  + index + '" name="targetCombineFunctions_'  + index + '" class="newTargetRow " onchange="createNewTargetRow(this.options[this.selectedIndex].value)"><%for (String combineFunction : combineFunctions) {if (currentCombineFunction != null && combineFunction.equals(currentCombineFunction)) {%><option value="<%=combineFunction%>" selected="selected"><%=combineFunction%></option><%} else {%><option value="<%=combineFunction%>"><%=combineFunction%></option><%}}%></select></td>' +
                                 '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
-                                '<td><input type="hidden" name="targetAttributeId_'  + index +  '" id="targetAttributeId_'  + index + '" value="<%=currentAttributeId%>"/></td>' +
-                                '<td><input type="hidden" name="targetAttributeTypes_'  + index + '" id="targetAttributeTypes_'  + index +  '" value="<%=currentAttributeDataType%>"/></td>' +                                
+                                '<td><input type="hidden" name="targetAttributeId_'  + index +  '" id="targetAttributeId_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentAttributeId))%>"/></td>' +
+                                '<td><input type="hidden" name="targetAttributeTypes_'  + index + '" id="targetAttributeTypes_'  + index +  '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentAttributeDataType))%>"/></td>' +
                                 '</tr>');
                     }
                     createNextTargetRow();
@@ -961,7 +962,7 @@ function preSubmit(){
                                 if (ruleId != null && !ruleId.trim().equals("") && !ruleId.trim().equals("null")) {
                             %>
                             <input type="text" name="ruleId" id="ruleId" class="text-box-big"
-                                   value="<%=ruleDTO.getRuleId()%>"/>
+                                   value="<%=Encode.forHtmlAttribute(ruleDTO.getRuleId())%>"/>
                             <%
                             } else {
                             %>
@@ -982,13 +983,13 @@ function preSubmit(){
                                             if (effect.equals(ruleEffect)) {
 
                                 %>
-                                <option value="<%=effect%>" selected="selected"><%=effect%>
+                                <option value="<%=Encode.forHtmlAttribute(effect)%>" selected="selected"><%=Encode.forHtmlContent(effect)%>
                                 </option>
                                 <%
                                 } else {
 
                                 %>
-                                <option value="<%=effect%>"><%=effect%>
+                                <option value="<%=Encode.forHtmlAttribute(effect)%>"><%=Encode.forHtmlContent(effect)%>
                                 </option>
                                 <%
                                             }
@@ -1013,13 +1014,13 @@ function preSubmit(){
                                             for (String category : categories) {
                                                 if (currentRuleTargetCategory != null && category.equals(currentRuleTargetCategory)) {
                                         %>
-                                        <option value="<%=category%>"
-                                                selected="selected"><%=category%>
+                                        <option value="<%=Encode.forHtmlAttribute(category)%>"
+                                                selected="selected"><%=Encode.forHtmlContent(category)%>
                                         </option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=category%>"><%=category%>
+                                        <option value="<%=Encode.forHtmlAttribute(category)%>"><%=Encode.forHtmlContent(category)%>
                                         </option>
                                         <%
                                                 }
@@ -1034,13 +1035,13 @@ function preSubmit(){
                                             for (String targetPreFunction : targetPreFunctions) {
                                                 if (currentRuleTargetPreFunction != null && targetPreFunction.equals(currentRuleTargetPreFunction)) {
                                         %>
-                                        <option value="<%=targetPreFunction%>"
-                                                selected="selected"><%=targetPreFunction%>
+                                        <option value="<%=Encode.forHtmlAttribute(targetPreFunction)%>"
+                                                selected="selected"><%=Encode.forHtmlContent(targetPreFunction)%>
                                         </option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=targetPreFunction%>"><%=targetPreFunction%>
+                                        <option value="<%=Encode.forHtmlAttribute(targetPreFunction)%>"><%=Encode.forHtmlContent(targetPreFunction)%>
                                         </option>
                                         <%
                                                 }
@@ -1056,11 +1057,11 @@ function preSubmit(){
                                             for (String targetFunction : targetFunctions) {
                                                 if (currentRuleTargetFunction != null && targetFunction.equals(currentRuleTargetFunction)) {
                                         %>
-                                        <option value="<%=targetFunction%>" selected="selected"><%=targetFunction%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(targetFunction)%>" selected="selected"><%=Encode.forHtmlContent(targetFunction)%></option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=targetFunction%>"><%=targetFunction%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(targetFunction)%>"><%=Encode.forHtmlContent(targetFunction)%></option>
                                         <%
                                                 }
                                             }
@@ -1075,7 +1076,7 @@ function preSubmit(){
                                     %>
                                     <input type="text" size="60" name="ruleTargetAttributeValue_0"
                                            id="ruleTargetAttributeValue_0"
-                                           value="<%=currentRuleTargetAttributeValue%>" class="text-box-big"/>
+                                           value="<%=Encode.forHtmlAttribute(currentRuleTargetAttributeValue)%>" class="text-box-big"/>
                                     <%
                                     } else {
                                     %>
@@ -1116,13 +1117,13 @@ function preSubmit(){
                                 </td>
                                 <td>
                                     <input type="hidden" name="ruleTargetAttributeId_0"
-                                           id="ruleTargetAttributeId_0" value="<%=currentRuleTargetAttributeId%>"/>
+                                           id="ruleTargetAttributeId_0" value="<%=Encode.forHtmlAttribute(currentRuleTargetAttributeId)%>"/>
                                 </td>
 
                                 <td>
                                     <input type="hidden" name="ruleTargetAttributeTypes_0"
                                            id="ruleTargetAttributeTypes_0"
-                                           value="<%=currentRuleTargetAttributeDataType%>"/>
+                                           value="<%=Encode.forHtmlAttribute(currentRuleTargetAttributeDataType)%>"/>
                                 </td>                                
                             </tr>
                         </table>
@@ -1164,15 +1165,15 @@ function preSubmit(){
                     jQuery('.newRuleTargetRow').attr('disabled','disabled');
                     var rowIndex =  jQuery('#multipleRuleTargetTable tr').last().attr('data-value');
                     var index = parseInt(rowIndex, 10) + 1;
-                    jQuery('#multipleRuleTargetTable > tbody:last').append('<tr data-value="'+ index +'"><td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleTargetCategory_'  + index + '" name="ruleTargetCategory_'  + index + '"> <%for (String category : categories) { if(currentRuleTargetCategory != null && category.equals(currentRuleTargetCategory)){%> <option value="<%=category%>" selected="selected"><%=category%> </option> <%} else {%> <option value="<%=category%>"><%=category%> </option> <%} }%></select></td>' +
+                    jQuery('#multipleRuleTargetTable > tbody:last').append('<tr data-value="'+ index +'"><td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleTargetCategory_'  + index + '" name="ruleTargetCategory_'  + index + '"> <%for (String category : categories) { if(currentRuleTargetCategory != null && category.equals(currentRuleTargetCategory)){%> <option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(category))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(category))%> </option> <%} else {%> <option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(category))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(category))%> </option> <%} }%></select></td>' +
                         '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleTargetPreFunction_'  + index + '" name="ruleTargetPreFunction_'  + index + '" ><%for (String targetPreFunction : targetPreFunctions) {if (currentRuleTargetPreFunction != null && targetPreFunction.equals(currentRuleTargetPreFunction)) {%><option value="<%=targetPreFunction%>" selected="selected"><%=targetPreFunction%></option><%} else {%><option value="<%=targetPreFunction%>"><%=targetPreFunction%></option><%}}%></select></td>' +
-                        '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleTargetFunction_'  + index + '" name="ruleTargetFunction_'  + index + '" class="leftCol-small"><%for (String targetFunction : targetFunctions) {if (currentRuleTargetFunction != null && targetFunction.equals(currentRuleTargetFunction)) {%><option value="<%=targetFunction%>" selected="selected"><%=targetFunction%></option><%} else {%><option value="<%=targetFunction%>"><%=targetFunction%></option><%}}%></select></td>' +
-                        '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleTargetAttributeValue != null && !"".equals(currentRuleTargetAttributeValue)) {%><input type="text" size="60" name="ruleTargetAttributeValue_'  + index + '" id="ruleTargetAttributeValue_'  + index + '" value="<%=currentRuleTargetAttributeValue%>" class="text-box-big"/><%} else {%><input type="text" size="60" name="ruleTargetAttributeValue_'  + index + '" id="ruleTargetAttributeValue_'  + index + '" class="text-box-big"/><%}%></td>' +
+                        '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleTargetFunction_'  + index + '" name="ruleTargetFunction_'  + index + '" class="leftCol-small"><%for (String targetFunction : targetFunctions) {if (currentRuleTargetFunction != null && targetFunction.equals(currentRuleTargetFunction)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(targetFunction))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(targetFunction))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(targetFunction))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(targetFunction))%></option><%}}%></select></td>' +
+                        '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleTargetAttributeValue != null && !"".equals(currentRuleTargetAttributeValue)) {%><input type="text" size="60" name="ruleTargetAttributeValue_'  + index + '" id="ruleTargetAttributeValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleTargetAttributeValue))%>" class="text-box-big"/><%} else {%><input type="text" size="60" name="ruleTargetAttributeValue_'  + index + '" id="ruleTargetAttributeValue_'  + index + '" class="text-box-big"/><%}%></td>' +
                         '<td><a title="Select Resources Names" class="icon-link" onclick="selectAttributesForRuleTarget(' + index + ');" style="background-image:url(images/registry.gif);"></a></td>' +
                         '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleTargetCombineFunctions_'  + index + '" name="ruleTargetCombineFunctions_'  + index + '" class="newRuleTargetRow " onchange="createNewRuleTargetRow(this.options[this.selectedIndex].value)"><%for (String combineFunction : combineFunctions) {if (currentRuleTargetCombineFunction != null && combineFunction.equals(currentRuleTargetCombineFunction)) {%><option value="<%=combineFunction%>" selected="selected"><%=combineFunction%></option><%} else {%><option value="<%=combineFunction%>"><%=combineFunction%></option><%}}%></select></td>' +
                         '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
-                        '<td><input type="hidden" name="ruleTargetAttributeId_'  + index +  '" id="ruleTargetAttributeId_'  + index + '" value="<%=currentRuleTargetAttributeId%>"/></td>' +
-                        '<td><input type="hidden" name="ruleTargetAttributeTypes_'  + index + '" id="ruleTargetAttributeTypes_'  + index +  '" value="<%=currentRuleTargetAttributeDataType%>"/></td>' +
+                        '<td><input type="hidden" name="ruleTargetAttributeId_'  + index +  '" id="ruleTargetAttributeId_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleTargetAttributeId))%>"/></td>' +
+                        '<td><input type="hidden" name="ruleTargetAttributeTypes_'  + index + '" id="ruleTargetAttributeTypes_'  + index +  '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleTargetAttributeDataType))%>"/></td>' +
                         '</tr>');
                 }
                 createNextRuleTargetRow()
@@ -1200,13 +1201,13 @@ function preSubmit(){
                                             for (String category : categories) {
                                                 if (currentRuleCategory != null && category.equals(currentRuleCategory)) {
                                         %>
-                                        <option value="<%=category%>"
-                                                selected="selected"><%=category%>
+                                        <option value="<%=Encode.forHtmlAttribute(category)%>"
+                                                selected="selected"><%=Encode.forHtmlContent(category)%>
                                         </option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=category%>"><%=category%>
+                                        <option value="<%=Encode.forHtmlAttribute(category)%>"><%=Encode.forHtmlContent(category)%>
                                         </option>
                                         <%
                                                 }
@@ -1221,13 +1222,13 @@ function preSubmit(){
                                             for (String rulePreFunction : rulePreFunctions) {
                                                 if (currentRulePreFunction != null && rulePreFunction.equals(currentRulePreFunction)) {
                                         %>
-                                        <option value="<%=rulePreFunction%>"
-                                                selected="selected"><%=rulePreFunction%>
+                                        <option value="<%=Encode.forHtmlAttribute(rulePreFunction)%>"
+                                                selected="selected"><%=Encode.forHtmlContent(rulePreFunction)%>
                                         </option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=rulePreFunction%>"><%=rulePreFunction%>
+                                        <option value="<%=Encode.forHtmlAttribute(rulePreFunction)%>"><%=Encode.forHtmlContent(rulePreFunction)%>
                                         </option>
                                         <%
                                                 }
@@ -1243,11 +1244,11 @@ function preSubmit(){
                                             for (String ruleFunction : ruleFunctions) {
                                                 if (currentRuleFunction != null && ruleFunction.equals(currentRuleFunction)) {
                                         %>
-                                        <option value="<%=ruleFunction%>" selected="selected"><%=ruleFunction%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(ruleFunction)%>" selected="selected"><%=Encode.forHtmlContent(ruleFunction)%></option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=ruleFunction%>"><%=ruleFunction%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(ruleFunction)%>"><%=Encode.forHtmlContent(ruleFunction)%></option>
                                         <%
                                                 }
                                             }
@@ -1262,7 +1263,7 @@ function preSubmit(){
                                     %>
                                     <input type="text" size="60" name="ruleAttributeValue_0"
                                            id="ruleAttributeValue_0"
-                                           value="<%=currentRuleAttributeValue%>" class="text-box-big"/>
+                                           value="<%=Encode.forHtmlAttribute(currentRuleAttributeValue)%>" class="text-box-big"/>
                                     <%
                                     } else {
                                     %>
@@ -1286,13 +1287,13 @@ function preSubmit(){
                                             for (String combineFunction : combineFunctions) {
                                                 if (currentRuleCombineFunction != null && combineFunction.equals(currentRuleCombineFunction)) {
                                         %>
-                                        <option value="<%=combineFunction%>"
-                                                selected="selected"><%=combineFunction%>
+                                        <option value="<%=Encode.forHtmlAttribute(combineFunction)%>"
+                                                selected="selected"><%=Encode.forHtmlContent(combineFunction)%>
                                         </option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=combineFunction%>"><%=combineFunction%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(combineFunction)%>"><%=Encode.forHtmlContent(combineFunction)%></option>
                                         <%
                                                 }
                                             }
@@ -1301,13 +1302,13 @@ function preSubmit(){
                                 </td>
                                 <td>
                                     <input type="hidden" name="ruleAttributeId_0"
-                                           id="ruleAttributeId_0" value="<%=currentRuleAttributeId%>"/>
+                                           id="ruleAttributeId_0" value="<%=Encode.forHtmlAttribute(currentRuleAttributeId)%>"/>
                                 </td>
 
                                 <td>
                                     <input type="hidden" name="ruleAttributeTypes_0"
                                            id="ruleAttributeTypes_0"
-                                           value="<%=currentRuleAttributeDataType%>"/>
+                                           value="<%=Encode.forHtmlAttribute(currentRuleAttributeDataType)%>"/>
                                 </td>                                
                             </tr>
 <%
@@ -1346,15 +1347,15 @@ function preSubmit(){
                         jQuery('.newRuleRow').attr('disabled','disabled');
                         var rowIndex =  jQuery('#multipleRuleTable tr').last().attr('data-value');
                         var index = parseInt(rowIndex, 10) + 1;
-                        jQuery('#multipleRuleTable > tbody:last').append('<tr data-value="'+ index +'"><td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleCategory_'  + index + '" name="ruleCategory_'  + index + '"> <%for (String category : categories) { if(currentRuleCategory != null && category.equals(currentRuleCategory)){%> <option value="<%=category%>" selected="selected"><%=category%> </option> <%} else {%> <option value="<%=category%>"><%=category%> </option> <%} }%></select></td>' +
-                            '<td style="padding-left:0px !important;padding-right:0px !important"><select id="rulePreFunction_'  + index + '" name="rulePreFunction_'  + index + '" ><%for (String rulePreFunction : rulePreFunctions) {if (currentRulePreFunction != null && rulePreFunction.equals(currentRulePreFunction)) {%><option value="<%=rulePreFunction%>" selected="selected"><%=rulePreFunction%></option><%} else {%><option value="<%=rulePreFunction%>"><%=rulePreFunction%></option><%}}%></select></td>' +
-                            '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleFunction_'  + index + '" name="ruleFunction_'  + index + '" class="leftCol-small"><%for (String ruleFunction : ruleFunctions) {if (currentRuleFunction != null && ruleFunction.equals(currentRuleFunction)) {%><option value="<%=ruleFunction%>" selected="selected"><%=ruleFunction%></option><%} else {%><option value="<%=ruleFunction%>"><%=ruleFunction%></option><%}}%></select></td>' +
-                            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleAttributeValue != null && !"".equals(currentRuleAttributeValue)) {%><input type="text" size="60" name="ruleAttributeValue_'  + index + '" id="ruleAttributeValue_'  + index + '" value="<%=currentRuleAttributeValue%>" class="text-box-big"/><%} else {%><input type="text" size="60" name="ruleAttributeValue_'  + index + '" id="ruleAttributeValue_'  + index + '" class="text-box-big"/><%}%></td>' +
+                        jQuery('#multipleRuleTable > tbody:last').append('<tr data-value="'+ index +'"><td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleCategory_'  + index + '" name="ruleCategory_'  + index + '"> <%for (String category : categories) { if(currentRuleCategory != null && category.equals(currentRuleCategory)){%> <option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(category))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(category))%> </option> <%} else {%> <option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(category))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(category))%> </option> <%} }%></select></td>' +
+                            '<td style="padding-left:0px !important;padding-right:0px !important"><select id="rulePreFunction_'  + index + '" name="rulePreFunction_'  + index + '" ><%for (String rulePreFunction : rulePreFunctions) {if (currentRulePreFunction != null && rulePreFunction.equals(currentRulePreFunction)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(rulePreFunction))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(rulePreFunction))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(rulePreFunction))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(rulePreFunction))%></option><%}}%></select></td>' +
+                            '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleFunction_'  + index + '" name="ruleFunction_'  + index + '" class="leftCol-small"><%for (String ruleFunction : ruleFunctions) {if (currentRuleFunction != null && ruleFunction.equals(currentRuleFunction)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(ruleFunction))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(ruleFunction))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(ruleFunction))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(ruleFunction))%></option><%}}%></select></td>' +
+                            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleAttributeValue != null && !"".equals(currentRuleAttributeValue)) {%><input type="text" size="60" name="ruleAttributeValue_'  + index + '" id="ruleAttributeValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleAttributeValue))%>" class="text-box-big"/><%} else {%><input type="text" size="60" name="ruleAttributeValue_'  + index + '" id="ruleAttributeValue_'  + index + '" class="text-box-big"/><%}%></td>' +
                             '<td><a title="Select Resources Names" class="icon-link" onclick="selectAttributesForRule(' + index + ');" style="background-image:url(images/registry.gif);"></a></td>' +
                             '<td style="padding-left:0px !important;padding-right:0px !important"><select id="ruleCombineFunctions_'  + index + '" name="ruleCombineFunctions_'  + index + '" class="newRuleRow" onchange="createNewRuleRow(this.options[this.selectedIndex].value)"><%for (String combineFunction : combineFunctions) {if (currentCombineFunction != null && combineFunction.equals(currentRuleCombineFunction)) {%><option value="<%=combineFunction%>" selected="selected"><%=combineFunction%></option><%} else {%><option value="<%=combineFunction%>"><%=combineFunction%></option><%}}%></select></td>' +
                             '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
-                            '<td><input type="hidden" name="ruleAttributeId_'  + index +  '" id="ruleAttributeId_'  + index + '" value="<%=currentRuleAttributeId%>"/></td>' +
-                            '<td><input type="hidden" name="ruleAttributeTypes_'  + index + '" id="ruleAttributeTypes_'  + index +  '" value="<%=currentRuleAttributeDataType%>"/></td>' +
+                            '<td><input type="hidden" name="ruleAttributeId_'  + index +  '" id="ruleAttributeId_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleAttributeId))%>"/></td>' +
+                            '<td><input type="hidden" name="ruleAttributeTypes_'  + index + '" id="ruleAttributeTypes_'  + index +  '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleAttributeDataType))%>"/></td>' +
                             '</tr>');
                     }
                     createNextRuleRow();
@@ -1410,7 +1411,7 @@ function preSubmit(){
                                             if (currentRuleObligationId != null && currentRuleObligationId.trim().length() > 0) {
                                         %>
                                             <input type="text" size="20" name="obligationRuleId_0" id="obligationRuleId_0"
-                                                   value="<%=currentRuleObligationId%>" />
+                                                   value="<%=Encode.forHtmlAttribute(currentRuleObligationId)%>" />
                                         <%
                                         } else {
                                         %>
@@ -1425,7 +1426,7 @@ function preSubmit(){
                                             if (currentRuleObligationAttributeValue != null && currentRuleObligationAttributeValue.trim().length() > 0) {
                                         %>
                                             <input type="text" size="40" name="obligationRuleAttributeValue_0" id="obligationRuleAttributeValue_0"
-                                                   value="<%=currentRuleObligationAttributeValue%>" />
+                                                   value="<%=Encode.forHtmlAttribute(currentRuleObligationAttributeValue)%>" />
                                         <%
                                         } else {
                                         %>
@@ -1476,8 +1477,8 @@ function preSubmit(){
                         var index = parseInt(rowIndex, 10) + 1;
                         jQuery('#obligationRuleTable > tbody:last').append('<tr data-value="'+ index +'">' +
                             '<td style="padding-left:0px !important;padding-right:0px !important"><select id="obligationRuleType_' + index +'" name="obligationRuleType_' + index +'" ><%for (String type : obligationTypes) {if (currentRuleObligationType != null && type.equals(currentRuleObligationType)) {%><option value="<%=type%>" selected="selected"><%=type%></option><%} else {%><option value="<%=type%>"><%=type%></option><%}}%></select></td>' +
-                            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleObligationId != null && currentRuleObligationId.trim().length() > 0) {%><input type="text" size="20" name="obligationRuleId_' + index +'" id="obligationRuleId_' + index +'" value="<%=currentRuleObligationId%>" /><%} else {%><input type="text" size="20" name="obligationRuleId_' + index +'" id="obligationRuleId_' + index +'" /><%}%></td>'+
-                            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleObligationAttributeValue != null && currentRuleObligationAttributeValue.trim().length() > 0) {%><input type="text" size="40" name="obligationRuleAttributeValue_' + index +'" id="obligationRuleAttributeValue_' + index +'" value="<%=currentRuleObligationAttributeValue%>" /> <%} else {%><input type="text" size="40" name="obligationRuleAttributeValue_' + index +'" id="obligationRuleAttributeValue_' + index +'"/><%}%></td>'+
+                            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleObligationId != null && currentRuleObligationId.trim().length() > 0) {%><input type="text" size="20" name="obligationRuleId_' + index +'" id="obligationRuleId_' + index +'" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleObligationId))%>" /><%} else {%><input type="text" size="20" name="obligationRuleId_' + index +'" id="obligationRuleId_' + index +'" /><%}%></td>'+
+                            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleObligationAttributeValue != null && currentRuleObligationAttributeValue.trim().length() > 0) {%><input type="text" size="40" name="obligationRuleAttributeValue_' + index +'" id="obligationRuleAttributeValue_' + index +'" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentRuleObligationAttributeValue))%>" /> <%} else {%><input type="text" size="40" name="obligationRuleAttributeValue_' + index +'" id="obligationRuleAttributeValue_' + index +'"/><%}%></td>'+
                             <%--'<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentRuleObligationAttributeId != null && currentRuleObligationAttributeId.trim().length() > 0) {%><input type="text" size="40" name="obligationRuleAttributeId_' + index +'" id="obligationRuleAttributeId_' + index +'" value="<%=currentRuleObligationAttributeId%>" /><%} else {%><input type="text" size="40" name="obligationRuleAttributeId_' + index +'" id="obligationRuleAttributeId_' + index +'"/><%}%></td>' +--%>
                             '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
                             '</tr>');
@@ -1554,7 +1555,7 @@ function preSubmit(){
                         if (currentObligationId != null && currentObligationId.trim().length() > 0) {
                     %>
                         <input type="text" size="20" name="obligationId_0" id="obligationId_0"
-                               value="<%=currentObligationId%>" />
+                               value="<%=Encode.forHtmlAttribute(currentObligationId)%>" />
                     <%
                     } else {
                     %>
@@ -1571,11 +1572,11 @@ function preSubmit(){
                                 for (String effect : ruleEffects) {
                                     if (effect.equals(currentObligationEffect)) {
                         %>
-                        <option value="<%=effect%>" selected="selected"><%=effect%></option>
+                        <option value="<%=Encode.forHtmlAttribute(effect)%>" selected="selected"><%=Encode.forHtmlContent(effect)%></option>
                         <%
                         } else {
                         %>
-                        <option value="<%=effect%>"><%=effect%></option>
+                        <option value="<%=Encode.forHtmlAttribute(effect)%>"><%=Encode.forHtmlContent(effect)%></option>
                         <%
                                     }
                                 }
@@ -1589,7 +1590,7 @@ function preSubmit(){
                         if (currentObligationAttributeValue != null && currentObligationAttributeValue.trim().length() > 0) {
                     %>
                         <input type="text" size="40" name="obligationAttributeValue_0" id="obligationAttributeValue_0"
-                               value="<%=currentObligationAttributeValue%>" />
+                               value="<%=Encode.forHtmlAttribute(currentObligationAttributeValue)%>" />
                     <%
                     } else {
                     %>
@@ -1634,9 +1635,9 @@ function preSubmit(){
                         var index = parseInt(rowIndex, 10) + 1;
                         jQuery('#obligationTable > tbody:last').append('<tr data-value="'+ index +'">' +
                             '<td style="padding-left:0px !important;padding-right:0px !important"><select id="obligationType_' + index +'" name="obligationType_' + index +'" ><%for (String type : obligationTypes) {if (currentObligationType != null && type.equals(currentObligationType)) {%><option value="<%=type%>" selected="selected"><%=type%></option><%} else {%><option value="<%=type%>"><%=type%></option><%}}%></select></td>' +
-                            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentObligationId != null && currentObligationId.trim().length() > 0) {%><input type="text" size="20" name="obligationId_' + index +'" id="obligationId_' + index +'" value="<%=currentObligationId%>" /><%} else {%><input type="text" size="20" name="obligationId_' + index +'" id="obligationId_' + index +'" /><%}%></td>'+
-                            '<td style="padding-left:0px !important;padding-right:0px !important"><select id="obligationEffect_' + index +'" name="obligationEffect_' + index +'" ><%if (ruleEffects != null) {for (String effect : ruleEffects) {if (effect.equals(currentObligationEffect)) {%><option value="<%=effect%>" selected="selected"><%=effect%></option><%} else {%><option value="<%=effect%>"><%=effect%></option><%}}}%></select></td>'+
-                            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentObligationAttributeValue != null && currentObligationAttributeValue.trim().length() > 0) {%><input type="text" size="40" name="obligationAttributeValue_' + index +'" id="obligationAttributeValue_' + index +'" value="<%=currentObligationAttributeValue%>" /> <%} else {%><input type="text" size="40" name="obligationAttributeValue_' + index +'" id="obligationAttributeValue_' + index +'"/><%}%></td>'+
+                            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentObligationId != null && currentObligationId.trim().length() > 0) {%><input type="text" size="20" name="obligationId_' + index +'" id="obligationId_' + index +'" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentObligationId))%>" /><%} else {%><input type="text" size="20" name="obligationId_' + index +'" id="obligationId_' + index +'" /><%}%></td>'+
+                            '<td style="padding-left:0px !important;padding-right:0px !important"><select id="obligationEffect_' + index +'" name="obligationEffect_' + index +'" ><%if (ruleEffects != null) {for (String effect : ruleEffects) {if (effect.equals(currentObligationEffect)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(effect))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(effect))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(effect))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(effect))%></option><%}}}%></select></td>'+
+                            '<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentObligationAttributeValue != null && currentObligationAttributeValue.trim().length() > 0) {%><input type="text" size="40" name="obligationAttributeValue_' + index +'" id="obligationAttributeValue_' + index +'" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(currentObligationAttributeValue))%>" /> <%} else {%><input type="text" size="40" name="obligationAttributeValue_' + index +'" id="obligationAttributeValue_' + index +'"/><%}%></td>'+
                             <%--'<td style="padding-left:0px !important;padding-right:0px !important"><%if (currentObligationAttributeId != null && currentObligationAttributeId.trim().length() > 0) {%><input type="text" size="40" name="obligationAttributeId_' + index +'" id="obligationAttributeId_' + index +'" value="<%=currentObligationAttributeId%>" /><%} else {%><input type="text" size="40" name="obligationAttributeId_' + index +'" id="obligationAttributeId_' + index +'"/><%}%></td>' +--%>
                             '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
                             '</tr>');

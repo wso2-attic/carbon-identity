@@ -42,8 +42,8 @@
         roleName = roleBean.getRoleName();
         roleType = roleBean.getRoleType();
         if ((roleType == null || "null".equals(roleType)) &&
-                UserCoreConstants.INTERNAL_USERSTORE.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))) {
-            roleType = UserCoreConstants.INTERNAL_USERSTORE;
+                UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))) {
+            roleType = UserCoreConstants.INTERNAL_DOMAIN;
         }
         boolean isSharedRole = roleBean.getSharedRole() != null && !roleBean.getSharedRole().isEmpty(); 
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -74,7 +74,7 @@
         String message = MessageFormat.format(resourceBundle.getString("role.cannot.add"),
                 new Object[] { roleName, e.getMessage() });
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        if(UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)){
+        if(UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)){
             forwardTo = "add-step1.jsp?roleType=" + UserAdminUIConstants.INTERNAL_ROLE ; 
         } else {
             forwardTo = "add-step1.jsp";

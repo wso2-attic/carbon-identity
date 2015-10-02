@@ -28,16 +28,15 @@
 <%@page import="org.wso2.carbon.identity.mgt.ui.EmailConfigDTO" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    String emailSubject = CharacterEncoder.getSafeText(request.getParameter("emailSubject"));
-	String emailBody = CharacterEncoder.getSafeText(request.getParameter("emailBody"));
-	String emailFooter = CharacterEncoder.getSafeText(request.getParameter("emailFooter"));
-	String templateName = CharacterEncoder.getSafeText(request.getParameter("templateName"));
+    String emailSubject = request.getParameter("emailSubject");
+	String emailBody = request.getParameter("emailBody");
+	String emailFooter = request.getParameter("emailFooter");
+	String templateName = request.getParameter("templateName");
 
 	EmailConfigDTO emailConfig = null;
 	EmailTemplateDTO templateChanged = new EmailTemplateDTO();

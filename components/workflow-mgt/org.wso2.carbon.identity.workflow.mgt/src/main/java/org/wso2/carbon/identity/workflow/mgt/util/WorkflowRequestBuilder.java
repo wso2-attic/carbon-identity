@@ -24,11 +24,11 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
-import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,6 +43,7 @@ public class WorkflowRequestBuilder {
     private static final String WF_REQ_ROOT_ELEM = "ProcessRequest";
     private static final String WF_REQ_UUID_ELEM = "uuid";
     private static final String WF_REQ_ACTION_ELEM = "eventType";
+    private static final String WF_REQ_TASK_INITIATOR_ELEM = "taskInitiator";
 
     private static final String WF_REQ_CONFIG_ELEM = "configuration";
     private static final String WF_REQ_APPROVAL_STEP_ELEM = "approvalStep";
@@ -83,9 +84,25 @@ public class WorkflowRequestBuilder {
     private Map<String, Object> singleValuedParams;
     private Map<String, List<Object>> listTypeParams;
     private Map<String, Map<String, Object>> mapTypeParams;
-    private Map<String, Object> initParams ;
+    private Map<String, Object> initParams;
 
-    public static OMElement buildXMLRequest(WorkFlowRequest workFlowRequest) throws RuntimeWorkflowException {
+    /**
+     * Initialize the Request builder with uuid and event
+     *
+     * @param uuid   Uniquely identifies the workflow
+     * @param action The identifier for the event for which the workflow was triggered
+     */
+    public WorkflowRequestBuilder(String uuid, String action) {
+
+        this.uuid = uuid;
+        this.event = action;
+        singleValuedParams = new HashMap<>();
+        listTypeParams = new HashMap<>();
+        mapTypeParams = new HashMap<>();
+        this.initParams = new HashMap<String, Object>();
+    }
+
+    public static OMElement buildXMLRequest(WorkflowRequest workFlowRequest) throws WorkflowRuntimeException {
 
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
                                                                            workFlowRequest.getEventType());
@@ -115,10 +132,11 @@ public class WorkflowRequestBuilder {
         return requestBuilder.buildRequest();
     }
 
-    public static OMElement buildXMLRequest(WorkFlowRequest workFlowRequest, Map<String, Object> initParams) throws RuntimeWorkflowException {
+    public static OMElement buildXMLRequest(WorkflowRequest workFlowRequest, Map<String, Object> initParams) throws
+                                                                                                             WorkflowRuntimeException {
 
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
-                workFlowRequest.getEventType());
+                                                                           workFlowRequest.getEventType());
 
         for (RequestParameter parameter : workFlowRequest.getRequestParameters()) {
             if (parameter.isRequiredInWorkflow()) {
@@ -151,40 +169,24 @@ public class WorkflowRequestBuilder {
     }
 
     /**
-     * Initialize the Request builder with uuid and event
-     *
-     * @param uuid   Uniquely identifies the workflow
-     * @param action The identifier for the event for which the workflow was triggered
-     */
-    public WorkflowRequestBuilder(String uuid, String action) {
-
-        this.uuid = uuid;
-        this.event = action;
-        singleValuedParams = new HashMap<>();
-        listTypeParams = new HashMap<>();
-        mapTypeParams = new HashMap<>();
-        this.initParams = new HashMap<String, Object>();
-    }
-
-    /**
      * Adds a parameter with a single value. eg. tenantDomain="carbon.super"
      *
      * @param key   The param name
      * @param value The param value, must be either a wrapper for a primitive or String
      * @return This builder instance
      */
-    public WorkflowRequestBuilder addSingleValuedParam(String key, Object value) throws RuntimeWorkflowException {
+    public WorkflowRequestBuilder addSingleValuedParam(String key, Object value) throws WorkflowRuntimeException {
 
         if (StringUtils.isNotBlank(key)) {
             if (isValidValue(value)) {
                 singleValuedParams.put(key, value);
                 return this;
             } else {
-                throw new RuntimeWorkflowException("Value provided for " + key + " is not acceptable. Use either " +
-                        "string, boolean, or numeric value");
+                throw new WorkflowRuntimeException("Value provided for " + key + " is not acceptable. Use either " +
+                                                   "string, boolean, or numeric value");
             }
         } else {
-            throw new RuntimeWorkflowException("Key cannot be null or empty");
+            throw new WorkflowRuntimeException("Key cannot be null or empty");
         }
     }
 
@@ -206,24 +208,24 @@ public class WorkflowRequestBuilder {
      * @param value The param value list, each item must be either a wrapper for a primitive or String
      * @return This builder instance
      */
-    public WorkflowRequestBuilder addListTypeParam(String key, List<Object> value) throws RuntimeWorkflowException {
+    public WorkflowRequestBuilder addListTypeParam(String key, List<Object> value) throws WorkflowRuntimeException {
 
         if (StringUtils.isNotBlank(key)) {
             if (value != null) {
                 for (Object o : value) {
                     if (!isValidValue(o)) {
-                        throw new RuntimeWorkflowException(
+                        throw new WorkflowRuntimeException(
                                 "At least one value provided for " + key + " is not acceptable" +
-                                        ". Use either string, boolean, or numeric value");
+                                ". Use either string, boolean, or numeric value");
                     }
                 }
                 listTypeParams.put(key, value);
                 return this;
             } else {
-                throw new RuntimeWorkflowException("Value for " + key + " cannot be null");
+                throw new WorkflowRuntimeException("Value for " + key + " cannot be null");
             }
         } else {
-            throw new RuntimeWorkflowException("Key cannot be null or empty");
+            throw new WorkflowRuntimeException("Key cannot be null or empty");
         }
     }
 
@@ -236,7 +238,7 @@ public class WorkflowRequestBuilder {
      * @return This builder instance
      */
     public WorkflowRequestBuilder addMapTypeParam(String key, Map<String, Object> value)
-            throws RuntimeWorkflowException {
+            throws WorkflowRuntimeException {
 
         if (StringUtils.isNotBlank(key)) {
             if (value != null) {
@@ -245,18 +247,18 @@ public class WorkflowRequestBuilder {
                         throw new IllegalArgumentException("Map item's key value cannot be null");
                     }
                     if (!isValidValue(entry.getValue())) {
-                        throw new RuntimeWorkflowException(
+                        throw new WorkflowRuntimeException(
                                 "Value provided for " + entry.getKey() + " is not acceptable" +
-                                        ". Use either string, boolean, or numeric value");
+                                ". Use either string, boolean, or numeric value");
                     }
                 }
                 mapTypeParams.put(key, value);
                 return this;
             } else {
-                throw new RuntimeWorkflowException("Value for " + key + " cannot be null");
+                throw new WorkflowRuntimeException("Value for " + key + " cannot be null");
             }
         } else {
-            throw new RuntimeWorkflowException("Key cannot be null or empty");
+            throw new WorkflowRuntimeException("Key cannot be null or empty");
         }
     }
 
@@ -271,12 +273,15 @@ public class WorkflowRequestBuilder {
         OMNamespace omNs = omFactory.createOMNamespace(WF_NS, WF_NS_PREFIX);
         OMElement rootElement = omFactory.createOMElement(WF_REQ_ROOT_ELEM, omNs);
         OMElement uuidElement = omFactory.createOMElement(WF_REQ_UUID_ELEM, omNs);
+        OMElement reqIdElement = omFactory.createOMElement(WF_REQ_ACTION_ELEM, omNs);
+        OMElement taskInitiatorElement = omFactory.createOMElement(WF_REQ_TASK_INITIATOR_ELEM, omNs);
         OMElement configElement = omFactory.createOMElement(WF_REQ_CONFIG_ELEM, omNs);
         uuidElement.setText(uuid);
         rootElement.addChild(uuidElement);
-        OMElement reqIdElement = omFactory.createOMElement(WF_REQ_ACTION_ELEM, omNs);
         reqIdElement.setText(event);
         rootElement.addChild(reqIdElement);
+        taskInitiatorElement.setText(CarbonContext.getThreadLocalCarbonContext().getUsername());
+        rootElement.addChild(taskInitiatorElement);
         OMElement paramsElement = omFactory.createOMElement(WF_REQ_PARAMS_ELEM, omNs);
 
         for (Map.Entry<String, Object> entry : singleValuedParams.entrySet()) {
@@ -324,7 +329,7 @@ public class WorkflowRequestBuilder {
                     }
                     OMElement listItemElement = omFactory.createOMElement(WF_REQ_LIST_ITEM_ELEM, omNs);
                     OMAttribute itemNameAttribute = omFactory.createOMAttribute(WF_REQ_KEY_ATTRIB, null,
-                            mapItem.getKey());
+                                                                                mapItem.getKey());
                     listItemElement.addAttribute(itemNameAttribute);
                     listItemElement.setText(valueText);
                     valueElement.addChild(listItemElement);
@@ -335,21 +340,19 @@ public class WorkflowRequestBuilder {
         }
         rootElement.addChild(paramsElement);
 
-        /*
-        {WorkFlowConstants.TemplateConstants.HT_SUBJECT, "Approval Request Subject",
-                WorkflowTemplateParamType.STRING, "Approval required", true},
-        {WorkFlowConstants.TemplateConstants.HT_DESCRIPTION,
+        //TODO:This request build is lcated in framework and it doesn't aware about BPEL, so we can't use this xml
+        // to check the condition. For now I have commented following two lines to decouple BPELstuff from this xml
+        // builder. In future we need to framework own format for this.
 
-*/
-        String ht  = (String)this.initParams.get(WorkFlowConstants.TemplateConstants.HT_SUBJECT);
-        String htDesc  = (String)this.initParams.get(WorkFlowConstants.TemplateConstants.HT_DESCRIPTION);
+        String ht = "";// (String)this.initParams.get(WFConstant.TemplateConstants.HT_SUBJECT);
+        String htDesc = "";// (String)this.initParams.get(WFConstant.TemplateConstants.HT_DESCRIPTION);
 
         final Map<String, Map<String, List<String>>> approvalStepMap = getApprovalStepMap();
 
-        for (int a = 1; a <= approvalStepMap.size() ; a++) {
+        for (int a = 1; a <= approvalStepMap.size(); a++) {
 
-            String key = "Step " + a ;
-            OMElement stepName = omFactory.createOMElement(WF_REQ_STEP_NAME_ELEM,omNs);
+            String key = "Step " + a;
+            OMElement stepName = omFactory.createOMElement(WF_REQ_STEP_NAME_ELEM, omNs);
             stepName.setText(key);
 
             OMElement approvalStepElement = omFactory.createOMElement(WF_REQ_APPROVAL_STEP_ELEM, omNs);
@@ -366,19 +369,19 @@ public class WorkflowRequestBuilder {
             approvalStepElement.addChild(humanTaskElement);
 
 
-            Map<String, List<String>> value = approvalStepMap.get(a+"");
-            if(value.get("users")!=null){
+            Map<String, List<String>> value = approvalStepMap.get(a + "");
+            if (value.get("users") != null) {
                 List<String> userList = value.get("users");
-                for (String user : userList){
+                for (String user : userList) {
                     OMElement userElement = omFactory.createOMElement(WF_REQ_APPROVE_USER_ELEM, omNs);
                     userElement.setText(user);
                     approvalStepElement.addChild(userElement);
                 }
             }
 
-            if(value.get("roles")!=null){
+            if (value.get("roles") != null) {
                 List<String> userList = value.get("roles");
-                for (String user : userList){
+                for (String user : userList) {
                     OMElement userElement = omFactory.createOMElement(WF_REQ_APPROVE_ROLE_ELEM, omNs);
                     userElement.setText(user);
                     approvalStepElement.addChild(userElement);
@@ -390,24 +393,24 @@ public class WorkflowRequestBuilder {
         return rootElement;
     }
 
-    private Map<String,Map<String,List<String>>> getApprovalStepMap(){
-        Map<String,Map<String,List<String>>> map = new HashMap<String,Map<String,List<String>>>();
+    private Map<String, Map<String, List<String>>> getApprovalStepMap() {
+        Map<String, Map<String, List<String>>> map = new HashMap<String, Map<String, List<String>>>();
         for (Map.Entry<String, Object> entry : this.initParams.entrySet()) {
-            if(entry.getKey().startsWith("step-")){
-                String []key = entry.getKey().split("-");
-                String step = key[1] ;
-                Map<String,List<String>> valueMap =map.get(step);
-                if(valueMap==null){
-                    valueMap = new HashMap<String,List<String>>();
-                    map.put(step,valueMap);
+            if (entry.getKey().startsWith("step-")) {
+                String[] key = entry.getKey().split("-");
+                String step = key[1];
+                Map<String, List<String>> valueMap = map.get(step);
+                if (valueMap == null) {
+                    valueMap = new HashMap<String, List<String>>();
+                    map.put(step, valueMap);
                 }
 
-                String value = (String)entry.getValue();
-                String []values = null ;
-                if(StringUtils.isNotBlank(value)){
-                    values =  value.split(",");
+                String value = (String) entry.getValue();
+                String[] values = null;
+                if (StringUtils.isNotBlank(value)) {
+                    values = value.split(",");
                 }
-                if(values!=null) {
+                if (values != null) {
                     List<String> userList = Arrays.asList(values);
                     String stepName = "step-" + step + "-users";
                     if (stepName.equals(entry.getKey())) {
@@ -422,7 +425,7 @@ public class WorkflowRequestBuilder {
             }
 
         }
-        return map ;
+        return map;
 
     }
 }

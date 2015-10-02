@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.application.mgt.dao.impl;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,8 +59,7 @@ import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
 import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponent;
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponentHolder;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.DBUtils;
@@ -141,12 +142,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             log.debug("Creating Application " + applicationName + " for user " + qualifiedUsername);
         }
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement storeAppPrepStmt = null;
         ResultSet results = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String dbProductName = connection.getMetaData().getDatabaseProductName();
             storeAppPrepStmt = connection.prepareStatement(
                     ApplicationMgtDBQueries.STORE_BASIC_APPINFO, new String[]{
@@ -188,7 +188,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             return applicationId;
 
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             try {
                 if (connection != null) {
                     connection.rollback();
@@ -213,11 +213,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     public void updateApplication(ServiceProvider serviceProvider)
             throws IdentityApplicationManagementException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         int applicationId = serviceProvider.getApplicationID();
 
         try {
-            connection = IdentityApplicationManagementUtil.getDBConnection();
             if (ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
                     serviceProvider.getApplicationName())) {
                 throw new IdentityApplicationManagementException(
@@ -265,7 +264,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             if (!connection.getAutoCommit()) {
                 connection.commit();
             }
-        } catch (IdentityException | SQLException | UserStoreException e) {
+        } catch (SQLException | UserStoreException e) {
             try {
                 if (connection != null) {
                     connection.rollback();
@@ -323,32 +322,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 log.debug("Renaming application role from " + storedAppName + " to "
                         + applicationName);
             }
-            PreparedStatement readPermissions = null;
-            ResultSet resultSet = null;
-            try {
-                readPermissions = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS);
-                readPermissions.setString(1, "%" + ApplicationMgtUtil.getApplicationPermissionPath() + "%");
-                resultSet = readPermissions.executeQuery();
-                while (resultSet.next()) {
-                    String UM_ID = resultSet.getString(1);
-                    String permission = resultSet.getString(2);
-                    if (permission.contains(ApplicationMgtUtil.getApplicationPermissionPath() +
-                            ApplicationMgtUtil.PATH_CONSTANT + storedAppName.toLowerCase())) {
-                        permission = permission.replace(storedAppName.toLowerCase(), applicationName.toLowerCase());
-                        PreparedStatement updatePermission = null;
-                        try {
-                            updatePermission = connection.prepareStatement(ApplicationMgtDBQueries.UPDATE_SP_PERMISSIONS);
-                            updatePermission.setString(1, permission);
-                            updatePermission.setString(2, UM_ID);
-                            updatePermission.executeUpdate();
-                        } finally {
-                            IdentityApplicationManagementUtil.closeStatement(updatePermission);
-                        }
-                    }
-                }
-            } finally {
-                IdentityApplicationManagementUtil.closeResultSet(resultSet);
-                IdentityApplicationManagementUtil.closeStatement(readPermissions);
+            Map<String, String> applicationPermissions = readApplicationPermissions(connection, storedAppName);
+            for (Map.Entry<String, String> entry : applicationPermissions.entrySet()) {
+                updatePermissionPath(connection, entry.getKey(), entry.getValue().replace(storedAppName.toLowerCase(),
+                        applicationName.toLowerCase()));
             }
         }
 
@@ -1115,9 +1092,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             }
         }
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         try {
-            connection = IdentityApplicationManagementUtil.getDBConnection();
 
             // Load basic application data
             ServiceProvider serviceProvider = getBasicApplicationData(applicationName, connection,
@@ -1167,7 +1143,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             serviceProvider.setRequestPathAuthenticatorConfigs(requestPathAuthenticators);
             return serviceProvider;
 
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             throw new IdentityApplicationManagementException("Failed to update service provider "
                     + applicationId, e);
         } finally {
@@ -1326,11 +1302,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         String applicationName = null;
 
         // Reading application name from the database
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement storeAppPrepStmt = null;
         ResultSet appNameResult = null;
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             storeAppPrepStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_APPLICATION_NAME_BY_CLIENT_ID_AND_TYPE);
             storeAppPrepStmt.setString(1, CharacterEncoder.getSafeText(clientId));
@@ -1342,9 +1317,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 applicationName = appNameResult.getString(1);
             }
 
-        } catch (SQLException | IdentityException e) {
-            log.error(e.getMessage(), e);
-            throw new IdentityApplicationManagementException("Error while reading application");
+        } catch (SQLException e) {
+            throw new IdentityApplicationManagementException("Error while reading application", e);
         } finally {
             IdentityApplicationManagementUtil.closeResultSet(appNameResult);
             IdentityApplicationManagementUtil.closeStatement(storeAppPrepStmt);
@@ -1362,11 +1336,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     @Override
     public String getApplicationName(int applicationID)
             throws IdentityApplicationManagementException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         try {
-            connection = IdentityApplicationManagementUtil.getDBConnection();
             return getApplicationName(applicationID, connection);
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             throw new IdentityApplicationManagementException("Failed loading the application with "
                     + applicationID, e);
         } finally {
@@ -2083,14 +2056,13 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             log.debug("Reading all Applications of Tenant " + tenantID);
         }
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement getAppNamesStmt = null;
         ResultSet appNameResultSet = null;
 
         ArrayList<ApplicationBasicInfo> appInfo = new ArrayList<ApplicationBasicInfo>();
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             getAppNamesStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_APP_NAMES_BY_TENANT);
             getAppNamesStmt.setInt(1, tenantID);
@@ -2112,7 +2084,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
             }
             connection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             throw new IdentityApplicationManagementException("Error while Reading all Applications");
         } finally {
             IdentityApplicationManagementUtil.closeStatement(getAppNamesStmt);
@@ -2133,7 +2105,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     public void deleteApplication(String appName) throws IdentityApplicationManagementException {
 
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
 
         if (debugMode) {
             log.debug("Deleting Application " + appName);
@@ -2142,7 +2114,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         // Now, delete the application
         PreparedStatement deleteClientPrepStmt = null;
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             // First, delete all the clients of the application
             int applicationID = getApplicationIDByName(appName, tenantID, connection);
             InboundAuthenticationConfig clients = getInboundAuthenticationConfig(applicationID,
@@ -2162,9 +2133,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 connection.commit();
             }
 
-        } catch (SQLException | IdentityException e) {
-            log.error(e.getMessage(), e);
-            throw new IdentityApplicationManagementException("Error deleting application");
+        } catch (SQLException e) {
+            throw new IdentityApplicationManagementException("Error deleting application", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(deleteClientPrepStmt);
             IdentityApplicationManagementUtil.closeConnection(connection);
@@ -2391,8 +2361,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             throws IdentityApplicationManagementException, SQLException {
         List<ApplicationPermission> loadPermissions = ApplicationMgtUtil.loadPermissions(applicationName);
         List<ApplicationPermission> removedPermissions = null;
-        if (loadPermissions != null && loadPermissions.size() > 0) {
-            if (permissions == null || permissions.length == 0) {
+        if (!CollectionUtils.isEmpty(loadPermissions)) {
+            if (ArrayUtils.isEmpty(permissions)) {
                 removedPermissions = new ArrayList<ApplicationPermission>(loadPermissions);
             } else {
                 removedPermissions = new ArrayList<ApplicationPermission>();
@@ -2410,7 +2380,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
             }
         }
-        if (removedPermissions != null && removedPermissions.size() > 0) {
+        if (!CollectionUtils.isEmpty(removedPermissions)) {
             //delete permissions
             for (ApplicationPermission applicationPermission : removedPermissions) {
                 String permissionValue = ApplicationMgtUtil.PATH_CONSTANT +
@@ -2418,39 +2388,16 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                         ApplicationMgtUtil.PATH_CONSTANT +
                         applicationName + ApplicationMgtUtil.PATH_CONSTANT +
                         applicationPermission.getValue();
-                PreparedStatement selectQuery = null;
-                ResultSet resultSet = null;
-                try {
-                    selectQuery = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS_W);
-                    selectQuery.setString(1, permissionValue.toLowerCase());
-                    resultSet = selectQuery.executeQuery();
-                    if (resultSet.next()) {
-                        int UM_ID = resultSet.getInt(1);
-                        PreparedStatement deleteRolePermission = null;
-                        PreparedStatement deletePermission = null;
-                        try {
-                            deleteRolePermission = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_ROLE_PERMISSION);
-                            deleteRolePermission.setInt(1, UM_ID);
-                            deleteRolePermission.executeUpdate();
-                            deletePermission = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_PERMISSIONS);
-                            deletePermission.setInt(1, UM_ID);
-                            deletePermission.executeUpdate();
-                        } finally {
-                            IdentityApplicationManagementUtil.closeStatement(deleteRolePermission);
-                            IdentityApplicationManagementUtil.closeStatement(deletePermission);
-                        }
-                    }
-                } finally {
-                    IdentityApplicationManagementUtil.closeResultSet(resultSet);
-                    IdentityApplicationManagementUtil.closeStatement(selectQuery);
-                }
+                int permisionId = getPermissionId(connection, permissionValue.toLowerCase());
+                deleteRolePermissionMapping(connection, permisionId);
+                deletePermission(connection, permisionId);
             }
         }
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO#getServiceProviderNameByClientId
      * (java.lang.String, java.lang.String, java.lang.String)
@@ -2471,11 +2418,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         String applicationName = null;
 
         // Reading application name from the database
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement storeAppPrepStmt = null;
         ResultSet appNameResult = null;
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             storeAppPrepStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_APPLICATION_NAME_BY_CLIENT_ID_AND_TYPE);
             storeAppPrepStmt.setString(1, CharacterEncoder.getSafeText(clientId));
@@ -2487,8 +2433,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 applicationName = appNameResult.getString(1);
             }
             connection.commit();
-        } catch (SQLException | IdentityException e) {
-            throw new IdentityApplicationManagementException("Error while reading application");
+        } catch (SQLException e) {
+            throw new IdentityApplicationManagementException("Error while reading application", e);
         } finally {
             IdentityApplicationManagementUtil.closeResultSet(appNameResult);
             IdentityApplicationManagementUtil.closeStatement(storeAppPrepStmt);
@@ -2527,10 +2473,9 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         PreparedStatement getClaimPreStmt = null;
         ResultSet resultSet = null;
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         try {
 
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             getClaimPreStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_CLAIM_MAPPING_BY_APP_NAME);
             // IDP_CLAIM, SP_CLAIM, IS_REQUESTED
@@ -2546,8 +2491,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
             }
             connection.commit();
-        } catch (IdentityException e) {
-            throw new IdentityApplicationManagementException("Error while reading claim mappings.", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(getClaimPreStmt);
             IdentityApplicationManagementUtil.closeResultSet(resultSet);
@@ -2600,10 +2543,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         PreparedStatement getClaimPreStmt = null;
         ResultSet resultSet = null;
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         try {
-
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
             getClaimPreStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_CLAIM_MAPPING_BY_APP_NAME);
@@ -2618,7 +2559,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
             }
             connection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             throw new IdentityApplicationManagementException(
                     "Error while retrieving requested claims", e);
         } finally {
@@ -2733,6 +2674,119 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
         }
         return authenticatorId;
+    }
+
+    /**
+     * Read application role permissions for a given application name
+     *
+     * @param connection      Database connection
+     * @param applicationName Application name
+     * @return Map of key value pairs. key is UM table id and value is permission
+     * @throws SQLException
+     */
+    private Map<String, String> readApplicationPermissions(Connection connection, String applicationName) throws SQLException {
+        PreparedStatement roadPermissionsPrepStmt = null;
+        ResultSet resultSet = null;
+        Map<String, String> permissions = new HashMap<>();
+        try {
+            roadPermissionsPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS);
+            roadPermissionsPrepStmt.setString(1, "%" + ApplicationMgtUtil.getApplicationPermissionPath() + "%");
+            resultSet = roadPermissionsPrepStmt.executeQuery();
+            while (resultSet.next()) {
+                String UM_ID = resultSet.getString(1);
+                String permission = resultSet.getString(2);
+                if (permission.contains(ApplicationMgtUtil.getApplicationPermissionPath() +
+                        ApplicationMgtUtil.PATH_CONSTANT + applicationName.toLowerCase())) {
+                    permissions.put(UM_ID, permission);
+                }
+            }
+        } finally {
+            IdentityDatabaseUtil.closeResultSet(resultSet);
+            IdentityDatabaseUtil.closeStatement(roadPermissionsPrepStmt);
+        }
+        return permissions;
+    }
+
+    /**
+     * Update the permission path for a given id
+     *
+     * @param connection    Database connection
+     * @param id         Id
+     * @param newPermission New permission path value
+     * @throws SQLException
+     */
+    private void updatePermissionPath(Connection connection, String id, String newPermission) throws SQLException {
+        PreparedStatement updatePermissionPrepStmt = null;
+        try {
+            updatePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.UPDATE_SP_PERMISSIONS);
+            updatePermissionPrepStmt.setString(1, newPermission);
+            updatePermissionPrepStmt.setString(2, id);
+            updatePermissionPrepStmt.executeUpdate();
+        } finally {
+            IdentityDatabaseUtil.closeStatement(updatePermissionPrepStmt);
+        }
+    }
+
+    /**
+     * Get permission id for a given permission path
+     *
+     * @param connection Database connection
+     * @param permission Permission path
+     * @return Permission id
+     * @throws SQLException
+     */
+    private int getPermissionId(Connection connection, String permission) throws SQLException {
+        PreparedStatement loadPermissionsPrepStmt = null;
+        ResultSet resultSet = null;
+        int id = -1;
+        try {
+            loadPermissionsPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS_W);
+            loadPermissionsPrepStmt.setString(1, permission.toLowerCase());
+            resultSet = loadPermissionsPrepStmt.executeQuery();
+            if (resultSet.next()) {
+                id = resultSet.getInt(1);
+            }
+        } finally {
+            IdentityDatabaseUtil.closeResultSet(resultSet);
+            IdentityDatabaseUtil.closeStatement(loadPermissionsPrepStmt);
+        }
+        return id;
+    }
+
+    /**
+     * Delete role permission mapping for a given permission id
+     *
+     * @param connection Database Connection
+     * @param id   Permission id
+     * @throws SQLException
+     */
+    private void deleteRolePermissionMapping(Connection connection, int id) throws SQLException {
+        PreparedStatement deleteRolePermissionPrepStmt = null;
+        try {
+            deleteRolePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_ROLE_PERMISSION);
+            deleteRolePermissionPrepStmt.setInt(1, id);
+            deleteRolePermissionPrepStmt.executeUpdate();
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(deleteRolePermissionPrepStmt);
+        }
+    }
+
+    /**
+     * Delete permission entry for a given id
+     *
+     * @param connection Database connection
+     * @param entry_id   Entry id
+     * @throws SQLException
+     */
+    private void deletePermission(Connection connection, int entry_id) throws SQLException {
+        PreparedStatement deletePermissionPrepStmt = null;
+        try {
+            deletePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_PERMISSIONS);
+            deletePermissionPrepStmt.setInt(1, entry_id);
+            deletePermissionPrepStmt.executeUpdate();
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(deletePermissionPrepStmt);
+        }
     }
 
 }

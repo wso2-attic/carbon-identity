@@ -21,8 +21,6 @@ package org.wso2.carbon.identity.scim.common.group;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
 import org.wso2.carbon.identity.scim.common.utils.SCIMCommonUtils;
@@ -53,14 +51,13 @@ public class GroupDAO {
      * @throws IdentitySCIMException
      */
     public Set<String> listSCIMGroups() throws IdentitySCIMException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
         Set<String> groups = new HashSet<>();
 
         try {
             //retrieve groups from the DB
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.LIST_SCIM_GROUPS_SQL);
             prepStmt.setString(1, SCIMConstants.ID_URI);
             resultSet = prepStmt.executeQuery();
@@ -70,8 +67,6 @@ public class GroupDAO {
                     groups.add(group);
                 }
             }
-        } catch (IdentityException e) {
-            throw new IdentitySCIMException("Error when getting an Identity Persistence Store instance.", e);
         } catch (SQLException e) {
             throw new IdentitySCIMException("Error when reading the SCIM Group information from persistence store.", e);
         } finally {
@@ -82,14 +77,13 @@ public class GroupDAO {
 
     public boolean isExistingGroup(String groupName, int tenantId) throws IdentitySCIMException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
 
         boolean isExistingGroup = false;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.CHECK_EXISTING_GROUP_SQL);
             prepStmt.setInt(1, tenantId);
             prepStmt.setString(2, SCIMCommonUtils.getGroupNameWithDomain(groupName));
@@ -99,9 +93,6 @@ public class GroupDAO {
                 isExistingGroup = true;
             }
             connection.commit();
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             throw new IdentitySCIMException("Error when reading the group information from the persistence store.", e);
         } finally {
@@ -112,14 +103,13 @@ public class GroupDAO {
 
     private boolean isExistingAttribute(String attributeName, String groupName, int tenantId)
             throws IdentitySCIMException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
 
         boolean isExistingAttribute = false;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.CHECK_EXISTING_ATTRIBUTE_SQL);
             prepStmt.setInt(1, tenantId);
             prepStmt.setString(2, SCIMCommonUtils.getGroupNameWithDomain(groupName));
@@ -130,9 +120,6 @@ public class GroupDAO {
                 isExistingAttribute = true;
             }
             connection.commit();
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             throw new IdentitySCIMException("Error when reading the group attribute information from " +
                     "the persistence store.", e);
@@ -144,12 +131,11 @@ public class GroupDAO {
 
     public void addSCIMGroupAttributes(int tenantId, String roleName, Map<String, String> attributes)
             throws IdentitySCIMException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         if (!isExistingGroup(SCIMCommonUtils.getGroupNameWithDomain(roleName), tenantId)) {
             try {
-                connection = JDBCPersistenceManager.getInstance().getDBConnection();
                 prepStmt = connection.prepareStatement(SQLQueries.ADD_ATTRIBUTES_SQL);
                 prepStmt.setInt(1, tenantId);
                 prepStmt.setString(2, roleName);
@@ -167,9 +153,6 @@ public class GroupDAO {
                     }
                 }
                 connection.commit();
-            } catch (IdentityException e) {
-                String errorMsg = "Error when getting an Identity Persistence Store instance.";
-                throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
                 throw new IdentitySCIMException("Error when adding SCIM attributes for the group: "
                         + roleName, e);
@@ -184,12 +167,12 @@ public class GroupDAO {
 
     public void updateSCIMGroupAttributes(int tenantId, String roleName,
                                           Map<String, String> attributes) throws IdentitySCIMException {
-        Connection connection = null;
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         if (isExistingGroup(SCIMCommonUtils.getGroupNameWithDomain(roleName), tenantId)) {
             try {
-                connection = JDBCPersistenceManager.getInstance().getDBConnection();
                 prepStmt = connection.prepareStatement(SQLQueries.UPDATE_ATTRIBUTES_SQL);
 
                 prepStmt.setInt(2, tenantId);
@@ -211,9 +194,6 @@ public class GroupDAO {
                                 + " An attribute with the same name doesn't exists.");
                     }
                 }
-            } catch (IdentityException e) {
-                String errorMsg = "Error when getting an Identity Persistence Store instance.";
-                throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
                 throw new IdentitySCIMException("Error updating the SCIM Group Attributes.", e);
             } finally {
@@ -226,11 +206,10 @@ public class GroupDAO {
     }
 
     public void removeSCIMGroup(int tenantId, String roleName) throws IdentitySCIMException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.DELETE_GROUP_SQL);
             prepStmt.setInt(1, tenantId);
             prepStmt.setString(2, SCIMCommonUtils.getGroupNameWithDomain(roleName));
@@ -238,9 +217,6 @@ public class GroupDAO {
             prepStmt.execute();
             connection.commit();
 
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.DELETE_GROUP_SQL);
             throw new IdentitySCIMException("Error deleting the SCIM Group.", e);
@@ -251,13 +227,12 @@ public class GroupDAO {
 
     public Map<String, String> getSCIMGroupAttributes(int tenantId, String roleName)
             throws IdentitySCIMException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
         Map<String, String> attributes = new HashMap<>();
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.GET_ATTRIBUTES_SQL);
             prepStmt.setInt(1, tenantId);
             prepStmt.setString(2, SCIMCommonUtils.getGroupNameWithDomain(roleName));
@@ -269,9 +244,6 @@ public class GroupDAO {
                 }
             }
             connection.commit();
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             log.error("Error when executing the SQL : " + SQLQueries.GET_ATTRIBUTES_SQL);
             throw new IdentitySCIMException("Error when reading the SCIM Group information from the " +
@@ -283,13 +255,12 @@ public class GroupDAO {
     }
 
     public String getGroupNameById(int tenantId, String id) throws IdentitySCIMException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
         String roleName = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.GET_GROUP_NAME_BY_ID_SQL);
             prepStmt.setInt(1, tenantId);
             prepStmt.setString(2, id);
@@ -300,9 +271,6 @@ public class GroupDAO {
                 roleName = rSet.getString(1);
             }
             connection.commit();
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            throw new IdentitySCIMException(errorMsg, e);
         } catch (SQLException e) {
             throw new IdentitySCIMException("Error when reading the SCIM Group information from the persistence store.", e);
         } finally {
@@ -316,12 +284,11 @@ public class GroupDAO {
 
     public void updateRoleName(int tenantId, String oldRoleName, String newRoleName)
             throws IdentitySCIMException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         if (isExistingGroup(SCIMCommonUtils.getGroupNameWithDomain(oldRoleName), tenantId)) {
             try {
-                connection = JDBCPersistenceManager.getInstance().getDBConnection();
                 prepStmt = connection.prepareStatement(SQLQueries.UPDATE_GROUP_NAME_SQL);
 
                 prepStmt.setString(1, SCIMCommonUtils.getGroupNameWithDomain(newRoleName));
@@ -333,20 +300,13 @@ public class GroupDAO {
                     log.debug("No. of records updated for updating SCIM Group : " + count);
                 }
                 connection.commit();
-            } catch (IdentityException e) {
-                String errorMsg = "Error when getting an Identity Persistence Store instance.";
-                log.error(errorMsg, e);
-                throw new IdentitySCIMException(errorMsg, e);
             } catch (SQLException e) {
-                log.error("Error when executing the SQL : " + SQLQueries.UPDATE_GROUP_NAME_SQL);
-                log.error(e.getMessage(), e);
-                throw new IdentitySCIMException("Error updating the SCIM Group Attributes.", e);
+                throw new IdentitySCIMException("Error updating the SCIM Group Attributes", e);
             } finally {
                 IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }
         } else {
-            throw new IdentitySCIMException("Error when updating role name of the role: "
-                    + oldRoleName);
+            throw new IdentitySCIMException("Error when updating role name of the role: " + oldRoleName);
         }
     }
 }

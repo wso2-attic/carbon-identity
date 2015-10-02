@@ -38,6 +38,22 @@
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.authenticator.social</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>
+            <artifactId>oltu</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.json.wso2</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -60,6 +76,10 @@
                                 <bundleDef>
                                     org.wso2.carbon.identity:org.wso2.carbon.identity.application.authenticator.social
                                 </bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.oltu.oauth2:oltu</bundleDef>
+                                <bundleDef>org.json.wso2:json</bundleDef>
+                                <bundleDef>org.slf4j:slf4j-log4j12</bundleDef>
+                                <bundleDef>org.slf4j:slf4j-api</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>

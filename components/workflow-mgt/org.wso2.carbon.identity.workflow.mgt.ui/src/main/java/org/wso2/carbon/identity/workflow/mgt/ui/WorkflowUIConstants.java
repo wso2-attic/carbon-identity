@@ -22,6 +22,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WorkflowUIConstants {
+
+
+
+
+    public static final String WORKFLOW_WIZARD_REF = "workflow-wizard" ;
+    public static final String PARAM_SELECT_ITEM = "select-item";
+
+
+
+
+
+
+
+
+
+
     public static final String PARAM_ACTION = "action";
     public static final String ACTION_VALUE_ADD = "addNew";
     public static final String ACTION_VALUE_BACK = "back";
@@ -38,13 +54,16 @@ public class WorkflowUIConstants {
 
     public static final String ATTRIB_WORKFLOW_WIZARD = "workflowAddWizard";
 
-    public static final String PARAM_WORKFLOW_NAME = "workflowName";
-    public static final String PARAM_WORKFLOW_ID = "workflowId";
+    public static final String PARAM_WORKFLOW_NAME = "workflow-name";
+    public static final String PARAM_WORKFLOW_ID = "workflow-id";
+    public static final String PARAM_REQUEST_PATH = "request-path";
+    public static final String PARAM_BACK = "back";
+    public static final String PARAM_PAGE_REQUEST_TOKEN = "page-request-token";
     public static final String PARAM_ASSOCIATION_ID = "associationId";
     public static final String PARAM_ASSOCIATION_NAME = "associationName";
-    public static final String PARAM_WORKFLOW_DESCRIPTION = "workflowDescription";
-    public static final String PARAM_TEMPLATE_IMPL = "templateImpl";
-    public static final String PARAM_WORKFLOW_TEMPLATE = "workflowTemplate";
+    public static final String PARAM_WORKFLOW_DESCRIPTION = "workflow-description";
+    public static final String PARAM_WORKFLOW_IMPL_ID = "workflow-impl-id";
+    public static final String PARAM_TEMPLATE_ID = "template-id";
     public static final String VALUE_EXISTING_SERVICE = "EXISTING";
     public static final String PARAM_OPERATION = "operation";
     public static final String PARAM_OPERATION_CATEGORY = "opertaionCategory";
@@ -70,7 +89,7 @@ public class WorkflowUIConstants {
     public static final String PARAM_PAGE_NUMBER = "pageNumber";
     public static final int RESULTS_PER_PAGE = 20;
 
-    public static class ParamTypes {
+    public static class InputType {
         public static final String INTEGER = "INTEGER";
         public static final String DOUBLE = "DOUBLE";
         public static final String STRING = "STRING";
@@ -81,5 +100,10 @@ public class WorkflowUIConstants {
         public static final String USER_NAME = "USER_NAME";
         public static final String BPS_PROFILE = "BPS_PROFILE";
         public static final String USER_NAME_OR_USER_ROLE = "USER_NAME_OR_USER_ROLE";
+    }
+
+    public static class ParameterHolder {
+        public static final String TEMPLATE = "Template" ;
+        public static final String  WORKFLOW_IMPL = "WorkflowImpl" ;
     }
 }

@@ -110,13 +110,6 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="createApplicationResponse">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element minOccurs="0" name="return" type="xs:int"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
             <xs:element name="updateApplication">
                 <xs:complexType>
                     <xs:sequence>
@@ -351,9 +344,6 @@
     <wsdl:message name="createApplicationRequest">
         <wsdl:part name="parameters" element="ns1:createApplication"/>
     </wsdl:message>
-    <wsdl:message name="createApplicationResponse">
-        <wsdl:part name="parameters" element="ns1:createApplicationResponse"/>
-    </wsdl:message>
     <wsdl:message name="IdentityApplicationManagementServiceIdentityApplicationManagementException">
         <wsdl:part name="parameters" element="ns1:IdentityApplicationManagementServiceIdentityApplicationManagementException"/>
     </wsdl:message>
@@ -408,7 +398,6 @@
     <wsdl:portType name="IdentityApplicationManagementServicePortType">
         <wsdl:operation name="createApplication">
             <wsdl:input message="tns:createApplicationRequest" wsaw:Action="urn:createApplication"/>
-            <wsdl:output message="tns:createApplicationResponse" wsaw:Action="urn:createApplicationResponse"/>
             <wsdl:fault message="tns:IdentityApplicationManagementServiceIdentityApplicationManagementException" name="IdentityApplicationManagementServiceIdentityApplicationManagementException" wsaw:Action="urn:createApplicationIdentityApplicationManagementServiceIdentityApplicationManagementException"/>
         </wsdl:operation>
         <wsdl:operation name="getApplication">
@@ -462,9 +451,6 @@
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
             <wsdl:fault name="IdentityApplicationManagementServiceIdentityApplicationManagementException">
                 <soap:fault use="literal" name="IdentityApplicationManagementServiceIdentityApplicationManagementException"/>
             </wsdl:fault>
@@ -579,9 +565,6 @@
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
             <wsdl:fault name="IdentityApplicationManagementServiceIdentityApplicationManagementException">
                 <soap12:fault use="literal" name="IdentityApplicationManagementServiceIdentityApplicationManagementException"/>
             </wsdl:fault>
@@ -696,9 +679,6 @@
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getApplication">
             <http:operation location="getApplication"/>

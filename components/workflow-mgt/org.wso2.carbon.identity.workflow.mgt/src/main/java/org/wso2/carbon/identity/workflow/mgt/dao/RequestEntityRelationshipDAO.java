@@ -18,10 +18,10 @@
 
 package org.wso2.carbon.identity.workflow.mgt.dao;
 
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.util.SQLConstants;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 
 import java.sql.Connection;
@@ -42,11 +42,10 @@ public class RequestEntityRelationshipDAO {
      */
     public void addRelationship(Entity entity, String uuid) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_REQUEST_ENTITY_RELATIONSHIP;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, uuid);
             prepStmt.setString(2, entity.getEntityId());
@@ -54,8 +53,6 @@ public class RequestEntityRelationshipDAO {
             prepStmt.setInt(4, entity.getTenantId());
             prepStmt.executeUpdate();
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
@@ -71,17 +68,14 @@ public class RequestEntityRelationshipDAO {
      */
     public void deleteRelationshipsOfRequest(String uuid) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.DELETE_REQUEST_ENTITY_RELATIONSHIP;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, uuid);
             prepStmt.executeUpdate();
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
@@ -98,12 +92,11 @@ public class RequestEntityRelationshipDAO {
      */
     public boolean entityHasPendingWorkflows(Entity entity) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.GET_PENDING_RELATIONSHIPS_OF_ENTITY;
         ResultSet resultSet = null;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, entity.getEntityType());
             prepStmt.setString(2, entity.getEntityId());
@@ -114,8 +107,6 @@ public class RequestEntityRelationshipDAO {
                 return true;
             }
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
@@ -135,12 +126,11 @@ public class RequestEntityRelationshipDAO {
     public boolean entityHasPendingWorkflowsOfType(Entity entity, String requsetType) throws
             InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.GET_PENDING_RELATIONSHIPS_OF_GIVEN_TYPE_FOR_ENTITY;
         ResultSet resultSet = null;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, entity.getEntityType());
             prepStmt.setString(2, entity.getEntityId());
@@ -152,8 +142,6 @@ public class RequestEntityRelationshipDAO {
                 return true;
             }
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
@@ -172,12 +160,11 @@ public class RequestEntityRelationshipDAO {
      */
     public boolean twoEntitiesAreRelated(Entity entity1, Entity entity2) throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.GET_REQUESTS_OF_TWO_ENTITIES;
         ResultSet resultSet = null;
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, entity1.getEntityId());
             prepStmt.setString(2, entity1.getEntityType());
@@ -190,8 +177,6 @@ public class RequestEntityRelationshipDAO {
                 return true;
             }
             connection.commit();
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error when executing the sql query", e);
         } finally {
@@ -214,14 +199,13 @@ public class RequestEntityRelationshipDAO {
     public List<String> getEntityNamesOfRequest(String wfOperationType, String wfStatus, String entityType, int tenantID)
             throws InternalWorkflowException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
         String query = SQLConstants.GET_REQUEST_ENTITY_NAMES;
         List<String> entityNames = new ArrayList<String>();
 
         try {
-            connection = IdentityDatabaseUtil.getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, wfOperationType);
             prepStmt.setString(2, wfStatus);
@@ -233,8 +217,6 @@ public class RequestEntityRelationshipDAO {
                 entityNames.add(entityName);
             }
 
-        } catch (IdentityException e) {
-            throw new InternalWorkflowException("Error occurred when connecting to the Identity Database.", e);
         } catch (SQLException e) {
             throw new InternalWorkflowException("Error occurred when executing the sql query", e);
         } finally {

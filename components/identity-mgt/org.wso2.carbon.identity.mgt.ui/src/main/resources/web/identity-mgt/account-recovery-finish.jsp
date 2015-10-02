@@ -32,11 +32,11 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <jsp:include page="../dialog/display_messages.jsp" />
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     IdentityManagementAdminClient client;
@@ -46,9 +46,9 @@
 
     while(true){
 
-        String question = CharacterEncoder.getSafeText(request.getParameter("challengeQuestion_" + challengeNumber));
-        String answer = CharacterEncoder.getSafeText(request.getParameter("challengeAnswer_" + challengeNumber));
-        String id = CharacterEncoder.getSafeText(request.getParameter("challengeId_" + challengeNumber));
+        String question = request.getParameter("challengeQuestion_" + challengeNumber);
+        String answer = request.getParameter("challengeAnswer_" + challengeNumber);
+        String id = request.getParameter("challengeId_" + challengeNumber);
 
         if(question == null || question.trim().length() < 1 ||
                         answer ==  null || answer.trim().length() < 1 ){
@@ -66,7 +66,7 @@
         challengeNumber ++;
     }
 
-    String userName = CharacterEncoder.getSafeText(request.getParameter("userName"));
+    String userName = request.getParameter("userName");
     if (userName == null) {
         userName = (String) request.getSession().getAttribute("logged-user");
     }
@@ -88,17 +88,17 @@
             client.setChallengeQuestionsOfUser(userName,
                     userChallengesDTOs.toArray(new UserChallengesDTO[userChallengesDTOs.size()]));
         }
-        forwardTo = "account-recovery.jsp?username=" + userName;
+        forwardTo = "account-recovery.jsp?username=" + Encode.forUriComponent(userName);
 	} catch (Exception e) {
 		String message = resourceBundle.getString("error.while.persisting.account.recovery.data");
 		CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.ERROR, request);
-		forwardTo = "account-recovery.jsp?username=" + userName;
+		forwardTo = "account-recovery.jsp?username=" + Encode.forUriComponent(userName);
 	}
 %>
 
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 

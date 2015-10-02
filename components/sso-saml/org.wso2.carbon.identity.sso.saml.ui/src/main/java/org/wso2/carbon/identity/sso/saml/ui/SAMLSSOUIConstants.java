@@ -29,20 +29,28 @@ public class SAMLSSOUIConstants {
     public static final String ENABLE_SINGLE_LOGOUT = "enableSingleLogout";
     public static final String SLO_RESPONSE_URL = "sloResponseURL";
     public static final String SLO_REQUEST_URL = "sloRequestURL";
-    public static final String ENABLE_RESPONSE_SIGNATURE= "enableResponseSignature";
-    public static final String ENABLE_ASSERTION_SIGNATURE= "enableAssertionSignature";
-    public static final String NAME_ID_FORMAT= "nameIdFormat";
-    public static final String ENABLE_DEFAULT_ATTRIBUTE_PROFILE_HIDDEN= "enableDefaultAttributeProfileHidden";
-    public static final String ENABLE_NAME_ID_CLAIM_URI_HIDDEN= "enableNameIdClaimUriHidden";
-    public static final String NAME_ID_CLAIM= "nameIdClaim";
-    public static final String ENABLE_AUDIENCE_RESTRICTION= "enableAudienceRestriction";
-    public static final String ENABLE_RECIPIENTS= "enableRecipients";
-    public static final String LOGIN_PAGE_URL= "loginPageURL";
-    public static final String ENABLE_IDP_INIT_SSO= "enableIdPInitSSO";
-    public static final String ENABLE_IDP_INIT_SLO= "enableIdPInitSLO";
-    public static final String ENABLE_ENC_ASSERTION= "enableEncAssertion";
-    public static final String ENABLE_SIG_VALIDATION= "enableSigValidation";
+    public static final String ENABLE_RESPONSE_SIGNATURE = "enableResponseSignature";
+    public static final String ENABLE_ASSERTION_SIGNATURE = "enableAssertionSignature";
+    public static final String NAME_ID_FORMAT = "nameIdFormat";
+    public static final String ENABLE_DEFAULT_ATTRIBUTE_PROFILE_HIDDEN = "enableDefaultAttributeProfileHidden";
+    public static final String ENABLE_NAME_ID_CLAIM_URI_HIDDEN = "enableNameIdClaimUriHidden";
+    public static final String NAME_ID_CLAIM = "nameIdClaim";
+    public static final String ENABLE_AUDIENCE_RESTRICTION = "enableAudienceRestriction";
+    public static final String ENABLE_RECIPIENTS = "enableRecipients";
+    public static final String LOGIN_PAGE_URL = "loginPageURL";
+    public static final String ENABLE_IDP_INIT_SSO = "enableIdPInitSSO";
+    public static final String ENABLE_IDP_INIT_SLO = "enableIdPInitSLO";
+    public static final String ENABLE_ENC_ASSERTION = "enableEncAssertion";
+    public static final String ENABLE_SIG_VALIDATION = "enableSigValidation";
+    public static final String CLAIM_PROPERTY_COUNTER = "claimPropertyCounter";
+    public static final String CLAIM_PROPERTY_NAME = "claimPropertyName";
+    public static final String AUDIENCE_PROPERTY_COUNTER = "audiencePropertyCounter";
+    public static final String AUDIENCE_PROPERTY_NAME = "audiencePropertyName";
+    public static final String RECIPIENT_PROPERTY_COUNTER = "recipientPropertyCounter";
+    public static final String RECIPIENT_PROPERTY_NAME = "recipientPropertyName";
 
+    public static final String SAML_SSO_SIGNING_ALGORITHM = "signingAlgorithm";
+    public static final String SAML_SSO_DIGEST_ALGORITHM = "digestAlgorithm";
 
     private SAMLSSOUIConstants() {
     }

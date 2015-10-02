@@ -35,10 +35,6 @@
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.provider</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.oauth</artifactId>
         </dependency>
         <dependency>
@@ -78,6 +74,10 @@
         <dependency>
             <groupId>com.github.dblock.waffle.wso2</groupId>
             <artifactId>waffle-jna</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.opensaml</groupId>
+            <artifactId>opensaml</artifactId>
         </dependency>
     </dependencies>
 
@@ -164,13 +164,13 @@
                                 <bundleDef>org.wso2.orbit.com.nimbusds:nimbus-jose-jwt</bundleDef>
                                 <bundleDef>net.minidev:json-smart</bundleDef>
                                 <bundleDef>com.github.dblock.waffle.wso2:waffle-jna</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.opensaml:opensaml</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.core:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.oauth.common:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.idp.mgt.server:${carbon.identity.version}</importFeatureDef>
-                                <importFeatureDef>org.wso2.carbon.identity.provider.server:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.security.mgt.server:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.application.mgt.server:${carbon.identity.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.application.authentication.framework.server:${carbon.identity.version}</importFeatureDef>

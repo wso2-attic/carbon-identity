@@ -18,9 +18,9 @@
 
 package org.wso2.carbon.identity.oauth2.authz.handlers;
 
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;

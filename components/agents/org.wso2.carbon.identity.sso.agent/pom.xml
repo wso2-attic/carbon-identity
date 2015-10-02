@@ -50,16 +50,15 @@
         </dependency>
         <dependency>
             <groupId>org.openid4java</groupId>
-            <artifactId>openid4java-consumer</artifactId>
-            <type>pom</type>
+            <artifactId>openid4java</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.amber</groupId>
-            <artifactId>amber-oauth2-client</artifactId>
+            <groupId>org.apache.oltu.oauth2</groupId>
+            <artifactId>org.apache.oltu.oauth2.client</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -108,6 +107,7 @@
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
                             org.wso2.carbon.identity.core.util;
                             version="${carbon.identity.package.import.version.range}",
+                            org.apache.commons.collections; version="${commons-collections.wso2.osgi.version.range}",
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.identity.sso.agent.*; version="${carbon.identity.package.export.version}",

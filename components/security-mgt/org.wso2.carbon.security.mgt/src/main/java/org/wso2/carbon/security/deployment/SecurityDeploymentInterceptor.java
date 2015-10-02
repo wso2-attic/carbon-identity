@@ -19,11 +19,16 @@
 package org.wso2.carbon.security.deployment;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.axiom.om.util.UUIDGenerator;
 import org.apache.axis2.AxisFault;
+import org.apache.axis2.description.AxisBinding;
+import org.apache.axis2.description.AxisEndpoint;
 import org.apache.axis2.description.AxisModule;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.AxisServiceGroup;
 import org.apache.axis2.description.Parameter;
+import org.apache.axis2.description.PolicySubject;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.axis2.engine.AxisEvent;
 import org.apache.axis2.engine.AxisObserver;
@@ -32,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyComponent;
+import org.apache.neethi.PolicyEngine;
 import org.apache.neethi.PolicyReference;
 import org.apache.neethi.builders.xml.XmlPrimtiveAssertion;
 import org.apache.ws.security.handler.WSHandlerConstants;
@@ -39,6 +45,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.RegistryResources;
@@ -50,6 +57,7 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.session.UserRegistry;
+import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.SecurityConfigParams;
 import org.wso2.carbon.security.SecurityConstants;
 import org.wso2.carbon.security.SecurityScenario;
@@ -67,14 +75,21 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.PreAxisConfigurationPopulationObserver;
+import org.wso2.carbon.utils.ServerConstants;
+import org.wso2.carbon.utils.ServerException;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -99,6 +114,7 @@ import java.util.Properties;
 public class SecurityDeploymentInterceptor implements AxisObserver {
     private static final Log log = LogFactory.getLog(SecurityDeploymentInterceptor.class);
     private static final String NO_POLICY_ID = "NoPolicy";
+    private static final String APPLY_POLICY_TO_BINDINGS = "applyPolicyToBindings";
 
 
     protected void activate(ComponentContext ctxt) {
@@ -164,20 +180,40 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
 
     @Override
     public void serviceUpdate(AxisEvent axisEvent, AxisService axisService) {
-
         if (axisEvent.getEventType() == AxisEvent.SERVICE_DEPLOY) {
+
+            Policy policy = null;
+            if (axisEvent.getEventType() == AxisEvent.SERVICE_DEPLOY
+                    && ServerConstants.STS_NAME.equals(axisService.getName())) {
+                try {
+                    applyPolicyToSTS(axisService);
+                } catch (SecurityConfigException e) {
+                    log.error("Error while applying policy to STS Service", e);
+                } catch (AxisFault axisFault) {
+                    log.error("Error while applying policy to STS Service", axisFault);
+                }
+            }
+
+            try {
+                policy = applyPolicyToBindings(axisService);
+                if (policy != null) {
+                    processPolicy(axisService, policy.getId(), policy);
+                }
+
+            } catch (Exception e) {
+                log.error("Error while adding policies to bindings", e);
+            }
+
             try {
 
-                if (axisService.getPolicySubject() != null &&
-                    axisService.getPolicySubject().getAttachedPolicyComponents() != null) {
+                if (axisService.getPolicySubject() != null && axisService.getPolicySubject()
+                        .getAttachedPolicyComponents() != null) {
 
                     if (log.isDebugEnabled()) {
                         log.debug("Policies found on axis service");
                     }
-
-                    Iterator iterator = axisService.getPolicySubject().
-                            getAttachedPolicyComponents().iterator();
-
+                    Iterator iterator;
+                    iterator = axisService.getPolicySubject().getAttachedPolicyComponents().iterator();
                     String policyId = null;
                     while (iterator.hasNext()) {
                         PolicyComponent currentPolicyComponent = (PolicyComponent) iterator.next();
@@ -186,52 +222,7 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
                         } else if (currentPolicyComponent instanceof PolicyReference) {   //TODO: check this scenario
                             policyId = ((PolicyReference) currentPolicyComponent).getURI().substring(1);
                         }
-
-                        // Do not apply anything if no policy
-                        if(StringUtils.isNotEmpty(policyId) && NO_POLICY_ID.equalsIgnoreCase(policyId)){
-                           if(axisService != null){
-                               UserRealm userRealm = (UserRealm)PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                                       .getUserRealm();
-                               String serviceGroupId = axisService.getAxisServiceGroup().getServiceGroupName();
-                               String serviceName = axisService.getName();
-                               removeAuthorization(userRealm,serviceGroupId,serviceName);
-                           }
-
-                            AxisModule module = axisService.getAxisConfiguration().getModule(SecurityConstants
-                                    .RAMPART_MODULE_NAME);
-                            // disengage at axis2
-                            axisService.disengageModule(module);
-                            return;
-                        }
-
-                        if (policyId != null && isSecPolicy(policyId)) {
-
-                            if (log.isDebugEnabled()) {
-                                log.debug("Policy " + policyId + " is identified as a security " +
-                                          "policy and trying to apply security parameters");
-                            }
-
-                            SecurityScenario scenario = SecurityScenarioDatabase.getByWsuId(policyId);
-                            if (scenario == null) {
-                                // if there is no security scenario id,  put default id
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Policy " + policyId + " does not belongs to a" +
-                                              " pre-defined security scenario. " +
-                                              "So treating as a custom policy");
-                                }
-                                SecurityScenario securityScenario = new SecurityScenario();
-                                securityScenario.setScenarioId(
-                                        SecurityConstants.CUSTOM_SECURITY_SCENARIO);
-                                securityScenario.setWsuId(policyId);
-                                securityScenario.setGeneralPolicy(false);
-                                securityScenario.setSummary(
-                                        SecurityConstants.CUSTOM_SECURITY_SCENARIO_SUMMARY);
-                                SecurityScenarioDatabase.put(policyId, securityScenario);
-                                scenario = securityScenario;
-                            }
-                            applySecurityParameters(axisService, scenario,
-                                                    (Policy) currentPolicyComponent);
-                        }
+                        processPolicy(axisService, policyId, currentPolicyComponent);
                     }
                 } else {
                     return;
@@ -239,12 +230,63 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
 
             } catch (Exception e) {
                 String msg = "Cannot handle service DEPLOY event for service: " +
-                             axisService.getName();
+                        axisService.getName();
                 log.error(msg, e);
                 throw new RuntimeException(msg, e);
             }
         }
 
+    }
+
+    private void processPolicy (AxisService axisService, String policyId,
+                                PolicyComponent currentPolicyComponent) throws UserStoreException,
+            AxisFault {
+
+        // Do not apply anything if no policy
+        if(StringUtils.isNotEmpty(policyId) && NO_POLICY_ID.equalsIgnoreCase(policyId)){
+            if(axisService != null){
+                UserRealm userRealm = (UserRealm)PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                        .getUserRealm();
+                String serviceGroupId = axisService.getAxisServiceGroup().getServiceGroupName();
+                String serviceName = axisService.getName();
+                removeAuthorization(userRealm,serviceGroupId,serviceName);
+            }
+
+            AxisModule module = axisService.getAxisConfiguration().getModule(SecurityConstants
+                    .RAMPART_MODULE_NAME);
+            // disengage at axis2
+            axisService.disengageModule(module);
+            return;
+        }
+
+        if (policyId != null && isSecPolicy(policyId)) {
+
+            if (log.isDebugEnabled()) {
+                log.debug("Policy " + policyId + " is identified as a security " +
+                        "policy and trying to apply security parameters");
+            }
+
+            SecurityScenario scenario = SecurityScenarioDatabase.getByWsuId(policyId);
+            if (scenario == null) {
+                // if there is no security scenario id,  put default id
+                if (log.isDebugEnabled()) {
+                    log.debug("Policy " + policyId + " does not belongs to a" +
+                            " pre-defined security scenario. " +
+                            "So treating as a custom policy");
+                }
+                SecurityScenario securityScenario = new SecurityScenario();
+                securityScenario.setScenarioId(
+                        SecurityConstants.CUSTOM_SECURITY_SCENARIO);
+                securityScenario.setWsuId(policyId);
+                securityScenario.setGeneralPolicy(false);
+                securityScenario.setSummary(
+                        SecurityConstants.CUSTOM_SECURITY_SCENARIO_SUMMARY);
+                SecurityScenarioDatabase.put(policyId, securityScenario);
+                scenario = securityScenario;
+            }
+            applySecurityParameters(axisService, scenario,
+                    (Policy) currentPolicyComponent);
+        }
     }
 
     private void loadSecurityScenarios(Registry registry,
@@ -526,4 +568,107 @@ public class SecurityDeploymentInterceptor implements AxisObserver {
             }
         }
     }
+
+    private void applyPolicyToSTS(AxisService service) throws SecurityConfigException, AxisFault {
+        try {
+            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            Registry configRegistry = SecurityServiceHolder.getRegistryService()
+                    .getConfigSystemRegistry(tenantId);
+            String servicePath = getRegistryServicePath(service);
+            Parameter param = new Parameter();
+            param.setName(APPLY_POLICY_TO_BINDINGS);
+            param.setValue(Boolean.TRUE.toString());
+            service.addParameter(param);
+            String policyResourcePath = servicePath + RegistryResources.POLICIES;
+            if (configRegistry.resourceExists(policyResourcePath)) {
+                Resource resource = configRegistry.get(policyResourcePath);
+                if (resource instanceof Collection) {
+                    for (String policyPath : ((Collection) resource).getChildren()) {
+                        Resource res = configRegistry.get(policyPath);
+                        Policy policy = loadPolicy(res);
+                        service.getPolicySubject().attachPolicy(policy);
+                    }
+                }
+            }
+        } catch (org.wso2.carbon.registry.api.RegistryException e) {
+            log.error("Error occurred while persisting policy", e);
+        } catch (XMLStreamException e) {
+            log.error("Error occurred while persisting policy", e);
+        }
+    }
+
+    private Policy loadPolicy(Resource resource) throws org.wso2.carbon.registry.api.RegistryException, XMLStreamException {
+
+        InputStream in = resource.getContentStream();
+        XMLStreamReader parser = XMLInputFactory.newInstance().createXMLStreamReader(in);
+        StAXOMBuilder builder = new StAXOMBuilder(parser);
+
+        OMElement policyElement = builder.getDocumentElement();
+        return PolicyEngine.getPolicy(policyElement);
+
+    }
+
+    private String getRegistryServicePath(AxisService service) {
+
+        StringBuilder pathValue = new StringBuilder();
+        return (pathValue
+                .append(RegistryResources.SERVICE_GROUPS)
+                .append(service.getAxisServiceGroup().getServiceGroupName())
+                .append(RegistryResources.SERVICES)
+                .append(service.getName())).toString();
+    }
+
+    public PolicySubject getPolicySubjectFromBindings(AxisService service){
+      return null;
+    }
+
+    public void addPolicyToAllBindings(AxisService axisService, Policy policy)
+            throws ServerException {
+        try {
+            if (policy.getId() == null) {
+                // Generate an ID
+                policy.setId(UUIDGenerator.getUUID());
+            }
+            Map endPointMap = axisService.getEndpoints();
+            for (Object o : endPointMap.entrySet()) {
+                Map.Entry entry = (Map.Entry) o;
+                AxisEndpoint point = (AxisEndpoint) entry.getValue();
+                AxisBinding binding = point.getBinding();
+                String bindingName = binding.getName().getLocalPart();
+
+                //only UTOverTransport is allowed for HTTP
+                if (bindingName.endsWith("HttpBinding") &&
+                        (!policy.getAttributes().containsValue("UTOverTransport"))) {
+                    continue;
+                }
+                binding.getPolicySubject().attachPolicy(policy);
+                // Add the new policy to the registry
+            }
+        } catch (Exception e) {
+            log.error("Error in adding security policy to all bindings", e);
+            throw new ServerException("addPoliciesToService", e);
+        }
+    }
+
+    private Policy applyPolicyToBindings(AxisService axisService) throws ServerException {
+        Parameter parameter = axisService.getParameter(APPLY_POLICY_TO_BINDINGS);
+        if (parameter != null && "true".equalsIgnoreCase(parameter.getValue().toString()) &&
+                axisService.getPolicySubject() != null && axisService.getPolicySubject().getAttachedPolicyComponents()
+                != null) {
+            Iterator iterator = axisService.getPolicySubject().
+                    getAttachedPolicyComponents().iterator();
+            while (iterator.hasNext()) {
+                PolicyComponent currentPolicyComponent = (PolicyComponent) iterator.next();
+                if (currentPolicyComponent instanceof Policy) {
+                    Policy policy = ((Policy) currentPolicyComponent);
+                    String policyId = policy.getId();
+                    axisService.getPolicySubject().detachPolicyComponent(policyId);
+                    addPolicyToAllBindings(axisService, policy);
+                    return policy;
+                }
+            }
+        }
+        return null;
+    }
+
 }

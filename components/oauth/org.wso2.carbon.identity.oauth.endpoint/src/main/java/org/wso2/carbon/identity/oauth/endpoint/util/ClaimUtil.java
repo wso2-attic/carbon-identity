@@ -99,8 +99,8 @@ public class ClaimUtil {
             }
 
         } catch (Exception e) {
-            log.error("Error while retrieving the claims from user store", e);
-            throw new UserInfoEndpointException("Error while retrieving the claims from user store");
+            log.error("Error while retrieving the claims from user store for " + username, e);
+            throw new UserInfoEndpointException("Error while retrieving the claims from user store for " + username);
         }
         return mappedAppClaims;
     }

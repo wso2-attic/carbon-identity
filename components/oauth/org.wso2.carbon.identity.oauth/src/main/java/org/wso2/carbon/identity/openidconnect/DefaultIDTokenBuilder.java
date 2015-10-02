@@ -23,15 +23,14 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
-import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
-import org.apache.oltu.openidconnect.as.messages.IDTokenException;
+import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
@@ -63,14 +62,15 @@ import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
-import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This is the IDToken generator for the OpenID Connect Implementation. This
- * IDToken Generator utilizes the Amber IDTokenBuilder to build the IDToken.
+ * IDToken Generator utilizes the Nimbus SDK to build the IDToken.
  */
 public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidconnect.IDTokenBuilder {
 
@@ -113,23 +113,20 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         String subject = request.getAuthorizedUser().toString();
 
         if (!GrantType.AUTHORIZATION_CODE.toString().equals(request.getOauth2AccessTokenReqDTO().getGrantType()) &&
-            !org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString().equals(request
-                                                                        .getOauth2AccessTokenReqDTO().getGrantType())) {
+                !org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString().equals(
+                        request.getOauth2AccessTokenReqDTO().getGrantType())) {
 
             ApplicationManagementService applicationMgtService = OAuth2ServiceComponentHolder
                     .getApplicationMgtService();
             ServiceProvider serviceProvider = null;
 
             try {
-                String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-                String spName =
-                        applicationMgtService.getServiceProviderNameByClientId(request.getOauth2AccessTokenReqDTO()
-                                                                                       .getClientId(),
-                                                                               INBOUND_AUTH2_TYPE, tenantDomain);
+                String tenantDomain = request.getOauth2AccessTokenReqDTO().getTenantDomain();
+                String spName = applicationMgtService.getServiceProviderNameByClientId(
+                        request.getOauth2AccessTokenReqDTO().getClientId(), INBOUND_AUTH2_TYPE, tenantDomain);
                 serviceProvider = applicationMgtService.getApplicationExcludingFileBasedSPs(spName, tenantDomain);
-            } catch (IdentityApplicationManagementException ex) {
-                throw new IdentityOAuth2Exception("Error while getting service provider information.",
-                                                  ex);
+            } catch (IdentityApplicationManagementException e) {
+                throw new IdentityOAuth2Exception("Error while getting service provider information.", e);
             }
 
             if (serviceProvider != null) {
@@ -140,18 +137,18 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                     String tenantUser = request.getAuthorizedUser().getUserName();
                     String domainName = request.getAuthorizedUser().getTenantDomain();
                     try {
-                        subject = IdentityTenantUtil.getRealm(domainName, username).getUserStoreManager()
-                                        .getUserClaimValue(tenantUser, claim, null);
+                        subject = IdentityTenantUtil.getRealm(domainName, username).getUserStoreManager().
+                                getUserClaimValue(tenantUser, claim, null);
                         if (subject == null) {
                             subject = request.getAuthorizedUser().toString();
                         }
                     } catch (IdentityException e) {
                         String error = "Error occurred while getting user claim for domain " + domainName + ", " +
-                                       "user " + username + ", claim " + claim;
+                                "user " + username + ", claim " + claim;
                         throw new IdentityOAuth2Exception(error, e);
                     } catch (UserStoreException e) {
                         String error = "Error occurred while getting user claim for domain " + domainName + ", " +
-                                       "user " + username + ", claim " + claim;
+                                "user " + username + ", claim " + claim;
                         throw new IdentityOAuth2Exception(error, e);
                     }
                 }
@@ -170,7 +167,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request) / 1000;
 
         String atHash = null;
-        if(!JWSAlgorithm.NONE.getName().equals(signatureAlgorithm.getName())){
+        if (!JWSAlgorithm.NONE.getName().equals(signatureAlgorithm.getName())) {
             String digAlg = mapDigestAlgorithm(signatureAlgorithm);
             MessageDigest md;
             try {
@@ -181,14 +178,14 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             md.update(tokenRespDTO.getAccessToken().getBytes(Charsets.UTF_8));
             byte[] digest = md.digest();
             int leftHalfBytes = 16;
-            if(SHA384.equals(digAlg)){
+            if (SHA384.equals(digAlg)) {
                 leftHalfBytes = 24;
-            } else if(SHA512.equals(digAlg)){
+            } else if (SHA512.equals(digAlg)) {
                 leftHalfBytes = 32;
             }
             byte[] leftmost = new byte[leftHalfBytes];
-            for (int i = 0; i < leftHalfBytes; i++){
-                leftmost[i]=digest[i];
+            for (int i = 0; i < leftHalfBytes; i++) {
+                leftmost[i] = digest[i];
             }
             atHash = new String(Base64.encodeBase64URLSafe(leftmost), Charsets.UTF_8);
         }
@@ -207,46 +204,40 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             }
         }
 
-        IDTokenBuilder builder =
-                new IDTokenBuilder().setIssuer(issuer).setSubject(subject)
-                        .setAudience(request.getOauth2AccessTokenReqDTO().getClientId())
-                        .setAuthorizedParty(request.getOauth2AccessTokenReqDTO().getClientId())
-                        .setExpiration(curTime + lifetime).setAuthTime(accessTokenIssuedTime)
-                        .setIssuedAt(curTime);
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet();
+        jwtClaimsSet.setIssuer(issuer);
+        jwtClaimsSet.setSubject(subject);
+        jwtClaimsSet.setAudience(Arrays.asList(request.getOauth2AccessTokenReqDTO().getClientId()));
+        jwtClaimsSet.setClaim("azp", request.getOauth2AccessTokenReqDTO().getClientId());
+        jwtClaimsSet.setExpirationTime(new Date(curTime + lifetime));
+        jwtClaimsSet.setIssueTime(new Date(curTime));
+        jwtClaimsSet.setClaim("auth_time", accessTokenIssuedTime);
         if(atHash != null){
-            builder.setAtHash(atHash);
+            jwtClaimsSet.setClaim("at_hash", atHash);
         }
         if (nonceValue != null) {
-            builder.setNonce(nonceValue);
+            jwtClaimsSet.setClaim("nonce", nonceValue);
         }
+
         request.addProperty(OAuthConstants.ACCESS_TOKEN, tokenRespDTO.getAccessToken());
         CustomClaimsCallbackHandler claimsCallBackHandler =
-                OAuthServerConfiguration.getInstance().
-                        getOpenIDConnectCustomClaimsCallbackHandler();
-        claimsCallBackHandler.handleCustomClaims(builder, request);
-        try {
-            String plainIDToken = builder.buildIDToken();
-            if (JWSAlgorithm.NONE.getName().equals(signatureAlgorithm.getName())) {
-                return new PlainJWT((com.nimbusds.jwt.JWTClaimsSet) PlainJWT.parse(plainIDToken).getJWTClaimsSet())
-                        .serialize();
-            }
-            return signJWT(plainIDToken, request);
-        } catch (IDTokenException e) {
-            throw new IdentityOAuth2Exception("Error while generating the IDToken", e);
-        } catch (ParseException e) {
-            throw new IdentityOAuth2Exception("Error while parsing the IDToken", e);
+                OAuthServerConfiguration.getInstance().getOpenIDConnectCustomClaimsCallbackHandler();
+        claimsCallBackHandler.handleCustomClaims(jwtClaimsSet, request);
+        if (JWSAlgorithm.NONE.getName().equals(signatureAlgorithm.getName())) {
+            return new PlainJWT(jwtClaimsSet).serialize();
         }
+        return signJWT(jwtClaimsSet, request);
     }
 
     /**
      * sign JWT token from RSA algorithm
      *
-     * @param payLoad contains JWT body
+     * @param jwtClaimsSet contains JWT body
      * @param request
      * @return signed JWT token
      * @throws IdentityOAuth2Exception
      */
-    protected String signJWTWithRSA(String payLoad, OAuthTokenReqMessageContext request)
+    protected String signJWTWithRSA(JWTClaimsSet jwtClaimsSet, OAuthTokenReqMessageContext request)
             throws IdentityOAuth2Exception {
         try {
             String tenantDomain = request.getOauth2AccessTokenReqDTO().getTenantDomain();
@@ -285,14 +276,11 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                 privateKey = privateKeys.get(tenantId);
             }
             JWSSigner signer = new RSASSASigner((RSAPrivateKey) privateKey);
-            SignedJWT signedJWT = new SignedJWT(new JWSHeader((JWSAlgorithm) signatureAlgorithm),
-                    PlainJWT.parse(payLoad).getJWTClaimsSet());
+            SignedJWT signedJWT = new SignedJWT(new JWSHeader((JWSAlgorithm) signatureAlgorithm), jwtClaimsSet);
             signedJWT.sign(signer);
             return signedJWT.serialize();
         } catch (JOSEException e) {
             throw new IdentityOAuth2Exception("Error occurred while signing JWT", e);
-        } catch (ParseException e) {
-            throw new IdentityOAuth2Exception("Error occurred while retrieving claim set for JWT", e);
         }
     }
 
@@ -352,23 +340,23 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     /**
      * Generic Signing function
      *
-     * @param payLoad contains JWT body
+     * @param jwtClaimsSet contains JWT body
      * @param request
      * @return
      * @throws IdentityOAuth2Exception
      */
-    protected String signJWT(String payLoad, OAuthTokenReqMessageContext request)
+    protected String signJWT(JWTClaimsSet jwtClaimsSet, OAuthTokenReqMessageContext request)
             throws IdentityOAuth2Exception {
 
         if (JWSAlgorithm.RS256.equals(signatureAlgorithm) || JWSAlgorithm.RS384.equals(signatureAlgorithm) ||
                 JWSAlgorithm.RS512.equals(signatureAlgorithm)) {
-            return signJWTWithRSA(payLoad, request);
+            return signJWTWithRSA(jwtClaimsSet, request);
         } else if (JWSAlgorithm.HS256.equals(signatureAlgorithm) || JWSAlgorithm.HS384.equals(signatureAlgorithm) ||
                 JWSAlgorithm.HS512.equals(signatureAlgorithm)) {
-            // return signWithHMAC(payLoad,jwsAlgorithm,request); implementation need to be done
+            // return signWithHMAC(jwtClaimsSet,jwsAlgorithm,request); implementation need to be done
             return null;
         } else {
-            // return signWithEC(payLoad,jwsAlgorithm,request); implementation need to be done
+            // return signWithEC(jwtClaimsSet,jwsAlgorithm,request); implementation need to be done
             return null;
         }
     }

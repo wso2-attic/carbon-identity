@@ -55,7 +55,6 @@ import org.w3c.dom.ls.LSSerializer;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.util.KeyStoreManager;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
@@ -80,6 +79,7 @@ import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.validators.SAML2HTTPRedirectSignatureValidator;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -470,7 +470,7 @@ public class SAMLSSOUtil {
 
         try {
             identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
-        } catch (IdentityApplicationManagementException e) {
+        } catch (IdentityProviderManagementException e) {
             throw new IdentityException(
                     "Error occurred while retrieving Resident Identity Provider information for tenant " +
                     tenantDomain, e);
@@ -506,14 +506,15 @@ public class SAMLSSOUtil {
      *
      * @param response
      * @param signatureAlgorithm
+     * @param digestAlgorithm
      * @param cred
      * @return
      * @throws IdentityException
      */
-    public static Assertion setSignature(Assertion response, String signatureAlgorithm,
+    public static Assertion setSignature(Assertion response, String signatureAlgorithm, String digestAlgorithm,
                                          X509Credential cred) throws IdentityException {
 
-        return (Assertion) doSetSignature(response, signatureAlgorithm, cred);
+        return (Assertion) doSetSignature(response, signatureAlgorithm, digestAlgorithm, cred);
     }
 
     /**
@@ -521,14 +522,15 @@ public class SAMLSSOUtil {
      *
      * @param response
      * @param signatureAlgorithm
+     * @param digestAlgorithm
      * @param cred
      * @return
      * @throws IdentityException
      */
-    public static Response setSignature(Response response, String signatureAlgorithm,
+    public static Response setSignature(Response response, String signatureAlgorithm, String digestAlgorithm,
                                         X509Credential cred) throws IdentityException {
 
-        return (Response) doSetSignature(response, signatureAlgorithm, cred);
+        return (Response) doSetSignature(response, signatureAlgorithm, digestAlgorithm, cred);
     }
 
     /**
@@ -536,14 +538,15 @@ public class SAMLSSOUtil {
      *
      * @param response
      * @param signatureAlgorithm
+     * @param digestAlgorithm
      * @param cred
      * @return
      * @throws IdentityException
      */
-    public static LogoutResponse setSignature(LogoutResponse response, String signatureAlgorithm,
-                                              X509Credential cred) throws IdentityException {
+    public static LogoutResponse setSignature(LogoutResponse response, String signatureAlgorithm, String
+            digestAlgorithm, X509Credential cred) throws IdentityException {
 
-        return (LogoutResponse) doSetSignature(response, signatureAlgorithm, cred);
+        return (LogoutResponse) doSetSignature(response, signatureAlgorithm, digestAlgorithm, cred);
     }
 
     /**
@@ -551,14 +554,15 @@ public class SAMLSSOUtil {
      *
      * @param request
      * @param signatureAlgorithm
+     * @param digestAlgorithm
      * @param cred
      * @return
      * @throws IdentityException
      */
-    public static LogoutRequest setSignature(LogoutRequest request, String signatureAlgorithm,
-                                             X509Credential cred) throws IdentityException {
+    public static LogoutRequest setSignature(LogoutRequest request, String signatureAlgorithm, String
+            digestAlgorithm, X509Credential cred) throws IdentityException {
 
-        return (LogoutRequest) doSetSignature(request, signatureAlgorithm, cred);
+        return (LogoutRequest) doSetSignature(request, signatureAlgorithm, digestAlgorithm, cred);
     }
 
     /**
@@ -566,12 +570,13 @@ public class SAMLSSOUtil {
      *
      * @param request
      * @param signatureAlgorithm
+     * @param digestAlgorithm
      * @param cred
      * @return
      * @throws IdentityException
      */
-    private static SignableXMLObject doSetSignature(SignableXMLObject request, String signatureAlgorithm,
-                                                  X509Credential cred) throws IdentityException {
+    private static SignableXMLObject doSetSignature(SignableXMLObject request, String signatureAlgorithm, String
+            digestAlgorithm, X509Credential cred) throws IdentityException {
 
             doBootstrap();
             try {
@@ -581,7 +586,7 @@ public class SAMLSSOUtil {
                     ssoSigner.init();
                 }
 
-                return ssoSigner.setSignature(request, signatureAlgorithm, cred);
+                return ssoSigner.setSignature(request, signatureAlgorithm, digestAlgorithm, cred);
 
             } catch (ClassNotFoundException e) {
                 throw new IdentityException("Class not found: "

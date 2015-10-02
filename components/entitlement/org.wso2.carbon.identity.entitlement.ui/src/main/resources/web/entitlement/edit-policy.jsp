@@ -98,12 +98,12 @@
                 forwardTo="simple-policy-editor.jsp";
             } else {
                 session.setAttribute("policy", policyDTO.getPolicy());
-                forwardTo="policy-view.jsp?policyid=" + policyId;
+                forwardTo="policy-view.jsp?policyid=" + Encode.forUriComponent(policyId);
             }
         }
     } catch (Exception e) {
         session.setAttribute("policy", policyDTO.getPolicy());
-        forwardTo="policy-view.jsp?policyid=" + policyId;    
+        forwardTo="policy-view.jsp?policyid=" + Encode.forUriComponent(policyId);
     }
 %>
 
@@ -120,11 +120,12 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script
 	type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
 	}
 </script>
 

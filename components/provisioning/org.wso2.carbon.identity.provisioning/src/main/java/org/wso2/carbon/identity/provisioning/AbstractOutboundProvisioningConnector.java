@@ -97,7 +97,7 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
      */
     protected String getPassword(Map<ClaimMapping, List<String>> attributeMap) {
         List<String> claimValue = ProvisioningUtil.getClaimValues(attributeMap,
-                IdentityProvisioningConstants.PASSWORD_CLAIM_URI, getUserStoreDomainName());
+                IdentityProvisioningConstants.PASSWORD_CLAIM_URI, null);
 
         if (CollectionUtils.isNotEmpty(claimValue) && claimValue.get(0) != null) {
             return claimValue.get(0);

@@ -19,7 +19,6 @@ package org.wso2.carbon.identity.sso.saml.builders;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Assertion;
@@ -82,8 +81,8 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         }
 
         if (authReqDTO.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                    new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
+            SAMLSSOUtil.setSignature(response, authReqDTO.getSigningAlgorithmUri(), authReqDTO.getDigestAlgorithmUri
+                    (), new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
         }
         return response;
     }
@@ -106,8 +105,8 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         response.setIssueInstant(issueInstant);
         response.getAssertions().add(assertion);
         if (authReqDTO.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                    new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
+            SAMLSSOUtil.setSignature(response, authReqDTO.getSigningAlgorithmUri(), authReqDTO.getDigestAlgorithmUri
+                    (), new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
         }
         return response;
     }
