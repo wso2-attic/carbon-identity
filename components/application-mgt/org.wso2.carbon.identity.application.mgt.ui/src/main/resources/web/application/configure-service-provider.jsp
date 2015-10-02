@@ -162,7 +162,7 @@ location.href = 'list-service-provider.jsp';
 
 	if (requestPathAuthenticators!=null && requestPathAuthenticators.length>0){
 		for(RequestPathAuthenticatorConfig reqAuth : requestPathAuthenticators) {
-			requestPathAuthTypes.append(startOption + Encode.forHtmlContent(reqAuth.getName()) + middleOption + Encode.forHtmlContent(reqAuth.getDisplayName()) + endOPtion);
+			requestPathAuthTypes.append(startOption + Encode.forHtmlAttribute((reqAuth.getName()) + middleOption + Encode.forHtmlContent(reqAuth.getDisplayName()) + endOPtion);
 		}
 	}
 	
@@ -195,9 +195,9 @@ location.href = 'list-service-provider.jsp';
 					} else {
 						provisioningConnectors.append(proConnector.getEnabled() ? proConnector.getName() + "," : "");
 					}
-					connType.append(startOption + Encode.forHtmlContent(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOPtion);
+					connType.append(startOption + Encode.forHtmlAttribute(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOPtion);
 					if(proConnector.getEnabled()){
-						enabledConnType.append(startOption + Encode.forHtmlContent(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOPtion);
+						enabledConnType.append(startOption + Encode.forHtmlAttribute(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOPtion);
 					}
 					IdpProConnectorsStatus.put(idp.getIdentityProviderName()+"_"+proConnector.getName(), proConnector.getEnabled());
 					i++;
@@ -205,7 +205,7 @@ location.href = 'list-service-provider.jsp';
 				proIdpConnector.put(idp.getIdentityProviderName(), connType.toString());
 				if(idp.getEnable()){
 					enabledProIdpConnector.put(idp.getIdentityProviderName(), enabledConnType.toString());
-					idpType.append(startOption + Encode.forHtmlContent(idp.getIdentityProviderName()) + "\" data=\""+ Encode.forHtmlContent(provisioningConnectors.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOPtion);
+					idpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+ Encode.forHtmlContent(provisioningConnectors.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOPtion);
 				}
 			} 
 		}
@@ -220,8 +220,8 @@ location.href = 'list-service-provider.jsp';
 				String options = proIdpConnector.get(idp.getIdentityProviderName());
 				if (proIdp!=null && options != null) {
 					String conName = proIdp.getName();
-					String oldOption = startOption + Encode.forHtmlContent(proIdp.getName()) + middleOption + Encode.forHtmlContent(proIdp.getName()) + endOPtion;
-					String newOption = startOption + Encode.forHtmlContent(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName())+ (IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) != null && IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) ? "" : disbleText) + endOPtion;
+					String oldOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + middleOption + Encode.forHtmlContent(proIdp.getName()) + endOPtion;
+					String newOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName())+ (IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) != null && IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) ? "" : disbleText) + endOPtion;
 					if(options.contains(oldOption)) {
 						options = options.replace(oldOption, newOption);
 					} else {
@@ -229,7 +229,7 @@ location.href = 'list-service-provider.jsp';
 					}
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), options);
 				} else if(proIdp!=null && options == null) {
-					String disabledOption = startOption + Encode.forHtmlContent(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName()) + disbleText + endOPtion;
+					String disabledOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName()) + disbleText + endOPtion;
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), disabledOption);
 				} else {
 					options = enabledProIdpConnector.get(idp.getIdentityProviderName());
