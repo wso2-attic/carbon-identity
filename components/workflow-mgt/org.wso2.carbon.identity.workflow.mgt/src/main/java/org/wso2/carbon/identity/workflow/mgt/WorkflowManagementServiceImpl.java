@@ -363,9 +363,9 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     }
 
     @Override
-    public List<Association> listAllAssociations() throws WorkflowException {
+    public List<Association> listAllAssociations(int tenantId) throws WorkflowException {
 
-        List<Association> associations = workflowDAO.listAssociations();
+        List<Association> associations = workflowDAO.listAssociations(tenantId);
         for (Iterator<Association> iterator = associations.iterator(); iterator.hasNext(); ) {
             Association association = iterator.next();
             WorkflowRequestHandler requestHandler =

@@ -40,6 +40,10 @@ import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.workflow.WorkFlowExecutor;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,6 +120,8 @@ public class RequestExecutor implements WorkFlowExecutor {
         Options options = new Options();
         options.setAction(WFImplConstant.DEFAULT_APPROVAL_BPEL_SOAP_ACTION);
 
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+
         String host = bpsProfile.getWorkerHostURL();
         String serviceName = StringUtils.deleteWhitespace(WorkflowManagementUtil
                                                                   .getParameter(parameterList, WFConstant
@@ -124,9 +130,13 @@ public class RequestExecutor implements WorkFlowExecutor {
                                                                   .getParamValue());
         serviceName = StringUtils.deleteWhitespace(serviceName);
 
-        String endpoint;
         if (host.endsWith("/")) {
-            endpoint = host + "services/" + serviceName + WFConstant.TemplateConstants.SERVICE_SUFFIX;
+            host = host.substring(0,host.lastIndexOf("/"));
+        }
+
+        String endpoint;
+        if (tenantDomain != null && !tenantDomain.equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)) {
+            endpoint = host + "/services/t/" + tenantDomain + "/" + serviceName + WFConstant.TemplateConstants.SERVICE_SUFFIX;
         } else {
             endpoint = host + "/services/" + serviceName + WFConstant.TemplateConstants.SERVICE_SUFFIX;
         }

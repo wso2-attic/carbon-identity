@@ -22,6 +22,7 @@
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
 
@@ -167,7 +168,7 @@ jQuery(document).ready(function(){
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='home.realm.id'/>:</td>
                             <td>
-                                <input id="homeRealmId" name="homeRealmId" type="text" value="<%=homeRealmId%>" autofocus/>
+                                <input id="homeRealmId" name="homeRealmId" type="text" value="<%=Encode.forHtmlAttribute(homeRealmId)%>" autofocus/>
                                 <div class="sectionHelp">
                                     <fmt:message key='home.realm.id.resident.help'/>
                                 </div>
@@ -176,7 +177,7 @@ jQuery(document).ready(function(){
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='idle.session.timeout'/>:</td>
                             <td>
-                                <input id="sessionIdleTimeout" name="sessionIdleTimeout" type="text" value="<%=sessionIdleTimeout%>" autofocus/>
+                                <input id="sessionIdleTimeout" name="sessionIdleTimeout" type="text" value="<%=Encode.forHtmlAttribute(sessionIdleTimeout)%>" autofocus/>
                                 <div class="sectionHelp">
                                     <fmt:message key='idle.session.timeout.help'/>
                                 </div>
@@ -185,7 +186,7 @@ jQuery(document).ready(function(){
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='remember.me.timeout'/>:</td>
                             <td>
-                                <input id="rememberMeTimeout" name="rememberMeTimeout" type="text" value="<%=rememberMeTimeout%>" autofocus/>
+                                <input id="rememberMeTimeout" name="rememberMeTimeout" type="text" value="<%=Encode.forHtmlAttribute(rememberMeTimeout)%>" autofocus/>
                                 <div class="sectionHelp">
                                     <fmt:message key='remember.me.timeout.help'/>
                                 </div>
@@ -205,7 +206,7 @@ jQuery(document).ready(function(){
                     <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='openid.url'/>:</td>
-                            <td><%=openidUrl%></td>
+                            <td><%=Encode.forHtml(openidUrl)%></td>
                         </tr>
                     </table>
                     </div>
@@ -219,7 +220,7 @@ jQuery(document).ready(function(){
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='idp.entity.id'/>:</td>
                             <td>
-                                <input id="idPEntityId" name="idPEntityId" type="text" value="<%=idPEntityId%>"/>
+                                <input id="idPEntityId" name="idPEntityId" type="text" value="<%=Encode.forHtmlAttribute(idPEntityId)%>"/>
                                 <div class="sectionHelp">
                                     <fmt:message key='idp.entity.id.help'/>
                                 </div>
@@ -227,11 +228,11 @@ jQuery(document).ready(function(){
                         </tr>
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='sso.url'/>:</td>
-                            <td><%=samlSSOUrl%></td>
+                            <td><%=Encode.forHtmlContent(samlSSOUrl)%></td>
                         </tr>
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='logout.url'/>:</td>
-                            <td><%=samlSLOUrl%></td>
+                            <td><%=Encode.forHtmlContent(samlSLOUrl)%></td>
                         </tr>
                     </table>
                     </div>
@@ -244,15 +245,15 @@ jQuery(document).ready(function(){
                         <table class="carbonFormTable">
                             <tr>
                                 <td class="leftCol-med labelField"><fmt:message key='oauth1.request.endpoint'/>:</td>
-                                <td><%=oauth1RequestTokenUrl%></td>
+                                <td><%=Encode.forHtmlContent(oauth1RequestTokenUrl)%></td>
                             </tr>
                             <tr>
                                 <td class="leftCol-med labelField"><fmt:message key='oauth1.authz.endpoint'/>:</td>
-                                <td><%=oauth1AuthorizeUrl%></td>
+                                <td><%=Encode.forHtmlContent(oauth1AuthorizeUrl)%></td>
                             </tr>
                             <tr>
                                 <td class="leftCol-med labelField"><fmt:message key='oauth1.access.endpoint'/>:</td>
-                                <td><%=oauth1AccessTokenUrl%></td>
+                                <td><%=Encode.forHtmlContent(oauth1AccessTokenUrl)%></td>
                             </tr>
                         </table>
                     </div>
@@ -265,15 +266,15 @@ jQuery(document).ready(function(){
                     <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='authz.endpoint'/>:</td>
-                            <td><%=authzUrl%></td>
+                            <td><%=Encode.forHtmlContent(authzUrl)%></td>
                         </tr>
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='token.endpoint'/>:</td>
-                            <td><%=tokenUrl%></td>
+                            <td><%=Encode.forHtmlContent(tokenUrl)%></td>
                         </tr>
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='user.endpoint'/>:</td>
-                            <td><%=userInfoUrl%></td>
+                            <td><%=Encode.forHtmlContent(userInfoUrl)%></td>
                         </tr>
                     </table>
                     </div>
@@ -285,7 +286,7 @@ jQuery(document).ready(function(){
                     <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='passive.sts.url'/>:</td>
-                            <td><%=passiveSTSUrl%></td>
+                            <td><%=Encode.forHtmlContent(passiveSTSUrl)%></td>
                         </tr>
                     </table>
                     </div>
@@ -298,9 +299,10 @@ jQuery(document).ready(function(){
                                 <tr>
                                     <td class="leftCol-med labelField" style="padding-top: 5px"><fmt:message key='sts.url'/>:</td>
                                     <td>
-                                        <a href="javascript:document.location.href='<%=stsUrl+"?wsdl"%>'"
+                                        <a href="javascript:document.location.href='<%=
+                                        Encode.forUriComponent(stsUrl)+"?wsdl"%>'"
                                            class="icon-link"
-                                           style="background-image:url(images/sts.gif);margin-left: 0"><%=stsUrl%>
+                                           style="background-image:url(images/sts.gif);margin-left: 0"><%=Encode.forHtmlContent(stsUrl)%>
                                         </a>
                                     </td>
                                     <td>
@@ -322,11 +324,11 @@ jQuery(document).ready(function(){
             		  <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='scim.user.endpoint'/>:</td>
-                            <td><%=scimUserEp%></td>
+                            <td><%=Encode.forHtmlContent(scimUserEp)%></td>
                         </tr>
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='scim.group.endpoint'/>:</td>
-                            <td><%=scimGroupEp%></td>
+                            <td><%=Encode.forHtmlContent(scimGroupEp)%></td>
                         </tr>
                     </table>
 
