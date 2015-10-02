@@ -19,6 +19,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.dto.UserStoreDTO" %>
@@ -220,34 +221,34 @@
                         }
 
                 %>
-                <tr id=<%=domainId%>>
+                <tr id=<%=Encode.forHtmlAttribute(domainId)%>>
                     <td style="width: 5%;margin-top:10px;">
                         <input type="checkbox" name="userStores"
-                               value="<%=domainId%>"
+                               value="<%=Encode.forHtmlAttribute(domainId)%>"
                                onclick="resetVars()"
                                class="chkBox"/>
                     </td>
                     <td style="width: 10%;margin-top:10px;">
-                        <a><%=domainId%>
+                        <a><%=Encode.forHtml(domainId)%>
                         </a>
                     </td>
                     <td style="width: 40%;margin-top:10px;">
-                        <a><%=className%>
+                        <a><%=Encode.forHtml(className)%>
                         </a>
                     </td>
                     <td style="width: 45%;margin-top:10px;">
                         <a title="<fmt:message key='edit.userstore'/>"
-                           onclick="edit('<%=domainId%>','<%=className%>');"
+                           onclick="edit('<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(domainId))%>','<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(className))%>');"
                            href="#" style="background-image: url(images/edit.gif);" class="icon-link">
                             <fmt:message key='edit.userstore'/></a>
                         <% if (!isDisabled) { %>
                         <a title="<fmt:message key='disable.userstore'/>"
-                           onclick="disable('<%=domainId%>');return false;"
+                           onclick="disable('<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(domainId))%>');return false;"
                            href="#" style="background-image: url(images/disable.gif);" class="icon-link">
                             <fmt:message key='disable.userstore'/></a>
                         <% } else { %>
                         <a title="<fmt:message key='enable.userstore'/>"
-                           onclick="enable('<%=domainId%>');return false;"
+                           onclick="enable('<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(domainId))%>');return false;"
                            href="#" style="background-image: url(images/enable.gif);" class="icon-link">
                             <fmt:message key='enable.userstore'/></a>
                         <%

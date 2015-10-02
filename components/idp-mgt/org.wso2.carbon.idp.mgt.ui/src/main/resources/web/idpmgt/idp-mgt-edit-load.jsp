@@ -26,11 +26,12 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String BUNDLE = "org.wso2.carbon.idp.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-    String idPName = CharacterEncoder.getSafeText(request.getParameter("idPName"));
+    String idPName = request.getParameter("idPName");
     try {
         if(idPName != null && !idPName.equals("")){
             String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -56,7 +57,7 @@
     }
 %>
 <script type="text/javascript">
-    location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
 </script>
 
 

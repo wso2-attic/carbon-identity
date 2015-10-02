@@ -200,7 +200,11 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                         }
 
                         if (idpEntityId == null || !assertion.getIssuer().getValue().equals(idpEntityId)) {
-                            log.debug("SAML Token Issuer verification failed or Issuer not registered");
+                            if(log.isDebugEnabled()) {
+                                log.debug("SAML Token Issuer verification failed against resident Identity Provider " +
+                                        "in tenant : " + tenantDomain + ". Received : " +
+                                        assertion.getIssuer().getValue() + ", Expected : " + idpEntityId);
+                            }
                             return false;
                         }
 
@@ -221,7 +225,10 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                         tokenEndpointAlias = identityProvider.getAlias();
                     }
                 } else {
-                    log.debug("SAML Token Issuer verification failed or Issuer not registered");
+                    if(log.isDebugEnabled()) {
+                        log.debug("SAML Token Issuer : " + assertion.getIssuer().getValue() +
+                                " not registered as a local Identity Provider in tenant : " + tenantDomain);
+                    }
                     return false;
                 }
             } catch (IdentityProviderManagementException e) {
@@ -239,8 +246,8 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
         if (StringUtils.isBlank(tokenEndpointAlias)) {
             if (log.isDebugEnabled()){
-                String errorMsg = "Token Endpoint alias of the local Identity Provider has not been configured for "
-                        + identityProvider.getIdentityProviderName();
+                String errorMsg = "Token Endpoint alias has not been configured in the Identity Provider : "
+                        + identityProvider.getIdentityProviderName() + " in tenant : " + tenantDomain;
                 log.debug(errorMsg);
             }
             return false;
@@ -266,8 +273,9 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                 }
                 if (!audienceFound) {
                     if (log.isDebugEnabled()) {
-                        String message = "SAML Assertion Audience Restriction validation failed";
-                        log.debug(message);
+                        log.debug("SAML Assertion Audience Restriction validation failed against the Audience : " +
+                                tokenEndpointAlias + " of Identity Provider : " +
+                                identityProvider.getIdentityProviderName() + " in tenant : " + tenantDomain);
                     }
                     return false;
                 }
@@ -370,7 +378,9 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
         if (CollectionUtils.isNotEmpty(recipientURLS) && !recipientURLS.contains(tokenEndpointAlias)) {
             if (log.isDebugEnabled()){
-                log.debug("None of the recipient URLs match the token endpoint or an acceptable alias");
+                log.debug("None of the recipient URLs match against the token endpoint alias : " + tokenEndpointAlias +
+                        " of Identity Provider " + identityProvider.getIdentityProviderName() + " in tenant : " +
+                        tenantDomain);
             }
             return false;
         }

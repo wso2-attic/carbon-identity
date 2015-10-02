@@ -26,6 +26,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%><jsp:include page="../dialog/display_messages.jsp"/>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:useBean id="entitlementPolicyBean" type="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean"
              class="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean" scope="session"/>
 <jsp:setProperty name="entitlementPolicyBean" property="*" />
@@ -196,7 +197,7 @@
                                 &nbsp;&nbsp;&nbsp;
                                 <fmt:message key="search.policy"/>
                                 <input type="text" name="policySearchString"
-                                       value="<%= policySearchString != null? policySearchString :""%>"/>&nbsp;
+                                       value="<%= policySearchString != null? Encode.forHtmlAttribute(policySearchString) :""%>"/>&nbsp;
                             </nobr>
                         </td>
                         <td style="border:0; !important">
@@ -239,23 +240,26 @@
             %>
             <tr>
                 <td style="width:100px;">
-                    <a class="icon-link" onclick="updownthis(this,'up',<%=request.getParameter("pageNumber")%>,<%=numberOfPages%>)" style="background-image:url(../admin/images/up-arrow.gif)"></a>
-                    <a class="icon-link" onclick="updownthis(this,'down',<%=request.getParameter("pageNumber")%>,<%=numberOfPages%>)" style="background-image:url(../admin/images/down-arrow.gif)"></a>
+                    <a class="icon-link" onclick="updownthis(this,'up',<%=Encode.forJavaScriptAttribute(request.getParameter("pageNumber"))%>,
+                            <%=numberOfPages%>)" style="background-image:url(../admin/images/up-arrow.gif)"></a>
+                    <a class="icon-link" onclick="updownthis(this,'down',<%=Encode.forJavaScriptAttribute(request.getParameter("pageNumber"))%>,
+                            <%=numberOfPages%>)" style="background-image:url(../admin/images/down-arrow.gif)"></a>
                     <input type="hidden" value="<%=policies[i].getPolicyId()%>"/>                    
                 </td>
 
                 <td width="10px" style="text-align:center; !important">
                     <input type="checkbox" name="policies"
-                           value="<%=policies[i].getPolicyId()%>"
+                           value="<%=Encode.forHtmlAttribute(policies[i].getPolicyId())%>"
                            onclick="resetVars()" class="chkBox" <% if(!delete){%>disabled="disabled"<% } %>/>
                 </td>
 
                 <td>
-                    <a <% if(edit) { %>href="policy-view.jsp?policyid=<%=policies[i].getPolicyId()%>" <% } %>><%=policies[i].getPolicyId()%></a>
+                    <a <% if(edit) { %>href="policy-view.jsp?policyid=<%=Encode.forUriComponent(policies[i].getPolicyId())%>" <% } %>>
+                        <%=Encode.forHtmlContent(policies[i].getPolicyId())%></a>
                 </td>
 
                 <td width="40%">
-                    <a title="<fmt:message key='edit.policy'/>" onclick="edit('<%=policies[i].getPolicyId()%>');return false;"
+                    <a title="<fmt:message key='edit.policy'/>" onclick="edit('<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(policies[i].getPolicyId()))%>');return false;"
                      href="#" style="background-image: url(images/edit.gif);" class="icon-link"> <fmt:message key='edit'/></a>
                 </td>
             </tr>

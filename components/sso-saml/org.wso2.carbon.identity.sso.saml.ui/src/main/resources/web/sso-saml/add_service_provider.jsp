@@ -33,6 +33,8 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Collections" %>
 <%@ page import="java.util.List" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
@@ -53,6 +55,7 @@
 <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
 <script type="text/javascript" src="../carbon/admin/js/cookies.js"></script>
 <script type="text/javascript" src="../carbon/admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 
 <script type="text/javascript">
 
@@ -283,6 +286,14 @@ function addAssertionConsumerURL() {
     }
     $("#assertionConsumerURLTxt").val("");
     $("#currentColumnId").val(parseInt(currentColumnId) + 1);
+}
+
+function onClickAddACRUrl() {
+    var isValidated = doValidateInputToConfirm(document.getElementById('assertionConsumerURLTxt'), "<fmt:message key='sp.enter.http.endpoint.address'/>",
+            addAssertionConsumerURL, null, null);
+    if (isValidated) {
+        addAssertionConsumerURL();
+    }
 }
 
 function removeAssertionConsumerURL(assertionConsumerURL, columnId) {
@@ -683,7 +694,7 @@ function clearAll() {
 
 %>
 
-<form method="POST" action="add_service_provider_finish.jsp?SPAction=<%=spAction%>"
+<form method="POST" action="add_service_provider_finish.jsp?SPAction=<%=Encode.forUriComponent(spAction)%>"
       id="addServiceProvider" name="addServiceProvider" target="_self"
       onsubmit="return doValidation();">
 <table class="styledLeft" width="100%">
@@ -692,7 +703,7 @@ function clearAll() {
     <%
         if (isEditSP) {
     %>
-    <th><fmt:message key="saml.sso.edit.service.provider"/><%=provider.getIssuer()%>)</th>
+    <th><fmt:message key="saml.sso.edit.service.provider"/><%=Encode.forHtml(provider.getIssuer())%>)</th>
     <%
     } else {
     %>
@@ -713,9 +724,9 @@ function clearAll() {
     </td>
     <td><input type="text" id="issuer" name="issuer" maxlength="100"
                class="text-box-big"
-               value="<%=isEditSP? provider.getIssuer():""%>" <%=isEditSP ? "disabled=\"disabled\"" : ""%>/>
+               value="<%=isEditSP? Encode.forHtmlAttribute(provider.getIssuer()):""%>" <%=isEditSP ? "disabled=\"disabled\"" : ""%>/>
         <input type="hidden" id="hiddenIssuer" name="hiddenIssuer"
-               value="<%=isEditSP? provider.getIssuer():""%>"/>
+               value="<%=isEditSP? Encode.forHtmlAttribute(provider.getIssuer()):""%>"/>
     </td>
 </tr>
 <tr id="assertionConsumerURLInputRow">
@@ -724,9 +735,9 @@ function clearAll() {
         <font color="red">*</font>
     </td>
     <td>
-        <input type="text" id="assertionConsumerURLTxt" class="text-box-big" value=""/>
+        <input type="text" id="assertionConsumerURLTxt" class="text-box-big" value="" black-list-patterns="http-url"/>
         <input id="addAssertionConsumerURLBtn" type="button" value="<fmt:message key="saml.sso.add.acs"/>"
-               onclick="addAssertionConsumerURL()"/>
+               onclick="onClickAddACRUrl()"/>
     </td>
 </tr>
 <%
@@ -749,10 +760,11 @@ function clearAll() {
             %>
             <tr id="acsUrl_<%=acsColumnId%>">
                 <td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">
-                    <%=assertionConsumerURL%>
+                    <%=Encode.forHtml(assertionConsumerURL)%>
                 </td>
                 <td>
-                    <a onclick="removeAssertionConsumerURL('<%=assertionConsumerURL%>', 'acsUrl_<%=acsColumnId%>');return false;"
+                    <a onclick="removeAssertionConsumerURL('<%=Encode.forJavaScriptAttribute(assertionConsumerURL)%>',
+                            'acsUrl_<%=acsColumnId%>');return false;"
                        href="#" class="icon-link"
                        style="background-image: url(../admin/images/delete.gif)">
                         Delete
@@ -766,7 +778,7 @@ function clearAll() {
             </tbody>
         </table>
         <input type="hidden" id="assertionConsumerURLs" name="assertionConsumerURLs" value="<%=assertionConsumerURLsBuilder.length() > 0 ?
-         assertionConsumerURLsBuilder.toString() : ""%>">
+         Encode.forHtmlAttribute(assertionConsumerURLsBuilder.toString()) : ""%>">
         <input type="hidden" id="currentColumnId" value="<%=acsColumnId%>">
     </td>
 </tr>
@@ -787,12 +799,14 @@ function clearAll() {
                     for (String assertionConsumerUrl : provider.getAssertionConsumerUrls()) {
                         if (assertionConsumerUrl.equals(provider.getDefaultAssertionConsumerUrl())) {
             %>
-            <option value="<%=assertionConsumerUrl%>" selected><%=assertionConsumerUrl%>
+            <option value="<%=Encode.forHtmlAttribute(assertionConsumerUrl)%>" selected>
+                <%=Encode.forHtmlContent(assertionConsumerUrl)%>
             </option>
             <%
             } else {
             %>
-            <option value="<%=assertionConsumerUrl%>"><%=assertionConsumerUrl%>
+            <option value="<%=Encode.forHtmlAttribute(assertionConsumerUrl)%>">
+                <%=Encode.forHtmlContent(assertionConsumerUrl)%>
             </option>
             <%
                         }
@@ -812,7 +826,7 @@ function clearAll() {
     <td>
         <input type="text" id="nameIdFormat"
                name="nameIdFormat" class="text-box-big"
-               value="<%=isEditSP?provider.getNameIDFormat().replace("/", ":"):"urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"%>"/>
+               value="<%=isEditSP? Encode.forHtmlAttribute(provider.getNameIDFormat().replace("/", ":")):"urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"%>"/>
     </td>
 </tr>
 
@@ -843,9 +857,11 @@ function clearAll() {
                             if (claimUri.equals(provider.getNameIdClaimUri())) {
 
             %>
-            <option selected="selected" value="<%=claimUri%>"><%=claimUri%></option>
+            <option selected="selected" value="<%=Encode.forHtmlAttribute(claimUri)%>">
+                <%=Encode.forHtmlContent(claimUri)%>
+            </option>
             <% } else { %>
-            <option value="<%=claimUri%>"><%=claimUri%></option>
+            <option value="<%=Encode.forHtmlAttribute(claimUri)%>"><%=Encode.forHtmlContent(claimUri)%></option>
             <%
                             }
                         }
@@ -875,7 +891,7 @@ function clearAll() {
                     for (String claimUri : claimUris) {
                         if (claimUri != null) {
             %>
-            <option value="<%=claimUri%>"><%=claimUri%></option>
+            <option value="<%=Encode.forHtmlAttribute(claimUri)%>"><%=Encode.forHtmlContent(claimUri)%></option>
             <%
                         }
                     }
@@ -907,12 +923,14 @@ function clearAll() {
                         }
                         if (signAlgorithm != null && signingAlgo.equals(signAlgorithm)) {
             %>
-            <option value="<%=signingAlgo%>" selected><%=signingAlgo%>
+            <option value="<%=Encode.forHtmlAttribute(signingAlgo)%>" selected>
+                <%=Encode.forHtml(signingAlgo)%>
             </option>
             <%
             } else {
             %>
-            <option value="<%=signingAlgo%>"><%=signingAlgo%>
+            <option value="<%=Encode.forHtmlAttribute(signingAlgo)%>">
+                <%=Encode.forHtml(signingAlgo)%>
             </option>
             <%
                         }
@@ -942,12 +960,14 @@ function clearAll() {
                         }
                         if (digestAlgorithm != null && digestAlgo.equals(digestAlgorithm)) {
             %>
-            <option value="<%=digestAlgo%>" selected><%=digestAlgo%>
+            <option value="<%=Encode.forHtmlAttribute(digestAlgo)%>" selected>
+                <%=Encode.forHtml(digestAlgo)%>
             </option>
             <%
             } else {
             %>
-            <option value="<%=digestAlgo%>"><%=digestAlgo%>
+            <option value="<%=Encode.forHtmlAttribute(digestAlgo)%>">
+                <%=Encode.forHtml(digestAlgo)%>
             </option>
             <%
                         }
@@ -1036,12 +1056,12 @@ function clearAll() {
                     if (alias != null) {
                         if (alias.equals(provider.getCertAlias())) {
         %>
-        <option selected="selected" value="<%=alias%>"><%=alias%>
+        <option selected="selected" value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
         </option>
         <%
         } else {
         %>
-        <option value="<%=alias%>"><%=alias%>
+        <option value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
         </option>
         <%
                         }
@@ -1064,12 +1084,12 @@ function clearAll() {
                     if (alias != null) {
                         if (alias.equals(samlSsoServuceProviderConfigBean.getCertificateAlias())) {
         %>
-        <option selected="selected" value="<%=alias%>"><%=alias%>
+        <option selected="selected" value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
         </option>
         <%
         } else {
         %>
-        <option value="<%=alias%>"><%=alias%>
+        <option value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
         </option>
         <%
                         }
@@ -1095,7 +1115,7 @@ function clearAll() {
     </td>
     <td><input type="text" id="sloResponseURL" name="sloResponseURL"
                value="<%=(isEditSP && StringUtils.isNotBlank(provider.getSloResponseURL())) ?
-               provider.getSloResponseURL() : ""%>"
+               Encode.forHtmlAttribute(provider.getSloResponseURL()) : ""%>"
                class="text-box-big" <%=(isEditSP && provider.getDoSingleLogout()) ? "" : "disabled=\"disabled\""%>>
         <div class="sectionHelp" style="margin-top: 2px;">
             Single logout response accepting endpoint
@@ -1109,7 +1129,7 @@ function clearAll() {
     </td>
     <td><input type="text" id="sloRequestURL" name="sloRequestURL"
                value="<%=(isEditSP && StringUtils.isNotBlank(provider.getSloRequestURL())) ?
-               provider.getSloRequestURL() : ""%>"
+               Encode.forHtmlAttribute(provider.getSloRequestURL()) : ""%>"
                class="text-box-big" <%=(isEditSP && provider.getDoSingleLogout()) ? "" : "disabled=\"disabled\""%>>
         <div class="sectionHelp" style="margin-top: 2px;">
             Single logout request accepting endpoint
@@ -1155,7 +1175,7 @@ if (isEditSP && show) {
                     for (String claimUri : claimUris) {
                         if (claimUri != null) {
             %>
-            <option value="<%=claimUri%>"><%=claimUri%>
+            <option value="<%=Encode.forHtmlAttribute(claimUri)%>"><%=Encode.forHtmlContent(claimUri)%>
             </option>
             <%
                         }
@@ -1216,7 +1236,7 @@ if (isEditSP && show) {
                     for (String claimUri : claimUris) {
                         if (claimUri != null) {
             %>
-            <option value="<%=claimUri%>"><%=claimUri%>
+            <option value="<%=Encode.forHtmlAttribute(claimUri)%>"><%=Encode.forHtmlContent(claimUri)%>
             </option>
             <%
                         }
@@ -1254,7 +1274,7 @@ if (isEditSP && show) {
             <tr id="claimRow<%=i%>">
                 <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
                     <input type="hidden" name="claimPropertyName<%=i%>" id="claimPropertyName<%=i%>"
-                           value="<%=claim%>"/><%=claim%>
+                           value="<%=Encode.forHtmlAttribute(claim)%>"/><%=Encode.forHtml(claim)%>
                 </td>
                 <td>
                     <a onclick="removeClaim('<%=i%>');return false;"
@@ -1342,7 +1362,8 @@ if (isEditSP && show) {
             <tr id="audienceRow<%=j%>">
                 <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
                     <input type="hidden" name="audiencePropertyName<%=j%>"
-                           id="audiencePropertyName<%=j%>" value="<%=audience%>"/><%=audience%>
+                           id="audiencePropertyName<%=j%>" value="<%=Encode.forHtmlAttribute(audience)%>"/>
+                    <%=Encode.forHtml(audience)%>
                 </td>
                 <td>
                     <a onclick="removeAudience('<%=j%>');return false;"
@@ -1430,7 +1451,7 @@ if (isEditSP && show) {
             <tr id="recipientRow<%=k%>">
                 <td style="padding-left: 40px ! important; color: rgb(119, 119, 119); font-style: italic;">
                     <input type="hidden" name="recipientPropertyName<%=k%>"
-                           id="recipientPropertyName<%=k%>" value="<%=recipient%>"/><%=recipient%>
+                           id="recipientPropertyName<%=k%>" value="<%=Encode.forHtmlAttribute(recipient)%>"/><%=Encode.forHtml(recipient)%>
                 </td>
                 <td>
                     <a onclick="removeRecipient('<%=k%>');return false;"
@@ -1509,10 +1530,10 @@ if (isEditSP && show) {
             %>
             <tr id="returnToUrl_<%=returnToColumnId%>">
                 <td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">
-                    <%=returnToURL%>
+                    <%=Encode.forHtml(returnToURL)%>
                 </td>
                 <td>
-                    <a onclick="removeSloReturnToURL('<%=returnToURL%>', 'returnToUrl_<%=returnToColumnId%>');return false;"
+                    <a onclick="removeSloReturnToURL('<%=Encode.forJavaScriptAttribute(Encode.forUri(returnToURL))%>', 'returnToUrl_<%=returnToColumnId%>');return false;"
                        href="#" class="icon-link"
                        style="background-image: url(../admin/images/delete.gif)">
                         Delete
@@ -1527,7 +1548,7 @@ if (isEditSP && show) {
             </tbody>
         </table>
         <input type="hidden" id="idpInitSLOReturnToURLs" name="idpInitSLOReturnToURLs" value="<%=sloReturnToURLsBuilder.length() > 0 ?
-         sloReturnToURLsBuilder.toString() : ""%>">
+         Encode.forHtmlAttribute(sloReturnToURLsBuilder.toString()) : ""%>">
         <input type="hidden" id="currentReturnToColumnId" value="<%=returnToColumnId%>">
     </td>
 </tr>
@@ -1557,7 +1578,7 @@ if (isEditSP && show) {
 </tr>
 </tbody>
 </table>
-<input type="hidden" id="attributeConsumingServiceIndex" name="attributeConsumingServiceIndex" value="<%=attributeConsumingServiceIndex%>"/>
+<input type="hidden" id="attributeConsumingServiceIndex" name="attributeConsumingServiceIndex" value="<%=Encode.forHtmlAttribute(attributeConsumingServiceIndex)%>"/>
 </form>
 </div>
 </div>

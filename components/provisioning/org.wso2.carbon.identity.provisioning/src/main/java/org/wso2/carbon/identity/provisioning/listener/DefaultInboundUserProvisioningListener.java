@@ -313,7 +313,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                     IdentityProvisioningConstants.GROUP_CLAIM_URI, null, null, false), Arrays
                     .asList(new String[]{roleName}));
 
-            outboundAttributes.put(ClaimMapping.build(IdentityProvisioningConstants.USER_CLAIM_URI,
+            outboundAttributes.put(ClaimMapping.build(IdentityProvisioningConstants.USERNAME_CLAIM_URI,
                     null, null, false), Arrays.asList(userList));
 
             outboundAttributes.put(ClaimMapping.build(
@@ -489,7 +489,7 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
 
             if (userList != null && userList.length > 0) {
                 outboundAttributes.put(ClaimMapping.build(
-                        IdentityProvisioningConstants.USER_CLAIM_URI, null, null, false), Arrays
+                        IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false), Arrays
                         .asList(userList));
             }
 

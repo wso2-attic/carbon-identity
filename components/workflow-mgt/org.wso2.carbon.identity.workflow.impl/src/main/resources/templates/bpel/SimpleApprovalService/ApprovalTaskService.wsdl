@@ -114,12 +114,12 @@
     </wsdl:binding>
     <wsdl:service name="${htServiceName}Service">
         <wsdl:port binding="tns:${htServiceName}ServiceSOAP" name="${htServiceName}Port">
-            <soap:address location="${bpsHostName}/services/${htServiceName}Service"/>
+            <soap:address location="${bpsURL}/services/${tenantContext}${htServiceName}Service"/>
         </wsdl:port>
     </wsdl:service>
     <wsdl:service name="${htServiceName}ServiceCB">
         <wsdl:port name="${htServiceName}CBPort" binding="tns:${htServiceName}ServiceCBSOAP">
-            <soap:address location="${bpsHostName}/services/${htServiceName}ServiceCB"/>
+            <soap:address location="${bpsURL}/services/${tenantContext}${htServiceName}ServiceCB"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

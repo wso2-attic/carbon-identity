@@ -368,7 +368,7 @@ public class WorkflowDAO {
      * @return
      * @throws InternalWorkflowException
      */
-    public List<Association> listAssociations() throws InternalWorkflowException {
+    public List<Association> listAssociations(int tenantId) throws InternalWorkflowException {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
@@ -377,6 +377,7 @@ public class WorkflowDAO {
         String query = SQLConstants.GET_ALL_ASSOCIATIONS_QUERY;
         try {
             prepStmt = connection.prepareStatement(query);
+            prepStmt.setInt(1, tenantId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String condition = rs.getString(SQLConstants.CONDITION_COLUMN);

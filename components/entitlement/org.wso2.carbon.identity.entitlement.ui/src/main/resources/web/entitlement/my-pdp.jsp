@@ -29,6 +29,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
 
@@ -247,7 +248,7 @@
 
     function updateOrder(policyId, order) {
         saveOrder();
-        location.href = 'update_order.jsp?policyId=' + policyId + "&order=" + order;
+        location.href = 'update_order.jsp?policyId=' + Encode.forUriComponent(policyId) + "&order=" + Encode.forUriComponent(order);
     }
 </script>
 
@@ -271,11 +272,11 @@
                       for (String algorithmName : policyCombiningAlgorithms) {
                           if(algorithmName.equals(globalPolicyCombiningAlgorithm)){
                 %>
-                      <option value="<%=algorithmName%>" selected="selected"><%=globalPolicyCombiningAlgorithm%></option>
+                      <option value="<%=Encode.forHtmlAttribute(algorithmName)%>" selected="selected"><%=Encode.forHtmlContent(globalPolicyCombiningAlgorithm)%></option>
                 <%
                             } else {
                 %>
-                      <option value="<%=algorithmName%>"><%=algorithmName%></option>
+                      <option value="<%=Encode.forHtmlAttribute(algorithmName)%>"><%=Encode.forHtmlContent(algorithmName)%></option>
                 <%
                             }
                         }
@@ -314,7 +315,7 @@
                             <nobr>
                                 <fmt:message key="search.policy"/>
                                 <input type="text" name="policySearchString"
-                                       value="<%= policySearchString != null? policySearchString :""%>"/>&nbsp;
+                                       value="<%= policySearchString != null? Encode.forHtmlAttribute(policySearchString) :""%>"/>&nbsp;
                             </nobr>
                         </td>
                         <td style="border:0; !important">
@@ -367,8 +368,8 @@
                     <%=policies[i].getPolicyOrder()%>
                 </td>
                 <td>
-                    <a href="policy-view-pdp.jsp?policyId=<%=policies[i].getPolicyId()%>">
-                        <%=policies[i].getPolicyId()%></a>
+                    <a href="policy-view-pdp.jsp?policyId=<%=Encode.forUriComponent(policies[i].getPolicyId())%>">
+                        <%=Encode.forUriComponent(policies[i].getPolicyId())%></a>
                 </td>
                 <td width="20px" style="text-align:left;">
                     <%
@@ -377,10 +378,10 @@
                         }
                     %>
                     <nobr>
-                        <img src="images/<%= policies[i].getPolicyType()%>-type.gif"
-                             title="<%= policies[i].getPolicyType()%>"
-                             alt="<%= policies[i].getPolicyType()%>"/>
-                        <%= policies[i].getPolicyType()%>
+                        <img src="images/<%=Encode.forUriComponent(policies[i].getPolicyType())%>-type.gif"
+                             title="<%=Encode.forHtmlAttribute(policies[i].getPolicyType())%>"
+                             alt="<%=Encode.forHtmlAttribute(policies[i].getPolicyType())%>"/>
+                        <%=Encode.forHtmlContent(policies[i].getPolicyType())%>
                     </nobr>
                 </td>
 
@@ -396,14 +397,14 @@
                             if (policies[i].getActive()) {
                     %>
                     <a title="<fmt:message key='disable.policy'/>"
-                       onclick="disable('<%=policies[i].getPolicyId()%>');return false;"
+                       onclick="disable('<%=Encode.forJavaScriptAttribute(policies[i].getPolicyId())%>');return false;"
                        href="#" style="background-image: url(images/disable.gif);" class="icon-link">
                         <fmt:message key='disable.policy'/></a>
                     <%
                             } else {
                     %>
                     <a title="<fmt:message key='enable.policy'/>"
-                       onclick="enable('<%=policies[i].getPolicyId()%>');return false;"
+                       onclick="enable('<%=Encode.forJavaScriptAttribute(policies[i].getPolicyId())%>');return false;"
                        href="#" style="background-image: url(images/enable.gif);" class="icon-link">
                         <fmt:message key='enable.policy'/></a>
                     <%
@@ -412,7 +413,7 @@
                         if (canDemote) {
                     %>
                     <a title="<fmt:message key='delete'/>"
-                       onclick="deletePolicy('<%=policies[i].getPolicyId()%>');return false;"
+                       onclick="deletePolicy('<%=Encode.forJavaScriptAttribute(policies[i].getPolicyId())%>');return false;"
                        href="#" style="background-image: url(images/delete.gif);" class="icon-link">
                         <fmt:message key='delete'/></a>
                     <%
@@ -428,7 +429,7 @@
                         <a id="order_editBtn<%=i%>" class="icon-link" style="background-image: url(images/edit.gif);
                         display: block;" onclick="saveOrder('<%=i%>')"><fmt:message key="order"/></a>
                         <a class="icon-link" style="background-image: url(images/save.gif); display: none;" id="order_saveBtn<%=i%>"
-                           onclick="updateOrder('<%=policies[i].getPolicyId()%>' ,document.getElementById('order_edit<%=i%>').value);">
+                           onclick="updateOrder('<%=Encode.forJavaScriptAttribute(policies[i].getPolicyId())%>' ,document.getElementById('order_edit<%=i%>').value);">
                             <fmt:message key="save"/>
                         </a>
                         &nbsp;
