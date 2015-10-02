@@ -15,6 +15,7 @@
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon"%>
@@ -91,7 +92,7 @@
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>',  function () {
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>',  function () {
             location.href = "index.jsp";
         });
     });
@@ -107,11 +108,11 @@
 <div id="middle">
     <h2><fmt:message key='policy.version.manage'/></h2>
     <div id="workArea">
-    <form method="post" name="versionForm" id="versionForm" action="show-policy-version.jsp?policyId=<%=policyId%>">
+    <form method="post" name="versionForm" id="versionForm" action="show-policy-version.jsp?policyId=<%=Encode.forUriComponent(policyId)%>">
     <table id="mainTable" class="styledLeft noBorders">
         <tr>
             <td><fmt:message key="entitlement.policy.id" /></td>
-            <td><%=policyId%></td>
+            <td><%=Encode.forHtml(policyId)%></td>
         </tr>
         <tr>
             <td><fmt:message key="policy.version"/></td>
@@ -122,12 +123,12 @@
                             for (String version : versions) {
                                 if (version.equals(selectedVersion)) {
                     %>
-                    <option value="<%=version%>" selected="selected"><%=version%>
+                    <option value="<%=Encode.forHtmlAttribute(version)%>" selected="selected"><%=Encode.forHtmlContent(version)%>
                     </option>
                     <%
                                     } else {
                     %>
-                    <option value="<%=version%>"><%=version%>
+                    <option value="<%=Encode.forHtmlAttribute(version)%>"><%=Encode.forHtmlContent(version)%>
                     </option>
                     <%
                                 }
@@ -167,7 +168,7 @@
                             <textarea  readonly="true" name="editorConfigText"  id="editorConfigText"  rows="50" cols="50"
                                       style="border: 1px solid rgb(204, 204, 204); width: 90%;">
                                     <%--height: 1000px; margin-top: 5px; display: none;"--%>
-                                <%=policy%>
+                                <%=Encode.forHtml(policy)%>
                             </textarea>
                         </td>
                     </tr>
@@ -209,7 +210,7 @@
     })
 
     function submitForm() {
-        document.versionForm.action= "rollback-policy.jsp?policyId=<%=policyId%>";
+        document.versionForm.action= "rollback-policy.jsp?policyId=<%=Encode.forUriComponent(policyId)%>";
         document.versionForm.submit();
     }
 

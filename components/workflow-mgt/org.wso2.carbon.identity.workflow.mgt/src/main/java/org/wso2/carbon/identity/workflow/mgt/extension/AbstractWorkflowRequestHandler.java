@@ -21,12 +21,12 @@ package org.wso2.carbon.identity.workflow.mgt.extension;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutorManager;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
-import org.wso2.carbon.identity.workflow.mgt.util.WorkFlowConstants;
-import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
-import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
+import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -77,7 +77,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
         if (isWorkflowCompleted()) {
             return true;
         }
-        WorkFlowRequest workFlowRequest = new WorkFlowRequest();
+        WorkflowRequest workFlowRequest = new WorkflowRequest();
         List<RequestParameter> parameters = new ArrayList<RequestParameter>(wfParams.size() + nonWfParams.size() + 1);
         for (Map.Entry<String, Object> paramEntry : wfParams.entrySet()) {
             parameters.add(getParameter(paramEntry.getKey(), paramEntry.getValue(), true));
@@ -86,7 +86,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
             parameters.add(getParameter(paramEntry.getKey(), paramEntry.getValue(), false));
         }
         RequestParameter uuidParameter = new RequestParameter();
-        uuidParameter.setName(WorkFlowConstants.REQUEST_ID);
+        uuidParameter.setName(WFConstant.REQUEST_ID);
         uuidParameter.setValue(uuid);
         uuidParameter.setRequiredInWorkflow(true);
         uuidParameter.setValueType(WorkflowDataType.STRING_TYPE);
@@ -130,7 +130,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      * @return
      */
     protected RequestParameter getParameter(String name, Object value, boolean required)
-            throws RuntimeWorkflowException {
+            throws WorkflowRuntimeException {
 
         RequestParameter parameter = new RequestParameter();
         parameter.setName(name);
@@ -144,7 +144,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
             if (isValueValid(name, value, valueType)) {
                 parameter.setValueType(valueType);
             } else {
-                throw new RuntimeWorkflowException("Invalid value for '" + name + "', Expected: '" + valueType + "', " +
+                throw new WorkflowRuntimeException("Invalid value for '" + name + "', Expected: '" + valueType + "', " +
                         "but was of " + value.getClass().getName());
             }
         }
@@ -152,14 +152,14 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     }
 
     @Override
-    public void engageWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException {
+    public void engageWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         workFlowRequest.setEventType(getEventId());
         WorkFlowExecutorManager.getInstance().executeWorkflow(workFlowRequest);
     }
 
     @Override
-    public void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Map<String, Object>
+    public void onWorkflowCompletion(String status, WorkflowRequest originalRequest, Map<String, Object>
             responseParams) throws WorkflowException {
 
         Map<String, Object> requestParams = new HashMap<String, Object>();

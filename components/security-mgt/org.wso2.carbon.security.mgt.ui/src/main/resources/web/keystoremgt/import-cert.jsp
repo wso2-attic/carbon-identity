@@ -25,7 +25,9 @@
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 
-<%@page import="org.wso2.carbon.utils.ServerConstants"%><script type="text/javascript" src="../extensions/core/js/vui.js"></script>
+<%@page import="org.wso2.carbon.utils.ServerConstants"%>
+<%@ page import="org.owasp.encoder.Encode" %>
+<script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -74,7 +76,7 @@
 
 
     <div id="middle">
-        <h2><fmt:message key="import.certificates.to"/><%=" "+keyStore %></h2>
+        <h2><fmt:message key="import.certificates.to"/><%= " " + Encode.forHtml(keyStore) %></h2>
         <div id="workArea">
             <form method="post" name="certForm" enctype="multipart/form-data"
                   action="import-cert-finish.jsp">
@@ -97,10 +99,10 @@
 </tr>
                     <tr>
                         <td class="buttonRow"> 
-                            <input type="hidden" name="keyStore" id="keyStore" value="<%=keyStore%>"/>
+                            <input type="hidden" name="keyStore" id="keyStore" value="<%=Encode.forHtmlAttribute(keyStore)%>"/>
                             <input class="button" type="button" value="<fmt:message key="import"/>" onclick="verify();"/>
                             <input class="button" type="button" value="<fmt:message key="cancel"/>" onclick="location.href ='keystore-mgt.jsp?region=region1&item=keystores_menu'"/>
-                            <input class="button" type="button" value="<fmt:message key="view.keystore"/>" onclick="location.href ='view-keystore.jsp?keyStore=<%=keyStore %>'"/>
+                            <input class="button" type="button" value="<fmt:message key="view.keystore"/>" onclick="location.href='view-keystore.jsp?keyStore=<%=Encode.forUriComponent(keyStore) %>'"/>
                         </td>
                     </tr>
                     </tbody>

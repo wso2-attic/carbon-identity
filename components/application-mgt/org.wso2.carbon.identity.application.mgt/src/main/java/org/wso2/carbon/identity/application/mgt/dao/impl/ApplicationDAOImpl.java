@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.application.mgt.dao.impl;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -2355,8 +2357,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             throws IdentityApplicationManagementException, SQLException {
         List<ApplicationPermission> loadPermissions = ApplicationMgtUtil.loadPermissions(applicationName);
         List<ApplicationPermission> removedPermissions = null;
-        if (loadPermissions != null && loadPermissions.size() > 0) {
-            if (permissions == null || permissions.length == 0) {
+        if (!CollectionUtils.isEmpty(loadPermissions)) {
+            if (ArrayUtils.isEmpty(permissions)) {
                 removedPermissions = new ArrayList<ApplicationPermission>(loadPermissions);
             } else {
                 removedPermissions = new ArrayList<ApplicationPermission>();
@@ -2374,7 +2376,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
             }
         }
-        if (removedPermissions != null && removedPermissions.size() > 0) {
+        if (!CollectionUtils.isEmpty(removedPermissions)) {
             //delete permissions
             for (ApplicationPermission applicationPermission : removedPermissions) {
                 String permissionValue = ApplicationMgtUtil.PATH_CONSTANT +
@@ -2679,13 +2681,13 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * @throws SQLException
      */
     private Map<String, String> readApplicationPermissions(Connection connection, String applicationName) throws SQLException {
-        PreparedStatement readPermissions = null;
+        PreparedStatement roadPermissionsPrepStmt = null;
         ResultSet resultSet = null;
         Map<String, String> permissions = new HashMap<>();
         try {
-            readPermissions = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS);
-            readPermissions.setString(1, "%" + ApplicationMgtUtil.getApplicationPermissionPath() + "%");
-            resultSet = readPermissions.executeQuery();
+            roadPermissionsPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS);
+            roadPermissionsPrepStmt.setString(1, "%" + ApplicationMgtUtil.getApplicationPermissionPath() + "%");
+            resultSet = roadPermissionsPrepStmt.executeQuery();
             while (resultSet.next()) {
                 String UM_ID = resultSet.getString(1);
                 String permission = resultSet.getString(2);
@@ -2696,7 +2698,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             }
         } finally {
             IdentityDatabaseUtil.closeResultSet(resultSet);
-            IdentityDatabaseUtil.closeStatement(readPermissions);
+            IdentityDatabaseUtil.closeStatement(roadPermissionsPrepStmt);
         }
         return permissions;
     }
@@ -2705,19 +2707,19 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * Update the permission path for a given id
      *
      * @param connection    Database connection
-     * @param um_id         Id
+     * @param id         Id
      * @param newPermission New permission path value
      * @throws SQLException
      */
-    private void updatePermissionPath(Connection connection, String um_id, String newPermission) throws SQLException {
-        PreparedStatement updatePermission = null;
+    private void updatePermissionPath(Connection connection, String id, String newPermission) throws SQLException {
+        PreparedStatement updatePermissionPrepStmt = null;
         try {
-            updatePermission = connection.prepareStatement(ApplicationMgtDBQueries.UPDATE_SP_PERMISSIONS);
-            updatePermission.setString(1, newPermission);
-            updatePermission.setString(2, um_id);
-            updatePermission.executeUpdate();
+            updatePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.UPDATE_SP_PERMISSIONS);
+            updatePermissionPrepStmt.setString(1, newPermission);
+            updatePermissionPrepStmt.setString(2, id);
+            updatePermissionPrepStmt.executeUpdate();
         } finally {
-            IdentityDatabaseUtil.closeStatement(updatePermission);
+            IdentityDatabaseUtil.closeStatement(updatePermissionPrepStmt);
         }
     }
 
@@ -2730,19 +2732,19 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * @throws SQLException
      */
     private int getPermissionId(Connection connection, String permission) throws SQLException {
-        PreparedStatement selectQuery = null;
+        PreparedStatement loadPermissionsPrepStmt = null;
         ResultSet resultSet = null;
         int id = -1;
         try {
-            selectQuery = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS_W);
-            selectQuery.setString(1, permission.toLowerCase());
-            resultSet = selectQuery.executeQuery();
+            loadPermissionsPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS_W);
+            loadPermissionsPrepStmt.setString(1, permission.toLowerCase());
+            resultSet = loadPermissionsPrepStmt.executeQuery();
             if (resultSet.next()) {
                 id = resultSet.getInt(1);
             }
         } finally {
             IdentityDatabaseUtil.closeResultSet(resultSet);
-            IdentityDatabaseUtil.closeStatement(selectQuery);
+            IdentityDatabaseUtil.closeStatement(loadPermissionsPrepStmt);
         }
         return id;
     }
@@ -2751,17 +2753,17 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * Delete role permission mapping for a given permission id
      *
      * @param connection Database Connection
-     * @param entry_id   Permission id
+     * @param id   Permission id
      * @throws SQLException
      */
-    private void deleteRolePermissionMapping(Connection connection, int entry_id) throws SQLException {
-        PreparedStatement deleteRolePermission = null;
+    private void deleteRolePermissionMapping(Connection connection, int id) throws SQLException {
+        PreparedStatement deleteRolePermissionPrepStmt = null;
         try {
-            deleteRolePermission = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_ROLE_PERMISSION);
-            deleteRolePermission.setInt(1, entry_id);
-            deleteRolePermission.executeUpdate();
+            deleteRolePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_ROLE_PERMISSION);
+            deleteRolePermissionPrepStmt.setInt(1, id);
+            deleteRolePermissionPrepStmt.executeUpdate();
         } finally {
-            IdentityApplicationManagementUtil.closeStatement(deleteRolePermission);
+            IdentityApplicationManagementUtil.closeStatement(deleteRolePermissionPrepStmt);
         }
     }
 
@@ -2773,13 +2775,13 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * @throws SQLException
      */
     private void deletePermission(Connection connection, int entry_id) throws SQLException {
-        PreparedStatement deletePermission = null;
+        PreparedStatement deletePermissionPrepStmt = null;
         try {
-            deletePermission = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_PERMISSIONS);
-            deletePermission.setInt(1, entry_id);
-            deletePermission.executeUpdate();
+            deletePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_PERMISSIONS);
+            deletePermissionPrepStmt.setInt(1, entry_id);
+            deletePermissionPrepStmt.executeUpdate();
         } finally {
-            IdentityApplicationManagementUtil.closeStatement(deletePermission);
+            IdentityApplicationManagementUtil.closeStatement(deletePermissionPrepStmt);
         }
     }
 

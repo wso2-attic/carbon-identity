@@ -15,7 +15,7 @@
 * limitations under the License.
 */
 -->
-
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.common.EntitlementConstants" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.common.PolicyEditorEngine" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.common.dto.PolicyEditorDataHolder" %>
@@ -207,12 +207,12 @@
                             getElementById('resourceRuleTable').rows.length-1]).attr('data-value');
         var index = parseInt(rowIndex, 10) + 1;
         jQuery('#resourceRuleTable > tbody:last').append('<tr data-value="'+ index +'"><td><table class="oneline-listing"><tr><td style="white-space:nowrap;">Child resource</td><td>User</td><td></td><td>Action</td><td>Environment</td><td></td></tr>' +
-            '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '" value="<%=selectedRuleResourceValue%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '"  /><% }%> </td>' +
-            '<td><select id="userRuleAttributeId_'  + index + '"  name="userRuleAttributeId_'  + index + '"  ><%for (String userAttribute : userAttributeIds) {if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {%><option value="<%=userAttribute%>" selected="selected"><%=userAttribute%></option><%} else {%><option value="<%=userAttribute%>"><%=userAttribute%></option><%}}%></select></td>' +
-            '<td><%if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  value="<%=selectedRuleUserAttributeValue%>"/><%} else {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  /><%}%></td>' +
-            '<td><%if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  value="<%=selectedRuleActionValue%>"/><%} else {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  /><%}%></td>' +
-            '<td><select id="environmentRuleId_'  + index + '"  name="environmentRuleId_'  + index + '"  ><%for (String userAttribute : envAttributeIds) {if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {%><option value="<%=userAttribute%>" selected="selected"><%=userAttribute%></option><%} else {%><option value="<%=userAttribute%>"><%=userAttribute%></option><%}}%></select></td>' +
-            '<td><%if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  value="<%=selectedRuleEnvironmentValue%>"/><%} else {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  /><%}%></td>' +
+            '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleResourceValue))%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '"  /><% }%> </td>' +
+            '<td><select id="userRuleAttributeId_'  + index + '"  name="userRuleAttributeId_'  + index + '"  ><%for (String userAttribute : userAttributeIds) {if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%}}%></select></td>' +
+            '<td><%if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleUserAttributeValue))%>"/><%} else {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  /><%}%></td>' +
+            '<td><%if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleActionValue))%>"/><%} else {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  /><%}%></td>' +
+            '<td><select id="environmentRuleId_'  + index + '"  name="environmentRuleId_'  + index + '"  ><%for (String userAttribute : envAttributeIds) {if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%}}%></select></td>' +
+            '<td><%if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleEnvironmentValue))%>"/><%} else {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  /><%}%></td>' +
             '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
             '</tr></table></td></tr>');
     }
@@ -223,12 +223,12 @@
                             getElementById('userRuleTable').rows.length-1]).attr('data-value');
         var index = parseInt(rowIndex, 10) + 1;
         jQuery('#userRuleTable > tbody:last').append('<tr data-value="'+ index +'"><td><table class="oneline-listing"><tr></tr><tr><td> Action </td>' +
-            '<td><%if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {%><input type="text" name="actionRuleValue_'  + index + '" id="actionRuleValue_'  + index + '" value="<%=selectedRuleActionValue%>"/><%} else {%><input type="text" name="actionRuleValue_'  + index + '" id="actionRuleValue_'  + index + '" /><%}%></td>' +
+            '<td><%if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {%><input type="text" name="actionRuleValue_'  + index + '" id="actionRuleValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleActionValue))%>"/><%} else {%><input type="text" name="actionRuleValue_'  + index + '" id="actionRuleValue_'  + index + '" /><%}%></td>' +
             '<td> Resource </td>' +
-            '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '" id="resourceRuleValue_'  + index + '" value="<%=selectedRuleResourceValue%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '" id="resourceRuleValue_'  + index + '" /><%}%></td>' +
+            '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '" id="resourceRuleValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleResourceValue))%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '" id="resourceRuleValue_'  + index + '" /><%}%></td>' +
             '<td> Environment </td>' +
-            '<td><select id="environmentRuleId_'  + index + '"  name="environmentRuleId_'  + index + '"  ><%for (String userAttribute : envAttributeIds) {if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {%><option value="<%=userAttribute%>" selected="selected"><%=userAttribute%></option><%} else {%><option value="<%=userAttribute%>"><%=userAttribute%></option><%}}%></select></td>' +
-            '<td><%if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  value="<%=selectedRuleEnvironmentValue%>"/><%} else {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  /><%}%></td>' +
+            '<td><select id="environmentRuleId_'  + index + '"  name="environmentRuleId_'  + index + '"  ><%for (String userAttribute : envAttributeIds) {if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%}}%></select></td>' +
+            '<td><%if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleEnvironmentValue))%>"/><%} else {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  /><%}%></td>' +
             '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
             '</tr><tr></tr></table></td></tr>');
     }
@@ -238,13 +238,13 @@
                             getElementById('actionRuleTable').rows.length-1]).attr('data-value');
         var index = parseInt(rowIndex, 10) + 1;
         jQuery('#actionRuleTable > tbody:last').append('<tr data-value="'+ index +'"><td><table class="oneline-listing"><tr></tr><tr><td>Resource</td>' +
-                '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '" value="<%=selectedRuleResourceValue%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '"  /><% }%> </td>' +
+                '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleResourceValue))%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '"  /><% }%> </td>' +
                 '<td>User</td>' +
-                '<td><select id="userRuleAttributeId_'  + index + '" name="userRuleAttributeId_'  + index + '" ><%for (String userAttribute : userAttributeIds) {if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {%><option value="<%=userAttribute%>"  selected="selected"><%=userAttribute%></option><%} else {%><option value="<%=userAttribute%>"><%=userAttribute%></option><%}}%></select></td>' +
-                '<td><%if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {%><input type="text" name="userRuleAttributeValue_'  + index + '" id="userRuleAttributeValue_'  + index + '" value="<%=selectedRuleUserAttributeValue%>"/><% } else {%><input type="text" name="userRuleAttributeValue_'  + index + '" id="userRuleAttributeValue_'  + index + '" /><%}%></td>' +
+                '<td><select id="userRuleAttributeId_'  + index + '" name="userRuleAttributeId_'  + index + '" ><%for (String userAttribute : userAttributeIds) {if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>"  selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%}}%></select></td>' +
+                '<td><%if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {%><input type="text" name="userRuleAttributeValue_'  + index + '" id="userRuleAttributeValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleUserAttributeValue))%>"/><% } else {%><input type="text" name="userRuleAttributeValue_'  + index + '" id="userRuleAttributeValue_'  + index + '" /><%}%></td>' +
                 '<td> Environment </td>' +
-                '<td><select id="environmentRuleId_'  + index + '"  name="environmentRuleId_'  + index + '"  ><%for (String userAttribute : envAttributeIds) {if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {%><option value="<%=userAttribute%>" selected="selected"><%=userAttribute%></option><%} else {%><option value="<%=userAttribute%>"><%=userAttribute%></option><%}}%></select></td>' +
-                '<td><%if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  value="<%=selectedRuleEnvironmentValue%>"/><%} else {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  /><%}%></td>' +
+                '<td><select id="environmentRuleId_'  + index + '"  name="environmentRuleId_'  + index + '"  ><%for (String userAttribute : envAttributeIds) {if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%}}%></select></td>' +
+                '<td><%if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleEnvironmentValue))%>"/><%} else {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  /><%}%></td>' +
                 '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
                 '</tr><tr></tr></table></td></tr>');
     }
@@ -254,12 +254,12 @@
                             getElementById('environmentRuleTable').rows.length-1]).attr('data-value');
         var index = parseInt(rowIndex, 10) + 1;
         jQuery('#environmentRuleTable > tbody:last').append('<tr data-value="'+ index +'"><td><table class="oneline-listing"><tr></tr><tr><td> Resource </td>' +
-            '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '" value="<%=selectedRuleResourceValue%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '"  /><% }%> </td>' +
+            '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleResourceValue))%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '"  /><% }%> </td>' +
             '<td> User </td>'+
-            '<td><select id="userRuleAttributeId_'  + index + '"  name="userRuleAttributeId_'  + index + '"  ><%for (String userAttribute : userAttributeIds) {if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {%><option value="<%=userAttribute%>" selected="selected"><%=userAttribute%></option><%} else {%><option value="<%=userAttribute%>"><%=userAttribute%></option><%}}%></select></td>' +
-            '<td><%if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  value="<%=selectedRuleUserAttributeValue%>"/><%} else {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  /><%}%></td>' +
+            '<td><select id="userRuleAttributeId_'  + index + '"  name="userRuleAttributeId_'  + index + '"  ><%for (String userAttribute : userAttributeIds) {if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%}}%></select></td>' +
+            '<td><%if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleUserAttributeValue))%>"/><%} else {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  /><%}%></td>' +
             '<td> Action </td>' +
-            '<td><%if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  value="<%=selectedRuleActionValue%>"/><%} else {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  /><%}%></td>' +
+            '<td><%if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleActionValue))%>"/><%} else {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  /><%}%></td>' +
             '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
             '</tr></table></td></tr>');
     }
@@ -283,7 +283,7 @@
         <%
             if (policyId != null && policyId.trim().length() > 0) {
         %>
-            <td><input type="text" name="policyId" id="policyId" value="<%=policyId%>"/></td>
+            <td><input type="text" name="policyId" id="policyId" value="<%=Encode.forHtmlAttribute(policyId)%>"/></td>
         <%
             } else {
         %>
@@ -297,7 +297,7 @@
         <%
             if (policyDescription != null && policyDescription.trim().length() > 0) {
         %>
-            <td><textarea name="policyDescription" id="policyDescription"  class="text-box-big" value="<%=policyDescription%>"></textarea></td>
+            <td><textarea name="policyDescription" id="policyDescription"  class="text-box-big" value="<%=Encode.forHtmlAttribute(policyDescription)%>"></textarea></td>
         <%
             } else {
         %>
@@ -315,11 +315,11 @@
                     for (String  policyApply : policyApplies) {
                         if(selectedPolicyApplied != null && policyApply.equals(selectedPolicyApplied)){
                 %>
-                    <option value="<%=policyApply%>" selected="selected" ><%=policyApply%></option>
+                    <option value="<%=Encode.forHtmlAttribute(policyApply)%>" selected="selected" ><%=Encode.forHtmlContent(policyApply)%></option>
                 <%
                         } else {
                 %>
-                    <option value="<%=policyApply%>" ><%=policyApply%></option>
+                    <option value="<%=Encode.forHtmlAttribute(policyApply)%>" ><%=Encode.forHtmlContent(policyApply)%></option>
                 <%
                         }
                     }
@@ -353,11 +353,11 @@
                         for (String userAttribute : userAttributeIds) {
                             if (selectedUserAttributeId != null && userAttribute.equals(selectedUserAttributeId)) {
                     %>
-                        <option value="<%=userAttribute%>"  selected="selected"><%=userAttribute%></option>
+                        <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"  selected="selected"><%=Encode.forHtmlContent(userAttribute)%></option>
                     <%
                             } else {
                     %>
-                        <option value="<%=userAttribute%>"><%=userAttribute%></option>
+                        <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"><%=Encode.forHtmlContent(userAttribute)%></option>
                     <%
                             }
                         }
@@ -369,7 +369,7 @@
                 <%
                     if (selectedUserAttributeValue != null && selectedUserAttributeValue.trim().length() > 0) {
                 %>
-                    <input type="text" name="userAttributeValue" id="userAttributeValue" value="<%=selectedUserAttributeValue%>"/>
+                    <input type="text" name="userAttributeValue" id="userAttributeValue" value="<%=Encode.forHtmlAttribute(selectedUserAttributeValue)%>"/>
                 <%
                     } else {
                 %>
@@ -396,7 +396,7 @@
                 <%
                     if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {
                 %>
-                    <input type="text" name="actionRuleValue_0" id="actionRuleValue_0" value="<%=selectedRuleActionValue%>"/>
+                    <input type="text" name="actionRuleValue_0" id="actionRuleValue_0" value="<%=Encode.forHtmlAttribute(selectedRuleActionValue)%>"/>
                 <%
                     } else {
                 %>
@@ -410,7 +410,7 @@
                 <%
                     if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {
                 %>
-                    <input type="text" name="resourceRuleValue_0" id="resourceRuleValue_0" value="<%=selectedRuleResourceValue%>"/>
+                    <input type="text" name="resourceRuleValue_0" id="resourceRuleValue_0" value="<%=Encode.forHtmlAttribute(selectedRuleResourceValue)%>"/>
                 <%
                     } else {
                 %>
@@ -426,11 +426,11 @@
                             for (String userAttribute : envAttributeIds) {
                                 if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {
                         %>
-                            <option value="<%=userAttribute%>"  selected="selected"><%=selectedRuleEnvironmentId%></option>
+                            <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"  selected="selected"><%=Encode.forHtmlContent(selectedRuleEnvironmentId)%></option>
                         <%
                                 } else {
                         %>
-                            <option value="<%=userAttribute%>"><%=userAttribute%></option>
+                            <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"><%=Encode.forHtmlContent(userAttribute)%></option>
                         <%
                                 }
                             }
@@ -440,7 +440,7 @@
                 <td>  <%
                     if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {
                 %>
-                    <input type="text" name="environmentRuleValue_0" id="environmentRuleValue_0" value="<%=selectedRuleEnvironmentValue%>"/>
+                    <input type="text" name="environmentRuleValue_0" id="environmentRuleValue_0" value="<%=Encode.forHtmlAttribute(selectedRuleEnvironmentValue)%>"/>
                 <%
                     } else {
                 %>
@@ -478,12 +478,12 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                         getElementById('userRuleTable').rows.length-1]).attr('data-value');
             var index = parseInt(rowIndex, 10) + 1;
             jQuery('#userRuleTable > tbody:last').append('<tr data-value="'+ index +'"><td><table class="oneline-listing"><tr></tr><tr><td> Action </td>' +
-                '<td><%if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {%><input type="text" name="actionRuleValue_'  + index + '" id="actionRuleValue_'  + index + '" value="<%=selectedRuleActionValue%>"/><%} else {%><input type="text" name="actionRuleValue_'  + index + '" id="actionRuleValue_'  + index + '" /><%}%></td>' +
+                '<td><%if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {%><input type="text" name="actionRuleValue_'  + index + '" id="actionRuleValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleActionValue))%>"/><%} else {%><input type="text" name="actionRuleValue_'  + index + '" id="actionRuleValue_'  + index + '" /><%}%></td>' +
                 '<td> Resource </td>' +
-                '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '" id="resourceRuleValue_'  + index + '" value="<%=selectedRuleResourceValue%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '" id="resourceRuleValue_'  + index + '" /><%}%></td>' +
+                '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '" id="resourceRuleValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleResourceValue))%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '" id="resourceRuleValue_'  + index + '" /><%}%></td>' +
                 '<td> Environment </td>' +
-                '<td><select id="environmentRuleId_'  + index + '"  name="environmentRuleId_'  + index + '"  ><%for (String userAttribute : envAttributeIds) {if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {%><option value="<%=userAttribute%>" selected="selected"><%=userAttribute%></option><%} else {%><option value="<%=userAttribute%>"><%=userAttribute%></option><%}}%></select></td>' +
-                '<td><%if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  value="<%=selectedRuleEnvironmentValue%>"/><%} else {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  /><%}%></td>' +
+                '<td><select id="environmentRuleId_'  + index + '"  name="environmentRuleId_'  + index + '"  ><%for (String userAttribute : envAttributeIds) {if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%} else {%><option value="Encode.forJavaScript(Encode.forHtmlAttribute(<%=userAttribute%>))"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%}}%></select></td>' +
+                '<td><%if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleEnvironmentValue))%>"/><%} else {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  /><%}%></td>' +
                 '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
                 '</tr><tr></tr></table></td></tr>');
         }
@@ -523,7 +523,7 @@ if(elementDTOList != null && elementDTOList.size() > 0){
             <%
                 if (selectedActionValue != null && selectedActionValue.trim().length() > 0) {
             %>
-                <td><input type="text" name="actionValue" id="actionValue" value="<%=selectedActionValue%>"/></td>
+                <td><input type="text" name="actionValue" id="actionValue" value="<%=Encode.forHtmlAttribute(selectedActionValue)%>"/></td>
             <%
                 } else {
             %>
@@ -550,7 +550,7 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                 <%
                     if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {
                 %>
-                    <input type="text" name="resourceRuleValue_0" id="resourceRuleValue_0" value="<%=selectedRuleResourceValue%>"/>
+                    <input type="text" name="resourceRuleValue_0" id="resourceRuleValue_0" value="<%=Encode.forHtmlAttribute(selectedRuleResourceValue)%>"/>
                 <%
                     } else {
                 %>
@@ -566,11 +566,11 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                             for (String userAttribute : userAttributeIds) {
                                 if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {
                         %>
-                            <option value="<%=userAttribute%>"  selected="selected"><%=userAttribute%></option>
+                            <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"  selected="selected"><%=Encode.forHtmlContent(userAttribute)%></option>
                         <%
                                 } else {
                         %>
-                            <option value="<%=userAttribute%>"><%=userAttribute%></option>
+                            <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"><%=Encode.forHtmlContent(userAttribute)%></option>
                         <%
                                 }
                             }
@@ -581,7 +581,7 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                     <%
                         if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {
                     %>
-                        <input type="text" name="userRuleAttributeValue_0" id="userRuleAttributeValue_0" value="<%=selectedRuleUserAttributeValue%>"/>
+                        <input type="text" name="userRuleAttributeValue_0" id="userRuleAttributeValue_0" value="<%=Encode.forHtmlAttribute(selectedRuleUserAttributeValue)%>"/>
                     <%
                         } else {
                     %>
@@ -597,11 +597,11 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                         for (String userAttribute : envAttributeIds) {
                             if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {
                     %>
-                        <option value="<%=userAttribute%>"  selected="selected"><%=selectedRuleEnvironmentId%></option>
+                        <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"  selected="selected"><%=Encode.forHtmlContent(selectedRuleEnvironmentId)%></option>
                     <%
                             } else {
                     %>
-                        <option value="<%=userAttribute%>"><%=userAttribute%></option>
+                        <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"><%=Encode.forHtmlContent(userAttribute)%></option>
                     <%
                             }
                         }
@@ -611,7 +611,7 @@ if(elementDTOList != null && elementDTOList.size() > 0){
             <td>  <%
                 if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {
             %>
-                <input type="text" name="environmentRuleValue_0" id="environmentRuleValue_0" value="<%=selectedRuleEnvironmentValue%>"/>
+                <input type="text" name="environmentRuleValue_0" id="environmentRuleValue_0" value="<%=Encode.forHtmlAttribute(selectedRuleEnvironmentValue)%>"/>
             <%
                 } else {
             %>
@@ -649,14 +649,14 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                                     getElementById('actionRuleTable').rows.length-1]).attr('data-value');
                         var index = parseInt(rowIndex, 10) + 1;
                         jQuery('#actionRuleTable > tbody:last').append('<tr data-value="'+ index +'"><td><table class="oneline-listing"><tr></tr><tr><td>Resource</td>' +
-                                <%--'<td><select id="resourceRuleFunction_'  + index + '" name="resourceRuleFunction_'  + index + '"><%for (String function : functions) {if (selectedRuleResourceFunction != null && selectedRuleResourceFunction.equals(function)) { %><option value="<%=function%>"  selected="selected"><%=function%></option><%} else {%><option value="<%=function%>"><%=function%></option><%}}%></select></td><td>to</td>< +--%>
-                                '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '" id="resourceRuleValue_'  + index + '" value="<%=selectedRuleResourceValue%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '" id="resourceRuleValue_'  + index + '" /><%}%></td>' +
+                                <%--'<td><select id="resourceRuleFunction_'  + index + '" name="resourceRuleFunction_'  + index + '"><%for (String function : functions) {if (selectedRuleResourceFunction != null && selectedRuleResourceFunction.equals(function)) { %><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(function))%>"  selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(function))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(function))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(function))%></option><%}}%></select></td><td>to</td>< +--%>
+                                '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '" id="resourceRuleValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleResourceValue))%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '" id="resourceRuleValue_'  + index + '" /><%}%></td>' +
                                 '<td>User</td>' +
-                                '<td><select id="userRuleAttributeId_'  + index + '" name="userRuleAttributeId_'  + index + '" ><%for (String userAttribute : userAttributeIds) {if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {%><option value="<%=userAttribute%>"  selected="selected"><%=userAttribute%></option><%} else {%><option value="<%=userAttribute%>"><%=userAttribute%></option><%}}%></select></td>' +
-                                '<td><%if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {%><input type="text" name="userRuleAttributeValue_'  + index + '" id="userRuleAttributeValue_'  + index + '" value="<%=selectedRuleUserAttributeValue%>"/><% } else {%><input type="text" name="userRuleAttributeValue_'  + index + '" id="userRuleAttributeValue_'  + index + '" /><%}%></td>' +
+                                '<td><select id="userRuleAttributeId_'  + index + '" name="userRuleAttributeId_'  + index + '" ><%for (String userAttribute : userAttributeIds) {if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>"  selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%}}%></select></td>' +
+                                '<td><%if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {%><input type="text" name="userRuleAttributeValue_'  + index + '" id="userRuleAttributeValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleUserAttributeValue))%>"/><% } else {%><input type="text" name="userRuleAttributeValue_'  + index + '" id="userRuleAttributeValue_'  + index + '" /><%}%></td>' +
                                 '<td> Environment </td>' +
-                                '<td><select id="environmentRuleId_'  + index + '"  name="environmentRuleId_'  + index + '"  ><%for (String userAttribute : envAttributeIds) {if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {%><option value="<%=userAttribute%>" selected="selected"><%=userAttribute%></option><%} else {%><option value="<%=userAttribute%>"><%=userAttribute%></option><%}}%></select></td>' +
-                                '<td><%if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  value="<%=selectedRuleEnvironmentValue%>"/><%} else {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  /><%}%></td>' +
+                                '<td><select id="environmentRuleId_'  + index + '"  name="environmentRuleId_'  + index + '"  ><%for (String userAttribute : envAttributeIds) {if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%}}%></select></td>' +
+                                '<td><%if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleEnvironmentValue))%>"/><%} else {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  /><%}%></td>' +
                                 '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
                                 '</tr><tr></tr></table></td></tr>');
                     }
@@ -701,11 +701,11 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                     for (String userAttribute : envAttributeIds) {
                         if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {
                         %>
-                            <option value="<%=userAttribute%>"  selected="selected"><%=userAttribute%></option>
+                            <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"  selected="selected"><%=Encode.forHtmlContent(userAttribute)%></option>
                         <%
                         } else {
                         %>
-                            <option value="<%=userAttribute%>"><%=userAttribute%></option>
+                            <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"><%=Encode.forHtmlContent(userAttribute)%></option>
                         <%
                         }
                     }
@@ -716,7 +716,7 @@ if(elementDTOList != null && elementDTOList.size() > 0){
             <%
                 if (selectedEnvironmentValue != null && selectedEnvironmentValue.trim().length() > 0) {
             %>
-                <td><input type="text" name="environmentValue" id="environmentValue" value="<%=selectedEnvironmentValue%>"/></td>
+                <td><input type="text" name="environmentValue" id="environmentValue" value="<%=Encode.forHtmlAttribute(selectedEnvironmentValue)%>"/></td>
             <%
                 } else {
             %>
@@ -742,7 +742,7 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                   <%
                       if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {
                   %>
-                      <input type="text" name="resourceRuleValue_0" id="resourceRuleValue_0" value="<%=selectedRuleResourceValue%>"/>
+                      <input type="text" name="resourceRuleValue_0" id="resourceRuleValue_0" value="<%=Encode.forHtmlAttribute(selectedRuleResourceValue)%>"/>
                   <%
                       } else {
                   %>
@@ -758,11 +758,11 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                               for (String userAttribute : userAttributeIds) {
                                   if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {
                           %>
-                              <option value="<%=userAttribute%>"  selected="selected"><%=userAttribute%></option>
+                              <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"  selected="selected"><%=Encode.forHtmlContent(userAttribute)%></option>
                           <%
                                   } else {
                           %>
-                              <option value="<%=userAttribute%>"><%=userAttribute%></option>
+                              <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"><%=Encode.forHtmlContent(userAttribute)%></option>
                           <%
                                   }
                               }
@@ -772,7 +772,7 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                   <td> <%
                       if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {
                   %>
-                      <input type="text" name="userRuleAttributeValue_0" id="userRuleAttributeValue_0" value="<%=selectedRuleUserAttributeValue%>"/>
+                      <input type="text" name="userRuleAttributeValue_0" id="userRuleAttributeValue_0" value="<%=Encode.forHtmlAttribute(selectedRuleUserAttributeValue)%>"/>
                   <%
                       } else {
                   %>
@@ -785,7 +785,7 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                   <td>  <%
                       if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {
                   %>
-                      <input type="text" name="actionRuleValue_0" id="actionRuleValue_0" value="<%=selectedRuleActionValue%>"/>
+                      <input type="text" name="actionRuleValue_0" id="actionRuleValue_0" value="<%=Encode.forHtmlAttribute(selectedRuleActionValue)%>"/>
                   <%
                       } else {
                   %>
@@ -822,12 +822,12 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                           getElementById('environmentRuleTable').rows.length-1]).attr('data-value');
               var index = parseInt(rowIndex, 10) + 1;
               jQuery('#environmentRuleTable > tbody:last').append('<tr data-value="'+ index +'"><td><table class="oneline-listing"><tr></tr><tr><td> Resource </td>' +
-                  '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '" value="<%=selectedRuleResourceValue%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '"  /><% }%> </td>' +
+                  '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleResourceValue))%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '"  /><% }%> </td>' +
                   '<td> User </td>' +
-                  '<td><select id="userRuleAttributeId_'  + index + '"  name="userRuleAttributeId_'  + index + '"  ><%for (String userAttribute : userAttributeIds) {if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {%><option value="<%=userAttribute%>" selected="selected"><%=userAttribute%></option><%} else {%><option value="<%=userAttribute%>"><%=userAttribute%></option><%}}%></select></td>' +
-                  '<td><%if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  value="<%=selectedRuleUserAttributeValue%>"/><%} else {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  /><%}%></td>' +
+                  '<td><select id="userRuleAttributeId_'  + index + '"  name="userRuleAttributeId_'  + index + '"  ><%for (String userAttribute : userAttributeIds) {if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%}}%></select></td>' +
+                  '<td><%if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleUserAttributeValue))%>"/><%} else {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  /><%}%></td>' +
                   '<td> Action </td>' +
-                  '<td><%if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  value="<%=selectedRuleActionValue%>"/><%} else {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  /><%}%></td>' +
+                  '<td><%if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleActionValue))%>"/><%} else {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  /><%}%></td>' +
                   '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
                   '</tr></table></td></tr>');
           }
@@ -867,7 +867,7 @@ if(elementDTOList != null && elementDTOList.size() > 0){
             <%
                 if (selectedResourceValue != null && selectedResourceValue.trim().length() > 0) {
             %>
-                <td><input type="text" name="resourceValue" id="resourceValue" value="<%=selectedResourceValue%>"/></td>
+                <td><input type="text" name="resourceValue" id="resourceValue" value="<%=Encode.forHtmlAttribute(selectedResourceValue)%>"/></td>
             <%
                 } else {
             %>
@@ -899,7 +899,7 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                                     <%
                                         if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {
                                     %>
-                                    <input type="text" name="resourceRuleValue_0" id="resourceRuleValue_0" value="<%=selectedRuleResourceValue%>"/>
+                                    <input type="text" name="resourceRuleValue_0" id="resourceRuleValue_0" value="<%=Encode.forHtmlAttribute(selectedRuleResourceValue)%>"/>
                                     <%
                                     } else {
                                     %>
@@ -914,11 +914,11 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                                             for (String userAttribute : userAttributeIds) {
                                                 if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {
                                         %>
-                                        <option value="<%=userAttribute%>"  selected="selected"><%=userAttribute%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"  selected="selected"><%=Encode.forHtmlContent(userAttribute)%></option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=userAttribute%>"><%=userAttribute%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"><%=Encode.forHtmlContent(userAttribute)%></option>
                                         <%
                                                 }
                                             }
@@ -928,7 +928,7 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                                 <td> <%
                                     if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {
                                 %>
-                                    <input type="text" name="userRuleAttributeValue_0" id="userRuleAttributeValue_0" value="<%=selectedRuleUserAttributeValue%>"/>
+                                    <input type="text" name="userRuleAttributeValue_0" id="userRuleAttributeValue_0" value="<%=Encode.forHtmlAttribute(selectedRuleUserAttributeValue)%>"/>
                                     <%
                                     } else {
                                     %>
@@ -940,7 +940,7 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                                 <td>  <%
                                     if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {
                                 %>
-                                    <input type="text" name="actionRuleValue_0" id="actionRuleValue_0" value="<%=selectedRuleActionValue%>"/>
+                                    <input type="text" name="actionRuleValue_0" id="actionRuleValue_0" value="<%=Encode.forHtmlAttribute(selectedRuleActionValue)%>"/>
                                     <%
                                     } else {
                                     %>
@@ -955,11 +955,11 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                                             for (String userAttribute : envAttributeIds) {
                                                 if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {
                                         %>
-                                        <option value="<%=userAttribute%>"  selected="selected"><%=userAttribute%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"  selected="selected"><%=Encode.forHtmlContent(userAttribute)%></option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=userAttribute%>"><%=userAttribute%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(userAttribute)%>"><%=Encode.forHtmlContent(userAttribute)%></option>
                                         <%
                                                 }
                                             }
@@ -969,7 +969,7 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                                 <td>  <%
                                     if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {
                                 %>
-                                    <input type="text" name="environmentRuleValue_0" id="environmentRuleValue_0" value="<%=selectedRuleEnvironmentValue%>"/>
+                                    <input type="text" name="environmentRuleValue_0" id="environmentRuleValue_0" value="<%=Encode.forHtmlAttribute(selectedRuleEnvironmentValue)%>"/>
                                     <%
                                     } else {
                                     %>
@@ -1008,12 +1008,12 @@ if(elementDTOList != null && elementDTOList.size() > 0){
                         var index = parseInt(rowIndex, 10) + 1;
 
                         jQuery('#resourceRuleTable > tbody:last').append('<tr data-value="'+ index +'"><td><table class="oneline-listing"><tr><td style="white-space:nowrap;">Child resource</td><td>User</td><td></td><td>Action</td><td>Environment</td><td></td></tr>' +
-                                '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '" value="<%=selectedRuleResourceValue%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '"  /><% }%> </td>' +
-                                '<td><select id="userRuleAttributeId_'  + index + '"  name="userRuleAttributeId_'  + index + '"  ><%for (String userAttribute : userAttributeIds) {if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {%><option value="<%=userAttribute%>" selected="selected"><%=userAttribute%></option><%} else {%><option value="<%=userAttribute%>"><%=userAttribute%></option><%}}%></select></td>' +
-                                '<td><%if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  value="<%=selectedRuleUserAttributeValue%>"/><%} else {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  /><%}%></td>' +
-                                '<td><%if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  value="<%=selectedRuleActionValue%>"/><%} else {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  /><%}%></td>' +
-                                '<td><select id="environmentRuleId_'  + index + '"  name="environmentRuleId_'  + index + '"  ><%for (String userAttribute : envAttributeIds) {if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {%><option value="<%=userAttribute%>" selected="selected"><%=userAttribute%></option><%} else {%><option value="<%=userAttribute%>"><%=userAttribute%></option><%}}%></select></td>' +
-                                '<td><%if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  value="<%=selectedRuleEnvironmentValue%>"/><%} else {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  /><%}%></td>' +
+                                '<td><%if (selectedRuleResourceValue != null && selectedRuleResourceValue.trim().length() > 0) {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleResourceValue))%>"/><%} else {%><input type="text" name="resourceRuleValue_'  + index + '"  id="resourceRuleValue_'  + index + '"  /><% }%> </td>' +
+                                '<td><select id="userRuleAttributeId_'  + index + '"  name="userRuleAttributeId_'  + index + '"  ><%for (String userAttribute : userAttributeIds) {if (selectedRuleUserAttributeId != null && userAttribute.equals(selectedRuleUserAttributeId)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%}}%></select></td>' +
+                                '<td><%if (selectedRuleUserAttributeValue != null && selectedRuleUserAttributeValue.trim().length() > 0) {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleUserAttributeValue))%>"/><%} else {%><input type="text" name="userRuleAttributeValue_'  + index + '"  id="userRuleAttributeValue_'  + index + '"  /><%}%></td>' +
+                                '<td><%if (selectedRuleActionValue != null && selectedRuleActionValue.trim().length() > 0) {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleActionValue))%>"/><%} else {%><input type="text" name="actionRuleValue_'  + index + '"  id="actionRuleValue_'  + index + '"  /><%}%></td>' +
+                                '<td><select id="environmentRuleId_'  + index + '"  name="environmentRuleId_'  + index + '"  ><%for (String userAttribute : envAttributeIds) {if (selectedRuleEnvironmentId != null && userAttribute.equals(selectedRuleEnvironmentId)) {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>" selected="selected"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%} else {%><option value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(userAttribute))%>"><%=Encode.forJavaScript(Encode.forHtmlContent(userAttribute))%></option><%}}%></select></td>' +
+                                '<td><%if (selectedRuleEnvironmentValue != null && selectedRuleEnvironmentValue.trim().length() > 0) {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(selectedRuleEnvironmentValue))%>"/><%} else {%><input type="text" name="environmentRuleValue_'  + index + '"  id="environmentRuleValue_'  + index + '"  /><%}%></td>' +
                                 '<td><a onclick="removeRow(this)" style="background-image:url(images/delete.gif);" type="button" class="icon-link"></a></td>' +
                                 '</tr></table></td></tr>');
                     }

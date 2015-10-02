@@ -50,17 +50,17 @@
             <artifactId>org.wso2.carbon.identity.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.base</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.workflow.mgt.bps.stub</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon.commons</groupId>
             <artifactId>org.wso2.carbon.tenant.common</artifactId>
         </dependency>
+        <!--dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-xjc-plugin</artifactId>
+            <version>3.0.5</version>
+        </dependency-->
+
+
+
     </dependencies>
 
     <build>
@@ -69,6 +69,33 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
             </plugin>
+            <!--plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-xjc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>xsdtojava</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceRoot>${basedir}/src/main/java/</sourceRoot>
+                    <xsdOptions>
+                        <xsdOption>
+                            <extension>true</extension>
+                            <xsd>${basedir}/src/main/resources/MetaDataType.xsd</xsd>
+                            <xsd>${basedir}/src/main/resources/MetaData.xsd</xsd>
+                            <extensionArgs>
+                                <arg>-Xdv</arg>
+                            </extensionArgs>
+                        </xsdOption>
+                    </xsdOptions>
+                    <extensions>
+                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.3.0</extension>
+                    </extensions>
+                </configuration>
+            </plugin-->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -101,10 +128,7 @@
                             org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
                             org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
                             org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",
-                            org.wso2.carbon.bpel.stub.upload; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.bpel.stub.upload.types; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.humantask.stub.*; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.core.util; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
@@ -113,17 +137,16 @@
                             org.wso2.carbon.user.core.util; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.utils; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.core.util; version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.stratos.common.*; version="${carbon.commons.imp.pkg.version}",
-                            org.wso2.carbon.humantask.deployer; resolution:=optional
+                            org.wso2.carbon.stratos.common.*; version="${carbon.commons.imp.pkg.version}"
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.workflow.mgt.internal,
-                            !org.wso2.carbon.identity.workflow.mgt.bps.stub.*,
                             org.wso2.carbon.identity.workflow.mgt.*; version="${carbon.identity.package.export.version}"
                         </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 </project>

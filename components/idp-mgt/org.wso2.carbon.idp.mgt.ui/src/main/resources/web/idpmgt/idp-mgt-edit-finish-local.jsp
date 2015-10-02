@@ -44,13 +44,13 @@
         identityProvider.setEnable(true);
         identityProvider.setPrimary(true);
         identityProvider.setIdentityProviderName(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME);
-        identityProvider.setHomeRealmId(CharacterEncoder.getSafeText(request.getParameter("homeRealmId")));
+        identityProvider.setHomeRealmId(request.getParameter("homeRealmId"));
         FederatedAuthenticatorConfig samlFedAuthn = new FederatedAuthenticatorConfig();
         samlFedAuthn.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
         Property[] properties = new Property[1];
         Property property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
-        property.setValue(CharacterEncoder.getSafeText(request.getParameter("idPEntityId")));
+        property.setValue(request.getParameter("idPEntityId"));
         properties[0] = property;
         samlFedAuthn.setProperties(properties);
 
@@ -59,11 +59,11 @@
         properties = new Property[2];
         property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT);
-        property.setValue(CharacterEncoder.getSafeText(request.getParameter("sessionIdleTimeout")));
+        property.setValue(request.getParameter("sessionIdleTimeout"));
         properties[0] = property;
         property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT);
-        property.setValue(CharacterEncoder.getSafeText(request.getParameter("rememberMeTimeout")));
+        property.setValue(request.getParameter("rememberMeTimeout"));
         properties[1] = property;
         propertyHolderConfig.setProperties(properties);
         FederatedAuthenticatorConfig[] federatedAuthenticators = new FederatedAuthenticatorConfig[2];

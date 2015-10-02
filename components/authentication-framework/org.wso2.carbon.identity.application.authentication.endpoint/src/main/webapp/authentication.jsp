@@ -17,24 +17,21 @@
 --%>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 
 <html>
 <head>
     <title></title>
     <%
-//        String authRequest = CharacterEncoder.getSafeText(request.getParameter("data"));
         String authRequest = request.getParameter("data");
-
     %>
 
     <script type="text/javascript" src="js/u2f-api.js"></script>
-    <%--<script type="text/javascript" src="chrome-extension://pfboblefjcgdjicmnffhdgionmgcdmne/u2f-api.js"></script>--%>
 
     <script type="text/javascript">
         function talkToDevice(){
-            var authRequest = '<%=authRequest%>';
+            var authRequest = '<%=Encode.forJavaScriptBlock(authRequest)%>';
             var jsonAuthRequest = JSON.parse(authRequest);
             setTimeout(function() {
                 u2f.sign(jsonAuthRequest.authenticateRequests,
@@ -54,7 +51,7 @@
 <body onload='talkToDevice();'>
 <p>Touch your U2F token.</p>
 <form method="POST" action="../commonauth" id="form" onsubmit="return false;">
-    <input type="hidden" name="sessionDataKey" value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
+    <input type="hidden" name="sessionDataKey" value='<%=Encode.forHtmlAttribute(request.getParameter("sessionDataKey"))%>'/>
     <input type="hidden" name="tokenResponse" id="tokenResponse" value="tmp val"/>
 </form>
 </body>

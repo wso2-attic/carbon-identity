@@ -16,21 +16,20 @@
   ~ under the License.
   --%>
 
-<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+
 <div id="loginTable1" class="identity-box">
     <%
-        loginFailed = CharacterEncoder.getSafeText(request.getParameter("loginFailed"));
+        loginFailed = request.getParameter("loginFailed");
         if (loginFailed != null) {
 
     %>
     <div class="alert alert-error">
-        <fmt:message key='<%=CharacterEncoder.getSafeText(request.getParameter
-                ("errorMessage"))%>'/>
+        <fmt:message key='<%=Encode.forHtml(request.getParameter("errorMessage"))%>'/>
     </div>
     <% } %>
 
-    <% if (CharacterEncoder.getSafeText(request.getParameter("username")) == null || "".equals
-            (CharacterEncoder.getSafeText(request.getParameter("username")).trim())) { %>
+    <% if (StringUtils.isBlank(request.getParameter("username"))) { %>
 
     <!-- Username -->
     <div class="control-group">
@@ -43,8 +42,8 @@
 
     <%} else { %>
 
-    <input type="hidden" id='username' name='username' value='<%=CharacterEncoder.getSafeText
-        (request.getParameter("username"))%>'/>
+    <input type="hidden" id='username' name='username' value='<%=Encode.forHtmlAttribute
+    (request.getParameter("username"))%>'/>
 
     <% } %>
 
@@ -54,7 +53,8 @@
 
         <div class="controls">
             <input type="password" id='password' name="password" class="input-xlarge" style="height:20px"/>
-            <input type="hidden" name="sessionDataKey" value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
+            <input type="hidden" name="sessionDataKey" value='<%=Encode.forHtmlAttribute
+            (request.getParameter("sessionDataKey"))%>'/>
             <label class="checkbox" style="margin-top:10px"><input type="checkbox" id="chkRemember"
                                                                    name="chkRemember"><fmt:message
                     key='remember.me'/></label>

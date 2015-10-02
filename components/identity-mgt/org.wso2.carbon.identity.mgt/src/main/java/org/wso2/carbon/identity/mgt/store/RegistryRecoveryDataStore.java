@@ -33,9 +33,6 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
 import java.util.Properties;
 
-/**
- *
- */
 public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
 
     private static final Log log = LogFactory.getLog(RegistryRecoveryDataStore.class);
@@ -47,7 +44,6 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
             registry = IdentityMgtServiceComponent.getRegistryService().
                     getConfigSystemRegistry(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
             registry.beginTransaction();
-            deleteOldResourcesIfFound(registry, recoveryDataDO.getUserName(), IdentityMgtConstants.IDENTITY_MANAGEMENT_DATA);
             Resource resource = registry.newResource();
             resource.setProperty(SECRET_KEY, recoveryDataDO.getSecret());
             resource.setProperty(USER_ID, recoveryDataDO.getUserName());
@@ -88,7 +84,6 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
                     getConfigSystemRegistry(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
 
             registry.beginTransaction();
-
             String secretKeyPath = IdentityMgtConstants.IDENTITY_MANAGEMENT_DATA +
                     RegistryConstants.PATH_SEPARATOR + code;
             if (registry.resourceExists(secretKeyPath)) {
@@ -102,6 +97,7 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
                         dataDO.setSecret(resource.getProperty(key));
                     } else if (key.equals(EXPIRE_TIME)) {
                         String time = resource.getProperty(key);
+                        dataDO.setExpireTime(time);
 
                         if (System.currentTimeMillis() > Long.parseLong(time)) {
                             dataDO.setValid(false);
@@ -111,7 +107,6 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
                         }
                     }
                 }
-                registry.delete(resource.getPath());
             } else {
                 return null;
             }
@@ -133,12 +128,64 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
 
     @Override
     public void invalidate(UserRecoveryDataDO recoveryDataDO) throws IdentityException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        Registry registry = null;
+        try {
+            registry = IdentityMgtServiceComponent.getRegistryService().
+                    getConfigSystemRegistry(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
+            registry.beginTransaction();
+            String dataPath = IdentityMgtConstants.IDENTITY_MANAGEMENT_DATA;
+            Collection dataItems = (Collection)registry.get(dataPath);
+            for (int i = 0; i < dataItems.getChildren().length; i++) {
+                Resource currentResource = registry.get(dataItems.getChildren()[i]);
+                if (currentResource instanceof Collection) {
+                    String[] currentResourceChildren = ((Collection) currentResource).getChildren();
+                    for (int j = 0; j < currentResourceChildren.length; j++) {
+                        Resource innerResource = registry.get(currentResourceChildren[j]);
+                        if (innerResource.getProperty(SECRET_KEY).equals(recoveryDataDO.getSecret())) {
+                            registry.delete(currentResourceChildren[j]);
+                            return;
+                        }
+                    }
+                } else {
+                    if (currentResource.getProperty(SECRET_KEY).equals(recoveryDataDO.getSecret())) {
+                        registry.delete(dataItems.getChildren()[i]);
+                        return;
+                    }
+                }
+            }
+        } catch (RegistryException e) {
+            throw new IdentityException("Error while deleting resource after loading", e);
+        } finally {
+            if (registry != null) {
+                try {
+                    registry.commitTransaction();
+                } catch (RegistryException e) {
+                    log.error("Error while deleting resource after loading.", e);
+                }
+            }
+        }
+
     }
 
     @Override
     public void invalidate(String userId, int tenantId) throws IdentityException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        Registry registry = null;
+        try {
+            registry = IdentityMgtServiceComponent.getRegistryService().
+                    getConfigSystemRegistry(PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
+            registry.beginTransaction();
+            deleteOldResourcesIfFound(registry, userId, IdentityMgtConstants.IDENTITY_MANAGEMENT_DATA);
+        } catch (RegistryException e) {
+            throw new IdentityException("Error while deleting the old confirmation code.", e);
+        } finally {
+            if (registry != null) {
+                try {
+                    registry.commitTransaction();
+                } catch (RegistryException e) {
+                    log.error("Error while deleting the old confirmation code \n" + e);
+                }
+            }
+        }
     }
 
     @Override
@@ -162,11 +209,11 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
                         //SECONDARY USER STORE. Resource is a collection.
                         deleteOldResourcesIfFound(registry, userName, resource);
                     }
-
                 }
             }
         } catch (RegistryException e) {
             log.error("Error while deleting the old confirmation code \n" + e);
         }
+
     }
 }

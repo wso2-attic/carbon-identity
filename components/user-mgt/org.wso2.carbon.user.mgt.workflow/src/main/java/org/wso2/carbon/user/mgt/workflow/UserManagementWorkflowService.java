@@ -22,7 +22,7 @@ package org.wso2.carbon.user.mgt.workflow;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
 
@@ -32,7 +32,7 @@ public class UserManagementWorkflowService {
 
     private static Log log = LogFactory.getLog(UserManagementWorkflowService.class);
 
-    WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+    WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
     /**
      * Retrieve List of associated Entity-types of the workflow requests.

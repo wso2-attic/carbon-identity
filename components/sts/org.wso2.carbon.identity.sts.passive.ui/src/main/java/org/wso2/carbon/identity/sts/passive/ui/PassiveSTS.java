@@ -23,6 +23,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.owasp.encoder.Encode;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
@@ -178,14 +179,14 @@ public class PassiveSTS extends HttpServlet {
         String htmlPage = stsRedirectPage;
         String pageWithReply = htmlPage.replace("$url", String.valueOf(respToken.getReplyTo()));
 
-        String pageWithReplyAction = pageWithReply.replace("$action", String.valueOf(action));
+        String pageWithReplyAction = pageWithReply.replace("$action", Encode.forHtml(String.valueOf(action)));
         String pageWithReplyActionResult = pageWithReplyAction.replace("$result",
-                StringEscapeUtils.escapeHtml(String.valueOf(respToken.getResults())));
+                Encode.forHtml(String.valueOf(respToken.getResults())));
         String pageWithReplyActionResultContext;
         if(respToken.getContext() !=null) {
             pageWithReplyActionResultContext = pageWithReplyActionResult.replace(
                     "<!--$additionalParams-->", "<!--$additionalParams-->" + "<input type='hidden' name='wctx' value='"
-                            +respToken.getContext() + "'>");
+                            + Encode.forHtmlAttribute(respToken.getContext())+ "'>");
         } else {
             pageWithReplyActionResultContext = pageWithReplyActionResult;
         }
@@ -195,7 +196,7 @@ public class PassiveSTS extends HttpServlet {
         } else {
             finalPage = pageWithReplyActionResultContext.replace("<!--$additionalParams-->",
                     "<input type='hidden' name='AuthenticatedIdPs' value='" +
-                            URLEncoder.encode(authenticatedIdPs, "UTF-8") + "'>");
+                            Encode.forHtmlAttribute(authenticatedIdPs) + "'>");
         }
 
         PrintWriter out = httpResp.getWriter();
@@ -301,8 +302,7 @@ public class PassiveSTS extends HttpServlet {
 
         //Add authenticationRequest cache entry to cache
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry(authenticationRequest);
-        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
-                                                       request.getSession().getMaxInactiveInterval());
+        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
         StringBuilder queryStringBuilder = new StringBuilder();
         queryStringBuilder.append("?").
                 append(FrameworkConstants.SESSION_DATA_KEY).
@@ -451,13 +451,9 @@ public class PassiveSTS extends HttpServlet {
     }
 
     private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
-
-        AuthenticationResultCacheKey authResultCacheKey = new AuthenticationResultCacheKey(sessionDataKey);
-        CacheEntry cacheEntry = AuthenticationResultCache.getInstance(0).getValueFromCache(authResultCacheKey);
         AuthenticationResult authResult = null;
-
-        if (cacheEntry != null) {
-            AuthenticationResultCacheEntry authResultCacheEntry = (AuthenticationResultCacheEntry) cacheEntry;
+        AuthenticationResultCacheEntry authResultCacheEntry = FrameworkUtils.getAuthenticationResultFromCache(sessionDataKey);
+        if (authResultCacheEntry != null) {
             authResult = authResultCacheEntry.getResult();
         } else {
             log.error("AuthenticationResult does not exist. Probably due to cache timeout");

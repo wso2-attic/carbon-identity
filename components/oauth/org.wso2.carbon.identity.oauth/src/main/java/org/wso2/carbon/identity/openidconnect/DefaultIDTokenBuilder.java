@@ -121,7 +121,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             ServiceProvider serviceProvider = null;
 
             try {
-                String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                String tenantDomain = request.getOauth2AccessTokenReqDTO().getTenantDomain();
                 String spName = applicationMgtService.getServiceProviderNameByClientId(
                         request.getOauth2AccessTokenReqDTO().getClientId(), INBOUND_AUTH2_TYPE, tenantDomain);
                 serviceProvider = applicationMgtService.getApplicationExcludingFileBasedSPs(spName, tenantDomain);

@@ -25,6 +25,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="java.util.ResourceBundle"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
@@ -91,7 +92,7 @@
 			client =
 			         new SAMLSSOValidatorServiceClient(cookie, backendServerURL,
 			                                           configContext);
-			samlRequest = SAMLSSOUIUtil.getSafeInput(request, "samlReqest");
+			samlRequest = request.getParameter("samlReqest");
 			String isPostStr = SAMLSSOUIUtil.getSafeInput(request, "isPost");
 			isPost = isPostStr != null ? Boolean.parseBoolean(isPostStr) : false;
 			validatedItems = client.validate(samlRequest, isPost);
@@ -111,9 +112,9 @@
 			for (ValidatedItemDTO item : validatedItems) {
 		%>
 		<div style="padding-bottom: 10px;">
-			<div style="font-weight: bold; padding-bottom: 5px;"><%=item.getType()%></div>
+			<div style="font-weight: bold; padding-bottom: 5px;"><%=Encode.forHtml(item.getType())%></div>
 			<div
-				style="padding-left: 10px; color: <%=item.getSuccess() ? "#029219" : "#E01212"%>"><%=item.getMessage()%></div>
+				style="padding-left: 10px; color: <%=item.getSuccess() ? "#029219" : "#E01212"%>"><%=Encode.forHtml(item.getMessage())%></div>
 		</div>
 		<%
 			}
@@ -141,7 +142,7 @@
 							Request <span class="required">*</span></td>
 						<td style="height: 200px;"><textarea type="text"
 								name="samlReqest" id="samlReqest" class="text-box-big"
-								style="width: 50%; min-height: 180px;" autocomplete="off"><%=(isDoValidate && samlRequest != null) ? samlRequest : ""%></textarea>
+								style="width: 50%; min-height: 180px;" autocomplete="off"><%=(isDoValidate && samlRequest != null) ? Encode.forHtmlContent(samlRequest): ""%></textarea>
 								<div id="helpReqFormat" class="sectionHelp" style="display: none;">SAML Request should be in similar format to 'https://localhost:9443/samlsso?SAMLRequest=jZJdj6owEIb%2FCum9CGIUG9Gg%...'</div>
 								</td>
 					</tr>
