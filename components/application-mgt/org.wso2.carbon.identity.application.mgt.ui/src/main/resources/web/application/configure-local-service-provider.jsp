@@ -277,7 +277,7 @@
 					<tr>
 						<td>				             	  
 							 <select name="provisioning_idps" style="float: left; min-width: 150px;font-size:13px;">
-							             			<%=Encode.forHtmlContent(idpType.toString())%>
+							             			<%=idpType.toString()%>
 							 </select>
 						     <a id="provisioningIdpAdd" onclick="addIDPRow(this);return false;" class="icon-link" style="background-image:url(images/add.gif);"></a>
 						</td>
@@ -317,7 +317,7 @@
 							      	      		</td>
 							      	      		<td> 
 							      	      			<% if(selectedProIdpConnectors.get(idp.getIdentityProviderName()) != null) { %>
-							      	      				<select name="provisioning_con_idp_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" style="float: left; min-width: 150px;font-size:13px;"><%=Encode.forHtmlContent(selectedProIdpConnectors.get(idp.getIdentityProviderName()))%></select>
+							      	      				<select name="provisioning_con_idp_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" style="float: left; min-width: 150px;font-size:13px;"><%=selectedProIdpConnectors.get(idp.getIdentityProviderName())%></select>
 							      	      			<% } %>
 							      	      		</td>
 							      	      		 <td>

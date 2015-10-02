@@ -26,7 +26,6 @@
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.utils.UserStoreMgtDataKeeper" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.utils.UserStoreUIUtils" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
@@ -76,11 +75,11 @@
     className = "0";
 
     if (request.getParameter("domain") != null) {
-        domain = CharacterEncoder.getSafeText(request.getParameter("domain"));
+        domain = request.getParameter("domain");
     }
 
     if (request.getParameter("className") != null) {
-        className = CharacterEncoder.getSafeText(request.getParameter("className"));
+        className = request.getParameter("className");
     }
     String selectedClassApplied = null;
     String description = null;
@@ -515,13 +514,13 @@
                             } else if (propertyName.endsWith("password") || propertyName.endsWith("Password")) { %>
                             <input type="password" name=<%=value%>
                             id=<%=value%> style="width:95%"
-                                   value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
+                                   value="<%=propertyValue%>"/>
                             <%
                             } else {
                             %>
                             <input type="text" name=<%=value%>
                             id=<%=value%> style="width:95%"
-                                   value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
+                                   value="<%=propertyValue%>"/>
                             <%
                                 }
                             %>
@@ -647,7 +646,7 @@
                         </td>
                         <input type="hidden" name=<%=name%>
                         id=<%=name%>
-                        value="<%=Encode.forHtmlAttribute(optionals[x].getName())%>"/>
+                        value="<%=optionals[x].getName()%>"/>
                         </td>
                         <td style="width:30%" style="text-align:left;">
                             <%
@@ -667,7 +666,7 @@
                             %>
                             <input type="text" name=<%=value%>
                             id=<%=value%> style="width:95%"
-                                   value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
+                                   value="<%=propertyValue%>"/>
                             <%
                                     }
                                 } else {
@@ -687,13 +686,13 @@
                                     </td>
                                     <input type="hidden" name=<%=name%>
                                     id=<%=name%>
-                                    value="<%=Encode.forHtmlAttribute(optionals[x].getName())%>"/>
+                                    value="<%=optionals[x].getName()%>"/>
                                     </td>
                                     <td style="width:30%" style="display:none;">
                                         <input type="hidden" name=<%=value%>
                                         id=<%=value%>
                                         style="width:95%"
-                                               value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
+                                               value="<%=propertyValue%>"/>
 
                                     </td>
                                     <td class="sectionHelp" width="50%" style="display:none;">
@@ -783,7 +782,7 @@
                         </td>
                         <input type="hidden" name=<%=name%>
                         id=<%=name%>
-                        value="<%=Encode.forHtmlAttribute(advancedProperties[x].getName())%>"/>
+                        value="<%=advancedProperties[x].getName()%>"/>
                         </td>
                         <td style="width:30%" style="text-align:left;">
                             <%
@@ -801,8 +800,8 @@
                             } else {
                             %>
                             <input type="text" name=<%=value%>
-                            id=<%=value%> style="width:95%"
-                                   value="<%=Encode.forHtmlAttribute(propertyValue)%>"/>
+                             id=<%=value%> style="width:95%"
+                                   value="<%=propertyValue%>"/>
                             <%
                                     }
                                 } else {

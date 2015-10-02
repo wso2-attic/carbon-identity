@@ -1454,7 +1454,7 @@ var roleMappinRowID = -1;
                     	<thead>
                     	<tr>
                     		<td>
-                    			<select name="reqPathAuthType" style="float: left; min-width: 150px;font-size:13px;"><%=Encode.forHtmlContent(requestPathAuthTypes.toString())%></select>
+                    			<select name="reqPathAuthType" style="float: left; min-width: 150px;font-size:13px;"><%=requestPathAuthTypes.toString()%></select>
                     			<a id="reqPathAuthenticatorAddLink" class="icon-link" style="background-image:url(images/add.gif);">Add</a>
                     			<div style="clear:both"></div>
                            		<div class="sectionHelp">
@@ -1553,7 +1553,7 @@ var roleMappinRowID = -1;
 					<tr>
 						<td>				             	  
 							 <select name="provisioning_idps" style="float: left; min-width: 150px;font-size:13px;">
-							             			<%=Encode.forHtmlContent(idpType.toString())%>
+							             			<%=idpType.toString()%>
 							 </select>
 						     <a id="provisioningIdpAdd" onclick="addIDPRow(this);return false;" class="icon-link" style="background-image:url(images/add.gif);"></a>
 						</td>
@@ -1589,11 +1589,11 @@ var roleMappinRowID = -1;
 							      	       <tr>
 							      	      	   <td>
 							      	      		<input name="provisioning_idp" id="" type="hidden" value="<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" />
-                                                    <%=Encode.forHtmlContent(idp.getIdentityProviderName()) + (idpStatus.get(idp.getIdentityProviderName()) != null && idpStatus.get(idp.getIdentityProviderName()) ? "" : disbleText) %>
+                                                    <%=idp.getIdentityProviderName() + (idpStatus.get(idp.getIdentityProviderName()) != null && idpStatus.get(idp.getIdentityProviderName()) ? "" : disbleText) %>
 							      	      		</td>
 							      	      		<td> 
 							      	      			<% if(selectedProIdpConnectors.get(idp.getIdentityProviderName()) != null) { %>
-							      	      				<select name="provisioning_con_idp_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" style="float: left; min-width: 150px;font-size:13px;"><%=selectedProIdpConnectors.get(Encode.forHtmlContent(idp.getIdentityProviderName()))%></select>
+							      	      				<select name="provisioning_con_idp_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" style="float: left; min-width: 150px;font-size:13px;"><%=selectedProIdpConnectors.get(idp.getIdentityProviderName())%></select>
 							      	      			<% } %>
 							      	      		</td>
 							      	      		 <td>
