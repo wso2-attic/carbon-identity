@@ -18,12 +18,10 @@
 
 package org.wso2.carbon.identity.mgt.store;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.mgt.RecoveryProcessor;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.UserRecoveryDataDO;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
@@ -35,9 +33,6 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 
 import java.util.Properties;
 
-/**
- *
- */
 public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
 
     private static final Log log = LogFactory.getLog(RegistryRecoveryDataStore.class);
@@ -214,7 +209,6 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
                         //SECONDARY USER STORE. Resource is a collection.
                         deleteOldResourcesIfFound(registry, userName, resource);
                     }
-
                 }
             }
         } catch (RegistryException e) {
