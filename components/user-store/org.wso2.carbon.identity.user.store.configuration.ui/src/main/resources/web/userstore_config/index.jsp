@@ -148,7 +148,7 @@
 
 
     function edit(domain, className) {
-        document.userStoreForm.action = "userstore-config.jsp?domain= " + domain + "&className= " + className;
+        document.userStoreForm.action = "userstore-config.jsp?domain=" + domain + "&className= " + className;
         document.userStoreForm.submit();
 
     }
