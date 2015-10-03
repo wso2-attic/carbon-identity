@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.wso2.carbon.identity.workflow.impl;
 
 
@@ -9,6 +27,16 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.databinding.types.NCName;
 import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.bpel.stub.mgt.BPELPackageManagementServiceStub;
+import org.wso2.carbon.bpel.stub.mgt.PackageManagementException;
+import org.wso2.carbon.bpel.stub.mgt.ProcessManagementException;
+import org.wso2.carbon.bpel.stub.mgt.ProcessManagementServiceStub;
+import org.wso2.carbon.bpel.stub.mgt.types.DeployedPackagesPaginated;
+import org.wso2.carbon.bpel.stub.mgt.types.PackageType;
+import org.wso2.carbon.bpel.stub.mgt.types.Version_type0;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.humantask.stub.types.TSimpleQueryCategory;
 import org.wso2.carbon.humantask.stub.types.TSimpleQueryInput;
@@ -22,9 +50,16 @@ import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalOperationFault;
 import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalStateFault;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.dao.BPSProfileDAO;
+import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
+import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
+import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -36,6 +71,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class WorkflowImplServiceImpl implements WorkflowImplService {
+
+    private static final Log log = LogFactory.getLog(WorkflowImplServiceImpl.class);
 
     BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
 
@@ -119,6 +156,81 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         } catch (MalformedURLException | XMLStreamException | IllegalOperationFault | IllegalAccessFault |
                 RemoteException | IllegalStateFault | IllegalArgumentFault e) {
             throw new WorkflowImplException("Error while deleting the human tasks of the request.");
+        }
+    }
+
+    /**
+     * This method is used to remove the BPS Artifacts upon a deletion of
+     * a Workflow.
+     *
+     * @param workflowRequest - Workflow request to be deleted.
+     * @throws WorkflowImplException
+     */
+
+    @Override
+    public void removeBPSPackage(Workflow workflowRequest) throws WorkflowImplException {
+
+        WorkflowImplService workflowImplService = WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
+        WorkflowManagementService workflowManagementService = WorkflowImplServiceDataHolder.getInstance().
+                getWorkflowManagementService();
+
+        try {
+            List<Parameter> workflowParameters = workflowManagementService.
+                    getWorkflowParameters(workflowRequest.getWorkflowId());
+            Parameter bpsParameter = WorkflowManagementUtil.getParameter(workflowParameters,
+                    WFImplConstant.ParameterName.BPS_PROFILE, WFConstant.ParameterHolder.WORKFLOW_IMPL);
+            String bpsProfileName = bpsParameter.getParamValue();
+
+            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            BPSProfile bpsProfile = workflowImplService.getBPSProfile(bpsProfileName, tenantId);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Removing BPS Artifacts of" + " " + bpsProfileName + " " + "for Tenant ID : " + tenantId);
+            }
+
+            BPELPackageManagementServiceStub bpsPackagestub = null;
+            ProcessManagementServiceStub bpsProcessStub = null;
+
+            //Authorizing BPS Package Management & BPS Process Management Stubs.
+            String host = bpsProfile.getWorkerHostURL();
+            URL bpsPackageServicesUrl = new URL(new URL(host), WFImplConstant.BPS_PACKAGE_SERVICES_URL);
+            URL bPSProcessServicesUrl = new URL(new URL(host), WFImplConstant.BPS_PROCESS_SERVICES_URL);
+            bpsPackagestub = new BPELPackageManagementServiceStub(bpsPackageServicesUrl.toString());
+            bpsProcessStub = new ProcessManagementServiceStub(bPSProcessServicesUrl.toString());
+            ServiceClient BPSPackageClient = bpsPackagestub._getServiceClient();
+            ServiceClient BPSProcessClient = bpsProcessStub._getServiceClient();
+            authenticate(BPSPackageClient, bpsProfile.getUsername(), bpsProfile.getPassword());
+            authenticate(BPSProcessClient, bpsProfile.getUsername(), bpsProfile.getPassword());
+
+            DeployedPackagesPaginated deployedPackagesPaginated =
+                    bpsPackagestub.listDeployedPackagesPaginated(0, workflowRequest.getWorkflowName());
+
+            PackageType packageType = deployedPackagesPaginated.get_package()[0];
+            int numberOfVersions = packageType.getVersions().getVersion().length;
+
+            //Iterating through BPS Packages deployed for the Workflow and retires each associated active processes.
+            for (int i = 0; i < numberOfVersions; i++) {
+                Version_type0 versionType = packageType.getVersions().getVersion()[i];
+                if (versionType.getIsLatest()) {
+                    int numberOfProcesses = versionType.getProcesses().getProcess().length;
+                    for (int j = 0; j < numberOfProcesses; j++) {
+                        String processStatus = versionType.getProcesses().getProcess()[i].getStatus().getValue();
+                        if (StringUtils.equals(processStatus, WFImplConstant.BPS_STATUS_ACTIVE)) {
+                            String processID = versionType.getProcesses().getProcess()[i].getPid();
+                            QName pid = QName.valueOf(processID);
+                            bpsProcessStub.retireProcess(pid);
+                        }
+                    }
+                }
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("BPS Artifacts Successfully removed for Workflow : " + workflowRequest.getWorkflowName());
+            }
+
+        } catch (WorkflowException | MalformedURLException | PackageManagementException | RemoteException |
+                ProcessManagementException e) {
+            throw new WorkflowImplException("Error while deleting the BPS Artifacts of the request.");
         }
     }
 

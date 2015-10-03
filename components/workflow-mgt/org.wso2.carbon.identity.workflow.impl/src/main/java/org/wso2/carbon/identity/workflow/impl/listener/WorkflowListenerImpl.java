@@ -71,7 +71,8 @@ public class WorkflowListenerImpl implements WorkflowListener {
 
     @Override
     public void doPreDeleteWorkflow(Workflow workflow) throws WorkflowException {
-
+        WorkflowImplService workflowImplService = WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
+        workflowImplService.removeBPSPackage(workflow);
     }
 
     @Override

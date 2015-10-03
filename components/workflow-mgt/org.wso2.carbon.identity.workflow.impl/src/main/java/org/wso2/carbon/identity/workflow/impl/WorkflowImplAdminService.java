@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 
 import java.util.List;
 
@@ -108,5 +109,20 @@ public class WorkflowImplAdminService {
         }
     }
 
+    /**
+     * Removes BPS artifacts of a particular workflow.
+     *
+     * @param workflowRequest Workflow request to be deleted.
+     * @throws WorkflowImplException
+     */
+    public void removeBPSPackage(Workflow workflowRequest) throws WorkflowImplException {
+
+        try {
+            WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService().removeBPSPackage(workflowRequest);
+        } catch (WorkflowImplException e) {
+            log.error("Error when removing BPS artifacts " + workflowRequest.getWorkflowName(), e);
+            throw new WorkflowImplException(e.getMessage());
+        }
+    }
 
 }

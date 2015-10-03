@@ -22,12 +22,14 @@ public class WFImplConstant {
     public static final String WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME = "WorkflowImplMetaData.xml" ;
     public static final String HT_STATE_RESERVED = "RESERVED" ;
     public static final String HT_STATE_READY = "READY" ;
+    public static final String BPS_STATUS_ACTIVE = "ACTIVE";
 
     public static final String HT_PARAMETER_LIST_ELEMENT = "parametersList";
     public static final String HT_ITEM_NAME_ATTRIBUTE = "itemName";
     public static final String HT_REQUEST_ID_ATTRIBUTE_VALUE = "REQUEST ID";
     public static final String HT_SERVICES_URL = "services/HumanTaskClientAPIAdmin";
-
+    public static final String BPS_PACKAGE_SERVICES_URL = "services/BPELPackageManagementService/";
+    public static final String BPS_PROCESS_SERVICES_URL = "services/ProcessManagementService/";
 
 
     public static class ParameterName {
