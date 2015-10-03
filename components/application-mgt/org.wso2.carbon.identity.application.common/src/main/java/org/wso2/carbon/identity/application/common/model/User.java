@@ -26,10 +26,8 @@ import java.util.Iterator;
 
 public class User implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -3605277664796682611L;
+    private static final long serialVersionUID = 928301275168169633L;
+
     protected String tenantDomain;
     protected String userStoreDomain;
     protected String userName;

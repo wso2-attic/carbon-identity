@@ -25,6 +25,8 @@ import java.io.Serializable;
  */
 public class Workflow implements Serializable {
 
+    private static final long serialVersionUID = -5191252401224311955L;
+
     private String workflowId;
     private String workflowName;
     private String workflowDescription;

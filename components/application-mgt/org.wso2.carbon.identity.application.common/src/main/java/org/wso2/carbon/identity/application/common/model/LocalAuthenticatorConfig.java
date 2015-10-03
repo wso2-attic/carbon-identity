@@ -30,10 +30,7 @@ import java.util.Set;
 
 public class LocalAuthenticatorConfig implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -1294054850307327027L;
+    private static final long serialVersionUID = 3363298518257599291L;
 
     protected String name;
     protected String displayName;

@@ -33,7 +33,8 @@ import java.util.UUID;
 
 public abstract class AbstractOutboundProvisioningConnector implements Serializable {
 
-    private static final long serialVersionUID = 2196864101772627178L;
+    private static final long serialVersionUID = 8619915839101228583L;
+
     private static final String PROVISIONING_IDP = "IDP";
     private static final String PROVISIONING_TENANT = "TD";
     private static final String PROVISIONING_DOMAIN = "UD";

@@ -29,7 +29,8 @@ import java.util.Set;
  */
 public class IdentityCacheEntry implements Serializable {
 
-    private static final long serialVersionUID = 3746964700806693258L;
+    private static final long serialVersionUID = 6982031255566292798L;
+
     private String cacheEntry;
     private Set<String> cacheEntrySet;
     private String[] cacheEntryArray;

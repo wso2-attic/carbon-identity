@@ -26,6 +26,6 @@ import java.io.Serializable;
  */
 public abstract class CacheEntry implements Serializable {
 
-    private static final long serialVersionUID = 1574169083965373292L;
+    private static final long serialVersionUID = 1591693579088522864L;
 
 }

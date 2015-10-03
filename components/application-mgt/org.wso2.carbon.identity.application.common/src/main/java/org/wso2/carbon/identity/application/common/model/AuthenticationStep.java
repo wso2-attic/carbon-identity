@@ -31,10 +31,7 @@ import java.util.Set;
 
 public class AuthenticationStep implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -4001996659290645507L;
+    private static final long serialVersionUID = 497647508006862448L;
 
     private int stepOrder = 1;
     private LocalAuthenticatorConfig[] localAuthenticatorConfigs = new LocalAuthenticatorConfig[0];

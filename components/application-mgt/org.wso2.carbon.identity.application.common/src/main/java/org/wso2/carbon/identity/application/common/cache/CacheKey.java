@@ -28,7 +28,7 @@ import java.io.Serializable;
  */
 public abstract class CacheKey implements Serializable {
 
-    private static final long serialVersionUID = -5992905297718363173L;
+    private static final long serialVersionUID = 659646764466611338L;
 
     protected String tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
 

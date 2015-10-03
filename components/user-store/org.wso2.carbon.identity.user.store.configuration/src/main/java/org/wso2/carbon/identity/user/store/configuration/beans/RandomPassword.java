@@ -26,6 +26,8 @@ import java.io.Serializable;
 public class RandomPassword implements Serializable {
 
 
+    private static final long serialVersionUID = -7465588466247931040L;
+
     private String propertyName;
 
     //private String password;

@@ -25,6 +25,8 @@ import java.io.Serializable;
 
 public class SAMLSSOServiceProviderDTO implements Serializable {
 
+    private static final long serialVersionUID = -7633935958583257097L;
+
     private String issuer;
     private String[] assertionConsumerUrls;
     private String defaultAssertionConsumerUrl;
