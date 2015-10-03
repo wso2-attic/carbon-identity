@@ -46,6 +46,7 @@
 <%@ page import="org.wso2.carbon.identity.sts.passive.ui.client.IdentityPassiveSTSClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <fmt:bundle basename="org.wso2.carbon.identity.sts.mgt.ui.i18n.Resources">
@@ -143,7 +144,7 @@
                                         if (enteredRealmName != null) {
                                     %>
                                     <input type="text" id="realmName" name="realmName"
-                                           class="text-box-big" value="<%=enteredRealmName%>"/>
+                                           class="text-box-big" value="<%=Encode.forHtmlAttribute(enteredRealmName)%>"/>
                                     <%
                                     } else {
                                     %>
@@ -165,14 +166,14 @@
                                                 if (claimDialectDTO.getDialectURI().trim().equals(dialect.trim())) {
                                     %>
                                     <option name="dialect" selected="true"
-                                            value="<%=claimDialectDTO.getDialectURI()%>"><%=claimDialectDTO.getDialectURI()%>
+                                            value="<%=Encode.forHtmlAttribute(claimDialectDTO.getDialectURI())%>"><%=Encode.forHtmlContent(claimDialectDTO.getDialectURI())%>
                                     </option>
                                     <%
 
                                     } else {
                                     %>
                                     <option name="dialect"
-                                            value="<%=claimDialectDTO.getDialectURI()%>"><%=claimDialectDTO.getDialectURI()%>
+                                            value="<%=Encode.forHtmlAttribute(claimDialectDTO.getDialectURI())%>"><%=Encode.forHtmlContent(claimDialectDTO.getDialectURI())%>
                                     </option>
                                     <%
                                                 }
@@ -193,7 +194,7 @@
                                         <tr>
                                             <td>
                                                 <input type="checkbox" name="claims"
-                                                       value="<%=dto.getClaim().getClaimUri()%>"/><%=dto.getClaim().getClaimUri()%>
+                                                       value="<%=Encode.forHtmlAttribute(dto.getClaim().getClaimUri())%>"/><%=Encode.forHtmlContent(dto.getClaim().getClaimUri())%>
                                             </td>
                                         </tr>
                                         <%

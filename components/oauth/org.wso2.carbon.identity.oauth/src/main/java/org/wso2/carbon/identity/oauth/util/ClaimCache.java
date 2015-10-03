@@ -58,8 +58,8 @@ public class ClaimCache extends BaseCache<String, CacheEntry> {
 
     public void addToCache(CacheKey key, CacheEntry entry) {
         super.addToCache(key.toString(), entry);
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().storeSessionData(key.toString(),CLAIM_CACHE_NAME,entry);
+        if (enableRequestScopeCache) {
+            SessionDataStore.getInstance().storeSessionData(key.toString(), CLAIM_CACHE_NAME, entry);
         }
     }
 
@@ -69,8 +69,8 @@ public class ClaimCache extends BaseCache<String, CacheEntry> {
 
     public void clearCacheEntry(CacheKey key) {
         super.clearCacheEntry(key.toString());
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().clearSessionData(key.toString(),CLAIM_CACHE_NAME);
+        if (enableRequestScopeCache) {
+            SessionDataStore.getInstance().clearSessionData(key.toString(), CLAIM_CACHE_NAME);
         }
     }
 }

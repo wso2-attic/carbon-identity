@@ -29,7 +29,6 @@
 <%@page import="org.wso2.carbon.identity.mgt.ui.EmailConfigDTO"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -37,9 +36,10 @@
 <jsp:include page="../dialog/display_messages.jsp" />
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="java.util.ResourceBundle"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
-	String username = CharacterEncoder.getSafeText(request.getParameter("username"));
+	String username = request.getParameter("username");
     String forwardTo = null;
     AccountCredentialMgtConfigClient client = null;
     
@@ -130,7 +130,7 @@
 			<fmt:message key="email.template.heading" />
 		</h2>
 		<div id="workArea">
-			<form action="email-template-config-finish.jsp?userName=<%=username%>" method="post">				
+			<form action="email-template-config-finish.jsp?userName=<%=Encode.forUriComponent(username)%>" method="post">
 				<div class="sectionSeperator">
 					<fmt:message key="email.template.set" />
 					</div>
@@ -157,11 +157,11 @@
 	                                %>
 										<option 
 										value="<%=i%>" 
-										data-subject="<%=emailSubject%>" 
-										data-body="<%=emailBody%>"
-										data-footer="<%=emailFooter%>"
-										data-templateName="<%=templateName%>"
-										><%=template.getDisplayName()%></option>
+										data-subject="<%=Encode.forHtmlContent(emailSubject)%>"
+										data-body="<%=Encode.forHtmlContent(emailBody)%>"
+										data-footer="<%=Encode.forHtmlContent(emailFooter)%>"
+										data-templateName="<%=Encode.forHtmlContent(templateName)%>"
+										><%=Encode.forHtmlContent(template.getDisplayName())%></option>
 									<% 
 									}									
                                 	%>
@@ -169,20 +169,20 @@
 						</tr>
 						<tr>
 							<td><fmt:message key="emailSubject" /></td>
-							<td><input type="text" name="emailSubject" id="emailSubject" style="width : 500px;" value="<%=emailSubject0%>"/></td>
+							<td><input type="text" name="emailSubject" id="emailSubject" style="width : 500px;" value="<%=Encode.forHtmlAttribute(emailSubject0)%>"/></td>
 						</tr>
 						<tr>
 							<td><fmt:message key="emailBody" /></td>
 							<td><textarea name="emailBody" id="emailBody"
-									class="text-box-big" style="width: 500px; height: 170px;"><%=emailBody0%></textarea></td>
+									class="text-box-big" style="width: 500px; height: 170px;"><%=Encode.forHtmlContent(emailBody0)%></textarea></td>
 						</tr>
 						<tr>
 							<td><fmt:message key="emailFooter" /></td>
 							<td><textarea name="emailFooter" id="emailFooter"
-									class="text-box-big" style="width: 265px; height: 87px;"><%=emailFooter0%></textarea></td>
+									class="text-box-big" style="width: 265px; height: 87px;"><%=Encode.forHtmlContent(emailFooter0)%></textarea></td>
 						</tr>
 						<tr><td></td>
-							<td><input type="hidden" name="templateName" id="templateName" value="<%=templateName0%>"/></td>
+							<td><input type="hidden" name="templateName" id="templateName" value="<%=Encode.forHtmlAttribute(templateName0)%>"/></td>
 						</tr>
 					</table>
 				</div>

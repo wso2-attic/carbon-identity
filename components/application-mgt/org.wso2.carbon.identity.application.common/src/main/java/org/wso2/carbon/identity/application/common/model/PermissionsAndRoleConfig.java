@@ -28,10 +28,7 @@ import java.util.List;
 
 public class PermissionsAndRoleConfig implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -7994146492198021069L;
+    private static final long serialVersionUID = 784509684062361809L;
 
     private ApplicationPermission[] permissions = new ApplicationPermission[0];
     private RoleMapping[] roleMappings = new RoleMapping[0];

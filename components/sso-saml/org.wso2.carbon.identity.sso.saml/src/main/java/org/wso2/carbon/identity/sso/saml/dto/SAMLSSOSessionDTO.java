@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 public class SAMLSSOSessionDTO implements Serializable {
 
-    private static final long serialVersionUID = 3806660562465698477L;
+    private static final long serialVersionUID = -412560012894923237L;
 
     private String httpQueryString;
     private String destination;

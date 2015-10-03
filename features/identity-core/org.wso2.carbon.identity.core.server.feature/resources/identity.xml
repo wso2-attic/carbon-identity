@@ -286,6 +286,8 @@
         <!-- SAML Token validity period in minutes -->
         <SAMLResponseValidityPeriod>5</SAMLResponseValidityPeriod>
         <UseAuthenticatedUserDomainCrypto>false</UseAuthenticatedUserDomainCrypto>
+        <SAMLDefaultSigningAlgorithmURI>http://www.w3.org/2000/09/xmldsig#rsa-sha1</SAMLDefaultSigningAlgorithmURI>
+        <SAMLDefaultDigestAlgorithmURI>http://www.w3.org/2000/09/xmldsig#sha1</SAMLDefaultDigestAlgorithmURI>
     </SSOService>
 
     <SecurityTokenService>
@@ -307,16 +309,6 @@
     </PassiveSTS>
 
     <EntitlementSettings>
-        <!-- Uncomment this to enable on-demand policy loading -->
-        <!--OnDemandPolicyLoading> <Enable>true</Enable> <MaxInMemoryPolicies>100</MaxInMemoryPolicies>
-            </OnDemandPolicyLoading -->
-        <DecisionCaching>
-            <Enable>true</Enable>
-            <CachingInterval>36000</CachingInterval>
-        </DecisionCaching>
-        <AttributeCaching>
-            <Enable>true</Enable>
-        </AttributeCaching>
         <ThirftBasedEntitlementConfig>
             <EnableThriftService>false</EnableThriftService>
             <ReceivePort>${Ports.ThriftEntitlementReceivePort}</ReceivePort>
@@ -359,8 +351,8 @@
 
     <EventListeners>
         <EventListener type="org.wso2.carbon.user.core.listener.UserOperationEventListener"
-                       name="org.wso2.carbon.identity.workflow.mgt.impl.userstore.UserStoreActionListener"
-                       orderId="10" enable="false"/>
+                       name="org.wso2.carbon.user.mgt.workflow.userstore.UserStoreActionListener"
+                       orderId="10" enable="true"/>
         <EventListener type="org.wso2.carbon.user.core.listener.UserOperationEventListener" name="org.wso2.carbon.identity.mgt.IdentityMgtEventListener"
                        orderId="50" enable="false"/>
         <EventListener type="org.wso2.carbon.user.core.listener.UserOperationEventListener" name="org.wso2.carbon.identity.oauth.listener.IdentityOathEventListener"

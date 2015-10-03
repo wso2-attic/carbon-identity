@@ -18,15 +18,15 @@
 
 package org.wso2.carbon.identity.oauth2.token.handlers.grant;
 
-import org.apache.amber.oauth2.as.issuer.MD5Generator;
-import org.apache.amber.oauth2.as.issuer.OAuthIssuer;
-import org.apache.amber.oauth2.as.issuer.OAuthIssuerImpl;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.as.issuer.MD5Generator;
+import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
+import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -113,9 +113,9 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
         String tokenType;
         if (isOfTypeApplicationUser()) {
-            tokenType = OAuthConstants.USER_TYPE_FOR_USER_TOKEN;
+            tokenType = OAuthConstants.UserType.APPLICATION_USER;
         } else {
-            tokenType = OAuthConstants.USER_TYPE_FOR_APPLICATION_TOKEN;
+            tokenType = OAuthConstants.UserType.APPLICATION;
         }
 
         String refreshToken = null;

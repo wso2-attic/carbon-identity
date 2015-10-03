@@ -22,4 +22,5 @@ import java.io.Serializable;
 
 public abstract class AuthenticatorStateInfo implements Serializable {
 
+    private static final long serialVersionUID = -1137594892169989451L;
 }

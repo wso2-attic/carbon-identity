@@ -27,15 +27,14 @@ import java.io.Serializable;
  */
 public class VerificationBean implements Serializable {
 
+    private static final long serialVersionUID = -2913500119053797062L;
+
     public static final String ERROR_CODE_INVALID_CODE = "18001";
     public static final String ERROR_CODE_EXPIRED_CODE = "18002";
     public static final String ERROR_CODE_INVALID_USER = "18003";
     public static final String ERROR_CODE_INVALID_CAPTCHA = "18004";
     public static final String ERROR_CODE_UNEXPECTED = "18013";
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+
     /**
      * user identifier according to the user store
      */

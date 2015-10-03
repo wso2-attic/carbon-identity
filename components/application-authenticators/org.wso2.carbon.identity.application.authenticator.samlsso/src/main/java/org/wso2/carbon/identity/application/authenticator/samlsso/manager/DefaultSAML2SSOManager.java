@@ -183,10 +183,10 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         if (!isLogout) {
             requestMessage = buildAuthnRequest(request, isPassive, loginPage, context);
         } else {
-            String username = (String) request.getSession().getAttribute("logoutUsername");
-            String sessionIndex = (String) request.getSession().getAttribute("logoutSessionIndex");
-            String nameQualifier = (String) request.getSession().getAttribute("nameQualifier");
-            String spNameQualifier = (String) request.getSession().getAttribute("spNameQualifier");
+            String username = (String) request.getSession().getAttribute(SSOConstants.LOGOUT_USERNAME);
+            String sessionIndex = (String) request.getSession().getAttribute(SSOConstants.LOGOUT_SESSION_INDEX);
+            String nameQualifier = (String) request.getSession().getAttribute(SSOConstants.NAME_QUALIFIER);
+            String spNameQualifier = (String) request.getSession().getAttribute(SSOConstants.SP_NAME_QUALIFIER);
 
             requestMessage = buildLogoutRequest(username, sessionIndex, loginPage, nameQualifier, spNameQualifier);
         }
@@ -283,10 +283,10 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                         new X509CredentialImpl(context.getTenantDomain(), null));
             }
         } else {
-            String username = (String) request.getSession().getAttribute("logoutUsername");
-            String sessionIndex = (String) request.getSession().getAttribute("logoutSessionIndex");
-            String nameQualifier = (String) request.getSession().getAttribute("nameQualifier");
-            String spNameQualifier = (String) request.getSession().getAttribute("spNameQualifier");
+            String username = (String) request.getSession().getAttribute(SSOConstants.LOGOUT_USERNAME);
+            String sessionIndex = (String) request.getSession().getAttribute(SSOConstants.LOGOUT_SESSION_INDEX);
+            String nameQualifier = (String) request.getSession().getAttribute(SSOConstants.NAME_QUALIFIER);
+            String spNameQualifier = (String) request.getSession().getAttribute(SSOConstants.SP_NAME_QUALIFIER);
 
             requestMessage = buildLogoutRequest(username, sessionIndex, loginPage, nameQualifier, spNameQualifier);
             if (SSOUtils.isLogoutRequestSigned(properties)) {
@@ -482,8 +482,8 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                 throw new SAMLSSOException("Single Logout is enabled but IdP Session ID not found in SAML Assertion");
             }
             request.getSession().setAttribute(SSOConstants.IDP_SESSION, sessionId);
-            request.getSession().setAttribute("nameQualifier", nameQualifier);
-            request.getSession().setAttribute("spNameQualifier", spNameQualifier);
+            request.getSession().setAttribute(SSOConstants.LOGOUT_USERNAME, nameQualifier);
+            request.getSession().setAttribute(SSOConstants.SP_NAME_QUALIFIER, spNameQualifier);
         }
 
     }

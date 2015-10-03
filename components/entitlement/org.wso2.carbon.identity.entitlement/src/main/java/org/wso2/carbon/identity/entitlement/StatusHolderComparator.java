@@ -29,6 +29,8 @@ import java.util.Comparator;
  */
 public class StatusHolderComparator implements Serializable, Comparator {
 
+    private static final long serialVersionUID = -6675867912216533133L;
+
     @Override
     public int compare(Object o1, Object o2) {
 

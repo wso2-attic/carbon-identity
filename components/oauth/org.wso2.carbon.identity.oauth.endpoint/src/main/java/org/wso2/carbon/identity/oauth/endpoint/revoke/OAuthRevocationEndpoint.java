@@ -18,14 +18,14 @@
 
 package org.wso2.carbon.identity.oauth.endpoint.revoke;
 
-import org.apache.amber.oauth2.as.response.OAuthASResponse;
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.OAuthResponse;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.as.response.OAuthASResponse;
+import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -82,10 +82,10 @@ public class OAuthRevocationEndpoint {
                     .get("token_type_hint").isEmpty()) {
                 tokenType = paramMap.get("token_type_hint").get(0);
             }
-            String callback = CharacterEncoder.getSafeText(httpRequest.getParameter("callback"));
+            String callback = httpRequest.getParameter("callback");
             if (StringUtils.isBlank(callback) && paramMap.get("callback") != null && !paramMap.get
                     ("callback").isEmpty()) {
-                callback = CharacterEncoder.getSafeText(paramMap.get("callback").get(0));
+                callback = paramMap.get("callback").get(0);
             }
 
             // extract the basic auth credentials if present in the request and use for

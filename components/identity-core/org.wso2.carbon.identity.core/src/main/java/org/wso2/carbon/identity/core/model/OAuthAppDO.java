@@ -21,6 +21,8 @@ import java.io.Serializable;
 
 public class OAuthAppDO implements Serializable {
 
+    private static final long serialVersionUID = -6453843721358989519L;
+
     private int id;
     private String oauthConsumerKey;
     private String oauthConsumerSecret;

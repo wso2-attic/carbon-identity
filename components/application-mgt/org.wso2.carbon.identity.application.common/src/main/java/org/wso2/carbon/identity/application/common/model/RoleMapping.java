@@ -25,10 +25,7 @@ import java.util.Iterator;
 
 public class RoleMapping implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -2116444950898503844L;
+    private static final long serialVersionUID = 4838992846277456900L;
 
     private LocalRole localRole = null;
     private String remoteRole = null;

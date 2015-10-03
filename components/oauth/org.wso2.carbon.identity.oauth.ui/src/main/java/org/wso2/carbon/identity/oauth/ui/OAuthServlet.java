@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.oauth.ui;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.owasp.encoder.Encode;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.stub.OAuthServiceAuthenticationException;
@@ -28,7 +29,6 @@ import org.wso2.carbon.identity.oauth.stub.types.Parameters;
 import org.wso2.carbon.identity.oauth.ui.client.OAuthServiceClient;
 import org.wso2.carbon.identity.oauth.ui.internal.OAuthUIServiceComponentHolder;
 import org.wso2.carbon.ui.CarbonUIUtil;
-import org.wso2.carbon.ui.util.CharacterEncoder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -84,9 +84,9 @@ public class OAuthServlet extends HttpServlet {
                 oauthToken = token.getOauthToken();
                 oauthTokenSecret = token.getOauthTokenSecret();
                 oauthCallbackConfirmed = "true";
-                reqToken = OAuthConstants.OAUTH_TOKEN + "=" + oauthToken + "&"
-                        + OAuthConstants.OAUTH_TOKEN_SECRET + "=" + oauthTokenSecret + "&"
-                        + OAuthConstants.OAUTH_CALLBACK_CONFIRMED + "=" + oauthCallbackConfirmed;
+                reqToken = OAuthConstants.OAUTH_TOKEN + "=" + Encode.forUriComponent(oauthToken) + "&"
+                        + OAuthConstants.OAUTH_TOKEN_SECRET + "=" + Encode.forUriComponent(oauthTokenSecret) + "&"
+                        + OAuthConstants.OAUTH_CALLBACK_CONFIRMED + "=" + Encode.forUriComponent(oauthCallbackConfirmed);
                 out.write(reqToken);
                 out.close();
                 resp.setStatus(200);
@@ -95,8 +95,8 @@ public class OAuthServlet extends HttpServlet {
                 // Token, the Consumer MUST obtain approval from the User by directing the User to
                 // the Service Provider. The Consumer constructs an HTTP GET request to the Service
                 // Provider's User Authorization URL.
-                String userName = CharacterEncoder.getSafeText(req.getParameter("oauth_user_name"));
-                String password = CharacterEncoder.getSafeText(req.getParameter("oauth_user_password"));
+                String userName = req.getParameter("oauth_user_name");
+                String password = req.getParameter("oauth_user_password");
                 String tokenFromSession = (String) req.getSession().getAttribute("oauth_req_token");
                 if (userName == null || password == null || tokenFromSession == null) {
                     Parameters metadata = client.getScope(params.getOauthToken());
@@ -115,8 +115,8 @@ public class OAuthServlet extends HttpServlet {
                 String accessToken = null;
                 PrintWriter out = resp.getWriter();
                 token = client.getAccessToken(params);
-                accessToken = OAuthConstants.OAUTH_TOKEN + "=" + token.getOauthToken() + "&"
-                        + OAuthConstants.OAUTH_TOKEN_SECRET + "=" + token.getOauthTokenSecret();
+                accessToken = OAuthConstants.OAUTH_TOKEN + "=" + Encode.forUriComponent(token.getOauthToken()) + "&"
+                        + OAuthConstants.OAUTH_TOKEN_SECRET + "=" + Encode.forUriComponent(token.getOauthTokenSecret());
                 out.write(accessToken);
                 out.close();
                 resp.setStatus(200);

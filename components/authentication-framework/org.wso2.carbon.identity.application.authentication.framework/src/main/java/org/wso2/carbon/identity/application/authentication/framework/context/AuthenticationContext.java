@@ -36,7 +36,7 @@ import java.util.Map;
  */
 public class AuthenticationContext implements Serializable {
 
-    private static final long serialVersionUID = -7007412857088788541L;
+    private static final long serialVersionUID = 6438291349985653301L;
 
     private String contextIdentifier;
     private String sessionIdentifier;

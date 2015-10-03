@@ -17,7 +17,7 @@
  */
 package org.wso2.carbon.identity.oauth.user;
 
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 
 /**
@@ -29,8 +29,8 @@ public interface UserInfoResponseBuilder {
     /**
      * @param tokenResponse
      * @return
-     * @throws org.apache.amber.oauth2.common.exception.OAuthSystemException
-     * @throws org.apache.amber.oauth2.common.exception.OAuthProblemException TODO
+     * @throws org.apache.oltu.oauth2.common.exception.OAuthSystemException
+     * @throws org.apache.oltu.oauth2.common.exception.OAuthProblemException TODO
      */
     public String getResponseString(OAuth2TokenValidationResponseDTO tokenResponse)
             throws UserInfoEndpointException, OAuthSystemException;

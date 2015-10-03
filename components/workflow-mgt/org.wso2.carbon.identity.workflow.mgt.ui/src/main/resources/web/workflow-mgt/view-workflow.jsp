@@ -21,50 +21,43 @@
            prefix="carbon" %>
 <%@ page import="org.apache.axis2.AxisFault" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.AssociationDTO" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowWizard" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.bean.ParametersMetaData" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Set" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
+
 <%
 
+    WorkflowAdminServiceClient client;
     String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
-    WorkflowAdminServiceClient client;
     String forwardTo = null;
-    AssociationDTO[] associationToDisplay = new AssociationDTO[0];
-    String paginationValue = "region=region1";
 
-    String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
-    int pageNumberInt = 0;
-    int numberOfPages = 0;
-    String workflowId = StringUtils.EMPTY;
-    WorkflowEventDTO[] workflowEvents;
-    Map<String, List<WorkflowEventDTO>> events = new HashMap<String, List<WorkflowEventDTO>>();
 
-    if (pageNumber != null) {
-        try {
-            pageNumberInt = Integer.parseInt(pageNumber);
-        } catch (NumberFormatException ignored) {
-            //not needed here since it's defaulted to 0
-        }
-    }
+    String workflowId = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID);
+
+
+    Map<String,Map<String,Parameter>> templateParameterValues = new HashMap<String,Map<String,Parameter>>();
+    Map<String,Map<String,Parameter>> workflowParameterValues = new HashMap<String,Map<String,Parameter>>();
+
+    WorkflowWizard workflowWizard = null ;
+
     try {
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
         String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -72,49 +65,66 @@
                 (ConfigurationContext) config.getServletContext()
                         .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-        workflowId = request.getParameter(WorkflowUIConstants.PARAM_WORKFLOW_ID);
+        workflowWizard = client.getWorkflow(workflowId);
 
-        AssociationDTO[] associations = client.listAssociationsForWorkflow(workflowId);
+        Parameter[] templateParameters = workflowWizard.getTemplateParameters();
+        Parameter[] workflowImplParameters = workflowWizard.getWorkflowImplParameters();
 
-        if (associations == null) {
-            associations = new AssociationDTO[0];
-        }
 
-        numberOfPages = (int) Math.ceil((double) associations.length / WorkflowUIConstants.RESULTS_PER_PAGE);
+        
 
-        int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
-        int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.RESULTS_PER_PAGE;
-        associationToDisplay = new AssociationDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
+        if(templateParameters != null && templateParameters.length > 0){
+            for (Parameter parameter: templateParameters){
+                Map<String, Parameter> stringParameterMap = templateParameterValues.get(parameter.getParamName());
+                if(stringParameterMap == null){
+                    stringParameterMap = new HashMap<String, Parameter>();
+                    templateParameterValues.put(parameter.getParamName(), stringParameterMap);
+                }
+                stringParameterMap.put(parameter.getQName(),parameter);
 
-        for (int i = startIndex, j = 0; i < endIndex && i < associations.length; i++, j++) {
-            associationToDisplay[j] = associations[i];
-        }
-
-        workflowEvents = client.listWorkflowEvents();
-        for (WorkflowEventDTO event : workflowEvents) {
-            String category = event.getEventCategory();
-            if (!events.containsKey(category)) {
-                events.put(category, new ArrayList<WorkflowEventDTO>());
             }
-            events.get(category).add(event);
         }
-    } catch (WorkflowAdminServiceWorkflowException e) {
-        String message = resourceBundle.getString("workflow.error.when.listing.services");
-        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "../admin/error.jsp";
-    } catch (AxisFault e) {
+
+        
+
+        if(workflowImplParameters != null && workflowImplParameters.length > 0){
+            for (Parameter parameter: workflowImplParameters){
+                Map<String, Parameter> stringParameterMap = workflowParameterValues.get(parameter.getParamName());
+                if(stringParameterMap == null){
+                    stringParameterMap = new HashMap<String, Parameter>();
+                    workflowParameterValues.put(parameter.getParamName(), stringParameterMap);
+                }
+                stringParameterMap.put(parameter.getQName(),parameter);
+
+            }
+        }
+
+
+    } catch (Exception e) {
         String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         forwardTo = "../admin/error.jsp";
     }
 %>
 
+
+<script>
+    function editWorkflow(workflowId){
+        location.href = 'add-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>='+ workflowId ;
+    }
+    function doCancel() {
+        location.href = 'list-workflows.jsp?wizard=finish';
+    }
+
+</script>
+
+
 <%
     if (forwardTo != null) {
 %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 
@@ -137,109 +147,206 @@
         function doCancel() {
             location.href = 'list-workflows.jsp';
         }
-        function removeAssociation(id, event) {
-            function doDelete() {
-                location.href = 'update-workflow-finish.jsp?<%=WorkflowUIConstants.PARAM_ACTION%>=' +
-                '<%=WorkflowUIConstants.ACTION_VALUE_DELETE_ASSOCIATION%>&' +
-                '<%=WorkflowUIConstants.PARAM_ASSOCIATION_ID%>=' + id + '&' +
-                '<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>=<%=workflowId%>';
-            }
-
-            CARBON.showConfirmationDialog('<fmt:message key="confirmation.association.delete"/> ' + event + '?',
-                    doDelete, null);
-        }
-        function addAssociation() {
-            window.location = "add-association.jsp?<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>=<%=workflowId%>";
-        }
-
-        function doCancel() {
-            document.getElementById('addNew').style.display = 'none';
-        }
-    </script>
-    <script type="text/javascript">
-        var eventsObj = {};
-        var lastSelectedCategory = '';
-        <%
-            for (Map.Entry<String,List<WorkflowEventDTO>> eventCategory : events.entrySet()) {
-            %>
-        eventsObj["<%=eventCategory.getKey()%>"] = [];
-        <%
-            for (WorkflowEventDTO event : eventCategory.getValue()) {
-                %>
-        var eventObj = {};
-        eventObj.displayName = "<%=event.getEventFriendlyName()%>";
-        eventObj.value = "<%=event.getEventId()%>";
-        eventObj.title = "<%=event.getEventDescription()!=null?event.getEventDescription():""%>";
-        eventsObj["<%=eventCategory.getKey()%>"].push(eventObj);
-        <%
-                    }
-            }
-        %>
-
-        function updateActions() {
-            var categoryDropdown = document.getElementById("categoryDropdown");
-            var actionDropdown = document.getElementById("actionDropdown");
-            var selectedCategory = categoryDropdown.options[categoryDropdown.selectedIndex].value;
-            if (selectedCategory != lastSelectedCategory) {
-                var eventsOfCategory = eventsObj[selectedCategory];
-                for (var i = 0; i < eventsOfCategory.length; i++) {
-                    var opt = document.createElement("option");
-                    opt.text = eventsOfCategory[i].displayName;
-                    opt.value = eventsOfCategory[i].value;
-                    opt.title = eventsOfCategory[i].title;
-                    actionDropdown.options.add(opt);
-                }
-                lastSelectedCategory = selectedCategory;
-            }
-        }
-
     </script>
 
     <div id="middle">
         <h2><fmt:message key='workflow.list'/></h2>
 
         <div id="workArea">
-            <a title="<fmt:message key='workflow.service.association.add'/>"
-               onclick="addAssociation();return false;"
-               href="#" style="background-image: url(images/add.png);" class="icon-link">
-                <fmt:message key='workflow.service.association.add'/></a>
-            <table class="styledLeft" id="servicesTable">
-                <thead>
-                <tr>
-                    <th width="30%"><fmt:message key="workflow.operation.name"/></th>
-                    <th><fmt:message key="actions"/></th>
-                </tr>
-                </thead>
-                <tbody>
-                <%
-                    for (AssociationDTO association : associationToDisplay) {
-                        if (association != null) {
-                %>
-                <tr>
-                    <td><%=association.getEventName()%>
-                    </td>
-                    <td>
-                        <a title="<fmt:message key='workflow.service.association.delete.title'/>"
-                           onclick="removeAssociation('<%=association.getAssociationId()%>',
-                                   '<%=association.getEventName()%>');return false;"
-                           href="#" style="background-image: url(images/delete.gif);"
-                           class="icon-link"><fmt:message key='delete'/></a>
-                    </td>
-                </tr>
-                <%
-                        }
-                    }
-                %>
-                </tbody>
-            </table>
-            <carbon:paginator pageNumber="<%=pageNumberInt%>"
-                              numberOfPages="<%=numberOfPages%>"
-                              page="view-workflow.jsp"
-                              pageNumberParameterName="<%=WorkflowUIConstants.PARAM_PAGE_NUMBER%>"
-                              resourceBundle="org.wso2.carbon.security.ui.i18n.Resources"
-                              parameters="<%=paginationValue%>"
-                              prevKey="prev" nextKey="next"/>
-            <br/>
+            <a title="<fmt:message key='workflow.service.workflow.edit.title'/>"
+               onclick="editWorkflow('<%=Encode.forJavaScriptAttribute(workflowWizard.getWorkflowId())%>');return false;"
+               href="#" style="background-image: url(images/edit.gif);" class="icon-link">
+                <fmt:message key='workflow.service.workflow.edit.title'/></a>
+
+
+
+                    <table class="styledLeft noBorders">
+                        <thead>
+                        <tr>
+                            <th colspan="2"><fmt:message key="workflow.details"/></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td width="30%"><fmt:message key='workflow.name'/></td>
+                            <td><%= Encode.forHtmlContent(workflowWizard.getWorkflowName())%></td>
+                        </tr>
+                        <tr>
+                            <td width="30%"><fmt:message key='workflow.description'/></td>
+                            <td><%= Encode.forHtmlContent(workflowWizard.getWorkflowDescription())%></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="styledLeft noBorders" style="margin-top: 10px">
+                        <thead>
+                        <tr>
+                            <th colspan="2"><fmt:message key="workflow.template"/></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td width="30%"><fmt:message key='workflow.template.name'/></td>
+                            <td><%=Encode.forHtmlContent(workflowWizard.getTemplate().getName())%></td>
+                        </tr>
+                        <tr>
+                            <td width="30%"><fmt:message key='workflow.template.desc'/></td>
+                            <td><%=Encode.forHtmlContent(workflowWizard.getTemplate().getDescription())%></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" width="100%">
+
+                                <table class="styledLeft noBorders" style="margin-top: 10px">
+                                    <thead>
+                                    <tr>
+                                        <th colspan="2"><fmt:message key="workflow.template.parameters"/></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    
+                                    <%
+                                        Set<String> keys =  templateParameterValues.keySet();
+
+                                        for (String key:keys){
+                                            Map<String, Parameter> stringParameterMapTmp =
+                                                    templateParameterValues.get(key);
+                                            Set<String> keysForParam = stringParameterMapTmp.keySet();
+                                            if(keysForParam.size() > 1){
+                                    %>
+                                    <tr>
+                                        <td colspan="2">
+                                        <table class="styledLeft noBorders" style="margin-top: 10px">
+                                            <thead>
+                                            <tr>
+                                                <th colspan="2"><%=Encode.forHtmlContent(key)%></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                    <%
+                                        }
+
+                                            for(String keyForParam: keysForParam){
+                                                Parameter parameter = stringParameterMapTmp.get(keyForParam);
+
+
+                                    %>
+                                                <tr>
+                                                    <td width="30%"><%=Encode.forHtmlContent(parameter.getQName())%></td>
+                                                    <td><%=Encode.forHtmlContent(parameter.getParamValue())%></td>
+                                                </tr>
+                                    <%
+
+                                            }
+                                        if(keysForParam.size() > 1){
+                                    %>
+                                            </tbody>
+                                        </table>
+                                        </td>
+                                    </tr>
+                                    <%
+                                            }
+                                        }
+                                    %>
+                                    </tbody>
+                                </table>
+
+                            </td>
+                        </tr>
+                        
+                        
+                        </tbody>
+                    </table>
+
+
+
+
+
+
+                    <table class="styledLeft noBorders" style="margin-top: 10px">
+                        <thead>
+                        <tr>
+                            <th colspan="2"><fmt:message key="workflow.impl"/></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td width="30%"><fmt:message key='workflow.impl.name'/></td>
+                            <td><%=Encode.forHtmlContent(workflowWizard.getWorkflowImpl().getWorkflowImplName())%></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" width="100%">
+
+                                <table class="styledLeft noBorders" style="margin-top: 10px">
+                                    <thead>
+                                    <tr>
+                                        <th colspan="2"><fmt:message key="workflow.impl.parameters"/></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    <%
+                                        keys =  workflowParameterValues.keySet();
+
+                                        for (String key:keys){
+                                            Map<String, Parameter> stringParameterMapTmp =
+                                                    workflowParameterValues.get(key);
+                                            Set<String> keysForParam = stringParameterMapTmp.keySet();
+                                            if(keysForParam.size() > 1){
+                                    %>
+                                    <tr>
+                                        <td colspan="2">
+                                            <table class="styledLeft noBorders" style="margin-top: 10px">
+                                                <thead>
+                                                <tr>
+                                                    <th colspan="2"><%=Encode.forHtmlContent(key)%></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <%
+                                                    }
+
+                                                    for(String keyForParam: keysForParam){
+                                                        Parameter parameter = stringParameterMapTmp.get(keyForParam);
+
+
+                                                %>
+                                                <tr>
+                                                    <td width="30%"><%=Encode.forHtmlContent(parameter.getQName())%></td>
+                                                    <td><%=Encode.forHtmlContent(parameter.getParamValue())%></td>
+                                                </tr>
+                                                <%
+
+                                                    }
+                                                    if(keysForParam.size() > 1){
+                                                %>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                    <%
+                                            }
+                                        }
+                                    %>
+                                    </tbody>
+                                </table>
+
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+
+
+
+
+                    <table style="margin-top: 10px">
+                        <tr>
+                            <td class="buttonRow">
+                                <input class="button" value="<fmt:message key="cancel"/>" type="button"
+                                       onclick="doCancel();"/>
+                            </td>
+                        </tr>
+                    </table>
+                    <br/>
         </div>
     </div>
 </fmt:bundle>

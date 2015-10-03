@@ -18,25 +18,21 @@
 
 package org.wso2.carbon.identity.workflow.mgt.internal;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplate;
-import org.wso2.carbon.identity.workflow.mgt.template.AbstractWorkflowTemplateImpl;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
-import org.wso2.carbon.identity.workflow.mgt.exception.RuntimeWorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
+import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
+import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class WorkflowServiceDataHolder {
 
@@ -47,17 +43,26 @@ public class WorkflowServiceDataHolder {
     private ConfigurationContextService configurationContextService;
     private BundleContext bundleContext;
 
-    private Map<String, WorkflowRequestHandler> workflowRequestHandlers;
-    private Map<String, AbstractWorkflowTemplate> templates;
-    private Set<AbstractWorkflowTemplateImpl> unresolvedImpls;
+    private Map<String, WorkflowRequestHandler> workflowRequestHandlers =  new HashMap<String, WorkflowRequestHandler>();
 
-    private WorkflowService workflowService = null ;
+    private List<WorkflowListener> workflowListenerList = new ArrayList<>();
+
+    public List<WorkflowListener> getWorkflowListenerList() {
+        return workflowListenerList;
+    }
+
+    public void setWorkflowListenerList(
+            List<WorkflowListener> workflowListenerList) {
+        this.workflowListenerList = workflowListenerList;
+    }
+
+    private Map<String, AbstractTemplate> templates = new HashMap<String, AbstractTemplate>();
+    private Map<String, Map<String,AbstractWorkflow>> workflowImpls = new HashMap<String, Map<String,AbstractWorkflow>>();
+
+    private WorkflowManagementService workflowService = null ;
 
     private WorkflowServiceDataHolder() {
 
-        workflowRequestHandlers = new HashMap<>();
-        templates = new HashMap<>();
-        unresolvedImpls = new HashSet<>();
     }
 
     public ConfigurationContextService getConfigurationContextService() {
@@ -96,88 +101,41 @@ public class WorkflowServiceDataHolder {
         return instance;
     }
 
-    public void addTemplate(AbstractWorkflowTemplate template) {
-
-        if (template != null) {
-            for (Iterator<AbstractWorkflowTemplateImpl> iterator = unresolvedImpls.iterator(); iterator.hasNext(); ) {
-                AbstractWorkflowTemplateImpl unresolvedImpl = iterator.next();
-                if (StringUtils.equals(unresolvedImpl.getTemplateId(), template.getTemplateId())) {
-                    try {
-                        template.addImplementation(unresolvedImpl);
-                    } catch (RuntimeWorkflowException e) {
-                        log.error("The workflow template implementation with id:" +
-                                unresolvedImpl.getImplementationId() + " is already registered.");
-                    }
-                    iterator.remove();
-                }
-            }
-            templates.put(template.getTemplateId(), template);
-        }
+    public void addTemplate(AbstractTemplate template) {
+        templates.put(template.getTemplateId(), template);
     }
 
-    public void removeTemplate(AbstractWorkflowTemplate template) {
-
-        if (template != null && template.getTemplateId() != null && templates.containsKey(template.getTemplateId())) {
+    public void removeTemplate(AbstractTemplate template) {
+        if (template != null && template.getTemplateId() != null) {
             templates.remove(template.getTemplateId());
         }
     }
 
-    public void addTemplateImpl(AbstractWorkflowTemplateImpl impl) {
 
-        if (impl != null) {
-            String templateId = impl.getTemplateId();
-            if (StringUtils.isNotBlank(templateId)) {
-                try {
-                    AbstractWorkflowTemplate template = getTemplate(templateId);
-                    if (template == null) {
-                        unresolvedImpls.add(impl);
-                        log.warn("No such workflow template with id:" + templateId + ". The implementation " + impl
-                                .getImplementationId() + " might not be usable.");
-                        return;
-                    }
-                    template.addImplementation(impl);
-                } catch (RuntimeWorkflowException e) {
-                    log.error("The workflow template implementation with id:" + impl.getImplementationId() +
-                            " is already" +
-                            " registered.");
-                }
-            }
+    public Map<String, AbstractTemplate> getTemplates() {
+        return templates;
+    }
+
+    public Map<String, Map<String,AbstractWorkflow>> getWorkflowImpls() {
+        return workflowImpls;
+    }
+
+    public void addWorkflowImplementation(AbstractWorkflow abstractWorkflow) {
+        Map<String, AbstractWorkflow> abstractWorkflowMap = workflowImpls.get(abstractWorkflow.getTemplateId());
+        if(abstractWorkflowMap == null){
+            abstractWorkflowMap = new HashMap<>();
+            workflowImpls.put(abstractWorkflow.getTemplateId(),abstractWorkflowMap);
+        }
+        abstractWorkflowMap.put(abstractWorkflow.getWorkflowImplId(),abstractWorkflow);
+    }
+
+    public void removeWorkflowImplementation(AbstractWorkflow abstractWorkflow) {
+
+        if (abstractWorkflow != null && abstractWorkflow.getWorkflowImplId() != null) {
+            workflowImpls.remove(abstractWorkflow.getWorkflowImplId());
         }
     }
 
-    public void removeTemplateImpl(AbstractWorkflowTemplateImpl impl) {
-
-        if (impl != null && impl.getTemplateId() != null) {
-            if (templates.containsKey(impl.getTemplateId())) {
-                AbstractWorkflowTemplate workflowTemplate = templates.get(impl.getTemplateId());
-                if (workflowTemplate != null) {
-                    workflowTemplate.removeImpl(impl.getImplementationId());
-                }
-            } else {
-                for (Iterator<AbstractWorkflowTemplateImpl> iterator = unresolvedImpls.iterator();
-                     iterator.hasNext(); ) {
-                    AbstractWorkflowTemplateImpl unresolvedImpl = iterator.next();
-                    if (impl.equals(unresolvedImpl)) {
-                        iterator.remove();
-                    }
-                }
-            }
-        }
-    }
-
-    public AbstractWorkflowTemplate getTemplate(String id) {
-
-        return templates.get(id);
-    }
-
-    public AbstractWorkflowTemplateImpl getTemplateImplementation(String templateId, String implId) {
-
-        AbstractWorkflowTemplate template = getTemplate(templateId);
-        if (template != null) {
-            return template.getImplementation(implId);
-        }
-        return null;
-    }
 
     public void addWorkflowRequestHandler(WorkflowRequestHandler requestHandler) {
 
@@ -203,16 +161,12 @@ public class WorkflowServiceDataHolder {
         return new ArrayList<>(workflowRequestHandlers.values());
     }
 
-    public List<AbstractWorkflowTemplate> listTemplates() {
 
-        return new ArrayList<>(templates.values());
-    }
-
-    public WorkflowService getWorkflowService() {
+    public WorkflowManagementService getWorkflowService() {
         return workflowService;
     }
 
-    public void setWorkflowService(WorkflowService workflowService) {
+    public void setWorkflowService(WorkflowManagementService workflowService) {
         this.workflowService = workflowService;
     }
 }
