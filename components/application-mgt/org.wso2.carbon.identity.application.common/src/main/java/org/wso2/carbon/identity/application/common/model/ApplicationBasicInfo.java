@@ -21,9 +21,6 @@ import java.io.Serializable;
 
 public class ApplicationBasicInfo implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -16127229981193883L;
 
     private String applicationName;

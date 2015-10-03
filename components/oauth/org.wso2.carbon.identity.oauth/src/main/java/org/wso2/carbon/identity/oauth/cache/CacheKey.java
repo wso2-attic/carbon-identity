@@ -27,7 +27,7 @@ import java.io.Serializable;
  */
 public abstract class CacheKey implements Serializable {
 
-    private static final long serialVersionUID = 1471805737633325514L;
+    private static final long serialVersionUID = 5884270521313791351L;
 
     @Override
     public abstract boolean equals(Object otherObject);

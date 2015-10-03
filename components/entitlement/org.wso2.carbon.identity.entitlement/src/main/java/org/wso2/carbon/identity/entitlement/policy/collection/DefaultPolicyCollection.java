@@ -347,6 +347,9 @@ public class DefaultPolicyCollection implements PolicyCollection {
      * additions or fetches.
      */
     static class VersionComparator implements Serializable, Comparator<AbstractPolicy> {
+
+        private static final long serialVersionUID = 1136846256293162005L;
+
         public int compare(AbstractPolicy o1, AbstractPolicy o2) {
             // we swap the parameters so that sorting goes largest to smallest
             String v1 = ((AbstractPolicy) o2).getVersion();

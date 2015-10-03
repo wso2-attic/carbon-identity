@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class StepConfig implements Serializable {
 
-    private static final long serialVersionUID = 9139242244264058990L;
+    private static final long serialVersionUID = 7271079506748466841L;
 
     private int order;
     private String loginPage;

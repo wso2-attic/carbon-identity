@@ -24,7 +24,7 @@ import java.io.Serializable;
 
 public class AuthenticatedIdPData implements Serializable {
 
-    private static final long serialVersionUID = -1778751155155790874L;
+    private static final long serialVersionUID = 5576595024956777804L;
 
     private String idpName;
     private AuthenticatorConfig authenticator;

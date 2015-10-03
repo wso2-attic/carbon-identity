@@ -21,10 +21,9 @@ package org.wso2.carbon.identity.sts.passive.ui.dto;
 import java.io.Serializable;
 
 public class SessionDTO implements Serializable {
-    /**
-     *
-     */
-    private static final long serialVersionUID = -7913481758803777374L;
+
+    private static final long serialVersionUID = -8474813773329096446L;
+
     //wa
     private String action;
     //wattr

@@ -25,10 +25,7 @@ import java.util.Iterator;
 
 public class Property implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 3014011808515883129L;
+    private static final long serialVersionUID = 2423059969331364604L;
 
     private String name;
     private String value;

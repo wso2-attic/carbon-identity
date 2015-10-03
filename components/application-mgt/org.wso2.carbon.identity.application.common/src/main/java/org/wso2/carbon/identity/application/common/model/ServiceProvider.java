@@ -29,10 +29,7 @@ import java.util.List;
 
 public class ServiceProvider implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1018969519851610663L;
+    private static final long serialVersionUID = 4754526832588478582L;
     private static final Log log = LogFactory.getLog(ServiceProvider.class);
 
     private int applicationID = 0;

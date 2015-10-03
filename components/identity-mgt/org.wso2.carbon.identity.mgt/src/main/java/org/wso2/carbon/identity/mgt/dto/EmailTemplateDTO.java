@@ -22,10 +22,8 @@ import java.io.Serializable;
 
 public class EmailTemplateDTO implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -8854592668563155088L;
+    private static final long serialVersionUID = -4261083522115621370L;
+
     private String subject;
     private String body;
     private String footer;

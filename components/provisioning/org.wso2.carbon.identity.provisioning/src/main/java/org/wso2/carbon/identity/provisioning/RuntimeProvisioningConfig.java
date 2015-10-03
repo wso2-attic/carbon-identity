@@ -23,10 +23,8 @@ import java.util.Map.Entry;
 
 public class RuntimeProvisioningConfig implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -2629523092537958531L;
+
     private boolean blocking;
     private Entry<String, AbstractOutboundProvisioningConnector> provisioningConnectorEntry;
 

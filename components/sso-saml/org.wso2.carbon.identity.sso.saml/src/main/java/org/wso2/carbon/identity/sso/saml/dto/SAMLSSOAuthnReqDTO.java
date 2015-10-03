@@ -25,6 +25,8 @@ import java.util.Map;
 
 public class SAMLSSOAuthnReqDTO implements Serializable {
 
+    private static final long serialVersionUID = -8883458443469019318L;
+
     private AuthenticatedUser user;
     private String password;
     private String issuer;
