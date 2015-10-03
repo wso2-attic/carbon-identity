@@ -197,10 +197,10 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             URL bPSProcessServicesUrl = new URL(new URL(host), WFImplConstant.BPS_PROCESS_SERVICES_URL);
             bpsPackagestub = new BPELPackageManagementServiceStub(bpsPackageServicesUrl.toString());
             bpsProcessStub = new ProcessManagementServiceStub(bPSProcessServicesUrl.toString());
-            ServiceClient BPSPackageClient = bpsPackagestub._getServiceClient();
-            ServiceClient BPSProcessClient = bpsProcessStub._getServiceClient();
-            authenticate(BPSPackageClient, bpsProfile.getUsername(), bpsProfile.getPassword());
-            authenticate(BPSProcessClient, bpsProfile.getUsername(), bpsProfile.getPassword());
+            ServiceClient bpsPackageClient = bpsPackagestub._getServiceClient();
+            ServiceClient bpsProcessClient = bpsProcessStub._getServiceClient();
+            authenticate(bpsPackageClient, bpsProfile.getUsername(), bpsProfile.getPassword());
+            authenticate(bpsProcessClient, bpsProfile.getUsername(), bpsProfile.getPassword());
 
             DeployedPackagesPaginated deployedPackagesPaginated =
                     bpsPackagestub.listDeployedPackagesPaginated(0, workflowRequest.getWorkflowName());
