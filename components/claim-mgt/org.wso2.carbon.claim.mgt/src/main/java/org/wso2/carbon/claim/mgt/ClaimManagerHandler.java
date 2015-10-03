@@ -364,11 +364,8 @@ public enum ClaimManagerHandler {
             claimManager = realm.getClaimManager();
             if (claimManager != null) {
                 mapping = claimManager.getAllClaimMappings(dialectUri);
-                if (mapping != null) {
-                    for (ClaimMapping aMapping : mapping) {
-                        claimManager.deleteClaimMapping(aMapping);
-                    }
-                }
+                claimManager.deleteClaimMappings(dialectUri, mapping);
+                claimManager.deleteClaimDialect(dialectUri);
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new ClaimManagementException("Error occurred while removing new claim dialect", e);
