@@ -58,6 +58,7 @@
     private Boolean isEditing;
     private int isBoolean;
     private String existingDomains;
+    private String messageID;
     private int i;
 
     private int isBoolean(String value) {
@@ -681,6 +682,7 @@
                     </tr>
                     <%
                                 }else{
+                                    messageID = propertyValue;
                                     %>
                                    <td class="leftCol-med" width="50%" style="display:none;" id="<%=name%>"><%=propertyName%>
                                     </td>
@@ -856,9 +858,17 @@
 			var connectionURL = document.getElementById("propertyValue_2").value;
 			var username = document.getElementById("propertyValue_3").value;
 			var connectionPassword = document.getElementById("propertyValue_4").value;
-			
-			var url = 'validateconnection-ajaxprocessor.jsp?&domainName=' + domainName+'&driverName='+driverName+
-           	'&connectionURL='+encodeURIComponent(connectionURL)+'&username='+username+'&connectionPassword=' + connectionPassword;
+
+			var url = 'validateconnection-ajaxprocessor.jsp?' +
+                    '&domainName=' + encodeURIComponent(domainName) +
+                    '&driverName=' + encodeURIComponent(driverName) +
+                    '&connectionURL=' + encodeURIComponent(connectionURL) +
+                    '&username=' + encodeURIComponent(username) +
+                    '&connectionPassword=' + encodeURIComponent(connectionPassword);
+
+            <%if(messageID != null && !"".equals(messageID)) {%>
+            url += '&messageID=<%=messageID%>';
+            <%}%>
 		
 			$.ajax({
 				  url: url,
@@ -867,7 +877,7 @@
 					var successMsg  =  new RegExp("true");
 		        	if (msg.search(successMsg)==-1) //if match failed
 		        	{
-		        		CARBON.showErrorDialog(msg);
+		        		CARBON.showErrorDialog("Connection is not healthy. Error establishing data source connection.");
 		        	} else {
 		        		CARBON.showInfoDialog("Connection is healthy");
 		        	}

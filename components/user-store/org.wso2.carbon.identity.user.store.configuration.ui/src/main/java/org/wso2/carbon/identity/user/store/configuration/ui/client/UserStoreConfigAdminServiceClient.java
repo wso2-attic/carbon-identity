@@ -176,14 +176,14 @@ public class UserStoreConfigAdminServiceClient {
         }
     }
 
-    public boolean testRDBMSConnection(String domainName, String driverName, String connectionURL, String username, String connectionPassword) throws Exception {
+    public boolean testRDBMSConnection(String domainName, String driverName, String connectionURL, String username,
+                                       String connectionPassword, String messageID) throws Exception {
         try {
-            return stub.testRDBMSConnection(domainName, driverName, connectionURL, username, connectionPassword);
+            return stub.testRDBMSConnection(domainName, driverName, connectionURL, username, connectionPassword,
+                    messageID);
         } catch (UserStoreConfigAdminServiceDataSourceException e) {
-            if (e.getFaultMessage().getDataSourceException().isErrorMessageSpecified()) {
-                throw new DataSourceException(e.getFaultMessage().getDataSourceException().getErrorMessage(), e);
-            }
-            throw new DataSourceException(e.getMessage(), e);
+            // Not showing internal errors
+            return false;
         }
     }
 }

@@ -554,8 +554,32 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
         }
     }
 
+    /**
+     * Check the connection heath for JDBC userstores
+     * @param domainName
+     * @param driverName
+     * @param connectionURL
+     * @param username
+     * @param connectionPassword
+     * @param messageID
+     * @return
+     * @throws DataSourceException
+     */
     public boolean testRDBMSConnection(String domainName, String driverName, String connectionURL, String username,
-                                       String connectionPassword) throws DataSourceException {
+                                       String connectionPassword, String messageID) throws DataSourceException {
+
+        RandomPasswordContainer randomPasswordContainer;
+        if (messageID != null) {
+            randomPasswordContainer = getRandomPasswordContainer(messageID);
+            if (randomPasswordContainer != null) {
+                RandomPassword randomPassword = getRandomPassword(randomPasswordContainer, JDBCRealmConstants.PASSWORD);
+                if (randomPassword != null) {
+                    if (connectionPassword.equalsIgnoreCase(randomPassword.getRandomPhrase())) {
+                        connectionPassword = randomPassword.getPassword();
+                    }
+                }
+            }
+        }
 
         WSDataSourceMetaInfo wSDataSourceMetaInfo = new WSDataSourceMetaInfo();
 
@@ -759,6 +783,16 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      */
     private RandomPasswordContainer getAndRemoveRandomPasswordContainer(String uniqueID) {
         return RandomPasswordContainerCache.getInstance().getRandomPasswordContainerCache().getAndRemove(uniqueID);
+    }
+
+    /**
+     * Get the RandomPasswordContainer object from the cache for given unique id
+     *
+     * @param uniqueID Get the unique id for that particular cache
+     * @return RandomPasswordContainer of particular unique ID
+     */
+    private RandomPasswordContainer getRandomPasswordContainer(String uniqueID) {
+        return RandomPasswordContainerCache.getInstance().getRandomPasswordContainerCache().get(uniqueID);
     }
 
     /**
