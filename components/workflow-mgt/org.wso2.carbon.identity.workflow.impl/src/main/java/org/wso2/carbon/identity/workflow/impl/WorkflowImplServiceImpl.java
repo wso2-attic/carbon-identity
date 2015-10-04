@@ -163,23 +163,35 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
      * This method is used to remove the BPS Artifacts upon a deletion of
      * a Workflow.
      *
-     * @param workflowRequest - Workflow request to be deleted.
+     * @param workflow - Workflow request to be deleted.
      * @throws WorkflowImplException
      */
 
     @Override
-    public void removeBPSPackage(Workflow workflowRequest) throws WorkflowImplException {
+    public void removeBPSPackage(Workflow workflow) throws WorkflowImplException {
 
         WorkflowImplService workflowImplService = WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
         WorkflowManagementService workflowManagementService = WorkflowImplServiceDataHolder.getInstance().
                 getWorkflowManagementService();
 
+        if (workflowImplService == null || workflowManagementService == null) {
+            throw new WorkflowImplException("Error while deleting the BPS artifacts of: " + workflow.getWorkflowName());
+        }
+
         try {
             List<Parameter> workflowParameters = workflowManagementService.
-                    getWorkflowParameters(workflowRequest.getWorkflowId());
+                    getWorkflowParameters(workflow.getWorkflowId());
             Parameter bpsParameter = WorkflowManagementUtil.getParameter(workflowParameters,
                     WFImplConstant.ParameterName.BPS_PROFILE, WFConstant.ParameterHolder.WORKFLOW_IMPL);
+            if (bpsParameter == null) {
+                throw new WorkflowImplException("Error while deleting the BPS artifacts of: " +
+                        workflow.getWorkflowName());
+            }
             String bpsProfileName = bpsParameter.getParamValue();
+            if (StringUtils.isEmpty(bpsProfileName)) {
+                throw new WorkflowImplException("Error while deleting the BPS artifacts of: " +
+                        workflow.getWorkflowName());
+            }
 
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             BPSProfile bpsProfile = workflowImplService.getBPSProfile(bpsProfileName, tenantId);
@@ -194,16 +206,17 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             //Authorizing BPS Package Management & BPS Process Management Stubs.
             String host = bpsProfile.getWorkerHostURL();
             URL bpsPackageServicesUrl = new URL(new URL(host), WFImplConstant.BPS_PACKAGE_SERVICES_URL);
-            URL bPSProcessServicesUrl = new URL(new URL(host), WFImplConstant.BPS_PROCESS_SERVICES_URL);
             bpsPackagestub = new BPELPackageManagementServiceStub(bpsPackageServicesUrl.toString());
-            bpsProcessStub = new ProcessManagementServiceStub(bPSProcessServicesUrl.toString());
             ServiceClient bpsPackageClient = bpsPackagestub._getServiceClient();
-            ServiceClient bpsProcessClient = bpsProcessStub._getServiceClient();
             authenticate(bpsPackageClient, bpsProfile.getUsername(), bpsProfile.getPassword());
+
+            URL bPSProcessServicesUrl = new URL(new URL(host), WFImplConstant.BPS_PROCESS_SERVICES_URL);
+            bpsProcessStub = new ProcessManagementServiceStub(bPSProcessServicesUrl.toString());
+            ServiceClient bpsProcessClient = bpsProcessStub._getServiceClient();
             authenticate(bpsProcessClient, bpsProfile.getUsername(), bpsProfile.getPassword());
 
             DeployedPackagesPaginated deployedPackagesPaginated =
-                    bpsPackagestub.listDeployedPackagesPaginated(0, workflowRequest.getWorkflowName());
+                    bpsPackagestub.listDeployedPackagesPaginated(0, workflow.getWorkflowName());
 
             PackageType packageType = deployedPackagesPaginated.get_package()[0];
             int numberOfVersions = packageType.getVersions().getVersion().length;
@@ -225,12 +238,12 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("BPS Artifacts Successfully removed for Workflow : " + workflowRequest.getWorkflowName());
+                log.debug("BPS Artifacts Successfully removed for Workflow : " + workflow.getWorkflowName());
             }
 
         } catch (WorkflowException | MalformedURLException | PackageManagementException | RemoteException |
                 ProcessManagementException e) {
-            throw new WorkflowImplException("Error while deleting the BPS Artifacts of the request.");
+            throw new WorkflowImplException("Error while deleting the BPS Artifacts of the request");
         }
     }
 

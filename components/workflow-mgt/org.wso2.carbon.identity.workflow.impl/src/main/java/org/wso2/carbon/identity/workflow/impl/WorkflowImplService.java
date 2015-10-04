@@ -40,6 +40,6 @@ public interface WorkflowImplService {
 
     void deleteHumanTask(WorkflowRequest workflowRequest) throws WorkflowImplException;
 
-    void removeBPSPackage(Workflow workflowRequest) throws WorkflowImplException;
+    void removeBPSPackage(Workflow workflow) throws WorkflowImplException;
 
 }

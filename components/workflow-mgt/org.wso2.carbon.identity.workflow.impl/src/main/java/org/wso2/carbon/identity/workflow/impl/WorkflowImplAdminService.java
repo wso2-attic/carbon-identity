@@ -112,15 +112,23 @@ public class WorkflowImplAdminService {
     /**
      * Removes BPS artifacts of a particular workflow.
      *
-     * @param workflowRequest Workflow request to be deleted.
+     * @param workflow Workflow request to be deleted.
      * @throws WorkflowImplException
      */
-    public void removeBPSPackage(Workflow workflowRequest) throws WorkflowImplException {
+    public void removeBPSPackage(Workflow workflow) throws WorkflowImplException {
 
         try {
-            WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService().removeBPSPackage(workflowRequest);
+            WorkflowImplService workflowImplService =
+                    WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
+
+            if (workflowImplService == null) {
+                log.error("Error while initialising WorkflowImplService");
+                throw new WorkflowImplException("Error when removing BPS artifacts of: " + workflow.getWorkflowName());
+            }
+
+            workflowImplService.removeBPSPackage(workflow);
         } catch (WorkflowImplException e) {
-            log.error("Error when removing BPS artifacts " + workflowRequest.getWorkflowName(), e);
+            log.error("Error when removing BPS artifacts of: " + workflow.getWorkflowName(), e);
             throw new WorkflowImplException(e.getMessage());
         }
     }
