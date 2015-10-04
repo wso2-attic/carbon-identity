@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.Serializable;
@@ -124,10 +125,16 @@ public class User implements Serializable {
 
     @Override
     public String toString(){
-        String username = this.userName;
-        username = UserCoreUtil.addDomainToName(username, userStoreDomain);
-        username = UserCoreUtil.addTenantDomainToEntry(username, tenantDomain);
-
+        String username = null;
+        if(StringUtils.isNotBlank(this.userName)){
+            username = this.userName;
+        }
+        if(StringUtils.isNotBlank(this.userStoreDomain)){
+            username = UserCoreUtil.addDomainToName(username, userStoreDomain);
+        }
+        if(StringUtils.isNotBlank(this.tenantDomain)){
+            username = UserCoreUtil.addTenantDomainToEntry(username, tenantDomain);
+        }
         return username;
     }
 }
