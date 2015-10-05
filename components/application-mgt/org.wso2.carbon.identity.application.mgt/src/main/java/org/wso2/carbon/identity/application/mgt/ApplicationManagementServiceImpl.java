@@ -120,21 +120,31 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
 
         startTenantFlow(tenantDomain, userName);
+        boolean roleCreated = false;
+        boolean permissionStored = false;
 
         try {
             // first we need to create a role with the application name.
             // only the users in this role will be able to edit/update the
             // application.
             ApplicationMgtUtil.createAppRole(serviceProvider.getApplicationName());
-            ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
+            roleCreated = true;
+
             ApplicationMgtUtil.storePermission(serviceProvider.getApplicationName(),
                     serviceProvider.getPermissionAndRoleConfig());
+            permissionStored = true;
+
+            ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             appDAO.createApplication(serviceProvider, tenantDomain);
 
         } catch (Exception e) {
             try {
-                ApplicationMgtUtil.deleteAppRole(serviceProvider.getApplicationName());
-                ApplicationMgtUtil.deletePermissions(serviceProvider.getApplicationName());
+                if (roleCreated) {
+                    ApplicationMgtUtil.deleteAppRole(serviceProvider.getApplicationName());
+                }
+                if (permissionStored) {
+                    ApplicationMgtUtil.deletePermissions(serviceProvider.getApplicationName());
+                }
             } catch (Exception ignored) {
                 if (log.isDebugEnabled()) {
                     log.debug("Ignored the exception occurred while trying to delete the role : ", e);
