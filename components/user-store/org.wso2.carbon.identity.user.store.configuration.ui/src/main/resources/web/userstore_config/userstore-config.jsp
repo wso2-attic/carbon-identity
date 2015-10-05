@@ -877,7 +877,7 @@
 					var successMsg  =  new RegExp("true");
 		        	if (msg.search(successMsg)==-1) //if match failed
 		        	{
-		        		CARBON.showErrorDialog("Connection is not healthy. Error establishing data source connection.");
+		        		CARBON.showErrorDialog(msg);
 		        	} else {
 		        		CARBON.showInfoDialog("Connection is healthy");
 		        	}
