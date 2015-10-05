@@ -129,10 +129,12 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             // application.
             ApplicationMgtUtil.createAppRole(serviceProvider.getApplicationName());
             roleCreated = true;
-            ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
+
             ApplicationMgtUtil.storePermission(serviceProvider.getApplicationName(),
                     serviceProvider.getPermissionAndRoleConfig());
             permissionStored = true;
+
+            ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             appDAO.createApplication(serviceProvider, tenantDomain);
 
         } catch (Exception e) {
