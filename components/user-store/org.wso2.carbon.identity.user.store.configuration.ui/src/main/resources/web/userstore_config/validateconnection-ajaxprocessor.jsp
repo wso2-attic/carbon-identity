@@ -6,11 +6,12 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%
     String domainName = request.getParameter("domainName");
-String driverName = request.getParameter("driverName");
-String connectionURL = request.getParameter("connectionURL");
-String username = request.getParameter("username");
-String connectionPassword = request.getParameter("connectionPassword");
-	
+    String driverName = request.getParameter("driverName");
+    String connectionURL = request.getParameter("connectionURL");
+    String username = request.getParameter("username");
+    String connectionPassword = request.getParameter("connectionPassword");
+    String messageID = request.getParameter("messageID");
+
     boolean canAdd ;
     if (domainName != null && !"".equals(domainName)) {
     	String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -21,7 +22,8 @@ String connectionPassword = request.getParameter("connectionPassword");
         try {
         	client = new UserStoreConfigAdminServiceClient(cookie, backendServerURL, configContext);;
         	
-            canAdd = client.testRDBMSConnection(domainName, driverName, connectionURL, username, connectionPassword);
+            canAdd = client.testRDBMSConnection(domainName, driverName, connectionURL, username, connectionPassword,
+                    messageID);
 %>
 <%=canAdd%>
 <%
