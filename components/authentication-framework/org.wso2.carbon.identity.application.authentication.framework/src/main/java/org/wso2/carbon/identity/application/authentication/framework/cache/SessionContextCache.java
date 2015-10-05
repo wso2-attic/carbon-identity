@@ -91,8 +91,11 @@ public class SessionContextCache extends BaseCache<SessionContextCacheKey, Sessi
         if (cacheEntry == null) {
             SessionContextDO sessionContextDO = SessionDataStore.getInstance().
                     getSessionContextData(key.getContextId(), SESSION_CONTEXT_CACHE_NAME);
-
-            cacheEntry = new SessionContextCacheEntry(sessionContextDO);
+            if (sessionContextDO == null) {
+                cacheEntry = null;
+            } else {
+                cacheEntry = new SessionContextCacheEntry(sessionContextDO);
+            }
         }
 
         if (isValidIdleSession(key, cacheEntry) || isValidRememberMeSession(key, cacheEntry)) {
