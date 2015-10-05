@@ -88,16 +88,30 @@ public class SessionContextCache extends BaseCache<SessionContextCacheKey, Sessi
             cacheEntry = super.getValueFromCache(key);
         }
 
+        // Retrieve session from the database if its not in cache
         if (cacheEntry == null) {
             SessionContextDO sessionContextDO = SessionDataStore.getInstance().
                     getSessionContextData(key.getContextId(), SESSION_CONTEXT_CACHE_NAME);
 
-            cacheEntry = new SessionContextCacheEntry(sessionContextDO);
+            if (sessionContextDO != null) {
+                cacheEntry = new SessionContextCacheEntry(sessionContextDO);
+            }
         }
 
-        if (isValidIdleSession(key, cacheEntry) || isValidRememberMeSession(key, cacheEntry)) {
+        if (cacheEntry == null) {
+            if(log.isDebugEnabled()) {
+                log.debug("Session corresponding to the key : " + key.getContextId()+ " cannot be found.");
+            }
+            return null;
+        } else if (isValidIdleSession(key, cacheEntry) || isValidRememberMeSession(key, cacheEntry)) {
+            if(log.isDebugEnabled()) {
+                log.debug("Found a valid session corresponding to the key : " + key.getContextId());
+            }
             return cacheEntry;
         } else {
+            if(log.isDebugEnabled()) {
+                log.debug("Found an expired session corresponding to the key : " + key.getContextId());
+            }
             clearCacheEntry(key);
             return null;
         }
@@ -116,13 +130,13 @@ public class SessionContextCache extends BaseCache<SessionContextCacheKey, Sessi
      *
      * @param key        SessionContextCacheKey
      * @param cacheEntry SessionContextCacheEntry
-     * @return true if the session context is NOT restricted as per idle session configs; false otherwise
+     * @return true if the session context is valid as per idle session configs; false otherwise
      */
     private boolean isValidIdleSession(SessionContextCacheKey key, SessionContextCacheEntry cacheEntry) {
         String contextId = key.getContextId();
 
         if (cacheEntry == null) {
-            return true;
+            return false;
         }
 
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
@@ -151,13 +165,13 @@ public class SessionContextCache extends BaseCache<SessionContextCacheKey, Sessi
      *
      * @param key        SessionContextCacheKey
      * @param cacheEntry SessionContextCacheEntry
-     * @return true if the session context is NOT restricted as per remember me session configs; false otherwise
+     * @return true if the session context is valid as per remember me session configs; false otherwise
      */
     private boolean isValidRememberMeSession(SessionContextCacheKey key, SessionContextCacheEntry cacheEntry) {
         String contextId = key.getContextId();
 
         if (cacheEntry == null) {
-            return true;
+            return false;
         }
 
         if (!cacheEntry.getContext().isRememberMe()) {
