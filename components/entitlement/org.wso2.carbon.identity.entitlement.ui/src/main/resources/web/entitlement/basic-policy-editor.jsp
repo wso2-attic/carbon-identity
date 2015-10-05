@@ -53,7 +53,7 @@
     String selectedAttributeId = request.getParameter("selectedAttributeId");
     String category = request.getParameter("category");
 
-    String ruleId = CharacterEncoder.getSafeText(request.getParameter("ruleId"));
+    String ruleId = request.getParameter("ruleId");
     if(ruleId != null && ruleId.trim().length() > 0 && !ruleId.trim().equals("null") ) {
         basicRuleDTO = entitlementPolicyBean.getBasicRuleElement(ruleId);
     }
