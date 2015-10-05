@@ -130,13 +130,6 @@ public class DefaultClaimHandler implements ClaimHandler {
 
         boolean useDefaultIdpDialect = context.getExternalIdP().useDefaultLocalIdpDialect();
 
-        if (remoteClaims == null || remoteClaims.isEmpty()) {
-            if (log.isDebugEnabled()) {
-                log.debug("No attributes given. Returning");
-            }
-            return null;
-        }
-
         // set unfiltered remote claims as a property
         context.setProperty(FrameworkConstants.UNFILTERED_IDP_CLAIM_VALUES, remoteClaims);
 
@@ -152,8 +145,9 @@ public class DefaultClaimHandler implements ClaimHandler {
 
         loadDefaultValuesForClaims(idPClaimMappings, defaultValuesForClaims);
 
-        if (useDefaultIdpDialect) {
-            localToIdPClaimMap = getLocalToIdpClaimMappingWithDefaultDialect(remoteClaims, context, idPStandardDialect);
+        if (idPStandardDialect != null || useDefaultIdpDialect) {
+            localToIdPClaimMap = getLocalToIdpClaimMappingWithStandardDialect(remoteClaims, idPClaimMappings, context,
+                    idPStandardDialect);
         } else if (idPClaimMappings.length > 0) {
             localToIdPClaimMap = FrameworkUtils.getClaimMappings(idPClaimMappings, true);
         } else {
@@ -256,9 +250,10 @@ public class DefaultClaimHandler implements ClaimHandler {
         }
     }
 
-    private Map<String, String> getLocalToIdpClaimMappingWithDefaultDialect(Map<String, String> remoteClaims,
-                                                                            AuthenticationContext context,
-                                                                            String idPStandardDialect)
+    private Map<String, String> getLocalToIdpClaimMappingWithStandardDialect(Map<String, String> remoteClaims,
+                                                                             ClaimMapping[] idPClaimMappings,
+                                                                             AuthenticationContext context,
+                                                                             String idPStandardDialect)
             throws FrameworkException {
         Map<String, String> localToIdPClaimMap;
         if (idPStandardDialect == null) {
@@ -274,6 +269,13 @@ public class DefaultClaimHandler implements ClaimHandler {
                                          idPStandardDialect + " dialect to " +
                                          ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT + " dialect for " +
                                          context.getTenantDomain() + " to handle federated claims", e);
+        }
+        // adding remote claims with default values also to the key set because they may not come from the federated IdP
+        for(ClaimMapping claimMapping : idPClaimMappings){
+            if (StringUtils.isNotBlank(claimMapping.getDefaultValue()) && !localToIdPClaimMap.containsKey
+                    (claimMapping.getLocalClaim().getClaimUri())) {
+                localToIdPClaimMap.put(claimMapping.getLocalClaim().getClaimUri(), claimMapping.getDefaultValue());
+            }
         }
         return localToIdPClaimMap;
     }
