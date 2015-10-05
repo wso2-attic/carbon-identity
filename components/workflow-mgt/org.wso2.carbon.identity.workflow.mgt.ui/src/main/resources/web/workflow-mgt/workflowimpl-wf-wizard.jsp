@@ -31,7 +31,6 @@
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.Template" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.bean.ParameterMetaData" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.bean.InputData" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.bean.MapType" %>
@@ -42,7 +41,6 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.util.WorkflowUIUtil" %>
 <%@ page import="java.util.Set" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.bean.ParametersMetaData" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 
 
@@ -172,6 +170,7 @@
 
     <!-- Override carbon jquery from latest release of it, because this tokenizer support for latest one -->
     <script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.11.1.min.js"></script>
     <script type="text/javascript" src="js/tokenizer.js"></script>
     <link rel="stylesheet" type="text/css" href="css/input_style.css">
 
@@ -197,8 +196,13 @@
             location.href = "template-wf-wizard.jsp?<%=WorkflowUIConstants.PARAM_BACK%>=true&<%=WorkflowUIConstants.PARAM_PAGE_REQUEST_TOKEN%>=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(requestToken))%>";
         }
 
+
         function doCancel() {
-            location.href = '<%=requestPath%>.jsp?wizard=finish';
+            function cancel() {
+                location.href = '<%=requestPath%>.jsp?wizard=finish';
+            }
+            CARBON.showConfirmationDialog('<fmt:message key="confirmation.request.delete"/> ?',
+                    cancel, null);
         }
 
         function selectTemplate(){
