@@ -165,7 +165,6 @@ public abstract class FrameworkConstants {
         public static final String CLAIM_TYPE_SAML_SSO = "samlsso";
         public static final String CLAIM_TYPE_SCIM = "scim";
         public static final String CLAIM_TYPE_OIDC = "oidc";
-        public static final String CLAIM_TYPE_PASSIVE_STS = "passivests";
         private RequestType() {
         }
     }
