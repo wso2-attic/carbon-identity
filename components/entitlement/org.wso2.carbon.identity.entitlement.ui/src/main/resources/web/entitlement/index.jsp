@@ -27,7 +27,6 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <jsp:include page="../dialog/display_messages.jsp"/>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.owasp.encoder.Encode" %>

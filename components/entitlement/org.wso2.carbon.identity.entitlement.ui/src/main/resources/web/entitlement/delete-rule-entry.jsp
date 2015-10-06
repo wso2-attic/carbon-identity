@@ -16,7 +16,6 @@
 ~ under the License.
 -->
 
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <jsp:useBean id="entitlementPolicyBean" type="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean"
              class="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean" scope="session"/>
 <jsp:setProperty name="entitlementPolicyBean" property="*" />

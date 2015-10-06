@@ -27,7 +27,6 @@
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RowDTO" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RuleDTO" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.TargetDTO" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>

@@ -88,7 +88,7 @@
         addDeletedRoleLists(deletedList, (Map<String, Boolean>) session.getAttribute("checkedRolesMap"));
 
         if (viewUsers) {
-            client.addRemoveRolesOfUser(Util.decodeHTMLCharacters(username), null,
+            client.addRemoveRolesOfUser(username, null,
                                         deletedList.toArray(new String[deletedList.size()]));
         } else {
             client.addRemoveRolesOfUser(Util.decodeHTMLCharacters(username), selectedRoles, null);
@@ -97,7 +97,7 @@
         }
 
         String message =
-                MessageFormat.format(resourceBundle.getString("user.update"), Util.decodeHTMLCharacters(username));
+                MessageFormat.format(resourceBundle.getString("user.update"), username);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
 
         if (logout) {
@@ -132,7 +132,7 @@
     String encodedUserName = "";
 
     if (username != null) {
-        decodedUserName = Util.decodeHTMLCharacters(username);
+        decodedUserName = username;
         encodedUserName = URLEncoder.encode(username);
     }
 

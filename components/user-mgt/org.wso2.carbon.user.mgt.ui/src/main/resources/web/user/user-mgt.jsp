@@ -491,11 +491,11 @@
                     </td>
                     <td>
                         <%
-                            if (!Util.getUserStoreInfoForUser(Util.decodeHTMLCharacters(userName), userRealmInfo).getPasswordsExternallyManaged() &&      // TODO
+                            if (!Util.getUserStoreInfoForUser(userName, userRealmInfo).getPasswordsExternallyManaged() &&      // TODO
                                     CarbonUIUtil.isUserAuthorized(request,
                                             "/permission/admin/configure/security/usermgt/passwords") &&
                                     users[i].getEditable()) { //if passwords are managed externally do not allow to change passwords.
-                                if (Util.decodeHTMLCharacters(userName).equals(currentUser)) {
+                                if (userName.equals(currentUser)) {
                         %>
                         <a href="change-passwd.jsp?isUserChange=true&returnPath=user-mgt.jsp" class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
@@ -568,7 +568,7 @@
                     </td>
                     <td>
                         <%
-                            if (userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName)) &&
+                            if (userRealmInfo.getAdminUser().equals(userName) &&
                                     !userRealmInfo.getAdminUser().equals(currentUser)) {
                         %>
                         <a href="#" class="icon-link" title="Operation is Disabled"
@@ -595,11 +595,11 @@
                             }
                         %>
                         <%
-                            if (!Util.getUserStoreInfoForUser(Util.decodeHTMLCharacters(userName), userRealmInfo).getPasswordsExternallyManaged() &&      // TODO
+                            if (!Util.getUserStoreInfoForUser(userName, userRealmInfo).getPasswordsExternallyManaged() &&      // TODO
                                     CarbonUIUtil.isUserAuthorized(request,
                                             "/permission/admin/configure/security/usermgt/passwords") &&
                                     users[i].getEditable()) { //if passwords are managed externally do not allow to change passwords.
-                                if (Util.decodeHTMLCharacters(userName).equals(currentUser)) {
+                                if (userName.equals(currentUser)) {
                         %>
                         <a href="change-passwd.jsp?isUserChange=true&returnPath=user-mgt.jsp" class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
@@ -642,8 +642,8 @@
 
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request,
-                                    "/permission/admin/configure/security/usermgt/users") && !Util.decodeHTMLCharacters(userName).equals(currentUser)
-                                    && !Util.decodeHTMLCharacters(userName).equals(userRealmInfo.getAdminUser()) &&
+                                    "/permission/admin/configure/security/usermgt/users") && !userName.equals(currentUser)
+                                    && !userName.equals(userRealmInfo.getAdminUser()) &&
                                     users[i].getEditable()) {
                         %>
                         <a href="#" onclick="deleteUser('<%=Encode.forJavaScriptAttribute(userName)%>')"
@@ -651,8 +651,7 @@
                            style="background-image:url(images/delete.gif);"><fmt:message
                                 key="delete"/></a>
                         <%
-                        } else if (Util.decodeHTMLCharacters(userName).equals(currentUser) ||
-                                Util.decodeHTMLCharacters(userName).equals(userRealmInfo.getAdminUser())) {
+                        } else if (userName.equals(currentUser) || userName.equals(userRealmInfo.getAdminUser())) {
                         %>
                         <a href="#" class="icon-link" title="Operation is Disabled"
                            style="background-image:url(images/delete.gif);color:#CCC;"><fmt:message

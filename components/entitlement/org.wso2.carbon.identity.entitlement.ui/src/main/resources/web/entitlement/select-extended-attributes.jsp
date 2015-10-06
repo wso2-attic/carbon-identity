@@ -17,7 +17,6 @@
  -->
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.ExtendAttributeDTO" %>
 <%@ page import="org.owasp.encoder.Encode" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.Set" %>
