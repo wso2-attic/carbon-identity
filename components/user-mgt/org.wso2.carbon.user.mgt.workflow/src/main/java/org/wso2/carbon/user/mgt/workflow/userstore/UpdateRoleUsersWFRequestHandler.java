@@ -232,9 +232,7 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
                         .isExistingUser(entities[i].getEntityId())) {
                     throw new WorkflowException("User " + entities[i].getEntityId() + " does not exist.");
                 }
-            } catch (InternalWorkflowException e) {
-                throw new WorkflowException(e.getMessage(), e);
-            } catch (org.wso2.carbon.user.core.UserStoreException e) {
+            } catch (InternalWorkflowException | org.wso2.carbon.user.core.UserStoreException e) {
                 throw new WorkflowException(e.getMessage(), e);
             }
         }
