@@ -91,7 +91,7 @@
             client.addRemoveRolesOfUser(username, null,
                                         deletedList.toArray(new String[deletedList.size()]));
         } else {
-            client.addRemoveRolesOfUser(Util.decodeHTMLCharacters(username), selectedRoles, null);
+            client.addRemoveRolesOfUser(username, selectedRoles, null);
             session.removeAttribute(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_CACHE);
             session.removeAttribute(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_CACHE_EXCEEDED);
         }
