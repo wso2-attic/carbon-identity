@@ -395,8 +395,14 @@ public class DefaultClaimHandler implements ClaimHandler {
             if (StringUtils.isBlank(domain)) {
                 domain = "PRIMARY";
             }
-            RealmConfiguration realmConfiguration = userStore
-                    .getSecondaryUserStoreManager(domain).getRealmConfiguration();
+            RealmConfiguration realmConfiguration;
+            if (userStore.getSecondaryUserStoreManager() != null && !domain.equals(userStore.getRealmConfiguration()
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME))) {
+                realmConfiguration = userStore
+                        .getSecondaryUserStoreManager(domain).getRealmConfiguration();
+            } else {
+                realmConfiguration = userStore.getRealmConfiguration();
+            }
 
             String claimSeparator = realmConfiguration.getUserStoreProperty(IdentityCoreConstants
                     .MULTI_ATTRIBUTE_SEPARATOR);
