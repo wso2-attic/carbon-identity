@@ -225,6 +225,7 @@
                 <xs:sequence>
                     <xs:element minOccurs="0" name="provisioningEnabled" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="provisioningUserStore" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="isDumbMode" type="xs:boolean"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="JustInTimeProvisioningConfig">
@@ -282,7 +283,6 @@
                     <xs:element minOccurs="0" name="applicationName" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="claimConfig" nillable="true" type="ax2120:ClaimConfig"/>
                     <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="dumbMode" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="inboundAuthenticationConfig" nillable="true" type="ax2120:InboundAuthenticationConfig"/>
                     <xs:element minOccurs="0" name="inboundProvisioningConfig" nillable="true" type="ax2120:InboundProvisioningConfig"/>
                     <xs:element minOccurs="0" name="localAndOutBoundAuthenticationConfig" nillable="true" type="ax2120:LocalAndOutboundAuthenticationConfig"/>

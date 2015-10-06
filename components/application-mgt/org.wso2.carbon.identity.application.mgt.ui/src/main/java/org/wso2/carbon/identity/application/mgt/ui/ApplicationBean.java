@@ -926,7 +926,6 @@ public class ApplicationBean {
     public void update(HttpServletRequest request) {
 
         // update basic info.
-        serviceProvider.setDumbMode(Boolean.parseBoolean(CharacterEncoder.getSafeText(request.getParameter(DUMB))));
         serviceProvider.setApplicationName(CharacterEncoder.getSafeText(request.getParameter("spName")));
         serviceProvider.setDescription(CharacterEncoder.getSafeText(request.getParameter("sp-description")));
         String isSasApp = CharacterEncoder.getSafeText(request.getParameter("isSaasApp"));
@@ -946,6 +945,7 @@ public class ApplicationBean {
         String provisioningUserStore = CharacterEncoder.getSafeText(request.getParameter("scim-inbound-userstore"));
         InboundProvisioningConfig inBoundProConfig = new InboundProvisioningConfig();
         inBoundProConfig.setProvisioningUserStore(provisioningUserStore);
+        inBoundProConfig.setIsDumbMode(Boolean.parseBoolean(request.getParameter(DUMB)));
         serviceProvider.setInboundProvisioningConfig(inBoundProConfig);
 
         // update outbound provisioning data.
@@ -1298,13 +1298,13 @@ public class ApplicationBean {
     public void updateLocalSp(HttpServletRequest request) {
 
         // update basic info.
-        serviceProvider.setDumbMode(Boolean.parseBoolean(CharacterEncoder.getSafeText(request.getParameter("dumb"))));
         serviceProvider.setApplicationName(CharacterEncoder.getSafeText(request.getParameter("spName")));
         serviceProvider.setDescription(CharacterEncoder.getSafeText(request.getParameter("sp-description")));
 
         String provisioningUserStore = CharacterEncoder.getSafeText(request.getParameter("scim-inbound-userstore"));
         InboundProvisioningConfig inBoundProConfig = new InboundProvisioningConfig();
         inBoundProConfig.setProvisioningUserStore(provisioningUserStore);
+        inBoundProConfig.setIsDumbMode(Boolean.parseBoolean(request.getParameter(DUMB)));
         serviceProvider.setInboundProvisioningConfig(inBoundProConfig);
 
         String[] provisioningProviders = request.getParameterValues("provisioning_idp");

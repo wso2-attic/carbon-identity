@@ -73,7 +73,7 @@ public class SCIMUserManager implements UserManager {
     private UserStoreManager carbonUM = null;
     private ClaimManager carbonClaimManager = null;
     private String consumerName;
-    private boolean BULK_USER_ADD_FLAG = false;
+    private boolean isBulkUserAdd = false;
 
 
     public SCIMUserManager(UserStoreManager carbonUserStoreManager, String userName,
@@ -124,7 +124,7 @@ public class SCIMUserManager implements UserManager {
             carbonContext.setUsername(consumerName);
 
             //if operating in dumb mode, do not persist the operation, only provision to providers
-            if (serviceProvider.isDumbMode()) {
+            if (serviceProvider.getInboundProvisioningConfig().isDumbMode()) {
                 if (log.isDebugEnabled()) {
                     log.debug("This instance is operating in dumb mode. " +
                               "Hence, operation is not persisted, it will only be provisioned."
@@ -174,7 +174,7 @@ public class SCIMUserManager implements UserManager {
         if (log.isDebugEnabled()) {
             log.debug("Retrieving user: " + userId);
         }
-        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. Hence, do not retrieve users from user store");
             }
@@ -324,7 +324,7 @@ public class SCIMUserManager implements UserManager {
 
     @Override
     public User updateUser(User user) throws CharonException {
-        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -416,7 +416,7 @@ public class SCIMUserManager implements UserManager {
     @Override
     public User patchUser(User newUser, User oldUser, String[] attributesToDelete) throws CharonException {
 
-        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -492,7 +492,7 @@ public class SCIMUserManager implements UserManager {
 
     @Override
     public void deleteUser(String userId) throws NotFoundException, CharonException {
-        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -545,7 +545,7 @@ public class SCIMUserManager implements UserManager {
 
     @Override
     public Group createGroup(Group group) throws CharonException, DuplicateResourceException {
-        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -668,7 +668,7 @@ public class SCIMUserManager implements UserManager {
         if (log.isDebugEnabled()) {
             log.debug("Retrieving group with id: " + id);
         }
-        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. Hence, do not retrieve users from user store");
             }
@@ -783,7 +783,7 @@ public class SCIMUserManager implements UserManager {
     public Group updateGroup(Group oldGroup, Group newGroup) throws CharonException {
 
         //if operating in dumb mode, do not persist the operation, only provision to providers
-        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -956,7 +956,7 @@ public class SCIMUserManager implements UserManager {
     public Group patchGroup(Group oldGroup, Group newGroup) throws CharonException {
 
         //if operating in dumb mode, do not persist the operation, only provision to providers
-        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -1135,7 +1135,7 @@ public class SCIMUserManager implements UserManager {
     public void deleteGroup(String groupId) throws NotFoundException, CharonException {
 
         //if operating in dumb mode, do not persist the operation, only provision to providers
-        if (getServiceProvider(BULK_USER_ADD_FLAG).isDumbMode()) {
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
@@ -1323,40 +1323,40 @@ public class SCIMUserManager implements UserManager {
                 if (ProvisioningOperation.POST.equals(provisioningMethod)) {
                     provisioningEntity =
                             provisioningEntityBuilder
-                                    .getProvisioningEntityForUserAdd(provisioningObject, outboundAttributes,
-                                                                     domainName);
+                                    .buildProvisioningEntityForUserAdd(provisioningObject, outboundAttributes,
+                                                                       domainName);
                 } else if (ProvisioningOperation.DELETE.equals(provisioningMethod)) {
                     provisioningEntity = provisioningEntityBuilder
-                            .getProvisioningEntityForUserDelete(provisioningObject, outboundAttributes,
-                                                                domainName);
+                            .buildProvisioningEntityForUserDelete(provisioningObject, outboundAttributes,
+                                                                  domainName);
                 } else if (ProvisioningOperation.PUT.equals(provisioningMethod)) {
                     provisioningEntity = provisioningEntityBuilder
-                            .getProvisioningEntityForUserUpdate(provisioningObject, outboundAttributes,
-                                                                domainName);
+                            .buildProvisioningEntityForUserUpdate(provisioningObject, outboundAttributes,
+                                                                  domainName);
                 } else if (ProvisioningOperation.PATCH.equals(provisioningMethod)) {
                     provisioningEntity = provisioningEntityBuilder
-                            .getProvisioningEntityForUserPatch(provisioningObject, outboundAttributes,
-                                                               domainName);
+                            .buildProvisioningEntityForUserPatch(provisioningObject, outboundAttributes,
+                                                                 domainName);
                 }
             } else if (provisioningObject instanceof Group) {
                 Group group = (Group) provisioningObject;
                 if (ProvisioningOperation.POST.equals(provisioningMethod)) {
                     provisioningEntity = provisioningEntityBuilder
-                            .getProvisioningEntityForGroupAdd(provisioningObject, outboundAttributes,
-                                                              domainName);
+                            .buildProvisioningEntityForGroupAdd(provisioningObject, outboundAttributes,
+                                                                domainName);
                 } else if (ProvisioningOperation.DELETE.equals(provisioningMethod)) {
                     provisioningEntity = provisioningEntityBuilder
-                            .getProvisioningEntityForGroupDelete(provisioningObject, outboundAttributes,
-                                                                 domainName);
+                            .buildProvisioningEntityForGroupDelete(provisioningObject, outboundAttributes,
+                                                                   domainName);
                 } else if (ProvisioningOperation.PUT.equals(provisioningMethod)) {
                     provisioningEntity = provisioningEntityBuilder
-                            .getProvisioningEntityForGroupUpdate(provisioningObject, outboundAttributes,
-                                                                 domainName);
+                            .buildProvisioningEntityForGroupUpdate(provisioningObject, outboundAttributes,
+                                                                   domainName);
                 } else if (ProvisioningOperation.PATCH.equals(provisioningMethod)) {
                     provisioningEntity =
                             provisioningEntityBuilder
-                                    .getProvisioningEntityForGroupPatch(provisioningObject, outboundAttributes,
-                                                                        domainName);
+                                    .buildProvisioningEntityForGroupPatch(provisioningObject, outboundAttributes,
+                                                                          domainName);
                 }
             }
 

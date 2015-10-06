@@ -1540,7 +1540,7 @@ var roleMappinRowID = -1;
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" name="dumb" id="dumb" value="false" onclick ="disable()" <%=appBean.getServiceProvider().getDumbMode() ? "checked" : "" %>>Enable Dumb Mode<br>
+                            <input type="checkbox" name="dumb" id="dumb" value="false" onclick ="disable()" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getDumbMode() ? "checked" : "" %>>Enable Dumb Mode<br>
                         </td>
                     </tr>
                     </table>

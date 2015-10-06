@@ -32,7 +32,15 @@ public class InboundProvisioningConfig implements Serializable {
 
     private String provisioningUserStore;
     private boolean provisioningEnabled;
+    private boolean isDumbMode = false;
 
+    public boolean isDumbMode() {
+        return isDumbMode;
+    }
+
+    public void setDumbMode(boolean isDumbMode) {
+        this.isDumbMode = isDumbMode;
+    }
     /*
      * <InboundProvisioningConfig> <ProvisioningUserStore></ProvisioningUserStore>
      * <IsProvisioningEnabled></IsProvisioningEnabled> </InboundProvisioningConfig>

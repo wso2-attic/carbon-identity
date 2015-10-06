@@ -44,12 +44,7 @@ import java.util.Map;
 public final class ProvisioningEntityBuilder {
 
     private static volatile ProvisioningEntityBuilder provisioningEntityBuilder = null;
-    private ProvisioningManagementDAO provisioningManagementDAO = null;
     private static Log log = LogFactory.getLog(ProvisioningEntityBuilder.class);
-
-    private ProvisioningEntityBuilder() {
-        provisioningManagementDAO = new ProvisioningManagementDAO();
-    }
 
     public static ProvisioningEntityBuilder getInstance() {
         if (provisioningEntityBuilder == null) {
@@ -60,9 +55,8 @@ public final class ProvisioningEntityBuilder {
         return provisioningEntityBuilder;
     }
 
-    ProvisioningEntity getProvisioningEntityForUserAdd(SCIMObject provisioningObject,
-                                                       Map<ClaimMapping, List<String>> outboundAttributes,
-                                                       String domainName) throws CharonException {
+    ProvisioningEntity buildProvisioningEntityForUserAdd(SCIMObject provisioningObject,
+        Map<ClaimMapping, List<String>> outboundAttributes, String domainName) throws CharonException {
         User user = (User) provisioningObject;
         if (user.getPassword() != null) {
             outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
@@ -92,7 +86,7 @@ public final class ProvisioningEntityBuilder {
         return provisioningEntity;
     }
 
-    ProvisioningEntity getProvisioningEntityForUserDelete(SCIMObject provisioningObject,
+    ProvisioningEntity buildProvisioningEntityForUserDelete(SCIMObject provisioningObject,
         Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
         String domainName) throws CharonException, IdentityApplicationManagementException {
 
@@ -111,9 +105,10 @@ public final class ProvisioningEntityBuilder {
         return provisioningEntity;
     }
 
-    ProvisioningEntity getProvisioningEntityForUserUpdate(SCIMObject provisioningObject,
+    ProvisioningEntity buildProvisioningEntityForUserUpdate(SCIMObject provisioningObject,
         Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
         String domainName) throws CharonException, IdentityApplicationManagementException {
+
         User user = (User) provisioningObject;
         //username should be included in user update SCIM request
         if (user.getUserName() != null) {
@@ -131,9 +126,10 @@ public final class ProvisioningEntityBuilder {
         return provisioningEntity;
     }
 
-    ProvisioningEntity getProvisioningEntityForUserPatch(SCIMObject provisioningObject,
+    ProvisioningEntity buildProvisioningEntityForUserPatch(SCIMObject provisioningObject,
         Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
         String domainName) throws CharonException, IdentityApplicationManagementException {
+
         User user = (User) provisioningObject;
 
         outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
@@ -152,9 +148,10 @@ public final class ProvisioningEntityBuilder {
         return provisioningEntity;
     }
 
-    ProvisioningEntity getProvisioningEntityForGroupAdd(SCIMObject provisioningObject,
+    ProvisioningEntity buildProvisioningEntityForGroupAdd(SCIMObject provisioningObject,
         Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
         String domainName) throws CharonException, IdentityApplicationManagementException, NotFoundException {
+
         Group group = (Group) provisioningObject;
         if (provisioningObject.getAttribute("displayName") != null) {
             outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
@@ -184,9 +181,10 @@ public final class ProvisioningEntityBuilder {
         return provisioningEntity;
     }
 
-    ProvisioningEntity getProvisioningEntityForGroupDelete(SCIMObject provisioningObject,
+    ProvisioningEntity buildProvisioningEntityForGroupDelete(SCIMObject provisioningObject,
         Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
         String domainName) throws CharonException, IdentityApplicationManagementException, NotFoundException {
+
         Group group = (Group) provisioningObject;
         outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
                                        IdentityProvisioningConstants.ID_CLAIM_URI, null, null, false),
@@ -200,9 +198,9 @@ public final class ProvisioningEntityBuilder {
         return provisioningEntity;
     }
 
-    ProvisioningEntity getProvisioningEntityForGroupUpdate(SCIMObject provisioningObject,
-         Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
-         String domainName) throws CharonException, IdentityApplicationManagementException, NotFoundException {
+    ProvisioningEntity buildProvisioningEntityForGroupUpdate(SCIMObject provisioningObject,
+        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
+        String domainName) throws CharonException, IdentityApplicationManagementException, NotFoundException {
 
         Group group = (Group) provisioningObject;
         outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
@@ -227,10 +225,9 @@ public final class ProvisioningEntityBuilder {
         return provisioningEntity;
     }
 
-    ProvisioningEntity getProvisioningEntityForGroupPatch(SCIMObject provisioningObject,
-                Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
-                                                          String domainName)
-            throws CharonException, IdentityApplicationManagementException, NotFoundException {
+    ProvisioningEntity buildProvisioningEntityForGroupPatch(SCIMObject provisioningObject,
+        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes,
+        String domainName) throws CharonException, IdentityApplicationManagementException, NotFoundException {
 
         Group group = (Group) provisioningObject;
 

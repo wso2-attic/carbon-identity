@@ -126,7 +126,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         String userStoreDomain = UserCoreUtil.extractDomainFromName(qualifiedUsername);
         String applicationName = serviceProvider.getApplicationName();
         String description = serviceProvider.getDescription();
-        boolean isDumbMode = serviceProvider.isDumbMode();
 
         if (applicationName == null) {
             // check for required attributes.
@@ -161,7 +160,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             // by default authentication type would be default.
             // default authenticator is defined system-wide - in the configuration file.
             storeAppPrepStmt.setString(6, ApplicationConstants.AUTH_TYPE_DEFAULT);
-            storeAppPrepStmt.setString(7, isDumbMode ? "1" : "0");
             storeAppPrepStmt.execute();
 
             results = storeAppPrepStmt.getGeneratedKeys();
@@ -294,7 +292,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         String applicationName = serviceProvider.getApplicationName();
         String description = serviceProvider.getDescription();
         boolean isSaasApp = serviceProvider.isSaasApp();
-        boolean isDumbMode = serviceProvider.isDumbMode();
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String storedAppName = null;
 
@@ -338,7 +335,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             storeAppPrepStmt.setString(1, CharacterEncoder.getSafeText(applicationName));
             storeAppPrepStmt.setString(2, CharacterEncoder.getSafeText(description));
             storeAppPrepStmt.setString(3, isSaasApp ? "1" : "0");
-            storeAppPrepStmt.setString(4, isDumbMode ? "1" : "0");
             storeAppPrepStmt.setInt(5, tenantID);
             storeAppPrepStmt.setInt(6, applicationId);
             storeAppPrepStmt.executeUpdate();
@@ -453,13 +449,14 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             }
 
             inboundProConfigPrepStmt = connection
-                    .prepareStatement(ApplicationMgtDBQueries.UPDATE_BASIC_APPINFO_WITH_PRO_USERSTORE);
+                    .prepareStatement(ApplicationMgtDBQueries.UPDATE_BASIC_APPINFO_WITH_PRO_PROPERTIES);
 
             // PROVISIONING_USERSTORE_DOMAIN=?
             inboundProConfigPrepStmt.setString(1, CharacterEncoder
                     .getSafeText(inBoundProvisioningConfig.getProvisioningUserStore()));
-            inboundProConfigPrepStmt.setInt(2, tenantID);
-            inboundProConfigPrepStmt.setInt(3, applicationId);
+            inboundProConfigPrepStmt.setString(2, inBoundProvisioningConfig.isDumbMode()?"1":"0");
+            inboundProConfigPrepStmt.setInt(3, tenantID);
+            inboundProConfigPrepStmt.setInt(4, applicationId);
             inboundProConfigPrepStmt.execute();
 
         } finally {
@@ -554,7 +551,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         try {
 
             inboundProConfigPrepStmt = connection
-                    .prepareStatement(ApplicationMgtDBQueries.LOAD_PRO_USERSTORE_BY_APP_ID);
+                    .prepareStatement(ApplicationMgtDBQueries.LOAD_PRO_PROPERTIES_BY_APP_ID);
             // PROVISIONING_USERSTORE_DOMAIN
             inboundProConfigPrepStmt.setInt(1, tenantID);
             inboundProConfigPrepStmt.setInt(2, applicationId);
@@ -562,6 +559,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             while (resultSet.next()) {
                 inBoundProvisioningConfig.setProvisioningUserStore(resultSet.getString(1));
+                inBoundProvisioningConfig.setDumbMode("1".equals(resultSet.getString(2)));
             }
 
         } finally {
@@ -1185,7 +1183,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 serviceProvider.setApplicationID(basicAppDataResultSet.getInt(1));
                 serviceProvider.setApplicationName(basicAppDataResultSet.getString(3));
                 serviceProvider.setDescription(basicAppDataResultSet.getString(6));
-                serviceProvider.setDumbMode("1".equals(basicAppDataResultSet.getString(17)));
 
                 String tenantDomain;
                 try {

@@ -92,7 +92,7 @@ public class ProvisioningUtil {
     }
 
     /**
-     * Required provisioning entity attribute value can be retrieved by passing attribute key, return null of value is
+     * Required provisioning entity attribute value can be retrieved by passing attribute key, return null if value is
      * not found
      * @param provisioningEntity
      * @param claimURI

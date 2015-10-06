@@ -28,8 +28,8 @@ public class IdentityProvisioningConstants {
     public static final String WSO2_CARBON_DIALECT = "http://wso2.org/claims";
     public static final String USERNAME_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:username";
     public static final String ID_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:id";
-    public static final String OLD_GROUP_NAME_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:group:old";
-    public static final String NEW_GROUP_NAME_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:group:new";
+    public static final String OLD_GROUP_NAME_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:group:name:old";
+    public static final String NEW_GROUP_NAME_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:group:name:new";
     public static final String USER_STORE_DOMAIN_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:domain";
     public static final String NEW_USER_CLAIM_URI = "org:wso2:carbon:identity:provisioning:new:claim:user";
     public static final String DELETED_USER_CLAIM_URI = "org:wso2:carbon:identity:provisioning:deleted:claim:user";

@@ -921,7 +921,7 @@ public class OutboundProvisioningManager {
     }
 
     /**
-     * set provisioning entity name retrieved from DB
+     * If ProvisioningEntity does not contains entity name, load it from from IDP_PROVISIONING_ENTITY table
      * @param provisioningEntity
      * @return
      * @throws IdentityApplicationManagementException
