@@ -45,8 +45,8 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml</artifactId>
+            <groupId>opensaml.wso2</groupId>
+            <artifactId>opensaml2</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>commons-collections</groupId>

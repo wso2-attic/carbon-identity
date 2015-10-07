@@ -577,8 +577,8 @@
             </dependency>
 
             <dependency>
-                <groupId>org.wso2.orbit.org.opensaml</groupId>
-                <artifactId>opensaml</artifactId>
+                <groupId>opensaml.wso2</groupId>
+                <artifactId>opensaml2</artifactId>
                 <version>${opensaml2.wso2.version}</version>
             </dependency>
             <dependency>
@@ -1985,9 +1985,9 @@
         <libthrift.wso2.osgi.version.range>[0.8.0.wso2v1,1.0.0)</libthrift.wso2.osgi.version.range>
         <log4j.version>1.2.13</log4j.version>
         <orbit.version.commons.fileuploader>1.2.0.wso2v1</orbit.version.commons.fileuploader>
-        <opensaml.version>2.6.4</opensaml.version>
-        <opensaml2.wso2.version>2.6.4.wso2v1</opensaml2.wso2.version>
-        <opensaml2.wso2.osgi.version.range>[2.6.4.wso2v1,3.0.0)</opensaml2.wso2.osgi.version.range>
+        <opensaml.version>2.4.1</opensaml.version>
+        <opensaml2.wso2.version>2.4.1.wso2v1</opensaml2.wso2.version>
+        <opensaml2.wso2.osgi.version.range>[2.4.1.wso2v1,3.0.0)</opensaml2.wso2.osgi.version.range>
         <commons-codec.version>1.4.0.wso2v1</commons-codec.version>
         <commons-codec.wso2.osgi.version.range>[1.4.0,2.0.0)</commons-codec.wso2.osgi.version.range>
 
@@ -2010,7 +2010,7 @@
         <openid4java.version>1.0.0</openid4java.version>
         <openid4java.wso2.version>1.0.0.wso2v1</openid4java.wso2.version>
         <openid4java.wso2.osgi.version.range>[1.0.0,2.0.0)</openid4java.wso2.osgi.version.range>
-        <opensaml2.version>2.6.4.wso2v1</opensaml2.version>
+        <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
         <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
         <balana.version>1.0.1</balana.version>
         <balana.imp.pkg.version.range>[1.0.1,2.0.0)</balana.imp.pkg.version.range>
