@@ -25,6 +25,7 @@ import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.oauth.user.UserInfoEndpointException;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -99,8 +100,16 @@ public class ClaimUtil {
             }
 
         } catch (Exception e) {
-            log.error("Error while retrieving the claims from user store for " + username, e);
-            throw new UserInfoEndpointException("Error while retrieving the claims from user store for " + username);
+            if(e instanceof UserStoreException){
+                if (e.getMessage().contains("UserNotFound")) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("User " + username + " not found in user store");
+                    }
+                }
+            } else {
+                log.error("Error while retrieving the claims from user store for " + username, e);
+                throw new UserInfoEndpointException("Error while retrieving the claims from user store for " + username);
+            }
         }
         return mappedAppClaims;
     }

@@ -390,12 +390,7 @@ public class DefaultClaimHandler implements ClaimHandler {
                                                             org.wso2.carbon.user.core.UserStoreManager userStore,
                                                             Map<String, String> spRequestedClaims) {
         if (!spRequestedClaims.isEmpty()) {
-            String domain = authenticatedUser.getUserStoreDomain();
-            if (StringUtils.isBlank(domain)) {
-                domain = "PRIMARY";
-            }
-            RealmConfiguration realmConfiguration = userStore
-                    .getSecondaryUserStoreManager(domain).getRealmConfiguration();
+            RealmConfiguration realmConfiguration = userStore.getRealmConfiguration();
 
             String claimSeparator = realmConfiguration.getUserStoreProperty(IdentityCoreConstants
                     .MULTI_ATTRIBUTE_SEPARATOR);
@@ -446,7 +441,8 @@ public class DefaultClaimHandler implements ClaimHandler {
                                                                   String tenantAwareUserName, ClaimManager claimManager,
                                                                   UserStoreManager userStore)
             throws FrameworkException {
-        Map<String, String> allLocalClaims;
+
+        Map<String, String> allLocalClaims = new HashMap<>();
         try {
 
             org.wso2.carbon.user.api.ClaimMapping[] claimMappings = claimManager
@@ -457,10 +453,16 @@ public class DefaultClaimHandler implements ClaimHandler {
                 localClaimURIs.add(claimURI);
             }
             allLocalClaims = userStore.getUserClaimValues(tenantAwareUserName,
-                                                          localClaimURIs.toArray(new String[localClaimURIs.size()]), null);
+                    localClaimURIs.toArray(new String[localClaimURIs.size()]), null);
         } catch (UserStoreException e) {
-            throw new FrameworkException("Error occurred while getting all user claims for " +
-                                         authenticatedUser + " in " + tenantDomain, e);
+            if (e.getMessage().contains("UserNotFound")) {
+                if (log.isDebugEnabled()) {
+                    log.debug("User " + tenantAwareUserName + " not found in user store");
+                }
+            } else {
+                throw new FrameworkException("Error occurred while getting all user claims for " +
+                        authenticatedUser + " in " + tenantDomain, e);
+            }
         }
         if (allLocalClaims == null) {
             allLocalClaims = new HashMap<>();
@@ -613,11 +615,13 @@ public class DefaultClaimHandler implements ClaimHandler {
                               "from user store " + value);
                 }
             } else {
-                log.debug("Subject claim not found in user store");
+                if(log.isDebugEnabled()) {
+                    log.debug("Subject claim for " + tenantAwareUserId + " not found in user store");
+                }
             }
         } catch (UserStoreException e) {
             log.error("Error occurred while retrieving " + subjectURI + " claim value for user " + tenantAwareUserId,
-                      e);
+                    e);
         }
     }
 
