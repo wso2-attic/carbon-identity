@@ -18,6 +18,7 @@
 package org.wso2.carbon.identity.oauth.endpoint.user.impl;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
@@ -61,7 +62,9 @@ public class UserInfoJSONResponseBuilder implements UserInfoResponseBuilder {
         if(claims == null){
             claims = new HashMap<String,Object>();
         }
-        claims.put("sub", tokenResponse.getAuthorizedUser());
+        if(!claims.containsKey("sub") || StringUtils.isBlank((String) claims.get("sub"))) {
+            claims.put("sub", tokenResponse.getAuthorizedUser());
+        }
         return JSONUtils.buildJSON(claims);
     }
 
