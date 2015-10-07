@@ -262,7 +262,8 @@ public class SessionDataStore {
             if(resultSet.next()) {
                 String operation = resultSet.getString(1);
                 if ((OPERATION_STORE.equals(operation))) {
-                    return new SessionContextDO(key, type, getBlobObject(resultSet.getBinaryStream(2)), resultSet.getTimestamp(3));
+                    return new SessionContextDO(key, type, getBlobObject(resultSet.getBinaryStream(2)), new Timestamp
+                            (resultSet.getLong(3)));
                 }
             }
         } catch (ClassNotFoundException | IOException | SQLException |
@@ -309,7 +310,7 @@ public class SessionDataStore {
         }
         try {
             statement = connection.prepareStatement(sqlDeleteExpiredDataTask);
-            statement.setTimestamp(1, timestamp);
+            statement.setLong(1, timestamp.getTime());
             statement.execute();
             if (!connection.getAutoCommit()) {
                 connection.commit();
@@ -346,7 +347,7 @@ public class SessionDataStore {
             preparedStatement.setString(2, type);
             preparedStatement.setString(3, OPERATION_STORE);
             setBlobObject(preparedStatement, entry, 4);
-            preparedStatement.setTimestamp(5, timestamp);
+            preparedStatement.setLong(5, timestamp.getTime());
             preparedStatement.executeUpdate();
             if (!connection.getAutoCommit()) {
                 connection.commit();
@@ -375,7 +376,7 @@ public class SessionDataStore {
             preparedStatement.setString(1, key);
             preparedStatement.setString(2, type);
             preparedStatement.setString(3, OPERATION_DELETE);
-            preparedStatement.setTimestamp(4, timestamp);
+            preparedStatement.setLong(4, timestamp.getTime());
             preparedStatement.executeUpdate();
             if (!connection.getAutoCommit()) {
                 connection.commit();
@@ -433,7 +434,7 @@ public class SessionDataStore {
         }
         try {
             statement = connection.prepareStatement(sqlDeleteSTORETask);
-            statement.setTimestamp(1, timestamp);
+            statement.setLong(1, timestamp.getTime());
             statement.execute();
             if (!connection.getAutoCommit()) {
                 connection.commit();
@@ -459,7 +460,7 @@ public class SessionDataStore {
         }
         try {
             statement = connection.prepareStatement(sqlDeleteDELETETask);
-            statement.setTimestamp(1, timestamp);
+            statement.setLong(1, timestamp.getTime());
             statement.execute();
             if (!connection.getAutoCommit()) {
                 connection.commit();
