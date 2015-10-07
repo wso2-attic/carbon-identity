@@ -54,8 +54,8 @@
             <artifactId>libthrift</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.org.opensaml</groupId>
-            <artifactId>opensaml</artifactId>
+            <groupId>opensaml.wso2</groupId>
+            <artifactId>opensaml2</artifactId>
         </dependency>
     </dependencies>
 
@@ -89,7 +89,7 @@
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.entitlement.stub
                                 </bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.authenticator.stub</bundleDef>
-                                <bundleDef>org.wso2.orbit.org.opensaml:opensaml</bundleDef>
+                                <bundleDef>opensaml.wso2:opensaml2</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>

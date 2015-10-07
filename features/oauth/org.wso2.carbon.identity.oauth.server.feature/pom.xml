@@ -76,8 +76,8 @@
             <artifactId>waffle-jna</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.org.opensaml</groupId>
-            <artifactId>opensaml</artifactId>
+            <groupId>opensaml.wso2</groupId>
+            <artifactId>opensaml2</artifactId>
         </dependency>
     </dependencies>
 
@@ -164,7 +164,7 @@
                                 <bundleDef>org.wso2.orbit.com.nimbusds:nimbus-jose-jwt</bundleDef>
                                 <bundleDef>net.minidev:json-smart</bundleDef>
                                 <bundleDef>com.github.dblock.waffle.wso2:waffle-jna</bundleDef>
-                                <bundleDef>org.wso2.orbit.org.opensaml:opensaml</bundleDef>
+                                <bundleDef>opensaml.wso2:opensaml2</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>

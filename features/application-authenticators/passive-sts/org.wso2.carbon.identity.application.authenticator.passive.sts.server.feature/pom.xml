@@ -43,8 +43,8 @@
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.org.opensaml</groupId>
-            <artifactId>opensaml</artifactId>
+            <groupId>opensaml.wso2</groupId>
+            <artifactId>opensaml2</artifactId>
         </dependency>
     </dependencies>
 
@@ -65,7 +65,7 @@
                             <id>org.wso2.carbon.identity.application.authenticator.passive.sts.server</id>
                             <propertiesFile>../../../etc/feature.properties</propertiesFile>
                             <bundles>
-                                <bundleDef>org.wso2.orbit.org.opensaml:opensaml</bundleDef>
+                                <bundleDef>opensaml.wso2:opensaml2</bundleDef>
                                 <bundleDef>
                                     org.wso2.carbon.identity:org.wso2.carbon.identity.application.authenticator.passive.sts
                                 </bundleDef>
