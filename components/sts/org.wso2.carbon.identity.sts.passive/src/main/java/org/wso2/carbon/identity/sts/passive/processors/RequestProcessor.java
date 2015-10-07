@@ -33,13 +33,24 @@ import org.apache.rahas.impl.SAMLTokenIssuerConfig;
 import org.apache.rahas.impl.TokenIssuerUtil;
 import org.apache.ws.secpolicy.Constants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.PassiveSTSFederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.SAML2SSOFederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.AttributeCallbackHandler;
 import org.wso2.carbon.identity.sts.passive.RequestToken;
 import org.wso2.carbon.identity.sts.passive.ResponseToken;
 import org.wso2.carbon.identity.sts.passive.internal.IdentityPassiveSTSServiceComponent;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
+import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
@@ -128,6 +139,9 @@ public abstract class RequestProcessor {
         String issuerName = null;
         ServerConfiguration serverConfig = null;
         String ttl;
+        IdentityProvider identityProvider;
+        String tenantDomain = "";
+        String idPEntityId = null;
 
         systemRegistry = (UserRegistry) IdentityPassiveSTSServiceComponent.getGovernanceSystemRegistry();
 
@@ -138,10 +152,30 @@ public abstract class RequestProcessor {
             return null;
         }
 
+        tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        try {
+            identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
+        } catch (Exception e) {
+            throw new Exception(
+                    "Error occurred while retrieving Resident Identity Provider information for tenant " + tenantDomain,
+                    e);
+        }
+
+        FederatedAuthenticatorConfig[] authnConfigs = identityProvider.getFederatedAuthenticatorConfigs();
+        for (FederatedAuthenticatorConfig config : authnConfigs) {
+            if (IdentityApplicationConstants.Authenticator.PassiveSTS.NAME.equals(config.getName())) {
+                PassiveSTSFederatedAuthenticatorConfig passiveStsFedAuthnConfig = new PassiveSTSFederatedAuthenticatorConfig(config);
+                idPEntityId = passiveStsFedAuthnConfig.getIdpEntityId();
+            }
+        }
+        if (idPEntityId == null) {
+            idPEntityId = IdentityUtil.getProperty(IdentityConstants.ServerConfig.ENTITY_ID);
+        }
+
         serverConfig = ServerConfiguration.getInstance();
         keyAlias = serverConfig.getFirstProperty("Security.KeyStore.KeyAlias");
         keyPassword = serverConfig.getFirstProperty("Security.KeyStore.KeyPassword");
-        issuerName = serverConfig.getFirstProperty("HostName");
+        issuerName = idPEntityId;
         ttl = serverConfig.getFirstProperty("STSTimeToLive");
 
         if (issuerName == null) {

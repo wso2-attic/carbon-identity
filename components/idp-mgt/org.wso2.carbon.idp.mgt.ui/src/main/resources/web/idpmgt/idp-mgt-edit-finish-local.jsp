@@ -53,6 +53,17 @@
         property.setValue(request.getParameter("idPEntityId"));
         properties[0] = property;
         samlFedAuthn.setProperties(properties);
+        
+        
+        FederatedAuthenticatorConfig passiveStsFedAuthn = new FederatedAuthenticatorConfig();
+        passiveStsFedAuthn.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME);
+        Property[] stsProperties = new Property[1];
+        Property stsProperty = new Property();
+        stsProperty.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID);
+        stsProperty.setValue(request.getParameter("passiveSTSIdPEntityId"));
+        stsProperties[0] = stsProperty;
+        passiveStsFedAuthn.setProperties(stsProperties);
+        
 
         FederatedAuthenticatorConfig propertyHolderConfig = new FederatedAuthenticatorConfig();
         propertyHolderConfig.setName(IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
@@ -66,9 +77,10 @@
         property.setValue(request.getParameter("rememberMeTimeout"));
         properties[1] = property;
         propertyHolderConfig.setProperties(properties);
-        FederatedAuthenticatorConfig[] federatedAuthenticators = new FederatedAuthenticatorConfig[2];
+        FederatedAuthenticatorConfig[] federatedAuthenticators = new FederatedAuthenticatorConfig[3];
         federatedAuthenticators[0] = samlFedAuthn;
         federatedAuthenticators[1] = propertyHolderConfig;
+        federatedAuthenticators[2] = passiveStsFedAuthn;
         identityProvider.setFederatedAuthenticatorConfigs(federatedAuthenticators);
         client.updateResidentIdP(identityProvider);
         String message = MessageFormat.format(resourceBundle.getString("success.updating.resident.idp"),null);
