@@ -333,6 +333,8 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                         .getRefreshTokenValidityPeriodInSeconds() * 1000;
             }
 
+            String grantType = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType();
+
             AccessTokenDO newAccessTokenDO = new AccessTokenDO(consumerKey, tokReqMsgCtx.getAuthorizedUser(),
                     tokReqMsgCtx.getScope(), timestamp, refreshTokenIssuedTime,
                     validityPeriodInMillis, refreshTokenValidityPeriodInMillis, tokenType);
@@ -342,10 +344,11 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             newAccessTokenDO.setTokenState(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
             newAccessTokenDO.setTenantID(tokReqMsgCtx.getTenantID());
             newAccessTokenDO.setTokenId(UUID.randomUUID().toString());
+            newAccessTokenDO.setGrantType(grantType);
 
             // Persist the access token in database
             storeAccessToken(oAuth2AccessTokenReqDTO, userStoreDomain, newAccessTokenDO, newAccessToken,
-                             existingAccessTokenDO);
+                    existingAccessTokenDO);
 
             if (log.isDebugEnabled()) {
                 log.debug("Persisted Access Token : " + newAccessToken + " for " +

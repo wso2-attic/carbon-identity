@@ -61,7 +61,9 @@ import java.util.Map;
 @SuppressWarnings("unused")
 public class OAuth2Service extends AbstractAdmin {
 
+    public static final String IMPLICIT = "implicit";
     public static final String REFRESH_TOKEN = "refresh_token";
+
     private static Log log = LogFactory.getLog(OAuth2Service.class);
 
     /**
@@ -223,89 +225,92 @@ public class OAuth2Service extends AbstractAdmin {
      * @return revokeRespDTO DTO representing success or failure message
      */
     public OAuthRevocationResponseDTO revokeTokenByOAuthClient(OAuthRevocationRequestDTO revokeRequestDTO) {
+
         //fix here remove associated cache entry
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
         OAuthRevocationResponseDTO revokeResponseDTO = new OAuthRevocationResponseDTO();
+
         try {
             if (StringUtils.isNotEmpty(revokeRequestDTO.getConsumerKey()) &&
                     StringUtils.isNotEmpty(revokeRequestDTO.getToken())) {
-                if (!OAuth2Util.authenticateClient(revokeRequestDTO.getConsumerKey(), revokeRequestDTO.getConsumerSecret())) {
+
+                boolean refreshTokenFirst = false;
+                if (revokeRequestDTO.getToken_type() != null &&
+                        REFRESH_TOKEN.equals(revokeRequestDTO.getToken_type())) {
+                    refreshTokenFirst = true;
+                }
+
+                RefreshTokenValidationDataDO refreshTokenDO = null;
+                AccessTokenDO accessTokenDO = null;
+
+                if (refreshTokenFirst) {
+                    refreshTokenDO = tokenMgtDAO
+                            .validateRefreshToken(revokeRequestDTO.getConsumerKey(), revokeRequestDTO.getToken());
+                    if (refreshTokenDO == null) {
+                        accessTokenDO = tokenMgtDAO.retrieveAccessToken(revokeRequestDTO.getToken(), true);
+                    }
+
+                } else {
+                    accessTokenDO = tokenMgtDAO.retrieveAccessToken(revokeRequestDTO.getToken(), true);
+                    if (accessTokenDO == null) {
+                        refreshTokenDO = tokenMgtDAO
+                                .validateRefreshToken(revokeRequestDTO.getConsumerKey(), revokeRequestDTO.getToken());
+                    }
+                }
+
+                String grantType = StringUtils.EMPTY;
+
+                if (accessTokenDO != null) {
+                    grantType = accessTokenDO.getGrantType();
+                } else if (refreshTokenDO != null) {
+                    grantType = refreshTokenDO.getGrantType();
+                }
+
+                if (!IMPLICIT.equals(grantType) &&
+                        !OAuth2Util.authenticateClient(revokeRequestDTO.getConsumerKey(),
+                                revokeRequestDTO.getConsumerSecret())) {
+
                     OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
                     revokeRespDTO.setError(true);
                     revokeRespDTO.setErrorCode(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT);
                     revokeRespDTO.setErrorMsg("Unauthorized Client");
+
                     return revokeRespDTO;
                 }
-                boolean refreshTokenFirst = false;
-                if (revokeRequestDTO.getToken_type() != null && REFRESH_TOKEN.equals(revokeRequestDTO.getToken_type())) {
-                    refreshTokenFirst = true;
-                }
-                if (refreshTokenFirst) {
-                    RefreshTokenValidationDataDO refreshTokenDO = tokenMgtDAO.validateRefreshToken(
-                            revokeRequestDTO.getConsumerKey(), revokeRequestDTO.getToken());
-                    if (refreshTokenDO != null && StringUtils.isNotEmpty(refreshTokenDO.getRefreshTokenState()) &&
-                            (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(
-                                    refreshTokenDO.getRefreshTokenState()) ||
-                                    OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED.equals(
-                                            refreshTokenDO.getRefreshTokenState()))) {
-                        org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(
-                                revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser(),
-                                OAuth2Util.buildScopeString(refreshTokenDO.getScope()));
-                        org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(
-                                revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser());
-                        org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(refreshTokenDO.getAccessToken());
-                        tokenMgtDAO.revokeTokens(new String[]{refreshTokenDO.getAccessToken()});
-                        addRevokeResponseHeaders(revokeResponseDTO, refreshTokenDO.getAccessToken(),
-                                revokeRequestDTO.getToken(), refreshTokenDO.getAuthorizedUser());
-                    } else {
-                        AccessTokenDO accessTokenDO = tokenMgtDAO.retrieveAccessToken(
-                                revokeRequestDTO.getToken(), true);
-                        if (accessTokenDO != null) {
-                            org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(
-                                    revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser(),
-                                    OAuth2Util.buildScopeString(accessTokenDO.getScope()));
-                            org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(
-                                    revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser());
-                            org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(revokeRequestDTO.getToken());
-                            tokenMgtDAO.revokeTokens(new String[]{revokeRequestDTO.getToken()});
-                            addRevokeResponseHeaders(revokeResponseDTO, accessTokenDO.getAccessToken(),
-                                    accessTokenDO.getRefreshToken(), refreshTokenDO.getAuthorizedUser());
-                        }
-                    }
-                } else {
-                    AccessTokenDO accessTokenDO = tokenMgtDAO.retrieveAccessToken(
-                            revokeRequestDTO.getToken(), true);
-                    if (accessTokenDO != null) {
-                        org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(
-                                revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser(),
-                                OAuth2Util.buildScopeString(accessTokenDO.getScope()));
-                        org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(
-                                revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser());
-                        org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(revokeRequestDTO.getToken());
-                        tokenMgtDAO.revokeTokens(new String[]{revokeRequestDTO.getToken()});
-                        addRevokeResponseHeaders(revokeResponseDTO, revokeRequestDTO.getToken(),
-                                accessTokenDO.getRefreshToken(), accessTokenDO.getAuthzUser().toString());
-                    } else {
-                        RefreshTokenValidationDataDO refreshTokenDO = tokenMgtDAO.validateRefreshToken(
-                                revokeRequestDTO.getConsumerKey(), revokeRequestDTO.getToken());
-                        if (refreshTokenDO != null && StringUtils.isNotEmpty(refreshTokenDO.getRefreshTokenState()) &&
-                                (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(
-                                        refreshTokenDO.getRefreshTokenState()) ||
-                                        OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED.equals(
-                                                refreshTokenDO.getRefreshTokenState()))) {
-                            org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(
-                                    revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser(),
+
+                if (refreshTokenDO != null && StringUtils.isNotEmpty(refreshTokenDO.getRefreshTokenState()) &&
+                        (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(refreshTokenDO.getRefreshTokenState()) ||
+                                OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED
+                                .equals(refreshTokenDO.getRefreshTokenState()))) {
+
+                    org.wso2.carbon.identity.oauth.OAuthUtil
+                            .clearOAuthCache(revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser(),
                                     OAuth2Util.buildScopeString(refreshTokenDO.getScope()));
-                            org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(
-                                    revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser());
-                            org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(refreshTokenDO.getAccessToken());
-                            tokenMgtDAO.revokeTokens(new String[]{refreshTokenDO.getAccessToken()});
-                            addRevokeResponseHeaders(revokeResponseDTO, refreshTokenDO.getAccessToken(),
-                                    revokeRequestDTO.getToken(), refreshTokenDO.getAuthorizedUser());
-                        }
-                    }
+
+                    org.wso2.carbon.identity.oauth.OAuthUtil
+                            .clearOAuthCache(revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser());
+
+                    org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(refreshTokenDO.getAccessToken());
+                    tokenMgtDAO.revokeTokens(new String[] { refreshTokenDO.getAccessToken() });
+
+                    addRevokeResponseHeaders(revokeResponseDTO,
+                            refreshTokenDO.getAccessToken(),
+                            revokeRequestDTO.getToken(),
+                            refreshTokenDO.getAuthorizedUser());
+
+                } else if (accessTokenDO != null) {
+                        org.wso2.carbon.identity.oauth.OAuthUtil
+                                .clearOAuthCache(revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser(),
+                                        OAuth2Util.buildScopeString(accessTokenDO.getScope()));
+                        org.wso2.carbon.identity.oauth.OAuthUtil
+                                .clearOAuthCache(revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser());
+                        org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(revokeRequestDTO.getToken());
+                        tokenMgtDAO.revokeTokens(new String[] { revokeRequestDTO.getToken() });
+                        addRevokeResponseHeaders(revokeResponseDTO, revokeRequestDTO.getToken(), accessTokenDO.getRefreshToken(), accessTokenDO.getAuthzUser().toString());
                 }
+
                 return revokeResponseDTO;
+
             } else {
                 revokeResponseDTO.setError(true);
                 revokeResponseDTO.setErrorCode(OAuth2ErrorCodes.INVALID_REQUEST);

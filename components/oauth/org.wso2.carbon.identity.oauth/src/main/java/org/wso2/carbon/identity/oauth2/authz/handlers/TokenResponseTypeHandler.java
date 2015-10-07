@@ -43,23 +43,35 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
 
     private static Log log = LogFactory.getLog(TokenResponseTypeHandler.class);
 
+    public static final String TOKEN = "token";
+    public static final String IMPLICIT = "implicit";
+
     @Override
     public OAuth2AuthorizeRespDTO issue(OAuthAuthzReqMessageContext oauthAuthzMsgCtx)
             throws IdentityOAuth2Exception {
 
         OAuth2AuthorizeRespDTO respDTO = new OAuth2AuthorizeRespDTO();
         OAuth2AuthorizeReqDTO authorizationReqDTO = oauthAuthzMsgCtx.getAuthorizationReqDTO();
+
         String scope = OAuth2Util.buildScopeString(oauthAuthzMsgCtx.getApprovedScope());
+
         respDTO.setCallbackURI(authorizationReqDTO.getCallbackUrl());
+
         String consumerKey = authorizationReqDTO.getConsumerKey();
         String authorizedUser = authorizationReqDTO.getUsername();
         String oAuthCacheKeyString;
+
+        String responseType = oauthAuthzMsgCtx.getAuthorizationReqDTO().getResponseType();
+
+        String grantType = TOKEN.equals(responseType) ? IMPLICIT : responseType;
+
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
         if (isUsernameCaseSensitive) {
             oAuthCacheKeyString = consumerKey + ":" + authorizedUser + ":" + scope;
         } else {
             oAuthCacheKeyString = consumerKey + ":" + authorizedUser.toLowerCase() + ":" + scope;
         }
+
         OAuthCacheKey cacheKey = new OAuthCacheKey(oAuthCacheKeyString);
         String userStoreDomain = null;
 
@@ -168,21 +180,29 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                                     " was added to cache for cache key : " + cacheKey.getCacheKeyString());
                         }
                     }
+
                     respDTO.setAccessToken(existingAccessTokenDO.getAccessToken());
+
                     if(expiryTime > 0){
                         respDTO.setValidityPeriod(expiryTime / 1000);
                     } else {
                         respDTO.setValidityPeriod(Long.MAX_VALUE / 1000);
                     }
+
                     respDTO.setScope(oauthAuthzMsgCtx.getApprovedScope());
                     respDTO.setTokenType(existingAccessTokenDO.getTokenType());
+
                     return respDTO;
+
                 } else {
+
                     if (log.isDebugEnabled()) {
                         log.debug("Access Token " + existingAccessTokenDO.getAccessToken() +
                                   " is " + existingAccessTokenDO.getTokenState());
                     }
+
                     String tokenState = existingAccessTokenDO.getTokenState();
+
                     if (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(tokenState)) {
 
                         // Token is expired. If refresh token is still valid, use it.
@@ -197,7 +217,9 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         if (log.isDebugEnabled()) {
                             log.debug("Marked Access Token " + existingAccessTokenDO.getAccessToken() + " as expired");
                         }
+
                     } else {
+
                         //Token is revoked or inactive
                         if (log.isDebugEnabled()) {
                             log.debug("Access Token " + existingAccessTokenDO.getAccessToken() + " is " +
@@ -272,6 +294,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             newAccessTokenDO.setRefreshToken(refreshToken);
             newAccessTokenDO.setTokenState(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
             newAccessTokenDO.setTokenId(UUID.randomUUID().toString());
+            newAccessTokenDO.setGrantType(grantType);
 
             // Persist the access token in database
             try {
