@@ -165,7 +165,9 @@ public class SCIMUserManager implements UserManager {
             errMsg += e.getMessage();
             // This debug log is logged since current implementation of charon swallow this exception without logging.
             // Once it is fixed we can remove this debug log
-            log.debug(errMsg);
+            if(log.isDebugEnabled()){
+                log.debug(errMsg);
+            }
             throw new CharonException(errMsg, e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
