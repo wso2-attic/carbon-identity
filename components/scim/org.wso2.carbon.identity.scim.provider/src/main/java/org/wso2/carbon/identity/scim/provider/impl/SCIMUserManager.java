@@ -163,6 +163,9 @@ public class SCIMUserManager implements UserManager {
         } catch (UserStoreException e) {
             String errMsg = "Error in adding the user: " + user.getUserName() + " to the user store. ";
             errMsg += e.getMessage();
+            // This debug log is logged since current implementation of charon swallow this exception without logging.
+            // Once it is fixed we can remove this debug log
+            log.debug(errMsg);
             throw new CharonException(errMsg, e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
