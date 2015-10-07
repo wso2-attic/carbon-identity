@@ -31,10 +31,7 @@ import java.util.Set;
 
 public class InboundAuthenticationRequestConfig implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -4619706374988196634L;
+    private static final long serialVersionUID = -62766721187073002L;
 
     private String inboundAuthKey;
     private String inboundAuthType;

@@ -26,7 +26,7 @@ import java.io.Serializable;
  */
 public abstract class OpenIDCacheKey implements Serializable {
 
-    private static final long serialVersionUID = 1471805737633325514L;
+    private static final long serialVersionUID = -3051944744768628649L;
 
     @Override
     public abstract boolean equals(Object otherObject);

@@ -147,9 +147,17 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                                 "user " + username + ", claim " + claim;
                         throw new IdentityOAuth2Exception(error, e);
                     } catch (UserStoreException e) {
-                        String error = "Error occurred while getting user claim for domain " + domainName + ", " +
-                                "user " + username + ", claim " + claim;
-                        throw new IdentityOAuth2Exception(error, e);
+                        if (e.getMessage().contains("UserNotFound")) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("User " + username + " not found in user store");
+                            }
+                            subject = request.getAuthorizedUser().toString();
+                        } else {
+                            String error = "Error occurred while getting user claim for domain " + domainName + ", " +
+                                    "user " + username + ", claim " + claim;
+                            throw new IdentityOAuth2Exception(error, e);
+                        }
+
                     }
                 }
             }

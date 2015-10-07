@@ -1,6 +1,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%--
    ~ Copyright (c) 2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
    ~

@@ -34,7 +34,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public class LoggedInSessionBean implements Serializable{
+public class LoggedInSessionBean implements Serializable {
+
+    private static final long serialVersionUID = 7762835859870143767L;
 
     private OpenID openId;
 

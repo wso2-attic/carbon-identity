@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SessionInfoData implements Serializable {
 
-    private static final long serialVersionUID = -2997545986276529377L;
+    private static final long serialVersionUID = -7219077849244588172L;
 
     private Map<String, String> rpSessionList = new ConcurrentHashMap<>();
     private Map<String, SAMLSSOServiceProviderDO> serviceProviderList = new ConcurrentHashMap<>();

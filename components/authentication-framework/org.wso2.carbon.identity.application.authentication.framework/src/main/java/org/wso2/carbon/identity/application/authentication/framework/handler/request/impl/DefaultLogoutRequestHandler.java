@@ -20,7 +20,7 @@ package org.wso2.carbon.identity.application.authentication.framework.handler.re
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
@@ -37,7 +37,6 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
-import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -48,6 +47,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
 
     private static final Log log = LogFactory.getLog(DefaultLogoutRequestHandler.class);
     private static volatile DefaultLogoutRequestHandler instance;
+    private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
 
     public static DefaultLogoutRequestHandler getInstance() {
 
@@ -74,14 +74,14 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
         if (log.isTraceEnabled()) {
             log.trace("Inside handle()");
         }
-
+        SequenceConfig sequenceConfig = context.getSequenceConfig();
+        ExternalIdPConfig externalIdPConfig = null;
         if (context.isPreviousSessionFound()) {
             // if this is the start of the logout sequence
             if (context.getCurrentStep() == 0) {
                 context.setCurrentStep(1);
             }
 
-            SequenceConfig sequenceConfig = context.getSequenceConfig();
             int stepCount = sequenceConfig.getStepMap().size();
 
             while (context.getCurrentStep() <= stepCount) {
@@ -101,7 +101,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                     idpName = FrameworkConstants.LOCAL_IDP_NAME;
                 }
                 try {
-                    ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
+                    externalIdPConfig = ConfigurationFacade.getInstance()
                             .getIdPConfigByName(idpName, context.getTenantDomain());
                     context.setExternalIdP(externalIdPConfig);
                     context.setAuthenticatorProperties(FrameworkUtils
@@ -132,6 +132,24 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
         FrameworkUtils.removeSessionContextFromCache(context.getSessionIdentifier());
         // remove the cookie
         FrameworkUtils.removeAuthCookie(request, response);
+
+
+        String auditData = "\"" + "ContextIdentifier" + "\" : \"" + context.getContextIdentifier()
+                + "\",\"" + "LoggedOutUser" + "\" : \"" + sequenceConfig.getAuthenticatedUser().
+                getAuthenticatedSubjectIdentifier()
+                + "\",\"" + "LoggedOutUserTenantDomain" + "\" : \"" + sequenceConfig.
+                getAuthenticatedUser().getTenantDomain()
+                + "\",\"" + "ServiceProviderName" + "\" : \"" + context.getServiceProviderName()
+                + "\",\"" + "RequestType" + "\" : \"" + context.getRequestType()
+                + "\",\"" + "RelyingParty" + "\" : \"" + context.getRelyingParty()
+                + "\",\"" + "AuthenticatedIdPs" + "\" : \"" + sequenceConfig.getAuthenticatedIdPs()
+                + "\"";
+
+        AUDIT_LOG.info(String.format(
+                FrameworkConstants.AUDIT_MESSAGE,
+                sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier(),
+                "Logout",
+                externalIdPConfig.getIdPName(), auditData, FrameworkConstants.AUDIT_SUCCESS));
 
         try {
             sendResponse(request, response, context, true);

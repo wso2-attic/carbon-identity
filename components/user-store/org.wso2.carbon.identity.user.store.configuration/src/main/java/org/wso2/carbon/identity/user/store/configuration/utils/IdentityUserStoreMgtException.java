@@ -16,11 +16,20 @@
 package org.wso2.carbon.identity.user.store.configuration.utils;
 
 public class IdentityUserStoreMgtException extends Exception {
-    public IdentityUserStoreMgtException(String error) {
-        super(error);
+    private String message;
+
+    public IdentityUserStoreMgtException(String message) {
+        super(message);
+        this.message = message;
     }
 
     public IdentityUserStoreMgtException(String message, Throwable cause) {
         super(message, cause);
+        this.message = message;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
     }
 }

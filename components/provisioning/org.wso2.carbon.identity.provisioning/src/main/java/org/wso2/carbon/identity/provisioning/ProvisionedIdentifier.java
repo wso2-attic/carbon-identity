@@ -22,10 +22,8 @@ import java.io.Serializable;
 
 public class ProvisionedIdentifier implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -6599321170580333389L;
+
     private String identifier;
 
     /**

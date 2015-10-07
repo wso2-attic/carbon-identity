@@ -63,7 +63,7 @@
 
     int numberOfPages = 0;
     int pageNumberInt = 0;
-    String pageNumber = CharacterEncoder.getSafeText(request.getParameter("pageNumber"));
+    String pageNumber = request.getParameter("pageNumber");
     if (pageNumber == null) {
         pageNumber = "0";
     }
@@ -72,11 +72,11 @@
     } catch (NumberFormatException ignored) {
     }
 
-    String policyTypeFilter = CharacterEncoder.getSafeText(request.getParameter("policyTypeFilter"));
+    String policyTypeFilter = request.getParameter("policyTypeFilter");
     if (policyTypeFilter == null || "".equals(policyTypeFilter)) {
         policyTypeFilter = "ALL";
     }
-    String policySearchString = CharacterEncoder.getSafeText(request.getParameter("policySearchString"));
+    String policySearchString = request.getParameter("policySearchString");
     if (policySearchString == null) {
         policySearchString = "*";
     } else {
@@ -452,9 +452,9 @@
                         }
                     %>
                     <nobr>
-                    <img src="images/<%=Encode.forUriComponent(policies[i].getPolicyType())%>-type.gif"
-                         title="<%=Encode.forHtmlAttribute(policies[i].getPolicyType())%>"
-                         alt="<%=Encode.forHtmlAttribute(policies[i].getPolicyType())%>"/>
+                        <img src="images/<%=Encode.forUriComponent(policies[i].getPolicyType())%>-type.gif"
+                             title="<%=Encode.forHtmlAttribute(policies[i].getPolicyType())%>"
+                             alt="<%=Encode.forHtmlAttribute(policies[i].getPolicyType())%>"/>
                         <%=Encode.forHtmlContent(policies[i].getPolicyType())%>
                     </nobr>
                 </td>
@@ -473,7 +473,7 @@
                         if (canEdit) {
                     %>
                     <a title="<fmt:message key='edit.policy'/>"
-                     onclick="edit('<%=Encode.forJavaScriptAttribute(policies[i].getPolicyId())%>');return false;"
+                       onclick="edit('<%=Encode.forJavaScriptAttribute(policies[i].getPolicyId())%>');return false;"
                     href="#" style="background-image: url(images/edit.gif);" class="icon-link">
                     <fmt:message key='edit'/></a>
                     <%

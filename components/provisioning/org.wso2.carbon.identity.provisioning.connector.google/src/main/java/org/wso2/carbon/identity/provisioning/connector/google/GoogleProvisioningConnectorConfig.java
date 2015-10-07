@@ -32,7 +32,7 @@ import java.util.Properties;
 
 public class GoogleProvisioningConnectorConfig implements Serializable {
 
-    private static final long serialVersionUID = -1198908568546067663L;
+    private static final long serialVersionUID = -3057146255884741487L;
 
     private static final Log log = LogFactory.getLog(GoogleProvisioningConnectorConfig.class);
     private Properties configs;

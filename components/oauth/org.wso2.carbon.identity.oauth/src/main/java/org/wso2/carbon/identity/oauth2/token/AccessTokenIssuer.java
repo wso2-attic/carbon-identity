@@ -96,7 +96,7 @@ public class AccessTokenIssuer {
 
         OAuthTokenReqMessageContext tokReqMsgCtx = new OAuthTokenReqMessageContext(tokenReqDTO);
 
-        // If multiple client authenticaton methods have been used the authorization server must reject the request
+        // If multiple client authentication methods have been used the authorization server must reject the request
         int authenticatorHandlerIndex = -1;
         for (int i = 0; i < clientAuthenticationHandlers.size(); i++) {
             if (clientAuthenticationHandlers.get(i).canAuthenticate(tokReqMsgCtx)) {
@@ -132,59 +132,50 @@ public class AccessTokenIssuer {
         } else {
             isAuthenticated = true;
         }
-
-        // loading the stored application data
-        OAuthAppDO oAuthAppDO = getAppInformation(tokenReqDTO);
-        String applicationName = oAuthAppDO.getApplicationName();
-        if (!authzGrantHandler.isOfTypeApplicationUser()) {
-            tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(oAuthAppDO.getUserName()));
-            tokReqMsgCtx.setTenantID(oAuthAppDO.getTenantId());
-        }
-
-        boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
-        boolean isAuthorized = authzGrantHandler.authorizeAccessDelegation(tokReqMsgCtx);
-        boolean isValidScope = authzGrantHandler.validateScope(tokReqMsgCtx);
-
-        String userName = tokReqMsgCtx.getAuthorizedUser().toString();
-
-        //boolean isAuthenticated = true;
         if (!isAuthenticated) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Client Authentication Failed for client id=" + tokenReqDTO.getClientId() + ", " +
-                    "user-name=" + userName + " to application=" + applicationName);
+            if(log.isDebugEnabled()) {
+                log.debug("Client Authentication failed for client Id: " + tokenReqDTO.getClientId());
+            }
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_CLIENT,
                     "Client credentials are invalid.", tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
 
-        //boolean isValidGrant = true;
+        // loading the stored application data
+        OAuthAppDO oAuthAppDO = getAppInformation(tokenReqDTO);
+        if (!authzGrantHandler.isOfTypeApplicationUser()) {
+            tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(oAuthAppDO.getUserName()));
+            tokReqMsgCtx.setTenantID(oAuthAppDO.getTenantId());
+        }
+
+        boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
         if (!isValidGrant) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Invalid Grant provided by the client, id=" + tokenReqDTO.getClientId() + ", " +
-                    "" + "user-name=" + userName + " to application=" + applicationName);
+            if (log.isDebugEnabled()) {
+                log.debug("Invalid Grant provided by the client Id: " + tokenReqDTO.getClientId());
+            }
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_GRANT,
                     "Provided Authorization Grant is invalid.", tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
 
-        //boolean isAuthorized = true;
+        boolean isAuthorized = authzGrantHandler.authorizeAccessDelegation(tokReqMsgCtx);
         if (!isAuthorized) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Resource owner is not authorized to grant access, client-id="
-                    + tokenReqDTO.getClientId() + " " + "user-name=" + userName + " to application=" + applicationName);
+            if(log.isDebugEnabled()) {
+                log.debug("Invalid authorization for client Id = " + tokenReqDTO.getClientId());
+            }
             tokenRespDTO = handleError(OAuthError.TokenResponse.UNAUTHORIZED_CLIENT,
                     "Unauthorized Client!", tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
 
-        //boolean isValidScope = true;
+        boolean isValidScope = authzGrantHandler.validateScope(tokReqMsgCtx);
         if (!isValidScope) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Invalid Scope provided. client-id=" + tokenReqDTO.getClientId() + " " +
-                    "" + "user-name=" + userName + " to application=" + applicationName);
+            if(log.isDebugEnabled()) {
+                log.debug("Invalid scope provided by client Id: " + tokenReqDTO.getClientId());
+            }
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_SCOPE, "Invalid Scope!", tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
@@ -207,8 +198,8 @@ public class AccessTokenIssuer {
 
         //Do not change this log format as these logs use by external applications
         if (log.isDebugEnabled()) {
-            log.debug("Access Token issued to client. client-id=" + tokenReqDTO.getClientId() + " " +
-                    "" + "user-name=" + userName + " to application=" + applicationName);
+            log.debug("Access token issued to client Id: " + tokenReqDTO.getClientId() + " username: " +
+                    tokReqMsgCtx.getAuthorizedUser() + " and scopes: " + tokenRespDTO.getAuthorizedScopes());
         }
 
         if (tokReqMsgCtx.getScope() != null && OAuth2Util.isOIDCAuthzRequest(tokReqMsgCtx.getScope())) {

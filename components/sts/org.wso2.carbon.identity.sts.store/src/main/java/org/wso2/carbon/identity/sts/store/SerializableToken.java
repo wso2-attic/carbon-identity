@@ -28,6 +28,8 @@ import java.util.Properties;
  */
 public class SerializableToken implements Serializable {
 
+    private static final long serialVersionUID = 1101734842629522246L;
+
     private String id;
     private int state;
     private String token;

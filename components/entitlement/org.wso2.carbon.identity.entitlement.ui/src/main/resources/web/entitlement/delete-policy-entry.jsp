@@ -22,7 +22,7 @@
 <jsp:setProperty name="entitlementPolicyBean" property="*" />
 <%
     String forwardTo = "create-policy-set.jsp";
-    String policyId = CharacterEncoder.getSafeText(request.getParameter("policyRefId"));
+    String policyId = request.getParameter("policyRefId");
     if(policyId != null && policyId.trim().length() > 0){
         entitlementPolicyBean.removePolicyRefId(policyId);
     }

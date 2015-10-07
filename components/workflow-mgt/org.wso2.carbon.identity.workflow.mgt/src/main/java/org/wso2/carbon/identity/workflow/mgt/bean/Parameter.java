@@ -33,6 +33,8 @@ import java.io.Serializable;
  */
 public class Parameter implements Serializable {
 
+    private static final long serialVersionUID = 7063803305644510640L;
+
     private String workflowId;
     private String paramName;
     private String paramValue;

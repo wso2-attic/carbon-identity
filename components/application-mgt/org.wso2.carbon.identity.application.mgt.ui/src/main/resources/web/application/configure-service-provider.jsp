@@ -722,9 +722,16 @@ var roleMappinRowID = -1;
                     </tr>
                     <tr>
                     	<td class="leftCol-med">
-                             <input type="checkbox"  id="isSaasApp" name="isSaasApp" <%=appBean.getServiceProvider().getSaasApp() ? "checked" : "" %>/><label for="isSaasApp"><fmt:message key="config.application.isSaasApp"/></label>
+                             <label for="isSaasApp"><fmt:message key="config.application.isSaasApp"/></label>
                         </td>
-                        <td></td>
+                        <td>
+                            <div class="sectionCheckbox">
+                                <input type="checkbox"  id="isSaasApp" name="isSaasApp" <%=appBean.getServiceProvider().getSaasApp() ? "checked" : "" %>/>
+                                <span style="display:inline-block" class="sectionHelp">
+                                    <fmt:message key='help.saas'/>
+                                </span>
+                            </div>
+                        </td>
                     </tr>
                 </table>
             </div>
@@ -1628,5 +1635,13 @@ var roleMappinRowID = -1;
             </form>
         </div>
     </div>
+	<script>
+		update();
+		function update() {
+			if (window.location.href.indexOf("action=delete") > -1) {
+				createAppOnclick();
+			}
+		}
+	</script>
 
 </fmt:bundle>

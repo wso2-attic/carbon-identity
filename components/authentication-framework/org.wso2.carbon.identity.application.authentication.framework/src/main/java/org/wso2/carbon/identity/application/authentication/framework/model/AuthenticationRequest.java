@@ -30,7 +30,9 @@ import java.util.Map;
  */
 @SuppressWarnings("unused")
 public class AuthenticationRequest implements Serializable {
-    private static final long serialVersionUID = -5407487459807348541L;
+
+    private static final long serialVersionUID = 8131978212432223682L;
+
     /**
      * Type of the request coming to framework eg:saml
      */

@@ -27,10 +27,7 @@ import java.util.List;
 
 public class ClaimConfig implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 3927992808243347563L;
+    private static final long serialVersionUID = 94689128465184610L;
 
     private String roleClaimURI;
     private String userClaimURI;
