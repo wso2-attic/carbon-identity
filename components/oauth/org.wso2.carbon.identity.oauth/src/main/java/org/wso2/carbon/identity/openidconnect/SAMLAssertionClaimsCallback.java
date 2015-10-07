@@ -234,9 +234,20 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
             spToLocalClaimMappings = ClaimManagerHandler.getInstance().getMappingsMapFromOtherDialectToCarbon(
                     SP_DIALECT, null, tenantDomain, false);
 
-            Map<String, String> userClaims = userStoreManager.getUserClaimValues(
-                    MultitenantUtils.getTenantAwareUsername(username),
-                    claimURIList.toArray(new String[claimURIList.size()]), null);
+            Map<String, String> userClaims = null;
+            try {
+                userClaims = userStoreManager.getUserClaimValues(
+                        MultitenantUtils.getTenantAwareUsername(username),
+                        claimURIList.toArray(new String[claimURIList.size()]), null);
+            } catch (UserStoreException e) {
+                if (e.getMessage().contains("UserNotFound")) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("User " + username + " not found in user store");
+                    }
+                } else {
+                    throw e;
+                }
+            }
 
             if (log.isDebugEnabled()) {
                 log.debug("Number of user claims retrieved from user store: " + userClaims.size());

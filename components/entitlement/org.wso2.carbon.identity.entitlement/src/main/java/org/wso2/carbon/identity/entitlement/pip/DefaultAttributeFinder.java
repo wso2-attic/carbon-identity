@@ -95,7 +95,7 @@ public class DefaultAttributeFinder extends AbstractPIPAttributeFinder {
             } catch (UserStoreException e) {
                 if(e.getMessage().startsWith(IdentityCoreConstants.USER_NOT_FOUND)){
                     if(log.isDebugEnabled()){
-                        log.debug("User: " + subjectId + " not found");
+                        log.debug("User: " + subjectId + " not found in user store");
                     }
                 } else {
                     throw e;
