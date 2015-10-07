@@ -117,6 +117,7 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
         String userStoreDomain = (String) requestParams.get(USER_STORE_DOMAIN);
         if (StringUtils.isNotBlank(userStoreDomain)) {
             roleName = userStoreDomain + "/" + roleName;
+            newRoleName = userStoreDomain + "/" + newRoleName;
         }
 
         if (WorkflowRequestStatus.APPROVED.toString().equals(status) ||
