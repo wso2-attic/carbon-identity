@@ -168,7 +168,7 @@ public class EndpointUtil {
         if (redirectUri != null && !"".equals(redirectUri)) {
             errorPageUrl = redirectUri;
         } else {
-            errorPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_error.do");
+            errorPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_error.do", false);
         }
         try {
             errorPageUrl += "?" + OAuthConstants.OAUTH_ERROR_CODE + "=" + URLEncoder.encode(errorCode, "UTF-8") + "&"
@@ -240,7 +240,7 @@ public class EndpointUtil {
             if (scopes != null && scopes.contains("openid")) {
                 type = "oidc";
             }
-            String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
+            String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false);
             String selfPath = "/oauth2/authorize";
             AuthenticationRequest authenticationRequest = new AuthenticationRequest();
 

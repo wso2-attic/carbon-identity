@@ -87,7 +87,7 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
 
             if (!tenantDataReceiveURLs.isEmpty()) {
 
-                serverURL = IdentityUtil.getServerURL("");
+                serverURL = IdentityUtil.getServerURL("", false);
                 int index = 0;
 
                 for (String tenantDataReceiveUrl : tenantDataReceiveURLs) {

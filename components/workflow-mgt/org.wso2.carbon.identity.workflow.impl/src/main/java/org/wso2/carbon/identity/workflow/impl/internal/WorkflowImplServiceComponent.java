@@ -142,7 +142,7 @@ public class WorkflowImplServiceComponent {
                     WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
             BPSProfile currentBpsProfile = workflowImplService.getBPSProfile(WFConstant.DEFAULT_BPS_PROFILE,
                     MultitenantConstants.SUPER_TENANT_ID);
-            String url = IdentityUtil.getServerURL("");
+            String url = IdentityUtil.getServerURL("", false);
             if (currentBpsProfile == null || !currentBpsProfile.getWorkerHostURL().equals(url)) {
                 BPSProfile bpsProfileDTO = new BPSProfile();
                 String userName =

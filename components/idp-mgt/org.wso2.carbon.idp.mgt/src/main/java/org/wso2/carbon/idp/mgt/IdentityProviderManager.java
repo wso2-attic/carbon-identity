@@ -100,7 +100,7 @@ public class IdentityProviderManager {
             tenantContext = MultitenantConstants.TENANT_AWARE_URL_PREFIX + "/" + tenantDomain + "/";
         }
 
-        String serverUrl = IdentityUtil.getServerURL("") + "/";
+        String serverUrl = IdentityUtil.getServerURL("", false) + "/";
 
         String openIdUrl = null;
         String samlSSOUrl = null;

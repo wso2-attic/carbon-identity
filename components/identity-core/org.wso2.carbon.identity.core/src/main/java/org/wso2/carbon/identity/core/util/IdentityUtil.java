@@ -260,7 +260,7 @@ public class IdentityUtil {
         return CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity";
     }
 
-    public static String getServerURL(String endpoint) throws IdentityRuntimeException {
+    public static String getServerURL(String endpoint,boolean addWebContextRoot) throws IdentityRuntimeException {
         String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
 
         try {
@@ -292,7 +292,17 @@ public class IdentityUtil {
                 serverUrl += "/" + proxyContextPath;
             }
         }
-
+        // If webContextRoot is defined then append it
+        if(addWebContextRoot) {
+            String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.WEB_CONTEXT_ROOT);
+            if (StringUtils.isNotBlank(webContextRoot)) {
+                if (webContextRoot.charAt(0) == '/') {
+                    serverUrl += webContextRoot;
+                } else {
+                    serverUrl += "/" + webContextRoot;
+                }
+            }
+        }
         if(StringUtils.isNotBlank(endpoint)) {
             if(!endpoint.startsWith("/")) {
                 serverUrl += "/";

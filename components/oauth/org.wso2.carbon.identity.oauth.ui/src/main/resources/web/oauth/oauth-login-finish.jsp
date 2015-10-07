@@ -66,7 +66,7 @@
     } catch (Exception e) {
     	String message = resourceBundle.getString("auth.error");
     	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request,e);
-		forwardTo = IdentityUtil.getServerURL("/carbon/oauth/oauth-login.jsp");
+		forwardTo = IdentityUtil.getServerURL("/carbon/oauth/oauth-login.jsp", false);
     }
 %>
 
