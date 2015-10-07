@@ -58,10 +58,11 @@ public class UserInfoJSONResponseBuilder implements UserInfoResponseBuilder {
             UserInfoClaimRetriever retriever = UserInfoEndpointConfig.getInstance().getUserInfoClaimRetriever();
             claims = retriever.getClaimsMap(userAttributes);
         }
-        if(claims != null && !claims.isEmpty()) {
-            return JSONUtils.buildJSON(claims);
+        if(claims == null){
+            claims = new HashMap<String,Object>();
         }
-        return null;
+        claims.put("sub", tokenResponse.getAuthorizedUser());
+        return JSONUtils.buildJSON(claims);
     }
 
     private Map<ClaimMapping, String> getUserAttributesFromCache(OAuth2TokenValidationResponseDTO tokenResponse) {
