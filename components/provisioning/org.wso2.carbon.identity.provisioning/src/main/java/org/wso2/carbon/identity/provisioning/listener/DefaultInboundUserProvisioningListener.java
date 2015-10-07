@@ -543,7 +543,18 @@ public class DefaultInboundUserProvisioningListener extends AbstractIdentityUser
                     ProvisioningEntityType.USER, domainAwareName, ProvisioningOperation.PUT,
                     outboundAttributes);
 
-            Claim[] claimArray = userStoreManager.getUserClaimValues(userName, null);
+            Claim[] claimArray = null;
+            try {
+                claimArray = userStoreManager.getUserClaimValues(userName, null);
+            } catch (UserStoreException e) {
+                if (e.getMessage().contains("UserNotFound")) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("User " + userName + " not found in user store");
+                    }
+                } else {
+                    throw e;
+                }
+            }
             if (claimArray != null) {
                 for (Claim claim : claimArray) {
                     inboundAttributes.put(claim.getClaimUri(), claim.getValue());
