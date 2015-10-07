@@ -17,14 +17,14 @@
  */
 package org.wso2.carbon.identity.openidconnect;
 
+import com.nimbusds.jwt.JWTClaimsSet;
 import net.minidev.json.JSONArray;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.oltu.openidconnect.as.messages.IDTokenBuilder;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.AttributeStatement;
@@ -72,7 +72,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
     private String userAttributeSeparator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
 
     @Override
-    public void handleCustomClaims(IDTokenBuilder builder, OAuthTokenReqMessageContext requestMsgCtx) {
+    public void handleCustomClaims(JWTClaimsSet jwtClaimsSet, OAuthTokenReqMessageContext requestMsgCtx) {
         // reading the token set in the same grant
         Assertion assertion = (Assertion) requestMsgCtx.getProperty(OAuthConstants.OAUTH_SAML2_ASSERTION);
 
@@ -84,7 +84,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 while (attributeIterator.hasNext()) {
                     Attribute attribute = attributeIterator.next();
                     String value = attribute.getAttributeValues().get(0).getDOM().getTextContent();
-                    builder.setClaim(attribute.getName(), value);
+                    jwtClaimsSet.setClaim(attribute.getName(), value);
                     if (log.isDebugEnabled()) {
                         log.debug("Attribute: " + attribute.getName() + ", Value: " + value);
                     }
@@ -122,7 +122,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                     } else {
                         values.add(value);
                     }
-                    builder.setClaim(entry.getKey(), values.toJSONString());
+                    jwtClaimsSet.setClaim(entry.getKey(), values.toJSONString());
                 }
             } catch (OAuthSystemException e) {
                 log.error("Error occurred while adding claims of " + requestMsgCtx.getAuthorizedUser() +
@@ -234,9 +234,20 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
             spToLocalClaimMappings = ClaimManagerHandler.getInstance().getMappingsMapFromOtherDialectToCarbon(
                     SP_DIALECT, null, tenantDomain, false);
 
-            Map<String, String> userClaims = userStoreManager.getUserClaimValues(
-                    MultitenantUtils.getTenantAwareUsername(username),
-                    claimURIList.toArray(new String[claimURIList.size()]), null);
+            Map<String, String> userClaims = null;
+            try {
+                userClaims = userStoreManager.getUserClaimValues(
+                        MultitenantUtils.getTenantAwareUsername(username),
+                        claimURIList.toArray(new String[claimURIList.size()]), null);
+            } catch (UserStoreException e) {
+                if (e.getMessage().contains("UserNotFound")) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("User " + username + " not found in user store");
+                    }
+                } else {
+                    throw e;
+                }
+            }
 
             if (log.isDebugEnabled()) {
                 log.debug("Number of user claims retrieved from user store: " + userClaims.size());

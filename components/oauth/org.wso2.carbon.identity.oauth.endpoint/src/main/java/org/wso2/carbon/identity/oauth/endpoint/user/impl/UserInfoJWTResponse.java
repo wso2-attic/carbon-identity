@@ -15,13 +15,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.oauth.endpoint.user.impl;
 
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.oltu.oauth2.jwt.JWTBuilder;
-import org.apache.oltu.oauth2.jwt.JWTException;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
@@ -42,45 +44,43 @@ public class UserInfoJWTResponse implements UserInfoResponseBuilder {
     @Override
     public String getResponseString(OAuth2TokenValidationResponseDTO tokenResponse)
             throws UserInfoEndpointException, OAuthSystemException {
+
         Map<ClaimMapping, String> userAttributes = getUserAttributesFromCache(tokenResponse);
 
         Map<String, Object> claims = null;
 
-        if (userAttributes == null || userAttributes.isEmpty()) {
+        if (userAttributes.isEmpty()) {
             if (log.isDebugEnabled()) {
                 log.debug("User attributes not found in cache. Trying to retrieve from user store.");
             }
-            try {
-                claims = ClaimUtil.getClaimsFromUserStore(tokenResponse);
-            } catch (Exception e) {
-                log.error("Error while retrieving claims from user store.", e);
-                throw new UserInfoEndpointException("Error while retrieving claims from user store.");
-            }
-
+            claims = ClaimUtil.getClaimsFromUserStore(tokenResponse);
         } else {
             UserInfoClaimRetriever retriever = UserInfoEndpointConfig.getInstance().getUserInfoClaimRetriever();
             claims = retriever.getClaimsMap(userAttributes);
         }
-
-        JWTBuilder jwtBuilder = new JWTBuilder();
-        try {
-            return jwtBuilder.setClaims(claims).buildJWT();
-        } catch (JWTException e) {
-            log.error("Error while generating the response JWT", e);
-            throw new UserInfoEndpointException("Error while generating the response JWT");
+        if(claims == null){
+            claims = new HashMap<String,Object>();
         }
+        if(!claims.containsKey("sub") || StringUtils.isBlank((String) claims.get("sub"))) {
+            claims.put("sub", tokenResponse.getAuthorizedUser());
+        }
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet();
+        jwtClaimsSet.setAllClaims(claims);
+        return new PlainJWT(jwtClaimsSet).serialize();
     }
 
     private Map<ClaimMapping, String> getUserAttributesFromCache(OAuth2TokenValidationResponseDTO tokenResponse) {
-        AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(tokenResponse.getAuthorizationContextToken().getTokenString());
-        AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance(0)
-                .getValueFromCache(cacheKey);
 
-        if (cacheEntry == null) {
-            return new HashMap<ClaimMapping, String>();
+        Map<ClaimMapping,String> claims = new HashMap<ClaimMapping,String>();
+        AuthorizationGrantCacheKey cacheKey =
+                new AuthorizationGrantCacheKey(tokenResponse.getAuthorizationContextToken().getTokenString());
+        AuthorizationGrantCacheEntry cacheEntry =
+                (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance(0).getValueFromCache(cacheKey);
+        if (cacheEntry != null) {
+            claims = cacheEntry.getUserAttributes();
         }
-
-        return cacheEntry.getUserAttributes();
+        return claims;
     }
 
 }

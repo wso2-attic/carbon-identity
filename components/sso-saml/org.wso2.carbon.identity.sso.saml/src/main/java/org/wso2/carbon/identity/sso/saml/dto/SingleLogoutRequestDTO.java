@@ -21,6 +21,8 @@ import java.io.Serializable;
 
 public class SingleLogoutRequestDTO implements Serializable {
 
+    private static final long serialVersionUID = -5086237688925774301L;
+
     private String assertionConsumerURL;
     private String logoutResponse;
     private String rpSessionId;

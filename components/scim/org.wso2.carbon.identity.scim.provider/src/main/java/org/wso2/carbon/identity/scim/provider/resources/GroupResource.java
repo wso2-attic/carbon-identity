@@ -165,9 +165,8 @@ public class GroupResource extends AbstractResource {
         Encoder encoder = null;
         try {
             outputFormat = identifyOutputFormat(outputFormat);
-            if (inputFormat != null) {
-                inputFormat = identifyInputFormat(inputFormat);
-            }
+            inputFormat = identifyInputFormat(inputFormat);
+
             IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
             //obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(outputFormat));

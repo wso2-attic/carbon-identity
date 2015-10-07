@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -152,10 +151,9 @@ public class TokenMgtDAO {
             return;
         }
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.STORE_AUTHORIZATION_CODE);
             prepStmt.setString(1, persistenceProcessor.getProcessedAuthzCode(authzCode));
             prepStmt.setString(2, callbackUrl);
@@ -170,15 +168,9 @@ public class TokenMgtDAO {
             prepStmt.setString(9, persistenceProcessor.getProcessedClientId(consumerKey));
             prepStmt.execute();
             connection.commit();
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + SQLQueries.STORE_AUTHORIZATION_CODE);
-            log.error(e.getMessage(), e);
-            throw new IdentityOAuth2Exception("Error when storing the authorization code for consumer key : "
-                                              + consumerKey);
+            throw new IdentityOAuth2Exception("Error when storing the authorization code for consumer key : " +
+                    consumerKey, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -282,9 +274,8 @@ public class TokenMgtDAO {
         if (!enablePersist) {
             return false;
         }
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             if (existingAccessTokenDO != null) {
                 //  Mark the existing access token as expired on database if a token exist for the user
                 setAccessTokenState(connection, existingAccessTokenDO.getTokenId(), OAuthConstants.TokenStates
@@ -304,9 +295,8 @@ public class TokenMgtDAO {
             }
             connection.commit();
             return true;
-        } catch (IdentityException | SQLException e) {
-            throw new IdentityOAuth2Exception(
-                    "Error occurred while getting a connection to Identity Data Persistent Storage", e);
+        } catch (SQLException e) {
+            throw new IdentityOAuth2Exception("Error occurred while persisting access token", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, null);
         }
@@ -317,14 +307,7 @@ public class TokenMgtDAO {
                                                    boolean includeExpiredTokens)
             throws IdentityOAuth2Exception {
 
-        Connection connection = null;
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error occurred while getting Identity persistence " +
-                                              "store connection", e);
-        }
-
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userName);
         String tenantDomain = MultitenantUtils.getTenantDomain(userName);
         int tenantId = OAuth2Util.getTenantId(tenantDomain);
@@ -449,14 +432,7 @@ public class TokenMgtDAO {
                                                    String userStoreDomain, boolean includeExpired)
             throws IdentityOAuth2Exception {
 
-        Connection connection;
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error occurred while getting Identity persistence " +
-                    "store connection", e);
-        }
-
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userName);
         String tenantDomain = MultitenantUtils.getTenantDomain(userName);
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
@@ -522,9 +498,6 @@ public class TokenMgtDAO {
                 }
             }
             connection.commit();
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance";
-            throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
             String errorMsg = "Error occurred while retrieving 'ACTIVE' access tokens for " +
                               "Client ID : " + consumerKey + " and User ID : " + userName;
@@ -542,12 +515,11 @@ public class TokenMgtDAO {
 
     public AuthzCodeDO validateAuthorizationCode(String consumerKey, String authorizationKey)
             throws IdentityOAuth2Exception {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.VALIDATE_AUTHZ_CODE);
             prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerKey));
             prepStmt.setString(2, persistenceProcessor.getProcessedAuthzCode(authorizationKey));
@@ -583,13 +555,7 @@ public class TokenMgtDAO {
                 }
             }
             connection.commit();
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + SQLQueries.VALIDATE_AUTHZ_CODE);
-            log.error(e.getMessage(), e);
             throw new IdentityOAuth2Exception("Error when validating an authorization code", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
@@ -607,22 +573,15 @@ public class TokenMgtDAO {
     }
 
     public void doExpireAuthzCode(String authzCode) throws IdentityOAuth2Exception {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.EXPIRE_AUTHZ_CODE);
             prepStmt.setString(1, persistenceProcessor.getPreprocessedAuthzCode(authzCode));
             prepStmt.execute();
             connection.commit();
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + SQLQueries.EXPIRE_AUTHZ_CODE);
-            log.error(e.getMessage(), e);
             throw new IdentityOAuth2Exception("Error when cleaning up an authorization code", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
@@ -630,11 +589,10 @@ public class TokenMgtDAO {
     }
 
     public void deactivateAuthorizationCode(List<AuthzCodeDO> authzCodeDOs) throws IdentityOAuth2Exception {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             prepStmt = connection.prepareStatement(SQLQueries.DEACTIVATE_AUTHZ_CODE_AND_INSERT_CURRENT_TOKEN);
             for (AuthzCodeDO authzCodeDO : authzCodeDOs){
                 prepStmt.setString(1, authzCodeDO.getOauthTokenId());
@@ -643,13 +601,8 @@ public class TokenMgtDAO {
             }
             prepStmt.executeBatch();
             connection.commit();
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + SQLQueries.DEACTIVATE_AUTHZ_CODE_AND_INSERT_CURRENT_TOKEN, e);
-            throw new IdentityOAuth2Exception("Error when expiring authorization code", e);
+            throw new IdentityOAuth2Exception("Error when deactivating authorization code", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -659,7 +612,7 @@ public class TokenMgtDAO {
             throws IdentityOAuth2Exception {
 
         RefreshTokenValidationDataDO validationDataDO = new RefreshTokenValidationDataDO();
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String userStoreDomain = null;
@@ -769,8 +722,6 @@ public class TokenMgtDAO {
             log.error(errorMsg, e);
             throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
-            log.error(e.getMessage(), e);
             throw new IdentityOAuth2Exception("Error when validating a refresh token", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
@@ -788,7 +739,7 @@ public class TokenMgtDAO {
     }
 
     public void removeAccessToken(String accessToken) throws IdentityOAuth2Exception {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String userStoreDomain = null;
         String sql = null;
@@ -811,13 +762,7 @@ public class TokenMgtDAO {
             prepStmt.execute();
             connection.commit();
 
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
-            log.error("Error when executing the SQL : " + sql);
-            log.error(e.getMessage(), e);
             throw new IdentityOAuth2Exception("Error when cleaning up an access token", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
@@ -828,13 +773,12 @@ public class TokenMgtDAO {
             throws IdentityOAuth2Exception {
 
         AccessTokenDO dataDO = null;
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String userStoreDomain = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
             //select the user store domain when multiple user stores are configured.
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
@@ -971,11 +915,10 @@ public class TokenMgtDAO {
     public void revokeTokensBatch(String[] tokens) throws IdentityOAuth2Exception {
 
         String accessTokenStoreTable = OAuthConstants.ACCESS_TOKEN_STORE_TABLE;
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement ps = null;
         try {
             String sqlQuery = SQLQueries.REVOKE_ACCESS_TOKEN.replace(IDN_OAUTH2_ACCESS_TOKEN, accessTokenStoreTable);
-            connection = IdentityDatabaseUtil.getDBConnection();
             ps = connection.prepareStatement(sqlQuery);
             for (String token: tokens){
                 ps.setString(1, OAuthConstants.TokenStates.TOKEN_STATE_REVOKED);
@@ -988,10 +931,7 @@ public class TokenMgtDAO {
         } catch (SQLException e) {
             IdentityDatabaseUtil.rollBack(connection);
             throw new IdentityOAuth2Exception("Error occurred while revoking Access Tokens : " + tokens.toString(), e);
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error occurred while connecting to data storage : " + tokens.toString(),
-                    e);
-        } finally {
+        }  finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }
     }
@@ -999,7 +939,7 @@ public class TokenMgtDAO {
     public void revokeTokensIndividual(String[] tokens) throws IdentityOAuth2Exception {
 
         String accessTokenStoreTable = OAuthConstants.ACCESS_TOKEN_STORE_TABLE;
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement ps = null;
         try {
             for (String token: tokens){
@@ -1009,7 +949,6 @@ public class TokenMgtDAO {
                 }
                 String sqlQuery = SQLQueries.REVOKE_ACCESS_TOKEN.replace(
                         IDN_OAUTH2_ACCESS_TOKEN, accessTokenStoreTable);
-                connection = IdentityDatabaseUtil.getDBConnection();
                 ps = connection.prepareStatement(sqlQuery);
                 ps.setString(1, OAuthConstants.TokenStates.TOKEN_STATE_REVOKED);
                 ps.setString(2, UUID.randomUUID().toString());
@@ -1024,17 +963,14 @@ public class TokenMgtDAO {
         } catch (SQLException e) {
             IdentityDatabaseUtil.rollBack(connection);
             throw new IdentityOAuth2Exception("Error occurred while revoking Access Token : " + tokens.toString(), e);
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error occurred while connecting to data storage : " + tokens.toString(),
-                    e);
-        } finally {
+        }  finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }
     }
 
 
     /**
-     * This method is to revoke specific tokens
+     * Ths method is to revoke specific tokens
      *
      * @param tokenId token that needs to be revoked
      * @throws IdentityOAuth2Exception if failed to revoke the access token
@@ -1042,7 +978,7 @@ public class TokenMgtDAO {
     public void revokeToken(String tokenId, String userId) throws IdentityOAuth2Exception {
 
         String accessTokenStoreTable = OAuthConstants.ACCESS_TOKEN_STORE_TABLE;
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement ps = null;
         try {
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
@@ -1051,7 +987,6 @@ public class TokenMgtDAO {
             }
             String sqlQuery = SQLQueries.REVOKE_ACCESS_TOKEN_BY_TOKEN_ID.replace(
                     IDN_OAUTH2_ACCESS_TOKEN, accessTokenStoreTable);
-            connection = IdentityDatabaseUtil.getDBConnection();
             ps = connection.prepareStatement(sqlQuery);
             ps.setString(1, OAuthConstants.TokenStates.TOKEN_STATE_REVOKED);
             ps.setString(2, UUID.randomUUID().toString());
@@ -1064,9 +999,7 @@ public class TokenMgtDAO {
         } catch (SQLException e) {
             IdentityDatabaseUtil.rollBack(connection);
             throw new IdentityOAuth2Exception("Error occurred while revoking Access Token with ID : " + tokenId, e);
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error occurred while revoking Access Token with ID : " + tokenId, e);
-        } finally {
+        }  finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }
     }
@@ -1082,7 +1015,7 @@ public class TokenMgtDAO {
 
         String accessTokenStoreTable = OAuthConstants.ACCESS_TOKEN_STORE_TABLE;
         PreparedStatement ps = null;
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();;
         ResultSet rs = null;
         Set<String> distinctConsumerKeys = new HashSet<>();
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authzUser);
@@ -1091,12 +1024,6 @@ public class TokenMgtDAO {
         String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
         String userDomain = UserCoreUtil.extractDomainFromName(authzUser).toUpperCase();
         try {
-            try {
-                connection = IdentityDatabaseUtil.getDBConnection();
-            } catch (IdentityException e) {
-                throw new IdentityOAuth2Exception(
-                        "Error occurred while trying to get an Identity persistence store", e);
-            }
             int tenantId = OAuth2Util.getTenantId(tenantDomain);
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
                     OAuth2Util.checkUserNameAssertionEnabled()) {
@@ -1132,12 +1059,11 @@ public class TokenMgtDAO {
 
     public String findScopeOfResource(String resourceUri) throws IdentityOAuth2Exception {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             String sql = SQLQueries.RETRIEVE_IOS_SCOPE_KEY;
 
             ps = connection.prepareStatement(sql);
@@ -1149,17 +1075,12 @@ public class TokenMgtDAO {
             }
             connection.commit();
             return null;
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
             String errorMsg = "Error getting scopes for resource - " + resourceUri + " : " + e.getMessage();
-            log.error(errorMsg, e);
+            throw new IdentityOAuth2Exception(errorMsg, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rs, ps);
         }
-        return null;
     }
 
     public boolean validateScope(Connection connection, String accessToken, String resourceUri) {
@@ -1181,10 +1102,9 @@ public class TokenMgtDAO {
                                             String consumerKey, String tokenStateId,
 	                                        AccessTokenDO accessTokenDO, String userStoreDomain)
 			throws IdentityOAuth2Exception {
-		Connection connection = null;
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
 		try {
-			// Get the connection
-			connection = JDBCPersistenceManager.getInstance().getDBConnection();
 			connection.setAutoCommit(false);
 
 			// update existing token as inactive
@@ -1200,13 +1120,8 @@ public class TokenMgtDAO {
 
 			// commit both transactions
 			connection.commit();
-		} catch (IdentityException e) {
-			String errorMsg = "Error while getting an Identity Persistence Store instance.";
-			log.error(errorMsg, e);
-			throw new IdentityOAuth2Exception(errorMsg, e);
 		} catch (SQLException e) {
-			String errorMsg = "Error while regenerating Access Token :" + e.getMessage();
-			log.error(errorMsg, e);
+			String errorMsg = "Error while regenerating access token";
 			throw new IdentityOAuth2Exception(errorMsg, e);
 		} finally {
 			IdentityDatabaseUtil.closeConnection(connection);
@@ -1229,11 +1144,10 @@ public class TokenMgtDAO {
             return;
         }
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement ps;
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             connection.setAutoCommit(false);
 
             String sql = SQLQueries.DELETE_IDN_OPENID_USER_RPS;
@@ -1244,14 +1158,8 @@ public class TokenMgtDAO {
             ps.execute();
             connection.commit();
 
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
-            String errorMsg = "Error deleting OAuth consent of Application " + applicationName + " and User " + username
-                              + e.getMessage();
-            log.error(errorMsg, e);
+            String errorMsg = "Error deleting OAuth consent of Application " + applicationName + " and User " + username;
             throw new IdentityOAuth2Exception(errorMsg, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, null);
@@ -1260,13 +1168,7 @@ public class TokenMgtDAO {
 
     public Set<AccessTokenDO> getAccessTokensOfTenant(int tenantId) throws IdentityOAuth2Exception {
 
-        Connection connection;
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error occurred while getting Identity persistence " +
-                    "store connection", e);
-        }
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
 
         PreparedStatement prepStmt = null;
         Map<String, AccessTokenDO> accessTokenDOMap = new HashMap<>();
@@ -1313,9 +1215,6 @@ public class TokenMgtDAO {
                 }
             }
             connection.commit();
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance";
-            throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
             String errorMsg = "Error occurred while retrieving 'ACTIVE or EXPIRED' access tokens for " +
                     "user  tenant id : " + tenantId;
@@ -1331,13 +1230,7 @@ public class TokenMgtDAO {
             IdentityOAuth2Exception {
 
         //we do not support access token partitioning here
-        Connection connection;
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error occurred while getting Identity persistence " +
-                    "store connection", e);
-        }
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
 
         userStoreDomain = userStoreDomain.toUpperCase();
         PreparedStatement prepStmt = null;
@@ -1384,9 +1277,6 @@ public class TokenMgtDAO {
                 }
             }
             connection.commit();
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance";
-            throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
             String errorMsg = "Error occurred while retrieving 'ACTIVE or EXPIRED' access tokens for " +
                     "user in store domain : " + userStoreDomain + " and tenant id : " + tenantId;
@@ -1402,12 +1292,11 @@ public class TokenMgtDAO {
             newUserStoreDomain) throws IdentityOAuth2Exception {
 
         //we do not support access token partitioning here
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement ps = null;
         try {
 
             String sqlQuery = SQLQueries.RENAME_USER_STORE_IN_ACCESS_TOKENS_TABLE;
-            connection = IdentityDatabaseUtil.getDBConnection();
             ps = connection.prepareStatement(sqlQuery);
             ps.setString(1, newUserStoreDomain.toUpperCase());
             ps.setInt(2, tenantId);
@@ -1421,8 +1310,6 @@ public class TokenMgtDAO {
             IdentityDatabaseUtil.rollBack(connection);
             throw new IdentityOAuth2Exception("Error occurred while renaming user store : " + currentUserStoreDomain +
                     " in tenant :" + tenantId, e);
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error while retrieving the database connection", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }
@@ -1431,14 +1318,13 @@ public class TokenMgtDAO {
     public List<AuthzCodeDO> getLatestAuthorizationCodesOfTenant(int tenantId) throws IdentityOAuth2Exception {
 
         //we do not support access token partitioning here
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();;
         PreparedStatement ps = null;
         ResultSet rs = null;
 
         List<AuthzCodeDO> latestAuthzCodes = new ArrayList<>();
         try {
             String sqlQuery = SQLQueries.LIST_LATEST_AUTHZ_CODES_IN_TENANT;
-            connection = IdentityDatabaseUtil.getDBConnection();
             ps = connection.prepareStatement(sqlQuery);
             ps.setInt(1, tenantId);
             rs = ps.executeQuery();
@@ -1464,8 +1350,6 @@ public class TokenMgtDAO {
             IdentityDatabaseUtil.rollBack(connection);
             throw new IdentityOAuth2Exception("Error occurred while retrieving latest authorization codes of tenant " +
                     ":" + tenantId, e);
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error while retrieving the database connection", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }
@@ -1476,14 +1360,13 @@ public class TokenMgtDAO {
             IdentityOAuth2Exception {
 
         //we do not support access token partitioning here
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
 
         List<AuthzCodeDO> latestAuthzCodes = new ArrayList<>();
         try {
             String sqlQuery = SQLQueries.LIST_LATEST_AUTHZ_CODES_IN_USER_DOMAIN;
-            connection = IdentityDatabaseUtil.getDBConnection();
             ps = connection.prepareStatement(sqlQuery);
             ps.setInt(1, tenantId);
             ps.setString(2, userStorDomain.toUpperCase());
@@ -1509,8 +1392,6 @@ public class TokenMgtDAO {
             IdentityDatabaseUtil.rollBack(connection);
             throw new IdentityOAuth2Exception("Error occurred while retrieving latest authorization codes of user " +
                     "store : " + userStorDomain + " in tenant :" + tenantId, e);
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error while retrieving the database connection", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }
@@ -1521,11 +1402,10 @@ public class TokenMgtDAO {
             newUserStoreDomain) throws IdentityOAuth2Exception {
 
         //we do not support access token partitioning here
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement ps = null;
         try {
             String sqlQuery = SQLQueries.RENAME_USER_STORE_IN_AUTHORIZATION_CODES_TABLE;
-            connection = IdentityDatabaseUtil.getDBConnection();
             ps = connection.prepareStatement(sqlQuery);
             ps.setString(1, newUserStoreDomain.toUpperCase());
             ps.setInt(2, tenantId);
@@ -1539,8 +1419,6 @@ public class TokenMgtDAO {
             IdentityDatabaseUtil.rollBack(connection);
             throw new IdentityOAuth2Exception("Error occurred while renaming user store : " + currentUserStoreDomain +
                     "in tenant :" + tenantId, e);
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception("Error while retrieving the database connection", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }

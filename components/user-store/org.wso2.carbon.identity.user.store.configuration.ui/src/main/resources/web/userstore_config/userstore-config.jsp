@@ -17,6 +17,7 @@
 -->
 
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.api.Properties" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.api.Property" %>
@@ -25,7 +26,6 @@
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.utils.UserStoreMgtDataKeeper" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.utils.UserStoreUIUtils" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
@@ -58,6 +58,7 @@
     private Boolean isEditing;
     private int isBoolean;
     private String existingDomains;
+    private String messageID;
     private int i;
 
     private int isBoolean(String value) {
@@ -71,12 +72,15 @@
     }
 
 %><%
+    domain = "0";
+    className = "0";
+
     if (request.getParameter("domain") != null) {
-        domain = CharacterEncoder.getSafeText(request.getParameter("domain"));
+        domain = request.getParameter("domain");
     }
 
     if (request.getParameter("className") != null) {
-        className = CharacterEncoder.getSafeText(request.getParameter("className"));
+        className = request.getParameter("className");
     }
     String selectedClassApplied = null;
     String description = null;
@@ -313,7 +317,7 @@
 
     function doValidateUpdate() {
         var value = document.getElementsByName("domainId")[0].value.toUpperCase();
-        var domain = "<%=domain.toUpperCase()%>";
+        var domain = "<%=Encode.forJavaScriptBlock(domain.toUpperCase())%>";
         if (value.localeCompare(domain)) {
             return false;
         }
@@ -352,12 +356,13 @@
                         for (String classApply : classApplies) {
                             if (selectedClassApplied != null && classApply.equals(selectedClassApplied)) {
                     %>
-                    <option value="<%=classApply%>" selected="selected"><%=classApply%>
+                    <option value="<%=Encode.forHtmlAttribute(classApply)%>"
+                    selected="selected"><%=Encode.forHtmlContent(classApply)%>
                     </option>
                     <%
                     } else {
                     %>
-                    <option value="<%=classApply%>"><%=classApply%>
+                    <option value="<%=Encode.forHtmlAttribute(classApply)%>"><%=Encode.forHtmlContent(classApply)%>
                     </option>
                     <%
                             }
@@ -376,8 +381,10 @@
             <%
                 if (domain != null && domain.trim().length() > 0 && !domain.equals("0")) {
             %>
-            <td><input type="text" name="domainId" id="domainId" width="" value="<%=domain%>"/></td>
-            <td><input type="hidden" name="previousDomainId" id="previousDomainId" value="<%=domain%>"/></td>
+            <td><input type="text" name="domainId" id="domainId" width=""
+            value="<%=Encode.forHtmlAttribute(domain)%>"/></td>
+            <td><input type="hidden" name="previousDomainId" id="previousDomainId"
+            value="<%=Encode.forHtmlAttribute(domain)%>"/></td>
             <%
             } else {
             %>
@@ -413,7 +420,7 @@
     <%--START properties--%>
     <%--**********************--%>
     <%--**********************--%>
-<div class="sectionSeperator" id="userStoreTypeSub"><%="Define Properties For "%><strong></strong></div>
+<div class="sectionSeperator" id="userStoreTypeSub"><%="Define Properties For"%><strong></strong></div>
 <div class="sectionSub">
         <%--MandatoryProperties--%>
     <%if (mandatories != null && mandatories[0] != null) {%>
@@ -477,9 +484,11 @@
                             if (propertyName != null && propertyName.trim().length() > 0) {
 
                         %>
-                        <td class="leftCol-med" width="50%" style="text-align:left;"><%=propertyName%><span
-                                class="required">*</span></td>
-                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=mandatories[j].getName()%>"/>
+                        <td class="leftCol-med" width="50%" style="text-align:left;"><%=propertyName%>
+                        <span class="required">*</span></td>
+                        <input type="hidden" name=<%=name%>
+                        id=<%=name%>
+                        value="<%=mandatories[j].getName()%>"/>
 
                         <%
                         } else {
@@ -494,20 +503,24 @@
                                 if (propertyValue != null) {
 
                                     if (isBoolean == 1) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%>
                                    class="checkbox" checked/>
                             <%
                             } else if (isBoolean == 0) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%>
                                    class="checkbox"/>
                             <%
                             } else if (propertyName.endsWith("password") || propertyName.endsWith("Password")) { %>
-                            <input type="password" name=<%=value%> id=<%=value%> style="width:95%"
+                            <input type="password" name=<%=value%>
+                            id=<%=value%> style="width:95%"
                                    value="<%=propertyValue%>"/>
                             <%
                             } else {
                             %>
-                            <input type="text" name=<%=value%> id=<%=value%> style="width:95%"
+                            <input type="text" name=<%=value%>
+                            id=<%=value%> style="width:95%"
                                    value="<%=propertyValue%>"/>
                             <%
                                 }
@@ -629,26 +642,31 @@
 
                                 if( !("UniqueID".equalsIgnoreCase(propertyName) ) ){
                         %>
-                        <td class="leftCol-med" width="50%" style="text-align:left;" id="<%=name%>"><%=propertyName%>
+                        <td class="leftCol-med" width="50%" style="text-align:left;"
+                        id="<%=name%>"><%=propertyName%>
                         </td>
-                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=optionals[x].getName()%>"/>
+                        <input type="hidden" name=<%=name%>
+                        id=<%=name%>
+                        value="<%=optionals[x].getName()%>"/>
                         </td>
                         <td style="width:30%" style="text-align:left;">
                             <%
                                 if (propertyValue != null) {
                                     if (isBoolean == 1) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%>
                                    class="checkbox" checked/>
 
                             <%
                             } else if (isBoolean == 0) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
-                                   class="checkbox"/>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%> class="checkbox"/>
                             <%
 
                             } else {
                             %>
-                            <input type="text" name=<%=value%> id=<%=value%> style="width:95%"
+                            <input type="text" name=<%=value%>
+                            id=<%=value%> style="width:95%"
                                    value="<%=propertyValue%>"/>
                             <%
                                     }
@@ -658,25 +676,29 @@
                             %>
                         </td>
                         <td class="sectionHelp" width="50%" style="text-align:left; !important">
-                            <%=description%>
+                            <%=Encode.forHtml(description)%>
                         </td>
 
                     </tr>
                     <%
                                 }else{
+                                    messageID = propertyValue;
                                     %>
                                    <td class="leftCol-med" width="50%" style="display:none;" id="<%=name%>"><%=propertyName%>
                                     </td>
-                                    <input type="hidden" name=<%=name%> id=<%=name%> value="<%=optionals[x].getName()%>"/>
+                                    <input type="hidden" name=<%=name%>
+                                    id=<%=name%>
+                                    value="<%=optionals[x].getName()%>"/>
                                     </td>
                                     <td style="width:30%" style="display:none;">
-                                        <input type="hidden" name=<%=value%> id=<%=value%>
+                                        <input type="hidden" name=<%=value%>
+                                        id=<%=value%>
                                         style="width:95%"
                                                value="<%=propertyValue%>"/>
 
                                     </td>
                                     <td class="sectionHelp" width="50%" style="display:none;">
-                                        <%=description%>
+                                        <%=Encode.forHtml(description)%>
                                     </td>
                                     <%
                                 }
@@ -757,26 +779,30 @@
                             if (propertyName != null && propertyName.trim().length() > 0) {
 
                         %>
-                        <td class="leftCol-med" width="50%" style="text-align:left;" id="<%=name%>"><%=propertyName%>
+                        <td class="leftCol-med" width="50%" style="text-align:left;"
+                        id="<%=name%>"><%=propertyName%>
                         </td>
-                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=advancedProperties[x].getName()%>"/>
+                        <input type="hidden" name=<%=name%>
+                        id=<%=name%>
+                        value="<%=advancedProperties[x].getName()%>"/>
                         </td>
                         <td style="width:30%" style="text-align:left;">
                             <%
                                 if (propertyValue != null) {
                                     if (isBoolean == 1) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
-                                   class="checkbox" checked/>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%> class="checkbox" checked/>
 
                             <%
                             } else if (isBoolean == 0) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
-                                   class="checkbox"/>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%> class="checkbox"/>
                             <%
 
                             } else {
                             %>
-                            <input type="text" name=<%=value%> id=<%=value%> style="width:95%"
+                            <input type="text" name=<%=value%>
+                             id=<%=value%> style="width:95%"
                                    value="<%=propertyValue%>"/>
                             <%
                                     }
@@ -832,9 +858,17 @@
 			var connectionURL = document.getElementById("propertyValue_2").value;
 			var username = document.getElementById("propertyValue_3").value;
 			var connectionPassword = document.getElementById("propertyValue_4").value;
-			
-			var url = 'validateconnection-ajaxprocessor.jsp?&domainName=' + domainName+'&driverName='+driverName+
-           	'&connectionURL='+encodeURIComponent(connectionURL)+'&username='+username+'&connectionPassword=' + connectionPassword;
+
+			var url = 'validateconnection-ajaxprocessor.jsp?' +
+                    '&domainName=' + encodeURIComponent(domainName) +
+                    '&driverName=' + encodeURIComponent(driverName) +
+                    '&connectionURL=' + encodeURIComponent(connectionURL) +
+                    '&username=' + encodeURIComponent(username) +
+                    '&connectionPassword=' + encodeURIComponent(connectionPassword);
+
+            <%if(messageID != null && !"".equals(messageID)) {%>
+            url += '&messageID=<%=messageID%>';
+            <%}%>
 		
 			$.ajax({
 				  url: url,

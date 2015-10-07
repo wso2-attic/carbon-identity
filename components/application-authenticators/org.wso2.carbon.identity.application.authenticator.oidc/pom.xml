@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>application-authenticators</artifactId>
-        <version>4.5.10-SNAPSHOT</version>
+        <version>4.6.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -34,6 +34,10 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
         </dependency>
         <dependency>
@@ -41,8 +45,8 @@
             <artifactId>org.wso2.carbon.ui</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.amber.wso2</groupId>
-            <artifactId>amber</artifactId>
+            <groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>
+            <artifactId>oltu</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
@@ -69,18 +73,16 @@
                         <Import-Package>
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
 
-                            org.apache.amber.oauth2.client; version="${amber.package.import.version.range}",
-                            org.apache.amber.oauth2.client.request; version="${amber.package.import.version.range}",
-                            org.apache.amber.oauth2.client.response; version="${amber.package.import.version.range}",
-                            org.apache.amber.oauth2.common.exception; version="${amber.package.import.version.range}",
-                            org.apache.amber.oauth2.common.message.types;
-                            version="${amber.package.import.version.range}",
-                            org.apache.amber.oauth2.common.utils; version="${amber.package.import.version.range}",
+                            org.apache.oltu.oauth2.client; version="${oltu.package.import.version.range}",
+                            org.apache.oltu.oauth2.client.request; version="${oltu.package.import.version.range}",
+                            org.apache.oltu.oauth2.client.response; version="${oltu.package.import.version.range}",
+                            org.apache.oltu.oauth2.common.exception; version="${oltu.package.import.version.range}",
+                            org.apache.oltu.oauth2.common.message.types;
+                            version="${oltu.package.import.version.range}",
+                            org.apache.oltu.oauth2.common.utils; version="${oltu.package.import.version.range}",
 
                             org.apache.commons.codec.binary; version="${commons-codec.wso2.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
-
-                            org.codehaus.jettison.json; version="${codehaus.jettison.import.version.range}",
 
                             org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
                             org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
@@ -89,7 +91,7 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.application.common.model;
                             version="${carbon.identity.package.import.version.range}",
-
+                            org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.ui; version="${carbon.kernel.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>

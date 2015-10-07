@@ -42,6 +42,7 @@ import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningCo
 import org.wso2.carbon.identity.provisioning.dao.CacheBackedProvisioningMgtDAO;
 import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
 import org.wso2.carbon.identity.provisioning.internal.IdentityProvisionServiceComponent;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -235,7 +236,7 @@ public class OutboundProvisioningManager {
                         }
                     }
 
-                } catch (IdentityApplicationManagementException e) {
+                } catch (IdentityProviderManagementException e) {
                     throw new IdentityProvisioningException("Error while retrieving idp configuration for "
                             + fIdP.getIdentityProviderName(), e);
                 }
@@ -277,14 +278,14 @@ public class OutboundProvisioningManager {
      * @param tenantDomainName
      * @param enableJitProvisioning
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      * @throws UserStoreException
      */
     private AbstractOutboundProvisioningConnector getOutboundProvisioningConnector(
             IdentityProvider fIdP,
             Map<String, AbstractProvisioningConnectorFactory> registeredConnectorFactories,
             String tenantDomainName, boolean enableJitProvisioning)
-            throws IdentityApplicationManagementException, IdentityProvisioningException {
+            throws IdentityProviderManagementException, IdentityProvisioningException {
 
         String idpName = fIdP.getIdentityProviderName();
 
@@ -569,7 +570,7 @@ public class OutboundProvisioningManager {
                 executors.shutdown();
             }
 
-        } catch (CarbonException | IdentityApplicationManagementException | UserStoreException e) {
+        } catch (CarbonException | IdentityApplicationManagementException | IdentityProviderManagementException | UserStoreException e) {
             throw new IdentityProvisioningException("Error occurred while checking for user " +
                     "provisioning", e);
         }
@@ -862,7 +863,18 @@ public class OutboundProvisioningManager {
 
         UserStoreManager userstore = null;
         userstore = realm.getUserStoreManager();
-        Claim[] claimArray = userstore.getUserClaimValues(userName, null);
+        Claim[] claimArray = null;
+        try {
+            claimArray = userstore.getUserClaimValues(userName, null);
+        } catch (UserStoreException e) {
+            if (e.getMessage().contains("UserNotFound")) {
+                if (log.isDebugEnabled()) {
+                    log.debug("User " + userName + " not found in user store");
+                }
+            } else {
+                throw e;
+            }
+        }
         if (claimArray != null) {
             for (Claim claim : claimArray) {
                 inboundAttributes.put(claim.getClaimUri(), claim.getValue());

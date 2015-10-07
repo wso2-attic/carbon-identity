@@ -42,7 +42,6 @@
         String message = MessageFormat.format(resourceBundle.getString("success.adding.idp"),null);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
     } catch (Exception e) {
-    	e.printStackTrace();
         String message = MessageFormat.format(resourceBundle.getString("error.adding.idp"),
                 new Object[]{e.getMessage()});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);

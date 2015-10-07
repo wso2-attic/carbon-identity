@@ -16,7 +16,7 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
@@ -42,7 +42,7 @@
 	<script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 
 	<%
-		String spName = CharacterEncoder.getSafeText(request.getParameter("spName"));
+		String spName = request.getParameter("spName");
 			if (spName != null && !"".equals(spName)) {
 				if ("wso2carbon-local-sp".equals(spName)) {
 					appBean.updateLocalSp(request);

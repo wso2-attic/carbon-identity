@@ -16,6 +16,7 @@
  ~ under the License.
  -->
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.ExtendAttributeDTO" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
@@ -46,11 +47,11 @@
     Set<String> categories = entitlementPolicyBean.getCategorySet();
     Map<String, Set<String>> attributeIdMap =  entitlementPolicyBean.getDefaultAttributeIdMap();
     Map<String, Set<String>> dataTypeMap =  entitlementPolicyBean.getDefaultDataTypeMap();
-    String selectedCategory  = CharacterEncoder.getSafeText(request.getParameter("category"));
-    String selectFunction  = CharacterEncoder.getSafeText(request.getParameter("function"));
-    String selectedAttributeId = CharacterEncoder.getSafeText(request.getParameter("category"));
-    String selectedDataType = CharacterEncoder.getSafeText(request.getParameter("category"));
-    String selectedParams =  CharacterEncoder.getSafeText(request.getParameter("category"));
+    String selectedCategory  = request.getParameter("category");
+    String selectFunction  = request.getParameter("function");
+    String selectedAttributeId = request.getParameter("category");
+    String selectedDataType = request.getParameter("category");
+    String selectedParams =  request.getParameter("category");
 
     if(selectedCategory != null && selectedCategory.trim().length() > 0){
         ExtendAttributeDTO attributeDTO = new ExtendAttributeDTO();
@@ -88,7 +89,7 @@
     %>
 
     <script type="text/javascript">
-        selectorAttributeIdList.push({key:'<%=selector%>',list:'<%=tmp%>'});
+        selectorAttributeIdList.push({key:'<%=Encode.forJavaScriptBlock(selector)%>',list:'<%=Encode.forJavaScriptBlock(tmp)%>'});
     </script>
 
     <%
@@ -107,7 +108,7 @@
     %>
 
     <script type="text/javascript">
-        selectorDataTypeList.push({key:'<%=selector%>',list:'<%=tmp%>'});
+        selectorDataTypeList.push({key:'<%=Encode.forJavaScriptBlock(selector)%>',list:'<%=Encode.forJavaScriptBlock(tmp)%>'});
     </script>
 
     <%
@@ -190,11 +191,11 @@
                                     for (String category : categories) {
                                         if (selectedCategory != null && category.equals(selectedCategory)) {
                                 %>
-                                <option value="<%=category%>" selected="selected"><%=category%></option>
+                                <option value="<%=Encode.forHtmlAttribute(category)%>" selected="selected"><%=Encode.forHtmlContent(category)%></option>
                                 <%
                                         } else {
                                 %>
-                                <option value="<%=category%>"><%=category%></option>
+                                <option value="<%=Encode.forHtmlAttribute(category)%>"><%=Encode.forHtmlContent(category)%></option>
                                 <%
                                         }
                                     }
@@ -206,7 +207,7 @@
                                 <%
                                     if (selectedAttributeId != null && selectedAttributeId.trim().length() > 0) {
                                 %>
-                                    <option value="<%=selectedAttributeId%>" selected="selected"><%=selectedAttributeId%></option>
+                                    <option value="<%=Encode.forHtmlAttribute(selectedAttributeId)%>" selected="selected"><%=Encode.forHtmlContent(selectedAttributeId)%></option>
                                 <%
                                     }
                                 %>
@@ -217,7 +218,7 @@
                                 <%
                                     if (selectedDataType != null && selectedDataType.trim().length() > 0) {
                                 %>
-                                    <option value="<%=selectedDataType%>" selected="selected"><%=selectedDataType%></option>
+                                    <option value="<%=Encode.forHtmlAttribute(selectedDataType)%>" selected="selected"><%=Encode.forHtmlContent(selectedDataType)%></option>
                                 <%
                                     }
                                 %>
@@ -243,9 +244,9 @@
                                         for(ExtendAttributeDTO attributeDTO : list){
                                 %>
                                         <tr>
-                                        <td><%=attributeDTO.getCategory()%></td>
-                                        <td><%=attributeDTO.getAttributeId()%></td>
-                                        <td><%=attributeDTO.getDataType()%></td>
+                                        <td><%=Encode.forHtmlContent(attributeDTO.getCategory())%></td>
+                                        <td><%=Encode.forHtmlContent(attributeDTO.getAttributeId())%></td>
+                                        <td><%=Encode.forHtmlContent(attributeDTO.getDataType())%></td>
                                         </tr>
                                 <%
                                         }
@@ -270,11 +271,11 @@
                                     for (String category : categories) {
                                         if (selectFunction != null && category.equals(selectFunction)) {
                                 %>
-                                <option value="<%=category%>" selected="selected"><%=category%></option>
+                                <option value="<%=Encode.forHtmlAttribute(category)%>" selected="selected"><%=Encode.forHtmlContent(category)%></option>
                                 <%
                                         } else {
                                 %>
-                                <option value="<%=category%>"><%=category%></option>
+                                <option value="<%=Encode.forHtmlAttribute(category)%>"><%=Encode.forHtmlContent(category)%></option>
                                 <%
                                         }
                                     }
@@ -284,7 +285,7 @@
                             <%
                                 if (selectedParams != null && selectedParams.trim().length() > 0) {
                             %>
-                            <td><input type="text" name="params" id="params" value="<%=selectedParams%>"
+                            <td><input type="text" name="params" id="params" value="<%=Encode.forHtmlAttribute(selectedParams)%>"
                                                                     class="text-box-big"/></td>
                             <%
                             } else {
@@ -298,7 +299,7 @@
                                 <%
                                     if (selectedAttributeId != null && selectedAttributeId.trim().length() > 0) {
                                 %>
-                                    <option value="<%=selectedAttributeId%>" selected="selected"><%=selectedAttributeId%></option>
+                                    <option value="<%=Encode.forHtmlAttribute(selectedAttributeId)%>" selected="selected"><%=Encode.forHtmlContent(selectedAttributeId)%></option>
                                 <%
                                     }
                                 %>
@@ -309,7 +310,7 @@
                                 <%
                                     if (selectedDataType != null && selectedDataType.trim().length() > 0) {
                                 %>
-                                    <option value="<%=selectedDataType%>" selected="selected"><%=selectedDataType%></option>
+                                    <option value="<%=Encode.forHtmlAttribute(selectedDataType)%>" selected="selected"><%=Encode.forHtmlContent(selectedDataType)%></option>
                                 <%
                                     }
                                 %>

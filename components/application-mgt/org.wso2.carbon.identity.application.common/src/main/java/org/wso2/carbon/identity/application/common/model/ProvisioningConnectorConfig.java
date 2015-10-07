@@ -32,10 +32,7 @@ import java.util.List;
 
 public class ProvisioningConnectorConfig implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 8270617885506096420L;
+    private static final long serialVersionUID = -4569973060498183209L;
 
     protected Property[] provisioningProperties = new Property[0];
     protected String name;

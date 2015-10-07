@@ -24,7 +24,6 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowEventDTO" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowUIConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
@@ -36,7 +35,9 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequest" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowEvent" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -54,15 +55,15 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
-    WorkflowRequestDTO[] associationToDisplay = new WorkflowRequestDTO[0];
-    WorkflowRequestDTO[] requestList = null;
+    WorkflowRequest[] associationToDisplay = new WorkflowRequest[0];
+    WorkflowRequest[] requestList = null;
     String paginationValue = "region=region1";
 
     String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
     int numberOfPages = 0;
-    WorkflowEventDTO[] workflowEvents;
-    Map<String, List<WorkflowEventDTO>> events = new HashMap<String, List<WorkflowEventDTO>>();
+    WorkflowEvent[] workflowEvents;
+    Map<String, List<WorkflowEvent>> events = new HashMap<String, List<WorkflowEvent>>();
 
     if (pageNumber != null) {
         try {
@@ -97,30 +98,31 @@
 
 
         if (taskTypeFilter.equals("allTasks")) {
-            requestList = client.getAllRequests(lowerBound, upperBound, timeFilterCategory);
+            requestList = client.getAllRequests(lowerBound, upperBound, timeFilterCategory, statusToFilter);
         } else {
-            requestList = client.getRequestsCreatedByUser(loggedUser, lowerBound, upperBound, timeFilterCategory);
+            requestList = client.getRequestsCreatedByUser(loggedUser, lowerBound, upperBound, timeFilterCategory,
+                    statusToFilter);
         }
 
         if (requestList == null) {
-            requestList = new WorkflowRequestDTO[0];
+            requestList = new WorkflowRequest[0];
         }
 
         numberOfPages = (int) Math.ceil((double) requestList.length / WorkflowUIConstants.RESULTS_PER_PAGE);
 
         int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
         int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.RESULTS_PER_PAGE;
-        associationToDisplay = new WorkflowRequestDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
+        associationToDisplay = new WorkflowRequest[WorkflowUIConstants.RESULTS_PER_PAGE];
 
         for (int i = startIndex, j = 0; i < endIndex && i < requestList.length; i++, j++) {
             associationToDisplay[j] = requestList[i];
         }
 
         workflowEvents = client.listWorkflowEvents();
-        for (WorkflowEventDTO event : workflowEvents) {
+        for (WorkflowEvent event : workflowEvents) {
             String category = event.getEventCategory();
             if (!events.containsKey(category)) {
-                events.put(category, new ArrayList<WorkflowEventDTO>());
+                events.put(category, new ArrayList<WorkflowEvent>());
             }
             events.get(category).add(event);
         }
@@ -140,7 +142,7 @@
 %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 
@@ -182,17 +184,17 @@
         var eventsObj = {};
         var lastSelectedCategory = '';
         <%
-            for (Map.Entry<String,List<WorkflowEventDTO>> eventCategory : events.entrySet()) {
+            for (Map.Entry<String,List<WorkflowEvent>> eventCategory : events.entrySet()) {
             %>
         eventsObj["<%=eventCategory.getKey()%>"] = [];
         <%
-            for (WorkflowEventDTO event : eventCategory.getValue()) {
+            for (WorkflowEvent event : eventCategory.getValue()) {
                 %>
         var eventObj = {};
-        eventObj.displayName = "<%=event.getEventFriendlyName()%>";
-        eventObj.value = "<%=event.getEventId()%>";
-        eventObj.title = "<%=event.getEventDescription()!=null?event.getEventDescription():""%>";
-        eventsObj["<%=eventCategory.getKey()%>"].push(eventObj);
+        eventObj.displayName = "<%=Encode.forJavaScriptBlock(event.getEventFriendlyName())%>";
+        eventObj.value = "<%=Encode.forJavaScriptBlock(event.getEventId())%>";
+        eventObj.title = "<%=event.getEventDescription()!=null?Encode.forJavaScriptBlock(event.getEventDescription()):""%>";
+        eventsObj["<%=Encode.forJavaScriptBlock(eventCategory.getKey())%>"].push(eventObj);
         <%
                     }
             }
@@ -232,8 +234,8 @@
                 changeMonth: true,
                 numberOfMonths: 1,
                 onClose: function (selectedDate) {
-                    $("#createdAtTo").datepicker("option", "minDate",
-                            new Date($('#createdAtFrom').datepicker("getDate")));
+                    $("#createdAtTo").datepicker({minDate:
+                            new Date($('#createdAtFrom').datepicker("getDate"))});
                 }
             });
             $("#createdAtTo").datepicker({
@@ -241,8 +243,8 @@
                 changeMonth: true,
                 numberOfMonths: 1,
                 onClose: function (selectedDate) {
-                    $("#createdAtFrom").datepicker("option", "maxDate", new
-                            Date($('#createdAtTo').datepicker("getDate")));
+                    $("#createdAtFrom").datepicker({maxDate: new
+                            Date($('#createdAtTo').datepicker("getDate"))});
                 }
             });
         });
@@ -422,28 +424,29 @@
                 <tbody>
                 <%
                     if (requestList != null && requestList.length > 0) {
-                        for (WorkflowRequestDTO workflowReq : associationToDisplay) {
+                        for (WorkflowRequest workflowReq : associationToDisplay) {
                             if (workflowReq != null && (statusToFilter == null || statusToFilter == ""
                                     || statusToFilter.equals("allTasks") || workflowReq.getStatus().equals(statusToFilter))) {
                 %>
                 <tr>
-                    <td><%=workflowReq.getEventType()%>
+                    <td><%=Encode.forHtmlContent(workflowReq.getEventType())%>
                     </td>
-                    <td><%=workflowReq.getCreatedAt()%>
+                    <td><%=Encode.forHtmlContent(workflowReq.getCreatedAt())%>
                     </td>
-                    <td><%=workflowReq.getUpdatedAt()%>
+                    <td><%=Encode.forHtmlContent(workflowReq.getUpdatedAt())%>
                     </td>
 
-                    <td><%=workflowReq.getStatus()%>
+                    <td><%=Encode.forHtmlContent(workflowReq.getStatus())%>
                     </td>
-                    <td><%=workflowReq.getRequestParams()%>
+                    <td><%=Encode.forHtmlContent(workflowReq.getRequestParams())%>
                     </td>
                     <td>
                         <a title="<fmt:message key='workflow.request.list.title'/>"
                            onclick="listWorkflows('<%=workflowReq.getRequestId()%>');return false;"
                            href="#" style="background-image: url(images/list.png);"
                            class="icon-link"><fmt:message key='workflows'/></a>
-                        <% if (workflowReq.getStatus().equals("PENDING") && workflowReq.getCreatedBy().equals(loggedUser)) { %>
+                        <% if (workflowReq.getCreatedBy() != null && workflowReq.getStatus().equals("PENDING") &&
+                                workflowReq.getCreatedBy().equals(loggedUser)) { %>
                         <a title="<fmt:message key='workflow.request.delete.title'/>"
                            onclick="removeRequest('<%=workflowReq.getRequestId()%>');return false;"
                            href="#" style="background-image: url(images/delete.gif);"

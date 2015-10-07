@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>application-authenticators</artifactId>
-        <version>4.5.10-SNAPSHOT</version>
+        <version>4.6.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -41,8 +41,8 @@
             <artifactId>org.wso2.carbon.ui</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.amber.wso2</groupId>
-            <artifactId>amber</artifactId>
+            <groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>
+            <artifactId>oltu</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
@@ -77,11 +77,10 @@
                         <Import-Package>
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
 
-                            org.apache.amber.oauth2.*; version="${amber.package.import.version.range}",
+                            org.apache.oltu.oauth2.*; version="${oltu.package.import.version.range}",
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
                             org.apache.commons.codec.binary; version="${commons-codec.wso2.osgi.version.range}",
-                            org.codehaus.jettison.json; version="${codehaus.jettison.import.version.range}",
 
                             org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
                             org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",

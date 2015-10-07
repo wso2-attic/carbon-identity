@@ -36,7 +36,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
 
     @Override
     public int getExecutionOrderId() {
-        int orderId = getOrderId(UserStoreActionListener.class.getName());
+        int orderId = getOrderId();
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -46,7 +46,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
                                 String profile, UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -85,7 +85,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
 
     @Override
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -102,7 +102,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName,
                                           UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -120,7 +120,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
                                            UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -138,7 +138,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreDeleteUserClaimValues(String userName, String[] claims, String profileName, UserStoreManager
             userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -156,7 +156,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreDeleteUserClaimValue(String userName, String claimURI, String profileName,
                                              UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -174,7 +174,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreAddRole(String roleName, String[] userList, Permission[] permissions, UserStoreManager
             userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -190,7 +190,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
 
     @Override
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -207,7 +207,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager) throws
             UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -225,7 +225,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers, UserStoreManager
             userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -243,7 +243,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles, UserStoreManager
             userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 

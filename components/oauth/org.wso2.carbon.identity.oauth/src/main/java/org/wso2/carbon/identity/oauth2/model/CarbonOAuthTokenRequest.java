@@ -17,15 +17,17 @@
  */
 package org.wso2.carbon.identity.oauth2.model;
 
-import org.apache.amber.oauth2.as.request.OAuthTokenRequest;
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.exception.OAuthProblemException;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.utils.OAuthUtils;
-import org.apache.amber.oauth2.common.validators.OAuthValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.as.request.OAuthTokenRequest;
+import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.utils.OAuthUtils;
+import org.apache.oltu.oauth2.common.validators.OAuthValidator;
+import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -35,13 +37,10 @@ import java.util.List;
  * CarbonOAuthTokenRequest holds all OAuth token request parameters.
  */
 public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
-    private static final String ASSERTION = "assertion";
-    private static final String CREDENTIAL_TYPE = "credentialType";
-    private static final String WINDOWS_TOKEN = "windows_token";
-    private static final String TENANT_DOMAIN = "tenantDomain";
+
     private static Log log = LogFactory.getLog(CarbonOAuthTokenRequest.class);
+
     private String assertion;
-    private String credentialType;
     private String windows_token;
     private String tenantDomain;
     private RequestParameter[] requestParameters;
@@ -57,19 +56,18 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
             OAuthProblemException {
 
         super(request);
-        assertion = request.getParameter(ASSERTION);
-        credentialType = request.getParameter(CREDENTIAL_TYPE);
-        tenantDomain = request.getParameter(TENANT_DOMAIN);
+        assertion = request.getParameter(OAuth.OAUTH_ASSERTION);
+        windows_token = request.getParameter(OAuthConstants.WINDOWS_TOKEN);
+        tenantDomain = request.getParameter(MultitenantConstants.TENANT_DOMAIN);
         if (tenantDomain == null){
-            tenantDomain = "carbon.super";
+            tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
-        windows_token = request.getParameter(WINDOWS_TOKEN);
 
         // Store all request parameters
         if (request.getParameterNames() != null) {
             List<RequestParameter> requestParameterList = new ArrayList<RequestParameter>();
             while (request.getParameterNames().hasMoreElements()) {
-                String key = (String) request.getParameterNames().nextElement();
+                String key = request.getParameterNames().nextElement();
                 String value = request.getParameter(key);
                 requestParameterList.add(new RequestParameter(key, value));
             }
@@ -86,8 +84,7 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
      * @throws OAuthSystemException
      */
     @Override
-    protected OAuthValidator<HttpServletRequest> initValidator()
-            throws OAuthProblemException, OAuthSystemException {
+    protected OAuthValidator<HttpServletRequest> initValidator() throws OAuthProblemException, OAuthSystemException {
 
         String requestTypeValue = getParam(OAuth.OAUTH_GRANT_TYPE);
         if (OAuthUtils.isEmpty(requestTypeValue)) {
@@ -119,48 +116,12 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
     }
 
     /**
-     * Sets the assertion
-     *
-     * @param assertion assertion as a string
-     */
-    public void setAssertion(String assertion) {
-        this.assertion = assertion;
-    }
-
-    /**
-     * Returns the credential type
-     *
-     * @return credential type
-     */
-    public String getCredentialType() {
-        return credentialType;
-    }
-
-    /**
-     * Sets the credential type
-     *
-     * @param credentialType credential type as a string
-     */
-    public void setCredentialType(String credentialType) {
-        this.credentialType = credentialType;
-    }
-
-    /**
      * Returns the windows token
      *
      * @return window token
      */
     public String getWindowsToken() {
         return windows_token;
-    }
-
-    /**
-     * Sets window token
-     *
-     * @param windowsToken window token as a string
-     */
-    public void setWindowsToken(String windowsToken) {
-        this.windows_token = windowsToken;
     }
 
     /**

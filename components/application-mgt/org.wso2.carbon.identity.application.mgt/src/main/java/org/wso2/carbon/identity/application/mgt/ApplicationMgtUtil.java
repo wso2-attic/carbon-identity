@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.mgt;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -325,7 +326,7 @@ public class ApplicationMgtUtil {
                 tenantGovReg.delete(applicationNode);
             }
 
-            if (permissions == null || permissions.length == 0) {
+            if (ArrayUtils.isEmpty(permissions)) {
                 return;
             }
 

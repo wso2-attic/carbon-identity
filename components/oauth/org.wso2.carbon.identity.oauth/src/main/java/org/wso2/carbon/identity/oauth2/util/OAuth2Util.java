@@ -46,6 +46,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -89,7 +90,7 @@ public class OAuth2Util {
     }
 
     /**
-     * Build a comma separated list of scopes passed as a String set by Amber.
+     * Build a comma separated list of scopes passed as a String set by OLTU.
      *
      * @param scopes set of scopes
      * @return Comma separated list of scopes
@@ -589,5 +590,34 @@ public class OAuth2Util {
             }
             return oauth2UserInfoEPUrl;
         }
+
+        public static String getOIDCConsentPageUrl() {
+            String OIDCConsentPageUrl = OAuthServerConfiguration.getInstance().getOIDCConsentPageUrl();
+            if(StringUtils.isBlank(OIDCConsentPageUrl)){
+                OIDCConsentPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_consent.do");
+            }
+            return OIDCConsentPageUrl;
+        }
+
+        public static String getOAuth2ConsentPageUrl() {
+            String oAuth2ConsentPageUrl = OAuthServerConfiguration.getInstance().getOauth2ConsentPageUrl();
+            if(StringUtils.isBlank(oAuth2ConsentPageUrl)){
+                oAuth2ConsentPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_authz.do");
+            }
+            return oAuth2ConsentPageUrl;
+        }
+    }
+
+    public static boolean isOIDCAuthzRequest(Set<String> scope) {
+        return scope.contains(OAuthConstants.Scope.OPENID);
+    }
+
+    public static boolean isOIDCAuthzRequest(String[] scope) {
+        for(String openidscope : scope) {
+            if (openidscope.equals(OAuthConstants.Scope.OPENID)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

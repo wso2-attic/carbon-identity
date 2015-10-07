@@ -18,11 +18,11 @@
 
 package org.wso2.carbon.identity.oauth2.authz.handlers;
 
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
@@ -288,7 +288,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             AccessTokenDO newAccessTokenDO = new AccessTokenDO(consumerKey, OAuth2Util.getUserFromUserName
                     (authorizationReqDTO.getUsername()), oauthAuthzMsgCtx.getApprovedScope(), timestamp,
                     refreshTokenIssuedTime, validityPeriodInMillis, refreshTokenValidityPeriodInMillis,
-                    OAuthConstants.USER_TYPE_FOR_USER_TOKEN);
+                    OAuthConstants.UserType.APPLICATION_USER);
 
             newAccessTokenDO.setAccessToken(accessToken);
             newAccessTokenDO.setRefreshToken(refreshToken);
@@ -314,7 +314,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                           ", Scope : " + OAuth2Util.buildScopeString(oauthAuthzMsgCtx.getApprovedScope()) +
                           ", Callback URL : " + authorizationReqDTO.getCallbackUrl() +
                           ", Token State : " + OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE +
-                          " and User Type : " + OAuthConstants.USER_TYPE_FOR_USER_TOKEN);
+                          " and User Type : " + OAuthConstants.UserType.APPLICATION_USER);
             }
 
             // Add the access token to the cache.

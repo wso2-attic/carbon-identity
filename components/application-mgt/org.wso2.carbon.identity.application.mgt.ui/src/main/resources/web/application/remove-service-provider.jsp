@@ -21,9 +21,9 @@
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page 	import="java.util.ResourceBundle"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon"%>
@@ -46,7 +46,7 @@
 	<script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 
 	<%
-		String appid = CharacterEncoder.getSafeText(request.getParameter("appid"));
+		String appid = request.getParameter("appid");
 		String BUNDLE = "org.wso2.carbon.identity.application.mgt.ui.i18n.Resources";
     	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
     

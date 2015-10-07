@@ -5,7 +5,7 @@
     <parent>
         <artifactId>user-mgt</artifactId>
         <groupId>org.wso2.carbon.identity</groupId>
-        <version>4.5.10-SNAPSHOT</version>
+        <version>4.6.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -22,10 +22,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.user.mgt.workflow.stub</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom.wso2</groupId>
@@ -62,7 +58,6 @@
                             org.apache.axis2.client,
                             org.apache.axis2.context,
                             org.apache.commons.logging,
-                            org.wso2.carbon.user.mgt.workflow.stub
                         </Import-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>

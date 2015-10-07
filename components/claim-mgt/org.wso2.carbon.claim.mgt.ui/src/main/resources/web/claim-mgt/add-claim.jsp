@@ -27,6 +27,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -249,7 +250,7 @@
                                             if (claimDialectDTO != null && claimDialectDTO.length > 0) {
                                                 for (int i = 0; i < claimDialectDTO.length; i++) {
                                         %>
-                                        <option value="<%=claimDialectDTO[i].getDialectURI()%>"><%=claimDialectDTO[i].getDialectURI()%>
+                                        <option value="<%=Encode.forHtmlAttribute(claimDialectDTO[i].getDialectURI())%>"><%=Encode.forHtmlContent(claimDialectDTO[i].getDialectURI())%>
                                         </option>
                                         <%
                                                 }
@@ -280,7 +281,7 @@
                                         if (claimUri != null && claimUri.trim().length() > 0) {
                                     %>
                                     <td class="leftCol-big"><input type="text" name="claimUri" id="claimUri"
-                                                                   class="text-box-big" value="<%=claimUri%>"/></td>
+                                                                   class="text-box-big" value="<%=Encode.forHtmlAttribute(claimUri)%>"/></td>
                                     <%
                                     } else {
                                     %>

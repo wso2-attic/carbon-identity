@@ -23,7 +23,7 @@
 <%@ page import="org.wso2.carbon.identity.mgt.stub.beans.VerificationBean" %>
 <%@ page import="org.wso2.carbon.identity.mgt.ui.IdentityManagementClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 
@@ -140,11 +140,11 @@
                                 <td><fmt:message key="user.id"/></td>
                                 <td colspan="2"><input readonly="true" type="text" name="userName"
                                                        id="userName"
-                                                       style="width:400px" value="<%=userName%>"/>
+                                                       style="width:400px" value="<%=Encode.forHtmlAttribute(userName)%>"/>
                             </tr>
                             <tr>
                                 <td><input type="hidden"  name="secretKey" id="secretKey"
-                                           value="<%=secretKey%>" /></td>
+                                           value="<%=Encode.forHtmlAttribute(secretKey)%>" /></td>
                             </tr>
                             <tr>
                                 <td><fmt:message key="new.password"/>
@@ -178,7 +178,7 @@
                             </tr>
                             <tr>
                                 <td><input type="hidden" name="captcha-secret-key"
-                                            value="<%=captchaSecretKey%>"/></td>
+                                            value="<%=Encode.forHtmlAttribute(captchaSecretKey)%>"/></td>
                                 <td colspan="2" height="100"><input type="text"
                                                                     id="captcha-user-answer"
                                                                     name="captcha-user-answer"
@@ -212,7 +212,7 @@
         </form>
     </div>
     <script type="text/javascript">
-        showCaptcha('<%=captchaImageUrl%>');
+        showCaptcha('<%=Encode.forJavaScriptBlock(captchaImageUrl)%>');
     </script>
 
     <% } else { %>

@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.store;
 
+import java.sql.Timestamp;
+
 /**
  *
  */
@@ -29,10 +31,13 @@ public class SessionContextDO {
 
     private Object entry;
 
-    public SessionContextDO(String key, String type, Object entry) {
+    private Timestamp timestamp;
+
+    public SessionContextDO(String key, String type, Object entry, Timestamp timestamp) {
         this.type = type;
         this.key = key;
         this.entry = entry;
+        this.timestamp = timestamp;
     }
 
     public String getKey() {
@@ -57,5 +62,13 @@ public class SessionContextDO {
 
     public void setEntry(Object entry) {
         this.entry = entry;
+    }
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 }

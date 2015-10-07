@@ -16,11 +16,11 @@
   ~ under the License.
   --%>
 
-<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.Constants" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%
-    String app = CharacterEncoder.getSafeText(request.getParameter("application"));
+    String app = request.getParameter("application");
 %>
 <html lang="en">
 <head>
@@ -62,7 +62,7 @@
     <div class="container">
         <div class="row">
             <div class="span12 content-section">
-                <strong><%=app%>
+                <strong><%=Encode.forHtml(app)%>
                 </strong> application requests access to your profile information
             </div>
         </div>
@@ -100,7 +100,7 @@
                        value="Deny" onclick="javascript: deny(); return false;"/>
 
                 <input type="hidden" name="<%=Constants.SESSION_DATA_KEY_CONSENT%>"
-                       value="<%=CharacterEncoder.getSafeText(request.getParameter
+                       value="<%=Encode.forHtmlAttribute(request.getParameter
 								(Constants.SESSION_DATA_KEY_CONSENT))%>"/>
                 <input type="hidden" name="consent" id="consent"
                        value="deny"/>

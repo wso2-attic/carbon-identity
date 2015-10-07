@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>oauth</artifactId>
-        <version>4.5.10-SNAPSHOT</version>
+        <version>4.6.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -58,12 +58,20 @@
             <artifactId>org.wso2.carbon.identity.oauth.common</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.amber.wso2</groupId>
-            <artifactId>amber</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.cxf.wso2</groupId>
             <artifactId>cxf-bundle</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
+            <artifactId>encoder</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.core.ui</artifactId>
         </dependency>
     </dependencies>
 
@@ -107,7 +115,8 @@
                             org.wso2.carbon.ui; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.ui.util; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.utils; version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.identity.core.util; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.core.util.*;
+                            version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.oauth.ui.internal,

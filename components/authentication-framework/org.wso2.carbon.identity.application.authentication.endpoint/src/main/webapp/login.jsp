@@ -19,6 +19,7 @@
 <%@page import="org.wso2.carbon.identity.application.authentication.endpoint.util.Constants" %>
 <%@page import="java.util.ArrayList" %>
 <%@page import="java.util.Arrays" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page import="java.util.Map" %>
@@ -95,15 +96,11 @@
         String errorMessage = "Authentication Failed! Please Retry";
         String loginFailed = "false";
 
-        if (CharacterEncoder.getSafeText(request.getParameter(Constants.AUTH_FAILURE)) != null &&
-            "true".equals(CharacterEncoder.getSafeText(request.getParameter(Constants
-                                                                                    .AUTH_FAILURE)))) {
+        if (Boolean.parseBoolean(request.getParameter(Constants.AUTH_FAILURE))) {
             loginFailed = "true";
 
-            if (CharacterEncoder.getSafeText(request.getParameter(Constants.AUTH_FAILURE_MSG)) !=
-                null) {
-                errorMessage = (String) CharacterEncoder.getSafeText(request.getParameter
-                        (Constants.AUTH_FAILURE_MSG));
+            if (request.getParameter(Constants.AUTH_FAILURE_MSG) != null) {
+                errorMessage = request.getParameter(Constants.AUTH_FAILURE_MSG);
 
                 if (errorMessage.equalsIgnoreCase("login.fail.message")) {
                     errorMessage = "Authentication Failed! Please Retry";
@@ -140,7 +137,7 @@
 
         <% if ("true".equals(loginFailed)) { %>
         <div class="alert alert-error">
-            <%=errorMessage%>
+            <%=Encode.forHtml(errorMessage)%>
         </div>
         <% } %>
 
@@ -165,9 +162,8 @@
             	hasLocalLoginOptions = true;
             %>
 
-                    <%
-                if (TenantDataManager.isTenantListEnabled() && Boolean.parseBoolean(CharacterEncoder
-                          .getSafeText(request.getParameter("isSaaSApp")))) {
+                                <%
+                if (TenantDataManager.isTenantListEnabled() && Boolean.parseBoolean(request.getParameter("isSaaSApp"))) {
             %>
             <div class="row">
                 <div class="span6">
@@ -229,18 +225,21 @@
             %>
             <div class="span3">
                 <% if (isHubIdp) { %>
-                <a href="#" class="main-link"><%=idpName%>
+                <a href="#" class="main-link"><%=Encode.forHtmlContent(idpName)%>
                 </a>
 
                 <div class="slidePopper" style="display:none">
                     <input type="text" id="domainName" name="domainName"/>
                     <input type="button" class="btn btn-primary go-btn"
-                           onClick="javascript: myFunction('<%=idpName%>','<%=idpEntry.getValue()%>','domainName')"
+                           onClick="javascript: myFunction('<%=Encode.forJavaScriptAttribute(idpName)%>',
+                                   '<%=Encode.forJavaScriptAttribute(idpEntry.getValue())%>','domainName')"
                            value="Go"/>
                 </div>
                 <%} else { %>
-                <a onclick="javascript: handleNoDomain('<%=idpName%>','<%=idpEntry.getValue()%>')"
-                   class="main-link truncate" style="cursor:pointer" title="<%=idpName%>"><%=idpName%>
+                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpName)%>',
+                        '<%=Encode.forJavaScriptAttribute(idpEntry.getValue())%>')"
+                   class="main-link truncate" style="cursor:pointer" title="<%=Encode.forHtmlAttribute(idpName)%>">
+                    <%=Encode.forHtmlContent(idpName)%>
                 </a>
                 <%} %>
             </div>
@@ -250,15 +249,15 @@
                  if (localAuthenticatorNames.contains("IWAAuthenticator")) {
             %>
             <div class="span3">
-                <a onclick="javascript: handleNoDomain('<%=idpEntry.getKey()%>','IWAAuthenticator')" class="main-link"
-                   style="cursor:pointer">IWA</a>
+                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpEntry.getKey())%>',
+                        'IWAAuthenticator')" class="main-link" style="cursor:pointer">IWA</a>
             </div>
             <%
             }  if (localAuthenticatorNames.contains("FIDOAuthenticator")) {
             %>
             <div class="span3">
-                <a onclick="javascript: handleNoDomain('<%=idpEntry.getKey()%>','FIDOAuthenticator')" class="main-link"
-                   style="cursor:pointer">FIDO</a>
+                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpEntry.getKey())%>',
+                        'FIDOAuthenticator')" class="main-link" style="cursor:pointer">FIDO</a>
             </div>
             <%
                     }
@@ -293,17 +292,18 @@
 
 
             if (domain != "") {
-                document.location = "../commonauth?idp=" + key + "&authenticator=" + value + "&sessionDataKey=<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>&domain=" + domain;
+                document.location = "../commonauth?idp=" + key + "&authenticator=" + value +
+                        "&sessionDataKey=<%=Encode.forUriComponent(request.getParameter("sessionDataKey"))%>&domain=" +
+                        domain;
             } else {
-                document.location = "../commonauth?idp=" + key + "&authenticator=" + value + "&sessionDataKey=<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>";
+                document.location = "../commonauth?idp=" + key + "&authenticator=" + value +
+                        "&sessionDataKey=<%=Encode.forUriComponent(request.getParameter("sessionDataKey"))%>";
             }
         }
 
         function handleNoDomain(key, value) {
-
-
-            document.location = "../commonauth?idp=" + key + "&authenticator=" + value + "&sessionDataKey=<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>";
-
+            document.location = "../commonauth?idp=" + key + "&authenticator=" + value +
+                    "&sessionDataKey=<%=Encode.forUriComponent(request.getParameter("sessionDataKey"))%>";
         }
 
     </script>

@@ -18,23 +18,23 @@
 
 package org.wso2.carbon.idp.mgt;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
 import org.wso2.carbon.idp.mgt.internal.IdpMgtListenerServiceComponent;
-import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtLister;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.user.api.ClaimMapping;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class IdentityProviderManagementService extends AbstractAdmin {
@@ -43,13 +43,12 @@ public class IdentityProviderManagementService extends AbstractAdmin {
     private static String LOCAL_DEFAULT_CLAIM_DIALECT = "http://wso2.org/claims";
 
     /**
-     *
      * Retrieves resident Identity provider for the logged-in tenant
      *
      * @return <code>IdentityProvider</code>
-     * @throws IdentityApplicationManagementException Error when getting Resident Identity Provider
+     * @throws IdentityProviderManagementException Error when getting Resident Identity Provider
      */
-    public IdentityProvider getResidentIdP() throws IdentityApplicationManagementException {
+    public IdentityProvider getResidentIdP() throws IdentityProviderManagementException {
 
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         IdentityProvider residentIdP = IdentityProviderManager.getInstance()
@@ -61,21 +60,29 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      * Updated resident Identity provider for the logged-in tenant
      *
      * @param identityProvider <code>IdentityProvider</code>
-     * @throws IdentityApplicationManagementException Error when getting Resident Identity Provider
+     * @throws IdentityProviderManagementException Error when getting Resident Identity Provider
      */
     public void updateResidentIdP(IdentityProvider identityProvider)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
         if (identityProvider == null) {
             throw new IllegalArgumentException("Identity provider is null");
         }
         // invoking the listeners
-        List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
-        for (IdentityProviderMgtLister listener : listeners) {
-            listener.updateResidentIdP(identityProvider);
+        Collection<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPreUpdateResidentIdP(identityProvider)) {
+                return;
+            }
         }
 
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         IdentityProviderManager.getInstance().updateResidentIdP(identityProvider, tenantDomain);
+
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPostUpdateResidentIdP(identityProvider)) {
+                return;
+            }
+        }
     }
 
     /**
@@ -83,9 +90,9 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      *
      * @return Array of <code>IdentityProvider</code>. IdP names, primary IdP and home
      * realm identifiers of each IdP
-     * @throws IdentityApplicationManagementException Error when getting list of Identity Providers
+     * @throws IdentityProviderManagementException Error when getting list of Identity Providers
      */
-    public IdentityProvider[] getAllIdPs() throws IdentityApplicationManagementException {
+    public IdentityProvider[] getAllIdPs() throws IdentityProviderManagementException {
 
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         List<IdentityProvider> identityProviders = IdentityProviderManager.getInstance().getIdPs(tenantDomain);
@@ -105,9 +112,9 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      *
      * @return Array of <code>IdentityProvider</code>. IdP names, primary IdP and home
      * realm identifiers of each IdP
-     * @throws IdentityApplicationManagementException Error when getting list of Identity Providers
+     * @throws IdentityProviderManagementException Error when getting list of Identity Providers
      */
-    public IdentityProvider[] getEnabledAllIdPs() throws IdentityApplicationManagementException {
+    public IdentityProvider[] getEnabledAllIdPs() throws IdentityProviderManagementException {
 
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         List<IdentityProvider> identityProviders = IdentityProviderManager.getInstance().getEnabledIdPs(tenantDomain);
@@ -120,11 +127,11 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      *
      * @param idPName Unique name of the Identity provider of whose information is requested
      * @return <code>IdentityProvider</code> Identity Provider information
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public IdentityProvider getIdPByName(String idPName)
-            throws IdentityApplicationManagementException {
-        if (StringUtils.isEmpty(idPName)) {
+            throws IdentityProviderManagementException {
+        if (StringUtils.isBlank(idPName)) {
             throw new IllegalArgumentException("Provided IdP name is empty");
         }
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
@@ -135,53 +142,69 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      * Adds an Identity Provider to the logged-in tenant
      *
      * @param identityProvider <code>IdentityProvider</code> new Identity Provider information
-     * @throws IdentityApplicationManagementException Error when adding Identity Provider
+     * @throws IdentityProviderManagementException Error when adding Identity Provider
      */
-    public void addIdP(IdentityProvider identityProvider) throws IdentityApplicationManagementException {
+    public void addIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
         if (identityProvider == null) {
             throw new IllegalArgumentException("Identity provider cannot be null when adding an IdP");
         }
         if (identityProvider.getIdentityProviderName() != null && identityProvider.getIdentityProviderName().startsWith
                 (IdPManagementConstants.SHARED_IDP_PREFIX)) {
-            throw new IdentityApplicationManagementException("Identity provider name cannot have " +
+            throw new IdentityProviderManagementException("Identity provider name cannot have " +
                     IdPManagementConstants.SHARED_IDP_PREFIX + " as prefix.");
         }
 
         // invoking the listeners
-        List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
-        for (IdentityProviderMgtLister listener : listeners) {
-            listener.addIdP(identityProvider);
+        Collection<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPreAddIdP(identityProvider)) {
+                return;
+            }
         }
 
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         IdentityProviderManager.getInstance().addIdP(identityProvider, tenantDomain);
+
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPostAddIdP(identityProvider)) {
+                return;
+            }
+        }
     }
 
     /**
      * Deletes an Identity Provider from the logged-in tenant
      *
      * @param idPName Name of the IdP to be deleted
-     * @throws IdentityApplicationManagementException Error when deleting Identity Provider
+     * @throws IdentityProviderManagementException Error when deleting Identity Provider
      */
-    public void deleteIdP(String idPName) throws IdentityApplicationManagementException {
+    public void deleteIdP(String idPName) throws IdentityProviderManagementException {
         if (StringUtils.isEmpty(idPName)) {
             throw new IllegalArgumentException("Provided IdP name is empty");
         }
+        // invoking the listeners
+        Collection<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPreDeleteIdP(idPName)) {
+                return;
+            }
+        }
+
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         IdentityProviderManager.getInstance().deleteIdP(idPName, tenantDomain);
 
-        // invoking the listeners
-        List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
-        for (IdentityProviderMgtLister listener : listeners) {
-            listener.deleteIdP(idPName);
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPostDeleteIdP(idPName)) {
+                return;
+            }
         }
     }
 
     /**
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
-    public String[] getAllLocalClaimUris() throws IdentityApplicationManagementException {
+    public String[] getAllLocalClaimUris() throws IdentityProviderManagementException {
         try {
             String claimDialect = LOCAL_DEFAULT_CLAIM_DIALECT;
             ClaimMapping[] claimMappings = CarbonContext.getThreadLocalCarbonContext()
@@ -198,7 +221,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         } catch (Exception e) {
             String message = "Error while reading system claims";
             log.error(message, e);
-            throw new IdentityApplicationManagementException(message);
+            throw new IdentityProviderManagementException(message);
         }
     }
 
@@ -207,10 +230,10 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      *
      * @param oldIdPName       existing Identity Provider name
      * @param identityProvider <code>IdentityProvider</code> new Identity Provider information
-     * @throws IdentityApplicationManagementException Error when updating Identity Provider
+     * @throws IdentityProviderManagementException Error when updating Identity Provider
      */
     public void updateIdP(String oldIdPName, IdentityProvider identityProvider) throws
-            IdentityApplicationManagementException {
+            IdentityProviderManagementException {
         if (identityProvider == null) {
             throw new IllegalArgumentException("Provided IdP is null");
         }
@@ -221,30 +244,39 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         if (oldIdPName != null && !oldIdPName.startsWith(IdPManagementConstants.SHARED_IDP_PREFIX) &&
                 identityProvider != null && identityProvider.getIdentityProviderName() != null && identityProvider
                 .getIdentityProviderName().startsWith(IdPManagementConstants.SHARED_IDP_PREFIX)) {
-            throw new IdentityApplicationManagementException("Cannot update Idp name to have '" +
+            throw new IdentityProviderManagementException("Cannot update Idp name to have '" +
                     IdPManagementConstants.SHARED_IDP_PREFIX + "' as a prefix (previous name:" + oldIdPName + ", " +
                     "New name: " + identityProvider.getIdentityProviderName() + ")");
         }
         // invoking the listeners
-        List<IdentityProviderMgtLister> listeners = IdpMgtListenerServiceComponent.getListners();
-        for (IdentityProviderMgtLister listener : listeners) {
-            listener.updateIdP(oldIdPName, identityProvider);
+        Collection<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPreUpdateIdP(oldIdPName, identityProvider)) {
+                return;
+            }
         }
+
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         IdentityProviderManager.getInstance().updateIdP(oldIdPName, identityProvider, tenantDomain);
+
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPostUpdateIdP(oldIdPName, identityProvider)) {
+                return;
+            }
+        }
     }
 
     /**
      * Get the authenticators registered in the system.
      *
      * @return <code>FederatedAuthenticatorConfig</code> array.
-     * @throws IdentityApplicationManagementException Error when getting authenticators registered in the system
+     * @throws IdentityProviderManagementException Error when getting authenticators registered in the system
      */
-    public FederatedAuthenticatorConfig[] getAllFederatedAuthenticators() throws IdentityApplicationManagementException {
+    public FederatedAuthenticatorConfig[] getAllFederatedAuthenticators() throws IdentityProviderManagementException {
         return IdentityProviderManager.getInstance().getAllFederatedAuthenticators();
     }
 
-    public ProvisioningConnectorConfig[] getAllProvisioningConnectors() throws IdentityApplicationManagementException {
+    public ProvisioningConnectorConfig[] getAllProvisioningConnectors() throws IdentityProviderManagementException {
         return IdentityProviderManager.getInstance().getAllProvisioningConnectors();
     }
 }

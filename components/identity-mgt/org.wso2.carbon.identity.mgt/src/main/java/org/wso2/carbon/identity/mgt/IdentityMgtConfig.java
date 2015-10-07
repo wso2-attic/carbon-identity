@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.mgt;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -47,6 +48,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Enumeration;
 
 /**
  * encapsulates recovery config data
@@ -91,6 +93,8 @@ public class IdentityMgtConfig {
     private PolicyRegistry policyRegistry = new PolicyRegistry();
 
     protected Properties properties = new Properties();
+
+    private long registryCleanUpPeriod;
 
     /*
      * Define the pattern of the configuration file. Assume following
@@ -321,6 +325,12 @@ public class IdentityMgtConfig {
                 }
             }
 
+            String registryCleanUpPeriod = properties.getProperty(IdentityMgtConstants.PropertyConfig
+                    .REGISTRY_CLEANUP_PERIOD);
+            if (StringUtils.isNotBlank(registryCleanUpPeriod)) {
+                this.registryCleanUpPeriod = Long.parseLong(registryCleanUpPeriod);
+            }
+
             int i = 1;
             while (true) {
                 String module = properties.
@@ -530,6 +540,10 @@ public class IdentityMgtConfig {
         return policyRegistry;
     }
 
+    public long getRegistryCleanUpPeriod() {
+        return registryCleanUpPeriod;
+    }
+
     /**
      * This method is used to load the policies declared in the configuration.
      *
@@ -542,14 +556,19 @@ public class IdentityMgtConfig {
         int count = 1;
         String className = null;
         int size = 0;
-        if (properties != null) {
-            size = properties.size();
+        Enumeration<String> keyValues = (Enumeration<String>) properties.propertyNames();
+        while (keyValues.hasMoreElements()) {
+            String currentProp = keyValues.nextElement();
+            if (currentProp.contains(extensionType)) {
+                size++;
+            }
         }
+        //setting the number of extensionTypes as the upper bound as there can be many extension policy numbers,
+        //eg: Password.policy.extensions.1, Password.policy.extensions.4, Password.policy.extensions.15
         while (size > 0) {
             className = properties.getProperty(extensionType + "." + count);
             if (className == null) {
                 count++;
-                size--;
                 continue;
             }
             try {

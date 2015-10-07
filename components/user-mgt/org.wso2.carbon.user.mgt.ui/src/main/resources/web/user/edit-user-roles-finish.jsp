@@ -43,9 +43,9 @@
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 
     String username = request.getParameter("username");
-    String disPlayName = request.getParameter("disPlayName");
-    if (disPlayName == null || disPlayName.trim().length() == 0) {
-        disPlayName = username;
+    String displayName = request.getParameter("displayName");
+    if (displayName == null || displayName.trim().length() == 0) {
+        displayName = username;
     }
     String[] selectedRoles = request.getParameterValues("selectedRoles");
     String[] shownRoles = request.getParameterValues("shownRoles");

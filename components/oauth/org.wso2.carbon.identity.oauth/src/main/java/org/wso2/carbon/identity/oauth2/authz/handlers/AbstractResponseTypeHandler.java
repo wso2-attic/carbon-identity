@@ -18,9 +18,9 @@
 
 package org.wso2.carbon.identity.oauth2.authz.handlers;
 
-import org.apache.amber.oauth2.as.issuer.MD5Generator;
-import org.apache.amber.oauth2.as.issuer.OAuthIssuerImpl;
-import org.apache.amber.oauth2.common.message.types.ResponseType;
+import org.apache.oltu.oauth2.as.issuer.MD5Generator;
+import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
+import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.callback.OAuthCallback;
 import org.wso2.carbon.identity.oauth.callback.OAuthCallbackManager;

@@ -51,7 +51,7 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
      */
     @Override
     public int getExecutionOrderId() {
-        int orderId = getOrderId(IdentityOathEventListener.class.getName());
+        int orderId = getOrderId();
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -66,7 +66,7 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
                                    org.wso2.carbon.user.core.UserStoreManager userStoreManager)
             throws org.wso2.carbon.user.core.UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
         return revokeTokens(username, userStoreManager);
@@ -77,7 +77,7 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
     public boolean doPostSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
                                             UserStoreManager userStoreManager) {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
         return revokeTokensOfLockedUser(userName, userStoreManager);
@@ -87,7 +87,7 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
     public boolean doPostAuthenticate(String userName, boolean authenticated, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
         return revokeTokensOfLockedUser(userName, userStoreManager);

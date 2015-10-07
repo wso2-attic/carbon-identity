@@ -25,10 +25,7 @@ import java.util.Iterator;
 
 public class JustInTimeProvisioningConfig extends InboundProvisioningConfig implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 5899735295450764828L;
+    private static final long serialVersionUID = 6754801699494009980L;
 
     private String userStoreClaimUri;
 

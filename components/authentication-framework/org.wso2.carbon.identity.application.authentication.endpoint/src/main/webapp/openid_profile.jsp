@@ -15,16 +15,16 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   --%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
-<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
     String[] profiles = request.getParameterValues("profile");
     String[] claimTags = request.getParameterValues("claimTag");
     String[] claimValues = request.getParameterValues("claimValue");
-    String openidreturnto = CharacterEncoder.getSafeText(request.getParameter("openid.return_to"));
-    String openididentity = CharacterEncoder.getSafeText(request.getParameter("openid.identity"));
+    String openidreturnto = request.getParameter("openid.return_to");
+    String openididentity = request.getParameter("openid.identity");
     if (openidreturnto != null && openidreturnto.indexOf("?") > 0) {
         openidreturnto = openidreturnto.substring(0, openidreturnto.indexOf("?"));
     }
@@ -89,9 +89,9 @@
         <div class="container">
             <div class="row">
                 <div class="span12 content-section">
-                    <fmt:message key='signin.to.authenticate1'/> <strong>"<%=openidreturnto%>" </strong><fmt:message
-                        key='signin.to.authenticate2'/><%if (!openididentity.endsWith("/openid/")) {%><strong>
-                    "<%=openididentity%>"</strong><% } else { %><strong> "<%=openididentity%>
+                    <fmt:message key='signin.to.authenticate1'/> <strong>"<%=Encode.forHtml(openidreturnto)%>" </strong>
+                    <fmt:message key='signin.to.authenticate2'/><%if (!openididentity.endsWith("/openid/")) {%><strong>
+                    "<%=Encode.forHtml(openididentity)%>"</strong><% } else { %><strong> "<%=Encode.forHtml(openididentity)%>
                                                                          &lt;username&gt;"</strong><% } %>.
                 </div>
             </div>
@@ -117,16 +117,15 @@
                                     </tr>
                                     <%
                                         for (int i = 0; i < claimTags.length; i++) {
-                                            String claimTag = CharacterEncoder.getSafeText(claimTags[i]);
+                                            String claimTag = claimTags[i];
                                             if ("MultiAttributeSeparator".equals(claimTag)) {
                                                 continue;
                                             }
                                     %>
                                     <tr>
-                                        <td><%=claimTag%>
+                                        <td><%=Encode.forHtmlContent(claimTag)%>
                                         </td>
-                                        <td><%=CharacterEncoder
-                                                .getSafeText(claimValues[i])%>
+                                        <td><%=Encode.forHtmlContent(claimValues[i])%>
                                         </td>
                                     </tr>
                                     <%

@@ -54,16 +54,16 @@ public class OAuthCache extends BaseCache<String, CacheEntry> {
         String keyValue = ((OAuthCacheKey)key).getCacheKeyString();
         super.addToCache(keyValue, entry);
         SessionDataStore.getInstance().storeSessionData(keyValue, OAUTH_CACHE_NAME, entry);
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().storeSessionData(keyValue,OAUTH_CACHE_NAME,entry);
+        if (enableRequestScopeCache) {
+            SessionDataStore.getInstance().storeSessionData(keyValue, OAUTH_CACHE_NAME, entry);
         }
     }
 
     public CacheEntry getValueFromCache(CacheKey key) {
         String keyValue = ((OAuthCacheKey)key).getCacheKeyString();
         CacheEntry cacheEntry = super.getValueFromCache(keyValue);
-        if(cacheEntry == null){
-            cacheEntry = (CacheEntry) SessionDataStore.getInstance().getSessionData(keyValue,OAUTH_CACHE_NAME);
+        if (cacheEntry == null) {
+            cacheEntry = (CacheEntry) SessionDataStore.getInstance().getSessionData(keyValue, OAUTH_CACHE_NAME);
         }
         return cacheEntry;
     }
@@ -71,9 +71,9 @@ public class OAuthCache extends BaseCache<String, CacheEntry> {
     public void clearCacheEntry(CacheKey key) {
         String keyValue = ((OAuthCacheKey)key).getCacheKeyString();
         super.clearCacheEntry(keyValue);
-        SessionDataStore.getInstance().clearSessionData(keyValue,OAUTH_CACHE_NAME);
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().clearSessionData(keyValue,OAUTH_CACHE_NAME);
+        SessionDataStore.getInstance().clearSessionData(keyValue, OAUTH_CACHE_NAME);
+        if (enableRequestScopeCache) {
+            SessionDataStore.getInstance().clearSessionData(keyValue, OAUTH_CACHE_NAME);
         }
     }
 }

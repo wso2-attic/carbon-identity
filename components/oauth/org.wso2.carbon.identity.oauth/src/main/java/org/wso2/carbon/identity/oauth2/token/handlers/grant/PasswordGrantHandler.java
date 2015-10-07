@@ -21,10 +21,11 @@ package org.wso2.carbon.identity.oauth2.token.handlers.grant;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
@@ -77,15 +78,10 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
         }
         String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(username);
         username = tenantAwareUserName + "@" + userTenantDomain;
-        int tenantId;
+        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
         try {
-            tenantId = IdentityUtil.getTenantIdOFUser(username);
-        } catch (IdentityException e) {
-            throw new IdentityOAuth2Exception(e.getMessage(), e);
-        }
-
-        // tenantId == -1, means an invalid tenant.
-        if (tenantId == -1) {
+            tenantId = IdentityTenantUtil.getTenantIdOfUser(username);
+        } catch (IdentityRuntimeException e) {
             if (log.isDebugEnabled()) {
                 log.debug("Token request with Password Grant Type for an invalid tenant : " +
                         MultitenantUtils.getTenantDomain(username));

@@ -28,8 +28,6 @@ import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.api.ClaimMapping;
@@ -60,8 +58,6 @@ public class UserProfileAdmin extends AbstractAdmin {
     private static final Log log = LogFactory.getLog(UserProfileAdmin.class);
     private static UserProfileAdmin userProfileAdmin = new UserProfileAdmin();
     private String authorizationFailureMessage = "You are not authorized to perform this action.";
-    String persistenceErrorMsg = "Error when getting an Identity Persistence Store instance.";
-    private String SQLErrorMsg="Error when executing the SQL : ";
 
     public static UserProfileAdmin getInstance() {
         return userProfileAdmin;
@@ -576,7 +572,7 @@ public class UserProfileAdmin extends AbstractAdmin {
 
     public void associateID(String idpID, String associatedID) throws UserProfileException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String sql = null;
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
@@ -586,7 +582,6 @@ public class UserProfileAdmin extends AbstractAdmin {
         tenantAwareUsername = getUsernameWithoutDomain(tenantAwareUsername);
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             sql = "INSERT INTO IDN_ASSOCIATED_ID (TENANT_ID, IDP_ID, IDP_USER_ID, DOMAIN_NAME, USER_NAME) " +
                   "VALUES (? , (SELECT ID FROM IDP WHERE NAME = ? AND TENANT_ID = ? ), ? , ?, ?)";
 
@@ -601,13 +596,9 @@ public class UserProfileAdmin extends AbstractAdmin {
 
             prepStmt.execute();
             connection.commit();
-        } catch (IdentityException e) {
-
-            log.error(persistenceErrorMsg, e);
-            throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error(SQLErrorMsg + sql, e);
-            throw new UserProfileException("Error occurred while persisting the federated user ID");
+            log.error("Error occurred while persisting the federated user ID", e);
+            throw new UserProfileException("Error occurred while persisting the federated user ID", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -616,7 +607,7 @@ public class UserProfileAdmin extends AbstractAdmin {
 
     public String getNameAssociatedWith(String idpID, String associatedID) throws UserProfileException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
@@ -624,7 +615,6 @@ public class UserProfileAdmin extends AbstractAdmin {
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             sql = "SELECT DOMAIN_NAME, USER_NAME FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? AND IDP_ID = (SELECT ID " +
                   "FROM IDP WHERE NAME = ? AND TENANT_ID = ?) AND IDP_USER_ID = ?";
 
@@ -646,12 +636,9 @@ public class UserProfileAdmin extends AbstractAdmin {
                 return username;
             }
 
-        } catch (IdentityException e) {
-            log.error(persistenceErrorMsg, e);
-            throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error(SQLErrorMsg + sql);
-            log.error(e.getMessage(), e);
+            log.error("Error occurred while getting associated name", e);
+            throw new UserProfileException("Error occurred while getting associated name", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
@@ -659,7 +646,7 @@ public class UserProfileAdmin extends AbstractAdmin {
     }
 
     public AssociatedAccountDTO[] getAssociatedIDs() throws UserProfileException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
@@ -671,7 +658,6 @@ public class UserProfileAdmin extends AbstractAdmin {
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
             sql = "SELECT IDP.NAME, IDP_USER_ID FROM IDN_ASSOCIATED_ID JOIN IDP ON IDN_ASSOCIATED_ID.IDP_ID = IDP.ID " +
                   "WHERE IDN_ASSOCIATED_ID.TENANT_ID = ? AND USER_NAME = ? AND DOMAIN_NAME = ?";
             prepStmt = connection.prepareStatement(sql);
@@ -689,20 +675,17 @@ public class UserProfileAdmin extends AbstractAdmin {
             } else {
                 return new AssociatedAccountDTO[0];
             }
-        } catch (IdentityException e) {
-            log.error(persistenceErrorMsg, e);
-            throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error(SQLErrorMsg + sql, e);
+            log.error("Error occurred while getting associated IDs", e);
+            throw new UserProfileException("Error occurred while getting associated IDs", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
-        return new AssociatedAccountDTO[0];
     }
 
     public void removeAssociateID(String idpID, String associatedID) throws UserProfileException {
 
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String sql = null;
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
@@ -712,7 +695,6 @@ public class UserProfileAdmin extends AbstractAdmin {
         tenantAwareUsername = getUsernameWithoutDomain(tenantAwareUsername);
 
         try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
 
             sql = "DELETE FROM IDN_ASSOCIATED_ID WHERE TENANT_ID = ? AND IDP_ID = (SELECT ID FROM IDP WHERE NAME = ? " +
                   "AND TENANT_ID = ? ) AND IDP_USER_ID = ? AND USER_NAME = ? AND DOMAIN_NAME = ?";
@@ -726,12 +708,9 @@ public class UserProfileAdmin extends AbstractAdmin {
 
             prepStmt.executeUpdate();
             connection.commit();
-        } catch (IdentityException e) {
-            log.error(persistenceErrorMsg, e);
-            throw new UserProfileException(persistenceErrorMsg, e);
         } catch (SQLException e) {
-            log.error(SQLErrorMsg + sql);
-            log.error(e.getMessage(), e);
+            log.error("Error occurred while removing associated ID", e);
+            throw new UserProfileException("Error occurred while removing associated ID", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }

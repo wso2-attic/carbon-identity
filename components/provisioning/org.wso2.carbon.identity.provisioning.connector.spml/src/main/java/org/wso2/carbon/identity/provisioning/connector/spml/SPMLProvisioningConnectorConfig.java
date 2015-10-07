@@ -29,7 +29,7 @@ import java.util.Set;
 
 public class SPMLProvisioningConnectorConfig implements Serializable {
 
-    private static final long serialVersionUID = -8394278502516014519L;
+    private static final long serialVersionUID = 4084821032056382692L;
 
     private static final Log log = LogFactory.getLog(SPMLProvisioningConnectorConfig.class);
     private Properties configs;

@@ -20,13 +20,19 @@ package org.wso2.carbon.identity.entitlement.common;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.identity.entitlement.common.dto.PolicyEditorDataHolder;
+import org.wso2.carbon.identity.entitlement.common.util.CarbonEntityResolver;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -41,6 +47,9 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
 
     private static Log log = LogFactory.getLog(InMemoryPersistenceManager.class);
     private Map<String, String> xmlConfig = new HashMap<String, String>();
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
 
     @Override
     public Map<String, PolicyEditorDataHolder> buildDataHolder() throws PolicyEditorException {
@@ -62,13 +71,13 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
         }
 
         PolicyEditorDataHolder holder = new PolicyEditorDataHolder();
+        DocumentBuilder builder;
         ByteArrayInputStream inputStream;
         Element root = null;
-
         inputStream = new ByteArrayInputStream(xmlConfig.getBytes());
-        DocumentBuilderFactory builder = DocumentBuilderFactory.newInstance();
         try {
-            Document doc = builder.newDocumentBuilder().parse(inputStream);
+            builder = getSecuredDocumentBuilder();
+            Document doc = builder.parse(inputStream);
             root = doc.getDocumentElement();
         } catch (Exception e) {
             log.error("DOM of request element can not be created from String", e);
@@ -112,6 +121,26 @@ public class InMemoryPersistenceManager implements DataPersistenceManager {
         }
 
         return holder;
+    }
+
+    /**
+     * * This method provides a secured document builder which will secure XXE attacks.
+     *
+     * @return DocumentBuilder
+     * @throws ParserConfigurationException
+     */
+    private DocumentBuilder getSecuredDocumentBuilder() throws ParserConfigurationException {
+
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+        documentBuilderFactory.setExpandEntityReferences(false);
+        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        SecurityManager securityManager = new SecurityManager();
+        securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+        documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        documentBuilder.setEntityResolver(new CarbonEntityResolver());
+        return documentBuilder;
     }
 
     @Override

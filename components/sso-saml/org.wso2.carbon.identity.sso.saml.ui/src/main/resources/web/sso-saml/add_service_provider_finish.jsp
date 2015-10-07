@@ -26,6 +26,8 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.identity.core.util.IdentityUtil" %>
 
 <jsp:useBean id="samlSsoServuceProviderConfigBean"
              type="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOProviderConfigBean"
@@ -73,6 +75,10 @@
                 .split(","));
         serviceProviderDTO.setDefaultAssertionConsumerUrl(SAMLSSOUIUtil.getSafeInput(request,
                 "defaultAssertionConsumerURL"));
+        serviceProviderDTO.setSigningAlgorithmURI(SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.
+                SAML_SSO_SIGNING_ALGORITHM));
+        serviceProviderDTO.setDigestAlgorithmURI(SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.
+                SAML_SSO_DIGEST_ALGORITHM));
 
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_SINGLE_LOGOUT))) {
             serviceProviderDTO.setDoSingleLogout(true);
@@ -126,88 +132,70 @@
         }
 
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_ATTRIBUTE_PROFILE))) {
-
-            String claimsCountParameter = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyCounter");
-            if (claimsCountParameter != null && !"".equals(claimsCountParameter)) {
-                try {
-                    int claimsCount = Integer.parseInt(claimsCountParameter);
-                    for (int i = 0; i < claimsCount; i++) {
-                        String claim = SAMLSSOUIUtil.getSafeInput(request, "claimPropertyName" + i);
-                        if (claim != null && !"".equals(claim) && !"null".equals(claim)) {
-                            String[] currentClaims = serviceProviderDTO.getRequestedClaims();
-                            boolean isClaimAlreadyAdded = false;
-                            for (String currentClaim : currentClaims) {
-                                if (claim.equals(currentClaim)) {
-                                    isClaimAlreadyAdded = true;
-                                    break;
-                                }
-                            }
-
-                            if (!isClaimAlreadyAdded) {
-                                serviceProviderDTO.addRequestedClaims(claim);
+            String claimsCountParameter = SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.CLAIM_PROPERTY_COUNTER);
+            if (IdentityUtil.isNotBlank(claimsCountParameter)) {
+                int claimsCount = Integer.parseInt(claimsCountParameter);
+                for (int i = 0; i < claimsCount; i++) {
+                    String claim = SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.CLAIM_PROPERTY_NAME + i);
+                    if (IdentityUtil.isNotBlank(claim)) {
+                        String[] currentClaims = serviceProviderDTO.getRequestedClaims();
+                        boolean isClaimAlreadyAdded = false;
+                        for (String currentClaim : currentClaims) {
+                            if (claim.equals(currentClaim)) {
+                                isClaimAlreadyAdded = true;
+                                break;
                             }
                         }
+                        if (!isClaimAlreadyAdded) {
+                            serviceProviderDTO.addRequestedClaims(claim);
+                        }
                     }
-                } catch (NumberFormatException e) {
-                    throw new RuntimeException("Invalid number", e);
                 }
             }
         }
 
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_AUDIENCE_RESTRICTION))) {
-
-            String audiencesCountParameter = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyCounter");
-            if (StringUtils.isNotEmpty(audiencesCountParameter)) {
-                try {
-                    int audiencesCount = Integer.parseInt(audiencesCountParameter);
-                    for (int i = 0; i < audiencesCount; i++) {
-                        String audience = SAMLSSOUIUtil.getSafeInput(request, "audiencePropertyName" + i);
-                        if (StringUtils.isNotEmpty(audience) && !"null".equals(audience)) {
-                            String[] currentAudiences = serviceProviderDTO.getRequestedAudiences();
-                            boolean isAudienceAlreadyAdded = false;
-                            for (String currentAudience : currentAudiences) {
-                                if (audience.equals(currentAudience)) {
-                                    isAudienceAlreadyAdded = true;
-                                    break;
-                                }
-                            }
-
-                            if (!isAudienceAlreadyAdded) {
-                                serviceProviderDTO.addRequestedAudiences(audience);
+            String audiencesCountParameter = SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.AUDIENCE_PROPERTY_COUNTER);
+            if (IdentityUtil.isNotBlank(audiencesCountParameter)) {
+                int audiencesCount = Integer.parseInt(audiencesCountParameter);
+                for (int i = 0; i < audiencesCount; i++) {
+                    String audience = SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.AUDIENCE_PROPERTY_NAME + i);
+                    if (IdentityUtil.isNotBlank(audience)) {
+                        String[] currentAudiences = serviceProviderDTO.getRequestedAudiences();
+                        boolean isAudienceAlreadyAdded = false;
+                        for (String currentAudience : currentAudiences) {
+                            if (audience.equals(currentAudience)) {
+                                isAudienceAlreadyAdded = true;
+                                break;
                             }
                         }
+                        if (!isAudienceAlreadyAdded) {
+                            serviceProviderDTO.addRequestedAudiences(audience);
+                        }
                     }
-                } catch (NumberFormatException e) {
-                    throw new RuntimeException("Invalid number", e);
                 }
             }
         }
 
         if (Boolean.parseBoolean(request.getParameter(SAMLSSOUIConstants.ENABLE_RECIPIENTS))) {
-
-            String recipientCountParameter = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyCounter");
-            if (StringUtils.isNotEmpty(recipientCountParameter)) {
-                try {
-                    int recipientCount = Integer.parseInt(recipientCountParameter);
-                    for (int i = 0; i < recipientCount; i++) {
-                        String recipient = SAMLSSOUIUtil.getSafeInput(request, "recipientPropertyName" + i);
-                        if (StringUtils.isNotEmpty(recipient) && !"null".equals(recipient)) {
-                            String[] currentRecipients = serviceProviderDTO.getRequestedRecipients();
-                            boolean isRecipientAlreadyAdded = false;
-                            for (String currentRecipient : currentRecipients) {
-                                if (recipient.equals(currentRecipient)) {
-                                    isRecipientAlreadyAdded = true;
-                                    break;
-                                }
-                            }
-
-                            if (!isRecipientAlreadyAdded) {
-                                serviceProviderDTO.addRequestedRecipients(recipient);
+            String recipientCountParameter = SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.RECIPIENT_PROPERTY_COUNTER);
+            if (IdentityUtil.isNotBlank(recipientCountParameter)) {
+                int recipientCount = Integer.parseInt(recipientCountParameter);
+                for (int i = 0; i < recipientCount; i++) {
+                    String recipient = SAMLSSOUIUtil.getSafeInput(request, SAMLSSOUIConstants.RECIPIENT_PROPERTY_NAME + i);
+                    if (IdentityUtil.isNotBlank(recipient)) {
+                        String[] currentRecipients = serviceProviderDTO.getRequestedRecipients();
+                        boolean isRecipientAlreadyAdded = false;
+                        for (String currentRecipient : currentRecipients) {
+                            if (recipient.equals(currentRecipient)) {
+                                isRecipientAlreadyAdded = true;
+                                break;
                             }
                         }
+                        if (!isRecipientAlreadyAdded) {
+                            serviceProviderDTO.addRequestedRecipients(recipient);
+                        }
                     }
-                } catch (NumberFormatException e) {
-                    throw new RuntimeException("Invalid number", e);
                 }
             }
         }
@@ -268,9 +256,15 @@
     if (applicationComponentFound) {
         if (status) {
     %>
-    location.href = '../application/configure-service-provider.jsp?action=update&display=samlIssuer&spName=<%=spName%>&samlIssuer=<%=serviceProviderDTO.getIssuer()%>&attrConServIndex=<%=attributeConsumingServiceIndex%>';
+    location.href = '../application/configure-service-provider.jsp?action=update&display=samlIssuer&spName=' +
+            '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&samlIssuer='+
+            '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(serviceProviderDTO.getIssuer()))%>' +
+            '&attrConServIndex=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(attributeConsumingServiceIndex))%>';
     <% } else { %>
-    location.href = '../application/configure-service-provider.jsp?action=delete&display=samlIssuer&spName=<%=spName%>&samlIssuer=<%=serviceProviderDTO.getIssuer()%>&attrConServIndex=<%=attributeConsumingServiceIndex%>';
+    location.href = '../application/configure-service-provider.jsp?action=delete&display=samlIssuer&spName=' +
+            '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&samlIssuer='+
+    '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(serviceProviderDTO.getIssuer()))%>&attrConServIndex=' +
+            '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(attributeConsumingServiceIndex))%>';
 
     <% } } else { %>
     location.href = 'manage_service_providers.jsp?region=region1&item=manage_saml_sso';

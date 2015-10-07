@@ -505,6 +505,8 @@ public class IdPManagementUIUtil {
         Property userEpProp = null;
         Property groupEpProp = null;
         Property scimUserStoreDomain = null;
+        Property scimEnablePwdProvisioning = null;
+        Property defaultPwdProp = null;
 
         if (paramMap.get("scimProvEnabled") != null && "on".equals(paramMap.get("scimProvEnabled"))) {
             proConnector.setEnabled(true);
@@ -547,8 +549,21 @@ public class IdPManagementUIUtil {
             scimUserStoreDomain.setValue(paramMap.get("scim-user-store-domain"));
         }
 
+        if (paramMap.get("scimPwdProvEnabled") != null && "on".equals(paramMap.get("scimPwdProvEnabled"))) {
+            scimEnablePwdProvisioning = new Property();
+            scimEnablePwdProvisioning.setName("scim-enable-pwd-provisioning");
+            scimEnablePwdProvisioning.setDefaultValue("false");
+            scimEnablePwdProvisioning.setValue("true");
+        }
+
+        if (paramMap.get("scim-default-pwd") != null) {
+            defaultPwdProp = new Property();
+            defaultPwdProp.setName("scim-default-pwd");
+            defaultPwdProp.setValue(paramMap.get("scim-default-pwd"));
+        }
+
         Property[] proProperties = new Property[]{userNameProp, passwordProp, userEpProp,
-                groupEpProp, scimUserStoreDomain};
+                groupEpProp, scimUserStoreDomain, scimEnablePwdProvisioning, defaultPwdProp};
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -1323,7 +1338,7 @@ public class IdPManagementUIUtil {
             fedIdp.setDefaultAuthenticatorConfig(saml2SSOAuthnConfig);
         }
 
-        Property[] properties = new Property[13];
+        Property[] properties = new Property[24];
         Property property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
         property.setValue(paramMap.get("idPEntityId"));
@@ -1422,7 +1437,85 @@ public class IdPManagementUIUtil {
         property.setValue(paramMap
                 .get(IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD));
         properties[12] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM));
+        properties[13] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.DIGEST_ALGORITHM);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.DIGEST_ALGORITHM));
+        properties[14] = property;
 
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_COMPARISON_LEVEL);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_COMPARISON_LEVEL));
+        properties[15] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_NAME_ID_POLICY);
+        if ("on".equals(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_NAME_ID_POLICY))) {
+            property.setValue("true");
+        } else {
+            property.setValue("false");
+        }
+        properties[16] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.FORCE_AUTHENTICATION);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.FORCE_AUTHENTICATION));
+        properties[17] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM_POST);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM_POST));
+        properties[18] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_CLASS);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_CLASS));
+        properties[19] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.ATTRIBUTE_CONSUMING_SERVICE_INDEX);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.ATTRIBUTE_CONSUMING_SERVICE_INDEX));
+        properties[20] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_CERT);
+        if ("on".equals(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_CERT))) {
+            property.setValue("true");
+        } else {
+            property.setValue("false");
+        }
+        properties[21] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_AUTHN_CONTEXT);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_AUTHN_CONTEXT));
+        properties[22] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_PROTOCOL_BINDING);
+        if ("on".equals(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_PROTOCOL_BINDING))) {
+            property.setValue("true");
+        } else {
+            property.setValue("false");
+        }
+        properties[23] = property;
+        
         saml2SSOAuthnConfig.setProperties(properties);
 
         FederatedAuthenticatorConfig[] authenticators = fedIdp.getFederatedAuthenticatorConfigs();

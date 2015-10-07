@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.application.authentication.framework.store.SessionContextDO;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
@@ -30,8 +31,9 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 
 import java.sql.Timestamp;
+import java.util.concurrent.TimeUnit;
 
-public class SessionContextCache extends BaseCache<String, CacheEntry> {
+public class SessionContextCache extends BaseCache<SessionContextCacheKey, SessionContextCacheEntry> {
 
     private static final String SESSION_CONTEXT_CACHE_NAME = "AppAuthFrameworkSessionContextCache";
     private static final Log log = LogFactory.getLog(SessionContextCache.class);
@@ -39,8 +41,8 @@ public class SessionContextCache extends BaseCache<String, CacheEntry> {
     private static volatile SessionContextCache instance;
     private boolean useCache = true;
 
-    private SessionContextCache(String cacheName, int timeout, int capacity) {
-        super(cacheName, timeout, capacity);
+    private SessionContextCache(String cacheName, int capacity) {
+        super(cacheName, 0, capacity);
         useCache = !Boolean.parseBoolean(IdentityUtil.getProperty(
                 "JDBCPersistenceManager.SessionDataPersist.Only"));
         if (IdentityUtil.getProperty("SessionContextCache.Enable") != null) {
@@ -48,7 +50,7 @@ public class SessionContextCache extends BaseCache<String, CacheEntry> {
         }
     }
 
-    public static SessionContextCache getInstance(int timeout) {
+    public static SessionContextCache getInstance() {
         if (instance == null) {
             synchronized (SessionContextCache.class) {
                 if (instance == null) {
@@ -64,49 +66,136 @@ public class SessionContextCache extends BaseCache<String, CacheEntry> {
                         }
                         log.warn("Session context cache capacity size is not configured. Using default value.");
                     }
-                    instance = new SessionContextCache(SESSION_CONTEXT_CACHE_NAME, timeout, capacity);
+                    instance = new SessionContextCache(SESSION_CONTEXT_CACHE_NAME, capacity);
                 }
             }
         }
         return instance;
     }
 
-    public void addToCache(CacheKey key, CacheEntry entry) {
+    public void addToCache(SessionContextCacheKey key, SessionContextCacheEntry entry) {
+        entry.setAccessedTime();
+
         if (useCache) {
-            super.addToCache(((SessionContextCacheKey) key).getContextId(), entry);
+            super.addToCache(key, entry);
         }
-        String keyValue = ((SessionContextCacheKey) key).getContextId();
-        SessionDataStore.getInstance().storeSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME, entry);
+        SessionDataStore.getInstance().storeSessionData(key.getContextId(), SESSION_CONTEXT_CACHE_NAME, entry);
     }
 
-    public CacheEntry getValueFromCache(CacheKey key) {
-        CacheEntry cacheEntry = null;
+    public SessionContextCacheEntry getValueFromCache(SessionContextCacheKey key) {
+        SessionContextCacheEntry cacheEntry = null;
         if (useCache) {
-            cacheEntry = super.getValueFromCache(((SessionContextCacheKey) key).getContextId());
+            cacheEntry = super.getValueFromCache(key);
         }
+
+        // Retrieve session from the database if its not in cache
         if (cacheEntry == null) {
-            String keyValue = ((SessionContextCacheKey) key).getContextId();
-            SessionContextCacheEntry sessionEntry = (SessionContextCacheEntry) SessionDataStore.getInstance().
-                    getSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME);
-            Timestamp currentTimestamp = new java.sql.Timestamp(new java.util.Date().getTime());
-            if (sessionEntry != null && sessionEntry.getContext().isRememberMe() &&
-                    (currentTimestamp.getTime() - SessionDataStore.getInstance().getTimeStamp(keyValue,
-                            SESSION_CONTEXT_CACHE_NAME)
-                            .getTime() <=
-                            IdPManagementUtil.getRememberMeTimeout(CarbonContext.getThreadLocalCarbonContext()
-                                    .getTenantDomain())*60*1000)) {
-                cacheEntry = sessionEntry;
+            SessionContextDO sessionContextDO = SessionDataStore.getInstance().
+                    getSessionContextData(key.getContextId(), SESSION_CONTEXT_CACHE_NAME);
+
+            if (sessionContextDO != null) {
+                cacheEntry = new SessionContextCacheEntry(sessionContextDO);
             }
         }
-        return cacheEntry;
+
+        if (cacheEntry == null) {
+            if(log.isDebugEnabled()) {
+                log.debug("Session corresponding to the key : " + key.getContextId()+ " cannot be found.");
+            }
+            return null;
+        } else if (isValidIdleSession(key, cacheEntry) || isValidRememberMeSession(key, cacheEntry)) {
+            if(log.isDebugEnabled()) {
+                log.debug("Found a valid session corresponding to the key : " + key.getContextId());
+            }
+            return cacheEntry;
+        } else {
+            if(log.isDebugEnabled()) {
+                log.debug("Found an expired session corresponding to the key : " + key.getContextId());
+            }
+            clearCacheEntry(key);
+            return null;
+        }
 
     }
 
-    public void clearCacheEntry(CacheKey key) {
+    public void clearCacheEntry(SessionContextCacheKey key) {
         if (useCache) {
-            super.clearCacheEntry(((SessionContextCacheKey) key).getContextId());
+            super.clearCacheEntry(key);
         }
-        String keyValue = ((SessionContextCacheKey) key).getContextId();
-        SessionDataStore.getInstance().clearSessionData(keyValue, SESSION_CONTEXT_CACHE_NAME);
+        SessionDataStore.getInstance().clearSessionData(key.getContextId(), SESSION_CONTEXT_CACHE_NAME);
+    }
+
+    /**
+     * Check whether the given session context is valid according to idle session timeout restrictions.
+     *
+     * @param key        SessionContextCacheKey
+     * @param cacheEntry SessionContextCacheEntry
+     * @return true if the session context is valid as per idle session configs; false otherwise
+     */
+    private boolean isValidIdleSession(SessionContextCacheKey key, SessionContextCacheEntry cacheEntry) {
+        String contextId = key.getContextId();
+
+        if (cacheEntry == null) {
+            return false;
+        }
+
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        long idleSessionTimeOut = TimeUnit.SECONDS.toMillis(IdPManagementUtil.getIdleSessionTimeOut(tenantDomain));
+
+        long currentTime = System.currentTimeMillis();
+        long lastAccessedTime = cacheEntry.getAccessedTime();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Context ID : " + contextId + " :: idleSessionTimeOut : " + idleSessionTimeOut
+                    + ", currentTime : " + currentTime + ", lastAccessedTime : " + lastAccessedTime);
+        }
+
+        if (currentTime - lastAccessedTime > idleSessionTimeOut) {
+            if (log.isDebugEnabled()) {
+                log.debug("Context ID : " + contextId + " :: Idle session expiry");
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check whether the given session context is valid according to remember me session timeout restrictions.
+     *
+     * @param key        SessionContextCacheKey
+     * @param cacheEntry SessionContextCacheEntry
+     * @return true if the session context is valid as per remember me session configs; false otherwise
+     */
+    private boolean isValidRememberMeSession(SessionContextCacheKey key, SessionContextCacheEntry cacheEntry) {
+        String contextId = key.getContextId();
+
+        if (cacheEntry == null) {
+            return false;
+        }
+
+        if (!cacheEntry.getContext().isRememberMe()) {
+            return false;
+        }
+
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        long rememberMeSessionTimeOut = TimeUnit.SECONDS.toMillis(IdPManagementUtil.getRememberMeTimeout(tenantDomain));
+
+        long currentTime = System.currentTimeMillis();
+        long lastAccessedTime = cacheEntry.getAccessedTime();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Context ID : " + contextId + " :: rememberMeSessionTimeOut : " + rememberMeSessionTimeOut
+                    + ", currentTime : " + currentTime + ", lastAccessedTime : " + lastAccessedTime);
+        }
+
+        if (currentTime - lastAccessedTime > rememberMeSessionTimeOut) {
+            if (log.isDebugEnabled()) {
+                log.debug("Context ID : " + contextId + " :: Remember me session expiry");
+            }
+            return false;
+        }
+
+        return true;
     }
 }

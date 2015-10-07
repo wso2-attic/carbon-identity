@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class AuthenticationResult implements Serializable {
 
-    private static final long serialVersionUID = -2555005773164092641L;
+    private static final long serialVersionUID = 7468735345445470413L;
 
     private boolean authenticated;
     private AuthenticatedUser subject;

@@ -164,7 +164,7 @@
                        topPage="false" request="<%=request%>"/>
 
 <div id="middle">
-    <%if(UserAdminUIConstants.INTERNAL_ROLE.equals(roleBean.getRoleType())){%>
+    <%if(UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleBean.getRoleType())){%>
         <h2><fmt:message key="add.internal.user.role"/></h2>
     <%} else { %>
         <h2><fmt:message key="add.user.role"/></h2>

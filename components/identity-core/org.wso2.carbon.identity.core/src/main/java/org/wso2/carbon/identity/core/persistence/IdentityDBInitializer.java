@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.core.persistence;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 
 import javax.sql.DataSource;
 import java.io.BufferedReader;
@@ -41,7 +42,7 @@ import java.util.StringTokenizer;
  */
 public class IdentityDBInitializer {
 
-    private static final String DB_CHECK_SQL = "select * from IDN_BASE_TABLE";
+    private static final String DB_CHECK_SQL = "SELECT * FROM IDN_BASE_TABLE";
     private static Log log = LogFactory.getLog(IdentityDBInitializer.class);
     Statement statement;
     private DataSource dataSource;
@@ -51,7 +52,7 @@ public class IdentityDBInitializer {
         this.dataSource = dataSource;
     }
 
-    public static String getDatabaseType(Connection conn) throws Exception {
+    public static String getDatabaseType(Connection conn) throws IdentityRuntimeException{
         String type = null;
         try {
             if (conn != null && (!conn.isClosed())) {
@@ -82,13 +83,12 @@ public class IdentityDBInitializer {
                             ". Database will not be created automatically by the WSO2 Identity Server. " +
                             "Please create the database using appropriate database scripts for " +
                             "the database.";
-                    throw new Exception(msg);
+                    throw new IdentityRuntimeException(msg);
                 }
             }
         } catch (SQLException e) {
             String msg = "Failed to create identity database." + e.getMessage();
-            log.fatal(msg, e);
-            throw new Exception(msg, e);
+            throw new IdentityRuntimeException(msg, e);
         }
         return type;
     }
@@ -131,7 +131,7 @@ public class IdentityDBInitializer {
         return true;
     }
 
-    void createIdentityDatabase() throws Exception {
+    void createIdentityDatabase() {
         if (!isDatabaseStructureCreated()) {
             Connection conn = null;
             try {
@@ -142,10 +142,8 @@ public class IdentityDBInitializer {
                 conn.commit();
                 log.debug("Identity tables are created successfully.");
             } catch (SQLException e) {
-                String msg = "Failed to create database tables for Identity meta-data store. "
-                        + e.getMessage();
-                log.fatal(msg, e);
-                throw new Exception(msg, e);
+                String msg = "Failed to create database tables for Identity meta-data store. " + e.getMessage();
+                throw new IdentityRuntimeException(msg, e);
             } finally {
                 try {
                     if (conn != null) {
@@ -170,7 +168,7 @@ public class IdentityDBInitializer {
     private boolean isDatabaseStructureCreated() {
         try {
             if (log.isDebugEnabled()) {
-                log.debug("Running a query to test the database tables existence.");
+                log.debug("Running a query to test the database tables existence");
             }
             // check whether the tables are already created with a query
             Connection conn = dataSource.getConnection();
@@ -193,6 +191,7 @@ public class IdentityDBInitializer {
                 }
             }
         } catch (SQLException e) {
+            // Doesn't matter if DB scripts are executed again, because doesn't do any harm.
             return false;
         }
 
@@ -200,8 +199,14 @@ public class IdentityDBInitializer {
 
     }
 
-    private void executeSQLScript() throws Exception {
-        String databaseType = IdentityDBInitializer.getDatabaseType(dataSource.getConnection());
+    private void executeSQLScript() {
+
+        String databaseType = null;
+        try {
+            databaseType = IdentityDBInitializer.getDatabaseType(dataSource.getConnection());
+        } catch (Exception e) {
+            throw new IdentityRuntimeException("Error occurred while getting database type");
+        }
         boolean keepFormat = false;
         if ("oracle".equals(databaseType)) {
             delimiter = "/";
@@ -256,12 +261,14 @@ public class IdentityDBInitializer {
                 executeSQL(sql.toString());
             }
         } catch (IOException e) {
-            log.error("Error occurred while executing SQL script for creating identity database", e);
-            throw new Exception("Error occurred while executing SQL script for creating identity database", e);
-
+            throw new IdentityRuntimeException("Error occurred while executing SQL script for creating identity database", e);
         } finally {
             if (reader != null) {
-                reader.close();
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    log.error("Error occurred while closing stream for Identity SQL script", e);
+                }
             }
         }
     }
@@ -282,7 +289,7 @@ public class IdentityDBInitializer {
      * @param sql
      * @throws Exception
      */
-    private void executeSQL(String sql) throws Exception {
+    private void executeSQL(String sql) {
         // Check and ignore empty statements
         if ("".equals(sql.trim())) {
             return;
@@ -331,7 +338,7 @@ public class IdentityDBInitializer {
                     log.info("Table Already Exists. Hence, skipping table creation");
                 }
             } else {
-                throw new Exception("Error occurred while executing : " + sql, e);
+                throw new IdentityRuntimeException("Error occurred while executing : " + sql, e);
             }
         } finally {
             if (resultSet != null) {

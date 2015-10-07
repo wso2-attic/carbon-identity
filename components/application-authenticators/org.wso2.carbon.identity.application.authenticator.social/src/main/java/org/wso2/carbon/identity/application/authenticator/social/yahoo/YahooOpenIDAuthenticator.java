@@ -31,9 +31,6 @@ import java.util.Map;
 
 public class YahooOpenIDAuthenticator extends OpenIDAuthenticator {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -782801773114711699L;
     private String openIDServerUrl;
 

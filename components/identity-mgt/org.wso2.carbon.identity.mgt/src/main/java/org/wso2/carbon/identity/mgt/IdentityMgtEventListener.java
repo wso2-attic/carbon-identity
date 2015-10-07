@@ -85,6 +85,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     private static final String USER_IDENTITY_DO = "UserIdentityDO";
     private static final String EMAIL_NOTIFICATION_TYPE = "EMAIL";
     private static final String UNLOCK_ADMIN_SYS_PROP = "unlockAdmin";
+    private static final String PASSWORD_INVALID = "PasswordInvalid";
     PolicyRegistry policyRegistry = null;
     private UserIdentityDataStore module;
     private IdentityMgtConfig identityMgtConfig;
@@ -94,6 +95,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     private static final String DO_POST_ADD_USER = "doPostAddUser";
     private static final String DO_PRE_SET_USER_CLAIM_VALUES = "doPreSetUserClaimValues";
     private static final String DO_POST_UPDATE_CREDENTIAL = "doPostUpdateCredential";
+    private static final String ASK_PASSWORD_FEATURE_IS_DISABLED = "Ask Password Feature is disabled";
+
 
 
 
@@ -117,7 +120,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
         String adminUserName =
                 IdentityMgtServiceComponent.getRealmService().getBootstrapRealmConfiguration().getAdminUserName();
         try {
-            if (isEnable(this.getClass().getName())) {
+            if (isEnable()) {
                 UserStoreManager userStoreMng = IdentityMgtServiceComponent.getRealmService()
                         .getBootstrapRealm().getUserStoreManager();
                 Map<String, String> claimMap = new HashMap<String, String>();
@@ -136,7 +139,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
      */
     @Override
     public int getExecutionOrderId() {
-        int orderId = getOrderId(IdentityMgtEventListener.class.getName());
+        int orderId = getOrderId();
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -151,7 +154,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     @Override
     public boolean doPreAuthenticate(String userName, Object credential,
                                      UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -238,7 +241,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     @Override
     public boolean doPostAuthenticate(String userName, boolean authenticated,
                                       UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -446,10 +449,10 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                                 Map<String, String> claims, String profile,
                                 UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             if (credential == null || StringUtils.isBlank(credential.toString())) {
                 log.error("Identity Management listener is disabled");
-                throw new UserStoreException("Ask Password Feature is disabled");
+                throw new UserStoreException(PASSWORD_INVALID + ASK_PASSWORD_FEATURE_IS_DISABLED);
             }
             return true;
         }
@@ -476,7 +479,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
             if (!config.isEnableTemporaryPassword()) {
                 log.error("Temporary password property is disabled");
-                throw new UserStoreException("Ask Password Feature is disabled");
+                throw new UserStoreException(ASK_PASSWORD_FEATURE_IS_DISABLED);
             }
             if (log.isDebugEnabled()) {
                 log.debug("Credentials are null. Using a temporary password as credentials");
@@ -532,7 +535,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                                  Map<String, String> claims, String profile,
                                  UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -658,7 +661,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 	public boolean doPreUpdateCredential(String userName, Object newCredential,
             Object oldCredential, UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -691,7 +694,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     public boolean doPreUpdateCredentialByAdmin(String userName, Object newCredential,
             UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -756,7 +759,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue,
                                           String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -783,7 +786,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                                            String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
         IdentityUtil.clearIdentityErrorMsg();
@@ -842,7 +845,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     public boolean doPostDeleteUser(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
@@ -882,7 +885,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                                             UserStoreManager storeManager)
             throws UserStoreException {
 
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 

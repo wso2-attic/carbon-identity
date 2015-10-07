@@ -24,12 +24,10 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
-import org.wso2.carbon.user.core.util.DatabaseUtil;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,142 +40,173 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
+ * Data will be persisted or stored date will be removed from the store. These two events are considered as STORE operation
+ * and DELETE operations.
+ * And these events are stored with unique sessionId, operation type and operation initiated timestamp.
+ * Expired DELETE operations and related STORE operations will be deleted by a OperationCleanUpService task.
+ * All expired operations will be deleted by SessionCleanUpService task.
  *
  */
 public class SessionDataStore {
-
-    private static final String SQL_SERIALIZE_OBJECT = "INSERT INTO IDN_AUTH_SESSION_STORE(SESSION_ID, SESSION_TYPE, " +
-                                                       "SESSION_OBJECT, TIME_CREATED) VALUES (?, ?, ?, ?)";
-    private static final String SQL_UPDATE_SERIALIZED_OBJECT =
-            "UPDATE IDN_AUTH_SESSION_STORE SET SESSION_OBJECT =?, TIME_CREATED =? WHERE SESSION_ID =? AND " +
-            "SESSION_TYPE=?";
-    private static final String SQL_DESERIALIZE_OBJECT = "SELECT SESSION_OBJECT FROM IDN_AUTH_SESSION_STORE WHERE " +
-                                                         "SESSION_ID =? AND SESSION_TYPE=?";
-    private static final String SQL_CHECK_SERIALIZED_OBJECT = "SELECT SESSION_ID FROM IDN_AUTH_SESSION_STORE WHERE " +
-                                                              "SESSION_ID = ? AND SESSION_TYPE=?";
-    private static final String SQL_DELETE_SERIALIZED_OBJECT = "DELETE FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =" +
-                                                               " ? AND SESSION_TYPE=?";
-    private static final String SQL_DELETE_SERIALIZED_OBJECT_TASK = "DELETE FROM IDN_AUTH_SESSION_STORE WHERE " +
-                                                                    "TIME_CREATED<?";
-    private static final String SQL_SELECT_TIME_CREATED = "SELECT TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE " +
-                                                          "SESSION_ID =? AND SESSION_TYPE =?";
     private static final Log log = LogFactory.getLog(SessionDataStore.class);
+
+    private static final String OPERATION_DELETE = "DELETE";
+    private static final String OPERATION_STORE = "STORE";
+    private static final String SQL_INSERT_STORE_OPERATION =
+            "INSERT INTO IDN_AUTH_SESSION_STORE(SESSION_ID, SESSION_TYPE, OPERATION, SESSION_OBJECT, TIME_CREATED) VALUES (?,?,?,?,?)";
+    private static final String SQL_INSERT_DELETE_OPERATION =
+            "INSERT INTO IDN_AUTH_SESSION_STORE(SESSION_ID, SESSION_TYPE,OPERATION, TIME_CREATED) VALUES (?,?,?,?)";
+    private static final String SQL_DELETE_STORE_OPERATIONS_TASK =
+            "DELETE FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '"+OPERATION_STORE+"' AND SESSION_ID in (" +
+            "SELECT SESSION_ID  FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '"+OPERATION_DELETE+"' AND TIME_CREATED < ?)";
+    private static final String SQL_DELETE_DELETE_OPERATIONS_TASK =
+            "DELETE FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '"+OPERATION_DELETE+"' AND  TIME_CREATED < ?";
+
+    private static final String SQL_DESERIALIZE_OBJECT_MYSQL =
+            "SELECT OPERATION, SESSION_OBJECT, TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND" +
+                    " SESSION_TYPE=? ORDER BY TIME_CREATED DESC LIMIT 1";
+    private static final String SQL_DESERIALIZE_OBJECT_DB2SQL =
+            "SELECT OPERATION, SESSION_OBJECT, TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND" +
+                    " SESSION_TYPE=? ORDER BY TIME_CREATED DESC FETCH FIRST 1 ROWS ONLY";
+    private static final String SQL_DESERIALIZE_OBJECT_MSSQL =
+            "SELECT TOP 1 OPERATION, SESSION_OBJECT, TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND" +
+                    " SESSION_TYPE=? ORDER BY TIME_CREATED DESC";
+    private static final String SQL_DESERIALIZE_OBJECT_POSTGRESQL =
+            "SELECT OPERATION, SESSION_OBJECT, TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND" +
+                    " SESSION_TYPE=? ORDER BY TIME_CREATED DESC LIMIT 1";
+    private static final String SQL_DESERIALIZE_OBJECT_INFORMIX =
+            "SELECT FIRST 1 OPERATION, SESSION_OBJECT, TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND" +
+                    " SESSION_TYPE=? ORDER BY TIME_CREATED DESC LIMIT 1";
+    private static final String SQL_DESERIALIZE_OBJECT_ORACLE =
+            "SELECT * FROM (SELECT OPERATION, SESSION_OBJECT, TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND" +
+                    " SESSION_TYPE=? ORDER BY TIME_CREATED DESC) WHERE ROWNUM < 2";
+
+    private static final String SQL_DELETE_EXPIRED_DATA_TASK =
+            "DELETE FROM IDN_AUTH_SESSION_STORE WHERE TIME_CREATED<?";
+
     private static int maxPoolSize = 100;
-    private static BlockingDeque<SessionContextDO> sessionContextQueue = new LinkedBlockingDeque<SessionContextDO>();
+    private long operationCleanUpPeriod = 720;
+    private String defaultCleanUpEnabled ="true";
+    private String defaultOperationCleanUpEnabled ="false";
+    private static BlockingDeque<SessionContextDO> sessionContextQueue = new LinkedBlockingDeque();
     private static volatile SessionDataStore instance;
-    private JDBCPersistenceManager jdbcPersistenceManager;
     private boolean enablePersist;
-    private String sqlStore;
-    private String sqlUpdate;
-    private String sqlDelete;
-    private String sqlCheck;
+    private String sqlInsertSTORE;
+    private String sqlInsertDELETE;
+    private String sqlDeleteSTORETask;
+    private String sqlDeleteDELETETask;
     private String sqlSelect;
-    private String sqlDeleteTask;
+    private String sqlDeleteExpiredDataTask;
 
     static {
-
         try {
-            String maxPoolSizeConfigValue = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist" +
-                                                                     ".PoolSize");
+            String maxPoolSizeConfigValue = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.PoolSize");
             if (StringUtils.isNotBlank(maxPoolSizeConfigValue)) {
                 maxPoolSize = Integer.parseInt(maxPoolSizeConfigValue);
             }
         } catch (NumberFormatException e) {
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Exception ignored : ", e);
             }
             log.warn("Session data persistence pool size is not configured. Using default value.");
         }
-
         if (maxPoolSize > 0) {
             log.info("Thread pool size for session persistent consumer : " + maxPoolSize);
 
             ExecutorService threadPool = Executors.newFixedThreadPool(maxPoolSize);
-
             for (int i = 0; i < maxPoolSize; i++) {
                 threadPool.execute(new SessionDataPersistTask(sessionContextQueue));
             }
         }
-
     }
 
     private SessionDataStore() {
-        try {
+        String enablePersistVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable");
+        enablePersist = true;
+        if (enablePersistVal != null) {
+            enablePersist = Boolean.parseBoolean(enablePersistVal);
+        }
+        String insertSTORESQL = IdentityUtil
+                .getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.InsertSTORE");
+        String insertDELETESQL = IdentityUtil
+                .getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.InsertDELETE");
+        String deleteSTORETaskSQL = IdentityUtil
+                .getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.DeleteSTORETask");
+        String deleteDELETETaskSQL = IdentityUtil
+                .getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.DeleteDELETETask");
+        String selectSQL = IdentityUtil
+                .getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Select");
+        String deleteExpiredDataTaskSQL = IdentityUtil
+                .getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.DeleteExpiredDataTask");
+        if (!StringUtils.isBlank(insertSTORESQL)) {
+            sqlInsertSTORE = insertSTORESQL;
+        } else {
+            sqlInsertSTORE = SQL_INSERT_STORE_OPERATION;
+        }
+        if (!StringUtils.isBlank(insertDELETESQL)) {
+            sqlInsertDELETE = insertDELETESQL;
+        } else {
+            sqlInsertDELETE = SQL_INSERT_DELETE_OPERATION;
+        }
+        if (!StringUtils.isBlank(deleteSTORETaskSQL)) {
+            sqlDeleteSTORETask = deleteSTORETaskSQL;
+        } else {
+            sqlDeleteSTORETask = SQL_DELETE_STORE_OPERATIONS_TASK;
+        }
+        if (!StringUtils.isBlank(deleteDELETETaskSQL)) {
+            sqlDeleteDELETETask = deleteDELETETaskSQL;
+        } else {
+            sqlDeleteDELETETask = SQL_DELETE_DELETE_OPERATIONS_TASK;
+        }
+        if (!StringUtils.isBlank(selectSQL)) {
+            sqlSelect = selectSQL;
+        }
 
-            jdbcPersistenceManager = JDBCPersistenceManager.getInstance();
-            //hidden config parameter
-            String enablePersistVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Enable");
-            enablePersist = true;
-            if(enablePersistVal != null){
-                enablePersist = Boolean.parseBoolean(enablePersistVal);
-            }
-            String storeSQL = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Store");
-            String updateSQL = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Update");
-            String deleteSQL = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Delete");
-            String checkSQL = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Check");
-            String selectSQL = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Select");
-            String deleteTaskSQL = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SQL.Task");
-            if (storeSQL != null && storeSQL.trim().length() > 0) {
-                this.sqlStore = storeSQL;
-            } else {
-                this.sqlStore = SQL_SERIALIZE_OBJECT;
-            }
-            if (updateSQL != null && updateSQL.trim().length() > 0) {
-                this.sqlUpdate = updateSQL;
-            } else {
-                this.sqlUpdate = SQL_UPDATE_SERIALIZED_OBJECT;
-            }
-            if (deleteSQL != null && deleteSQL.trim().length() > 0) {
-                this.sqlDelete = deleteSQL;
-            } else {
-                this.sqlDelete = SQL_DELETE_SERIALIZED_OBJECT;
-            }
-            if (checkSQL != null && checkSQL.trim().length() > 0) {
-                this.sqlCheck = checkSQL;
-            } else {
-                this.sqlCheck = SQL_CHECK_SERIALIZED_OBJECT;
-            }
-            if (selectSQL != null && selectSQL.trim().length() > 0) {
-                this.sqlSelect = selectSQL;
-            } else {
-                this.sqlSelect = SQL_DESERIALIZE_OBJECT;
-            }
-            if (deleteTaskSQL != null && deleteTaskSQL.trim().length() > 0) {
-                this.sqlDeleteTask = deleteTaskSQL;
-            } else {
-                this.sqlDeleteTask = SQL_DELETE_SERIALIZED_OBJECT_TASK;
-            }
-        } catch (IdentityException e) {
-            //ignore
-            log.error("Error while loading session data store manager", e);
+        if (!StringUtils.isBlank(deleteExpiredDataTaskSQL)) {
+            sqlDeleteExpiredDataTask = deleteExpiredDataTaskSQL;
+        } else {
+            sqlDeleteExpiredDataTask = SQL_DELETE_EXPIRED_DATA_TASK;
         }
 
         if (!enablePersist) {
             log.info("Session Data Persistence of Authentication framework is not enabled.");
         }
-        //hidden config parameter
-        String isCleanUpEnabledVal = IdentityUtil.getProperty("JDBCPersistenceManager" +
-                                                                                ".SessionDataPersist.CleanUp.Enable");
-        if (isCleanUpEnabledVal == null) {
-            isCleanUpEnabledVal = "true";
+        String isCleanUpEnabledVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.CleanUp.Enable");
+        String isOperationCleanUpEnabledVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataOperations.CleanUp.Enable");
+        String operationCleanUpPeriodVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataOperations.CleanUp.CleanUpPeriod");
+
+        if (StringUtils.isBlank(isCleanUpEnabledVal)) {
+            isCleanUpEnabledVal = defaultCleanUpEnabled;
+        }
+        if (StringUtils.isBlank(isOperationCleanUpEnabledVal)) {
+            isOperationCleanUpEnabledVal = defaultOperationCleanUpEnabled;
+        }
+        if (!StringUtils.isBlank(operationCleanUpPeriodVal)) {
+            operationCleanUpPeriod = Long.parseLong(operationCleanUpPeriodVal);
         }
         if (Boolean.parseBoolean(isCleanUpEnabledVal)) {
-            long sessionCleanupPeriod = IdPManagementUtil.
-                    getCleanUpPeriod(CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
-            SessionCleanUpService sessionCleanUpService = new SessionCleanUpService(sessionCleanupPeriod,
-                    sessionCleanupPeriod);
+            long sessionCleanupPeriod = IdPManagementUtil.getCleanUpPeriod(
+                    CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
+            SessionCleanUpService sessionCleanUpService = new SessionCleanUpService(sessionCleanupPeriod, sessionCleanupPeriod);
             sessionCleanUpService.activateCleanUp();
         } else {
             log.info("Session Data CleanUp Task of Authentication framework is not enabled.");
         }
+        if (Boolean.parseBoolean(isOperationCleanUpEnabledVal)) {
+            OperationCleanUpService operationCleanUpService = new OperationCleanUpService(operationCleanUpPeriod, operationCleanUpPeriod);
+            operationCleanUpService.activateCleanUp();
+        } else {
+            log.info("Session Data Operations CleanUp Task of Authentication framework is not enabled.");
+        }
     }
-
+    
     public static SessionDataStore getInstance() {
         if (instance == null) {
             synchronized (SessionDataStore.class) {
@@ -189,70 +218,97 @@ public class SessionDataStore {
         return instance;
     }
 
-
     public Object getSessionData(String key, String type) {
+        SessionContextDO sessionContextDO = getSessionContextData(key, type);
+        return sessionContextDO != null ? sessionContextDO.getEntry() : null;
+    }
 
+    public SessionContextDO getSessionContextData(String key, String type) {
         if (!enablePersist) {
             return null;
         }
-
         Connection connection = null;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+        } catch (IdentityRuntimeException e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            connection = jdbcPersistenceManager.getDBConnection();
+            if (StringUtils.isBlank(sqlSelect)) {
+                if (connection.getMetaData().getDriverName().contains("MySQL")
+                        || connection.getMetaData().getDriverName().contains("H2")) {
+                    sqlSelect = SQL_DESERIALIZE_OBJECT_MYSQL;
+                } else if (connection.getMetaData().getDatabaseProductName().contains("DB2")) {
+                    sqlSelect = SQL_DESERIALIZE_OBJECT_DB2SQL;
+                } else if (connection.getMetaData().getDriverName().contains("MS SQL")
+                        || connection.getMetaData().getDriverName().contains("Microsoft")) {
+                    sqlSelect = SQL_DESERIALIZE_OBJECT_MSSQL;
+                } else if (connection.getMetaData().getDriverName().contains("PostgreSQL")) {
+                    sqlSelect = SQL_DESERIALIZE_OBJECT_POSTGRESQL;
+                } else if (connection.getMetaData().getDriverName().contains("Informix")) {
+                    // Driver name = "IBM Informix JDBC Driver for IBM Informix Dynamic Server"
+                    sqlSelect = SQL_DESERIALIZE_OBJECT_INFORMIX;
+                } else {
+                    sqlSelect = SQL_DESERIALIZE_OBJECT_ORACLE;
+                }
+            }
             preparedStatement = connection.prepareStatement(sqlSelect);
             preparedStatement.setString(1, key);
             preparedStatement.setString(2, type);
             resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return getBlobObject(resultSet.getBinaryStream(1));
+            if(resultSet.next()) {
+                String operation = resultSet.getString(1);
+                if ((OPERATION_STORE.equals(operation))) {
+                    return new SessionContextDO(key, type, getBlobObject(resultSet.getBinaryStream(2)), resultSet.getTimestamp(3));
+                }
             }
-        } catch (IdentityException | ClassNotFoundException | IOException | SQLException |
+        } catch (ClassNotFoundException | IOException | SQLException |
                 IdentityApplicationManagementException e) {
-            //ignore
             log.error("Error while retrieving session data", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, resultSet, preparedStatement);
         }
-
         return null;
     }
 
     public void storeSessionData(String key, String type, Object entry) {
-
         if (!enablePersist) {
             return;
         }
-
+        Timestamp timestamp = new Timestamp(new Date().getTime());
         if (maxPoolSize > 0) {
-            sessionContextQueue.push(new SessionContextDO(key, type, entry));
+            sessionContextQueue.push(new SessionContextDO(key, type, entry, timestamp));
         } else {
-            persistSessionData(key, type, entry);
+            persistSessionData(key, type, entry, timestamp);
         }
     }
 
     public void clearSessionData(String key, String type) {
-
         if (!enablePersist) {
             return;
         }
-
+        Timestamp timestamp = new Timestamp(new Date().getTime());
         if (maxPoolSize > 0) {
-            sessionContextQueue.push(new SessionContextDO(key, type, null));
+            sessionContextQueue.push(new SessionContextDO(key, type, null, timestamp));
         } else {
-            removeSessionData(key, type);
+            removeSessionData(key, type, timestamp);
         }
     }
 
     public void removeExpiredSessionData(Timestamp timestamp) {
-
         Connection connection = null;
         PreparedStatement statement = null;
-
         try {
-            connection = jdbcPersistenceManager.getDBConnection();
-            statement = connection.prepareStatement(sqlDeleteTask);
+            connection = IdentityDatabaseUtil.getDBConnection();
+        } catch (IdentityRuntimeException e) {
+            log.error(e.getMessage(), e);
+            return;
+        }
+        try {
+            statement = connection.prepareStatement(sqlDeleteExpiredDataTask);
             statement.setTimestamp(1, timestamp);
             statement.execute();
             if (!connection.getAutoCommit()) {
@@ -260,118 +316,72 @@ public class SessionDataStore {
             }
         } catch (SQLException e) {
             log.error("Error while removing session data from the database for the timestamp " + timestamp.toString(), e);
-        } catch (IdentityException e) {
-            log.error("Error while obtaining the database connection", e);
         } finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if (connection != null) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                log.error("Error while closing the stream", e);
-            }
-        }
+            IdentityDatabaseUtil.closeAllConnections(connection, null, statement);
 
+        }
     }
 
-    private boolean isExist(String key, String type) {
-
-        if (!enablePersist) {
-            return false;
-        }
-
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            connection = jdbcPersistenceManager.getDBConnection();
-            preparedStatement = connection.prepareStatement(sqlCheck);
-            preparedStatement.setString(1, key);
-            preparedStatement.setString(2, type);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return true;
-            }
-        } catch (IdentityException | SQLException e) {
-            //ignore
-            log.error("Error while retrieving session data", e);
-        } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, preparedStatement);
-        }
-
-        return false;
+    public void removeExpiredOperationData(Timestamp timestamp) {
+        deleteSTOREOperationsTask(timestamp);
+        deleteDELETEOperationsTask(timestamp);
     }
 
-    public void persistSessionData(String key, String type, Object entry) {
-
+    public void persistSessionData(String key, String type, Object entry, Timestamp timestamp) {
         if (!enablePersist) {
             return;
         }
-
-        boolean isExist = isExist(key, type);
-
-
         Connection connection = null;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+        } catch (IdentityRuntimeException e) {
+            log.error(e.getMessage(), e);
+            return;
+        }
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        Timestamp timestamp = new java.sql.Timestamp(new java.util.Date().getTime());
         try {
-            connection = jdbcPersistenceManager.getDBConnection();
-            connection.setAutoCommit(false);
-            if (isExist) {
-                preparedStatement = connection.prepareStatement(SQL_SELECT_TIME_CREATED);
-                preparedStatement.setString(1, key);
-                preparedStatement.setString(2, type);
-                resultSet = preparedStatement.executeQuery();
-                if (resultSet.next()) {
-                    timestamp = resultSet.getTimestamp(1);
-                    preparedStatement.close();
-                }
-                preparedStatement = connection.prepareStatement(sqlUpdate);
-                setBlobObject(preparedStatement, entry, 1);
-                preparedStatement.setTimestamp(2, timestamp);
-                preparedStatement.setString(3, key);
-                preparedStatement.setString(4, type);
-            } else {
-                preparedStatement = connection.prepareStatement(sqlStore);
-                preparedStatement.setString(1, key);
-                preparedStatement.setString(2, type);
-                setBlobObject(preparedStatement, entry, 3);
-                preparedStatement.setTimestamp(4, timestamp);
-            }
+            preparedStatement = connection.prepareStatement(sqlInsertSTORE);
+            preparedStatement.setString(1, key);
+            preparedStatement.setString(2, type);
+            preparedStatement.setString(3, OPERATION_STORE);
+            setBlobObject(preparedStatement, entry, 4);
+            preparedStatement.setTimestamp(5, timestamp);
             preparedStatement.executeUpdate();
-            connection.commit();
-        } catch (IdentityException | SQLException | IOException e) {
-            //ignore
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+            }
+        } catch (SQLException | IOException e) {
             log.error("Error while storing session data", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, resultSet, preparedStatement);
         }
     }
 
-
-    public void removeSessionData(String key, String type) {
-
+    public void removeSessionData(String key, String type, Timestamp timestamp) {
         if (!enablePersist) {
             return;
         }
-
         Connection connection = null;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+        } catch (IdentityRuntimeException e) {
+            log.error(e.getMessage(), e);
+            return;
+        }
         PreparedStatement preparedStatement = null;
         try {
-            connection = jdbcPersistenceManager.getDBConnection();
-
-            preparedStatement = connection.prepareStatement(sqlDelete);
+            preparedStatement = connection.prepareStatement(sqlInsertDELETE);
             preparedStatement.setString(1, key);
             preparedStatement.setString(2, type);
+            preparedStatement.setString(3, OPERATION_DELETE);
+            preparedStatement.setTimestamp(4, timestamp);
             preparedStatement.executeUpdate();
-            connection.commit();
-        } catch (IdentityException | SQLException e) {
-            //ignore
-            log.error("Error while deleting session data", e);
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+            }
+        } catch (Exception e) {
+            log.error("Error while storing DELETE operation session data", e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, preparedStatement);
         }
@@ -392,14 +402,13 @@ public class SessionDataStore {
         }
     }
 
-    private Object getBlobObject(InputStream is) throws IdentityApplicationManagementException,
-                                                        IOException, ClassNotFoundException {
+    private Object getBlobObject(InputStream is)
+            throws IdentityApplicationManagementException, IOException, ClassNotFoundException {
         if (is != null) {
             ObjectInput ois = null;
-            Object object = null;
             try {
                 ois = new ObjectInputStream(is);
-                object = ois.readObject();
+                return ois.readObject();
             } finally {
                 if (ois != null) {
                     try {
@@ -409,49 +418,58 @@ public class SessionDataStore {
                     }
                 }
             }
-            return object;
         }
         return null;
     }
 
-    public Timestamp getTimeStamp(String key, String type) {
-        boolean isExist = isExist(key, type);
-
-        if (isExist) {
-            Connection connection = null;
-            PreparedStatement preparedStatement = null;
-            ResultSet resultSet = null;
-            Timestamp timestamp = null;
-            try {
-                connection = jdbcPersistenceManager.getDBConnection();
-                connection.setAutoCommit(false);
-                preparedStatement = connection.prepareStatement(SQL_SELECT_TIME_CREATED);
-                preparedStatement.setString(1, key);
-                preparedStatement.setString(2, type);
-                resultSet = preparedStatement.executeQuery();
-                if (resultSet.next()) {
-                    timestamp = resultSet.getTimestamp(1);
-                }
-            } catch (SQLException e) {
-                //ignore
-                log.error("Error while storing session data in the database for key = " + key + " and type = " + type, e);
-            } catch (IdentityException e) {
-                //ignore
-                log.error("Error while obtaining the database connection", e);
-            } finally {
-                if(resultSet != null){
-                    try{
-                        resultSet.close();
-                    } catch (SQLException e){
-                        log.error("Error when closing the result set of session time stamps");
-                    }
-                }
-                DatabaseUtil.closeAllConnections(connection, preparedStatement);
-            }
-            return timestamp;
-        } else {
-            return null;
+    private void deleteSTOREOperationsTask(Timestamp timestamp) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+        } catch (IdentityRuntimeException e) {
+            log.error(e.getMessage(), e);
+            return;
         }
+        try {
+            statement = connection.prepareStatement(sqlDeleteSTORETask);
+            statement.setTimestamp(1, timestamp);
+            statement.execute();
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+            }
+            return;
+        } catch (SQLException e) {
+            log.error("Error while removing STORE operation data from the database for the timestamp " + timestamp.toString(), e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, statement);
+
+        }
+
     }
 
+    private void deleteDELETEOperationsTask(Timestamp timestamp) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = IdentityDatabaseUtil.getDBConnection();
+        } catch (IdentityRuntimeException e) {
+            log.error(e.getMessage(), e);
+            return;
+        }
+        try {
+            statement = connection.prepareStatement(sqlDeleteDELETETask);
+            statement.setTimestamp(1, timestamp);
+            statement.execute();
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+            }
+            return;
+        } catch (SQLException e) {
+            log.error("Error while removing DELETE operation data from the database for the timestamp " + timestamp.toString(), e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, statement);
+
+        }
+    }
 }

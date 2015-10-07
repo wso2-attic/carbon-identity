@@ -68,7 +68,7 @@
             sharedRoleEnabled = client.isSharedRolesEnabled();
         }
         roleType = request.getParameter("roleType");
-        internal = UserAdminUIConstants.INTERNAL_ROLE.equals(roleType);
+        internal = UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType);
         sharedRoleEnabled = sharedRoleEnabled && !internal;
 
         userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
@@ -227,7 +227,7 @@
     </script>
 
     <div id="middle">
-        <%if (UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)) {%>
+        <%if (UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)) {%>
         <h2><fmt:message key="add.internal.user.role"/></h2>
         <%} else { %>
         <h2><fmt:message key="add-roles"/></h2>
@@ -272,7 +272,7 @@
                         <td class="formRaw">
                             <table class="normal">
                                 <%
-                                    if (!UserAdminUIConstants.INTERNAL_ROLE.equals(roleType) &&
+                                    if (!UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType) &&
                                         domainNames != null && domainNames.size() > 0) {
                                 %>
                                 <tr>

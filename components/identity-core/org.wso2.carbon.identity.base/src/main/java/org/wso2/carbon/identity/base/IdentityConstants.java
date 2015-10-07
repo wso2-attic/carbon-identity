@@ -181,9 +181,16 @@ public class IdentityConstants {
         public static final String SSO_TENANT_PARTITIONING_ENABLED = "SSOService.TenantPartitioningEnabled";
         public static final String ACCEPT_OPENID_LOGIN = "SSOService.AcceptOpenIDLogin";
         public static final String SAML_RESPONSE_VALIDITY_PERIOD = "SSOService.SAMLResponseValidityPeriod";
-
+        public static final String SSO_DEFAULT_SIGNING_ALGORITHM = "SSOService.SAMLDefaultSigningAlgorithmURI";
+        public static final String SSO_DEFAULT_DIGEST_ALGORITHM = "SSOService.SAMLDefaultDigestAlgorithmURI";
         //Identity Persistence Manager
         public static final String SKIP_DB_SCHEMA_CREATION = "JDBCPersistenceManager.SkipDBSchemaCreation";
+
+        //Timeout Configurations
+        public static final String SESSION_IDLE_TIMEOUT = "TimeConfig.SessionIdleTimeout";
+        public static final String REMEMBER_ME_TIME_OUT = "TimeConfig.RememberMeTimeout";
+        public static final String CLEAN_UP_PERIOD = "TimeConfig.PersistanceCleanUpPeriod";
+
     }
 
     /**

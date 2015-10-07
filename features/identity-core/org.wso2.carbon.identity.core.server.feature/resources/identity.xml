@@ -130,6 +130,8 @@
         <!--OAuth2AuthzEPUrl>https://localhost:9443/oauth2/authorize</OAuth2AuthzEPUrl-->
         <!--OAuth2TokenEPUrl>https://localhost:9443/oauth2/token</OAuth2TokenEPUrl-->
         <!--OAuth2UserInfoEPUrl>https://localhost:9443/oauth2/userinfo</OAuth2UserInfoEPUrl-->
+        <!--OIDCConsentPage>https://localhost:9443/authenticationendpoint/oauth2_consent.do</OIDCConsentPage-->
+        <!--OAuth2ConsentPage>https://localhost:9443/authenticationendpoint/oauth2_authz.do</OAuth2ConsentPage-->
 
         <!-- Default validity period for Authorization Code in seconds -->
         <AuthorizationCodeDefaultValidityPeriod>300</AuthorizationCodeDefaultValidityPeriod>
@@ -286,6 +288,8 @@
         <!-- SAML Token validity period in minutes -->
         <SAMLResponseValidityPeriod>5</SAMLResponseValidityPeriod>
         <UseAuthenticatedUserDomainCrypto>false</UseAuthenticatedUserDomainCrypto>
+        <SAMLDefaultSigningAlgorithmURI>http://www.w3.org/2000/09/xmldsig#rsa-sha1</SAMLDefaultSigningAlgorithmURI>
+        <SAMLDefaultDigestAlgorithmURI>http://www.w3.org/2000/09/xmldsig#sha1</SAMLDefaultDigestAlgorithmURI>
     </SSOService>
 
     <SecurityTokenService>
@@ -307,16 +311,6 @@
     </PassiveSTS>
 
     <EntitlementSettings>
-        <!-- Uncomment this to enable on-demand policy loading -->
-        <!--OnDemandPolicyLoading> <Enable>true</Enable> <MaxInMemoryPolicies>100</MaxInMemoryPolicies>
-            </OnDemandPolicyLoading -->
-        <DecisionCaching>
-            <Enable>true</Enable>
-            <CachingInterval>36000</CachingInterval>
-        </DecisionCaching>
-        <AttributeCaching>
-            <Enable>true</Enable>
-        </AttributeCaching>
         <ThirftBasedEntitlementConfig>
             <EnableThriftService>false</EnableThriftService>
             <ReceivePort>${Ports.ThriftEntitlementReceivePort}</ReceivePort>
@@ -359,8 +353,8 @@
 
     <EventListeners>
         <EventListener type="org.wso2.carbon.user.core.listener.UserOperationEventListener"
-                       name="org.wso2.carbon.identity.workflow.mgt.impl.userstore.UserStoreActionListener"
-                       orderId="10" enable="false"/>
+                       name="org.wso2.carbon.user.mgt.workflow.userstore.UserStoreActionListener"
+                       orderId="10" enable="true"/>
         <EventListener type="org.wso2.carbon.user.core.listener.UserOperationEventListener" name="org.wso2.carbon.identity.mgt.IdentityMgtEventListener"
                        orderId="50" enable="false"/>
         <EventListener type="org.wso2.carbon.user.core.listener.UserOperationEventListener" name="org.wso2.carbon.identity.oauth.listener.IdentityOathEventListener"

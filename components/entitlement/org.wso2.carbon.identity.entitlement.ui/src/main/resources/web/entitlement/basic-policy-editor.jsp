@@ -26,6 +26,7 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <jsp:useBean id="entitlementPolicyBean" type="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean"
@@ -52,7 +53,7 @@
     String selectedAttributeId = request.getParameter("selectedAttributeId");
     String category = request.getParameter("category");
 
-    String ruleId = CharacterEncoder.getSafeText(request.getParameter("ruleId"));
+    String ruleId = request.getParameter("ruleId");
     if(ruleId != null && ruleId.trim().length() > 0 && !ruleId.trim().equals("null") ) {
         basicRuleDTO = entitlementPolicyBean.getBasicRuleElement(ruleId);
     }
@@ -598,7 +599,7 @@
         <%
             if(entitlementPolicyBean.getPolicyName() != null) {
         %>
-        <td><input type="text" name="policyName" id="policyName" value="<%=entitlementPolicyBean.getPolicyName()%>" class="text-box-big"/></td>
+        <td><input type="text" name="policyName" id="policyName" value="<%=Encode.forHtmlAttribute(entitlementPolicyBean.getPolicyName())%>" class="text-box-big"/></td>
         <%
         } else {
         %>
@@ -619,11 +620,11 @@
                     for (String algorithmName : algorithmNames) {
                         if(algorithmName.equals(entitlementPolicyBean.getAlgorithmName())){
                 %>
-                <option value="<%=algorithmName%>" selected="selected"><%=entitlementPolicyBean.getAlgorithmName()%></option>
+                <option value="<%=Encode.forHtmlAttribute(algorithmName)%>" selected="selected"><%=Encode.forHtmlContent(entitlementPolicyBean.getAlgorithmName())%></option>
                 <%
                 } else {
                 %>
-                <option value="<%=algorithmName%>"><%=algorithmName%></option>
+                <option value="<%=Encode.forHtmlAttribute(algorithmName)%>"><%=Encode.forHtmlContent(algorithmName)%></option>
                 <%
                         }
                     }
@@ -642,7 +643,8 @@
         <%
             if(entitlementPolicyBean.getPolicyDescription() != null) {
         %>
-        <td><textarea name="policyDescription" id="policyDescription" value="<%=entitlementPolicyBean.getPolicyDescription()%>" class="text-box-big"><%=entitlementPolicyBean.getPolicyDescription()%></textarea></td>
+        <td><textarea name="policyDescription" id="policyDescription" value="<%=Encode.forHtmlAttribute(entitlementPolicyBean.getPolicyDescription())%>" class="text-box-big">
+            <%=Encode.forHtmlContent(entitlementPolicyBean.getPolicyDescription())%></textarea></td>
         <%
         } else {
         %>
@@ -674,12 +676,12 @@
                         for (String functionId : targetFunctionIds) {
                             if (functionId.equals(functionOnResourcesTarget)) {
                 %>
-                <option value="<%=functionId%>" selected="selected"><%=functionId%>
+                <option value="<%=Encode.forHtmlAttribute(functionId)%>" selected="selected"><%=Encode.forHtmlContent(functionId)%>
                 </option>
                 <%
                 } else {
                 %>
-                <option value="<%=functionId%>"><%=functionId%>
+                <option value="<%=Encode.forHtmlAttribute(functionId)%>"><%=Encode.forHtmlContent(functionId)%>
                 </option>
                 <%
                             }
@@ -694,7 +696,7 @@
 
             %>
             <input type="text" size="60" name="resourceNamesTarget" id="resourceNamesTarget"
-                   value="<%=resourceNamesTarget%>" class="text-box-big"/>
+                   value="<%=Encode.forHtmlAttribute(resourceNamesTarget)%>" class="text-box-big"/>
             <%
             } else {
             %>
@@ -710,7 +712,7 @@
                style='background-image:url(images/registry.gif); float:right;'></a>
         </td>
         <td>
-            <input type="hidden" name="resourceIdTarget" id="resourceIdTarget" value="<%=resourceIdTarget%>" />
+            <input type="hidden" name="resourceIdTarget" id="resourceIdTarget" value="<%=Encode.forHtmlContent(resourceIdTarget)%>" />
         </td>
         </tr>
         </table>
@@ -728,11 +730,11 @@
                         for (String id : subjectIds) {
                             if (id.equals(subjectIdTarget)) {
                 %>
-                <option value="<%=id%>" selected="selected"><%=id%></option>
+                <option value="<%=Encode.forHtmlAttribute(id)%>" selected="selected"><%=Encode.forHtmlContent(id)%></option>
                 <%
                         } else {
                 %>
-                <option value="<%=id%>"><%=id%></option>
+                <option value="<%=Encode.forHtmlAttribute(id)%>"><%=Encode.forHtmlContent(id)%></option>
                 <%
                             }
                         }
@@ -747,12 +749,12 @@
                     for (String functionId : targetFunctionIds) {
                         if (functionId.equals(functionOnSubjectsTarget)) {
                 %>
-                <option value="<%=functionId%>" selected="selected"><%=functionId%>
+                <option value="<%=Encode.forHtmlAttribute(functionId)%>" selected="selected"><%=Encode.forHtmlContent(functionId)%>
                 </option>
                 <%
                 } else {
                 %>
-                <option value="<%=functionId%>"><%=functionId%>
+                <option value="<%=Encode.forHtmlAttribute(functionId)%>"><%=Encode.forHtmlContent(functionId)%>
                 </option>
                 <%
                         }
@@ -766,7 +768,7 @@
                 if (subjectNamesTarget != null && subjectNamesTarget.trim().length() > 0) {
             %>
             <input type="text" name="subjectNamesTarget" id="subjectNamesTarget"
-                   value="<%=subjectNamesTarget%>" class="text-box-mid-big"/>
+                   value="<%=Encode.forHtmlAttribute(subjectNamesTarget)%>" class="text-box-mid-big"/>
             <%
                 } else {
             %>
@@ -795,12 +797,12 @@
                     for (String functionId : targetFunctionIds) {
                         if (functionId.equals(functionOnActionsTarget)) {
                 %>
-                <option value="<%=functionId%>" selected="selected"><%=functionId%>
+                <option value="<%=Encode.forHtmlAttribute(functionId)%>" selected="selected"><%=Encode.forHtmlContent(functionId)%>
                 </option>
                 <%
                 } else {
                 %>
-                <option value="<%=functionId%>"><%=functionId%>
+                <option value="<%=Encode.forHtmlAttribute(functionId)%>"><%=Encode.forHtmlContent(functionId)%>
                 </option>
                 <%
                         }
@@ -814,7 +816,7 @@
                 if (actionNamesTarget != null && actionNamesTarget.trim().length() > 0) {
 
             %>
-            <input type="text" name="actionNamesTarget" id="actionNamesTarget" value="<%=actionNamesTarget%>"
+            <input type="text" name="actionNamesTarget" id="actionNamesTarget" value="<%=Encode.forHtmlAttribute(actionNamesTarget)%>"
                    class="text-box-big"/>
             <%
             } else {
@@ -831,7 +833,8 @@
         </td>
 
         <td>
-            <input type="hidden" name="actionIdTarget" id="actionIdTarget" value="<%=actionIdTarget%>" />
+            <input type="hidden" name="actionIdTarget" id="actionIdTarget"
+                   value="<%=Encode.forHtmlAttribute(actionIdTarget)%>"/>
         </td>
         </tr>
         </table>
@@ -850,11 +853,11 @@
                     for (String id : environmentIds) {
                         if (id.equals(environmentIdTarget)) {
                 %>
-                <option value="<%=id%>" selected="selected"><%=id%></option>
+                <option value="<%=Encode.forHtmlAttribute(id)%>" selected="selected"><%=Encode.forHtmlContent(id)%></option>
                 <%
                 } else {
                 %>
-                <option value="<%=id%>"><%=id%></option>
+                <option value="<%=Encode.forHtmlAttribute(id)%>"><%=Encode.forHtmlContent(id)%></option>
                 <%
                         }
                     }
@@ -869,12 +872,12 @@
                     for (String functionId : targetFunctionIds) {
                         if (functionId.equals(functionOnEnvironmentTarget)) {
                 %>
-                <option value="<%=functionId%>" selected="selected"><%=functionId%>
+                <option value="<%=Encode.forHtmlAttribute(functionId)%>" selected="selected"><%=Encode.forHtmlContent(functionId)%>
                 </option>
                 <%
                 } else {
                 %>
-                <option value="<%=functionId%>"><%=functionId%>
+                <option value="<%=Encode.forHtmlAttribute(functionId)%>"><%=Encode.forHtmlContent(functionId)%>
                 </option>
                 <%
                         }
@@ -889,7 +892,7 @@
 
             %>
             <input type="text" name="environmentNamesTarget" id="environmentNamesTarget"
-                   value="<%=environmentNamesTarget%>" class="text-box-mid-big"/>
+                   value="<%=Encode.forHtmlAttribute(environmentNamesTarget)%>" class="text-box-mid-big"/>
             <%
             } else {
             %>
@@ -933,7 +936,7 @@
                         if (ruleId != null && ruleId.trim().length() > 0 && !ruleId.trim().equals("null")) {
                     %>
                     <input type="text" name="ruleId" id="ruleId" class="text-box-big"
-                           value="<%=basicRuleDTO.getRuleId()%>"/>
+                           value="<%=Encode.forHtmlAttribute(basicRuleDTO.getRuleId())%>"/>
                     <%
                     } else {
                     %>
@@ -960,13 +963,13 @@
                                     if (effect.equals(ruleEffect)) {
 
                         %>
-                        <option value="<%=effect%>" selected="selected"><%=ruleEffect%>
+                        <option value="<%=Encode.forHtmlAttribute(effect)%>" selected="selected"><%=Encode.forHtmlContent(ruleEffect)%>
                         </option>
                         <%
                         } else {
 
                         %>
-                        <option value="<%=effect%>"><%=effect%>
+                        <option value="<%=Encode.forHtmlAttribute(effect)%>"><%=Encode.forHtmlContent(effect)%>
                         </option>
                         <%
                                     }
@@ -988,7 +991,7 @@
             <%
                 if(ruleDescription != null) {
             %>
-            <td><input name="ruleDescription" id="ruleDescription" value="<%=ruleDescription%>" class="text-box-big"/></td>
+            <td><input name="ruleDescription" id="ruleDescription" value="<%=Encode.forHtmlAttribute(ruleDescription)%>" class="text-box-big"/></td>
             <%
             } else {
             %>
@@ -1013,12 +1016,12 @@
                                 for (String preFunctionId : preFunctionIds) {
                                     if (preFunctionId.equals(preFunctionOnResources)) {
                             %>
-                            <option value="<%=preFunctionId%>" selected="selected"><%=preFunctionId%>
+                            <option value="<%=Encode.forHtmlAttribute(preFunctionId)%>" selected="selected"><%=Encode.forHtmlContent(preFunctionId)%>
                             </option>
                             <%
                                     } else {
                             %>
-                            <option value="<%=preFunctionId%>"><%=preFunctionId%>
+                            <option value="<%=Encode.forHtmlAttribute(preFunctionId)%>"><%=Encode.forHtmlContent(preFunctionId)%>
                             </option>
                             <%
                                     }
@@ -1034,12 +1037,12 @@
                                 for (String functionId : functionIds) {
                                     if (functionId.equals(functionOnResources)) {
                             %>
-                            <option value="<%=functionId%>" selected="selected"><%=functionOnResources%>
+                            <option value="<%=Encode.forHtmlAttribute(functionId)%>" selected="selected"><%=Encode.forHtmlContent(functionOnResources)%>
                             </option>
                             <%
                             } else {
                             %>
-                            <option value="<%=functionId%>"><%=functionId%>
+                            <option value="<%=Encode.forHtmlAttribute(functionId)%>"><%=Encode.forHtmlContent(functionId)%>
                             </option>
                             <%
                                     }
@@ -1054,7 +1057,7 @@
 
                         %>
                         <input type="text" size="60" name="resourceNames" id="resourceNames"
-                               value="<%=resourceNames%>" class="text-box-big"/>
+                               value="<%=Encode.forHtmlAttribute(resourceNames)%>" class="text-box-big"/>
                         <%
                         } else {
                         %>
@@ -1070,11 +1073,11 @@
                            style='background-image:url(images/registry.gif); float:right;'></a>
                     </td>
                     <td>
-                        <input type="hidden" name="resourceId" id="resourceId" value="<%=resourceId%>" />
+                        <input type="hidden" name="resourceId" id="resourceId" value="<%=Encode.forHtmlAttribute(resourceId)%>" />
                     </td>
 
                     <td>
-                        <input type="hidden" name="resourceDataType" id="resourceDataType" value="<%=resourceDataType%>" />
+                        <input type="hidden" name="resourceDataType" id="resourceDataType" value="<%=Encode.forHtmlAttribute(resourceDataType)%>" />
                     </td>
                 </tr>
             </table>
@@ -1093,11 +1096,11 @@
                                     for (String id : subjectIds) {
                                         if (id.equals(subjectId)) {
                             %>
-                            <option value="<%=id%>" selected="selected"><%=id%></option>
+                            <option value="<%=Encode.forHtmlAttribute(id)%>" selected="selected"><%=Encode.forHtmlContent(id)%></option>
                             <%
                                         } else {
                             %>
-                            <option value="<%=id%>"><%=id%></option>
+                            <option value="<%=Encode.forHtmlAttribute(id)%>"><%=Encode.forHtmlContent(id)%></option>
                             <%
                                         }
                                     }
@@ -1112,12 +1115,12 @@
                                 for (String preFunctionId : preFunctionIds) {
                                     if (preFunctionId.equals(preFunctionOnSubjects)) {
                             %>
-                            <option value="<%=preFunctionId%>" selected="selected"><%=preFunctionId%>
+                            <option value="<%=Encode.forHtmlAttribute(preFunctionId)%>" selected="selected"><%=Encode.forHtmlContent(preFunctionId)%>
                             </option>
                             <%
                             } else {
                             %>
-                            <option value="<%=preFunctionId%>"><%=preFunctionId%>
+                            <option value="<%=Encode.forHtmlAttribute(preFunctionId)%>"><%=Encode.forHtmlContent(preFunctionId)%>
                             </option>
                             <%
                                     }
@@ -1133,12 +1136,12 @@
                                 for (String functionId : functionIds) {
                                     if (functionId.equals(functionOnSubjects)) {
                             %>
-                            <option value="<%=functionId%>" selected="selected"><%=functionOnSubjects%>
+                            <option value="<%=Encode.forHtmlAttribute(functionId)%>" selected="selected"><%=Encode.forHtmlContent(functionOnSubjects)%>
                             </option>
                             <%
                             } else {
                             %>
-                            <option value="<%=functionId%>"><%=functionId%>
+                            <option value="<%=Encode.forHtmlAttribute(functionId)%>"><%=Encode.forHtmlContent(functionId)%>
                             </option>
                             <%
                                     }
@@ -1153,7 +1156,7 @@
 
                         %>
                         <input type="text" name="subjectNames" id="subjectNames"
-                               value="<%=subjectNames%>" class="text-box-mid-big"/>
+                               value="<%=Encode.forHtmlAttribute(subjectNames)%>" class="text-box-mid-big"/>
                         <%
                         } else {
                         %>
@@ -1169,7 +1172,7 @@
                     </td>
 
                     <td>
-                        <input type="hidden" name="subjectDataType" id="subjectDataType" value="<%=subjectDataType%>" />
+                        <input type="hidden" name="subjectDataType" id="subjectDataType" value="<%=Encode.forHtmlAttribute(subjectDataType)%>" />
                     </td>
                 </tr>
             </table>
@@ -1189,11 +1192,11 @@
                                     for (String preFunctionId : preFunctionIds) {
                                         if (preFunctionId.equals(preFunctionOnActions)) {
                             %>
-                            <option value="<%=preFunctionId%>" selected="selected"><%=preFunctionId%></option>
+                            <option value="<%=Encode.forHtmlAttribute(preFunctionId)%>" selected="selected"><%=Encode.forHtmlContent(preFunctionId)%></option>
                             <%
                                     } else {
                             %>
-                            <option value="<%=preFunctionId%>"><%=preFunctionId%></option>
+                            <option value="<%=Encode.forHtmlAttribute(preFunctionId)%>"><%=Encode.forHtmlContent(preFunctionId)%></option>
                             <%
                                         }
                                     }
@@ -1208,12 +1211,12 @@
                                 for (String functionId : functionIds) {
                                     if (functionId.equals(functionOnActions)) {
                             %>
-                            <option value="<%=functionId%>" selected="selected"><%=functionOnActions%>
+                            <option value="<%=Encode.forHtmlAttribute(functionId)%>" selected="selected"><%=Encode.forHtmlContent(functionOnActions)%>
                             </option>
                             <%
                             } else {
                             %>
-                            <option value="<%=functionId%>"><%=functionId%>
+                            <option value="<%=Encode.forHtmlAttribute(functionId)%>"><%=Encode.forHtmlContent(functionId)%>
                             </option>
                             <%
                                     }
@@ -1227,7 +1230,7 @@
                             if (actionNames != null && !actionNames.equals("")) {
 
                         %>
-                        <input type="text" name="actionNames" id="actionNames" value="<%=actionNames%>"
+                        <input type="text" name="actionNames" id="actionNames" value="<%=Encode.forHtmlAttribute(actionNames)%>"
                                class="text-box-big"/>
                         <%
                         } else {
@@ -1244,11 +1247,11 @@
                     </td>
 
                     <td>
-                        <input type="hidden" name="actionId" id="actionId" value="<%=actionId%>" />
+                        <input type="hidden" name="actionId" id="actionId" value="<%=Encode.forHtmlAttribute(actionId)%>" />
                     </td>
 
                     <td>
-                        <input type="hidden" name="actionDataType" id="actionDataType" value="<%=actionDataType%>" />
+                        <input type="hidden" name="actionDataType" id="actionDataType" value="<%=Encode.forHtmlAttribute(actionDataType)%>" />
                     </td>
                 </tr>
             </table>
@@ -1267,11 +1270,11 @@
                                 for (String id : environmentIds) {
                                     if (id.equals(environmentId)) {
                             %>
-                            <option value="<%=id%>" selected="selected"><%=id%></option>
+                            <option value="<%=Encode.forHtmlAttribute(id)%>" selected="selected"><%=Encode.forHtmlContent(id)%></option>
                             <%
                             } else {
                             %>
-                            <option value="<%=id%>"><%=id%></option>
+                            <option value="<%=Encode.forHtmlAttribute(id)%>"><%=Encode.forHtmlContent(id)%></option>
                             <%
                                     }
                                 }
@@ -1286,12 +1289,12 @@
                                 for (String preFunctionId : preFunctionIds) {
                                     if (preFunctionId.equals(preFunctionOnEnvironment)) {
                             %>
-                            <option value="<%=preFunctionId%>" selected="selected"><%=preFunctionId%>
+                            <option value="<%=Encode.forHtmlAttribute(preFunctionId)%>" selected="selected"><%=Encode.forHtmlContent(preFunctionId)%>
                             </option>
                             <%
                             } else {
                             %>
-                            <option value="<%=preFunctionId%>"><%=preFunctionId%>
+                            <option value="<%=Encode.forHtmlAttribute(preFunctionId)%>"><%=Encode.forHtmlContent(preFunctionId)%>
                             </option>
                             <%
                                     }
@@ -1307,12 +1310,12 @@
                                 for (String functionId : functionIds) {
                                     if (functionId.equals(functionOnEnvironment)) {
                             %>
-                            <option value="<%=functionId%>" selected="selected"><%=functionOnEnvironment%>
+                            <option value="<%=Encode.forHtmlAttribute(functionId)%>" selected="selected"><%=Encode.forHtmlContent(functionOnEnvironment)%>
                             </option>
                             <%
                             } else {
                             %>
-                            <option value="<%=functionId%>"><%=functionId%>
+                            <option value="<%=Encode.forHtmlAttribute(functionId)%>"><%=Encode.forHtmlContent(functionId)%>
                             </option>
                             <%
                                     }
@@ -1326,7 +1329,7 @@
                             if (environmentNames != null && !environmentNames.equals("")) {
 
                         %>
-                        <input type="text" name="environmentNames" id="environmentNames" value="<%=environmentNames%>"
+                        <input type="text" name="environmentNames" id="environmentNames" value="<%=Encode.forHtmlAttribute(environmentNames)%>"
                                class="text-box-mid-big"/>
                         <%
                         } else {
@@ -1343,7 +1346,7 @@
                     </td>
 
                     <td>
-                        <input type="hidden" name="environmentDataType" id="environmentDataType" value="<%=environmentDataType%>" />
+                        <input type="hidden" name="environmentDataType" id="environmentDataType" value="<%=Encode.forHtmlAttribute(environmentDataType)%>" />
                     </td>
                 </tr>
             </table>
@@ -1422,10 +1425,10 @@
                 </td>
                 <td><%=ruleElementDTO.getRuleEffect()%></td>
                 <td>
-                    <a href="#" onclick="editRule('<%=ruleElementDTO.getRuleId()%>')"
+                    <a href="#" onclick="editRule('<%=Encode.forJavaScriptAttribute(ruleElementDTO.getRuleId())%>')"
                        class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message
                             key="edit"/></a>
-                    <a href="#" onclick="deleteRule('<%=ruleElementDTO.getRuleId()%>')"
+                    <a href="#" onclick="deleteRule('<%=Encode.forJavaScriptAttribute(ruleElementDTO.getRuleId())%>')"
                        class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message
                             key="delete"/></a>
                 </td>

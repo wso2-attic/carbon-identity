@@ -18,6 +18,9 @@ package org.wso2.carbon.identity.core.model;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -26,7 +29,8 @@ import java.util.List;
 
 public class SAMLSSOServiceProviderDO implements Serializable {
 
-    private static final long serialVersionUID = -1213957008659821807L;
+    private static final long serialVersionUID = 7998724745099007704L;
+
     String tenantDomain;
     private String issuer;
     private String assertionConsumerUrl;
@@ -56,6 +60,25 @@ public class SAMLSSOServiceProviderDO implements Serializable {
     private List<String> idpInitSLOReturnToURLList;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
+    private String signingAlgorithmUri;
+    private String digestAlgorithmUri;
+
+    public SAMLSSOServiceProviderDO() {
+        if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig
+                .SSO_DEFAULT_SIGNING_ALGORITHM))) {
+            signingAlgorithmUri = IdentityUtil.getProperty(IdentityConstants.ServerConfig
+                    .SSO_DEFAULT_SIGNING_ALGORITHM).trim();
+        } else {
+            signingAlgorithmUri = IdentityCoreConstants.XML_SIGNATURE_ALGORITHM_RSA_SHA1_URI;
+        }
+        if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig
+                .SSO_DEFAULT_DIGEST_ALGORITHM))) {
+            digestAlgorithmUri = IdentityUtil.getProperty(IdentityConstants.ServerConfig
+                    .SSO_DEFAULT_DIGEST_ALGORITHM).trim();
+        } else {
+            digestAlgorithmUri = IdentityCoreConstants.XML_DIGEST_ALGORITHM_SHA1;
+        }
+    }
 
     public String getNameIDFormat() {
         return nameIDFormat;
@@ -155,6 +178,25 @@ public class SAMLSSOServiceProviderDO implements Serializable {
         this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
     }
 
+    public String getSigningAlgorithmUri() {
+        return signingAlgorithmUri;
+    }
+
+    public void setSigningAlgorithmUri(String signingAlgorithmUri) {
+        if (StringUtils.isNotEmpty(signingAlgorithmUri)) {
+            this.signingAlgorithmUri = signingAlgorithmUri;
+        }
+    }
+
+    public String getDigestAlgorithmUri() {
+        return digestAlgorithmUri;
+    }
+
+    public void setDigestAlgorithmUri(String digestAlgorithmUri) {
+        if (StringUtils.isNotEmpty(digestAlgorithmUri)) {
+            this.digestAlgorithmUri = digestAlgorithmUri;
+        }
+    }
     /**
      * @return the requestedClaims
      */

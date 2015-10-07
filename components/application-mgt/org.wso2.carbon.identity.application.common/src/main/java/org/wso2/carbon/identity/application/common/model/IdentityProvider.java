@@ -34,10 +34,7 @@ import java.util.Set;
 
 public class IdentityProvider implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 3348487050533568857L;
+    private static final long serialVersionUID = 2199048941051702943L;
 
     private static final Log log = LogFactory.getLog(IdentityProvider.class);
 

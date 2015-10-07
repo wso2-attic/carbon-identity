@@ -27,7 +27,6 @@
 <%@ page import="org.wso2.carbon.identity.mgt.ui.IdentityManagementAdminClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Iterator" %>
@@ -37,7 +36,7 @@
 
 <%
     List<ChallengeQuestionDTO> challenges =  new ArrayList<ChallengeQuestionDTO>();
-    String  removeSetId = CharacterEncoder.getSafeText(request.getParameter("removeSetId"));
+    String  removeSetId = request.getParameter("removeSetId");
 
     if(removeSetId != null && removeSetId.trim().length() > 0){
         List<ChallengeQuestionDTO> retrievedChallenges = (List<ChallengeQuestionDTO>) session.
@@ -57,8 +56,8 @@
 
     int i = 1;
     while(true){
-        String question = CharacterEncoder.getSafeText(request.getParameter("question" + i));
-        String setId = CharacterEncoder.getSafeText(request.getParameter("setId" + i));
+        String question = request.getParameter("question" + i);
+        String setId = request.getParameter("setId" + i);
         if(question == null || question.trim().length() == 0 || question.trim().equals("null")){
             if(setId == null || setId.trim().length() < 1 || setId.trim().equals("null")){
                 break;

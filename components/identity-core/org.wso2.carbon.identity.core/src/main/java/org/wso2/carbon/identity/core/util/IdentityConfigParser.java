@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.model.IdentityEventListener;
 import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
 import org.wso2.carbon.utils.ServerConstants;
@@ -56,16 +57,11 @@ public class IdentityConfigParser {
 
     private OMElement rootElement;
 
-    private IdentityConfigParser() throws ServerConfigurationException {
-        try {
-            buildConfiguration();
-        } catch (Exception e) {
-            log.error("Error while loading Identity Configurations", e);
-            throw new ServerConfigurationException("Error while loading Identity Configurations", e);
-        }
+    private IdentityConfigParser() {
+        buildConfiguration();
     }
 
-    public static IdentityConfigParser getInstance() throws ServerConfigurationException {
+    public static IdentityConfigParser getInstance() {
         if (parser == null) {
             synchronized (lock) {
                 if (parser == null) {
@@ -76,8 +72,7 @@ public class IdentityConfigParser {
         return parser;
     }
 
-    public static IdentityConfigParser getInstance(String filePath)
-            throws ServerConfigurationException {
+    public static IdentityConfigParser getInstance(String filePath) {
         configFilePath = filePath;
         return getInstance();
     }
@@ -95,7 +90,7 @@ public class IdentityConfigParser {
      * @throws XMLStreamException
      * @throws IOException
      */
-    private void buildConfiguration() throws XMLStreamException, IOException {
+    private void buildConfiguration() {
         InputStream inStream = null;
         StAXOMBuilder builder = null;
 
@@ -154,18 +149,20 @@ public class IdentityConfigParser {
             readChildElements(rootElement, nameStack);
             buildEventListenerData();
 
+        } catch (IOException|XMLStreamException e) {
+            throw new IdentityRuntimeException("Error occurred while building configuration from identity.xml", e);
         } finally {
             try {
                 if (inStream != null) {
                     inStream.close();
                 }
             } catch (IOException e) {
-                log.warn("Error closing the input stream.", e);
+                log.error("Error closing the input stream for identity.xml", e);
             }
         }
     }
 
-    private void buildEventListenerData() throws IOException {
+    private void buildEventListenerData() {
         OMElement eventListeners = this.getConfigElement(IdentityConstants.EVENT_LISTENERS);
         if (eventListeners != null) {
             Iterator<OMElement> eventListener = eventListeners.getChildrenWithName(
@@ -184,7 +181,7 @@ public class IdentityConfigParser {
                             IdentityConstants.EVENT_LISTENER_ENABLE));
 
                     if (StringUtils.isBlank(eventListenerType) || StringUtils.isBlank(eventListenerName)) {
-                        throw new IOException("eventListenerType or eventListenerName is not defined correctly");
+                        throw new IdentityRuntimeException("eventListenerType or eventListenerName is not defined correctly");
                     }
                     IdentityEventListenerConfigKey configKey = new IdentityEventListenerConfigKey(eventListenerType, eventListenerName);
                     IdentityEventListener identityEventListener = new IdentityEventListener(enable, order, configKey);

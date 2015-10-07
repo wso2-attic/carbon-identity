@@ -25,6 +25,7 @@
 <%@ page import="org.wso2.carbon.identity.mgt.ui.IdentityManagementClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 
@@ -128,7 +129,7 @@
                                                     value=""/></td>
                  <td>
                     <input type="hidden" name="captcha-secret-key"
-                               value="<%=captchaSecretKey%>"/>
+                               value="<%=Encode.forHtmlAttribute(captchaSecretKey)%>"/>
                  </td>
             </tr>
 
@@ -151,7 +152,7 @@
         </table>
 
         <script type="text/javascript">
-              showCaptcha('<%=captchaImageUrl%>');
+              showCaptcha('<%=Encode.forJavaScriptBlock(captchaImageUrl)%>');
         </script>
     </form>
 </fmt:bundle>

@@ -38,6 +38,7 @@ import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOConsta
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.owasp.encoder.Encode;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -178,8 +179,8 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             }
 
             Object sessionIndexObj = request.getSession(false).getAttribute(SSOConstants.IDP_SESSION);
-            String nameQualifier = (String) request.getSession().getAttribute("nameQualifier");
-            String spNameQualifier = (String) request.getSession().getAttribute("spNameQualifier");
+            String nameQualifier = (String) request.getSession().getAttribute(SSOConstants.NAME_QUALIFIER);
+            String spNameQualifier = (String) request.getSession().getAttribute(SSOConstants.SP_NAME_QUALIFIER);
             String sessionIndex = null;
 
             if (sessionIndexObj != null) {
@@ -268,13 +269,13 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             AuthenticatorStateInfo stateInfo = context.getStateInfo();
 
             if (stateInfo instanceof StateInfo) {
-                request.getSession().setAttribute("logoutSessionIndex",
+                request.getSession().setAttribute(SSOConstants.LOGOUT_SESSION_INDEX,
                         ((StateInfo) stateInfo).getSessionIndex());
-                request.getSession().setAttribute("logoutUsername",
+                request.getSession().setAttribute(SSOConstants.LOGOUT_USERNAME,
                         ((StateInfo) stateInfo).getSubject());
-                request.getSession().setAttribute("nameQualifier",
+                request.getSession().setAttribute(SSOConstants.NAME_QUALIFIER,
                         ((StateInfo) stateInfo).getNameQualifier());
-                request.getSession().setAttribute("spNameQualifier",
+                request.getSession().setAttribute(SSOConstants.SP_NAME_QUALIFIER,
                         ((StateInfo) stateInfo).getSpNameQualifier());
             }
 
@@ -339,7 +340,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
         }
 
         String encodedRequest = ((DefaultSAML2SSOManager) saml2SSOManager).buildPostRequest(
-                request, isLogout, isPassive, loginPage);
+                request, isLogout, isPassive, loginPage, context);
         String relayState = context.getContextIdentifier();
 
         Map<String, String> reqParamMap = getAdditionalRequestParams(request, context);
@@ -427,9 +428,9 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                 PrintWriter out = response.getWriter();
                 out.println("<html>");
                 out.println("<body>");
-                out.println("<p>You are now redirected to " + url);
+                out.println("<p>You are now redirected to " + Encode.forHtml(url));
                 out.println(" If the redirection fails, please click the post button.</p>");
-                out.println("<form method='post' action='" + url + "'>");
+                out.println("<form method='post' action='" + Encode.forHtmlAttribute(url) + "'>");
                 out.println("<p>");
                 out.println(postPageInputs);
                 out.println("<button type='submit'>POST</button>");

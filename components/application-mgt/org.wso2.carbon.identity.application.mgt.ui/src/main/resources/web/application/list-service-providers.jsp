@@ -21,9 +21,9 @@
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
@@ -71,7 +71,7 @@
                 ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
                 ApplicationBasicInfo[] applicationsToDisplay = new ApplicationBasicInfo[0];
                 String paginationValue = "region=region1&item=service_providers_list";
-                String pageNumber = CharacterEncoder.getSafeText(request.getParameter("pageNumber"));
+                String pageNumber = request.getParameter("pageNumber");
 
                 int pageNumberInt = 0;
                 int numberOfPages = 0;
@@ -140,18 +140,18 @@
                                     if (app != null) {
                             %>
                             <tr>
-                                <td><%=app.getApplicationName()%>
+                                <td><%=Encode.forHtml(app.getApplicationName())%>
                                 </td>
-                                <td><%=app.getDescription() != null ? app.getDescription() : ""%>
+                                <td><%=app.getDescription() != null ? Encode.forHtml(app.getDescription()) : ""%>
                                 </td>
                                 <td style="width: 100px; white-space: nowrap;"><a
                                         title="Edit Service Providers"
-                                        href="load-service-provider.jsp?spName=<%=app.getApplicationName()%>"
+                                        href="load-service-provider.jsp?spName=<%=Encode.forUriComponent(app.getApplicationName())%>"
                                         class="icon-link"
                                         style="background-image: url(../admin/images/edit.gif)">Edit</a>
 
                                     <a title="Remove Service Providers"
-                                       onclick="removeItem('<%=app.getApplicationName()%>');return false;" href="#"
+                                       onclick="removeItem('<%=Encode.forJavaScriptAttribute(app.getApplicationName())%>');return false;" href="#"
                                        class="icon-link"
                                        style="background-image: url(../admin/images/delete.gif)">Delete
                                     </a></td>

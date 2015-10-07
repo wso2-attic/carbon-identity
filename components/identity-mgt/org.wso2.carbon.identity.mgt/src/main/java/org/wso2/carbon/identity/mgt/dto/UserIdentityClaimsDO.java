@@ -32,12 +32,11 @@ import java.util.Map;
  */
 public class UserIdentityClaimsDO implements Serializable {
 
+    private static final long serialVersionUID = -2450146518801449646L;
+
     public static final int TRUE = 1;
     public static final int FALSE = 2;
-    /**
-     *
-     */
-    private static final long serialVersionUID = -5135352332427377484L;
+
     private String userName;
     private int tenantId;
 

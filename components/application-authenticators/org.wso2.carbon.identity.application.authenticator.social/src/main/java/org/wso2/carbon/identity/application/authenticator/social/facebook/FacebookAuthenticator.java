@@ -18,15 +18,14 @@
 
 package org.wso2.carbon.identity.application.authenticator.social.facebook;
 
-import org.apache.amber.oauth2.client.request.OAuthClientRequest;
-import org.apache.amber.oauth2.client.response.OAuthAuthzResponse;
-import org.apache.amber.oauth2.common.exception.OAuthProblemException;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.utils.JSONUtils;
+import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
+import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
+import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jettison.json.JSONException;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
@@ -54,7 +53,7 @@ import java.util.Map;
 public class FacebookAuthenticator extends AbstractApplicationAuthenticator implements
         FederatedApplicationAuthenticator {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -4844100162196896194L;
     private static final Log log = LogFactory.getLog(FacebookAuthenticator.class);
 
     @Override
@@ -246,16 +245,12 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
 
     private Map<String, Object> getUserInfoJson(String fbAuthUserInfoUrl, String userInfoFields, String token)
             throws ApplicationAuthenticatorException {
-        Map<String, Object> jsonObject;
+
         String userInfoString = getUserInfoString(fbAuthUserInfoUrl, userInfoFields, token);
-        try {
-            jsonObject = JSONUtils.parseJSON(userInfoString);
-        } catch (JSONException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("UserInfoString : " + userInfoString, e);
-            }
-            throw new ApplicationAuthenticatorException("Exception while parsing User Information.", e);
+        if (log.isDebugEnabled()) {
+            log.debug("UserInfoString : " + userInfoString);
         }
+        Map<String, Object> jsonObject = JSONUtils.parseJSON(userInfoString);
         return jsonObject;
     }
 

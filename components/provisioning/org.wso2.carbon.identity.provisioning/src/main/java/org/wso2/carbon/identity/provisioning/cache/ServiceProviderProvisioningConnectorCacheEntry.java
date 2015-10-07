@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class ServiceProviderProvisioningConnectorCacheEntry extends CacheEntry {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -2523580603873437939L;
 
     private Map<String, RuntimeProvisioningConfig> connectors = null;
 

@@ -18,12 +18,12 @@
 
 package org.wso2.carbon.identity.oauth2.token.handlers.grant;
 
-import org.apache.amber.oauth2.common.error.OAuthError;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.common.error.OAuthError;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
@@ -218,9 +218,9 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
 
         String tokenType;
         if(isOfTypeApplicationUser()) {
-            tokenType = OAuthConstants.USER_TYPE_FOR_USER_TOKEN;
+            tokenType = OAuthConstants.UserType.APPLICATION_USER;
         } else {
-            tokenType = OAuthConstants.USER_TYPE_FOR_APPLICATION_TOKEN;
+            tokenType = OAuthConstants.UserType.APPLICATION;
         }
 
         String clientId = oauth2AccessTokenReqDTO.getClientId();

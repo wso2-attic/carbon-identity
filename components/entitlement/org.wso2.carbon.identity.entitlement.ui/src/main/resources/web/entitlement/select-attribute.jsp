@@ -15,6 +15,7 @@
 ~ specific language governing permissions and limitations
 ~ under the License.
 -->
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon"%>
@@ -266,20 +267,20 @@
                 createInputs(paths[i].name);
             }
         }
-        document.attributeValueForm.action = "<%=returnPage%>.jsp?category="
-                + '<%=category%>' +"&ruleId=" + '<%=ruleId%>' ;
+        document.attributeValueForm.action = "<%=Encode.forJavaScriptBlock(returnPage)%>.jsp?category="
+                + '<%=Encode.forUriComponent(category)%>' +"&ruleId=" + '<%=Encode.forUriComponent(ruleId)%>' ;
         document.attributeValueForm.submit();
     }
 
     function doCancel(){
         preSubmit();
-        document.attributeValueForm.action = "<%=returnPage%>.jsp?ruleId=" + '<%=ruleId%>';
+        document.attributeValueForm.action = "<%=Encode.forJavaScriptBlock(returnPage)%>.jsp?ruleId=" + '<%=Encode.forUriComponent(ruleId)%>';
         document.attributeValueForm.submit();
     }
 
     function preSubmit(){
 
-        jQuery('#attributeValueTable > tbody:last').append('<tr><td><input type="hidden" name="category" id="category" value="<%=category%>" /><input type="hidden" name="ruleId" id="ruleId" value="<%=ruleId%>" /><input type="hidden" name="returnPage" id="returnPage" value="<%=returnPage%>" /></td></tr>') ;
+        jQuery('#attributeValueTable > tbody:last').append('<tr><td><input type="hidden" name="category" id="category" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(category))%>" /><input type="hidden" name="ruleId" id="ruleId" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(ruleId))%>" /><input type="hidden" name="returnPage" id="returnPage" value="<%=Encode.forJavaScript(Encode.forHtmlAttribute(returnPage))%>" /></td></tr>') ;
 
     }
 
@@ -305,11 +306,11 @@
                                             for (String attributeId : attributeIds) {
                                                 if(selectedAttributeId !=null && selectedAttributeId.equals(attributeId)){
                                         %>
-                                        <option value="<%=attributeId%>" selected="selected"><%=attributeId%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(attributeId)%>" selected="selected"><%=Encode.forHtmlContent(attributeId)%></option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=attributeId%>"><%=attributeId%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(attributeId)%>"><%=Encode.forHtmlContent(attributeId)%></option>
                                         <%
                                                 }
                                             }
@@ -329,11 +330,11 @@
                                                 if(selectedAttributeDataType != null
                                                         && selectedAttributeDataType.equals(attributeDataType)){
                                         %>
-                                        <option value="<%=attributeDataType%>" selected="selected"><%=attributeDataType%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(attributeDataType)%>" selected="selected"><%=Encode.forHtmlContent(attributeDataType)%></option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=attributeDataType%>"><%=attributeDataType%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(attributeDataType)%>"><%=Encode.forHtmlContent(attributeDataType)%></option>
                                         <%
                                                 }
                                             }
@@ -355,11 +356,11 @@
                                                 String moduleName = entry.getName();
                                                 if(moduleName.equals(selectedFinderModule)){
                                         %>
-                                        <option value="<%=moduleName%>" selected="selected"><%=moduleName%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(moduleName)%>" selected="selected"><%=Encode.forHtmlContent(moduleName)%></option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=moduleName%>"><%=moduleName%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(moduleName)%>"><%=Encode.forHtmlContent(moduleName)%></option>
                                         <%
                                                 }
                                             }
@@ -380,8 +381,8 @@
                                     <fmt:message key="select.attribute.data"/> <%=i%>
                                 </td>
                                 <td>
-                                    <select onchange="getNextData();" id="selectedData<%=i%>"
-                                            name="selectedData<%=i%>" class="text-box-big">
+                                    <select onchange="getNextData();" id="selectedData<%=Encode.forHtmlAttribute(i)%>"
+                                            name="selectedData<%=Encode.forHtmlAttribute(i)%>" class="text-box-big">
                                         <%
 
                                             EntitlementTreeNodeDTO[] childNodeDTOs = nodeDTO.getChildNodes();
@@ -389,11 +390,11 @@
                                                 String name = childNodeDTO.getName();
                                                 if(name.equals(entitlementPolicyBean.getSelectedEntitlementData().get(i))){
                                         %>
-                                        <option value="<%=name%>" selected="selected"><%=name%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(name)%>" selected="selected"><%=Encode.forHtmlContent(name)%></option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%=name%>"><%=name%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(name)%>"><%=Encode.forHtmlContent(name)%></option>
                                         <%
                                                 }
                                             }
@@ -418,7 +419,7 @@
                                 </td>
                                 <td>
                                     <input type="text" name="searchString" id="searchString"
-                                           value="<%= searchString != null? searchString :""%>"/>
+                                           value="<%= searchString != null? Encode.forHtmlAttribute(searchString) :""%>"/>
                                 </td>
                                 <td style="border:0; !important">
                                     <a class="icon-link" href="#" style="background-image: url(images/search.gif);"
@@ -474,7 +475,7 @@
                                                 </div>
                                             </td>
                                             <td style="width:50px;vertical-align: middle;border-bottom:solid 1px #ccc">
-                                                <input class="button" value=">>" onclick="pickNames(<%=finderDataHolder.getFullPathSupported()%>)" style="width:30px;margin:10px;" />
+                                                <input class="button" value=">>" onclick="pickNames(<%=Encode.forJavaScriptAttribute(finderDataHolder.getFullPathSupported())%>)" style="width:30px;margin:10px;" />
                                             </td>
                                             <td style="border:solid 1px #ccc"><div style="overflow: auto;height:300px" id="listView"></div>
                                             </td>
@@ -494,7 +495,7 @@
                                     <%--<%--%>
                                         <%--if(selectedTree != null){--%>
                                     <%--%>--%>
-                                    <input type="button" onclick="submitForm(<%=finderDataHolder.getFullPathSupported()%>)" value="<fmt:message key="add"/>"  class="button"/>
+                                    <input type="button" onclick="submitForm(<%=Encode.forJavaScriptAttribute(finderDataHolder.getFullPathSupported())%>)" value="<fmt:message key="add"/>"  class="button"/>
                                     <%--<%--%>
                                         <%--}--%>
                                     <%--%>--%>

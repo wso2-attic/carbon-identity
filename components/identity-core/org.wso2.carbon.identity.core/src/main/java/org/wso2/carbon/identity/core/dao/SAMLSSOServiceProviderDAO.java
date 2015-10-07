@@ -50,6 +50,15 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         serviceProviderDO.setCertAlias(resource
                 .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ISSUER_CERT_ALIAS));
 
+        if (StringUtils.isNotEmpty(resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_SIGNING_ALGORITHM))) {
+            serviceProviderDO.setSigningAlgorithmUri(resource.getProperty(IdentityRegistryResources
+                    .PROP_SAML_SSO_SIGNING_ALGORITHM));
+        }
+
+        if (StringUtils.isNotEmpty(resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DIGEST_ALGORITHM))) {
+            serviceProviderDO.setDigestAlgorithmUri(resource.getProperty(IdentityRegistryResources
+                    .PROP_SAML_SSO_DIGEST_ALGORITHM));
+        }
 
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DO_SINGLE_LOGOUT) != null) {
             serviceProviderDO.setDoSingleLogout(new Boolean(resource.getProperty(
@@ -181,7 +190,10 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             resource.addProperty(
                     IdentityRegistryResources.PROP_SAML_SSO_NAMEID_FORMAT,
                     serviceProviderDO.getNameIDFormat());
-
+            resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_SIGNING_ALGORITHM, serviceProviderDO
+                    .getSigningAlgorithmUri());
+            resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_DIGEST_ALGORITHM, serviceProviderDO
+                    .getDigestAlgorithmUri());
             if (serviceProviderDO.getNameIdClaimUri() != null
                     && serviceProviderDO.getNameIdClaimUri().trim().length() > 0) {
                 resource.addProperty(

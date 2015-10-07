@@ -28,7 +28,6 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
-<%@ page import="org.wso2.carbon.user.mgt.workflow.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
@@ -42,8 +41,10 @@
 <%@ page import="java.util.Set" %>
 <%@ page import="org.apache.commons.lang.ArrayUtils" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <%
@@ -354,7 +355,8 @@
                                 key="list.roles"/></td>
                         <td>
                             <input type="text" name="<%=UserAdminUIConstants.ROLE_LIST_FILTER%>"
-                                   value="<%=Encode.forHtmlAttribute(filter)%>"/>
+                                   value="<%=Encode.forHtmlAttribute(filter)%>" label="<fmt:message key="list.roles"/>"
+                                   black-list-patterns="xml-meta-exists"/>
 
                             <input class="button" type="submit"
                                    value="<fmt:message key="role.search"/>"/>
@@ -401,14 +403,14 @@
                                     continue;
                                 }
                                 String roleName = data.getItemName();
-                                String disPlayName = data.getItemDisplayName();
-                                if (disPlayName == null) {
-                                    disPlayName = roleName;
+                                String displayName = data.getItemDisplayName();
+                                if (displayName == null) {
+                                    displayName = roleName;
                                 }
                                 if (workFlowAddPendingRolesList.contains(roleName)) {
                 %>
                 <tr>
-                    <td><%=Encode.forHtmlContent(disPlayName)%>
+                    <td><%=Encode.forHtmlContent(displayName)%>
                         <%if (!data.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                         <img src="images/workflow_pending_add.gif" title="Workflow-pending-user-add"
                              alt="Workflow-pending-user-add" height="15" width="15">
@@ -438,7 +440,7 @@
                         </td>
                     <%}%>--%>
                 <tr>
-                    <td><%=Encode.forHtmlContent(disPlayName)%>
+                    <td><%=Encode.forHtmlContent(displayName)%>
                         <%if (!data.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                         <img src="images/workflow_pending_remove.gif" title="Workflow-pending-user-delete"
                              alt="Workflow-pending-user-delete" height="15" width="15">
@@ -470,7 +472,7 @@
                 } else {
                 %>
                 <tr>
-                    <td><%=Encode.forHtmlContent(disPlayName)%>
+                    <td><%=Encode.forHtmlContent(displayName)%>
                         <%if (!data.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                     </td>
                         <%-- <%if(hasMultipleUserStores){%>
@@ -579,5 +581,11 @@
     </div>
     <script type="text/javascript">
         alternateTableRows('roleTable', 'tableEvenRow', 'tableOddRow');
+
+        $(document).ready(function () {
+            $('form[name=filterForm]').submit(function(){
+                return doValidateForm(this, '<fmt:message key="error.input.validation.msg"/>');
+            })
+        });
     </script>
 </fmt:bundle>

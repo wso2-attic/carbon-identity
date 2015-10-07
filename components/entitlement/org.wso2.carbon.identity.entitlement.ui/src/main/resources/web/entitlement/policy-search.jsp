@@ -15,6 +15,7 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
+ <%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
@@ -144,7 +145,7 @@
                 if (attributeValue != null && !attributeValue.equals("")) {
             %>
             <input type="text" name="attributeValue" id="attributeValue"
-                       value="<%=attributeValue%>" class="text-box-big"/>
+                       value="<%=Encode.forHtmlAttribute(attributeValue)%>" class="text-box-big"/>
             <%
                 } else {
             %>
@@ -166,13 +167,13 @@
                         for (String type : attributeTypes) {
                             if (type != null && type.equals(attributeType)) {
                     %>
-                    <option value="<%=attributeType%>"
-                            selected="selected"><%=attributeType%>
+                    <option value="<%=Encode.forHtmlAttribute(attributeType)%>"
+                            selected="selected"><%=Encode.forHtmlContent(attributeType)%>
                     </option>
                     <%
                         } else {
                     %>
-                    <option value="<%=type%>"><%=type%></option>
+                    <option value="<%=Encode.forHtmlAttribute(type)%>"><%=Encode.forHtmlContent(type)%></option>
                     <%
                             }
                         }
@@ -188,7 +189,7 @@
                 if (attributeId != null && !attributeId.equals("")) {
             %>
             <input type="text" name="attributeId" id="attributeId"
-                       value="<%=attributeId%>" class="text-box-big"/>
+                       value="<%=Encode.forHtmlAttribute(attributeId)%>" class="text-box-big"/>
             <%
                 } else {
             %>
@@ -205,7 +206,7 @@
             <%
                 if (attributeDataType != null && !attributeDataType.equals("")) {
             %>
-            <input type="text" name="attributeDataType" id="attributeDataType" value="<%=attributeDataType%>"
+            <input type="text" name="attributeDataType" id="attributeDataType" value="<%=Encode.forHtmlAttribute(attributeDataType)%>"
                        class="text-box-big"/>
             <%
                 } else {
@@ -241,7 +242,7 @@
                 %>
                 <tr>
                     <td width="50%">
-                        <a href="policy-view.jsp?policyid=<%=policyDTO.getPolicyId()%>"><%=policyDTO.getPolicyId()%></a>
+                        <a href="policy-view.jsp?policyid=<%=Encode.forUriComponent(policyDTO.getPolicyId())%>"><%=Encode.forHtml(policyDTO.getPolicyId())%></a>
                     </td>
 
                     <td width="20px" style="text-align:left;">
@@ -252,25 +253,25 @@
                         %>
                         <nobr>
                         <img src="images/<%= policyDTO.getPolicyType()%>-type.gif"
-                             title="<%= policyDTO.getPolicyType()%>"
-                             alt="<%= policyDTO.getPolicyType()%>"/>
-                            <%= policyDTO.getPolicyType()%>
+                             title="<%= Encode.forHtmlAttribute(policyDTO.getPolicyType())%>"
+                             alt="<%= Encode.forHtmlAttribute(policyDTO.getPolicyType())%>"/>
+                            <%= Encode.forHtmlContent(policyDTO.getPolicyType())%>
                         </nobr>
                     </td>
 
                     <td width="50%">
                         <a title="<fmt:message key='edit.policy'/>"
-                        onclick="edit('<%=policyDTO.getPolicyId()%>');return false;"
+                        onclick="edit('<%=Encode.forJavaScriptAttribute(policyDTO.getPolicyId())%>');return false;"
                         href="#" style="background-image: url(images/edit.gif);" class="icon-link">
                         <fmt:message key='edit'/></a>
                         <% if (Boolean.toString(policyDTO.getActive()).equals("true")) { %>
                         <a title="<fmt:message key='disable.policy'/>"
-                        onclick="disable('<%=policyDTO.getPolicyId()%>');return false;"
+                        onclick="disable('<%=Encode.forJavaScriptAttribute(policyDTO.getPolicyId())%>');return false;"
                         href="#" style="background-image: url(images/disable.gif);" class="icon-link">
                         <fmt:message key='disable.policy'/></a>
                         <% }else { %>
                         <a title="<fmt:message key='enable.policy'/>"
-                        onclick="enable('<%=policyDTO.getPolicyId()%>');return false;"
+                        onclick="enable('<%=Encode.forJavaScriptAttribute(policyDTO.getPolicyId())%>');return false;"
                         href="#" style="background-image: url(images/enable.gif);" class="icon-link">
                         <fmt:message key='enable.policy'/></a>
                         <%} %>

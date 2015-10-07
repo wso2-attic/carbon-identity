@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.message.DirectError;
 import org.openid4java.message.ParameterList;
+import org.owasp.encoder.Encode;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
@@ -492,8 +493,7 @@ public class OpenIDHandler {
         }
 
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry(authenticationRequest);
-        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest,
-                                                       request.getSession().getMaxInactiveInterval());
+        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
         StringBuilder queryStringBuilder = new StringBuilder();
         queryStringBuilder.append(commonAuthURL).
                 append("?").
@@ -689,19 +689,21 @@ public class OpenIDHandler {
         Map<ClaimMapping, String> userAttributes = authnResult.getSubject().getUserAttributes();
 
         out.println("<input type='hidden' name='openid.identity' value='" +
-                    session.getAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID) + "'>");
+                Encode.forHtmlAttribute((String) session.getAttribute
+                        (OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID)) + "'>");
         out.println("<input type='hidden' name='openid.return_to' value='" +
-                    ((ParameterList) session.getAttribute(OpenId.PARAM_LIST)).getParameterValue(OpenId.ATTR_RETURN_TO) +
-                    "'>");
+                Encode.forHtmlAttribute(((ParameterList) session.getAttribute(OpenId.PARAM_LIST)).
+                        getParameterValue(OpenId.ATTR_RETURN_TO)) + "'>");
 
         if (userAttributes != null) {
             for (ClaimMapping claimMapping : userAttributes.keySet()) {
                 String value = userAttributes.get(claimMapping);
                 if (value != null) {
                     out.println("<input type='hidden' name='claimTag' value='" +
-                                claimMapping.getLocalClaim().getClaimUri() + "'>");
+                            Encode.forHtmlAttribute(claimMapping.getLocalClaim().getClaimUri()) + "'>");
                     out.println(
-                            "<input type='hidden' name='claimValue' value='" + userAttributes.get(claimMapping) + "'>");
+                            "<input type='hidden' name='claimValue' value='" +
+                                    Encode.forHtmlAttribute(userAttributes.get(claimMapping)) + "'>");
                 }
             }
         }
@@ -719,13 +721,9 @@ public class OpenIDHandler {
     }
 
     private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
-
-        AuthenticationResultCacheKey authResultCacheKey = new AuthenticationResultCacheKey(sessionDataKey);
-        CacheEntry cacheEntry = AuthenticationResultCache.getInstance(0).getValueFromCache(authResultCacheKey);
         AuthenticationResult authResult = null;
-
-        if (cacheEntry != null) {
-            AuthenticationResultCacheEntry authResultCacheEntry = (AuthenticationResultCacheEntry) cacheEntry;
+        AuthenticationResultCacheEntry authResultCacheEntry = FrameworkUtils.getAuthenticationResultFromCache(sessionDataKey);
+        if (authResultCacheEntry != null) {
             authResult = authResultCacheEntry.getResult();
         } else {
             log.error("Cannot find AuthenticationResult from the cache");

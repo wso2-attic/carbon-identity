@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.provisioning.connector.scim;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.model.Property;
@@ -35,6 +36,7 @@ import org.wso2.carbon.identity.scim.common.utils.AttributeMapper;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.charon.core.config.SCIMConfigConstants;
 import org.wso2.charon.core.config.SCIMProvider;
+import org.wso2.charon.core.exceptions.CharonException;
 import org.wso2.charon.core.objects.Group;
 import org.wso2.charon.core.objects.User;
 import org.wso2.charon.core.schema.SCIMConstants;
@@ -70,6 +72,10 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
                 } else if (SCIMProvisioningConnectorConstants.SCIM_USERSTORE_DOMAIN.equals(property.getName())) {
                     userStoreDomainName = property.getValue() != null ? property.getValue()
                             : property.getDefaultValue();
+                }else if (SCIMProvisioningConnectorConstants.SCIM_ENABLE_PASSWORD_PROVISIONING.equals(property.getName())){
+                    populateSCIMProvider(property, SCIMProvisioningConnectorConstants.SCIM_ENABLE_PASSWORD_PROVISIONING);
+                }else if (SCIMProvisioningConnectorConstants.SCIM_DEFAULT_PASSWORD.equals(property.getName())){
+                    populateSCIMProvider(property, SCIMProvisioningConnectorConstants.SCIM_DEFAULT_PASSWORD);
                 }
 
                 if (IdentityProvisioningConstants.JIT_PROVISIONING_ENABLED.equals(property
@@ -154,7 +160,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             }
 
             user.setUserName(userName);
-            user.setPassword(getPassword(userEntity.getAttributes()));
+            setUserPassword(user, userEntity);
 
             ProvisioningClient scimProvsioningClient = new ProvisioningClient(scimProvider, user,
                     httpMethod, null);
@@ -196,7 +202,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
                     SCIMConstants.USER_INT);
 
             user.setUserName(userName);
-            user.setPassword(getPassword(userEntity.getAttributes()));
+            setUserPassword(user, userEntity);
 
             ProvisioningClient scimProvsioningClient = new ProvisioningClient(scimProvider, user,
                     httpMethod, null);
@@ -368,6 +374,14 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
 
     public boolean isEnabled() throws IdentityProvisioningException {
         return true;
+    }
+
+    private void setUserPassword(User user, ProvisioningEntity userEntity) throws CharonException {
+        if ("true".equals(scimProvider.getProperty(SCIMProvisioningConnectorConstants.SCIM_ENABLE_PASSWORD_PROVISIONING))) {
+            user.setPassword(getPassword(userEntity.getAttributes()));
+        } else if (StringUtils.isNotBlank(scimProvider.getProperty(SCIMProvisioningConnectorConstants.SCIM_DEFAULT_PASSWORD))) {
+            user.setPassword(scimProvider.getProperty(SCIMProvisioningConnectorConstants.SCIM_DEFAULT_PASSWORD));
+        }
     }
 
 }

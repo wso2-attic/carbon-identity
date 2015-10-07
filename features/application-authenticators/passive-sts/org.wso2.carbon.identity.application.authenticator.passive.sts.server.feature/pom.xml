@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>passive-sts-application-authenticator-feature</artifactId>
-        <version>4.5.10-SNAPSHOT</version>
+        <version>4.6.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -42,6 +42,10 @@
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
         </dependency>
+        <dependency>
+            <groupId>opensaml.wso2</groupId>
+            <artifactId>opensaml2</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -61,6 +65,7 @@
                             <id>org.wso2.carbon.identity.application.authenticator.passive.sts.server</id>
                             <propertiesFile>../../../etc/feature.properties</propertiesFile>
                             <bundles>
+                                <bundleDef>opensaml.wso2:opensaml2</bundleDef>
                                 <bundleDef>
                                     org.wso2.carbon.identity:org.wso2.carbon.identity.application.authenticator.passive.sts
                                 </bundleDef>

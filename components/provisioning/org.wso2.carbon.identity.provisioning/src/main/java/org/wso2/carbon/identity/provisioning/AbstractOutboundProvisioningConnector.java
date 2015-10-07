@@ -33,7 +33,8 @@ import java.util.UUID;
 
 public abstract class AbstractOutboundProvisioningConnector implements Serializable {
 
-    private static final long serialVersionUID = 2196864101772627178L;
+    private static final long serialVersionUID = 8619915839101228583L;
+
     private static final String PROVISIONING_IDP = "IDP";
     private static final String PROVISIONING_TENANT = "TD";
     private static final String PROVISIONING_DOMAIN = "UD";
@@ -97,7 +98,7 @@ public abstract class AbstractOutboundProvisioningConnector implements Serializa
      */
     protected String getPassword(Map<ClaimMapping, List<String>> attributeMap) {
         List<String> claimValue = ProvisioningUtil.getClaimValues(attributeMap,
-                IdentityProvisioningConstants.PASSWORD_CLAIM_URI, getUserStoreDomainName());
+                IdentityProvisioningConstants.PASSWORD_CLAIM_URI, null);
 
         if (CollectionUtils.isNotEmpty(claimValue) && claimValue.get(0) != null) {
             return claimValue.get(0);

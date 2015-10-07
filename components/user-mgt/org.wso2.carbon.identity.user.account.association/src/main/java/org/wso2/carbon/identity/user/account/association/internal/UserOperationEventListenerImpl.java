@@ -41,7 +41,7 @@ public class UserOperationEventListenerImpl extends AbstractIdentityUserOperatio
 
     @Override
     public int getExecutionOrderId() {
-        int orderId = getOrderId(UserOperationEventListenerImpl.class.getName());
+        int orderId = getOrderId();
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;
         }
@@ -97,7 +97,7 @@ public class UserOperationEventListenerImpl extends AbstractIdentityUserOperatio
 
     @Override
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable(this.getClass().getName())) {
+        if (!isEnable()) {
             return true;
         }
 
