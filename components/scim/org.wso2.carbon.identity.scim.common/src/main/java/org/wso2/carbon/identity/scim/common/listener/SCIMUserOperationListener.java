@@ -443,7 +443,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
 
     public Map<String, String> getSCIMAttributes(String userName, Map<String, String> claimsMap) {
         Map<String, String> attributes = null;
-        if (MapUtils.isNotEmpty(claimsMap)) {
+        if (claimsMap != null) {
             attributes = claimsMap;
         } else {
             attributes = new HashMap<>();
