@@ -35,7 +35,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorkflowRequestAssociationDAO {
+public class WorkflowAssociationDAO {
 
     private static Log log = LogFactory.getLog(WorkflowRequestDAO.class);
 

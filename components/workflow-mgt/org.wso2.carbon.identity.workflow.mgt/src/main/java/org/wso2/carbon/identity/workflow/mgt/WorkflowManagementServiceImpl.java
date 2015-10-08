@@ -31,7 +31,7 @@ import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociation;
 import org.wso2.carbon.identity.workflow.mgt.dao.AssociationDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
-import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestAssociationDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowAssociationDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
 import org.wso2.carbon.identity.workflow.mgt.dto.Association;
 import org.wso2.carbon.identity.workflow.mgt.dto.Template;
@@ -77,7 +77,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     AssociationDAO associationDAO = new AssociationDAO();
     private RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
     private WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
-    private WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
+    private WorkflowAssociationDAO workflowAssociationDAO = new WorkflowAssociationDAO();
 
 
     @Override
@@ -457,7 +457,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     @Override
     public boolean eventEngagedWithWorkflows(String eventType) throws InternalWorkflowException {
 
-        List<WorkflowAssociation> associations = workflowRequestAssociationDAO.getWorkflowAssociationsForRequest(eventType, CarbonContext
+        List<WorkflowAssociation> associations = workflowAssociationDAO.getWorkflowAssociationsForRequest(eventType, CarbonContext
                 .getThreadLocalCarbonContext().getTenantId());
         if (associations.size() > 0) {
             return true;
@@ -491,7 +491,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     @Override
     public WorkflowRequestAssociation[] getWorkflowsOfRequest(String requestId) throws WorkflowException {
 
-        return workflowRequestAssociationDAO.getWorkflowsOfRequest(requestId);
+        return workflowAssociationDAO.getWorkflowsOfRequest(requestId);
     }
 
 
@@ -520,7 +520,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         }
 
         workflowRequestDAO.updateStatusOfRequest(requestId, WorkflowRequestStatus.DELETED.toString());
-        workflowRequestAssociationDAO
+        workflowAssociationDAO
                 .updateStatusOfRelationshipsOfPendingRequest(requestId, WFConstant.HT_STATE_SKIPPED);
         requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
 
