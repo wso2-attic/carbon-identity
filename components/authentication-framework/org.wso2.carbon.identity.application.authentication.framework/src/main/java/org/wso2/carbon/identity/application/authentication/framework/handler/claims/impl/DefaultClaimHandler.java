@@ -474,9 +474,16 @@ public class DefaultClaimHandler implements ClaimHandler {
             FrameworkException {
         UserStoreManager userStore = null;
         try {
-            userStore = realm.getUserStoreManager().getSecondaryUserStoreManager(StringUtils.isNotBlank(userDomain) ?
-                                                                                 userDomain :
-                                                                                 UserStoreConfigConstants.PRIMARY);
+            userStore = realm.getUserStoreManager();
+            if (StringUtils.isNotBlank(userDomain)) {
+                userStore = realm.getUserStoreManager().getSecondaryUserStoreManager(userDomain);
+            }
+
+            if (userStore == null) {
+                // To avoid NPEs
+                throw new FrameworkException("Invalid user store domain name : " + userDomain + " in tenant : "
+                        + tenantDomain);
+            }
         } catch (UserStoreException e) {
             throw new FrameworkException("Error occurred while retrieving the UserStoreManager " +
                                          "from Realm for " + tenantDomain + " to handle local claims", e);
