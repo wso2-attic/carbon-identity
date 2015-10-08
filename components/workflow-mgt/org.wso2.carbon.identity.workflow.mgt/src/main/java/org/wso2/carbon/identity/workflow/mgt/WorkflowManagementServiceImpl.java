@@ -28,6 +28,7 @@ import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociation;
+import org.wso2.carbon.identity.workflow.mgt.dao.AssociationDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestAssociationDAO;
@@ -73,6 +74,10 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     private static Log log = LogFactory.getLog(WorkflowManagementServiceImpl.class);
 
     WorkflowDAO workflowDAO = new WorkflowDAO();
+    AssociationDAO associationDAO = new AssociationDAO();
+    private RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
+    private WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
+    private WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
 
 
     @Override
@@ -88,9 +93,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     }
 
 
-    private RequestEntityRelationshipDAO requestEntityRelationshipDAO = new RequestEntityRelationshipDAO();
-    private WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
-    private WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
+
 
     @Override
     public List<WorkflowEvent> listWorkflowEvents() {
@@ -288,7 +291,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         XPath xpath = factory.newXPath();
         try {
             xpath.compile(condition);
-            workflowDAO.addAssociation(associationName, workflowId, eventId, condition);
+            associationDAO.addAssociation(associationName, workflowId, eventId, condition);
         } catch (XPathExpressionException e) {
             log.error("The condition:" + condition + " is not an valid xpath expression.", e);
             throw new WorkflowRuntimeException("The condition is not a valid xpath expression.");
@@ -340,14 +343,14 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     @Override
     public void removeAssociation(int associationId) throws WorkflowException {
 
-        workflowDAO.removeAssociation(associationId);
+        associationDAO.removeAssociation(associationId);
     }
 
 
     @Override
     public List<Association> getAssociationsForWorkflow(String workflowId) throws WorkflowException {
 
-        List<Association> associations = workflowDAO.listAssociationsForWorkflow(workflowId);
+        List<Association> associations = associationDAO.listAssociationsForWorkflow(workflowId);
         for (Iterator<Association> iterator = associations.iterator(); iterator.hasNext(); ) {
             Association association = iterator.next();
             WorkflowRequestHandler requestHandler =
@@ -365,7 +368,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     @Override
     public List<Association> listAllAssociations(int tenantId) throws WorkflowException {
 
-        List<Association> associations = workflowDAO.listAssociations(tenantId);
+        List<Association> associations = associationDAO.listAssociations(tenantId);
         for (Iterator<Association> iterator = associations.iterator(); iterator.hasNext(); ) {
             Association association = iterator.next();
             WorkflowRequestHandler requestHandler =
@@ -383,9 +386,9 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     @Override
     public void changeAssociationState(String associationId, boolean isEnable) throws WorkflowException {
 
-        Association association = workflowDAO.getAssociation(associationId);
+        Association association = associationDAO.getAssociation(associationId);
         association.setEnabled(isEnable);
-        workflowDAO.updateAssociation(association);
+        associationDAO.updateAssociation(association);
     }
 
 
@@ -454,7 +457,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     @Override
     public boolean eventEngagedWithWorkflows(String eventType) throws InternalWorkflowException {
 
-        List<WorkflowAssociation> associations = workflowDAO.getWorkflowAssociationsForRequest(eventType, CarbonContext
+        List<WorkflowAssociation> associations = workflowRequestAssociationDAO.getWorkflowAssociationsForRequest(eventType, CarbonContext
                 .getThreadLocalCarbonContext().getTenantId());
         if (associations.size() > 0) {
             return true;
