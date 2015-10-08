@@ -31,7 +31,7 @@ import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
-import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowAssociationDAO;
+import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestAssociationDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowRequestDAO;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
@@ -64,12 +64,12 @@ public class WorkFlowExecutorManager {
 
     public void executeWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
 
-        WorkflowAssociationDAO workflowAssociationDAO = new WorkflowAssociationDAO();
+        WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
         if (StringUtils.isBlank(workFlowRequest.getUuid())) {
             workFlowRequest.setUuid(UUID.randomUUID().toString());
         }
         OMElement xmlRequest = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest);
-        WorkflowAssociationDAO requestAssociationDAO = new WorkflowAssociationDAO();
+        WorkflowRequestAssociationDAO requestAssociationDAO = new WorkflowRequestAssociationDAO();
         WorkflowDAO workflowDAO = new WorkflowDAO();
         List<WorkflowAssociation> associations =
                 requestAssociationDAO.getWorkflowAssociationsForRequest(workFlowRequest.getEventType(), workFlowRequest
@@ -99,7 +99,7 @@ public class WorkFlowExecutorManager {
                             .getWorkflowImpls().get(association.getTemplateId()).get(association.getImplId());
                     List<Parameter> parameterList = workflowDAO.getWorkflowParams(association.getWorkflowId());
                     templateImplementation.execute(requestToSend, parameterList);
-                    workflowAssociationDAO.addNewRelationship(relationshipId, association.getWorkflowId(),
+                    workflowRequestAssociationDAO.addNewRelationship(relationshipId, association.getWorkflowId(),
                                                                      workFlowRequest
                                                                              .getUuid(), WorkflowRequestStatus.PENDING
                                                                              .toString());
@@ -122,11 +122,11 @@ public class WorkFlowExecutorManager {
     private void handleCallback(WorkflowRequest request, String status, Map<String, Object> additionalParams, String
             requestWorkflowId) throws WorkflowException {
 
-        WorkflowAssociationDAO workflowAssociationDAO = new WorkflowAssociationDAO();
+        WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
         if (request != null) {
             WorkflowRequestDAO workflowRequestDAO = new WorkflowRequestDAO();
             String requestId = request.getUuid();
-            workflowAssociationDAO.updateStatusOfRelationship(requestWorkflowId, status);
+            workflowRequestAssociationDAO.updateStatusOfRelationship(requestWorkflowId, status);
             workflowRequestDAO.updateLastUpdatedTimeOfRequest(requestId);
             if (StringUtils.isNotBlank(requestWorkflowId) && workflowRequestDAO.retrieveStatusOfWorkflow(request
                                                                                                                  .getUuid())
@@ -135,7 +135,7 @@ public class WorkFlowExecutorManager {
                 return;
             }
             if (status.equals(WorkflowRequestStatus.APPROVED.toString()) && !isAllWorkflowsCompleted
-                    (workflowAssociationDAO, requestId)) {
+                    (workflowRequestAssociationDAO, requestId)) {
                 return;
             }
             String eventId = request.getEventType();
@@ -170,9 +170,9 @@ public class WorkFlowExecutorManager {
         }
     }
 
-    private boolean isAllWorkflowsCompleted(WorkflowAssociationDAO workflowAssociationDAO, String
+    private boolean isAllWorkflowsCompleted(WorkflowRequestAssociationDAO workflowRequestAssociationDAO, String
             requestId) throws InternalWorkflowException {
-        List<String> statesOfRequest = workflowAssociationDAO.getWorkflowStatesOfRequest(requestId);
+        List<String> statesOfRequest = workflowRequestAssociationDAO.getWorkflowStatesOfRequest(requestId);
         for (int i = 0; i < statesOfRequest.size(); i++) {
             if (!statesOfRequest.get(i).equals(WorkflowRequestStatus.APPROVED.toString())) {
                 return false;
@@ -184,8 +184,8 @@ public class WorkFlowExecutorManager {
     public void handleCallback(String uuid, String status, Map<String, Object> additionalParams)
             throws WorkflowException {
 
-        WorkflowAssociationDAO workflowAssociationDAO = new WorkflowAssociationDAO();
-        String requestId = workflowAssociationDAO.getRequestIdOfRelationship(uuid);
+        WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
+        String requestId = workflowRequestAssociationDAO.getRequestIdOfRelationship(uuid);
         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
         WorkflowRequest request = requestDAO.retrieveWorkflow(requestId);
         handleCallback(request, status, additionalParams, uuid);
