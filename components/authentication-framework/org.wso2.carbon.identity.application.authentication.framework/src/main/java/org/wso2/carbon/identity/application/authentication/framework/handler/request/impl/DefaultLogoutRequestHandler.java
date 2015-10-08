@@ -126,6 +126,23 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                     log.error("Exception while getting IdP by name", e);
                 }
             }
+
+            String auditData = "\"" + "ContextIdentifier" + "\" : \"" + context.getContextIdentifier()
+                    + "\",\"" + "LoggedOutUser" + "\" : \"" + sequenceConfig.getAuthenticatedUser().
+                    getAuthenticatedSubjectIdentifier()
+                    + "\",\"" + "LoggedOutUserTenantDomain" + "\" : \"" + sequenceConfig.
+                    getAuthenticatedUser().getTenantDomain()
+                    + "\",\"" + "ServiceProviderName" + "\" : \"" + context.getServiceProviderName()
+                    + "\",\"" + "RequestType" + "\" : \"" + context.getRequestType()
+                    + "\",\"" + "RelyingParty" + "\" : \"" + context.getRelyingParty()
+                    + "\",\"" + "AuthenticatedIdPs" + "\" : \"" + sequenceConfig.getAuthenticatedIdPs()
+                    + "\"";
+
+            AUDIT_LOG.info(String.format(
+                    FrameworkConstants.AUDIT_MESSAGE,
+                    sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier(),
+                    "Logout",
+                    externalIdPConfig.getIdPName(), auditData, FrameworkConstants.AUDIT_SUCCESS));
         }
 
         // remove the SessionContext from the cache
@@ -134,22 +151,6 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
         FrameworkUtils.removeAuthCookie(request, response);
 
 
-        String auditData = "\"" + "ContextIdentifier" + "\" : \"" + context.getContextIdentifier()
-                + "\",\"" + "LoggedOutUser" + "\" : \"" + sequenceConfig.getAuthenticatedUser().
-                getAuthenticatedSubjectIdentifier()
-                + "\",\"" + "LoggedOutUserTenantDomain" + "\" : \"" + sequenceConfig.
-                getAuthenticatedUser().getTenantDomain()
-                + "\",\"" + "ServiceProviderName" + "\" : \"" + context.getServiceProviderName()
-                + "\",\"" + "RequestType" + "\" : \"" + context.getRequestType()
-                + "\",\"" + "RelyingParty" + "\" : \"" + context.getRelyingParty()
-                + "\",\"" + "AuthenticatedIdPs" + "\" : \"" + sequenceConfig.getAuthenticatedIdPs()
-                + "\"";
-
-        AUDIT_LOG.info(String.format(
-                FrameworkConstants.AUDIT_MESSAGE,
-                sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier(),
-                "Logout",
-                externalIdPConfig.getIdPName(), auditData, FrameworkConstants.AUDIT_SUCCESS));
 
         try {
             sendResponse(request, response, context, true);
