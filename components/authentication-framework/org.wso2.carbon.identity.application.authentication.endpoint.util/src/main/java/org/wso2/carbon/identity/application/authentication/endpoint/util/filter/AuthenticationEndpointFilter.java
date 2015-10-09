@@ -60,12 +60,14 @@ public class AuthenticationEndpointFilter implements Filter {
     private static final String OAUTH2 = "oauth2";
     private static final String OIDC = "oidc";
     private static final String FIDO = "fido";
+    private static final String TOTP = "totp";
 
     private static final String URI_LOGIN = "login.do";
     private static final String URI_SAMLSSO_LOGIN = "samlsso_login.do";
     private static final String URI_OPENID_LOGIN = "openid_login.do";
     private static final String URI_PASSIVESTS_LOGIN = "passivests_login.do";
     private static final String URI_OAUTH2_LOGIN = "oauth2_login.do";
+    private static final String URL_TOTP_LOGIN = "totp_login.do";
 
     private ServletContext context = null;
 
@@ -157,6 +159,8 @@ public class AuthenticationEndpointFilter implements Filter {
                 loadPage = URI_OAUTH2_LOGIN;
             } else if (FIDO.equals(protocolType)) {
                 loadPage = "authentication.jsp";
+            } else if (TOTP.equals(protocolType)) {
+                loadPage = URL_TOTP_LOGIN;
             } else {
                 loadPage = "login.jsp";
             }

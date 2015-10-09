@@ -66,9 +66,20 @@
         property.setValue(request.getParameter("rememberMeTimeout"));
         properties[1] = property;
         propertyHolderConfig.setProperties(properties);
-        FederatedAuthenticatorConfig[] federatedAuthenticators = new FederatedAuthenticatorConfig[2];
+
+        FederatedAuthenticatorConfig totpFedAuth = new FederatedAuthenticatorConfig();
+        totpFedAuth.setName(IdentityApplicationConstants.Authenticator.TOTP.NAME);
+        properties = new Property[1];
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.TOTP.ENCODING_METHOD);
+        property.setValue(CharacterEncoder.getSafeText(request.getParameter("totpEncodingID")));
+        properties[0]=property;
+        totpFedAuth.setProperties(properties);
+
+        FederatedAuthenticatorConfig[] federatedAuthenticators = new FederatedAuthenticatorConfig[3];
         federatedAuthenticators[0] = samlFedAuthn;
         federatedAuthenticators[1] = propertyHolderConfig;
+        federatedAuthenticators[2] = totpFedAuth;
         identityProvider.setFederatedAuthenticatorConfigs(federatedAuthenticators);
         client.updateResidentIdP(identityProvider);
         String message = MessageFormat.format(resourceBundle.getString("success.updating.resident.idp"),null);

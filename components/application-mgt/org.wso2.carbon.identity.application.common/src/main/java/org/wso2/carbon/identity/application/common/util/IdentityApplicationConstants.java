@@ -153,6 +153,13 @@ public class IdentityApplicationConstants {
             }
         }
 
+        public static class TOTP {
+
+            public static final String NAME = "totp";
+            public static final String ENCODING_METHOD = "encoding method";
+
+        }
+
         public static class IDPProperties {
             public static final String NAME = "IDPProperties";
             public static final String SESSION_IDLE_TIME_OUT = "SessionIdleTimeout";

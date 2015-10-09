@@ -113,6 +113,15 @@
     </servlet>
 
     <servlet>
+        <servlet-name>totp_login.do</servlet-name>
+        <jsp-file>totp.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
+        <servlet-name>totp_error.do</servlet-name>
+        <jsp-file>totp_error.jsp</jsp-file>
+    </servlet>
+    <servlet>
         <servlet-name>openid_profile.do</servlet-name>
         <jsp-file>/openid_profile.jsp</jsp-file>
     </servlet>
@@ -137,6 +146,15 @@
         <url-pattern>/oauth2_login.do</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>totp_login.do</servlet-name>
+        <url-pattern>/totp_login.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>totp_error.do</servlet-name>
+        <url-pattern>/totp_error.do</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>oauth2_authz.do</servlet-name>
         <url-pattern>/oauth2_authz.do</url-pattern>
