@@ -1213,11 +1213,11 @@ public class IdentityProviderManager {
             log.error(msg);
             throw new IdentityProviderManagementException(msg);
         }
-        if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(idPName)){
-            if (MultitenantConstants.SUPER_TENANT_ID == tenantId){
+        if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(idPName)) {
+            if (MultitenantConstants.SUPER_TENANT_ID == tenantId) {
                 throw new IdentityProviderManagementException("Can't delete Resident Identity Provider of Super " +
                         "Tenant");
-            }else{
+            } else {
                 log.warn("Deleting Resident Identity Provider for tenant " + tenantDomain);
             }
         }

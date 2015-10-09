@@ -185,7 +185,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         }
 
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(idPName)){
+        if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(idPName)) {
             throw new IdentityProviderManagementException("Can't delete Resident Identity Provider for tenant " +
                     tenantDomain);
         }
