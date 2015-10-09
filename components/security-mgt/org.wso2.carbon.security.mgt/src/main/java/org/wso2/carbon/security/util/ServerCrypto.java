@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.security.util;
 
+import org.apache.axiom.om.impl.dom.jaxp.DocumentBuilderFactoryImpl;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,7 +96,7 @@ public class ServerCrypto implements Crypto {
 
     public ServerCrypto(Properties prop, ClassLoader loader) throws CredentialException,
             IOException {
-
+            boolean isSetDoomFalse = false;
         try {
 
             int tenantId;
@@ -107,8 +108,21 @@ public class ServerCrypto implements Crypto {
             } else {
                 tenantId = new Integer(tenantIdString);
             }
+            // Forcefully load tenant. since tenant may have been unloaded
+            SecurityServiceHolder.getTenantRegistryLoader().loadTenantRegistry(tenantId);
 
+            // From certain operations (rampart) this is set to true. This causes to throw an exeption while loading
+            // registry. Therefore set it to false before loading and set it to true only if it is changed.
+            if(DocumentBuilderFactoryImpl.isDOOMRequired()){
+                DocumentBuilderFactoryImpl.setDOOMRequired(false);
+                isSetDoomFalse = true;
+            }
             registry = SecurityServiceHolder.getRegistryService().getGovernanceSystemRegistry(tenantId);
+
+            if(isSetDoomFalse){
+                DocumentBuilderFactoryImpl.setDOOMRequired(true);
+                isSetDoomFalse = false;
+            }
 
             this.properties = prop;
 
