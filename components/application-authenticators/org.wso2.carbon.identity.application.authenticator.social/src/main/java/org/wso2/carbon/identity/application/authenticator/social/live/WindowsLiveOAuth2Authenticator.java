@@ -130,7 +130,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     @Override
     protected String getTokenEndpoint(Map<String, String> authenticatorProperties) {
-        if(StringUtils.isBlank(this.tokenEndpoint)){
+        if (StringUtils.isBlank(this.tokenEndpoint)) {
             initTokenEndpoint();
         }
         return this.tokenEndpoint;
