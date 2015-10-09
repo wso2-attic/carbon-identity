@@ -1476,8 +1476,8 @@ function deleteRow(obj) {
 
 function disableDefaultPwd(chkbx) {
     document.getElementById("scim-default-pwd").value = "";
-    var disabled = chkbx.checked ? "disabled" : "";
-    document.getElementById("scim-default-pwd").setAttribute("disabled", disabled);
+    var disabled = chkbx.checked;
+    document.getElementById("scim-default-pwd").disabled=disabled;
 }
 
 jQuery(document).ready(function () {
