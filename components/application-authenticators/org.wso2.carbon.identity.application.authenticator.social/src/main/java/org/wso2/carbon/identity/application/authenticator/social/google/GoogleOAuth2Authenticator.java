@@ -99,7 +99,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     /**
      * Get UserInfo Endpoint
      *
-     * @return
+     * @return userInfoEndpoint
      */
 
     private String getUserInfoEndpoint() {
@@ -114,11 +114,10 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
      * Get Authorization Server Endpoint
      *
      * @param authenticatorProperties this is not used currently in the method
-     * @return
+     * @return oAuthEndpoint
      */
     @Override
-    protected String getAuthorizationServerEndpoint(
-            Map<String, String> authenticatorProperties) {
+    protected String getAuthorizationServerEndpoint(Map<String, String> authenticatorProperties) {
         if (StringUtils.isBlank(this.oAuthEndpoint)) {
             initOAuthEndpoint();
         }
@@ -129,11 +128,10 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
      * Get Token Endpoint
      *
      * @param authenticatorProperties this is not used currently in the method
-     * @return
+     * @return tokenEndpoint
      */
     @Override
-    protected String getTokenEndpoint(
-            Map<String, String> authenticatorProperties) {
+    protected String getTokenEndpoint(Map<String, String> authenticatorProperties) {
         if (StringUtils.isBlank(this.tokenEndpoint)) {
             initTokenEndpoint();
         }

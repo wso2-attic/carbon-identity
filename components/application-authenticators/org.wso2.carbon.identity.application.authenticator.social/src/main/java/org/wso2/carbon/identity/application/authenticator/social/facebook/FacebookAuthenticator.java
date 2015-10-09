@@ -94,6 +94,10 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         }
     }
 
+    /**
+     * get the tokenEndpoint.
+     * @return tokenEndpoint
+     */
     private String getTokenEndpoint() {
         if (StringUtils.isBlank(this.tokenEndpoint)) {
             initTokenEndpoint();
@@ -101,6 +105,10 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         return this.tokenEndpoint;
     }
 
+    /**
+     * get the oAuthEndpoint.
+     * @return oAuthEndpoint
+     */
     private String getAuthorizationServerEndpoint() {
         if (StringUtils.isBlank(this.oAuthEndpoint)) {
             initOAuthEndpoint();
@@ -108,6 +116,10 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         return this.oAuthEndpoint;
     }
 
+    /**
+     * get the userInfoEndpoint.
+     * @return userInfoEndpoint
+     */
     private String getUserInfoEndpoint() {
         if (StringUtils.isBlank(this.userInfoEndpoint)) {
             initUserInfoEndPoint();

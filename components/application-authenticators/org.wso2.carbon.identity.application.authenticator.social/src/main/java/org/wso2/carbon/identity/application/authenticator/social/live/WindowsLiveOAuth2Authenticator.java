@@ -61,6 +61,9 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     private static Log log = LogFactory.getLog(WindowsLiveOAuth2Authenticator.class);
 
+    /**
+     * initiate tokenEndpoint reading from application-authentication.xml
+     */
     private void initTokenEndpoint() {
         this.tokenEndpoint = getAuthenticatorConfig().getParameterMap().get(WindowsLiveOAuth2AuthenticatorConstants
                 .WINDOWS_LIVE_TOKEN_URL);
@@ -69,6 +72,9 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         }
     }
 
+    /**
+     * initiate oAuthEndpoint reading from application-authentication.xml
+     */
     private void initOAuthEndpoint() {
         this.oAuthEndpoint = getAuthenticatorConfig().getParameterMap().get(WindowsLiveOAuth2AuthenticatorConstants
                 .WINDOWS_LIVE_AUTHZ_URL);
@@ -77,6 +83,9 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         }
     }
 
+    /**
+     * initiate userInfoEndpoint reading from application-authentication.xml
+     */
     private void initUserInfoEndPoint() {
         this.userInfoEndpoint = getAuthenticatorConfig().getParameterMap().get
                 (WindowsLiveOAuth2AuthenticatorConstants.WINDOWS_LIVE_USER_INFO_URL);
@@ -85,6 +94,10 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         }
     }
 
+    /**
+     *
+     * @return userInfoEndpoint
+     */
     private String getUserInfoEndpoint() {
         if (StringUtils.isBlank(this.userInfoEndpoint)) {
             initUserInfoEndPoint();
@@ -93,7 +106,8 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * @return
+     *
+     * @return oAuthEndpoint
      */
     @Override
     protected String getAuthorizationServerEndpoint(Map<String, String> authenticatorProperties) {
