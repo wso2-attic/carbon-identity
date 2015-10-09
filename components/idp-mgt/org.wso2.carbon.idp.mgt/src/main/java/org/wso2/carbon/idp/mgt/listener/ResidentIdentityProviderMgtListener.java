@@ -36,9 +36,8 @@ public class ResidentIdentityProviderMgtListener extends AbstractIdentityProvide
     }
 
     @Override
-    public boolean doPreDeleteIdP(String idPName, int tenantId) throws IdentityProviderManagementException {
+    public boolean doPreDeleteIdP(String idPName, String tenantDomain) throws IdentityProviderManagementException {
 
-        String tenantDomain = IdentityTenantUtil.getTenantDomain(tenantId);
         if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(idPName)) {
             throw new IdentityProviderManagementException("Can't delete Resident Identity Provider for tenant " +
                     tenantDomain);

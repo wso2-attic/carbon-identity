@@ -71,12 +71,11 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         }
 
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
 
         // invoking the listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreUpdateResidentIdP(identityProvider, tenantId)) {
+            if (!listener.doPreUpdateResidentIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -84,7 +83,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         IdentityProviderManager.getInstance().updateResidentIdP(identityProvider, tenantDomain);
 
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostUpdateResidentIdP(identityProvider, tenantId)) {
+            if (!listener.doPostUpdateResidentIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -160,12 +159,11 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         }
 
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
 
         // invoking the listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreAddIdP(identityProvider, tenantId)) {
+            if (!listener.doPreAddIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -173,7 +171,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         IdentityProviderManager.getInstance().addIdP(identityProvider, tenantDomain);
 
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostAddIdP(identityProvider, tenantId)) {
+            if (!listener.doPostAddIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -191,12 +189,11 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         }
 
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
 
         // invoking the listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreDeleteIdP(idPName, tenantId)) {
+            if (!listener.doPreDeleteIdP(idPName, tenantDomain)) {
                 return;
             }
         }
@@ -204,7 +201,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         IdentityProviderManager.getInstance().deleteIdP(idPName, tenantDomain);
 
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostDeleteIdP(idPName, tenantId)) {
+            if (!listener.doPostDeleteIdP(idPName, tenantDomain)) {
                 return;
             }
         }
@@ -260,12 +257,11 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         }
 
         String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
 
         // invoking the listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreUpdateIdP(oldIdPName, identityProvider, tenantId)) {
+            if (!listener.doPreUpdateIdP(oldIdPName, identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -273,7 +269,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         IdentityProviderManager.getInstance().updateIdP(oldIdPName, identityProvider, tenantDomain);
 
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostUpdateIdP(oldIdPName, identityProvider, tenantId)) {
+            if (!listener.doPostUpdateIdP(oldIdPName, identityProvider, tenantDomain)) {
                 return;
             }
         }

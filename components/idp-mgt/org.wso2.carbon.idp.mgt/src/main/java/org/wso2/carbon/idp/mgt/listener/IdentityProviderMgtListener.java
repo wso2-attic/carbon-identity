@@ -51,7 +51,7 @@ public interface IdentityProviderMgtListener {
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws IdentityProviderManagementException
      */
-    public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider, int tenantId) throws
+    public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider, String tenantDomain) throws
             IdentityProviderManagementException;
 
     /**
@@ -61,7 +61,7 @@ public interface IdentityProviderMgtListener {
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws IdentityProviderManagementException
      */
-    public boolean doPostUpdateResidentIdP(IdentityProvider identityProvider, int tenantId) throws
+    public boolean doPostUpdateResidentIdP(IdentityProvider identityProvider, String tenantDomain) throws
             IdentityProviderManagementException;
 
     /**
@@ -71,7 +71,7 @@ public interface IdentityProviderMgtListener {
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws IdentityProviderManagementException
      */
-    public boolean doPreAddIdP(IdentityProvider identityProvider, int tenantId) throws
+    public boolean doPreAddIdP(IdentityProvider identityProvider, String tenantDomain) throws
             IdentityProviderManagementException;
 
     /**
@@ -81,7 +81,7 @@ public interface IdentityProviderMgtListener {
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws IdentityProviderManagementException
      */
-    public boolean doPostAddIdP(IdentityProvider identityProvider, int tenantId) throws
+    public boolean doPostAddIdP(IdentityProvider identityProvider, String tenantDomain) throws
             IdentityProviderManagementException;
 
     /**
@@ -91,7 +91,7 @@ public interface IdentityProviderMgtListener {
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws IdentityProviderManagementException
      */
-    public boolean doPreDeleteIdP(String idPName, int tenantId) throws IdentityProviderManagementException;
+    public boolean doPreDeleteIdP(String idPName, String tenantDomain) throws IdentityProviderManagementException;
 
     /**
      * Define any additional actions after deleting idp
@@ -100,7 +100,7 @@ public interface IdentityProviderMgtListener {
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws IdentityProviderManagementException
      */
-    public boolean doPostDeleteIdP(String idPName, int tenantId) throws IdentityProviderManagementException;
+    public boolean doPostDeleteIdP(String idPName, String tenantDomain) throws IdentityProviderManagementException;
 
     /**
      * Define any additional actions before updating idp
@@ -110,7 +110,7 @@ public interface IdentityProviderMgtListener {
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws IdentityProviderManagementException
      */
-    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider, int tenantId) throws
+    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider, String tenantDomain) throws
             IdentityProviderManagementException;
 
     /**
@@ -121,7 +121,7 @@ public interface IdentityProviderMgtListener {
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws IdentityProviderManagementException
      */
-    public boolean doPostUpdateIdP(String oldIdPName, IdentityProvider identityProvider, int tenantId) throws
+    public boolean doPostUpdateIdP(String oldIdPName, IdentityProvider identityProvider, String tenantDomain) throws
             IdentityProviderManagementException;
 
 }
