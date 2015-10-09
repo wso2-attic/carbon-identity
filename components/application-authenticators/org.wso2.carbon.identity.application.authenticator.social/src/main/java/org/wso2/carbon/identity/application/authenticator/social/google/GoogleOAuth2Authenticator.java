@@ -63,6 +63,9 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     private static Log log = LogFactory.getLog(GoogleOAuth2Authenticator.class);
 
+    /**
+     * initiate tokenEndpoint
+     */
     private void initTokenEndpoint() {
         this.tokenEndpoint = getAuthenticatorConfig().getParameterMap().get(GoogleOAuth2AuthenticationConstant
                 .GOOGLE_TOKEN_ENDPOINT);
@@ -71,6 +74,9 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         }
     }
 
+    /**
+     * initiate authorization server endpoint
+     */
     private void initOAuthEndpoint() {
         this.oAuthEndpoint = getAuthenticatorConfig().getParameterMap().get(GoogleOAuth2AuthenticationConstant
                 .GOOGLE_OAUTH_ENDPOINT);
@@ -79,6 +85,9 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         }
     }
 
+    /**
+     * initiate userInfoEndpoint
+     */
     private void initUserInfoEndPoint() {
         this.userInfoEndpoint = getAuthenticatorConfig().getParameterMap().get(GoogleOAuth2AuthenticationConstant
                 .GOOGLE_USERINFO_ENDPOINT);
@@ -90,12 +99,10 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     /**
      * Get UserInfo Endpoint
      *
-     * @param authenticatorProperties this is not used currently in the method
      * @return
      */
 
-    protected String getUserInfoEndpoint(
-            Map<String, String> authenticatorProperties) {
+    private String getUserInfoEndpoint() {
         if (StringUtils.isBlank(this.userInfoEndpoint)) {
             initUserInfoEndPoint();
         }
@@ -254,8 +261,8 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
 
         try {
-            String json = sendRequest(getUserInfoEndpoint(null), token.getParam(OIDCAuthenticatorConstants
-                    .ACCESS_TOKEN));
+
+            String json = sendRequest(getUserInfoEndpoint(), token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
             if (StringUtils.isNotBlank(json)) {
                 Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
 
