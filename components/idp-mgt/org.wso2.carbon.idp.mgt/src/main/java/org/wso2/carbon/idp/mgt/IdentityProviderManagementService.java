@@ -27,6 +27,7 @@ import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.idp.mgt.internal.IdpMgtListenerServiceComponent;
 import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
@@ -182,6 +183,12 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         if (StringUtils.isEmpty(idPName)) {
             throw new IllegalArgumentException("Provided IdP name is empty");
         }
+
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(idPName)){
+            throw new IdentityProviderManagementException("Can't delete Resident Identity Provider for tenant " +
+                    tenantDomain);
+        }
         // invoking the listeners
         Collection<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
@@ -190,7 +197,6 @@ public class IdentityProviderManagementService extends AbstractAdmin {
             }
         }
 
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         IdentityProviderManager.getInstance().deleteIdP(idPName, tenantDomain);
 
         for (IdentityProviderMgtListener listener : listeners) {

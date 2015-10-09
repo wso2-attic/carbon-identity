@@ -1647,16 +1647,11 @@ public class IdPManagementDAO {
                 return;
             }
 
-            IdentityProvider primaryIdP = getPrimaryIdP(dbConnection, tenantId, tenantDomain);
-            if (primaryIdP == null) {
-                String msg = "Cannot find primary Identity Provider for tenant " + tenantDomain;
-                log.warn(msg);
-            }
-
             deleteIdP(dbConnection, tenantId, idPName);
 
-            if (primaryIdP != null && idPName.equals(primaryIdP.getIdentityProviderName())) {
-                doAppointPrimary(dbConnection, tenantId, tenantDomain);
+            if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(idPName)){
+                String msg = "Deleting Resident Identity Provider for tenant " + tenantDomain;
+                log.warn(msg);
             }
 
             dbConnection.commit();
@@ -1667,60 +1662,6 @@ public class IdPManagementDAO {
         } finally {
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
         }
-    }
-
-    public IdentityProvider getPrimaryIdP(Connection dbConnection, int tenantId, String tenantDomain)
-            throws IdentityProviderManagementException {
-
-        boolean dbConnInitialized = true;
-        PreparedStatement prepStmt = null;
-        if (dbConnection == null) {
-            dbConnection = IdentityDatabaseUtil.getDBConnection();
-        } else {
-            dbConnInitialized = false;
-        }
-        try {
-
-            String sqlStmt = IdPManagementConstants.SQLQueries.GET_PRIMARY_IDP_SQL;
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setInt(1, tenantId);
-            prepStmt.setString(2, "1");
-            ResultSet rs = prepStmt.executeQuery();
-            dbConnection.commit();
-            if (rs.next()) {
-                IdentityProvider identityProviderDO = new IdentityProvider();
-                identityProviderDO.setIdentityProviderName(rs.getString(1));
-                identityProviderDO.setPrimary(true);
-                identityProviderDO.setHomeRealmId(rs.getString("HOME_REALM_ID"));
-
-                if ("1".equals(rs.getString("IS_FEDERATION_HUB"))) {
-                    identityProviderDO.setFederationHub(true);
-                } else {
-                    identityProviderDO.setFederationHub(false);
-                }
-
-                if (identityProviderDO.getClaimConfig() == null) {
-                    identityProviderDO.setClaimConfig(new ClaimConfig());
-                }
-
-                if ("1".equals(rs.getString("IS_LOCAL_CLAIM_DIALECT"))) {
-                    identityProviderDO.getClaimConfig().setLocalClaimDialect(true);
-                } else {
-                    identityProviderDO.getClaimConfig().setLocalClaimDialect(false);
-                }
-
-                return identityProviderDO;
-            }
-        } catch (SQLException e) {
-            IdentityApplicationManagementUtil.rollBack(dbConnection);
-            throw new IdentityProviderManagementException("Error occurred while retrieving primary Identity " +
-                    "Provider for tenant " + tenantDomain, e);
-        } finally {
-            if (dbConnInitialized) {
-                IdentityApplicationManagementUtil.closeConnection(dbConnection);
-            }
-        }
-        return null;
     }
 
     public void deleteTenantRole(int tenantId, String role, String tenantDomain)
