@@ -50,7 +50,8 @@ public class IdentityProviderMgtProvisioningListener extends AbstractIdentityPro
     private static ProvisioningManagementDAO provisioningManagementDAO = new ProvisioningManagementDAO();
 
     @Override
-    public boolean doPreAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+    public boolean doPreAddIdP(IdentityProvider identityProvider, int tenantId) throws
+            IdentityProviderManagementException {
         if (log.isDebugEnabled()) {
             log.debug("add new Identity Provider event received");
         }
@@ -58,7 +59,7 @@ public class IdentityProviderMgtProvisioningListener extends AbstractIdentityPro
     }
 
     @Override
-    public boolean doPreDeleteIdP(String idPName) throws IdentityProviderManagementException {
+    public boolean doPreDeleteIdP(String idPName, int tenantId) throws IdentityProviderManagementException {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getTenantDomain();
         try {
@@ -70,7 +71,8 @@ public class IdentityProviderMgtProvisioningListener extends AbstractIdentityPro
     }
 
     @Override
-    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
+    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider, int tenantId) throws
+            IdentityProviderManagementException {
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getTenantDomain();
         try {

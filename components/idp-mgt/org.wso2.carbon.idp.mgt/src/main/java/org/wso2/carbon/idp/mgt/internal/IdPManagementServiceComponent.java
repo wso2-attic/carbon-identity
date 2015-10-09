@@ -31,6 +31,8 @@ import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
+import org.wso2.carbon.idp.mgt.listener.ResidentIdentityProviderMgtListener;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
@@ -41,11 +43,14 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * @scr.component name="idp.mgt.dscomponent" immediate=true
@@ -59,6 +64,11 @@ import java.util.Set;
  * @scr.reference name="identityCoreInitializedEventService"
  * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
  * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
+ * @scr.reference name="idp.mgt.event.listener.service"
+ * interface="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener"
+ * cardinality="0..n" policy="dynamic"
+ * bind="setIdentityProviderMgtListenerService"
+ * unbind="unsetIdentityProviderMgtListenerService"
  */
 public class IdPManagementServiceComponent {
 
@@ -71,6 +81,8 @@ public class IdPManagementServiceComponent {
     private static Map<String, IdentityProvider> fileBasedIdPs = new HashMap<String, IdentityProvider>();
 
     private static Set<String> sharedIdps = new HashSet<String>();
+
+    private static Map<Integer, IdentityProviderMgtListener> idpMgtListeners;
 
     /**
      * @return
@@ -127,6 +139,8 @@ public class IdPManagementServiceComponent {
             } else {
                 log.error("Identity Provider Management - UserOperationEventListener could not be registered");
             }
+
+            setIdentityProviderMgtListenerService(new ResidentIdentityProviderMgtListener());
 
             buildFileBasedIdPList();
             cleanUpRemovedIdps();
@@ -257,6 +271,47 @@ public class IdPManagementServiceComponent {
     protected void setIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
         /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
          is started */
+    }
+
+    private static Comparator<Integer> idpMgtListenerComparator = new Comparator<Integer>(){
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int compare(Integer orderId1, Integer orderId2) {
+            if (orderId1 > orderId2) {
+                return 1;
+            } else if (orderId1 < orderId2) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
+
+    protected static synchronized void setIdentityProviderMgtListenerService(
+            IdentityProviderMgtListener applicationMgtListenerService) {
+        if (idpMgtListeners == null) {
+            idpMgtListeners = new TreeMap<>(idpMgtListenerComparator);
+        }
+        idpMgtListeners.put(applicationMgtListenerService.getExecutionOrderId(),
+                applicationMgtListenerService);
+    }
+
+    protected static synchronized void unsetIdentityProviderMgtListenerService(
+            IdentityProviderMgtListener applicationMgtListenerService) {
+        if (applicationMgtListenerService != null &&
+                idpMgtListeners != null) {
+            idpMgtListeners = null;
+        }
+    }
+
+    public static synchronized Collection<IdentityProviderMgtListener> getIdpMgtListeners() {
+        if (idpMgtListeners == null) {
+            idpMgtListeners = new TreeMap<>(idpMgtListenerComparator);
+        }
+        return idpMgtListeners.values();
     }
 
 }

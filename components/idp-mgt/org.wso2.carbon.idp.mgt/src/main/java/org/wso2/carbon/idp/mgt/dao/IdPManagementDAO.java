@@ -1649,11 +1649,6 @@ public class IdPManagementDAO {
 
             deleteIdP(dbConnection, tenantId, idPName);
 
-            if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(idPName)) {
-                String msg = "Deleting Resident Identity Provider for tenant " + tenantDomain;
-                log.warn(msg);
-            }
-
             dbConnection.commit();
         } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
