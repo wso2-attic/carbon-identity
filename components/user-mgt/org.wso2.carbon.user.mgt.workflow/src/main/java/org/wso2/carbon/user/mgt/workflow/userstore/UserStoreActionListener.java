@@ -46,15 +46,14 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
                                 String profile, UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
-            return true;
-        }
-
+        AddUserWFRequestHandler addUserWFRequestHandler = new AddUserWFRequestHandler();
         try {
+            if (!isEnable() || !addUserWFRequestHandler.isAssociated()) {
+                return true;
+            }
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                     .PROPERTY_DOMAIN_NAME);
-            return new AddUserWFRequestHandler()
-                    .startAddUserFlow(domain, userName, credential, roleList, claims, profile);
+            return addUserWFRequestHandler.startAddUserFlow(domain, userName, credential, roleList, claims, profile);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
@@ -85,14 +84,15 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
 
     @Override
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
-            return true;
-        }
 
-        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
+        DeleteUserWFRequestHandler deleteUserWFRequestHandler = new DeleteUserWFRequestHandler();
         try {
-            return new DeleteUserWFRequestHandler().startDeleteUserFlow(domain, userName);
+            if (!isEnable() || !deleteUserWFRequestHandler.isAssociated()) {
+                return true;
+            }
+            String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                                                                                                  .PROPERTY_DOMAIN_NAME);
+            return deleteUserWFRequestHandler.startDeleteUserFlow(domain, userName);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
@@ -102,15 +102,15 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName,
                                           UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
-            return true;
-        }
-
-        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
+        SetUserClaimWFRequestHandler setUserClaimWFRequestHandler = new SetUserClaimWFRequestHandler();
         try {
-            return new SetUserClaimWFRequestHandler()
-                    .startSetClaimWorkflow(domain, userName, claimURI, claimValue, profileName);
+            if (!isEnable() || !setUserClaimWFRequestHandler.isAssociated()) {
+                return true;
+            }
+            String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                                                                                                  .PROPERTY_DOMAIN_NAME);
+            return setUserClaimWFRequestHandler.startSetClaimWorkflow(domain, userName, claimURI, claimValue,
+                                                                      profileName);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
@@ -120,15 +120,15 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
                                            UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
-            return true;
-        }
 
-        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
+        SetMultipleClaimsWFRequestHandler setMultipleClaimsWFRequestHandler = new SetMultipleClaimsWFRequestHandler();
         try {
-            return new SetMultipleClaimsWFRequestHandler()
-                    .startSetMultipleClaimsWorkflow(domain, userName, claims, profileName);
+            if (!isEnable() || !setMultipleClaimsWFRequestHandler.isAssociated()) {
+                return true;
+            }
+            String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                                                                                                  .PROPERTY_DOMAIN_NAME);
+            return setMultipleClaimsWFRequestHandler.startSetMultipleClaimsWorkflow(domain, userName, claims, profileName);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
@@ -138,15 +138,15 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreDeleteUserClaimValues(String userName, String[] claims, String profileName, UserStoreManager
             userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
-            return true;
-        }
-
-        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
+        DeleteMultipleClaimsWFRequestHandler deleteMultipleClaimsWFRequestHandler = new DeleteMultipleClaimsWFRequestHandler();
         try {
-            return new DeleteMultipleClaimsWFRequestHandler()
-                    .startDeleteMultipleClaimsWorkflow(domain, userName, claims, profileName);
+            if (!isEnable() || !deleteMultipleClaimsWFRequestHandler.isAssociated()) {
+                return true;
+            }
+            String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                                                                                                  .PROPERTY_DOMAIN_NAME);
+            return deleteMultipleClaimsWFRequestHandler.startDeleteMultipleClaimsWorkflow(domain, userName, claims,
+                                                                                          profileName);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
@@ -156,15 +156,14 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreDeleteUserClaimValue(String userName, String claimURI, String profileName,
                                              UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
-            return true;
-        }
-
-        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
+        DeleteClaimWFRequestHandler deleteClaimWFRequestHandler = new DeleteClaimWFRequestHandler();
         try {
-            return new DeleteClaimWFRequestHandler()
-                    .startDeleteClaimWorkflow(domain, userName, claimURI, profileName);
+            if (!isEnable() || !deleteClaimWFRequestHandler.isAssociated()) {
+                return true;
+            }
+            String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                                                                                                  .PROPERTY_DOMAIN_NAME);
+            return deleteClaimWFRequestHandler.startDeleteClaimWorkflow(domain, userName, claimURI, profileName);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
@@ -174,14 +173,14 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreAddRole(String roleName, String[] userList, Permission[] permissions, UserStoreManager
             userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
-            return true;
-        }
-
-        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
+        AddRoleWFRequestHandler addRoleWFRequestHandler = new AddRoleWFRequestHandler();
         try {
-            return new AddRoleWFRequestHandler().startAddRoleFlow(domain, roleName, userList, permissions);
+            if (!isEnable() || !addRoleWFRequestHandler.isAssociated()) {
+                return true;
+            }
+            String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                                                                                                  .PROPERTY_DOMAIN_NAME);
+            return addRoleWFRequestHandler.startAddRoleFlow(domain, roleName, userList, permissions);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
@@ -190,14 +189,14 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
 
     @Override
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
-            return true;
-        }
-
-        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
+        DeleteRoleWFRequestHandler deleteRoleWFRequestHandler = new DeleteRoleWFRequestHandler();
         try {
-            return new DeleteRoleWFRequestHandler().startDeleteRoleFlow(domain, roleName);
+            if (!isEnable() || !deleteRoleWFRequestHandler.isAssociated()) {
+                return true;
+            }
+            String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                                                                                                  .PROPERTY_DOMAIN_NAME);
+            return deleteRoleWFRequestHandler.startDeleteRoleFlow(domain, roleName);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
@@ -207,15 +206,14 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager) throws
             UserStoreException {
-        if (!isEnable()) {
-            return true;
-        }
-
-        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
+        UpdateRoleNameWFRequestHandler updateRoleNameWFRequestHandler = new UpdateRoleNameWFRequestHandler();
         try {
-            return new UpdateRoleNameWFRequestHandler()
-                    .startUpdateRoleNameFlow(domain, roleName, newRoleName);
+            if (!isEnable() || !updateRoleNameWFRequestHandler.isAssociated()) {
+                return true;
+            }
+            String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                                                                                                  .PROPERTY_DOMAIN_NAME);
+            return updateRoleNameWFRequestHandler.startUpdateRoleNameFlow(domain, roleName, newRoleName);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
@@ -225,15 +223,14 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers, UserStoreManager
             userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
-            return true;
-        }
-
-        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
+        UpdateRoleUsersWFRequestHandler updateRoleUsersWFRequestHandler = new UpdateRoleUsersWFRequestHandler();
         try {
-            return new UpdateRoleUsersWFRequestHandler()
-                    .startUpdateRoleUsersFlow(domain, roleName, deletedUsers, newUsers);
+            if (!isEnable() || !updateRoleUsersWFRequestHandler.isAssociated()) {
+                return true;
+            }
+            String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                                                                                                  .PROPERTY_DOMAIN_NAME);
+            return updateRoleUsersWFRequestHandler.startUpdateRoleUsersFlow(domain, roleName, deletedUsers, newUsers);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
@@ -243,15 +240,14 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles, UserStoreManager
             userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
-            return true;
-        }
-
-        String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
+        UpdateUserRolesWFRequestHandler updateUserRolesWFRequestHandler = new UpdateUserRolesWFRequestHandler();
         try {
-            return new UpdateUserRolesWFRequestHandler()
-                    .startUpdateUserRolesFlow(domain, userName, deletedRoles, newRoles);
+            if (!isEnable() || !updateUserRolesWFRequestHandler.isAssociated()) {
+                return true;
+            }
+            String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                                                                                                  .PROPERTY_DOMAIN_NAME);
+            return updateUserRolesWFRequestHandler.startUpdateUserRolesFlow(domain, userName, deletedRoles, newRoles);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);

@@ -455,7 +455,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      * @throws InternalWorkflowException
      */
     @Override
-    public boolean eventEngagedWithWorkflows(String eventType) throws InternalWorkflowException {
+    public boolean isEventAssociated(String eventType) throws InternalWorkflowException {
 
         List<WorkflowAssociation> associations = workflowRequestAssociationDAO.getWorkflowAssociationsForRequest(eventType, CarbonContext
                 .getThreadLocalCarbonContext().getTenantId());

@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.user.mgt.workflow.util.UserStoreWFConstants;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -78,7 +79,7 @@ public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler 
         wfParams.put(CLAIM_URI, claimURI);
         wfParams.put(PROFILE_NAME, profileName);
         String uuid = UUID.randomUUID().toString();
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.DELETE_USER_CLAIM_EVENT) && !Boolean.TRUE
+        if (workflowService.isEventAssociated(UserStoreWFConstants.DELETE_USER_CLAIM_EVENT) && !Boolean.TRUE
                 .equals(getWorkFlowCompleted()) && !isValidOperation(new Entity[]{new Entity(fullyQualifiedName,
                 UserStoreWFConstants.ENTITY_TYPE_USER, tenant), new Entity(claimURI, UserStoreWFConstants
                 .ENTITY_TYPE_CLAIM, tenant)})) {

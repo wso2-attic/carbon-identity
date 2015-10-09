@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.user.mgt.workflow.util.UserStoreWFConstants;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -90,7 +91,7 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
             entities[i + newRoles.length + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants
                     .ENTITY_TYPE_ROLE, tenant);
         }
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.UPDATE_USER_ROLES_EVENT) && !Boolean.TRUE
+        if (workflowService.isEventAssociated(UserStoreWFConstants.UPDATE_USER_ROLES_EVENT) && !Boolean.TRUE
                 .equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {
             throw new WorkflowException("Operation is not valid.");
         }

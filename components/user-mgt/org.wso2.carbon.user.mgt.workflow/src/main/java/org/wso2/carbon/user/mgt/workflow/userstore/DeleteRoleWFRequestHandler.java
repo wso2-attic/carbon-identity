@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.user.mgt.workflow.util.UserStoreWFConstants;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -74,7 +75,7 @@ public class DeleteRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
         String uuid = UUID.randomUUID().toString();
 
         Entity roleEntity = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant);
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.DELETE_ROLE_EVENT) && !Boolean.TRUE.equals
+        if (workflowService.isEventAssociated(UserStoreWFConstants.DELETE_ROLE_EVENT) && !Boolean.TRUE.equals
                 (getWorkFlowCompleted()) && !isValidOperation(new Entity[]{roleEntity})) {
             throw new WorkflowException("Operation is not valid.");
         }

@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.user.mgt.workflow.util.UserStoreWFConstants;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -86,7 +87,7 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
         for (int i = 0; i < claims.length; i++) {
             entities[i + 1] = new Entity(claims[i], UserStoreWFConstants.ENTITY_TYPE_CLAIM, tenant);
         }
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.DELETE_MULTIPLE_USER_CLAIMS_EVENT) &&
+        if (workflowService.isEventAssociated(UserStoreWFConstants.DELETE_MULTIPLE_USER_CLAIMS_EVENT) &&
                 !Boolean.TRUE.equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {
             throw new WorkflowException("Operation is not valid.");
         }
