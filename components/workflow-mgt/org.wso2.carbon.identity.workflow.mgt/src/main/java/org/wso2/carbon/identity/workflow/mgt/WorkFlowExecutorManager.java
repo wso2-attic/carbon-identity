@@ -83,7 +83,7 @@ public class WorkFlowExecutorManager {
         boolean requestSaved = false;
         for (WorkflowAssociation association : associations) {
             try {
-                AXIOMXPath axiomxPath = new AXIOMXPath(association.getCondition());
+                AXIOMXPath axiomxPath = new AXIOMXPath(association.getAssociationCondition());
                 if (axiomxPath.booleanValueOf(xmlRequest)) {
                     workflowEngaged = true;
                     if (!requestSaved) {
@@ -108,7 +108,7 @@ public class WorkFlowExecutorManager {
                 }
             } catch (JaxenException e) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Error when executing the xpath expression:" + association.getCondition() + " , on " +
+                    log.debug("Error when executing the xpath expression:" + association.getAssociationCondition() + " , on " +
                               xmlRequest, e);
                 }
             } catch (CloneNotSupportedException e) {

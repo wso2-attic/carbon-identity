@@ -272,15 +272,19 @@ public class WorkflowRequestAssociationDAO {
             prepStmt.setInt(2, tenantId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
+
+                int id = rs.getInt(SQLConstants.ID_COLUMN);
                 String condition = rs.getString(SQLConstants.CONDITION_COLUMN);
                 String workflowId = rs.getString(SQLConstants.WORKFLOW_ID_COLUMN);
-                String templateId = rs.getString(SQLConstants.TEMPLATE_ID_COLUMN);
-                String templateImplId = rs.getString(SQLConstants.TEMPLATE_IMPL_ID_COLUMN);
+                String associationName = rs.getString(SQLConstants.ASSOCIATION_NAME_COLUMN);
+
                 WorkflowAssociation association = new WorkflowAssociation();
                 association.setWorkflowId(workflowId);
-                association.setCondition(condition);
-                association.setTemplateId(templateId);
-                association.setImplId(templateImplId);
+                association.setAssociationCondition(condition);
+                association.setEventId(eventId);
+                association.setAssociationId(id);
+                association.setAssociationName(associationName);
+
                 associations.add(association);
             }
         } catch (SQLException e) {

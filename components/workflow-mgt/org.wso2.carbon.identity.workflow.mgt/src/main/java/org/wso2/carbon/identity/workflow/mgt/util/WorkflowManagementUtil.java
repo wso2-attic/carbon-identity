@@ -57,8 +57,9 @@ public class WorkflowManagementUtil {
     }
 
     public static String createWorkflowRoleName(String workflowName) {
-        //TODO:WORKFLOW_DOMAIN should get from UserCoreConstants after they fixed it.
-        return WFConstant.WORKFLOW_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + workflowName;
+        //TODO:
+        return UserCoreConstants.INTERNAL_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + workflowName;
+        //return WorkFlowConstants.WORKFLOW_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + workflowName;
     }
 
 
