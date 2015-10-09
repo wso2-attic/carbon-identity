@@ -312,27 +312,6 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         callbackUrl.setDescription("Enter value corresponding to callback url.");
         configProperties.add(callbackUrl);
 
-        Property oauthEndpoint = new Property();
-        oauthEndpoint.setDisplayName("Google Oauth Endpoint");
-        oauthEndpoint.setName(GoogleOAuth2AuthenticationConstant.GOOGLE_OAUTH_ENDPOINT);
-        oauthEndpoint.setValue(getAuthorizationServerEndpoint(null));
-        oauthEndpoint.setDescription("Enter value corresponding to google oauth endpoint.");
-        configProperties.add(oauthEndpoint);
-
-        Property tokenEndpoint = new Property();
-        tokenEndpoint.setDisplayName("Google Token Endpoint");
-        tokenEndpoint.setName(GoogleOAuth2AuthenticationConstant.GOOGLE_TOKEN_ENDPOINT);
-        tokenEndpoint.setValue(getTokenEndpoint(null));
-        tokenEndpoint.setDescription("Enter value corresponding to google token endpoint.");
-        configProperties.add(tokenEndpoint);
-
-        Property userInfoEndpoint = new Property();
-        userInfoEndpoint.setDisplayName("Google User Info Endpoint");
-        userInfoEndpoint.setName(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT);
-        userInfoEndpoint.setValue(getUserInfoEndpoint(null));
-        userInfoEndpoint.setDescription("Enter value corresponding to google user info endpoint.");
-        configProperties.add(userInfoEndpoint);
-
         return configProperties;
     }
 
