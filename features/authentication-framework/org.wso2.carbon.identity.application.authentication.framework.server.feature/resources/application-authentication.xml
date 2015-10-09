@@ -89,7 +89,12 @@
 			<Parameter name="TrustStorePassword">wso2carbon</Parameter>
 			<!--Parameter name="OpenIDManager">org.wso2.carbon.identity.application.authenticator.openid.manager.DefaultOpenIDManager</Parameter>
 			<Parameter name="AttributesRequestor">org.wso2.carbon.identity.application.authenticator.openid.manager.SampleAttributesRequestor</Parameter-->
-		</AuthenticatorConfig>	
+		</AuthenticatorConfig>
+		<AuthenticatorConfig name="GoogleOAUth2OpenIDAuthenticator" enabled="true">
+			<Parameter name="GoogleTokenEndpoint">https://accounts.google.com/o/oauth2/token</Parameter>
+			<Parameter name="GoogleOauthEndpoint">https://accounts.google.com/o/oauth2/auth</Parameter>
+			<Parameter name="GoogleuserInfoEndpoint">https://www.googleapis.com/oauth2/v3/userinfo?schema=openid</Parameter>
+		</AuthenticatorConfig>
 	</AuthenticatorConfigs> 
 
     <!--

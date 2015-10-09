@@ -22,7 +22,7 @@ public class GoogleOAuth2AuthenticationConstant {
     }
 
     public static final String GOOGLE_OAUTH_ENDPOINT = "GoogleOauthEndpoint";
-    public static final String GOOGLE_TOKEN_ENDPOINT = "GooglrTokenEndpoint";
+    public static final String GOOGLE_TOKEN_ENDPOINT = "GoogleTokenEndpoint";
     public static final String GOOGLE_USERINFO_ENDPOINT = "GoogleuserInfoEndpoint";
     public static final String GOOGLE_CONNECTOR_FRIENDLY_NAME = "Google OAuth2/OpenID Connect";
     public static final String GOOGLE_CONNECTOR_NAME = "GoogleOAUth2OpenIDAuthenticator";
