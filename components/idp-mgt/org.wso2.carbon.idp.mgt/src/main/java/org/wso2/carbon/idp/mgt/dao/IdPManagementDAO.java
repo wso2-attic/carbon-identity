@@ -511,17 +511,17 @@ public class IdPManagementDAO {
                 ClaimMapping claimMapping = new ClaimMapping();
 
                 Claim idpClaim = new Claim();
-                idpClaim.setClaimUri(rs.getString("IDP_CLAIM.CLAIM"));
+                idpClaim.setClaimUri(rs.getString("CLAIM"));
 
                 Claim localClaim = new Claim();
-                localClaim.setClaimUri(rs.getString("IDP_CLAIM_MAPPING.LOCAL_CLAIM"));
+                localClaim.setClaimUri(rs.getString("LOCAL_CLAIM"));
 
                 claimMapping.setLocalClaim(localClaim);
                 claimMapping.setRemoteClaim(idpClaim);
-                claimMapping.setDefaultValue(rs.getString("IDP_CLAIM_MAPPING.DEFAULT_VALUE"));
-                if (("1").equals(rs.getString("IDP_CLAIM_MAPPING.IS_REQUESTED"))) {
+                claimMapping.setDefaultValue(rs.getString("DEFAULT_VALUE"));
+                if (("1").equals(rs.getString("IS_REQUESTED"))) {
                     claimMapping.setRequested(true);
-                } else if (("0").equals(rs.getString("IDP_CLAIM_MAPPING.IS_REQUESTED"))) {
+                } else if (("0").equals(rs.getString("IS_REQUESTED"))) {
                     claimMapping.setRequested(false);
                 }
                 claimMappings.add(claimMapping);
@@ -583,9 +583,9 @@ public class IdPManagementDAO {
             prepStmt.setInt(1, idPId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
-                LocalRole localRole = new LocalRole(rs.getString("IDP_ROLE_MAPPING.USER_STORE_ID"),
-                        rs.getString("IDP_ROLE_MAPPING.LOCAL_ROLE"));
-                RoleMapping roleMapping = new RoleMapping(localRole, rs.getString("IDP_ROLE.ROLE"));
+                LocalRole localRole = new LocalRole(rs.getString("USER_STORE_ID"),
+                        rs.getString("LOCAL_ROLE"));
+                RoleMapping roleMapping = new RoleMapping(localRole, rs.getString("ROLE"));
                 roleMappings.add(roleMapping);
             }
 
@@ -1076,23 +1076,23 @@ public class IdPManagementDAO {
             if (rs.next()) {
                 federatedIdp = new IdentityProvider();
 
-                idpId = rs.getInt("idp.ID");
-                idPName = rs.getString("idp.NAME");
+                idpId = rs.getInt("ID");
+                idPName = rs.getString("NAME");
 
                 federatedIdp.setIdentityProviderName(idPName);
 
-                if (("1").equals(rs.getString("idp.IS_PRIMARY"))) {
+                if (("1").equals(rs.getString("IS_PRIMARY"))) {
                     federatedIdp.setPrimary(true);
                 } else {
                     federatedIdp.setPrimary(false);
                 }
 
-                federatedIdp.setHomeRealmId(rs.getString("idp.HOME_REALM_ID"));
-                federatedIdp.setCertificate(getBlobValue(rs.getBinaryStream("idp.CERTIFICATE")));
+                federatedIdp.setHomeRealmId(rs.getString("HOME_REALM_ID"));
+                federatedIdp.setCertificate(getBlobValue(rs.getBinaryStream("CERTIFICATE")));
                 federatedIdp.setAlias(rs.getString("idp.ALIAS"));
 
                 JustInTimeProvisioningConfig jitProConfig = new JustInTimeProvisioningConfig();
-                if (rs.getString("idp.INBOUND_PROV_ENABLED").equals("1")) {
+                if (rs.getString("INBOUND_PROV_ENABLED").equals("1")) {
                     jitProConfig.setProvisioningEnabled(true);
                 } else {
                     jitProConfig.setProvisioningEnabled(false);
@@ -1101,15 +1101,15 @@ public class IdPManagementDAO {
                 jitProConfig.setProvisioningUserStore(rs.getString("idp.INBOUND_PROV_USER_STORE_ID"));
                 federatedIdp.setJustInTimeProvisioningConfig(jitProConfig);
 
-                String userClaimUri = rs.getString("idp.USER_CLAIM_URI");
-                String roleClaimUri = rs.getString("idp.ROLE_CLAIM_URI");
+                String userClaimUri = rs.getString("USER_CLAIM_URI");
+                String roleClaimUri = rs.getString("ROLE_CLAIM_URI");
 
-                String defaultAuthenticatorName = rs.getString("idp.DEFAULT_AUTHENTICATOR_NAME");
-                String defaultProvisioningConnectorConfigName = rs.getString("idp.DEFAULT_PRO_CONNECTOR_NAME");
-                federatedIdp.setIdentityProviderDescription(rs.getString("idp.DESCRIPTION"));
+                String defaultAuthenticatorName = rs.getString("DEFAULT_AUTHENTICATOR_NAME");
+                String defaultProvisioningConnectorConfigName = rs.getString("DEFAULT_PRO_CONNECTOR_NAME");
+                federatedIdp.setIdentityProviderDescription(rs.getString("DESCRIPTION"));
 
                 // IS_FEDERATION_HUB_IDP
-                if ("1".equals(rs.getString("idp.IS_FEDERATION_HUB"))) {
+                if ("1".equals(rs.getString("IS_FEDERATION_HUB"))) {
                     federatedIdp.setFederationHub(true);
                 } else {
                     federatedIdp.setFederationHub(false);
@@ -1120,21 +1120,21 @@ public class IdPManagementDAO {
                 }
 
                 // IS_LOCAL_CLAIM_DIALECT
-                if ("1".equals(rs.getString("idp.IS_LOCAL_CLAIM_DIALECT"))) {
+                if ("1".equals(rs.getString("IS_LOCAL_CLAIM_DIALECT"))) {
                     federatedIdp.getClaimConfig().setLocalClaimDialect(true);
                 } else {
                     federatedIdp.getClaimConfig().setLocalClaimDialect(false);
                 }
 
-                federatedIdp.setProvisioningRole(rs.getString("idp.PROVISIONING_ROLE"));
+                federatedIdp.setProvisioningRole(rs.getString("PROVISIONING_ROLE"));
 
-                if ("1".equals(rs.getString("idp.IS_ENABLED"))) {
+                if ("1".equals(rs.getString("IS_ENABLED"))) {
                     federatedIdp.setEnable(true);
                 } else {
                     federatedIdp.setEnable(false);
                 }
 
-                federatedIdp.setDisplayName(rs.getString("idp.DISPLAY_NAME"));
+                federatedIdp.setDisplayName(rs.getString("DISPLAY_NAME"));
 
                 if (defaultAuthenticatorName != null) {
                     FederatedAuthenticatorConfig defaultAuthenticator = new FederatedAuthenticatorConfig();
