@@ -46,11 +46,12 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
                                 String profile, UserStoreManager userStoreManager) throws UserStoreException {
-        AddUserWFRequestHandler addUserWFRequestHandler = new AddUserWFRequestHandler();
+
+        if (!isEnable()) {
+            return true;
+        }
         try {
-            if (!isEnable() || !addUserWFRequestHandler.isAssociated()) {
-                return true;
-            }
+            AddUserWFRequestHandler addUserWFRequestHandler = new AddUserWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                     .PROPERTY_DOMAIN_NAME);
             return addUserWFRequestHandler.startAddUserFlow(domain, userName, credential, roleList, claims, profile);
@@ -85,11 +86,11 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
 
-        DeleteUserWFRequestHandler deleteUserWFRequestHandler = new DeleteUserWFRequestHandler();
+        if (!isEnable()) {
+            return true;
+        }
         try {
-            if (!isEnable() || !deleteUserWFRequestHandler.isAssociated()) {
-                return true;
-            }
+            DeleteUserWFRequestHandler deleteUserWFRequestHandler = new DeleteUserWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             return deleteUserWFRequestHandler.startDeleteUserFlow(domain, userName);
@@ -102,11 +103,11 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName,
                                           UserStoreManager userStoreManager) throws UserStoreException {
-        SetUserClaimWFRequestHandler setUserClaimWFRequestHandler = new SetUserClaimWFRequestHandler();
+        if (!isEnable()) {
+            return true;
+        }
         try {
-            if (!isEnable() || !setUserClaimWFRequestHandler.isAssociated()) {
-                return true;
-            }
+            SetUserClaimWFRequestHandler setUserClaimWFRequestHandler = new SetUserClaimWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             return setUserClaimWFRequestHandler.startSetClaimWorkflow(domain, userName, claimURI, claimValue,
@@ -121,11 +122,11 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
                                            UserStoreManager userStoreManager) throws UserStoreException {
 
-        SetMultipleClaimsWFRequestHandler setMultipleClaimsWFRequestHandler = new SetMultipleClaimsWFRequestHandler();
+        if (!isEnable()) {
+            return true;
+        }
         try {
-            if (!isEnable() || !setMultipleClaimsWFRequestHandler.isAssociated()) {
-                return true;
-            }
+            SetMultipleClaimsWFRequestHandler setMultipleClaimsWFRequestHandler = new SetMultipleClaimsWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             return setMultipleClaimsWFRequestHandler.startSetMultipleClaimsWorkflow(domain, userName, claims, profileName);
@@ -138,11 +139,12 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreDeleteUserClaimValues(String userName, String[] claims, String profileName, UserStoreManager
             userStoreManager) throws UserStoreException {
-        DeleteMultipleClaimsWFRequestHandler deleteMultipleClaimsWFRequestHandler = new DeleteMultipleClaimsWFRequestHandler();
+
+        if (!isEnable()) {
+            return true;
+        }
         try {
-            if (!isEnable() || !deleteMultipleClaimsWFRequestHandler.isAssociated()) {
-                return true;
-            }
+            DeleteMultipleClaimsWFRequestHandler deleteMultipleClaimsWFRequestHandler = new DeleteMultipleClaimsWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             return deleteMultipleClaimsWFRequestHandler.startDeleteMultipleClaimsWorkflow(domain, userName, claims,
@@ -156,11 +158,11 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreDeleteUserClaimValue(String userName, String claimURI, String profileName,
                                              UserStoreManager userStoreManager) throws UserStoreException {
-        DeleteClaimWFRequestHandler deleteClaimWFRequestHandler = new DeleteClaimWFRequestHandler();
+        if (!isEnable()) {
+            return true;
+        }
         try {
-            if (!isEnable() || !deleteClaimWFRequestHandler.isAssociated()) {
-                return true;
-            }
+            DeleteClaimWFRequestHandler deleteClaimWFRequestHandler = new DeleteClaimWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             return deleteClaimWFRequestHandler.startDeleteClaimWorkflow(domain, userName, claimURI, profileName);
@@ -173,11 +175,12 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreAddRole(String roleName, String[] userList, Permission[] permissions, UserStoreManager
             userStoreManager) throws UserStoreException {
-        AddRoleWFRequestHandler addRoleWFRequestHandler = new AddRoleWFRequestHandler();
+
         try {
-            if (!isEnable() || !addRoleWFRequestHandler.isAssociated()) {
+            if (!isEnable()) {
                 return true;
             }
+            AddRoleWFRequestHandler addRoleWFRequestHandler = new AddRoleWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             return addRoleWFRequestHandler.startAddRoleFlow(domain, roleName, userList, permissions);
@@ -189,11 +192,12 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
 
     @Override
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
-        DeleteRoleWFRequestHandler deleteRoleWFRequestHandler = new DeleteRoleWFRequestHandler();
+
+        if (!isEnable()) {
+            return true;
+        }
         try {
-            if (!isEnable() || !deleteRoleWFRequestHandler.isAssociated()) {
-                return true;
-            }
+            DeleteRoleWFRequestHandler deleteRoleWFRequestHandler = new DeleteRoleWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             return deleteRoleWFRequestHandler.startDeleteRoleFlow(domain, roleName);
@@ -206,11 +210,11 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager) throws
             UserStoreException {
-        UpdateRoleNameWFRequestHandler updateRoleNameWFRequestHandler = new UpdateRoleNameWFRequestHandler();
+        if (!isEnable()) {
+            return true;
+        }
         try {
-            if (!isEnable() || !updateRoleNameWFRequestHandler.isAssociated()) {
-                return true;
-            }
+            UpdateRoleNameWFRequestHandler updateRoleNameWFRequestHandler = new UpdateRoleNameWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             return updateRoleNameWFRequestHandler.startUpdateRoleNameFlow(domain, roleName, newRoleName);
@@ -223,11 +227,11 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers, UserStoreManager
             userStoreManager) throws UserStoreException {
-        UpdateRoleUsersWFRequestHandler updateRoleUsersWFRequestHandler = new UpdateRoleUsersWFRequestHandler();
+        if (!isEnable()) {
+            return true;
+        }
         try {
-            if (!isEnable() || !updateRoleUsersWFRequestHandler.isAssociated()) {
-                return true;
-            }
+            UpdateRoleUsersWFRequestHandler updateRoleUsersWFRequestHandler = new UpdateRoleUsersWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             return updateRoleUsersWFRequestHandler.startUpdateRoleUsersFlow(domain, roleName, deletedUsers, newUsers);
@@ -240,11 +244,11 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles, UserStoreManager
             userStoreManager) throws UserStoreException {
-        UpdateUserRolesWFRequestHandler updateUserRolesWFRequestHandler = new UpdateUserRolesWFRequestHandler();
+        if (!isEnable()) {
+            return true;
+        }
         try {
-            if (!isEnable() || !updateUserRolesWFRequestHandler.isAssociated()) {
-                return true;
-            }
+            UpdateUserRolesWFRequestHandler updateUserRolesWFRequestHandler = new UpdateUserRolesWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             return updateUserRolesWFRequestHandler.startUpdateUserRolesFlow(domain, userName, deletedRoles, newRoles);
