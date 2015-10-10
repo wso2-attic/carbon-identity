@@ -217,26 +217,31 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
 
             DeployedPackagesPaginated deployedPackagesPaginated =
                     bpsPackagestub.listDeployedPackagesPaginated(0, workflow.getWorkflowName());
-
-            PackageType packageType = deployedPackagesPaginated.get_package()[0];
-            int numberOfVersions = packageType.getVersions().getVersion().length;
-
-            //Iterating through BPS Packages deployed for the Workflow and retires each associated active processes.
-            for (int i = 0; i < numberOfVersions; i++) {
-                Version_type0 versionType = packageType.getVersions().getVersion()[i];
-                if (versionType.getIsLatest()) {
-                    int numberOfProcesses = versionType.getProcesses().getProcess().length;
-                    for (int j = 0; j < numberOfProcesses; j++) {
-                        String processStatus = versionType.getProcesses().getProcess()[i].getStatus().getValue();
-                        if (StringUtils.equals(processStatus, WFImplConstant.BPS_STATUS_ACTIVE)) {
-                            String processID = versionType.getProcesses().getProcess()[i].getPid();
-                            QName pid = QName.valueOf(processID);
-                            bpsProcessStub.retireProcess(pid);
+            PackageType[] packageTypes = deployedPackagesPaginated.get_package();
+            if (packageTypes == null && packageTypes.length == 0) {
+                throw new WorkflowImplException("Error while deleting the BPS artifacts of: " +
+                        workflow.getWorkflowName());
+            }
+            int numberOfPackages = packageTypes.length;
+            for (int i = 0; i < numberOfPackages; i++) {
+                PackageType packageType = deployedPackagesPaginated.get_package()[i];
+                int numberOfVersions = packageType.getVersions().getVersion().length;
+                //Iterating through BPS Packages deployed for the Workflow and retires each associated active processes.
+                for (int j = 0; j < numberOfVersions; j++) {
+                    Version_type0 versionType = packageType.getVersions().getVersion()[j];
+                    if (versionType.getIsLatest()) {
+                        int numberOfProcesses = versionType.getProcesses().getProcess().length;
+                        for (int k = 0; k < numberOfProcesses; k++) {
+                            String processStatus = versionType.getProcesses().getProcess()[k].getStatus().getValue();
+                            if (StringUtils.equals(processStatus, WFImplConstant.BPS_STATUS_ACTIVE)) {
+                                String processID = versionType.getProcesses().getProcess()[k].getPid();
+                                QName pid = QName.valueOf(processID);
+                                bpsProcessStub.retireProcess(pid);
+                            }
                         }
                     }
                 }
             }
-
             if (log.isDebugEnabled()) {
                 log.debug("BPS Artifacts Successfully removed for Workflow : " + workflow.getWorkflowName());
             }
