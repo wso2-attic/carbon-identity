@@ -69,18 +69,6 @@ public class IdPManagementUtil {
         return localEntityId;
     }
 
-    public static int getIdleSessionTimeOut(String tenantDomain) {
-        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.
-                SESSION_IDLE_TIME_OUT, tenantDomain, Integer.parseInt(IdentityApplicationConstants.
-                        Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT));
-    }
-
-    public static int getRememberMeTimeout(String tenantDomain) {
-        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.
-                REMEMBER_ME_TIME_OUT, tenantDomain, Integer.parseInt(IdentityApplicationConstants.Authenticator.
-                        IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT));
-    }
-
     public static int getCleanUpTimeout(String tenantDomain) {
         return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.
                 CLEAN_UP_TIMEOUT, tenantDomain, Integer.parseInt(IdentityApplicationConstants.Authenticator.

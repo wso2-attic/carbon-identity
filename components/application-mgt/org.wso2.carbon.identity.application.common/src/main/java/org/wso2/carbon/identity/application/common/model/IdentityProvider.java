@@ -25,12 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class IdentityProvider implements Serializable {
 
@@ -55,6 +50,7 @@ public class IdentityProvider implements Serializable {
     private String certificate;
     private PermissionsAndRoleConfig permissionAndRoleConfig;
     private JustInTimeProvisioningConfig justInTimeProvisioningConfig;
+    private IdentityProviderProperty []idpProperties = new IdentityProviderProperty[0];
 
     public static IdentityProvider build(OMElement identityProviderOM) {
         IdentityProvider identityProvider = new IdentityProvider();
@@ -480,4 +476,21 @@ public class IdentityProvider implements Serializable {
     public int hashCode() {
         return identityProviderName != null ? identityProviderName.hashCode() : 0;
     }
+
+    /**
+     * Get IDP properties
+     * @return
+     */
+    public IdentityProviderProperty[] getIdpProperties() {
+        return idpProperties;
+    }
+
+    /**
+     * Set IDP Properties
+     * @param idpProperties
+     */
+    public void setIdpProperties(IdentityProviderProperty []idpProperties) {
+        this.idpProperties = idpProperties;
+    }
+
 }

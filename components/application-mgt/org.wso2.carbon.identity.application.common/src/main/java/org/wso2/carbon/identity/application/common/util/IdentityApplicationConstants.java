@@ -48,6 +48,11 @@ public class IdentityApplicationConstants {
 
     public static final String YAHOO_AUTHZ_URL = "https://me.yahoo.com/";
 
+    public static final String SESSION_IDLE_TIME_OUT = "SessionIdleTimeout";
+    public static final String REMEMBER_ME_TIME_OUT = "RememberMeTimeout";
+    public static final String SESSION_IDLE_TIME_OUT_DEFAULT = "15";
+    public static final String REMEMBER_ME_TIME_OUT_DEFAULT = "20160";
+
     public static class ConfigElements {
         public static final String PROPERTIES = "Properties";
         public static final String PROPERTY = "Property";
@@ -155,10 +160,6 @@ public class IdentityApplicationConstants {
 
         public static class IDPProperties {
             public static final String NAME = "IDPProperties";
-            public static final String SESSION_IDLE_TIME_OUT = "SessionIdleTimeout";
-            public static final String SESSION_IDLE_TIME_OUT_DEFAULT = "15";
-            public static final String REMEMBER_ME_TIME_OUT = "RememberMeTimeout";
-            public static final String REMEMBER_ME_TIME_OUT_DEFAULT = "20160";
             public static final String CLEAN_UP_TIMEOUT = "CleanUpTimeout";
             public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
             public static final String CLEAN_UP_PERIOD = "CleanUpPeriod";
