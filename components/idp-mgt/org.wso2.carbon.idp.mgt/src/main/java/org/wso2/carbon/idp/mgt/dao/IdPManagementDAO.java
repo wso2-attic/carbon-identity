@@ -22,7 +22,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.Claim;
+import org.wso2.carbon.identity.application.common.model.ClaimConfig;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.JustInTimeProvisioningConfig;
+import org.wso2.carbon.identity.application.common.model.LocalRole;
+import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
@@ -41,7 +51,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class IdPManagementDAO {
 
@@ -110,11 +125,6 @@ public class IdPManagementDAO {
                         .equals(identityProvider.getIdentityProviderName())) {
                     idps.add(identityProvider);
                 }
-
-                List<IdentityProviderProperty> propertyList = getIdentityPropertiesByIdpId(dbConnection,
-                        Integer.parseInt(rs.getString("ID")));
-                identityProvider
-                        .setIdpProperties(propertyList.toArray(new IdentityProviderProperty[propertyList.size()]));
             }
             dbConnection.commit();
             return idps;
@@ -130,102 +140,6 @@ public class IdPManagementDAO {
             }
         }
     }
-
-    /**
-     * Get Identity properties map
-     * @param dbConnection database connection
-     * @param idpId IDP Id
-     * @return Identity provider properties
-     */
-    private List<IdentityProviderProperty> getIdentityPropertiesByIdpId(Connection dbConnection, int idpId)
-            throws SQLException {
-
-        String sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_METADATA_BY_IDP_ID;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-        List<IdentityProviderProperty> idpProperties = new ArrayList<IdentityProviderProperty>();
-        try {
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setInt(1, idpId);
-            rs = prepStmt.executeQuery();
-            while (rs.next()) {
-                IdentityProviderProperty property = new IdentityProviderProperty();
-                property.setName(rs.getString("NAME"));
-                property.setValue(rs.getString("VALUE"));
-                property.setDisplayName(rs.getString("DISPLAY_NAME"));
-                idpProperties.add(property);
-            }
-        } finally {
-            IdentityApplicationManagementUtil.closeStatement(prepStmt);
-            IdentityApplicationManagementUtil.closeResultSet(rs);
-        }
-        return idpProperties;
-    }
-
-    /**
-     * Add Identity provider properties
-     *
-     * @param dbConnection
-     * @param idpId
-     * @param properties
-     * @throws SQLException
-     */
-    private void addIdentityProviderProperties(Connection dbConnection, int idpId,
-            List<IdentityProviderProperty> properties)
-            throws SQLException {
-        String sqlStmt = IdPManagementConstants.SQLQueries.ADD_IDP_METADATA;
-        PreparedStatement prepStmt = null;
-        try {
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
-
-            for (IdentityProviderProperty property : properties) {
-                prepStmt.setInt(1, idpId);
-                prepStmt.setString(2, property.getName());
-                prepStmt.setString(3, property.getValue());
-                prepStmt.setString(4, property.getDisplayName());
-                prepStmt.addBatch();
-            }
-            prepStmt.executeBatch();
-
-        } finally {
-            IdentityApplicationManagementUtil.closeStatement(prepStmt);
-        }
-    }
-
-    /**
-     * Update Identity provider properties
-     *
-     * @param dbConnection
-     * @param idpId
-     * @param properties
-     * @throws SQLException
-     */
-    private void updateIdentityProviderProperties(Connection dbConnection, int idpId,
-            List<IdentityProviderProperty> properties)
-            throws SQLException {
-
-        PreparedStatement prepStmt = null;
-        try {
-            prepStmt = dbConnection.prepareStatement(IdPManagementConstants.SQLQueries.DELETE_IDP_METADATA);
-            prepStmt.setInt(1, idpId);
-            prepStmt.executeUpdate();
-
-            prepStmt = dbConnection.prepareStatement(IdPManagementConstants.SQLQueries.ADD_IDP_METADATA);
-
-            for (IdentityProviderProperty property : properties) {
-                prepStmt.setInt(1, idpId);
-                prepStmt.setString(2, property.getName());
-                prepStmt.setString(3, property.getValue());
-                prepStmt.setString(4, property.getDisplayName());
-                prepStmt.addBatch();
-            }
-            prepStmt.executeBatch();
-
-        } finally {
-            IdentityApplicationManagementUtil.closeStatement(prepStmt);
-        }
-    }
-
 
     /**
      * @param dbConnection
@@ -1107,9 +1021,6 @@ public class IdPManagementDAO {
                 federatedIdp.setPermissionAndRoleConfig(getPermissionsAndRoleConfiguration(
                         dbConnection, idPName, idpId, tenantId));
 
-                List<IdentityProviderProperty> propertyList = getIdentityPropertiesByIdpId(dbConnection,
-                        Integer.parseInt(rs.getString("ID")));
-                federatedIdp.setIdpProperties(propertyList.toArray(new IdentityProviderProperty[propertyList.size()]));
             }
             dbConnection.commit();
             return federatedIdp;
@@ -1258,9 +1169,6 @@ public class IdPManagementDAO {
                 federatedIdp.setPermissionAndRoleConfig(getPermissionsAndRoleConfiguration(
                         dbConnection, idPName, idpId, tenantId));
 
-                List<IdentityProviderProperty> propertyList = getIdentityPropertiesByIdpId(dbConnection,
-                        Integer.parseInt(rs.getString("ID")));
-                federatedIdp.setIdpProperties(propertyList.toArray(new IdentityProviderProperty[propertyList.size()]));
             }
             dbConnection.commit();
             return federatedIdp;
@@ -1328,7 +1236,6 @@ public class IdPManagementDAO {
 
         Connection dbConnection = IdentityDatabaseUtil.getDBConnection();;
         try {
-            dbConnection.setAutoCommit(false);
             if (identityProvider.isPrimary()) {
                 // this is going to be the primary. Switch off any other primary set up in the
                 // system.
@@ -1488,9 +1395,6 @@ public class IdPManagementDAO {
                 }
 
             }
-            if(identityProvider.getIdpProperties() != null) {
-                addIdentityProviderProperties(dbConnection, idPId, Arrays.asList(identityProvider.getIdpProperties()));
-            }
 
             dbConnection.commit();
         } catch (IOException e) {
@@ -1516,7 +1420,6 @@ public class IdPManagementDAO {
         Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
 
         try {
-            dbConnection.setAutoCommit(false);
 
             int idPId = getIdentityProviderIdByName(dbConnection,
                     currentIdentityProvider.getIdentityProviderName(), tenantId);
@@ -1664,9 +1567,6 @@ public class IdPManagementDAO {
                         newIdentityProvider.getProvisioningConnectorConfigs(), dbConnection, idpId,
                         tenantId);
 
-                if(newIdentityProvider.getIdpProperties() != null) {
-                    updateIdentityProviderProperties(dbConnection, idpId, Arrays.asList(newIdentityProvider.getIdpProperties()));
-                }
             }
 
             dbConnection.commit();
@@ -1808,10 +1708,6 @@ public class IdPManagementDAO {
                 } else {
                     identityProviderDO.getClaimConfig().setLocalClaimDialect(false);
                 }
-
-                List<IdentityProviderProperty> propertyList = getIdentityPropertiesByIdpId(dbConnection,
-                        Integer.parseInt(rs.getString("ID")));
-                identityProviderDO.setIdpProperties(propertyList.toArray(new IdentityProviderProperty[propertyList.size()]));
 
                 return identityProviderDO;
             }
