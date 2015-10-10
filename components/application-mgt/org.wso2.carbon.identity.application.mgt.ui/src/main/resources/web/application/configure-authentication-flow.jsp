@@ -86,9 +86,13 @@ var authMap = {};
 						fedAuthenticatorType.append(fedAuth.getName() + ",");
 					}
 					
-					fedAuthType.append(startOption + Encode.forHtmlAttribute(fedAuth.getName()) + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOPtion);
+					fedAuthType.append(startOption + Encode.forHtmlAttribute(fedAuth.getName()) + ","
+                                       + fedAuth.getDisplayName() + middleOption
+                                       + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOPtion);
 					if(fedAuth.getEnabled()){
-						enabledfedAuthType.append(startOption + Encode.forHtmlAttribute(fedAuth.getName()) + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOPtion);
+						enabledfedAuthType.append(startOption + Encode.forHtmlAttribute(fedAuth.getName()) + "," +
+                                                  fedAuth.getDisplayName() + middleOption +
+                                                  Encode.forHtmlContent(fedAuth.getDisplayName()) + endOPtion);
 					}
 					idpAuthenticatorsStatus.put(idp.getIdentityProviderName()+"_"+fedAuth.getName(), fedAuth.getEnabled());
 					i++;
@@ -118,8 +122,16 @@ var authMap = {};
 					FederatedAuthenticatorConfig fedAuth = idp.getDefaultAuthenticatorConfig();
 					String options = idpAuthenticators.get(idp.getIdentityProviderName());
 					if (fedAuth != null && options != null) {
-						String oldOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOPtion;
-						String newOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName())+ ((idpAuthenticatorsStatus.get(idp.getIdentityProviderName()+"_"+fedAuth.getName()) != null && idpAuthenticatorsStatus.get(idp.getIdentityProviderName()+"_"+fedAuth.getName()))  ? "" : disbleText) + endOPtion;
+						String oldOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) +"," +
+                                           fedAuth.getDisplayName() + middleOption
+                                           + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOPtion;
+						String newOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) + "," +
+                                           fedAuth.getDisplayName() + "\" selected=\"selected" + middleOption
+                                           + Encode.forHtmlContent(fedAuth.getDisplayName()) +
+                                           ((idpAuthenticatorsStatus.get(idp.getIdentityProviderName() + "_"
+                                           + fedAuth.getName()) != null &&
+                                           idpAuthenticatorsStatus.get(idp.getIdentityProviderName() + "_" +
+                                           fedAuth.getName()))  ? "" : disbleText) + endOPtion;
 						if(options.contains(oldOption)){
 							options = options.replace(oldOption, newOption);
 						} else {
@@ -128,7 +140,9 @@ var authMap = {};
 						stepIdpAuthenticators.put(step.getStepOrder()+"_"+idp.getIdentityProviderName(), options);
 					} else if (fedAuth != null && options == null) {
 						// All Federated Authenticators are disabled. But saved one is available
-						String disabledOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName())+ disbleText + endOPtion;
+						String disabledOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) + "" +
+                                                fedAuth.getDisplayName() + "\" selected=\"selected" + middleOption +
+                                                Encode.forHtmlContent(fedAuth.getDisplayName())+ disbleText + endOPtion;
 						stepIdpAuthenticators.put(step.getStepOrder()+"_"+idp.getIdentityProviderName(), disabledOption);
 					} else {
 						// No saved Federated Authenticators
@@ -332,7 +346,7 @@ var img = "";
 		var valuesArray = selectedObj.attr('data-values').split(',');
 		var newRow = '<tr><td><input name="step_'+ stepID +'_fed_auth" id="" type="hidden" value="' + selectedIDPName + '" />' + selectedIDPName + ' </td><td> <select name="step_'+ stepID +'_idp_'+selectedIDPName+'_fed_authenticator" style="float: left; min-width: 150px;font-size:13px;">';
 		for(var i=0;i<dataArray.length;i++){
-			newRow+='<option value="'+valuesArray[i]+'">'+dataArray[i]+'</option>';	
+			newRow += '<option value="' + valuesArray[i] + ',' + dataArray[i] + '">' + dataArray[i] + '</option>';
 		}
 		newRow+='</select></td><td class="leftCol-small" ><a onclick="deleteIDPRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a></td></tr>';
 		jQuery(obj)
