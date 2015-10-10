@@ -1131,28 +1131,6 @@ public class IdentityProviderManager {
     }
 
     /**
-     * Retrieves the primary Identity provider information for a given tenant
-     *
-     * @param tenantDomain The tenant domain of whose primary IdP needs to be retrieved
-     * @return primary Identity Provider name and home realm identifier
-     * @throws IdentityProviderManagementException Error when getting primary Identity Provider
-     *                                                information
-     */
-    public IdentityProvider getPrimaryIdP(String tenantDomain)
-            throws IdentityProviderManagementException {
-
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
-        IdentityProvider identityProvider = dao.getPrimaryIdP(null, tenantId, tenantDomain);
-        if (identityProvider != null) {
-            return identityProvider;
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Primary Identity Provider not found for tenant " + tenantDomain);
-        }
-        return null;
-    }
-
-    /**
      * Adds an Identity Provider to the given tenant
      *
      * @param identityProvider new Identity Provider information
@@ -1234,6 +1212,14 @@ public class IdentityProviderManager {
             String msg = "Invalid argument: Identity Provider Name value is empty";
             log.error(msg);
             throw new IdentityProviderManagementException(msg);
+        }
+        if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(idPName)) {
+            if (MultitenantConstants.SUPER_TENANT_ID == tenantId) {
+                throw new IdentityProviderManagementException("Can't delete Resident Identity Provider of Super " +
+                        "Tenant");
+            } else {
+                log.warn("Deleting Resident Identity Provider for tenant " + tenantDomain);
+            }
         }
         dao.deleteIdP(idPName, tenantId, tenantDomain);
     }

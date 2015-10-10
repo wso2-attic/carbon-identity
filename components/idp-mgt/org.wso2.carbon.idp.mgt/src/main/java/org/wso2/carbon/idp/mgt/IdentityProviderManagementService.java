@@ -27,7 +27,9 @@ import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
-import org.wso2.carbon.idp.mgt.internal.IdpMgtListenerServiceComponent;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.idp.mgt.internal.IdPManagementServiceComponent;
 import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.user.api.ClaimMapping;
@@ -67,19 +69,21 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         if (identityProvider == null) {
             throw new IllegalArgumentException("Identity provider is null");
         }
+
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+
         // invoking the listeners
-        Collection<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
+        Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreUpdateResidentIdP(identityProvider)) {
+            if (!listener.doPreUpdateResidentIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
 
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         IdentityProviderManager.getInstance().updateResidentIdP(identityProvider, tenantDomain);
 
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostUpdateResidentIdP(identityProvider)) {
+            if (!listener.doPostUpdateResidentIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -154,19 +158,20 @@ public class IdentityProviderManagementService extends AbstractAdmin {
                     IdPManagementConstants.SHARED_IDP_PREFIX + " as prefix.");
         }
 
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+
         // invoking the listeners
-        Collection<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
+        Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreAddIdP(identityProvider)) {
+            if (!listener.doPreAddIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
 
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         IdentityProviderManager.getInstance().addIdP(identityProvider, tenantDomain);
 
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostAddIdP(identityProvider)) {
+            if (!listener.doPostAddIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -182,19 +187,21 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         if (StringUtils.isEmpty(idPName)) {
             throw new IllegalArgumentException("Provided IdP name is empty");
         }
+
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+
         // invoking the listeners
-        Collection<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
+        Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreDeleteIdP(idPName)) {
+            if (!listener.doPreDeleteIdP(idPName, tenantDomain)) {
                 return;
             }
         }
 
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         IdentityProviderManager.getInstance().deleteIdP(idPName, tenantDomain);
 
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostDeleteIdP(idPName)) {
+            if (!listener.doPostDeleteIdP(idPName, tenantDomain)) {
                 return;
             }
         }
@@ -248,19 +255,21 @@ public class IdentityProviderManagementService extends AbstractAdmin {
                     IdPManagementConstants.SHARED_IDP_PREFIX + "' as a prefix (previous name:" + oldIdPName + ", " +
                     "New name: " + identityProvider.getIdentityProviderName() + ")");
         }
+
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+
         // invoking the listeners
-        Collection<IdentityProviderMgtListener> listeners = IdpMgtListenerServiceComponent.getIdpMgtListeners();
+        Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreUpdateIdP(oldIdPName, identityProvider)) {
+            if (!listener.doPreUpdateIdP(oldIdPName, identityProvider, tenantDomain)) {
                 return;
             }
         }
 
-        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         IdentityProviderManager.getInstance().updateIdP(oldIdPName, identityProvider, tenantDomain);
 
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostUpdateIdP(oldIdPName, identityProvider)) {
+            if (!listener.doPostUpdateIdP(oldIdPName, identityProvider, tenantDomain)) {
                 return;
             }
         }

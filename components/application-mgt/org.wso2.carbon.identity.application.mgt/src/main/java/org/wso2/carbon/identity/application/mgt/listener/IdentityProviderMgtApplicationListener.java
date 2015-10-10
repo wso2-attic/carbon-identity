@@ -41,12 +41,12 @@ public class IdentityProviderMgtApplicationListener extends AbstractIdentityProv
     private static final Log log = LogFactory.getLog(IdentityProviderMgtApplicationListener.class);
 
     @Override
-    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
+    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException {
 
         try {
             ApplicationBasicInfo[] applicationBasicInfos = ApplicationMgtSystemConfig.getInstance()
                     .getApplicationDAO().getAllApplicationBasicInfo();
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
             for (ApplicationBasicInfo applicationBasicInfo : applicationBasicInfos) {
                 ServiceProvider serviceProvider = ApplicationMgtSystemConfig.getInstance().getApplicationDAO()
