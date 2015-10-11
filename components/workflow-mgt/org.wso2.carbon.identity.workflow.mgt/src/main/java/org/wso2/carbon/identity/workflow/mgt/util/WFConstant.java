@@ -30,8 +30,6 @@ public class WFConstant {
     public static final String HT_STATE_PENDING = "PENDING";
 
 
-    public static final String WORKFLOW_DOMAIN = "Workflow";
-
     public static final Set<Class> NUMERIC_CLASSES;
 
     static {
