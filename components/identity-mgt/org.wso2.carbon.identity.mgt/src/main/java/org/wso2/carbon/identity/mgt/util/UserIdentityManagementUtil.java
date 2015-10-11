@@ -110,6 +110,21 @@ public class UserIdentityManagementUtil {
             throw new IdentityException("Cannot lock account, IdentityMgtEventListener is not enabled.");
         }
 
+        String domainName = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).getRealmConfiguration().
+                getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        userName = UserCoreUtil.addDomainToName(userName, domainName);
+
+        try {
+            if (!userStoreManager.isExistingUser(userName)) {
+                log.error("User " + userName + " does not exist in tenant "+userStoreManager.getTenantId());
+                throw new IdentityException("No user account found for user " + userName);
+            }
+        } catch (UserStoreException e) {
+            log.error("Error while reading user identity data", e);
+            throw new IdentityException("Error while lock user account : " + userName);
+
+        }
+
         UserIdentityDataStore store = IdentityMgtConfig.getInstance().getIdentityDataStore();
         UserIdentityClaimsDO userIdentityDO = store.load(UserCoreUtil.removeDomainFromName(userName), userStoreManager);
         if (userIdentityDO != null) {
@@ -148,6 +163,22 @@ public class UserIdentityManagementUtil {
         if (!isIdentityMgtListenerEnable()) {
             throw new IdentityException("Cannot unlock account, IdentityMgtEventListener is not enabled.");
         }
+
+        String domainName = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).getRealmConfiguration().
+                getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        userName = UserCoreUtil.addDomainToName(userName, domainName);
+
+        try {
+            if (!userStoreManager.isExistingUser(userName)) {
+                log.error("User " + userName + " does not exist in tenant "+userStoreManager.getTenantId());
+                throw new IdentityException("No user account found for user " + userName);
+            }
+        } catch (UserStoreException e) {
+            log.error("Error while reading user identity data", e);
+            throw new IdentityException("Error while unlock user account " + userName);
+
+        }
+
         UserIdentityDataStore store = IdentityMgtConfig.getInstance().getIdentityDataStore();
         UserIdentityClaimsDO userIdentityDO = store.load(UserCoreUtil.removeDomainFromName(userName), userStoreManager);
         if (userIdentityDO != null) {
