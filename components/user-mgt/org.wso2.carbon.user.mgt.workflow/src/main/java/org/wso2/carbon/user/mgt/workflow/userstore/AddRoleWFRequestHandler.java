@@ -37,6 +37,7 @@ import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.user.mgt.workflow.util.UserStoreWFConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -217,7 +218,7 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
 
         WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
-        boolean eventEngaged = workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.ADD_ROLE_EVENT);
+        boolean eventEngaged = workflowService.isEventAssociated(UserStoreWFConstants.ADD_ROLE_EVENT);
         RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
         UserRealm userRealm;
         AbstractUserStoreManager userStoreManager;
@@ -239,7 +240,7 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
                     throw new WorkflowException("Role name already exists in the system. Please pick another role " +
                             "name.");
 
-                } else if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.ADD_USER_EVENT) &&
+                } else if (workflowService.isEventAssociated(UserStoreWFConstants.ADD_USER_EVENT) &&
                         entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_USER_EVENT)) {
 

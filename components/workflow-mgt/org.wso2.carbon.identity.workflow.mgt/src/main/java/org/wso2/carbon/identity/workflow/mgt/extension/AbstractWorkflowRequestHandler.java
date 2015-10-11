@@ -18,13 +18,17 @@
 
 package org.wso2.carbon.identity.workflow.mgt.extension;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutorManager;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
+import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
+import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 
@@ -41,6 +45,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      */
     private static ThreadLocal<Boolean> workFlowCompleted = new ThreadLocal<Boolean>();
 
+    private static Log log = LogFactory.getLog(AbstractWorkflowRequestHandler.class);
     public static void unsetWorkFlowCompleted() {
 
         AbstractWorkflowRequestHandler.workFlowCompleted.remove();
@@ -74,7 +79,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     public boolean startWorkFlow(Map<String, Object> wfParams, Map<String, Object> nonWfParams, String uuid)
             throws WorkflowException {
 
-        if (isWorkflowCompleted()) {
+        if (isWorkflowCompleted() || !isAssociated()) {
             return true;
         }
         WorkflowRequest workFlowRequest = new WorkflowRequest();
@@ -208,5 +213,24 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
             unsetWorkFlowCompleted();
             return true;
         } else return false;
+    }
+
+    /**
+     * We can check whether the current event type is already associated with
+     * at-least one association or not by using isAssociated method.
+     *
+     * @return Boolean value for result of isAssociated
+     * @throws WorkflowException
+     */
+    public boolean isAssociated() throws WorkflowException{
+        boolean eventEngaged = false ;
+        try {
+            eventEngaged = WorkflowServiceDataHolder.getInstance().getWorkflowService().isEventAssociated(getEventId());
+        } catch (InternalWorkflowException e) {
+            String errorMsg = "Error occurred while checking any association for this event, " + e.getMessage() ;
+            log.error(errorMsg);
+            throw new WorkflowException(errorMsg,e);
+        }
+        return eventEngaged ;
     }
 }

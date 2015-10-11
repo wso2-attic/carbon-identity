@@ -28,6 +28,7 @@ import org.jaxen.JaxenException;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
@@ -69,9 +70,10 @@ public class WorkFlowExecutorManager {
             workFlowRequest.setUuid(UUID.randomUUID().toString());
         }
         OMElement xmlRequest = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest);
+        WorkflowRequestAssociationDAO requestAssociationDAO = new WorkflowRequestAssociationDAO();
         WorkflowDAO workflowDAO = new WorkflowDAO();
         List<WorkflowAssociation> associations =
-                workflowDAO.getWorkflowAssociationsForRequest(workFlowRequest.getEventType(), workFlowRequest
+                requestAssociationDAO.getWorkflowAssociationsForRequest(workFlowRequest.getEventType(), workFlowRequest
                         .getTenantId());
         if (CollectionUtils.isEmpty(associations)) {
             handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null, "");
@@ -81,7 +83,7 @@ public class WorkFlowExecutorManager {
         boolean requestSaved = false;
         for (WorkflowAssociation association : associations) {
             try {
-                AXIOMXPath axiomxPath = new AXIOMXPath(association.getCondition());
+                AXIOMXPath axiomxPath = new AXIOMXPath(association.getAssociationCondition());
                 if (axiomxPath.booleanValueOf(xmlRequest)) {
                     workflowEngaged = true;
                     if (!requestSaved) {
@@ -94,8 +96,9 @@ public class WorkFlowExecutorManager {
                     String relationshipId = UUID.randomUUID().toString();
                     WorkflowRequest requestToSend = workFlowRequest.clone();
                     requestToSend.setUuid(relationshipId);
+                    Workflow workflow = workflowDAO.getWorkflow(association.getWorkflowId());
                     AbstractWorkflow templateImplementation = WorkflowServiceDataHolder.getInstance()
-                            .getWorkflowImpls().get(association.getTemplateId()).get(association.getImplId());
+                            .getWorkflowImpls().get(workflow.getTemplateId()).get(workflow.getWorkflowImplId());
                     List<Parameter> parameterList = workflowDAO.getWorkflowParams(association.getWorkflowId());
                     templateImplementation.execute(requestToSend, parameterList);
                     workflowRequestAssociationDAO.addNewRelationship(relationshipId, association.getWorkflowId(),
@@ -105,7 +108,7 @@ public class WorkFlowExecutorManager {
                 }
             } catch (JaxenException e) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Error when executing the xpath expression:" + association.getCondition() + " , on " +
+                    log.debug("Error when executing the xpath expression:" + association.getAssociationCondition() + " , on " +
                               xmlRequest, e);
                 }
             } catch (CloneNotSupportedException e) {

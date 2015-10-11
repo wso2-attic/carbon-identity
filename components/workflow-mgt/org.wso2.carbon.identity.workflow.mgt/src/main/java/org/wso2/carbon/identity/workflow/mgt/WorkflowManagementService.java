@@ -79,7 +79,7 @@ public interface WorkflowManagementService {
     boolean areTwoEntitiesRelated(Entity entity1, Entity entity2) throws
                                                                   InternalWorkflowException;
 
-    boolean eventEngagedWithWorkflows(String eventType) throws InternalWorkflowException;
+    boolean isEventAssociated(String eventType) throws InternalWorkflowException;
 
     WorkflowRequest[] getRequestsCreatedByUser(String user, int tenantId) throws WorkflowException;
 
