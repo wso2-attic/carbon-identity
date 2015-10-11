@@ -25,8 +25,11 @@
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page
+	import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.UiUtil"%>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" scope="session"/>
+
 <carbon:breadcrumb label="breadcrumb.advanced.auth.step.config" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
                     topPage="true" request="<%=request%>" />
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -35,6 +38,7 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
+    ApplicationBean appBean = UiUtil.getApplicationBeanFromSession(request, request.getParameter("spName"));
 	String spName = appBean.getServiceProvider().getApplicationName();
 	Map<String, String> claimMapping = appBean.getClaimMapping();
 		
@@ -383,7 +387,7 @@ var img = "";
         </h2>
         <div id="workArea">
             <form id="configure-auth-flow-form" method="post" name="configure-auth-flow-form" method="post" action="configure-authentication-flow-finish.jsp" >        
-           
+            <input type=hidden name=spName value='<%=Encode.forHtmlAttribute(spName)%>'/>
           
            
             <h2 id="authentication_step_config_head" class="sectionSeperator trigger active">
@@ -516,7 +520,7 @@ var img = "";
             <!-- sectionSub Div -->
             <div class="buttonRow">
                 <input type="button" value="<fmt:message key='button.update.service.provider'/>" onclick="createAppOnclick();"/>
-                <input type="button" value="<fmt:message key='button.cancel'/>" onclick="javascript:location.href='configure-service-provider.jsp?display=auth_config'"/>
+                <input type="button" value="<fmt:message key='button.cancel'/>" onclick="javascript:location.href='configure-service-provider.jsp?display=auth_config&spName=<%=Encode.forUriComponent(spName)%>'"/>
             </div>
             </form>
         </div>

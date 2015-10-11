@@ -25,6 +25,7 @@
 <%@ page
 	import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.UiUtil"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
@@ -35,7 +36,6 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" scope="session"/>
 <carbon:breadcrumb label="breadcrumb.service.provider" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
                     topPage="true" request="<%=request%>" />
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -46,6 +46,7 @@
 
 
 <%
+ApplicationBean appBean = UiUtil.getApplicationBeanFromSession(request, request.getParameter("spName"));
 if (appBean.getServiceProvider()==null || appBean.getServiceProvider().getApplicationName()==null){
 // if appbean is not set properly redirect the user to list-service-provider.jsp.
 %>
@@ -357,7 +358,7 @@ var roleMappinRowID = -1;
 		
 		$.ajax({
 		    type: "POST",
-			url: "update-application-bean.jsp",
+			url: 'update-application-bean.jsp?spName=<%=Encode.forUriComponent(spName)%>',
 		    data: $("#configure-sp-form").serialize(),
 		    success: function(){
 		    	location.href=redirectURL;
@@ -414,7 +415,7 @@ var roleMappinRowID = -1;
     }
 	
 	function onAdvanceAuthClick() {
-		location.href="configure-authentication-flow.jsp"
+		location.href='configure-authentication-flow.jsp?spName=<%=Encode.forUriComponent(spName)%>';
 	}
     
     jQuery(document).ready(function(){
@@ -541,7 +542,7 @@ var roleMappinRowID = -1;
     		
     		$.ajax({
     		    type: "POST",
-    			url: "configure-service-provider-update.jsp",
+    			url: 'configure-service-provider-update.jsp?spName=<%=Encode.forUriComponent(spName)%>',
     		    data: $("#configure-sp-form").serialize()
     		});
         }
@@ -1415,9 +1416,9 @@ var roleMappinRowID = -1;
                     		<td class="leftCol-med labelField"/>
                         	<td>
                         	<% if(ApplicationBean.AUTH_TYPE_FLOW.equals(appBean.getAuthenticationType())) { %>
-                        		<input type="radio" id="advanced" name="auth_type" value="flow" onclick="updateBeanAndRedirect('configure-authentication-flow.jsp');" checked><label style="cursor: pointer; color: #2F7ABD;" for="advanced"><fmt:message key="config.authentication.type.flow"/></label>
+                        		<input type="radio" id="advanced" name="auth_type" value="flow" onclick="updateBeanAndRedirect('configure-authentication-flow.jsp?spName=<%=Encode.forUriComponent(spName)%>');" checked><label style="cursor: pointer; color: #2F7ABD;" for="advanced"><fmt:message key="config.authentication.type.flow"/></label>
                         	<% } else { %>
-                        		<input type="radio" id="advanced" name="auth_type" value="flow" onclick="updateBeanAndRedirect('configure-authentication-flow.jsp')"><label style="cursor: pointer; color: #2F7ABD;" for="advanced"><fmt:message key="config.authentication.type.flow"/></label>
+                        		<input type="radio" id="advanced" name="auth_type" value="flow" onclick="updateBeanAndRedirect('configure-authentication-flow.jsp?spName=<%=Encode.forUriComponent(spName)%>')"><label style="cursor: pointer; color: #2F7ABD;" for="advanced"><fmt:message key="config.authentication.type.flow"/></label>
                         		<% } %>
                         	</td>
                     	</tr>               
