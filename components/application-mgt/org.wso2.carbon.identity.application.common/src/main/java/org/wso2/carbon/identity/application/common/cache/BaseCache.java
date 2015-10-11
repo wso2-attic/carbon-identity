@@ -43,7 +43,7 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
     private String cacheName;
     private int cacheTimeout;
     private int capacity = 0;
-    private List<AbstractCacheListener> cacheListeners;
+    private List<AbstractCacheListener> cacheListeners = new ArrayList<AbstractCacheListener>();
 
     public BaseCache(String cacheName) {
         this.cacheName = cacheName;
@@ -100,10 +100,8 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
                                 setStoreByValue(false);
                         cache = cacheBuilder.build();
 
-                        if(cacheListeners != null) {
-                            for (AbstractCacheListener cacheListener : cacheListeners) {
-                                this.cacheBuilder.registerCacheEntryListener(cacheListener);
-                            }
+                        for (AbstractCacheListener cacheListener : cacheListeners) {
+                            this.cacheBuilder.registerCacheEntryListener(cacheListener);
                         }
 
                         if (capacity != 0) {
@@ -219,9 +217,6 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
     }
 
     public void addListener(AbstractCacheListener listener){
-        if(cacheListeners == null){
-            cacheListeners = new ArrayList<AbstractCacheListener>();
-        }
         cacheListeners.add(listener);
     }
 }

@@ -17,8 +17,46 @@
  */
 package org.wso2.carbon.identity.application.common.listener;
 
+import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
+
 import javax.cache.event.CacheEntryListener;
 
-public interface AbstractCacheListener<K, V> extends CacheEntryListener<K, V>{
+public abstract class AbstractCacheListener<K, V> implements CacheEntryListener<K, V>{
 
+    /**
+     * Return is listener enable
+     *
+     * @return enable/disable
+     */
+    public boolean isEnable() {
+        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+                (UserOperationEventListener.class.getName(), this.getClass().getName());
+
+        if (identityEventListener == null) {
+            return true;
+        }
+
+        if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
+            return Boolean.parseBoolean(identityEventListener.getEnable());
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Return order of the listener
+     * @return order id
+     */
+    public int getOrderId() {
+        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+                (UserOperationEventListener.class.getName(), this.getClass().getName());
+        if (identityEventListener == null) {
+            return IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
+        }
+        return identityEventListener.getOrder();
+    }
 }

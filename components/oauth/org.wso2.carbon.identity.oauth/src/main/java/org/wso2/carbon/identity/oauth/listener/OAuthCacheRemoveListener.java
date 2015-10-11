@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.oauth.listener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.listener.AbstractCacheListener;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
@@ -31,8 +32,8 @@ import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryRemovedListener;
 
-public class OAuthCacheRemoveListener
-        implements AbstractCacheListener<String, CacheEntry>, CacheEntryRemovedListener<String, CacheEntry> {
+public class OAuthCacheRemoveListener extends AbstractCacheListener<String, CacheEntry>
+        implements CacheEntryRemovedListener<String, CacheEntry> {
 
     private static Log log = LogFactory.getLog(OAuthCacheRemoveListener.class);
 
@@ -47,15 +48,28 @@ public class OAuthCacheRemoveListener
             if (log.isDebugEnabled()) {
                 log.debug("OAuth cache removed for consumer id : " + accessTokenDO.getConsumerKey());
             }
-            String cacheKeyString =
-                    accessTokenDO.getConsumerKey() + ":" + accessTokenDO.getAuthzUser().getUserName().toLowerCase()
-                            + ":" + OAuth2Util.buildScopeString(accessTokenDO.getScope());
+
+            boolean isUsernameCaseSensitive = IdentityUtil
+                    .isUserStoreInUsernameCaseSensitive(accessTokenDO.getAuthzUser().getUserName());
+            String cacheKeyString;
+            if (isUsernameCaseSensitive){
+                cacheKeyString = accessTokenDO.getConsumerKey() + ":" + accessTokenDO.getAuthzUser().getUserName() + ":"
+                        + OAuth2Util.buildScopeString(accessTokenDO.getScope());
+            }else {
+                cacheKeyString =
+                        accessTokenDO.getConsumerKey() + ":" + accessTokenDO.getAuthzUser().getUserName().toLowerCase()
+                                + ":" + OAuth2Util.buildScopeString(accessTokenDO.getScope());
+            }
+
             OAuthCacheKey oauthcacheKey = new OAuthCacheKey(cacheKeyString);
             OAuthCache oauthCache = OAuthCache
                     .getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
 
-            oauthCache.clearCacheEntry(accessTokenDO.getAccessToken());
             oauthCache.clearCacheEntry(oauthcacheKey);
+            oauthcacheKey = new OAuthCacheKey(accessTokenDO.getAccessToken());
+
+            oauthCache.clearCacheEntry(oauthcacheKey);
+
         }
     }
 }
