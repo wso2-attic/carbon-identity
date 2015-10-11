@@ -1666,7 +1666,8 @@ public class IdPManagementDAO {
                         tenantId);
 
                 if(newIdentityProvider.getIdpProperties() != null) {
-                    updateIdentityProviderProperties(dbConnection, idpId, Arrays.asList(newIdentityProvider.getIdpProperties()));
+                    updateIdentityProviderProperties(dbConnection, idpId,
+                            Arrays.asList(newIdentityProvider.getIdpProperties()));
                 }
 
             }
@@ -1813,7 +1814,8 @@ public class IdPManagementDAO {
 
                 List<IdentityProviderProperty> propertyList = getIdentityPropertiesByIdpId(dbConnection,
                         Integer.parseInt(rs.getString("ID")));
-                identityProviderDO.setIdpProperties(propertyList.toArray(new IdentityProviderProperty[propertyList.size()]));
+                identityProviderDO
+                        .setIdpProperties(propertyList.toArray(new IdentityProviderProperty[propertyList.size()]));
 
                 return identityProviderDO;
             }
