@@ -187,7 +187,6 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
         PreparedStatement prepStmt = null;
         ResultSet results = null;
         try {
-
             int tenantId = userStoreManager.getTenantId();
             boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userName, tenantId);
             String query;
