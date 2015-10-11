@@ -187,7 +187,13 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
         PreparedStatement prepStmt = null;
         ResultSet results = null;
         try {
+
             int tenantId = userStoreManager.getTenantId();
+            if (!userStoreManager.isExistingUser(userName)) {
+                log.error("User " + userName + " does not exist in " + domainName + " domain and tenant "+tenantId);
+                return null;
+            }
+
             boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userName, tenantId);
             String query;
             if (isUsernameCaseSensitive) {
