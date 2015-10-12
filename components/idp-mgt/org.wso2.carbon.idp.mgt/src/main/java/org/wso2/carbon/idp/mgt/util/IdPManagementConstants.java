@@ -156,10 +156,6 @@ public class IdPManagementConstants {
         public static final String GET_IDP_ROW_ID_SQL = "SELECT ID FROM IDP WHERE ((TENANT_ID = ? OR (TENANT_ID = ? " +
                 "AND NAME LIKE '" + SHARED_IDP_PREFIX + "%')) AND NAME = ?)";
 
-        public static final String GET_PRIMARY_IDP_SQL = "SELECT NAME, HOME_REALM_ID, IS_FEDERATION_HUB, " +
-                "IS_LOCAL_CLAIM_DIALECT  "
-                + "FROM IDP WHERE (TENANT_ID=? AND IS_PRIMARY=?)";
-
         public static final String SWITCH_IDP_PRIMARY_SQL = "UPDATE IDP SET IS_PRIMARY=? "
                 + "WHERE (TENANT_ID=? AND IS_PRIMARY=?)";
 

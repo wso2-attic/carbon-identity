@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.application.mgt.listener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
 import org.wso2.carbon.identity.application.common.model.AuthenticationStep;
@@ -31,22 +30,21 @@ import org.wso2.carbon.identity.application.common.model.LocalAndOutboundAuthent
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
-import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.listener.AbstractIdentityProviderMgtListener;
 
-public class IdentityProviderMgtApplicationListener extends AbstractIdentityProviderMgtListener {
+public class ApplicationIdentityProviderMgtListener extends AbstractIdentityProviderMgtListener {
 
-    private static final Log log = LogFactory.getLog(IdentityProviderMgtApplicationListener.class);
+    private static final Log log = LogFactory.getLog(ApplicationIdentityProviderMgtListener.class);
 
     @Override
-    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
+    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException {
 
         try {
             ApplicationBasicInfo[] applicationBasicInfos = ApplicationMgtSystemConfig.getInstance()
                     .getApplicationDAO().getAllApplicationBasicInfo();
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
             for (ApplicationBasicInfo applicationBasicInfo : applicationBasicInfos) {
                 ServiceProvider serviceProvider = ApplicationMgtSystemConfig.getInstance().getApplicationDAO()
