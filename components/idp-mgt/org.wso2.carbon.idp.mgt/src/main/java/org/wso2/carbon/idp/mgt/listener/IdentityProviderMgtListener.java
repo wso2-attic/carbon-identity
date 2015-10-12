@@ -45,9 +45,29 @@ public interface IdentityProviderMgtListener {
     public boolean isEnable();
 
     /**
-     * Define any additional actions before updating resident idp
+     * Define any additional actions before adding resident idp
      *
      * @param identityProvider Created Resident Identity Provider
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws IdentityProviderManagementException
+     */
+    public boolean doPreAddResidentIdP(IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException;
+
+    /**
+     * Define any additional actions after adding resident idp
+     *
+     * @param identityProvider Created Resident Identity Provider
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws IdentityProviderManagementException
+     */
+    public boolean doPostAddResidentIdP(IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException;
+
+    /**
+     * Define any additional actions before updating resident idp
+     *
+     * @param identityProvider Updated Resident Identity Provider
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws IdentityProviderManagementException
      */
@@ -57,7 +77,7 @@ public interface IdentityProviderMgtListener {
     /**
      * Define any additional actions after updating resident idp
      *
-     * @param identityProvider Created Resident Identity Provider
+     * @param identityProvider Updated Resident Identity Provider
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws IdentityProviderManagementException
      */

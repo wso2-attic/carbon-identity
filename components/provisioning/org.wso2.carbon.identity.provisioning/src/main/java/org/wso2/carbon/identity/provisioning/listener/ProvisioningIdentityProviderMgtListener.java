@@ -23,9 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
-import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ProvisioningConnectorCacheEntry;
@@ -37,26 +34,16 @@ import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
 import org.wso2.carbon.identity.provisioning.internal.ProvisioningServiceDataHolder;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.listener.AbstractIdentityProviderMgtListener;
-import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.List;
 
-public class IdentityProviderMgtProvisioningListener extends AbstractIdentityProviderMgtListener {
+public class ProvisioningIdentityProviderMgtListener extends AbstractIdentityProviderMgtListener {
 
-    private static final Log log = LogFactory.getLog(IdentityProviderMgtProvisioningListener.class);
+    private static final Log log = LogFactory.getLog(ProvisioningIdentityProviderMgtListener.class);
     private static ProvisioningManagementDAO provisioningManagementDAO = new ProvisioningManagementDAO();
-
-    @Override
-    public boolean doPreAddIdP(IdentityProvider identityProvider, String tenantDomain) throws
-            IdentityProviderManagementException {
-        if (log.isDebugEnabled()) {
-            log.debug("add new Identity Provider event received");
-        }
-        return true;
-    }
 
     @Override
     public boolean doPreDeleteIdP(String idPName, String tenantDomain) throws IdentityProviderManagementException {
