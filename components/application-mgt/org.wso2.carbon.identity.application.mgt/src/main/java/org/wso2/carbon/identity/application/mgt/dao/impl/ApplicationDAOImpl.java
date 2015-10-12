@@ -26,7 +26,30 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
+import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
+import org.wso2.carbon.identity.application.common.model.AuthenticationStep;
+import org.wso2.carbon.identity.application.common.model.Claim;
+import org.wso2.carbon.identity.application.common.model.ClaimConfig;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.InboundAuthenticationConfig;
+import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
+import org.wso2.carbon.identity.application.common.model.InboundProvisioningConfig;
+import org.wso2.carbon.identity.application.common.model.JustInTimeProvisioningConfig;
+import org.wso2.carbon.identity.application.common.model.LocalAndOutboundAuthenticationConfig;
+import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.LocalRole;
+import org.wso2.carbon.identity.application.common.model.OutboundProvisioningConfig;
+import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.RoleMapping;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.common.model.ServiceProviderProperty;
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
@@ -180,7 +203,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             throws IdentityApplicationManagementException {
 
         // get logged-in users tenant identifier.
-        int tenantID = -123;
+        int tenantID = MultitenantConstants.INVALID_TENANT_ID;
 
         if (tenantDomain != null) {
             try {

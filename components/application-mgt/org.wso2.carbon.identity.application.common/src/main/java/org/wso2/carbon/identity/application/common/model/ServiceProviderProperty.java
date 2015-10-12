@@ -21,55 +21,63 @@ import java.io.Serializable;
 
 public class ServiceProviderProperty implements Serializable {
 
-    private String name;
-    private String value;
-    private String displayName;
+	private static final long serialVersionUID = 1231265490501221548L;
+	private String name;
+	private String value;
+	private String displayName;
 
-    /**
-     * Get Value
-     * @return value
-     */
-    public String getValue() {
-        return value;
-    }
+	/**
+	 * Get Value
+	 * 
+	 * @return value
+	 */
+	public String getValue() {
+		return value;
+	}
 
-    /**
-     * Set Value
-     * @param value
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
+	/**
+	 * Set Value
+	 * 
+	 * @param value
+	 */
+	public void setValue(String value) {
+		this.value = value;
+	}
 
-    /**
-     * Get Display name
-     * @return Display name
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
+	/**
+	 * Get Display name
+	 * 
+	 * @return Display name
+	 */
+	public String getDisplayName() {
+		return displayName;
+	}
 
-    /**
-     * Set display name
-     * @param displayName
-     */
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
+	/**
+	 * Set display name
+	 * 
+	 * @param displayName
+	 */
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
 
-    /**
-     * Get name
-     * @return Name (This is the key)
-     */
-    public String getName() {
-        return name;
-    }
+	/**
+	 * Get name
+	 * 
+	 * @return Name (This is the key)
+	 */
+	public String getName() {
+		return name;
+	}
 
-    /**
-     * Set Name
-     * @param name (This is the key)
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
+	/**
+	 * Set Name
+	 * 
+	 * @param name
+	 *            (This is the key)
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
 }
