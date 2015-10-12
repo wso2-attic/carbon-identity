@@ -22,12 +22,15 @@ import org.wso2.carbon.identity.workflow.mgt.util.ExecutorResultState;
 
 import java.io.Serializable;
 
+
 /**
  * WorkflowExecutorResult for return result of the workflow execution.
  */
 public class WorkflowExecutorResult implements Serializable {
     private ExecutorResultState executorResultState;
     private String message;
+
+    private static final long serialVersionUID = 578423481187017212L;
 
     public WorkflowExecutorResult() {
 

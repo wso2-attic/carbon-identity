@@ -109,7 +109,7 @@ public class WorkFlowExecutorManager {
             } catch (JaxenException e) {
                 String errorMsg = "Error when executing the xpath expression:" + association.getAssociationCondition() + " , on " +
                                   xmlRequest ;
-                log.debug( errorMsg, e);
+                log.error( errorMsg, e);
                 return new WorkflowExecutorResult(ExecutorResultState.FAILED,errorMsg);
             } catch (CloneNotSupportedException e) {
                 String errorMsg = "Error while cloning workflowRequest object at executor manager." ;
