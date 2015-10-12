@@ -26,13 +26,13 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
+import org.wso2.carbon.idp.mgt.listener.IdPMgtValidationListener;
 import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
-import org.wso2.carbon.idp.mgt.listener.ResidentIdentityProviderMgtListener;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
@@ -43,14 +43,15 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 /**
  * @scr.component name="idp.mgt.dscomponent" immediate=true
@@ -82,7 +83,7 @@ public class IdPManagementServiceComponent {
 
     private static Set<String> sharedIdps = new HashSet<String>();
 
-    private static Map<Integer, IdentityProviderMgtListener> idpMgtListeners;
+    private static volatile List<IdentityProviderMgtListener> idpMgtListeners = new ArrayList<>();
 
     /**
      * @return
@@ -140,7 +141,7 @@ public class IdPManagementServiceComponent {
                 log.error("Identity Provider Management - UserOperationEventListener could not be registered");
             }
 
-            setIdentityProviderMgtListenerService(new ResidentIdentityProviderMgtListener());
+            setIdentityProviderMgtListenerService(new IdPMgtValidationListener());
 
             buildFileBasedIdPList();
             cleanUpRemovedIdps();
@@ -273,45 +274,38 @@ public class IdPManagementServiceComponent {
          is started */
     }
 
-    private static Comparator<Integer> idpMgtListenerComparator = new Comparator<Integer>(){
+    protected void setIdentityProviderMgtListenerService(
+            IdentityProviderMgtListener identityProviderMgtListenerService) {
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int compare(Integer orderId1, Integer orderId2) {
-            if (orderId1 > orderId2) {
-                return 1;
-            } else if (orderId1 < orderId2) {
-                return -1;
-            } else {
-                return 0;
-            }
-        }
-    };
-
-    protected static synchronized void setIdentityProviderMgtListenerService(
-            IdentityProviderMgtListener applicationMgtListenerService) {
-        if (idpMgtListeners == null) {
-            idpMgtListeners = new TreeMap<>(idpMgtListenerComparator);
-        }
-        idpMgtListeners.put(applicationMgtListenerService.getExecutionOrderId(),
-                applicationMgtListenerService);
+        idpMgtListeners.add(identityProviderMgtListenerService);
+        Collections.sort(idpMgtListeners, idpMgtListenerComparator);
     }
 
-    protected static synchronized void unsetIdentityProviderMgtListenerService(
-            IdentityProviderMgtListener applicationMgtListenerService) {
-        if (applicationMgtListenerService != null &&
-                idpMgtListeners != null) {
-            idpMgtListeners = null;
-        }
+    protected void unsetIdentityProviderMgtListenerService(
+            IdentityProviderMgtListener identityProviderMgtListenerService) {
+
+        idpMgtListeners.remove(identityProviderMgtListenerService);
     }
 
-    public static synchronized Collection<IdentityProviderMgtListener> getIdpMgtListeners() {
-        if (idpMgtListeners == null) {
-            idpMgtListeners = new TreeMap<>(idpMgtListenerComparator);
-        }
-        return idpMgtListeners.values();
+    public static Collection<IdentityProviderMgtListener> getIdpMgtListeners() {
+        return idpMgtListeners;
     }
+
+    private static Comparator<IdentityProviderMgtListener> idpMgtListenerComparator =
+            new Comparator<IdentityProviderMgtListener>(){
+
+                @Override
+                public int compare(IdentityProviderMgtListener identityProviderMgtListener1,
+                                   IdentityProviderMgtListener identityProviderMgtListener2) {
+
+                    if (identityProviderMgtListener1.getExecutionOrderId() > identityProviderMgtListener1.getExecutionOrderId()) {
+                        return 1;
+                    } else if (identityProviderMgtListener1.getExecutionOrderId() < identityProviderMgtListener1.getExecutionOrderId()) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+            };
 
 }
