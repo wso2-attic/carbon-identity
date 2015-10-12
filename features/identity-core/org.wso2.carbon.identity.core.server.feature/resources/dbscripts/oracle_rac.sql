@@ -272,7 +272,7 @@ CREATE OR REPLACE TRIGGER SP_METADATA_TRIG
                BEGIN
                    SELECT SP_METADATA_SEQ.nextval INTO :NEW.ID FROM dual;
                END;
-
+/
 
 CREATE TABLE SP_INBOUND_AUTH (
             ID INTEGER,
