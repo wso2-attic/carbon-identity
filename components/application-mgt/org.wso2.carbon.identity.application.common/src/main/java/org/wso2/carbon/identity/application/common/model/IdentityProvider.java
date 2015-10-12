@@ -55,7 +55,6 @@ public class IdentityProvider implements Serializable {
     private String certificate;
     private PermissionsAndRoleConfig permissionAndRoleConfig;
     private JustInTimeProvisioningConfig justInTimeProvisioningConfig;
-    private IdentityProviderProperty []idpProperties = new IdentityProviderProperty[0];
 
     public static IdentityProvider build(OMElement identityProviderOM) {
         IdentityProvider identityProvider = new IdentityProvider();
@@ -378,7 +377,7 @@ public class IdentityProvider implements Serializable {
     }
 
     /**
-     * @param justInTimeProvisioningConfig
+     * @param justTimeProvisioningConfiguration
      */
     public void setJustInTimeProvisioningConfig(
             JustInTimeProvisioningConfig justInTimeProvisioningConfig) {
@@ -481,21 +480,4 @@ public class IdentityProvider implements Serializable {
     public int hashCode() {
         return identityProviderName != null ? identityProviderName.hashCode() : 0;
     }
-
-    /**
-     * Get IDP properties
-     * @return
-     */
-    public IdentityProviderProperty[] getIdpProperties() {
-        return idpProperties;
-    }
-
-    /**
-     * Set IDP Properties
-     * @param idpProperties
-     */
-    public void setIdpProperties(IdentityProviderProperty []idpProperties) {
-        this.idpProperties = idpProperties;
-    }
-
 }
