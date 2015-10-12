@@ -223,16 +223,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         String applicationName = serviceProvider.getApplicationName();
         String description = serviceProvider.getDescription();
 
-        if (applicationName == null) {
-            // check for required attributes.
-            throw new IdentityApplicationManagementException("Application Name is required.");
-        }
-
-        if (ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(applicationName)) {
-            throw new IdentityApplicationManagementException(
-                    "Application with the same name laoded from the file system.");
-        }
-
         if (log.isDebugEnabled()) {
             log.debug("Creating Application " + applicationName + " for user " + qualifiedUsername);
         }
