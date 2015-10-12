@@ -24,21 +24,17 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.listener.AbstractApplicationMgtListener;
-import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
-import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCache;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheEntry;
 import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningConnectorCacheKey;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-public class ApplicationMgtProvisioningListener extends AbstractApplicationMgtListener {
+public class ProvisioningApplicationMgtListener extends AbstractApplicationMgtListener {
 
-    private static Log log = LogFactory.getLog(ApplicationMgtProvisioningListener.class);
+    private static Log log = LogFactory.getLog(ProvisioningApplicationMgtListener.class);
 
     @Override
-    public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+    public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String username)
             throws IdentityApplicationManagementException {
         if (!isEnable()) {
             return true;
@@ -51,7 +47,7 @@ public class ApplicationMgtProvisioningListener extends AbstractApplicationMgtLi
     }
 
     @Override
-    public boolean doPreDeleteApplication(String applicationName, String tenantDomain, String userName)
+    public boolean doPreDeleteApplication(String applicationName, String tenantDomain, String username)
             throws IdentityApplicationManagementException {
         if (!isEnable()) {
             return true;

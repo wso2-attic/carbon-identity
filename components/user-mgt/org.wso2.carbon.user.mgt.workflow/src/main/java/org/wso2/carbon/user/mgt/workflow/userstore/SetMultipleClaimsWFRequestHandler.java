@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.user.mgt.workflow.util.UserStoreWFConstants;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -85,11 +86,11 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
             entities[i] = new Entity(key, UserStoreWFConstants.ENTITY_TYPE_CLAIM, tenant);
             i++;
         }
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.SET_MULTIPLE_USER_CLAIMS_EVENT) &&
+        if (workflowService.isEventAssociated(UserStoreWFConstants.SET_MULTIPLE_USER_CLAIMS_EVENT) &&
                 !Boolean.TRUE.equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {
             throw new WorkflowException("Operation is not valid.");
         }
-        boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
+        boolean state = startWorkFlow(wfParams, nonWfParams, uuid).getExecutorResultState().state();
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
         // updated

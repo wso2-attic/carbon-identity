@@ -72,7 +72,7 @@
             <artifactId>json-smart</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.dblock.waffle.wso2</groupId>
+            <groupId>org.wso2.orbit.com.github.dblock.waffle</groupId>
             <artifactId>waffle-jna</artifactId>
         </dependency>
         <dependency>
@@ -163,7 +163,7 @@
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.oauth</bundleDef>
                                 <bundleDef>org.wso2.orbit.com.nimbusds:nimbus-jose-jwt</bundleDef>
                                 <bundleDef>net.minidev:json-smart</bundleDef>
-                                <bundleDef>com.github.dblock.waffle.wso2:waffle-jna</bundleDef>
+                                <bundleDef>org.wso2.orbit.com.github.dblock.waffle:waffle-jna</bundleDef>
                                 <bundleDef>opensaml.wso2:opensaml2</bundleDef>
                             </bundles>
                             <importFeatures>

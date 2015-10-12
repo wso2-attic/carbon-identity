@@ -49,11 +49,11 @@ public abstract class ApplicationManagementService {
      * user will assigned to the created role.Internal roles used.
      * @param serviceProvider Service Provider Name
      * @param tenantDomain Tenant Domain
-     * @param userName User Name
+     * @param username User Name
      * @return
      * @throws IdentityApplicationManagementException
      */
-    public abstract void createApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+    public abstract void createApplication(ServiceProvider serviceProvider, String tenantDomain, String username)
             throws IdentityApplicationManagementException;
 
     /**
@@ -71,11 +71,11 @@ public abstract class ApplicationManagementService {
      * Get All Application Basic Information
      *
      * @param tenantDomain Tenant Domain
-     * @param userName User Name
+     * @param username User Name
      * @return ApplicationBasicInfo[]
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
-    public abstract ApplicationBasicInfo[] getAllApplicationBasicInfo(String tenantDomain, String userName)
+    public abstract ApplicationBasicInfo[] getAllApplicationBasicInfo(String tenantDomain, String username)
             throws IdentityApplicationManagementException;
 
     /**
@@ -83,10 +83,10 @@ public abstract class ApplicationManagementService {
      *
      * @param tenantDomain Tenant Domain
      * @param serviceProvider Service Provider
-     * @param userName User Name
+     * @param username User Name
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
-    public abstract void updateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+    public abstract void updateApplication(ServiceProvider serviceProvider, String tenantDomain, String username)
             throws IdentityApplicationManagementException;
 
     /**
@@ -94,10 +94,10 @@ public abstract class ApplicationManagementService {
      *
      * @param tenantDomain Tenant Domain
      * @param applicationName Application name
-     * @param userName User Name
+     * @param username User Name
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
-    public abstract void deleteApplication(String applicationName, String tenantDomain, String userName)
+    public abstract void deleteApplication(String applicationName, String tenantDomain, String username)
             throws IdentityApplicationManagementException;
 
     /**
