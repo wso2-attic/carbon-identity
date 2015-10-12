@@ -22,7 +22,18 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.identity.application.common.model.*;
+import org.wso2.carbon.identity.application.common.model.Claim;
+import org.wso2.carbon.identity.application.common.model.ClaimConfig;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.IdentityProviderProperty;
+import org.wso2.carbon.identity.application.common.model.JustInTimeProvisioningConfig;
+import org.wso2.carbon.identity.application.common.model.LocalRole;
+import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
@@ -41,7 +52,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class IdPManagementDAO {
 
@@ -1329,7 +1346,6 @@ public class IdPManagementDAO {
 
         Connection dbConnection = IdentityDatabaseUtil.getDBConnection();;
         try {
-            dbConnection.setAutoCommit(false);
             if (identityProvider.isPrimary()) {
                 // this is going to be the primary. Switch off any other primary set up in the
                 // system.
@@ -1517,7 +1533,6 @@ public class IdPManagementDAO {
         Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
 
         try {
-            dbConnection.setAutoCommit(false);
 
             int idPId = getIdentityProviderIdByName(dbConnection,
                     currentIdentityProvider.getIdentityProviderName(), tenantId);
@@ -1749,19 +1764,7 @@ public class IdPManagementDAO {
                 log.error(msg);
                 return;
             }
-
-            IdentityProvider primaryIdP = getPrimaryIdP(dbConnection, tenantId, tenantDomain);
-            if (primaryIdP == null) {
-                String msg = "Cannot find primary Identity Provider for tenant " + tenantDomain;
-                log.warn(msg);
-            }
-
             deleteIdP(dbConnection, tenantId, idPName);
-
-            if (primaryIdP != null && idPName.equals(primaryIdP.getIdentityProviderName())) {
-                doAppointPrimary(dbConnection, tenantId, tenantDomain);
-            }
-
             dbConnection.commit();
         } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
@@ -1772,64 +1775,6 @@ public class IdPManagementDAO {
         }
     }
 
-    public IdentityProvider getPrimaryIdP(Connection dbConnection, int tenantId, String tenantDomain)
-            throws IdentityProviderManagementException {
-
-        boolean dbConnInitialized = true;
-        PreparedStatement prepStmt = null;
-        if (dbConnection == null) {
-            dbConnection = IdentityDatabaseUtil.getDBConnection();
-        } else {
-            dbConnInitialized = false;
-        }
-        try {
-
-            String sqlStmt = IdPManagementConstants.SQLQueries.GET_PRIMARY_IDP_SQL;
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setInt(1, tenantId);
-            prepStmt.setString(2, "1");
-            ResultSet rs = prepStmt.executeQuery();
-            dbConnection.commit();
-            if (rs.next()) {
-                IdentityProvider identityProviderDO = new IdentityProvider();
-                identityProviderDO.setIdentityProviderName(rs.getString(1));
-                identityProviderDO.setPrimary(true);
-                identityProviderDO.setHomeRealmId(rs.getString("HOME_REALM_ID"));
-
-                if ("1".equals(rs.getString("IS_FEDERATION_HUB"))) {
-                    identityProviderDO.setFederationHub(true);
-                } else {
-                    identityProviderDO.setFederationHub(false);
-                }
-
-                if (identityProviderDO.getClaimConfig() == null) {
-                    identityProviderDO.setClaimConfig(new ClaimConfig());
-                }
-
-                if ("1".equals(rs.getString("IS_LOCAL_CLAIM_DIALECT"))) {
-                    identityProviderDO.getClaimConfig().setLocalClaimDialect(true);
-                } else {
-                    identityProviderDO.getClaimConfig().setLocalClaimDialect(false);
-                }
-
-                List<IdentityProviderProperty> propertyList = getIdentityPropertiesByIdpId(dbConnection,
-                        Integer.parseInt(rs.getString("ID")));
-                identityProviderDO
-                        .setIdpProperties(propertyList.toArray(new IdentityProviderProperty[propertyList.size()]));
-
-                return identityProviderDO;
-            }
-        } catch (SQLException e) {
-            IdentityApplicationManagementUtil.rollBack(dbConnection);
-            throw new IdentityProviderManagementException("Error occurred while retrieving primary Identity " +
-                    "Provider for tenant " + tenantDomain, e);
-        } finally {
-            if (dbConnInitialized) {
-                IdentityApplicationManagementUtil.closeConnection(dbConnection);
-            }
-        }
-        return null;
-    }
 
     public void deleteTenantRole(int tenantId, String role, String tenantDomain)
             throws IdentityProviderManagementException {

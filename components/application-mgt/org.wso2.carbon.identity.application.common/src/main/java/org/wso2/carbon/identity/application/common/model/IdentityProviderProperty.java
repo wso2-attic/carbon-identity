@@ -22,58 +22,67 @@ import java.io.Serializable;
 /**
  * Identity Provider property which use to maintain additional properties
  */
-public class IdentityProviderProperty implements Serializable{
+public class IdentityProviderProperty implements Serializable {
 
 
-    private String name;
-    private String value;
-    private String displayName;
+	private static final long serialVersionUID = 1032362460361184505L;
 
-    /**
-     * Get Value
-     * @return value
-     */
-    public String getValue() {
-        return value;
-    }
+	private String name;
+	private String value;
+	private String displayName;
 
-    /**
-     * Set Value
-     * @param value
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
+	/**
+	 * Get Value
+	 * 
+	 * @return value
+	 */
+	public String getValue() {
+		return value;
+	}
 
-    /**
-     * Get Display name
-     * @return Display name
-     */
-    public String getDisplayName() {
-        return displayName;
-    }
+	/**
+	 * Set Value
+	 * 
+	 * @param value
+	 */
+	public void setValue(String value) {
+		this.value = value;
+	}
 
-    /**
-     * Set display name
-     * @param displayName
-     */
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
+	/**
+	 * Get Display name
+	 * 
+	 * @return Display name
+	 */
+	public String getDisplayName() {
+		return displayName;
+	}
 
-    /**
-     * Get name
-     * @return Name (This is the key)
-     */
-    public String getName() {
-        return name;
-    }
+	/**
+	 * Set display name
+	 * 
+	 * @param displayName
+	 */
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
 
-    /**
-     * Set Name
-     * @param name (This is the key)
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
+	/**
+	 * Get name
+	 * 
+	 * @return Name (This is the key)
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * Set Name
+	 * 
+	 * @param name
+	 *            (This is the key)
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
 }

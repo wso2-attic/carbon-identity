@@ -53,6 +53,13 @@ public class IdentityApplicationConstants {
     public static final String SESSION_IDLE_TIME_OUT_DEFAULT = "15";
     public static final String REMEMBER_ME_TIME_OUT_DEFAULT = "20160";
 
+    public static final String NAME = "IDPProperties";
+    public static final String CLEAN_UP_TIMEOUT = "CleanUpTimeout";
+    public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
+    public static final String CLEAN_UP_PERIOD = "CleanUpPeriod";
+    public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
+    public static final String TIME_CONFIG = "TimeConfig";
+
     public static class ConfigElements {
         public static final String PROPERTIES = "Properties";
         public static final String PROPERTY = "Property";
@@ -155,18 +162,6 @@ public class IdentityApplicationConstants {
             public static final String IDENTITY_PROVIDER_URL = "IDENTITY_PROVIDER_URL";
             private WSTrust() {
                 throw new AssertionError("Must not initiate an object of WSTrust class");
-            }
-        }
-
-        public static class IDPProperties {
-            public static final String NAME = "IDPProperties";
-            public static final String CLEAN_UP_TIMEOUT = "CleanUpTimeout";
-            public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
-            public static final String CLEAN_UP_PERIOD = "CleanUpPeriod";
-            public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
-            public static final String TIME_CONFIG = "TimeConfig";
-            private IDPProperties() {
-                throw new AssertionError("Must not initiate an object of IDPProperties class");
             }
         }
 

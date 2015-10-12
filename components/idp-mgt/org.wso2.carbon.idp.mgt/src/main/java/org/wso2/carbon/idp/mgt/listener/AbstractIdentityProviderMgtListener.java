@@ -27,6 +27,16 @@ import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 
 public abstract class AbstractIdentityProviderMgtListener implements IdentityProviderMgtListener {
 
+    public boolean doPreAddResidentIdP(IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException {
+        return true;
+    }
+
+    public boolean doPostAddResidentIdP(IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException {
+        return true;
+    }
+
     public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider, String tenantDomain) throws
             IdentityProviderManagementException {
         return true;

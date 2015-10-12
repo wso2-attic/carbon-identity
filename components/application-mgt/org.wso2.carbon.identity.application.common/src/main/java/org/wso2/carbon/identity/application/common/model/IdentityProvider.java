@@ -25,7 +25,12 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class IdentityProvider implements Serializable {
 
@@ -373,7 +378,7 @@ public class IdentityProvider implements Serializable {
     }
 
     /**
-     * @param justTimeProvisioningConfiguration
+     * @param justInTimeProvisioningConfig
      */
     public void setJustInTimeProvisioningConfig(
             JustInTimeProvisioningConfig justInTimeProvisioningConfig) {

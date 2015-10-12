@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.workflow.mgt.dao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociation;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.SQLConstants;
@@ -248,6 +249,50 @@ public class WorkflowRequestAssociationDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
+    }
+
+    /**
+     *
+     * @param eventId
+     * @param tenantId
+     * @return
+     * @throws InternalWorkflowException
+     */
+    public List<WorkflowAssociation> getWorkflowAssociationsForRequest(String eventId, int tenantId)
+            throws InternalWorkflowException {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
+        ResultSet rs;
+        List<WorkflowAssociation> associations = new ArrayList<>();
+        String query = SQLConstants.GET_ASSOCIATIONS_FOR_EVENT_QUERY;
+        try {
+            prepStmt = connection.prepareStatement(query);
+            prepStmt.setString(1, eventId);
+            prepStmt.setInt(2, tenantId);
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+
+                int id = rs.getInt(SQLConstants.ID_COLUMN);
+                String condition = rs.getString(SQLConstants.CONDITION_COLUMN);
+                String workflowId = rs.getString(SQLConstants.WORKFLOW_ID_COLUMN);
+                String associationName = rs.getString(SQLConstants.ASSOCIATION_NAME_COLUMN);
+
+                WorkflowAssociation association = new WorkflowAssociation();
+                association.setWorkflowId(workflowId);
+                association.setAssociationCondition(condition);
+                association.setEventId(eventId);
+                association.setAssociationId(id);
+                association.setAssociationName(associationName);
+
+                associations.add(association);
+            }
+        } catch (SQLException e) {
+            throw new InternalWorkflowException("Error when executing the sql query:" + query, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+        return associations;
     }
 
 }

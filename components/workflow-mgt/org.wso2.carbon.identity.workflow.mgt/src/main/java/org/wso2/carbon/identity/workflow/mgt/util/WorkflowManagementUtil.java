@@ -58,7 +58,6 @@ public class WorkflowManagementUtil {
 
     public static String createWorkflowRoleName(String workflowName) {
         return UserCoreConstants.INTERNAL_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + workflowName;
-        //return WorkFlowConstants.WORKFLOW_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + workflowName;
     }
 
 

@@ -28,8 +28,16 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
-import org.wso2.carbon.identity.application.common.model.*;
-import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
+import org.wso2.carbon.identity.application.common.model.ClaimConfig;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.IdentityProviderProperty;
+import org.wso2.carbon.identity.application.common.model.LocalRole;
+import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.ProvisioningConnectorService;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
@@ -41,6 +49,7 @@ import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.FileBasedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.IdPManagementDAO;
 import org.wso2.carbon.idp.mgt.internal.IdPManagementServiceComponent;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -52,6 +61,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -215,7 +225,6 @@ public class IdentityProviderManager {
                 IdentityTenantUtil.getTenantId(tenantDomain), tenantDomain);
         if (identityProvider == null) {
             String message = "Could not find Resident Identity Provider for tenant " + tenantDomain;
-            log.error(message);
             throw new IdentityProviderManagementException(message);
         }
 
@@ -242,7 +251,6 @@ public class IdentityProviderManager {
             }
         } catch (Exception e) {
             String msg = "Error retrieving primary certificate for tenant : " + tenantDomain;
-            log.error(msg, e);
             throw new IdentityProviderManagementException(msg, e);
         }
         if (cert == null) {
@@ -253,7 +261,6 @@ public class IdentityProviderManager {
             identityProvider.setCertificate(Base64.encode(cert.getEncoded()));
         } catch (CertificateEncodingException e) {
             String msg = "Error occurred while encoding primary certificate for tenant domain " + tenantDomain;
-            log.error(msg, e);
             throw new IdentityProviderManagementException(msg, e);
         }
 
@@ -420,22 +427,22 @@ public class IdentityProviderManager {
 
         FederatedAuthenticatorConfig sessionTimeoutConfig = IdentityApplicationManagementUtil
                 .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
-                        IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+                        IdentityApplicationConstants.NAME);
         if (sessionTimeoutConfig == null) {
             sessionTimeoutConfig = new FederatedAuthenticatorConfig();
-            sessionTimeoutConfig.setName(IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+            sessionTimeoutConfig.setName(IdentityApplicationConstants.NAME);
         }
         propertiesList = new ArrayList<Property>(Arrays.asList(sessionTimeoutConfig.getProperties()));
         if (IdentityApplicationManagementUtil.getProperty(sessionTimeoutConfig.getProperties(),
-                IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD) == null) {
+                IdentityApplicationConstants.CLEAN_UP_PERIOD) == null) {
             Property cleanUpPeriodProp = new Property();
-            cleanUpPeriodProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD);
+            cleanUpPeriodProp.setName(IdentityApplicationConstants.CLEAN_UP_PERIOD);
             String cleanUpPeriod = IdentityUtil.getProperty(IdentityConstants.ServerConfig.CLEAN_UP_PERIOD);
             if (StringUtils.isBlank(cleanUpPeriod)) {
-                cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
+                cleanUpPeriod = IdentityApplicationConstants.CLEAN_UP_PERIOD_DEFAULT;
             } else if (!StringUtils.isNumeric(cleanUpPeriod)) {
                 log.warn("PersistanceCleanUpPeriod in identity.xml should be a numeric value");
-                cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
+                cleanUpPeriod = IdentityApplicationConstants.CLEAN_UP_PERIOD_DEFAULT;
             }
             cleanUpPeriodProp.setValue(cleanUpPeriod);
             propertiesList.add(cleanUpPeriodProp);
@@ -487,11 +494,14 @@ public class IdentityProviderManager {
     public void addResidentIdP(IdentityProvider identityProvider, String tenantDomain)
             throws IdentityProviderManagementException {
 
-        if (StringUtils.isEmpty(identityProvider.getHomeRealmId())) {
-            String msg = "Invalid argument: Resident Identity Provider Home Realm Identifier value is empty";
-            log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+        // invoking the pre listeners
+        Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPreAddResidentIdP(identityProvider, tenantDomain)) {
+                return;
+            }
         }
+
         if (identityProvider.getFederatedAuthenticatorConfigs() == null) {
             identityProvider.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[0]);
         }
@@ -527,22 +537,22 @@ public class IdentityProviderManager {
 
         FederatedAuthenticatorConfig idpPropertiesResidentAuthenticatorConfig = IdentityApplicationManagementUtil
                 .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
-                        IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+                        IdentityApplicationConstants.NAME);
         if(idpPropertiesResidentAuthenticatorConfig == null){
             idpPropertiesResidentAuthenticatorConfig = new FederatedAuthenticatorConfig();
-            idpPropertiesResidentAuthenticatorConfig.setName(IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
+            idpPropertiesResidentAuthenticatorConfig.setName(IdentityApplicationConstants.NAME);
         }
         List<Property> propertiesList = new ArrayList<Property>(Arrays.asList(idpPropertiesResidentAuthenticatorConfig.getProperties()));
         if(IdentityApplicationManagementUtil.getProperty(idpPropertiesResidentAuthenticatorConfig.getProperties(),
-                IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD) == null){
+                IdentityApplicationConstants.CLEAN_UP_PERIOD) == null){
             Property cleanUpPeriodProp = new Property();
-            cleanUpPeriodProp.setName(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD);
+            cleanUpPeriodProp.setName(IdentityApplicationConstants.CLEAN_UP_PERIOD);
             String cleanUpPeriod = IdentityUtil.getProperty(IdentityConstants.ServerConfig.CLEAN_UP_PERIOD);
             if (StringUtils.isBlank(cleanUpPeriod)) {
-                cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
+                cleanUpPeriod = IdentityApplicationConstants.CLEAN_UP_PERIOD_DEFAULT;
             } else if (!StringUtils.isNumeric(cleanUpPeriod)) {
                 log.warn("PersistanceCleanUpPeriod in identity.xml should be a numeric value");
-                cleanUpPeriod = IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT;
+                cleanUpPeriod = IdentityApplicationConstants.CLEAN_UP_PERIOD_DEFAULT;
             }
             cleanUpPeriodProp.setValue(cleanUpPeriod);
             propertiesList.add(cleanUpPeriodProp);
@@ -578,6 +588,13 @@ public class IdentityProviderManager {
         identityProvider.setIdpProperties(idpProperties);
 
         dao.addIdP(identityProvider, IdentityTenantUtil.getTenantId(tenantDomain), tenantDomain);
+
+        // invoking the post listeners
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPostAddResidentIdP(identityProvider, tenantDomain)) {
+                return;
+            }
+        }
     }
 
     /**
@@ -590,11 +607,14 @@ public class IdentityProviderManager {
     public void updateResidentIdP(IdentityProvider identityProvider, String tenantDomain)
             throws IdentityProviderManagementException {
 
-        if (StringUtils.isEmpty(identityProvider.getHomeRealmId())) {
-            String msg = "Invalid argument: Resident Identity Provider Home Realm Identifier value is empty";
-            log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+        // invoking the pre listeners
+        Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPreUpdateResidentIdP(identityProvider, tenantDomain)) {
+                return;
+            }
         }
+
         if (identityProvider.getFederatedAuthenticatorConfigs() == null) {
             identityProvider.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[0]);
         }
@@ -607,6 +627,13 @@ public class IdentityProviderManager {
                 identityProvider.getFederatedAuthenticatorConfigs(), tenantId, tenantDomain);
 
         dao.updateIdP(identityProvider, currentIdP, tenantId, tenantDomain);
+
+        // invoking the post listeners
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPostUpdateResidentIdP(identityProvider, tenantDomain)) {
+                return;
+            }
+        }
     }
 
     /**
@@ -660,7 +687,6 @@ public class IdentityProviderManager {
         int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
-            log.error(msg);
             throw new IdentityProviderManagementException(msg);
         }
 
@@ -728,7 +754,6 @@ public class IdentityProviderManager {
 
         if (StringUtils.isEmpty(property) || StringUtils.isEmpty(value)) {
             String msg = "Invalid argument: Authenticator property or property value is empty";
-            log.error(msg);
             throw new IdentityProviderManagementException(msg);
         }
 
@@ -777,7 +802,6 @@ public class IdentityProviderManager {
         int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         if (StringUtils.isEmpty(realmId)) {
             String msg = "Invalid argument: Identity Provider Home Realm Identifier value is empty";
-            log.error(msg);
             throw new IdentityProviderManagementException(msg);
         }
         IdentityProvider identityProvider = dao.getIdPByRealmId(realmId, tenantId, tenantDomain);
@@ -823,7 +847,6 @@ public class IdentityProviderManager {
         int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
-            log.error(msg);
             throw new IdentityProviderManagementException(msg);
         }
 
@@ -897,7 +920,6 @@ public class IdentityProviderManager {
         int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
-            log.error(msg);
             throw new IdentityProviderManagementException(msg);
         }
 
@@ -1038,7 +1060,6 @@ public class IdentityProviderManager {
         int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         if (StringUtils.isEmpty(idPName)) {
             String msg = "Invalid argument: Identity Provider Name value is empty";
-            log.error(msg);
             throw new IdentityProviderManagementException(msg);
         }
         IdentityProvider identityProvider = dao.getIdPByName(null, idPName, tenantId, tenantDomain);
@@ -1103,13 +1124,15 @@ public class IdentityProviderManager {
     public void addIdP(IdentityProvider identityProvider, String tenantDomain)
             throws IdentityProviderManagementException {
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
-
-        if (StringUtils.isEmpty(identityProvider.getIdentityProviderName())) {
-            String msg = "Invalid argument: Identity Provider Name value is empty";
-            log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+        // invoking the pre listeners
+        Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPreAddIdP(identityProvider, tenantDomain)) {
+                return;
+            }
         }
+
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
 
         if (IdPManagementServiceComponent.getFileBasedIdPs().containsKey(identityProvider.getIdentityProviderName())
                 && !identityProvider.getIdentityProviderName().startsWith(IdPManagementConstants.SHARED_IDP_PREFIX)) {
@@ -1158,6 +1181,13 @@ public class IdentityProviderManager {
         validateIdPEntityId(identityProvider.getFederatedAuthenticatorConfigs(), tenantId, tenantDomain);
 
         dao.addIdP(identityProvider, tenantId, tenantDomain);
+
+        // invoking the post listeners
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPostAddIdP(identityProvider, tenantDomain)) {
+                return;
+            }
+        }
     }
 
     /**
@@ -1167,24 +1197,25 @@ public class IdentityProviderManager {
      * @throws IdentityProviderManagementException Error when deleting Identity Provider
      *                                                information
      */
-    public void deleteIdP(String idPName, String tenantDomain)
-            throws IdentityProviderManagementException {
+    public void deleteIdP(String idPName, String tenantDomain) throws IdentityProviderManagementException {
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
-        if (StringUtils.isEmpty(idPName)) {
-            String msg = "Invalid argument: Identity Provider Name value is empty";
-            log.error(msg);
-            throw new IdentityProviderManagementException(msg);
-        }
-        if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(idPName)) {
-            if (MultitenantConstants.SUPER_TENANT_ID == tenantId) {
-                throw new IdentityProviderManagementException("Can't delete Resident Identity Provider of Super " +
-                        "Tenant");
-            } else {
-                log.warn("Deleting Resident Identity Provider for tenant " + tenantDomain);
+        // invoking the pre listeners
+        Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPreDeleteIdP(idPName, tenantDomain)) {
+                return;
             }
         }
+
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
         dao.deleteIdP(idPName, tenantId, tenantDomain);
+
+        // invoking the post listeners
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPostDeleteIdP(idPName, tenantDomain)) {
+                return;
+            }
+        }
     }
 
     /**
@@ -1198,10 +1229,12 @@ public class IdentityProviderManager {
     public void updateIdP(String oldIdPName, IdentityProvider newIdentityProvider,
                           String tenantDomain) throws IdentityProviderManagementException {
 
-        if (newIdentityProvider == null) {
-            String msg = "Invalid argument: 'newIdentityProvider' is NULL\'";
-            log.error(msg);
-            throw new IdentityProviderManagementException(msg);
+        // invoking the pre listeners
+        Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPreUpdateIdP(oldIdPName, newIdentityProvider, tenantDomain)) {
+                return;
+            }
         }
 
         if (IdPManagementServiceComponent.getFileBasedIdPs().containsKey(
@@ -1210,32 +1243,16 @@ public class IdentityProviderManager {
                     "Identity provider with the same name exists in the file system.");
         }
 
-        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
-
-        if (StringUtils.isEmpty(oldIdPName)) {
-            String msg = "Invalid argument: Existing Identity Provider Name value is empty";
-            log.error(msg);
-            throw new IdentityProviderManagementException(msg);
-        }
-
         IdentityProvider currentIdentityProvider = this
                 .getIdPByName(oldIdPName, tenantDomain, true);
         if (currentIdentityProvider == null) {
             String msg = "Identity Provider with name " + oldIdPName + " does not exist";
-            log.error(msg);
             throw new IdentityProviderManagementException(msg);
         }
 
         if (currentIdentityProvider.isPrimary() == true && newIdentityProvider.isPrimary() == false) {
             String msg = "Invalid argument: Cannot unset Identity Provider from primary. "
                     + "Alternatively set new Identity Provider to primary";
-            log.error(msg);
-            throw new IdentityProviderManagementException(msg);
-        }
-
-        if (StringUtils.isEmpty(newIdentityProvider.getIdentityProviderName())) {
-            String msg = "Invalid argument: Identity Provider Name value is empty for \'newIdentityProvider\'";
-            log.error(msg);
             throw new IdentityProviderManagementException(msg);
         }
 
@@ -1265,17 +1282,25 @@ public class IdentityProviderManager {
                 } catch (UserStoreException e) {
                     String msg = "Error occurred while retrieving UserStoreManager for tenant "
                             + tenantDomain;
-                    log.error(msg,e);
                     throw new IdentityProviderManagementException(msg,e);
                 }
             }
         }
+
+        int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
 
         validateUpdateOfIdPEntityId(currentIdentityProvider.getFederatedAuthenticatorConfigs(),
                 newIdentityProvider.getFederatedAuthenticatorConfigs(),
                 tenantId, tenantDomain);
 
         dao.updateIdP(newIdentityProvider, currentIdentityProvider, tenantId, tenantDomain);
+
+        // invoking the post listeners
+        for (IdentityProviderMgtListener listener : listeners) {
+            if (!listener.doPostUpdateIdP(oldIdPName, newIdentityProvider, tenantDomain)) {
+                return;
+            }
+        }
     }
 
     /**
