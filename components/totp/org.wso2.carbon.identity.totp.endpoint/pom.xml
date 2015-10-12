@@ -27,6 +27,11 @@
             <artifactId>org.wso2.carbon.identity.totp</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.application.common</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
