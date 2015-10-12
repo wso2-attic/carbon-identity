@@ -21,7 +21,6 @@
                     <xs:element minOccurs="0" name="homeRealmId" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="identityProviderDescription" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="identityProviderName" nillable="true" type="xs:string"></xs:element>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="idpProperties" nillable="true" type="ax2394:IdentityProviderProperty"/>
                     <xs:element minOccurs="0" name="justInTimeProvisioningConfig" nillable="true" type="ax2394:JustInTimeProvisioningConfig"></xs:element>
                     <xs:element minOccurs="0" name="permissionAndRoleConfig" nillable="true" type="ax2394:PermissionsAndRoleConfig"></xs:element>
                     <xs:element minOccurs="0" name="primary" type="xs:boolean"></xs:element>
@@ -81,13 +80,6 @@
                     <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="provisioningProperties" nillable="true" type="ax2394:Property"></xs:element>
                     <xs:element minOccurs="0" name="valid" type="xs:boolean"></xs:element>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="IdentityProviderProperty">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="value" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="InboundProvisioningConfig">
