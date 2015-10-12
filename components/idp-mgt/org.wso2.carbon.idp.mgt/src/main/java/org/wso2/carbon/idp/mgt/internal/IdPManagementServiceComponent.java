@@ -294,18 +294,18 @@ public class IdPManagementServiceComponent {
     private static Comparator<IdentityProviderMgtListener> idpMgtListenerComparator =
             new Comparator<IdentityProviderMgtListener>(){
 
-                @Override
-                public int compare(IdentityProviderMgtListener identityProviderMgtListener1,
-                                   IdentityProviderMgtListener identityProviderMgtListener2) {
+        @Override
+        public int compare(IdentityProviderMgtListener identityProviderMgtListener1,
+                           IdentityProviderMgtListener identityProviderMgtListener2) {
 
-                    if (identityProviderMgtListener1.getExecutionOrderId() > identityProviderMgtListener1.getExecutionOrderId()) {
-                        return 1;
-                    } else if (identityProviderMgtListener1.getExecutionOrderId() < identityProviderMgtListener1.getExecutionOrderId()) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                }
-            };
+            if (identityProviderMgtListener1.getExecutionOrderId() > identityProviderMgtListener1.getExecutionOrderId()) {
+                return 1;
+            } else if (identityProviderMgtListener1.getExecutionOrderId() < identityProviderMgtListener1.getExecutionOrderId()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
 
 }
