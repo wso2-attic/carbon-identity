@@ -44,8 +44,6 @@ public class ServiceProvider implements Serializable {
     private ClaimConfig claimConfig;
     private PermissionsAndRoleConfig permissionAndRoleConfig;
     private boolean saasApp;
-    private ServiceProviderProperty []spProperties = new ServiceProviderProperty[0];
-
 
     /*
      * <ServiceProvider> <ApplicationID></ApplicationID> <Description></Description>
@@ -315,11 +313,4 @@ public class ServiceProvider implements Serializable {
         this.saasApp = saasApp;
     }
 
-    public ServiceProviderProperty[] getSpProperties() {
-        return spProperties;
-    }
-
-    public void setSpProperties(ServiceProviderProperty[] spProperties) {
-        this.spProperties = spProperties;
-    }
 }
