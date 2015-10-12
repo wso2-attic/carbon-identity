@@ -16,13 +16,14 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig"%>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProviderProperty" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
 
@@ -86,12 +87,6 @@
         } else if(IdentityApplicationConstants.Authenticator.WSTrust.NAME.equals(federatedAuthenticator.getName())){
             stsUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.WSTrust.IDENTITY_PROVIDER_URL).getValue();
-        } else if(IdentityApplicationConstants.Authenticator.IDPProperties.NAME.equals(federatedAuthenticator.getName())){
-            sessionIdleTimeout = IdPManagementUIUtil.getProperty(properties,
-                    IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT).getValue();
-            rememberMeTimeout = IdPManagementUIUtil.
-                    getProperty(properties,
-                            IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT).getValue();
         }
     }
     String scimUserEp = null;
@@ -112,6 +107,18 @@
             }
         }
     }
+
+    IdentityProviderProperty[] idpProperties = residentIdentityProvider.getIdpProperties();
+    if (idpProperties != null) {
+        for (IdentityProviderProperty property : idpProperties) {
+            if (property.getName().equals(IdentityApplicationConstants.SESSION_IDLE_TIME_OUT)) {
+                sessionIdleTimeout = property.getValue();
+            } else if (property.getName().equals(IdentityApplicationConstants.REMEMBER_ME_TIME_OUT)) {
+                rememberMeTimeout = property.getValue();
+            }
+        }
+    }
+
     session.setAttribute("returnToPath", "../idpmgt/idp-mgt-edit-local.jsp");
     session.setAttribute("cancelLink", "../idpmgt/idp-mgt-edit-local.jsp");
     session.setAttribute("backLink", "../idpmgt/idp-mgt-edit-local.jsp");

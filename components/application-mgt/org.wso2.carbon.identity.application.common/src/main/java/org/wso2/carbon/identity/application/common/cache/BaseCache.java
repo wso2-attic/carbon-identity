@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.application.common.cache;
 
 import org.wso2.carbon.caching.impl.CacheImpl;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.common.listener.AbstractCacheListener;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.cache.Cache;
@@ -28,6 +29,8 @@ import javax.cache.CacheConfiguration;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,6 +43,7 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
     private String cacheName;
     private int cacheTimeout;
     private int capacity = 0;
+    private List<AbstractCacheListener> cacheListeners = new ArrayList<AbstractCacheListener>();
 
     public BaseCache(String cacheName) {
         this.cacheName = cacheName;
@@ -95,6 +99,11 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
                                                 .Duration(TimeUnit.SECONDS, cacheTimeout)).
                                 setStoreByValue(false);
                         cache = cacheBuilder.build();
+
+                        for (AbstractCacheListener cacheListener : cacheListeners) {
+                            this.cacheBuilder.registerCacheEntryListener(cacheListener);
+                        }
+
                         if (capacity != 0) {
                             ((CacheImpl) cache).setCapacity(capacity);
                         }
@@ -205,5 +214,9 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
+    }
+
+    public void addListener(AbstractCacheListener listener){
+        cacheListeners.add(listener);
     }
 }
