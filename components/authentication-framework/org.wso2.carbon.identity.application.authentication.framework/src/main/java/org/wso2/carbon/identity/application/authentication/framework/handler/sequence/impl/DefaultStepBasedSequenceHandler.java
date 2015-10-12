@@ -382,8 +382,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                                 locallyMappedUserRoles));
                     }
 
-                    if (extAttrs != null && !extAttrs.isEmpty()
-                        && (mappedAttrs == null || mappedAttrs.isEmpty())) {
+                    if (mappedAttrs == null || mappedAttrs.isEmpty()) {
                         // do claim handling
                         mappedAttrs = handleClaimMappings(stepConfig, context,
                                                           extAttibutesValueMap, true);
@@ -673,7 +672,9 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
         } catch (FrameworkException e) {
             log.error("Claim handling failed!", e);
         }
-
+        if(mappedAttrs == null){
+            mappedAttrs = new HashMap<>();
+        }
         return mappedAttrs;
     }
 

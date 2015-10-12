@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
@@ -31,9 +32,11 @@ import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.user.mgt.workflow.util.UserStoreWFConstants;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -88,11 +91,11 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
             entities[i + newRoles.length + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants
                     .ENTITY_TYPE_ROLE, tenant);
         }
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.UPDATE_USER_ROLES_EVENT) && !Boolean.TRUE
+        if (workflowService.isEventAssociated(UserStoreWFConstants.UPDATE_USER_ROLES_EVENT) && !Boolean.TRUE
                 .equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {
             throw new WorkflowException("Operation is not valid.");
         }
-        boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
+        boolean state = startWorkFlow(wfParams, nonWfParams, uuid).getExecutorResultState().state();
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
         // updated
@@ -200,6 +203,16 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
     public boolean isValidOperation(Entity[] entities) throws WorkflowException {
 
         WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
+        UserRealm userRealm;
+        AbstractUserStoreManager userStoreManager;
+        try {
+            userRealm = realmService.getTenantUserRealm(PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                    .getTenantId());
+            userStoreManager = (AbstractUserStoreManager) userRealm.getUserStoreManager();
+        } catch (UserStoreException e) {
+            throw new WorkflowException("Error while retrieving user realm.", e);
+        }
         for (int i = 0; i < entities.length; i++) {
             try {
                 if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
@@ -214,8 +227,14 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
 
                     throw new WorkflowException("One or more roles have a pending delete or rename operation which " +
                             "blocks this operation.");
+                } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && !userStoreManager
+                        .isExistingRole(entities[i].getEntityId())) {
+                    throw new WorkflowException("Role " + entities[i].getEntityId() + " does not exist.");
+                } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && !userStoreManager
+                        .isExistingUser(entities[i].getEntityId())) {
+                    throw new WorkflowException("User " + entities[i].getEntityId() + " does not exist.");
                 }
-            } catch (InternalWorkflowException e) {
+            } catch (InternalWorkflowException | org.wso2.carbon.user.core.UserStoreException e) {
                 throw new WorkflowException(e.getMessage(), e);
             }
         }

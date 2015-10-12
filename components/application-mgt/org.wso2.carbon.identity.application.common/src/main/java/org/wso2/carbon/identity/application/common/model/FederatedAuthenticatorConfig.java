@@ -31,10 +31,7 @@ import java.util.Set;
 
 public class FederatedAuthenticatorConfig implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 6562346450443426344L;
+    private static final long serialVersionUID = -2361107623257323257L;
 
     protected String name;
     protected String displayName;

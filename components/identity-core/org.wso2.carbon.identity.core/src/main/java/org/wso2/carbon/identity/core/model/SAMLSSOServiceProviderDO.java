@@ -29,7 +29,8 @@ import java.util.List;
 
 public class SAMLSSOServiceProviderDO implements Serializable {
 
-    private static final long serialVersionUID = -1213957008659821807L;
+    private static final long serialVersionUID = 7998724745099007704L;
+
     String tenantDomain;
     private String issuer;
     private String assertionConsumerUrl;

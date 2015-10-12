@@ -87,6 +87,8 @@ public class OAuthServerConfiguration {
     private static String oauth2AuthzEPUrl = null;
     private static String oauth2TokenEPUrl = null;
     private static String oauth2UserInfoEPUrl = null;
+    private static String oidcConsentPageUrl = null;
+    private static String oauth2ConsentPageUrl = null;
     private long authorizationCodeValidityPeriodInSeconds = 300;
     private long userAccessTokenValidityPeriodInSeconds = 3600;
     private long applicationAccessTokenValidityPeriodInSeconds = 3600;
@@ -249,6 +251,14 @@ public class OAuthServerConfiguration {
 
     public String getOauth2UserInfoEPUrl() {
         return oauth2UserInfoEPUrl;
+    }
+
+    public String getOIDCConsentPageUrl() {
+        return oidcConsentPageUrl;
+    }
+
+    public String getOauth2ConsentPageUrl() {
+        return oauth2ConsentPageUrl;
     }
 
     public long getAuthorizationCodeValidityPeriodInSeconds() {
@@ -902,6 +912,20 @@ public class OAuthServerConfiguration {
                 oauth2UserInfoEPUrl = elem.getText();
             }
         }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH2_CONSENT_PAGE_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth2ConsentPageUrl = elem.getText();
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OIDC_CONSENT_PAGE_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oidcConsentPageUrl = elem.getText();
+            }
+        }
     }
 
     private void parseCachingConfiguration(OMElement oauthConfigElem) {
@@ -1306,6 +1330,8 @@ public class OAuthServerConfiguration {
         public static final String OAUTH2_AUTHZ_EP_URL = "OAuth2AuthzEPUrl";
         public static final String OAUTH2_TOKEN_EP_URL = "OAuth2TokenEPUrl";
         public static final String OAUTH2_USERINFO_EP_URL = "OAuth2UserInfoEPUrl";
+        public static final String OAUTH2_CONSENT_PAGE_URL = "OAuth2ConsentPage";
+        public static final String OIDC_CONSENT_PAGE_URL = "OIDCConsentPage";
 
         // JWT Generator
         public static final String AUTHORIZATION_CONTEXT_TOKEN_GENERATION = "AuthorizationContextTokenGeneration";

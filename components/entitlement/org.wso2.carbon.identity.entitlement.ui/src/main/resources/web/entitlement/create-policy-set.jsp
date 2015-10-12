@@ -131,7 +131,7 @@
 
     int numberOfPages = 0;
     int pageNumberInt = 0;
-    String pageNumber = CharacterEncoder.getSafeText(request.getParameter("pageNumber"));
+    String pageNumber = request.getParameter("pageNumber");
     if (pageNumber == null) {
         pageNumber = "0";
     }
@@ -140,11 +140,11 @@
     } catch (NumberFormatException ignored) {
     }
 
-    String policyTypeFilter = CharacterEncoder.getSafeText(request.getParameter("policyTypeFilter"));
+    String policyTypeFilter = request.getParameter("policyTypeFilter");
     if (policyTypeFilter == null || "".equals(policyTypeFilter)) {
         policyTypeFilter = "ALL";
     }
-    String policySearchString = CharacterEncoder.getSafeText(request.getParameter("policySearchString"));
+    String policySearchString = request.getParameter("policySearchString");
     if (policySearchString == null) {
         policySearchString = "*";
     } else {

@@ -23,6 +23,8 @@ import java.io.Serializable;
 
 public class SAMLSSOReqValidationResponseDTO implements Serializable {
 
+    private static final long serialVersionUID = -2483397754723075495L;
+
     private boolean isLogOutReq;
     private boolean isValid;
     private boolean doSingleLogout;

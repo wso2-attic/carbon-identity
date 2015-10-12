@@ -26,10 +26,7 @@ import java.util.Iterator;
 
 public class ClaimMapping implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -2530192004968748230L;
+    private static final long serialVersionUID = -5329129991600888989L;
 
     private Claim localClaim;
     private Claim remoteClaim;

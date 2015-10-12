@@ -612,6 +612,22 @@ public class OAuth2Util {
             }
             return oauth2UserInfoEPUrl;
         }
+
+        public static String getOIDCConsentPageUrl() {
+            String OIDCConsentPageUrl = OAuthServerConfiguration.getInstance().getOIDCConsentPageUrl();
+            if(StringUtils.isBlank(OIDCConsentPageUrl)){
+                OIDCConsentPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_consent.do");
+            }
+            return OIDCConsentPageUrl;
+        }
+
+        public static String getOAuth2ConsentPageUrl() {
+            String oAuth2ConsentPageUrl = OAuthServerConfiguration.getInstance().getOauth2ConsentPageUrl();
+            if(StringUtils.isBlank(oAuth2ConsentPageUrl)){
+                oAuth2ConsentPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_authz.do");
+            }
+            return oAuth2ConsentPageUrl;
+        }
     }
 
     public static boolean isOIDCAuthzRequest(Set<String> scope) {

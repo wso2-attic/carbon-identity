@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.application.mgt.dao;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.base.IdentityException;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,7 @@ public interface ApplicationDAO {
      * @throws IdentityApplicationManagementException
      */
     int createApplication(ServiceProvider applicationDTO, String tenantDomain)
-            throws IdentityApplicationManagementException, IdentityException;
+            throws IdentityApplicationManagementException;
 
     /**
      * @param applicationName
@@ -53,8 +52,7 @@ public interface ApplicationDAO {
      * @param applicationDTO
      * @throws IdentityApplicationManagementException
      */
-    void updateApplication(ServiceProvider applicationDTO)
-            throws IdentityApplicationManagementException, IdentityException;
+    void updateApplication(ServiceProvider applicationDTO) throws IdentityApplicationManagementException;
 
     /**
      * @param applicationName

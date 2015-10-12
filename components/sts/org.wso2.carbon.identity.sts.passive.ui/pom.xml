@@ -95,6 +95,7 @@
                             org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.utils.*;version="${carbon.kernel.package.import.version.range}",
+                            org.owasp.encoder; version ="${encoder.wso2.imp.pkg.version.range}",
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.identity.sts.passive.ui.*;

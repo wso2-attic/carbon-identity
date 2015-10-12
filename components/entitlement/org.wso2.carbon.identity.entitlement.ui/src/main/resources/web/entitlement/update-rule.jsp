@@ -48,17 +48,17 @@
     TargetDTO targetDTO = new TargetDTO();
     entitlementPolicyBean.setRuleElementOrder(null);
 
-    String targetRowIndexString = CharacterEncoder.getSafeText(request.getParameter("targetRowIndex"));
-    String ruleRowIndexString = CharacterEncoder.getSafeText(request.getParameter("ruleRowIndex"));
-    String targetRuleRowIndexString = CharacterEncoder.getSafeText(request.getParameter("targetRuleRowIndex"));
-    String dynamicRowIndexString = CharacterEncoder.getSafeText(request.getParameter("dynamicRowIndex"));
-    String obligationRowIndexString = CharacterEncoder.getSafeText(request.getParameter("obligationRowIndex"));
+    String targetRowIndexString = request.getParameter("targetRowIndex");
+    String ruleRowIndexString = request.getParameter("ruleRowIndex");
+    String targetRuleRowIndexString = request.getParameter("targetRuleRowIndex");
+    String dynamicRowIndexString = request.getParameter("dynamicRowIndex");
+    String obligationRowIndexString = request.getParameter("obligationRowIndex");
 
-    String maxTargetRowsString = CharacterEncoder.getSafeText(request.getParameter("maxTargetRows"));
-    String maxTargetRuleRowsString = CharacterEncoder.getSafeText(request.getParameter("maxTargetRuleRows"));
-    String maxRuleRowsString = CharacterEncoder.getSafeText(request.getParameter("maxRuleRows"));
-    String maxObligationRuleRowsString = CharacterEncoder.getSafeText(request.getParameter("maxObligationRuleRows"));
-    String maxObligationRowsString = CharacterEncoder.getSafeText(request.getParameter("maxObligationRows"));
+    String maxTargetRowsString = request.getParameter("maxTargetRows");
+    String maxTargetRuleRowsString = request.getParameter("maxTargetRuleRows");
+    String maxRuleRowsString = request.getParameter("maxRuleRows");
+    String maxObligationRuleRowsString = request.getParameter("maxObligationRuleRows");
+    String maxObligationRowsString = request.getParameter("maxObligationRows");
 
     try{
         if(maxTargetRowsString != null && maxTargetRowsString.trim().length() > 0){
@@ -385,7 +385,7 @@
 //    while(true){
 //
 //        ExtendAttributeDTO dto = new ExtendAttributeDTO();
-//        String dynamicId = CharacterEncoder.getSafeText(request.
+//        String dynamicId = request.
 //                getParameter("dynamicId_" + rowNumber));
 //        if(dynamicId != null){
 //            dto.setId(dynamicId);
@@ -393,37 +393,37 @@
 //            break;
 //        }
 //
-//        String dynamicSelector = CharacterEncoder.getSafeText(request.
+//        String dynamicSelector = request.
 //                getParameter("dynamicSelector_" + rowNumber));
 //        if(dynamicSelector != null){
 //            dto.setSelector(dynamicSelector);
 //        }
 //
-//        String dynamicFunction = CharacterEncoder.getSafeText(request.
+//        String dynamicFunction = request.
 //                getParameter("dynamicFunction_" + rowNumber));
 //        if(dynamicFunction != null){
 //            dto.setFunction(dynamicFunction);
 //        }
 //
-//        String dynamicCategory = CharacterEncoder.getSafeText(request.
+//        String dynamicCategory = request.
 //                getParameter("dynamicCategory_" + rowNumber));
 //        if(dynamicCategory != null){
 //            dto.setCategory(dynamicCategory);
 //        }
 //
-//        String dynamicAttributeValue = CharacterEncoder.getSafeText(request.
+//        String dynamicAttributeValue = request.
 //                getParameter("dynamicAttributeValue_" + rowNumber));
 //        if(dynamicAttributeValue != null  && dynamicAttributeValue.trim().length() > 0){
 //            dto.setAttributeValue(dynamicAttributeValue);
 //        }
 //
-//        String dynamicAttributeId = CharacterEncoder.getSafeText(request.
+//        String dynamicAttributeId = request.
 //                getParameter("dynamicAttributeId_" + rowNumber));
 //        if(dynamicAttributeId != null){
 //            dto.setAttributeId(dynamicAttributeId);
 //        }
 //
-//        String dynamicAttributeTypes = CharacterEncoder.getSafeText(request.
+//        String dynamicAttributeTypes = request.
 //                getParameter("dynamicAttributeTypes_0" + rowNumber));
 //        if(dynamicAttributeTypes != null){
 //            dto.setDataType(dynamicAttributeTypes);

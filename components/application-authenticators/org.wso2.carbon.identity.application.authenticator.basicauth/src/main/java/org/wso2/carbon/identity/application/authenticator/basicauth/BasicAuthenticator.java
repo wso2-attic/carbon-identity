@@ -254,7 +254,9 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
                         }
                     } catch (UserStoreException e) {
                         //ignore  but log in debug
-                        log.debug("Error while retrieving UserNameAttribute for user : " + username, e);
+                        if(log.isDebugEnabled()) {
+                            log.debug("Error while retrieving UserNameAttribute for user : " + username, e);
+                        }
                     }
                 } else {
                     if (log.isDebugEnabled()) {

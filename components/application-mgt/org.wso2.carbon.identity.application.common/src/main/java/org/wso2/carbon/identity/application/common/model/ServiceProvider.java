@@ -29,10 +29,7 @@ import java.util.List;
 
 public class ServiceProvider implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1018969519851610663L;
+    private static final long serialVersionUID = 4754526832588478582L;
     private static final Log log = LogFactory.getLog(ServiceProvider.class);
 
     private int applicationID = 0;
@@ -47,6 +44,8 @@ public class ServiceProvider implements Serializable {
     private ClaimConfig claimConfig;
     private PermissionsAndRoleConfig permissionAndRoleConfig;
     private boolean saasApp;
+    private ServiceProviderProperty []spProperties = new ServiceProviderProperty[0];
+
 
     /*
      * <ServiceProvider> <ApplicationID></ApplicationID> <Description></Description>
@@ -316,4 +315,11 @@ public class ServiceProvider implements Serializable {
         this.saasApp = saasApp;
     }
 
+    public ServiceProviderProperty[] getSpProperties() {
+        return spProperties;
+    }
+
+    public void setSpProperties(ServiceProviderProperty[] spProperties) {
+        this.spProperties = spProperties;
+    }
 }
