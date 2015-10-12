@@ -93,7 +93,7 @@ import java.util.Map.Entry;
  */
 public class ApplicationDAOImpl implements ApplicationDAO {
 
-    Log log = LogFactory.getLog(ApplicationDAOImpl.class);
+    private Log log = LogFactory.getLog(ApplicationDAOImpl.class);
 
     /**
      * Get Service provider properties
