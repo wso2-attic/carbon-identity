@@ -269,8 +269,9 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
 
             }
             context.getExternalIdP().getUserIdClaimUri();
-            if (context.getExternalIdP().getIdentityProvider().getClaimConfig().getUserClaimURI() == null) {
-                context.getExternalIdP().getIdentityProvider().getClaimConfig().setUserClaimURI(FacebookAuthenticatorConstants.EMAIL);
+            if (StringUtils.isBlank(context.getExternalIdP().getIdentityProvider().getClaimConfig().getUserClaimURI())) {
+                context.getExternalIdP().getIdentityProvider().getClaimConfig().setUserClaimURI
+                        (FacebookAuthenticatorConstants.EMAIL);
             }
             String subjectFromClaims = FrameworkUtils.getFederatedSubjectFromClaims(
                     context.getExternalIdP().getIdentityProvider(), claims);
