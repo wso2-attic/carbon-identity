@@ -71,7 +71,6 @@ import java.util.Map.Entry;
 public class ApplicationDAOImpl implements ApplicationDAO {
 
     Log log = LogFactory.getLog(ApplicationDAOImpl.class);
-    boolean debugMode = log.isDebugEnabled();
 
     /**
      * Get Service provider properties
@@ -211,7 +210,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     "Application with the same name laoded from the file system.");
         }
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Creating Application " + applicationName + " for user " + qualifiedUsername);
         }
 
@@ -248,7 +247,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             }
             // some JDBC Drivers returns this in the result, some don't
             if (applicationId == 0) {
-                if (debugMode) {
+                if (log.isDebugEnabled()) {
                     log.debug("JDBC Driver did not return the application id, executing Select operation");
                 }
                 applicationId = getApplicationIDByName(applicationName, tenantID, connection);
@@ -259,7 +258,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                         Arrays.asList(serviceProvider.getSpProperties()));
             }
 
-            if (debugMode) {
+            if (log.isDebugEnabled()) {
                 log.debug("Application Stored successfully with application id " + applicationId);
             }
 
@@ -385,14 +384,14 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             throw new IdentityApplicationManagementException("Application Name is required.");
         }
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Updating Application with ID: " + applicationId);
         }
         // reads back the Application Name. This is to check if the Application
         // has been renamed
         storedAppName = getApplicationName(applicationId, connection);
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Stored Application Name " + storedAppName);
         }
 
@@ -400,7 +399,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         if (!StringUtils.equals(applicationName, storedAppName)) {
             // rename the role
             ApplicationMgtUtil.renameRole(storedAppName, applicationName);
-            if (debugMode) {
+            if (log.isDebugEnabled()) {
                 log.debug("Renaming application role from " + storedAppName + " to "
                         + applicationName);
             }
@@ -428,7 +427,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             IdentityApplicationManagementUtil.closeStatement(storeAppPrepStmt);
         }
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Updated Application successfully");
         }
 
@@ -497,7 +496,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     inboundAuthReqConfigPrepStmt.addBatch();
                 }
 
-                if (debugMode) {
+                if (log.isDebugEnabled()) {
                     log.debug("Updating inbound authentication request configuration of the application "
                             + applicationId
                             + "inbound auth key: "
@@ -929,7 +928,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                                 storeStepIDPAuthnPrepStmt.addBatch();
                             }
 
-                            if (debugMode) {
+                            if (log.isDebugEnabled()) {
                                 log.debug("Updating Local IdP of Application " + applicationId
                                         + " Step Order: " + authStep.getStepOrder() + " IdP: "
                                         + ApplicationConstants.LOCAL_IDP + " Authenticator: "
@@ -968,7 +967,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                                             storeStepIDPAuthnPrepStmt.setInt(3, authenticatorId);
                                             storeStepIDPAuthnPrepStmt.addBatch();
 
-                                            if (debugMode) {
+                                            if (log.isDebugEnabled()) {
                                                 log.debug("Updating Federated IdP of Application "
                                                         + applicationId + " Step Order: "
                                                         + authStep.getStepOrder() + " IdP: "
@@ -1094,7 +1093,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                         CharacterEncoder.getSafeText(mapping.getDefaultValue()));
                 storeClaimMapPrepStmt.addBatch();
 
-                if (debugMode) {
+                if (log.isDebugEnabled()) {
                     log.debug("Storing Claim Mapping. Local Claim: "
                             + mapping.getLocalClaim().getClaimUri() + " SPClaim: "
                             + mapping.getRemoteClaim().getClaimUri());
@@ -1141,7 +1140,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 storeRoleMapPrepStmt.setInt(4, applicationID);
                 storeRoleMapPrepStmt.addBatch();
 
-                if (debugMode) {
+                if (log.isDebugEnabled()) {
                     log.debug("Storing Claim Mapping. IDPRole: " + roleMapping.getLocalRole()
                             + " SPRole: " + roleMapping.getRemoteRole());
                 }
@@ -1248,7 +1247,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         ServiceProvider serviceProvider = null;
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Loading Basic Application Data of " + applicationName);
         }
 
@@ -1307,7 +1306,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
                 serviceProvider.setSaasApp("1".equals(basicAppDataResultSet.getString(16)));
 
-                if (debugMode) {
+                if (log.isDebugEnabled()) {
                     log.debug("ApplicationID: " + serviceProvider.getApplicationID()
                             + " ApplicationName: " + serviceProvider.getApplicationName()
                             + " UserName: " + serviceProvider.getOwner().getUserName()
@@ -1369,7 +1368,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     public ServiceProvider getApplicationData(String clientId, String type, String tenantDomain)
             throws IdentityApplicationManagementException {
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Loading Application Data of Client " + clientId);
         }
 
@@ -1443,7 +1442,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Loading Application Name for ID: " + applicationID);
         }
 
@@ -1462,7 +1461,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 applicationName = appNameResultSet.getString(1);
             }
 
-            if (debugMode) {
+            if (log.isDebugEnabled()) {
                 log.debug("ApplicationName : " + applicationName);
             }
             return applicationName;
@@ -1527,7 +1526,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         Map<String, InboundAuthenticationRequestConfig> authRequestMap = new HashMap<String, InboundAuthenticationRequestConfig>();
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Reading Clients of Application " + applicationId);
         }
 
@@ -1571,7 +1570,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                             new Property[]{prop}, inbountAuthRequest.getProperties())));
                 }
 
-                if (debugMode) {
+                if (log.isDebugEnabled()) {
                     log.debug("Auth request key: " + inbountAuthRequest.getInboundAuthKey()
                             + " Auth request type: " + inbountAuthRequest.getInboundAuthType());
                 }
@@ -1599,7 +1598,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         PreparedStatement getStepInfoPrepStmt = null;
         ResultSet stepInfoResultSet = null;
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Reading Steps of Application " + applicationId);
         }
 
@@ -1847,7 +1846,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         ClaimConfig claimConfig = new ClaimConfig();
         ArrayList<ClaimMapping> claimMappingList = new ArrayList<ClaimMapping>();
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Reading Claim Mappings of Application " + applicationId);
         }
 
@@ -1893,7 +1892,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
                 claimMappingList.add(claimMapping);
 
-                if (debugMode) {
+                if (log.isDebugEnabled()) {
                     log.debug("Local Claim: " + claimMapping.getLocalClaim().getClaimUri()
                             + " SPClaim: " + claimMapping.getRemoteClaim().getClaimUri());
                 }
@@ -2055,7 +2054,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     private void deleteRequestPathAuthenticators(int applicationID, Connection connection)
             throws SQLException {
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Deleting request path authenticators " + applicationID);
         }
 
@@ -2087,7 +2086,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         ArrayList<RoleMapping> roleMappingList = new ArrayList<RoleMapping>();
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Reading Role Mapping of Application " + applicationId);
         }
 
@@ -2109,7 +2108,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 roleMapping.setRemoteRole(resultSet.getString(2));
                 roleMappingList.add(roleMapping);
 
-                if (debugMode) {
+                if (log.isDebugEnabled()) {
                     log.debug("Local Role: " + roleMapping.getLocalRole().getLocalRoleName()
                             + " SPRole: " + roleMapping.getRemoteRole());
                 }
@@ -2137,7 +2136,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String username = CarbonContext.getThreadLocalCarbonContext().getUsername();
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Reading all Applications of Tenant " + tenantID);
         }
 
@@ -2163,7 +2162,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
                 if (ApplicationMgtUtil.isUserAuthorized(basicInfo.getApplicationName(), username)) {
                     appInfo.add(basicInfo);
-                    if (debugMode) {
+                    if (log.isDebugEnabled()) {
                         log.debug("Application Name:" + basicInfo.getApplicationName());
                     }
                 }
@@ -2192,7 +2191,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         Connection connection = IdentityDatabaseUtil.getDBConnection();
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Deleting Application " + appName);
         }
 
@@ -2238,7 +2237,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Deleting Application " + applicationID);
         }
 
@@ -2288,7 +2287,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     private void deleteInboundAuthRequestConfiguration(int applicationID, Connection connection)
             throws SQLException {
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Deleting Clients of the Application " + applicationID);
         }
 
@@ -2315,7 +2314,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     private void deleteLocalAndOutboundAuthenticationConfiguration(int applicationId,
                                                                    Connection connection) throws SQLException {
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Deleting Steps of Application " + applicationId);
         }
 
@@ -2343,7 +2342,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     private void deleteOutboundProvisioningConfiguration(int applicationId, Connection connection)
             throws SQLException {
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Deleting Steps of Application " + applicationId);
         }
 
@@ -2388,7 +2387,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     private void deteClaimConfiguration(int applicationID, Connection connection)
             throws SQLException {
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Deleting Application Claim Mapping " + applicationID);
         }
 
@@ -2417,7 +2416,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Deleting Role Mapping of Application " + applicationID);
         }
 
@@ -2552,7 +2551,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
         Map<String, String> claimMapping = new HashMap<String, String>();
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Reading Claim Mappings of Application " + serviceProviderName);
         }
 
@@ -2622,7 +2621,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
         List<String> reqClaimUris = new ArrayList<String>();
 
-        if (debugMode) {
+        if (log.isDebugEnabled()) {
             log.debug("Reading Claim Mappings of Application " + serviceProviderName);
         }
 
