@@ -47,8 +47,8 @@ import java.util.UUID;
 
 public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHandler {
 
-    private static final String FRIENDLY_NAME = "Delete User Claim";
-    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user deletes his claims.";
+    private static final String FRIENDLY_NAME = "Delete User Claims";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user deletes his/her claims.";
 
     private static final String USERNAME = "Username";
     private static final String USER_STORE_DOMAIN = "User Store Domain";

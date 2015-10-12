@@ -45,8 +45,8 @@ import java.util.UUID;
 
 public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHandler {
 
-    private static final String FRIENDLY_NAME = "Update User Claim";
-    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user update one of his/her claim.";
+    private static final String FRIENDLY_NAME = "Update User Claims";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user update his/her claims.";
 
     private static final String USERNAME = "Username";
     private static final String USER_STORE_DOMAIN = "User Store Domain";
