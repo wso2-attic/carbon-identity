@@ -558,6 +558,7 @@ CREATE OR REPLACE TRIGGER IDP_METADATA_TRIG
                BEGIN
                    SELECT IDP_METADATA_SEQ.nextval INTO :NEW.ID FROM dual;
                END;
+/
 
 INSERT INTO IDP_METADATA (IDP_ID, NAME, VALUE, DISPLAY_NAME) VALUES (1, 'SessionIdleTimeout', '20160', 'Session Idle Timeout');
 INSERT INTO IDP_METADATA (IDP_ID, NAME, VALUE, DISPLAY_NAME) VALUES (1, 'RememberMeTimeout', '15', 'RememberMe Timeout');
