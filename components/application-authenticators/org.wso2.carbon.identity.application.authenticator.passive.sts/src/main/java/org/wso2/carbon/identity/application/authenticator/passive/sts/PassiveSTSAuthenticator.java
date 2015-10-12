@@ -28,6 +28,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authenticator.passive.sts.exception.PassiveSTSException;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.manager.PassiveSTSManager;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.util.PassiveSTSConstants;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -63,7 +64,7 @@ public class PassiveSTSAuthenticator extends AbstractApplicationAuthenticator {
 
 
         ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
-        String idpURL = context.getAuthenticatorProperties().get(PassiveSTSConstants.PASSIVE_STS_URL);
+        String idpURL = context.getAuthenticatorProperties().get(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL);
         String loginPage;
 
         try {
