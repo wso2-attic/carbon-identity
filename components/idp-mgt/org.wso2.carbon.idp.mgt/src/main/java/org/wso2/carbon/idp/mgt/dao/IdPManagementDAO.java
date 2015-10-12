@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.application.common.model.ClaimConfig;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.IdentityProviderProperty;
 import org.wso2.carbon.identity.application.common.model.JustInTimeProvisioningConfig;
 import org.wso2.carbon.identity.application.common.model.LocalRole;
 import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
@@ -52,6 +53,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -125,6 +127,11 @@ public class IdPManagementDAO {
                         .equals(identityProvider.getIdentityProviderName())) {
                     idps.add(identityProvider);
                 }
+                List<IdentityProviderProperty> propertyList = getIdentityPropertiesByIdpId(dbConnection,
+                        Integer.parseInt(rs.getString("ID")));
+                identityProvider
+                        .setIdpProperties(propertyList.toArray(new IdentityProviderProperty[propertyList.size()]));
+
             }
             dbConnection.commit();
             return idps;
@@ -138,6 +145,101 @@ public class IdPManagementDAO {
                 IdentityApplicationManagementUtil.closeResultSet(rs);
                 IdentityApplicationManagementUtil.closeConnection(dbConnection);
             }
+        }
+    }
+
+    /**
+     * Get Identity properties map
+     * @param dbConnection database connection
+     * @param idpId IDP Id
+     * @return Identity provider properties
+     */
+    private List<IdentityProviderProperty> getIdentityPropertiesByIdpId(Connection dbConnection, int idpId)
+            throws SQLException {
+
+        String sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_METADATA_BY_IDP_ID;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        List<IdentityProviderProperty> idpProperties = new ArrayList<IdentityProviderProperty>();
+        try {
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setInt(1, idpId);
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                IdentityProviderProperty property = new IdentityProviderProperty();
+                property.setName(rs.getString("NAME"));
+                property.setValue(rs.getString("VALUE"));
+                property.setDisplayName(rs.getString("DISPLAY_NAME"));
+                idpProperties.add(property);
+            }
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(prepStmt);
+            IdentityApplicationManagementUtil.closeResultSet(rs);
+        }
+        return idpProperties;
+    }
+
+    /**
+     * Add Identity provider properties
+     *
+     * @param dbConnection
+     * @param idpId
+     * @param properties
+     * @throws SQLException
+     */
+    private void addIdentityProviderProperties(Connection dbConnection, int idpId,
+            List<IdentityProviderProperty> properties)
+            throws SQLException {
+        String sqlStmt = IdPManagementConstants.SQLQueries.ADD_IDP_METADATA;
+        PreparedStatement prepStmt = null;
+        try {
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+            for (IdentityProviderProperty property : properties) {
+                prepStmt.setInt(1, idpId);
+                prepStmt.setString(2, property.getName());
+                prepStmt.setString(3, property.getValue());
+                prepStmt.setString(4, property.getDisplayName());
+                prepStmt.addBatch();
+            }
+            prepStmt.executeBatch();
+
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(prepStmt);
+        }
+    }
+
+    /**
+     * Update Identity provider properties
+     *
+     * @param dbConnection
+     * @param idpId
+     * @param properties
+     * @throws SQLException
+     */
+    private void updateIdentityProviderProperties(Connection dbConnection, int idpId,
+            List<IdentityProviderProperty> properties)
+            throws SQLException {
+
+        PreparedStatement prepStmt = null;
+        try {
+            prepStmt = dbConnection.prepareStatement(IdPManagementConstants.SQLQueries.DELETE_IDP_METADATA);
+            prepStmt.setInt(1, idpId);
+            prepStmt.executeUpdate();
+
+            prepStmt = dbConnection.prepareStatement(IdPManagementConstants.SQLQueries.ADD_IDP_METADATA);
+
+            for (IdentityProviderProperty property : properties) {
+                prepStmt.setInt(1, idpId);
+                prepStmt.setString(2, property.getName());
+                prepStmt.setString(3, property.getValue());
+                prepStmt.setString(4, property.getDisplayName());
+                prepStmt.addBatch();
+            }
+            prepStmt.executeBatch();
+
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(prepStmt);
         }
     }
 
@@ -1021,6 +1123,10 @@ public class IdPManagementDAO {
                 federatedIdp.setPermissionAndRoleConfig(getPermissionsAndRoleConfiguration(
                         dbConnection, idPName, idpId, tenantId));
 
+                List<IdentityProviderProperty> propertyList = getIdentityPropertiesByIdpId(dbConnection,
+                        Integer.parseInt(rs.getString("ID")));
+                federatedIdp.setIdpProperties(propertyList.toArray(new IdentityProviderProperty[propertyList.size()]));
+
             }
             dbConnection.commit();
             return federatedIdp;
@@ -1168,6 +1274,10 @@ public class IdPManagementDAO {
                 // get permission and role configuration.
                 federatedIdp.setPermissionAndRoleConfig(getPermissionsAndRoleConfiguration(
                         dbConnection, idPName, idpId, tenantId));
+
+                List<IdentityProviderProperty> propertyList = getIdentityPropertiesByIdpId(dbConnection,
+                        Integer.parseInt(rs.getString("ID")));
+                federatedIdp.setIdpProperties(propertyList.toArray(new IdentityProviderProperty[propertyList.size()]));
 
             }
             dbConnection.commit();
@@ -1395,6 +1505,9 @@ public class IdPManagementDAO {
                 }
 
             }
+            if(identityProvider.getIdpProperties() != null) {
+                addIdentityProviderProperties(dbConnection, idPId, Arrays.asList(identityProvider.getIdpProperties()));
+            }
 
             dbConnection.commit();
         } catch (IOException e) {
@@ -1567,6 +1680,11 @@ public class IdPManagementDAO {
                         newIdentityProvider.getProvisioningConnectorConfigs(), dbConnection, idpId,
                         tenantId);
 
+                if(newIdentityProvider.getIdpProperties() != null) {
+                    updateIdentityProviderProperties(dbConnection, idpId,
+                            Arrays.asList(newIdentityProvider.getIdpProperties()));
+                }
+
             }
 
             dbConnection.commit();
@@ -1646,9 +1764,7 @@ public class IdPManagementDAO {
                 log.error(msg);
                 return;
             }
-
             deleteIdP(dbConnection, tenantId, idPName);
-
             dbConnection.commit();
         } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
@@ -1658,6 +1774,7 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
         }
     }
+
 
     public void deleteTenantRole(int tenantId, String role, String tenantDomain)
             throws IdentityProviderManagementException {
