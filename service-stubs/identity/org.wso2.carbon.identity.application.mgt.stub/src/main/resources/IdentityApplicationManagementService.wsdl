@@ -290,6 +290,7 @@
                     <xs:element minOccurs="0" name="permissionAndRoleConfig" nillable="true" type="ax2120:PermissionsAndRoleConfig"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="requestPathAuthenticatorConfigs" nillable="true" type="ax2120:RequestPathAuthenticatorConfig"/>
                     <xs:element minOccurs="0" name="saasApp" type="xs:boolean"/>
+		    <xs:element maxOccurs="unbounded" minOccurs="0" name="spProperties" nillable="true" type="ax2120:ServiceProviderProperty"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="InboundAuthenticationConfig">
@@ -338,6 +339,14 @@
                     <xs:element minOccurs="0" name="userStoreDomain" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
+	    <xs:complexType name="ServiceProviderProperty">
+		<xs:sequence>
+		     <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
+		     <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+		     <xs:element minOccurs="0" name="value" nillable="true" type="xs:string"/>
+		</xs:sequence>
+	    </xs:complexType>
+	
         </xs:schema>
     </wsdl:types>
     <wsdl:message name="createApplicationRequest">
