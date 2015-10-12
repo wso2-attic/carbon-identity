@@ -79,7 +79,7 @@ public class DeleteRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
                 (getWorkFlowCompleted()) && !isValidOperation(new Entity[]{roleEntity})) {
             throw new WorkflowException("Operation is not valid.");
         }
-        boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
+        boolean state = startWorkFlow(wfParams, nonWfParams, uuid).getExecutorResultState().state();
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
         // updated

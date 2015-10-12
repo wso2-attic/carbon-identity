@@ -39,6 +39,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.util.ExecutorResultState;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestBuilder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
@@ -63,7 +64,7 @@ public class WorkFlowExecutorManager {
         return instance;
     }
 
-    public void executeWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
+    public WorkflowExecutorResult executeWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
         if (StringUtils.isBlank(workFlowRequest.getUuid())) {
@@ -76,8 +77,7 @@ public class WorkFlowExecutorManager {
                 requestAssociationDAO.getWorkflowAssociationsForRequest(workFlowRequest.getEventType(), workFlowRequest
                         .getTenantId());
         if (CollectionUtils.isEmpty(associations)) {
-            handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null, "");
-            return;
+            return new WorkflowExecutorResult(ExecutorResultState.NO_ASSOCIATION);
         }
         boolean workflowEngaged = false;
         boolean requestSaved = false;
@@ -107,18 +107,22 @@ public class WorkFlowExecutorManager {
                                                                              .toString());
                 }
             } catch (JaxenException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Error when executing the xpath expression:" + association.getAssociationCondition() + " , on " +
-                              xmlRequest, e);
-                }
+                String errorMsg = "Error when executing the xpath expression:" + association.getAssociationCondition() + " , on " +
+                                  xmlRequest ;
+                log.error( errorMsg, e);
+                return new WorkflowExecutorResult(ExecutorResultState.FAILED, errorMsg);
             } catch (CloneNotSupportedException e) {
-                log.error("Error while cloning workflowRequest object at executor manager.", e);
+                String errorMsg = "Error while cloning workflowRequest object at executor manager." ;
+                log.error(errorMsg, e);
+                return new WorkflowExecutorResult(ExecutorResultState.FAILED, errorMsg);
             }
         }
 
         if (!workflowEngaged) {
-            handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null, "");
+            //handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null, "");
+            return new WorkflowExecutorResult(ExecutorResultState.CONDITION_FAILED);
         }
+        return new WorkflowExecutorResult(ExecutorResultState.STARTED_ASSOCIATION);
     }
 
     private void handleCallback(WorkflowRequest request, String status, Map<String, Object> additionalParams, String
