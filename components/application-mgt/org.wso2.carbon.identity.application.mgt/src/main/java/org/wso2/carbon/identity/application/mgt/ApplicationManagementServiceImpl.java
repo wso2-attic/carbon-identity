@@ -56,6 +56,7 @@ import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementSe
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponentHolder;
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationMgtListenerServiceComponent;
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
+import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
@@ -123,40 +124,40 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
 
         startTenantFlow(tenantDomain, username);
-        boolean roleCreated = false;
-        boolean permissionStored = false;
 
+        // first we need to create a role with the application name.
+        // only the users in this role will be able to edit/update the
+        // application.
+        ApplicationMgtUtil.createAppRole(serviceProvider.getApplicationName(), username);
         try {
-            // first we need to create a role with the application name.
-            // only the users in this role will be able to edit/update the
-            // application.
-            ApplicationMgtUtil.createAppRole(serviceProvider.getApplicationName(), username);
-            roleCreated = true;
-
             ApplicationMgtUtil.storePermissions(serviceProvider.getApplicationName(), username,
                     serviceProvider.getPermissionAndRoleConfig());
-            permissionStored = true;
-
+        } catch (IdentityApplicationManagementException e) {
+            try {
+                ApplicationMgtUtil.deleteAppRole(serviceProvider.getApplicationName());
+            } catch (IdentityApplicationManagementException e1) {
+                log.error("Exception occurred while trying to delete application role: " + serviceProvider
+                        .getApplicationName(), e1);
+            }
+            throw e;
+        }
+        try{
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             appDAO.createApplication(serviceProvider, tenantDomain);
-
-        } catch (Exception e) {
+        } catch (IdentityApplicationManagementException e) {
             try {
-                if (roleCreated) {
-                    ApplicationMgtUtil.deleteAppRole(serviceProvider.getApplicationName());
-                }
-                if (permissionStored) {
-                    ApplicationMgtUtil.deletePermissions(serviceProvider.getApplicationName());
-                }
-            } catch (Exception e1) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Exception occurred while trying to delete the role/permissions for: " +
-                            serviceProvider.getApplicationName(), e1);
-                }
+                ApplicationMgtUtil.deleteAppRole(serviceProvider.getApplicationName());
+            } catch (IdentityApplicationManagementException e1) {
+                log.error("Exception occurred while trying to delete the application role for: " +
+                        serviceProvider.getApplicationName(), e1);
             }
-            String error = "Error occurred while creating the application/role/permissions for: " +
-                    serviceProvider.getApplicationName();
-            throw new IdentityApplicationManagementException(error, e);
+            try{
+                ApplicationMgtUtil.deletePermissions(serviceProvider.getApplicationName());
+            } catch (IdentityApplicationManagementException e1) {
+                log.error("Exception occurred while trying to delete the permissions for: " +
+                        serviceProvider.getApplicationName(), e1);
+            }
+            throw e;
         } finally {
             endTenantFlow();
         }

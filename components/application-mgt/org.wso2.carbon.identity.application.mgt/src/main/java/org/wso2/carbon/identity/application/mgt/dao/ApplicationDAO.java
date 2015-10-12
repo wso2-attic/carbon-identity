@@ -34,7 +34,7 @@ public interface ApplicationDAO {
      * @throws IdentityApplicationManagementException
      */
     int createApplication(ServiceProvider applicationDTO, String tenantDomain)
-            throws IdentityApplicationManagementException, IdentityException;
+            throws IdentityApplicationManagementException;
 
     /**
      * @param applicationName
@@ -53,8 +53,7 @@ public interface ApplicationDAO {
      * @param applicationDTO
      * @throws IdentityApplicationManagementException
      */
-    void updateApplication(ServiceProvider applicationDTO)
-            throws IdentityApplicationManagementException, IdentityException;
+    void updateApplication(ServiceProvider applicationDTO) throws IdentityApplicationManagementException;
 
     /**
      * @param applicationName

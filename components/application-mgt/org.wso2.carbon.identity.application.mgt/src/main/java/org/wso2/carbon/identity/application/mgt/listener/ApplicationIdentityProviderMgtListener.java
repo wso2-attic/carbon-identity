@@ -36,8 +36,6 @@ import org.wso2.carbon.idp.mgt.listener.AbstractIdentityProviderMgtListener;
 
 public class ApplicationIdentityProviderMgtListener extends AbstractIdentityProviderMgtListener {
 
-    private static final Log log = LogFactory.getLog(ApplicationIdentityProviderMgtListener.class);
-
     @Override
     public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider, String tenantDomain) throws
             IdentityProviderManagementException {
@@ -72,12 +70,12 @@ public class ApplicationIdentityProviderMgtListener extends AbstractIdentityProv
                     if (StringUtils.equals(fedIdp.getIdentityProviderName(), identityProvider
                             .getIdentityProviderName())) {
 
-                        String defualtAuthName = fedIdp
+                        String defaultAuthName = fedIdp
                                 .getDefaultAuthenticatorConfig().getName();
 
                         String currentDefaultAuthName = identityProvider.getDefaultAuthenticatorConfig().getName();
 
-                        if (!StringUtils.equals(currentDefaultAuthName, defualtAuthName)) {
+                        if (!StringUtils.equals(currentDefaultAuthName, defaultAuthName)) {
                             FederatedAuthenticatorConfig currentDefaultAuthenticatorConfig = identityProvider
                                     .getDefaultAuthenticatorConfig();
                             fedIdp.setDefaultAuthenticatorConfig(currentDefaultAuthenticatorConfig);
@@ -87,7 +85,7 @@ public class ApplicationIdentityProviderMgtListener extends AbstractIdentityProv
                     }
                 }
             }
-        } catch (IdentityApplicationManagementException | IdentityException e) {
+        } catch (IdentityApplicationManagementException e) {
             throw new IdentityProviderManagementException("Error when updating default authenticator of service providers", e);
         }
         return true;
