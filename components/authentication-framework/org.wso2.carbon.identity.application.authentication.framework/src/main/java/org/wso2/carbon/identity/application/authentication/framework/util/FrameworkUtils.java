@@ -1031,9 +1031,6 @@ public class FrameworkUtils {
                                                        Map<ClaimMapping, String> claimMappings) {
 
         String userIdClaimURI = identityProvider.getClaimConfig().getUserClaimURI();
-        if (StringUtils.isBlank(userIdClaimURI)) {
-            userIdClaimURI = EMAIL;
-        }
         ClaimMapping claimMapping = new ClaimMapping();
         Claim claim = new Claim();
         claim.setClaimUri(userIdClaimURI);
