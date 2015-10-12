@@ -19,8 +19,6 @@
 package org.wso2.carbon.identity.application.mgt.listener;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
 import org.wso2.carbon.identity.application.common.model.AuthenticationStep;
@@ -30,7 +28,6 @@ import org.wso2.carbon.identity.application.common.model.LocalAndOutboundAuthent
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.listener.AbstractIdentityProviderMgtListener;
 

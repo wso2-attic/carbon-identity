@@ -56,7 +56,6 @@ import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementSe
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponentHolder;
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationMgtListenerServiceComponent;
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;

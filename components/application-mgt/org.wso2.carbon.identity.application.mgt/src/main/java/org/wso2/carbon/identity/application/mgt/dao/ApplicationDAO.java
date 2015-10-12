@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.application.mgt.dao;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationBasicInfo;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.base.IdentityException;
 
 import java.util.List;
 import java.util.Map;
