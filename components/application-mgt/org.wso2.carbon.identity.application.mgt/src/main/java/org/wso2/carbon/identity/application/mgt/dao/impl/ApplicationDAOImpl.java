@@ -48,6 +48,7 @@ import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorCo
 import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.common.model.ServiceProviderProperty;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
@@ -93,6 +94,102 @@ import java.util.Map.Entry;
 public class ApplicationDAOImpl implements ApplicationDAO {
 
     private Log log = LogFactory.getLog(ApplicationDAOImpl.class);
+
+    /**
+     * Get Service provider properties
+     * @param dbConnection database connection
+     * @param SpId SP Id
+     * @return service provider properties
+     */
+    private List<ServiceProviderProperty> getServicePropertiesBySpId(Connection dbConnection, int SpId)
+            throws SQLException {
+
+        String sqlStmt = ApplicationMgtDBQueries.GET_SP_METADATA_BY_SP_ID;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        List<ServiceProviderProperty> idpProperties = new ArrayList<ServiceProviderProperty>();
+        try {
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setInt(1, SpId);
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                ServiceProviderProperty property = new ServiceProviderProperty();
+                property.setName(rs.getString("NAME"));
+                property.setValue(rs.getString("VALUE"));
+                property.setDisplayName(rs.getString("DISPLAY_NAME"));
+                idpProperties.add(property);
+            }
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(prepStmt);
+            IdentityApplicationManagementUtil.closeResultSet(rs);
+        }
+        return idpProperties;
+    }
+
+    /**
+     * Add Service provider properties
+     *
+     * @param dbConnection
+     * @param spId
+     * @param properties
+     * @throws SQLException
+     */
+    private void addServiceProviderProperties(Connection dbConnection, int spId,
+            List<ServiceProviderProperty> properties)
+            throws SQLException {
+        String sqlStmt = ApplicationMgtDBQueries.ADD_SP_METADATA;
+        PreparedStatement prepStmt = null;
+        try {
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+            for (ServiceProviderProperty property : properties) {
+                prepStmt.setInt(1, spId);
+                prepStmt.setString(2, property.getName());
+                prepStmt.setString(3, property.getValue());
+                prepStmt.setString(4, property.getDisplayName());
+                prepStmt.addBatch();
+            }
+            prepStmt.executeBatch();
+
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(prepStmt);
+        }
+    }
+
+    /**
+     * Update Service provider properties
+     *
+     * @param dbConnection
+     * @param spId
+     * @param properties
+     * @throws SQLException
+     */
+    private void updateServiceProviderProperties(Connection dbConnection, int spId,
+            List<ServiceProviderProperty> properties)
+            throws SQLException {
+
+        PreparedStatement prepStmt = null;
+        try {
+            prepStmt = dbConnection.prepareStatement(ApplicationMgtDBQueries.DELETE_SP_METADATA);
+            prepStmt.setInt(1, spId);
+            prepStmt.executeUpdate();
+
+            prepStmt = dbConnection.prepareStatement(ApplicationMgtDBQueries.ADD_SP_METADATA);
+
+            for (ServiceProviderProperty property : properties) {
+                prepStmt.setInt(1, spId);
+                prepStmt.setString(2, property.getName());
+                prepStmt.setString(3, property.getValue());
+                prepStmt.setString(4, property.getDisplayName());
+                prepStmt.addBatch();
+            }
+            prepStmt.executeBatch();
+
+        } finally {
+            IdentityApplicationManagementUtil.closeStatement(prepStmt);
+        }
+    }
+
 
     /**
      * Stores basic application information and meta-data such as the application name, creator and
@@ -167,6 +264,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     log.debug("JDBC Driver did not return the application id, executing Select operation");
                 }
                 applicationId = getApplicationIDByName(applicationName, tenantID, connection);
+            }
+
+            if (serviceProvider.getSpProperties() != null) {
+                addServiceProviderProperties(connection, applicationId,
+                        Arrays.asList(serviceProvider.getSpProperties()));
             }
 
             if (log.isDebugEnabled()) {
@@ -248,6 +350,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     serviceProvider.getPermissionAndRoleConfig(), connection);
             deleteAssignedPermissions(connection, serviceProvider.getApplicationName(),
                     serviceProvider.getPermissionAndRoleConfig().getPermissions());
+
+            if (serviceProvider.getSpProperties() != null) {
+                updateServiceProviderProperties(connection, applicationId,
+                        Arrays.asList(serviceProvider.getSpProperties()));
+            }
 
             if (!connection.getAutoCommit()) {
                 connection.commit();
@@ -1127,6 +1234,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             RequestPathAuthenticatorConfig[] requestPathAuthenticators = getRequestPathAuthenticators(
                     applicationId, connection, tenantID);
             serviceProvider.setRequestPathAuthenticatorConfigs(requestPathAuthenticators);
+
+            List<ServiceProviderProperty> propertyList = getServicePropertiesBySpId(connection, applicationId);
+            serviceProvider.setSpProperties(propertyList.toArray(new ServiceProviderProperty[propertyList.size()]));
+
             return serviceProvider;
 
         } catch (SQLException e) {
