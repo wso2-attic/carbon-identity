@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class ExternalIdPConfig implements Serializable {
 
-    private static final long serialVersionUID = -8973637869824303767L;
+    private static final long serialVersionUID = 8406982734621371639L;
 
     private IdentityProvider identityProvider;
     private ClaimConfig claimConfiguration;

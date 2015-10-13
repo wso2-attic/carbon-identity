@@ -26,6 +26,8 @@ import java.io.Serializable;
  */
 public class RandomPasswordContainer implements Serializable {
 
+    private static final long serialVersionUID = -5282260905622533906L;
+
     private RandomPassword[] randomPasswords;
     private String uniqueID;
 

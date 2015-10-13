@@ -46,7 +46,7 @@
 	%>
 
 	<script>
-		location.href = 'configure-service-provider.jsp?authType=flow&display=auth_config';
+		location.href = 'configure-service-provider.jsp?authType=flow&display=auth_config&action=update';
 	</script>
 
 

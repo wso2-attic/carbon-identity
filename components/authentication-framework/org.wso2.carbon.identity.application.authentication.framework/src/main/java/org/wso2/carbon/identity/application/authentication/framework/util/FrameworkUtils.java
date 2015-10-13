@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.util;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -1031,9 +1030,6 @@ public class FrameworkUtils {
                                                        Map<ClaimMapping, String> claimMappings) {
 
         String userIdClaimURI = identityProvider.getClaimConfig().getUserClaimURI();
-        if (StringUtils.isBlank(userIdClaimURI)) {
-            userIdClaimURI = EMAIL;
-        }
         ClaimMapping claimMapping = new ClaimMapping();
         Claim claim = new Claim();
         claim.setClaimUri(userIdClaimURI);

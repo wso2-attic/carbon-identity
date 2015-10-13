@@ -22,6 +22,8 @@ import java.io.Serializable;
 
 public class RequestParameter implements Serializable{
 
+    private static final long serialVersionUID = -8564170214424881696L;
+
     private String name;
     private Object value;
     private String valueType;

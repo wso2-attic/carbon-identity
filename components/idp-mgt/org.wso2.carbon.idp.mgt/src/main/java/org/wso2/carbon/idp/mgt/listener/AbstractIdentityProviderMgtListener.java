@@ -27,35 +27,51 @@ import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 
 public abstract class AbstractIdentityProviderMgtListener implements IdentityProviderMgtListener {
 
-    public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+    public boolean doPreAddResidentIdP(IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException {
         return true;
     }
 
-    public boolean doPostUpdateResidentIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+    public boolean doPostAddResidentIdP(IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException {
         return true;
     }
 
-    public boolean doPreAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+    public boolean doPreUpdateResidentIdP(IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException {
         return true;
     }
 
-    public boolean doPostAddIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+    public boolean doPostUpdateResidentIdP(IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException {
         return true;
     }
 
-    public boolean doPreDeleteIdP(String idPName) throws IdentityProviderManagementException {
+    public boolean doPreAddIdP(IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException {
         return true;
     }
 
-    public boolean doPostDeleteIdP(String idPName) throws IdentityProviderManagementException {
+    public boolean doPostAddIdP(IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException {
         return true;
     }
 
-    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
+    public boolean doPreDeleteIdP(String idPName, String tenantDomain) throws IdentityProviderManagementException {
         return true;
     }
 
-    public boolean doPostUpdateIdP(String oldIdPName, IdentityProvider identityProvider) throws IdentityProviderManagementException {
+    public boolean doPostDeleteIdP(String idPName, String tenantDomain) throws IdentityProviderManagementException {
+        return true;
+    }
+
+    public boolean doPreUpdateIdP(String oldIdPName, IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException {
+        return true;
+    }
+
+    public boolean doPostUpdateIdP(String oldIdPName, IdentityProvider identityProvider, String tenantDomain) throws
+            IdentityProviderManagementException {
         return true;
     }
 

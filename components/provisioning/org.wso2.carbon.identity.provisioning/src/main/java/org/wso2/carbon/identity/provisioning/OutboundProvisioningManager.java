@@ -865,7 +865,18 @@ public class OutboundProvisioningManager {
 
         UserStoreManager userstore = null;
         userstore = realm.getUserStoreManager();
-        Claim[] claimArray = userstore.getUserClaimValues(userName, null);
+        Claim[] claimArray = null;
+        try {
+            claimArray = userstore.getUserClaimValues(userName, null);
+        } catch (UserStoreException e) {
+            if (e.getMessage().contains("UserNotFound")) {
+                if (log.isDebugEnabled()) {
+                    log.debug("User " + userName + " not found in user store");
+                }
+            } else {
+                throw e;
+            }
+        }
         if (claimArray != null) {
             for (Claim claim : claimArray) {
                 inboundAttributes.put(claim.getClaimUri(), claim.getValue());

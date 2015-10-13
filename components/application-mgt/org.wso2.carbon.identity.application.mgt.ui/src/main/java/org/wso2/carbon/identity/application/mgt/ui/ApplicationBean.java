@@ -18,6 +18,7 @@
 package org.wso2.carbon.identity.application.mgt.ui;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.common.model.xsd.ApplicationPermission;
 import org.wso2.carbon.identity.application.common.model.xsd.AuthenticationStep;
 import org.wso2.carbon.identity.application.common.model.xsd.Claim;
@@ -60,6 +61,7 @@ public class ApplicationBean {
 
     private ServiceProvider serviceProvider;
     private IdentityProvider[] federatedIdentityProviders;
+    private Map<String, IdentityProvider> federatedIdentityProvidersMap = new HashMap<>();
     private List<IdentityProvider> enabledFederatedIdentityProviders;
     private LocalAuthenticatorConfig[] localAuthenticatorConfigs;
     private RequestPathAuthenticatorConfig[] requestPathAuthenticators;
@@ -84,6 +86,7 @@ public class ApplicationBean {
     public void reset() {
         serviceProvider = null;
         federatedIdentityProviders = null;
+        federatedIdentityProvidersMap.clear();
         localAuthenticatorConfigs = null;
         requestPathAuthenticators = null;
         roleMap = null;
@@ -189,6 +192,12 @@ public class ApplicationBean {
      */
     public void setFederatedIdentityProviders(IdentityProvider[] federatedIdentityProviders) {
         this.federatedIdentityProviders = federatedIdentityProviders;
+        if(federatedIdentityProviders != null) {
+            federatedIdentityProvidersMap.clear();
+            for(IdentityProvider identityProvider : federatedIdentityProviders) {
+                federatedIdentityProvidersMap.put(identityProvider.getIdentityProviderName(), identityProvider);
+            }
+        }
     }
 
     public List<IdentityProvider> getEnabledFederatedIdentityProviders() {
@@ -875,25 +884,69 @@ public class ApplicationBean {
                         + "_fed_auth");
 
                 if (federatedIdpNames != null && federatedIdpNames.length > 0) {
-                    List<IdentityProvider> fedIdpList = new ArrayList<IdentityProvider>();
+                    List<IdentityProvider> fedIdpList = new ArrayList<>();
                     for (String name : federatedIdpNames) {
-                        if (name != null) {
+                        if (StringUtils.isNotBlank(name)) {
                             IdentityProvider idp = new IdentityProvider();
                             idp.setIdentityProviderName(name);
+                            IdentityProvider referringIdP = federatedIdentityProvidersMap.get(name);
+                            String authenticatorName = request.getParameter("step_" + authstep + "_idp_" + name +
+                                                                            "_fed_authenticator");
+                            if (StringUtils.isNotBlank(authenticatorName)) {
+                                String authenticatorDisplayName = null;
+                                boolean found = false;
 
-                            FederatedAuthenticatorConfig authenticator = new FederatedAuthenticatorConfig();
-                            authenticator.setName(CharacterEncoder.getSafeText(request.getParameter("step_" +
-                                    authstep + "_idp_" + name + "_fed_authenticator")));
-                            idp.setDefaultAuthenticatorConfig(authenticator);
-                            idp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{authenticator});
+                                for (FederatedAuthenticatorConfig config : referringIdP
+                                        .getFederatedAuthenticatorConfigs()) {
+                                    if (authenticatorName.equals(config.getName())) {
+                                        found = true;
+                                        authenticatorDisplayName = config.getDisplayName();
+                                        break;
+                                    }
+                                }
 
-                            fedIdpList.add(idp);
+                                // User is trying to save disabled authenticator of an IdP
+                                if (!found) {
+                                    AuthenticationStep[] authenticationSteps = serviceProvider
+                                            .getLocalAndOutBoundAuthenticationConfig().getAuthenticationSteps();
+                                    if (authenticationSteps != null) {
+                                        OUTERMOST: for (AuthenticationStep authenticationStep : authenticationSteps) {
+                                            IdentityProvider[] identityProviders = authenticationStep
+                                                    .getFederatedIdentityProviders();
+                                            if (identityProviders != null) {
+                                                for (IdentityProvider identityProvider : identityProviders) {
+                                                    FederatedAuthenticatorConfig defaultConfig = identityProvider
+                                                            .getDefaultAuthenticatorConfig();
+                                                    if (defaultConfig != null && authenticatorName.equals
+                                                            (identityProvider.getDefaultAuthenticatorConfig().getName())) {
+                                                        found = true;
+                                                        authenticatorDisplayName = identityProvider
+                                                                .getDefaultAuthenticatorConfig().getDisplayName();
+                                                        break OUTERMOST;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if(!found) {
+                                    continue;
+                                }
+
+                                FederatedAuthenticatorConfig authenticator = new FederatedAuthenticatorConfig();
+                                authenticator.setName(authenticatorName);
+                                authenticator.setDisplayName(authenticatorDisplayName);
+                                idp.setDefaultAuthenticatorConfig(authenticator);
+                                idp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{authenticator});
+                                fedIdpList.add(idp);
+                            }
                         }
                     }
 
                     if (fedIdpList != null && !fedIdpList.isEmpty()) {
                         authStep.setFederatedIdentityProviders(fedIdpList
-                                .toArray(new IdentityProvider[fedIdpList.size()]));
+                                                                       .toArray(new IdentityProvider[fedIdpList.size()]));
                     }
                 }
 

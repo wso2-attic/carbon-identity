@@ -34,6 +34,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.user.mgt.workflow.util.UserStoreWFConstants;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -73,13 +74,13 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
         wfParams.put(NEW_ROLENAME, newRoleName);
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         String uuid = UUID.randomUUID().toString();
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.UPDATE_ROLE_NAME_EVENT) && !Boolean.TRUE
+        if (workflowService.isEventAssociated(UserStoreWFConstants.UPDATE_ROLE_NAME_EVENT) && !Boolean.TRUE
                 .equals(getWorkFlowCompleted()) && !isValidOperation(new Entity[]{new Entity(fullyQualifiedOldName,
                 UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant), new Entity(fullyQualifiedNewName,
                 UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant)})) {
             throw new WorkflowException("Operation is not valid.");
         }
-        boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
+        boolean state = startWorkFlow(wfParams, nonWfParams, uuid).getExecutorResultState().state();
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
         // updated
@@ -117,6 +118,7 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
         String userStoreDomain = (String) requestParams.get(USER_STORE_DOMAIN);
         if (StringUtils.isNotBlank(userStoreDomain)) {
             roleName = userStoreDomain + "/" + roleName;
+            newRoleName = userStoreDomain + "/" + newRoleName;
         }
 
         if (WorkflowRequestStatus.APPROVED.toString().equals(status) ||

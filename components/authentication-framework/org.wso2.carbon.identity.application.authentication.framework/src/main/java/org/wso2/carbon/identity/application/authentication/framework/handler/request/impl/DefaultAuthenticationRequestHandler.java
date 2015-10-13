@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.application.authentication.framework.handler.re
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ApplicationConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
@@ -296,8 +295,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
             AUDIT_LOG.info(String.format(
                     FrameworkConstants.AUDIT_MESSAGE,
-                    sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier() + '@' +
-                    sequenceConfig.getAuthenticatedUser().getTenantDomain(),
+                    sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier(),
                     "Login",
                     "ApplicationAuthenticationFramework", auditData, FrameworkConstants.AUDIT_SUCCESS));
         }

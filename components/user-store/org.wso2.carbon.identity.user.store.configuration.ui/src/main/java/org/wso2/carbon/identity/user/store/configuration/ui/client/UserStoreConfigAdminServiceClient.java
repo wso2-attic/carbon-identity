@@ -21,14 +21,16 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
-import org.wso2.carbon.identity.user.store.configuration.stub.UserStoreConfigAdminServiceDataSourceException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.user.store.configuration.stub.UserStoreConfigAdminServiceIdentityUserStoreMgtException;
 import org.wso2.carbon.identity.user.store.configuration.stub.UserStoreConfigAdminServiceStub;
 import org.wso2.carbon.identity.user.store.configuration.stub.api.Properties;
 import org.wso2.carbon.identity.user.store.configuration.stub.dto.UserStoreDTO;
-import org.wso2.carbon.ndatasource.common.DataSourceException;
 
 public class UserStoreConfigAdminServiceClient {
     private UserStoreConfigAdminServiceStub stub;
+    protected static final Log log = LogFactory.getLog(UserStoreConfigAdminServiceClient.class);
 
     /**
      * Constructor UserStoreConfigAdminServiceClient
@@ -87,17 +89,12 @@ public class UserStoreConfigAdminServiceClient {
      * @param userStoreDTO : representation of new user store to be persisted
      * @throws Exception
      */
-    public void addUserStore(UserStoreDTO userStoreDTO) throws DataSourceException, Exception {
+    public void addUserStore(UserStoreDTO userStoreDTO) throws Exception {
 
         try {
             stub.addUserStore(userStoreDTO);
-        } catch (UserStoreConfigAdminServiceDataSourceException e) {
-            if (e.getFaultMessage().getDataSourceException().isErrorMessageSpecified()) {
-                throw new DataSourceException(e.getFaultMessage().getDataSourceException().getErrorMessage(), e);
-            }
-            throw new DataSourceException(e.getMessage(), e);
-        } catch (AxisFault e) {
-            throw new DataSourceException(e.getMessage(), e);
+        } catch (UserStoreConfigAdminServiceIdentityUserStoreMgtException e) {
+            handleException(e);
         }
     }
 
@@ -143,13 +140,8 @@ public class UserStoreConfigAdminServiceClient {
         if (previousDomain != null && !"".equals(previousDomain) && !previousDomain.equalsIgnoreCase(userStoreDTO.getDomainId())) {
             try {
                 stub.editUserStoreWithDomainName(previousDomain, userStoreDTO);
-            } catch (UserStoreConfigAdminServiceDataSourceException e) {
-                if (e.getFaultMessage().getDataSourceException().isErrorMessageSpecified()) {
-                    throw new DataSourceException(e.getFaultMessage().getDataSourceException().getErrorMessage(), e);
-                }
-                throw new DataSourceException(e.getMessage(), e);
-            } catch (AxisFault e) {
-                throw new DataSourceException(e.getMessage(), e);
+            } catch (UserStoreConfigAdminServiceIdentityUserStoreMgtException e) {
+                handleException(e);
             }
         } else {
             this.updateUserStore(userStoreDTO);
@@ -162,28 +154,42 @@ public class UserStoreConfigAdminServiceClient {
      * @param userStoreDTO New properties of the user store
      * @throws Exception
      */
-    public void updateUserStore(UserStoreDTO userStoreDTO) throws DataSourceException, Exception {
+    public void updateUserStore(UserStoreDTO userStoreDTO) throws Exception {
 
         try {
             stub.editUserStore(userStoreDTO);
-        } catch (UserStoreConfigAdminServiceDataSourceException e) {
-            if (e.getFaultMessage().getDataSourceException().isErrorMessageSpecified()) {
-                throw new DataSourceException(e.getFaultMessage().getDataSourceException().getErrorMessage(), e);
-            }
-            throw new DataSourceException(e.getMessage(), e);
-        } catch (AxisFault e) {
-            throw new DataSourceException(e.getMessage(), e);
+        } catch (UserStoreConfigAdminServiceIdentityUserStoreMgtException e) {
+            handleException(e);
         }
     }
 
-    public boolean testRDBMSConnection(String domainName, String driverName, String connectionURL, String username, String connectionPassword) throws Exception {
+    public boolean testRDBMSConnection(String domainName, String driverName, String connectionURL, String username,
+                                       String connectionPassword, String messageID) throws Exception {
+        boolean result = false;
+
         try {
-            return stub.testRDBMSConnection(domainName, driverName, connectionURL, username, connectionPassword);
-        } catch (UserStoreConfigAdminServiceDataSourceException e) {
-            if (e.getFaultMessage().getDataSourceException().isErrorMessageSpecified()) {
-                throw new DataSourceException(e.getFaultMessage().getDataSourceException().getErrorMessage(), e);
+            result =  stub.testRDBMSConnection(domainName, driverName, connectionURL, username, connectionPassword,
+                    messageID);
+        } catch (UserStoreConfigAdminServiceIdentityUserStoreMgtException e) {
+            // Exception message contains failure reason; hence not logging the error log.
+            if(log.isDebugEnabled()) {
+                log.debug(e.getFaultMessage().getIdentityUserStoreMgtException().getMessage(), e);
             }
-            throw new DataSourceException(e.getMessage(), e);
+            throw new AxisFault(e.getFaultMessage().getIdentityUserStoreMgtException().getMessage());
         }
+
+        return result;
+    }
+
+    protected void handleException(UserStoreConfigAdminServiceIdentityUserStoreMgtException e) throws AxisFault  {
+        String errorMessage;
+        if (e.getFaultMessage().getIdentityUserStoreMgtException() != null) {
+            errorMessage = e.getFaultMessage().getIdentityUserStoreMgtException().getMessage();
+        } else {
+            errorMessage = e.getMessage();
+        }
+
+        log.error(errorMessage, e);
+        throw new AxisFault(errorMessage);
     }
 }

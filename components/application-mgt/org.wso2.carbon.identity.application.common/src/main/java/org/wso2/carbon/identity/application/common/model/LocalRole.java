@@ -26,7 +26,7 @@ import java.util.Iterator;
 
 public class LocalRole implements Serializable {
 
-    private static final long serialVersionUID = 44L;
+    private static final long serialVersionUID = -1986741675509417413L;
 
     /**
      * The mapped role name of the IdP role at this local IdP end

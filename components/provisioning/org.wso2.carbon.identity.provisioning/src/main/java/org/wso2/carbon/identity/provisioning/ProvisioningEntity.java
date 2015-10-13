@@ -26,10 +26,8 @@ import java.util.Map;
 
 public class ProvisioningEntity implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -7300897205165960442L;
+
     private ProvisioningEntityType entityType;
     private ProvisioningOperation operation;
     private ProvisionedIdentifier identifier;

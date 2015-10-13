@@ -42,6 +42,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@page import="java.util.Set"%>
+<%@ page import="org.wso2.carbon.identity.core.util.IdentityUtil" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"
@@ -820,8 +821,8 @@
     if (oidcQueryParam == null) {
         oidcQueryParam = "";
     }
-    if (idPAlias == null) {
-        idPAlias = tokenUrl;
+    if (StringUtils.isBlank(idPAlias)) {
+        idPAlias = IdentityUtil.getServerURL("/oauth2/token");
     }
     String provisionStaticDropdownDisabled = "";
     String provisionDynamicDropdownDisabled = "";
@@ -855,6 +856,10 @@
             openIdDefaultDisabled = "disabled=\'disabled\'";
         }
     }
+    if(StringUtils.isBlank(openIdUrl)){
+        openIdUrl = StringUtils.EMPTY;
+    }
+
     String saml2SSOEnabledChecked = "";
     String saml2SSODefaultDisabled = "";
     if (identityProvider != null) {
@@ -876,6 +881,9 @@
     }
     if (spEntityId == null) {
         spEntityId = "";
+    }
+    if(StringUtils.isBlank(ssoUrl)){
+        ssoUrl = StringUtils.EMPTY;
     }
     String authnRequestSignedChecked = "";
     if (identityProvider != null) {
@@ -904,8 +912,8 @@
             sloEnabledChecked = "checked=\'checked\'";
         }
     }
-    if (logoutUrl == null) {
-        logoutUrl = "";
+    if(StringUtils.isBlank(logoutUrl)){
+        logoutUrl = StringUtils.EMPTY;
     }
     String logoutRequestSignedChecked = "";
     if (identityProvider != null) {
@@ -919,7 +927,7 @@
             authnResponseSignedChecked = "checked=\'checked\'";
         }
     }
-    
+
     String signAlgoDropdownDisabled="";
     if(!isAuthnRequestSigned){
         signAlgoDropdownDisabled = "disabled=\'disabled\'";
@@ -929,39 +937,39 @@
     if(!isAuthnRequestSigned){
         digestAlgoDropdownDisabled = "disabled=\'disabled\'";
     }
-    
+
     String authnContextClassRefDropdownDisabled="";
     String authnContextComparisonDropdownDisabled="";
     if("no".equals(includeAuthenticationContext)){
         authnContextClassRefDropdownDisabled = "disabled=\'disabled\'";
         authnContextComparisonDropdownDisabled = "disabled=\'disabled\'";
     }
-    
+
     String includeNameIdPolicyChecked="";
     if(identityProvider != null){
         if(includeNameIdPolicy){
             includeNameIdPolicyChecked = "checked=\'checked\'";
         }
     }
-    
+
     String includeCertChecked = "";
     if(identityProvider != null){
         if(includeCert){
             includeCertChecked = "checked=\'checked\'";
         }
     }
-    
+
     String includeProtocolBindingChecked = "";
     if(identityProvider != null){
         if(includeProtocolBinding){
             includeProtocolBindingChecked = "checked=\'checked\'";
         }
     }
-    
+
     if(attributeConsumingServiceIndex == null) {
         attributeConsumingServiceIndex = "";
     }
-    
+
     String oidcEnabledChecked = "";
     String oidcDefaultDisabled = "";
     if (identityProvider != null) {
@@ -985,6 +993,13 @@
     if (clientSecret == null) {
         clientSecret = "";
     }
+    if(StringUtils.isBlank(authzUrl)){
+        authzUrl = StringUtils.EMPTY;
+    }
+    if(StringUtils.isBlank(tokenUrl)){
+        tokenUrl = StringUtils.EMPTY;
+    }
+
     String passiveSTSEnabledChecked = "";
     String passiveSTSDefaultDisabled = "";
     if (identityProvider != null) {
@@ -1004,6 +1019,10 @@
     if (passiveSTSRealm == null) {
         passiveSTSRealm = "";
     }
+    if(StringUtils.isBlank(passiveSTSUrl)){
+        passiveSTSUrl = StringUtils.EMPTY;
+    }
+
     String fbAuthEnabledChecked = "";
     String fbAuthDefaultDisabled = "";
 
@@ -1457,8 +1476,8 @@ function deleteRow(obj) {
 
 function disableDefaultPwd(chkbx) {
     document.getElementById("scim-default-pwd").value = "";
-    var disabled = chkbx.checked ? "disabled" : "";
-    document.getElementById("scim-default-pwd").setAttribute("disabled", disabled);
+    var disabled = chkbx.checked;
+    document.getElementById("scim-default-pwd").disabled = disabled;
 }
 
 jQuery(document).ready(function () {

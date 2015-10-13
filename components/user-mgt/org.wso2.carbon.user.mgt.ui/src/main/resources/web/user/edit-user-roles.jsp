@@ -53,6 +53,7 @@
 <%
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
+    String currentUser = (String) session.getAttribute("logged-user");
 
     boolean newFilter = false;
     boolean doUserList = true;
@@ -428,7 +429,9 @@
                                             if (name != null) {
                                                 String doEdit = "";
                                                 String doCheck = "";
-                                                if (name.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME)) {
+                                                if (name.getItemName().equals(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME)||(!currentUser
+                                                        .equals(userRealmInfo.getAdminUser()) && name.getItemName()
+                                                        .equals(userRealmInfo.getAdminRole()))) {
                                                     continue;
                                                 } else if (!name.getEditable()) {
                                                     doEdit = "disabled=\"disabled\"";

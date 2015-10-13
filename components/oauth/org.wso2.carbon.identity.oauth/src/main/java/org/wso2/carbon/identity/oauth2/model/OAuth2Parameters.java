@@ -29,7 +29,7 @@ import java.util.Set;
  */
 public class OAuth2Parameters implements Serializable {
 
-    private static final long serialVersionUID = -8719088680725780804L;
+    private static final long serialVersionUID = 2237345658556955974L;
 
     private String applicationName;
     private String redirectURI;

@@ -148,6 +148,10 @@ location.href = 'list-service-provider.jsp';
     if(idPName != null && idPName.equals("")){
         idPName = null;
     }
+
+    if(ApplicationBean.AUTH_TYPE_FLOW.equals(authTypeReq) && "update".equals(action)) {
+        isNeedToUpdate = true;
+    }
     
     String authType = appBean.getAuthenticationType();
 
@@ -726,9 +730,16 @@ var roleMappinRowID = -1;
                     </tr>
                     <tr>
                     	<td class="leftCol-med">
-                             <input type="checkbox"  id="isSaasApp" name="isSaasApp" <%=appBean.getServiceProvider().getSaasApp() ? "checked" : "" %>/><label for="isSaasApp"><fmt:message key="config.application.isSaasApp"/></label>
+                             <label for="isSaasApp"><fmt:message key="config.application.isSaasApp"/></label>
                         </td>
-                        <td></td>
+                        <td>
+                            <div class="sectionCheckbox">
+                                <input type="checkbox"  id="isSaasApp" name="isSaasApp" <%=appBean.getServiceProvider().getSaasApp() ? "checked" : "" %>/>
+                                <span style="display:inline-block" class="sectionHelp">
+                                    <fmt:message key='help.saas'/>
+                                </span>
+                            </div>
+                        </td>
                     </tr>
                 </table>
             </div>
