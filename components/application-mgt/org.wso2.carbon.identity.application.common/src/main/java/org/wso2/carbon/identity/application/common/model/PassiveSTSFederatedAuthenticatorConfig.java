@@ -27,15 +27,6 @@ public class PassiveSTSFederatedAuthenticatorConfig extends FederatedAuthenticat
      *
      */
     private static final long serialVersionUID = 2265391150645470497L;
-    private String idpEntityId;
-
-    public PassiveSTSFederatedAuthenticatorConfig(FederatedAuthenticatorConfig federatedAuthenticatorConfig) {
-        for (Property property : federatedAuthenticatorConfig.getProperties()) {
-            if (IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID.equals(property.getName())) {
-                idpEntityId = property.getValue();
-            }
-        }
-    }
 
     @Override
     public boolean isValid() {
@@ -52,13 +43,5 @@ public class PassiveSTSFederatedAuthenticatorConfig extends FederatedAuthenticat
     @Override
     public String getName() {
         return IdentityApplicationConstants.Authenticator.PassiveSTS.NAME;
-    }
-
-    public String getIdpEntityId() {
-        return idpEntityId;
-    }
-
-    public void setIdpEntityId(String idpEntityId) {
-        this.idpEntityId = idpEntityId;
     }
 }

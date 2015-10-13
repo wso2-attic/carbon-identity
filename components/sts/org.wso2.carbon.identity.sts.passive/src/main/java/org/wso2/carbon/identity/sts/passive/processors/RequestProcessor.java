@@ -40,8 +40,10 @@ import org.wso2.carbon.core.util.KeyStoreUtil;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.PassiveSTSFederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.SAML2SSOFederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -161,13 +163,15 @@ public abstract class RequestProcessor {
                     e);
         }
 
-        FederatedAuthenticatorConfig[] authnConfigs = identityProvider.getFederatedAuthenticatorConfigs();
-        for (FederatedAuthenticatorConfig config : authnConfigs) {
-            if (IdentityApplicationConstants.Authenticator.PassiveSTS.NAME.equals(config.getName())) {
-                PassiveSTSFederatedAuthenticatorConfig passiveStsFedAuthnConfig = new PassiveSTSFederatedAuthenticatorConfig(config);
-                idPEntityId = passiveStsFedAuthnConfig.getIdpEntityId();
-            }
+        FederatedAuthenticatorConfig config = IdentityApplicationManagementUtil
+                .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
+                        IdentityApplicationConstants.Authenticator.PassiveSTS.NAME);
+        Property property = IdentityApplicationManagementUtil.getProperty(config.getProperties(),
+                IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID);
+        if(property != null){
+            idPEntityId = property.getValue();
         }
+
         if (idPEntityId == null) {
             idPEntityId = IdentityUtil.getProperty(IdentityConstants.ServerConfig.ENTITY_ID);
         }

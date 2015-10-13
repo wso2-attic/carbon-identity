@@ -559,7 +559,19 @@ public class IdentityProviderManager {
         }
         idpPropertiesResidentAuthenticatorConfig.setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
 
-        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = {saml2SSOResidentAuthenticatorConfig, idpPropertiesResidentAuthenticatorConfig};
+
+
+        Property passiveStsProperty = new Property();
+        passiveStsProperty.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID);
+        passiveStsProperty.setValue(IdPManagementUtil.getResidentIdPEntityId());
+
+        FederatedAuthenticatorConfig passiveStsAuthenticationConfig = new FederatedAuthenticatorConfig();
+        passiveStsAuthenticationConfig.setProperties(new Property[] { passiveStsProperty });
+        passiveStsAuthenticationConfig.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME);
+
+
+        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = { saml2SSOResidentAuthenticatorConfig,
+                idpPropertiesResidentAuthenticatorConfig, passiveStsAuthenticationConfig };
         identityProvider.setFederatedAuthenticatorConfigs(IdentityApplicationManagementUtil
                 .concatArrays(identityProvider.getFederatedAuthenticatorConfigs(), federatedAuthenticatorConfigs));
 
