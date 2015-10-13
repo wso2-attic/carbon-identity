@@ -161,8 +161,13 @@ public class DefaultOpenIDManager implements OpenIDManager {
                     Map<ClaimMapping, String> externalIDPClaims = new HashMap<ClaimMapping, String>();
 
                     String[] attrArray = attributesRequestor.getRequestedAttributes(authSuccess.getIdentity());
-                    FetchResponse fetchResp = (FetchResponse) authSuccess.getExtension(AxMessage.OPENID_NS_AX);
-                    fetchResp = new YahooFetchResponse(fetchResp);
+                    FetchResponse fetchResp;
+                    try {
+                        fetchResp = (FetchResponse) authSuccess.getExtension(AxMessage.OPENID_NS_AX);
+                    } catch (MessageException e) {
+                        //this is done because of response validation fails for yahoo response.
+                        fetchResp = new YahooFetchResponse(authSuccess.getParameterMap());
+                    }
 
                     for (String attr : attrArray) {
                         String claimUri = attributesRequestor.getTypeURI(authSuccess.getIdentity(), attr);
