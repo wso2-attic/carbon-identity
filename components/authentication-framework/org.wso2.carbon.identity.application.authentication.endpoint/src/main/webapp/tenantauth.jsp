@@ -77,7 +77,7 @@
         <div class="form-actions">
             <button
                     class="wr-btn grey-bg col-xs-12 col-md-12 col-lg-12 uppercase font-extra-large"
-                    type="submit">Sign in
+                    type="submit" onclick="appendTenantDomain();">Sign in
             </button>
         </div>
     </div>

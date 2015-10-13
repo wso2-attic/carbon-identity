@@ -178,7 +178,7 @@
                                          title="Sign in with <%=Encode.forHtmlContent(idpName)%>"/>
 
                                     <div id="popover-head" class="hide">
-                                        Sign in with <%=Encode.forHtmlContent(idpName)%>
+                                        <label class="font-large">Sign in with <%=Encode.forHtmlContent(idpName)%></label>
                                     </div>
                                     <div id="popover-content" class="hide">
                                         <form>
