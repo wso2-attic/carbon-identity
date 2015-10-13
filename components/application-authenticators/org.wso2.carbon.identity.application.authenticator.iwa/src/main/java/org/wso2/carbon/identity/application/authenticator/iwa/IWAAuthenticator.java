@@ -57,8 +57,8 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
     public boolean canHandle(HttpServletRequest request) {
         //check whether the OS is windows. IWA works only with windows
         String osName = System.getProperty(IWAConstants.OS_NAME_PROPERTY);
-        return StringUtils.isNotEmpty(osName) && osName.contains(IWAConstants.WINDOWS_OS_MATCH_STRING) && request
-                .getParameter(IWA_PROCESSED) != null;
+        return StringUtils.isNotEmpty(osName) && osName.toLowerCase().contains(IWAConstants.WINDOWS_OS_MATCH_STRING) &&
+                request.getParameter(IWA_PROCESSED) != null;
     }
 
     @Override
