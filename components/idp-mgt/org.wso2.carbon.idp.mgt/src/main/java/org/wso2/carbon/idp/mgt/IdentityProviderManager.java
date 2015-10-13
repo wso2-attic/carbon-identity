@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
 import org.wso2.carbon.identity.application.common.model.ClaimConfig;
@@ -238,6 +239,9 @@ public class IdentityProviderManager {
         X509Certificate cert = null;
         try {
             IdentityTenantUtil.initializeRegistry(tenantId, tenantDomain);
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantDomain(tenantDomain, true);
             KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
             if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
                 // derive key store name
@@ -252,7 +256,10 @@ public class IdentityProviderManager {
         } catch (Exception e) {
             String msg = "Error retrieving primary certificate for tenant : " + tenantDomain;
             throw new IdentityProviderManagementException(msg, e);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
+
         if (cert == null) {
             throw new IdentityProviderManagementException(
                     "Cannot find the primary certificate for tenant " + tenantDomain);
