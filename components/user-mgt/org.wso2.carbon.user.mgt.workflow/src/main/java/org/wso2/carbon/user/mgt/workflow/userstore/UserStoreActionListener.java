@@ -58,7 +58,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                     .PROPERTY_DOMAIN_NAME);
 
-            int tenantId = userStoreManager.getRealmConfiguration().getTenantId() ;
+            int tenantId = userStoreManager.getTenantId() ;
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
 
@@ -103,7 +103,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             DeleteUserWFRequestHandler deleteUserWFRequestHandler = new DeleteUserWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
-            int tenantId = userStoreManager.getRealmConfiguration().getTenantId() ;
+            int tenantId = userStoreManager.getTenantId() ;
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
 
@@ -131,7 +131,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
-            int tenantId = userStoreManager.getRealmConfiguration().getTenantId() ;
+            int tenantId = userStoreManager.getTenantId() ;
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
 
@@ -157,7 +157,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             SetMultipleClaimsWFRequestHandler setMultipleClaimsWFRequestHandler = new SetMultipleClaimsWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
-            int tenantId = userStoreManager.getRealmConfiguration().getTenantId() ;
+            int tenantId = userStoreManager.getTenantId() ;
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
 
@@ -181,7 +181,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             DeleteMultipleClaimsWFRequestHandler deleteMultipleClaimsWFRequestHandler = new DeleteMultipleClaimsWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
-            int tenantId = userStoreManager.getRealmConfiguration().getTenantId() ;
+            int tenantId = userStoreManager.getTenantId() ;
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
 
@@ -210,7 +210,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
-            int tenantId = userStoreManager.getRealmConfiguration().getTenantId() ;
+            int tenantId = userStoreManager.getTenantId() ;
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
 
@@ -236,7 +236,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
-            int tenantId = userStoreManager.getRealmConfiguration().getTenantId() ;
+            int tenantId = userStoreManager.getTenantId() ;
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
 
@@ -260,7 +260,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
-            int tenantId = userStoreManager.getRealmConfiguration().getTenantId() ;
+            int tenantId = userStoreManager.getTenantId() ;
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
 
@@ -284,7 +284,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
-            int tenantId = userStoreManager.getRealmConfiguration().getTenantId() ;
+            int tenantId = userStoreManager.getTenantId() ;
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
 
@@ -308,7 +308,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
-            int tenantId = userStoreManager.getRealmConfiguration().getTenantId() ;
+            int tenantId = userStoreManager.getTenantId() ;
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
 
@@ -332,7 +332,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
-            int tenantId = userStoreManager.getRealmConfiguration().getTenantId() ;
+            int tenantId = userStoreManager.getTenantId() ;
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
 
