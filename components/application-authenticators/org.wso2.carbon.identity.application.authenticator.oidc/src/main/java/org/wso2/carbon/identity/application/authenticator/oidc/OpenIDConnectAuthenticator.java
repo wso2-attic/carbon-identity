@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.identity.application.authenticator.oidc;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
@@ -141,14 +142,14 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
         if ("true".equalsIgnoreCase(isSubjectInClaimsProp)) {
             authenticatedUser = getSubjectFromUserIDClaimURI(context);
-            if (authenticatedUser == null) {
+            if (StringUtils.isBlank(authenticatedUser)) {
                 if (log.isDebugEnabled()) {
                     log.debug("Subject claim could not be found amongst subject attributes. " +
                             "Defaulting to sub attribute in IDToken.");
                 }
             }
         }
-        if (authenticatedUser == null) {
+        if (StringUtils.isBlank(authenticatedUser)) {
             authenticatedUser = (String) jsonObject.get("sub");
         }
         return authenticatedUser;

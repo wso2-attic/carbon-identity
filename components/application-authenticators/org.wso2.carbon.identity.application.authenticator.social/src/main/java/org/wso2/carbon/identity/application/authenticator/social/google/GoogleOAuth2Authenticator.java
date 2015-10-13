@@ -222,7 +222,6 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         userInfoEndpoint.setValue("");
         userInfoEndpoint.setDescription("Additional query parameters. e.g: paramName1=value1");
         configProperties.add(scope);
-        ;
 
         return configProperties;
     }
