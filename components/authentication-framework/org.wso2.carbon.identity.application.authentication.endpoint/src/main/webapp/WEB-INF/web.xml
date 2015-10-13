@@ -114,12 +114,12 @@
 
     <servlet>
         <servlet-name>totp_login.do</servlet-name>
-        <jsp-file>totp.jsp</jsp-file>
+        <jsp-file>/totp.jsp</jsp-file>
     </servlet>
 
     <servlet>
         <servlet-name>totp_error.do</servlet-name>
-        <jsp-file>totp_error.jsp</jsp-file>
+        <jsp-file>/totp_error.jsp</jsp-file>
     </servlet>
     <servlet>
         <servlet-name>openid_profile.do</servlet-name>
