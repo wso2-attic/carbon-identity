@@ -192,7 +192,7 @@ public class SessionDataStore {
             operationCleanUpPeriod = Long.parseLong(operationCleanUpPeriodVal);
         }
         if (Boolean.parseBoolean(isCleanUpEnabledVal)) {
-            long sessionCleanupPeriod = IdPManagementUtil.getCleanUpPeriod(
+            long sessionCleanupPeriod = IdentityUtil.getCleanUpPeriod(
                     CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
             SessionCleanUpService sessionCleanUpService = new SessionCleanUpService(sessionCleanupPeriod, sessionCleanupPeriod);
             sessionCleanUpService.activateCleanUp();
