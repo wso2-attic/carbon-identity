@@ -28,6 +28,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class UserStoreActionListener extends AbstractIdentityUserOperationEventListener {
@@ -106,12 +107,16 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
         if (!isEnable()) {
             return true;
         }
+
+        Map<String, String> claims = new HashMap<>();
+        claims.put(claimURI, claimValue);
+
         try {
-            SetUserClaimWFRequestHandler setUserClaimWFRequestHandler = new SetUserClaimWFRequestHandler();
+            SetMultipleClaimsWFRequestHandler setMultipleClaimsWFRequestHandler = new SetMultipleClaimsWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
-            return setUserClaimWFRequestHandler.startSetClaimWorkflow(domain, userName, claimURI, claimValue,
-                                                                      profileName);
+            return setMultipleClaimsWFRequestHandler.startSetMultipleClaimsWorkflow(domain, userName, claims, profileName);
+
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
@@ -148,7 +153,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             return deleteMultipleClaimsWFRequestHandler.startDeleteMultipleClaimsWorkflow(domain, userName, claims,
-                                                                                          profileName);
+                    profileName);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
@@ -161,11 +166,16 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
         if (!isEnable()) {
             return true;
         }
+
+        String[] claims = new String[1];
+        claims[0] = claimURI;
+
         try {
-            DeleteClaimWFRequestHandler deleteClaimWFRequestHandler = new DeleteClaimWFRequestHandler();
+            DeleteMultipleClaimsWFRequestHandler deleteMultipleClaimsWFRequestHandler = new DeleteMultipleClaimsWFRequestHandler();
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
-            return deleteClaimWFRequestHandler.startDeleteClaimWorkflow(domain, userName, claimURI, profileName);
+            return deleteMultipleClaimsWFRequestHandler.startDeleteMultipleClaimsWorkflow(domain, userName, claims,
+                    profileName);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
