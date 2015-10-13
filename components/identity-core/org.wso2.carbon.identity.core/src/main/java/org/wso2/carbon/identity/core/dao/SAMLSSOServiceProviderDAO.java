@@ -105,6 +105,9 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             serviceProviderDO
                     .setAttributeConsumingServiceIndex(resource
                             .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ATTRIB_CONSUMING_SERVICE_INDEX));
+        }else{
+            // Specific DB's (like oracle) returns empty strings as null.
+            serviceProviderDO.setAttributeConsumingServiceIndex("");
         }
 
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_REQUESTED_CLAIMS) != null) {

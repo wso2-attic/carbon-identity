@@ -25,7 +25,7 @@ public class IdPManagementConstants {
     public static class SQLQueries {
 
         public static final String GET_IDPS_SQL = "SELECT NAME, IS_PRIMARY, HOME_REALM_ID, DESCRIPTION, " +
-                "IS_FEDERATION_HUB, IS_LOCAL_CLAIM_DIALECT, IS_ENABLED, DISPLAY_NAME FROM IDP WHERE (TENANT_ID = ? OR" +
+                "IS_FEDERATION_HUB, IS_LOCAL_CLAIM_DIALECT, IS_ENABLED, DISPLAY_NAME, ID FROM IDP WHERE (TENANT_ID = ? OR" +
                 " (TENANT_ID = ? AND NAME LIKE '" + SHARED_IDP_PREFIX + "%'))";
 
         public static final String GET_IDP_BY_NAME_SQL = "SELECT ID, IS_PRIMARY, HOME_REALM_ID, CERTIFICATE, ALIAS, " +
@@ -202,5 +202,10 @@ public class IdPManagementConstants {
         public static final String GET_SIMILAR_IDP_ENTITIY_IDS = "SELECT COUNT(*) FROM IDP_AUTHENTICATOR_PROPERTY " +
                 "WHERE PROPERTY_KEY=? " +
                 "AND PROPERTY_VALUE=? AND TENANT_ID=?";
+        public static final String GET_IDP_METADATA_BY_IDP_ID = "SELECT ID, NAME, VALUE, DISPLAY_NAME FROM " +
+                "IDP_METADATA WHERE IDP_ID = ?";
+        public static final String ADD_IDP_METADATA = "INSERT INTO IDP_METADATA (IDP_ID, NAME, VALUE, DISPLAY_NAME) "
+                + "VALUES (?, ?, ?, ?)";
+        public static final String DELETE_IDP_METADATA = "DELETE FROM IDP_METADATA WHERE IDP_ID = ?";
     }
 }
