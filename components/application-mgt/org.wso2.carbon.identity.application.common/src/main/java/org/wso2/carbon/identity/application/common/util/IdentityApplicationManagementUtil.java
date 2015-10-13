@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.application.common.IdentityApplicationManagement
 import org.wso2.carbon.identity.application.common.model.CertData;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.IdentityProviderProperty;
 import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
@@ -1004,6 +1005,16 @@ public class IdentityApplicationManagementUtil {
     public static Property getProperty(Property[] properties, String propertyName) {
 
         for (Property property : properties) {
+            if (property.getName().equals(propertyName)) {
+                return property;
+            }
+        }
+        return null;
+    }
+
+    public static IdentityProviderProperty getProperty(IdentityProviderProperty[] properties, String propertyName) {
+
+        for (IdentityProviderProperty property : properties) {
             if (property.getName().equals(propertyName)) {
                 return property;
             }
