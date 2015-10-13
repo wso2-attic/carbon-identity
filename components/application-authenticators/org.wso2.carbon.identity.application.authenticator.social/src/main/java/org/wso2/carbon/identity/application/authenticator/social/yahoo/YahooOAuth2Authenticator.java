@@ -362,14 +362,19 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
         OAuthClientResponse oAuthClientResponse = oAuthResponse;
 
         try {
+
             oAuthClientResponse = oAuthClient.accessToken(accessRequest);
+
         } catch (OAuthSystemException e) {
+
             if (log.isDebugEnabled()) {
                 log.debug("Exception while requesting access token", e);
             }
+
             throw new AuthenticationFailedException("Exception while requesting access token", e);
 
         } catch (OAuthProblemException e) {
+
             if (log.isDebugEnabled()) {
                 log.debug("Exception while requesting access token", e);
             }
@@ -385,13 +390,16 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
                                                 String code)
             throws AuthenticationFailedException {
 
-        OAuthClientRequest accessRequest = null;
+        OAuthClientRequest accessRequest;
 
         try {
+
             accessRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
                     .setGrantType(GrantType.AUTHORIZATION_CODE).setClientId(clientId).setClientSecret(clientSecret)
                     .setRedirectURI(callBackUrl).setCode(code).buildBodyMessage();
+
         } catch (OAuthSystemException e) {
+
             throw new AuthenticationFailedException("Exception while building request for request access token", e);
         }
 
