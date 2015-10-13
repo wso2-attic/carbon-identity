@@ -116,6 +116,7 @@ public class IdentityApplicationConstants {
             public static final String AUTHENTICATION_CONTEXT_CLASS = "AuthnContextClassRef";
             public static final String AUTHENTICATION_CONTEXT_COMPARISON_LEVEL = "AuthnContextComparisonLevel";
             public static final String ATTRIBUTE_CONSUMING_SERVICE_INDEX = "AttributeConsumingServiceIndex";
+            public static final String DESTINATION_URL_PREFIX = "DestinationURL";
 
             private SAML2SSO() {
                 throw new AssertionError("Must not initiate an object of SAMLSSO class");

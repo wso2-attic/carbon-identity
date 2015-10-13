@@ -58,6 +58,7 @@ import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.SAML2SSOFederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.base.IdentityConstants;
@@ -488,6 +489,66 @@ public class SAMLSSOUtil {
         issuer.setValue(idPEntityId);
         issuer.setFormat(SAMLSSOConstants.NAME_ID_POLICY_ENTITY);
         return issuer;
+    }
+
+    /**
+     *
+     * @param tenantDomain
+     * @return set of destination urls of resident identity provider
+     * @throws IdentityException
+     */
+
+    public static List<String> getDestinationFromTenantDomain(String tenantDomain) throws IdentityException {
+
+        List<String> destinationURLs = new ArrayList<String>();
+        IdentityProvider identityProvider;
+        int tenantId;
+
+        if (StringUtils.isBlank(tenantDomain) || "null".equals(tenantDomain)) {
+            tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+            tenantId = MultitenantConstants.SUPER_TENANT_ID;
+        } else {
+            try {
+                tenantId = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
+            } catch (UserStoreException e) {
+                throw new IdentityException("Error occurred while retrieving tenant id from tenant domain", e);
+            }
+
+            if (MultitenantConstants.INVALID_TENANT_ID == tenantId) {
+                throw new IdentityException("Invalid tenant domain - '" + tenantDomain + "'");
+            }
+        }
+
+        IdentityTenantUtil.initializeRegistry(tenantId, tenantDomain);
+
+        try {
+            identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
+        } catch (IdentityProviderManagementException e) {
+            throw new IdentityException(
+                    "Error occurred while retrieving Resident Identity Provider information for tenant " +
+                            tenantDomain, e);
+        }
+        FederatedAuthenticatorConfig[] authnConfigs = identityProvider.getFederatedAuthenticatorConfigs();
+        for (FederatedAuthenticatorConfig config : authnConfigs) {
+            if (IdentityApplicationConstants.Authenticator.SAML2SSO.NAME.equals(config.getName())) {
+                for (Property prop : config.getProperties()) {
+                    if (prop.getName().startsWith(IdentityApplicationConstants.Authenticator.SAML2SSO
+                            .DESTINATION_URL_PREFIX)) {
+                        destinationURLs.add(prop.getValue());
+                    }
+                }
+
+            }
+        }
+        if (destinationURLs.size() == 0) {
+            String configDestination = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
+            if (StringUtils.isBlank(configDestination)) {
+                configDestination = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL);
+            }
+            destinationURLs.add(configDestination);
+        }
+
+        return destinationURLs;
     }
 
     public static void doBootstrap() {

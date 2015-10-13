@@ -23,11 +23,9 @@ import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.Response;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
-import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.builders.ErrorResponseBuilder;
@@ -67,17 +65,14 @@ public class SPInitSSOAuthnRequestProcessor {
 
             if (authnReqDTO.isDoValidateSignatureInRequests()) {
 
-                // Validate 'Destination'
-                String idpUrl = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
-                if(StringUtils.isBlank(idpUrl)) {
-                    idpUrl = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL);
-                }
+
+                List<String> idpUrlSet = SAMLSSOUtil.getDestinationFromTenantDomain(authnReqDTO.getTenantDomain());
 
                 if (authnReqDTO.getDestination() == null
-                        || !idpUrl.equals(authnReqDTO.getDestination())) {
+                        || !idpUrlSet.contains(authnReqDTO.getDestination())) {
                     String msg = "Destination validation for Authentication Request failed. " +
                             "Received: [" + authnReqDTO.getDestination() + "]." +
-                            " Expected: [" + idpUrl + "]";
+                            " Expected one in the list: [" + StringUtils.join(idpUrlSet, ',') + "]";
                     log.warn(msg);
                     return buildErrorResponse(authnReqDTO.getId(),
                             SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR, msg, null);

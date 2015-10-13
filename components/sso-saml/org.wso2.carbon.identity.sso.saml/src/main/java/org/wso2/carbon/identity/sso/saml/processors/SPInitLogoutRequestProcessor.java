@@ -25,10 +25,8 @@ import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.SessionIndex;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
-import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.builders.SingleLogoutMessageBuilder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
@@ -168,16 +166,14 @@ public class SPInitLogoutRequestProcessor {
                 if (logoutReqIssuer.isDoValidateSignatureInRequests()) {
 
                     // Validate 'Destination'
-                    String idpUrl = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
-                    if (StringUtils.isBlank(idpUrl)) {
-                        idpUrl = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL);
-                    }
+                    List<String> idpUrlSet = SAMLSSOUtil.getDestinationFromTenantDomain(SAMLSSOUtil
+                            .getTenantDomainFromThreadLocal());
 
-                    if (logoutRequest.getDestination() == null ||
-                            !idpUrl.equals(logoutRequest.getDestination())) {
+                    if (logoutRequest.getDestination() == null
+                            || !idpUrlSet.contains(logoutRequest.getDestination())) {
                         String message = "Destination validation for Logout Request failed. " +
                                 "Received: [" + logoutRequest.getDestination() +
-                                "]." + " Expected: [" + idpUrl + "]";
+                                "]." + " Expected: [" + StringUtils.join(idpUrlSet, ',') + "]";
                         log.error(message);
                         return buildErrorResponse(logoutRequest.getID(), SAMLSSOConstants.StatusCodes
                                 .REQUESTOR_ERROR, message, logoutRequest.getDestination(), logoutReqIssuer
