@@ -23,66 +23,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="java.util.List" %>
+<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.TenantDataManager" %>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
-
-    <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Login with WSO2 Identity Server</title>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="">
-        <meta name="author" content="">
-
-        <!-- Le styles -->
-        <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-        <link href="css/localstyles.css" rel="stylesheet">
-        <!--[if lt IE 8]>
-        <link href="css/localstyles-ie7.css" rel="stylesheet">
-        <![endif]-->
-
-        <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-        <!--[if lt IE 9]>
-        <script src="assets/js/html5.js"></script>
-        <![endif]-->
-        <script src="assets/js/jquery-1.7.1.min.js"></script>
-        <script src="js/scripts.js"></script>
-        <style>
-            div.different-login-container a.truncate {
-                width: 148px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-        </style>
-
-    </head>
-
-    <body>
-    <div class="overlay" style="display:none"></div>
-    <div class="header-strip">&nbsp;</div>
-    <div class="header-back">
-        <div class="container">
-            <div class="row">
-                <div class="span12">
-                    <a class="logo">&nbsp</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="header-text">
-
-    </div>
-    <div class="container">
-        <div class="row">
-            <div class="span12">
-                <h1>Login to continue</h1>
-            </div>
-        </div>
-    </div>
-    <!-- container -->
 
     <%
 
@@ -108,14 +52,6 @@
             }
         }
     %>
-
-    <script type="text/javascript">
-        function doLogin() {
-            var loginForm = document.getElementById('loginForm');
-            loginForm.submit();
-        }
-    </script>
-
     <%
 
         boolean hasLocalLoginOptions = false;
@@ -131,145 +67,190 @@
 
     %>
 
-    <%if (localAuthenticatorNames.contains("BasicAuthenticator")) { %>
-    <div id="local_auth_div" class="container main-login-container" style="margin-top:10px;">
-        <%} %>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WSO2 Identity Server</title>
 
-        <% if ("true".equals(loginFailed)) { %>
-        <div class="alert alert-error">
-            <%=Encode.forHtml(errorMessage)%>
-        </div>
-        <% } %>
+        <link rel="icon" href="images/favicon.png" type="image/x-icon"/>
+        <link href="libs/bootstrap_3.3.5/css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/Roboto.css" rel="stylesheet">
+        <link href="css/custom-common.css" rel="stylesheet">
 
-        <form action="../commonauth" method="post" id="loginForm" class="form-horizontal">
-                    <%
-                if(localAuthenticatorNames.size()>0) {
+        <!--[if lt IE 9]>
+        <script src="js/html5shiv.min.js"></script>
+        <script src="js/respond.min.js"></script>
+        <![endif]-->
+    </head>
 
-                    if(localAuthenticatorNames.size()>0 && localAuthenticatorNames.contains("OpenIDAuthenticator")){
-                    	hasLocalLoginOptions = true;
-            %>
+    <body>
 
-            <div class="row">
-                <div class="span6">
+    <!-- header -->
+    <header class="header header-default">
+        <div class="container-fluid">
+            <div class="pull-left brand float-remove-xs text-center-xs">
+                <a href="#">
+                    <img src="images/logo-inverse.svg" alt="wso2" title="wso2" class="logo">
 
-                    <%@ include file="openid.jsp" %>
-
-                </div>
+                    <h1><em>Identity Server</em></h1>
+                </a>
             </div>
+        </div>
+    </header>
 
-                    <%
-            } else if(localAuthenticatorNames.size()>0 && localAuthenticatorNames.contains("BasicAuthenticator")) {
-            	hasLocalLoginOptions = true;
-            %>
+    <!-- page content -->
+    <div class="container-fluid body-wrapper">
 
+        <div class="row">
+            <div class="col-md-12">
+
+                <!-- content -->
+                <div class="container col-xs-10 col-sm-6 col-md-6 col-lg-3 col-centered wr-content wr-login col-centered">
+                    <div>
+                        <h2 class="wr-title uppercase blue-bg padding-double white boarder-bottom-blue margin-none">Sign
+                            in </h2>
+                    </div>
+                    <div class="boarder-all ">
+                        <div class="clearfix"></div>
+                        <div class="padding-double login-form">
+                            <%
+                                if (localAuthenticatorNames.size() > 0) {
+
+                                    if (localAuthenticatorNames.size() > 0 && localAuthenticatorNames.contains("OpenIDAuthenticator")) {
+                                        hasLocalLoginOptions = true;
+                            %>
+
+                            <%@ include file="openid.jsp" %>
+
+                            <%
+                            } else if (localAuthenticatorNames.size() > 0 && localAuthenticatorNames.contains("BasicAuthenticator")) {
+                                hasLocalLoginOptions = true;
+                            %>
+
+                            <%
+                                if (TenantDataManager.isTenantListEnabled() && Boolean.parseBoolean(request.getParameter("isSaaSApp"))) {
+                            %>
+
+                            <%@ include file="tenantauth.jsp" %>
+
+                            <script>
+                                //set the selected tenant domain in dropdown from the cookie value
+                                window.onload = selectTenantFromCookie;
+                            </script>
+                            <%
+                            } else {
+                            %>
+                            <%@ include file="basicauth.jsp" %>
+                            <%
+                                        }
+                                    }
+                                }
+                            %>
+
+                            <%if (idpAuthenticatorMapping.get(Constants.RESIDENT_IDP_RESERVED_NAME) != null) { %>
+
+                            <%} %>
+                            <%
+                                if ((hasLocalLoginOptions && localAuthenticatorNames.size() > 1) || (!hasLocalLoginOptions)
+                                        || (hasLocalLoginOptions && idpAuthenticatorMapping.size() > 1)) {
+                            %>
+                            <div class="form-group">
+                                <% if (hasLocalLoginOptions) { %>
+                                <label class="font-large">Other login options:</label>
+                                <%} %>
+                            </div>
+                            <div class="form-group">
                                 <%
-                if (TenantDataManager.isTenantListEnabled() && Boolean.parseBoolean(request.getParameter("isSaaSApp"))) {
-            %>
-            <div class="row">
-                <div class="span6">
-                    <%@ include file="tenantauth.jsp" %>
+                                    for (Map.Entry<String, String> idpEntry : idpAuthenticatorMapping.entrySet()) {
+                                        if (!idpEntry.getKey().equals(Constants.RESIDENT_IDP_RESERVED_NAME)) {
+                                            String idpName = idpEntry.getKey();
+                                            boolean isHubIdp = false;
+                                            if (idpName.endsWith(".hub")) {
+                                                isHubIdp = true;
+                                                idpName = idpName.substring(0, idpName.length() - 4);
+                                            }
+                                %>
+                                <% if (isHubIdp) { %>
+                                <a href="#" data-toggle="popover"
+                                   title="Sign in with <%=Encode.forHtmlContent(idpName)%>" id="popover">
+                                    <img class="idp-image" src="images/login-icon.png"
+                                         title="Sign in with <%=Encode.forHtmlContent(idpName)%>"/>
+
+                                    <div id="popover-head" class="hide">
+                                        Sign in with <%=Encode.forHtmlContent(idpName)%>
+                                    </div>
+                                    <div id="popover-content" class="hide">
+                                        <form>
+                                            <input type='text' id='domainName'/>
+                                            <input type="button" class="btn btn-primary go-btn"
+                                                   onClick="javascript: myFunction('<%=Encode.forJavaScriptAttribute(idpName)%>',
+                                                           '<%=Encode.forJavaScriptAttribute(idpEntry.getValue())%>','domainName')"
+                                                   value="Go"/>
+                                        </form>
+
+                                    </div>
+                                </a>
+                                <%} else { %>
+                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpName)%>',
+                                        '<%=Encode.forJavaScriptAttribute(idpEntry.getValue())%>')" href="#">
+                                    <img class="idp-image" src="images/login-icon.png" data-toggle="tooltip"
+                                         data-placement="top" title="Sign in with <%=Encode.forHtmlContent(idpName)%>"/>
+                                </a>
+                                <%} %>
+                                <%
+                                } else if (localAuthenticatorNames.size() > 0) {
+                                    if (localAuthenticatorNames.contains("IWAAuthenticator")) {
+                                %>
+                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpEntry.getKey())%>',
+                                        'IWAAuthenticator')" class="main-link" style="cursor:pointer">
+                                    <img class="idp-image" src="images/login-icon.png" data-toggle="tooltip"
+                                         data-placement="top" title="Sign in with IWA"/>
+                                </a>
+                                <%
+                                    }
+                                    if (localAuthenticatorNames.contains("FIDOAuthenticator")) {
+                                %>
+                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpEntry.getKey())%>',
+                                        'FIDOAuthenticator')" class="main-link" style="cursor:pointer">
+                                    <img class="idp-image" src="images/login-icon.png" data-toggle="tooltip"
+                                         data-placement="top" title="Sign in with FIDO"/>
+                                </a>
+                                <%
+                                            }
+                                        }
+
+                                    }%>
+
+                            </div>
+
+
+                            <% } %>
+
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                    <!-- /content -->
+
                 </div>
             </div>
+            <!-- /content/body -->
 
-            <script>
-                //set the selected tenant domain in dropdown from the cookie value
-                window.onload = selectTenantFromCookie;
-            </script>
-                    <%
-                } else {
-            %>
-            <div class="row">
-                <div class="span6">
-                    <%@ include file="basicauth.jsp" %>
-                </div>
-            </div>
-                    <%
-                }
-            } 
-            } 
-            %>
-
-                    <%if(idpAuthenticatorMapping.get(Constants.RESIDENT_IDP_RESERVED_NAME) != null){ %>
-    </div>
-    <%} %>
-    <%
-        if ((hasLocalLoginOptions && localAuthenticatorNames.size() > 1) || (!hasLocalLoginOptions)
-            || (hasLocalLoginOptions && idpAuthenticatorMapping.size() > 1)) {
-    %>
-    <div class="container">
-        <div class="row">
-            <div class="span12">
-                <% if (hasLocalLoginOptions) { %>
-                <h2>Other login options:</h2>
-                <%} else { %>
-                <script type="text/javascript">
-                    document.getElementById('local_auth_div').style.display = 'block';
-                </script>
-                <%} %>
-            </div>
         </div>
     </div>
 
-    <div class="container different-login-container">
-        <div class="row">
-
-            <%
-                for (Map.Entry<String, String> idpEntry : idpAuthenticatorMapping.entrySet()) {
-                    if (!idpEntry.getKey().equals(Constants.RESIDENT_IDP_RESERVED_NAME)) {
-                        String idpName = idpEntry.getKey();
-                        boolean isHubIdp = false;
-                        if (idpName.endsWith(".hub")) {
-                            isHubIdp = true;
-                            idpName = idpName.substring(0, idpName.length() - 4);
-                        }
-            %>
-            <div class="span3">
-                <% if (isHubIdp) { %>
-                <a href="#" class="main-link"><%=Encode.forHtmlContent(idpName)%>
-                </a>
-
-                <div class="slidePopper" style="display:none">
-                    <input type="text" id="domainName" name="domainName"/>
-                    <input type="button" class="btn btn-primary go-btn"
-                           onClick="javascript: myFunction('<%=Encode.forJavaScriptAttribute(idpName)%>',
-                                   '<%=Encode.forJavaScriptAttribute(idpEntry.getValue())%>','domainName')"
-                           value="Go"/>
-                </div>
-                <%} else { %>
-                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpName)%>',
-                        '<%=Encode.forJavaScriptAttribute(idpEntry.getValue())%>')"
-                   class="main-link truncate" style="cursor:pointer" title="<%=Encode.forHtmlAttribute(idpName)%>">
-                    <%=Encode.forHtmlContent(idpName)%>
-                </a>
-                <%} %>
-            </div>
-            <%
-            }
-            else if (localAuthenticatorNames.size() > 0 ){
-                 if (localAuthenticatorNames.contains("IWAAuthenticator")) {
-            %>
-            <div class="span3">
-                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpEntry.getKey())%>',
-                        'IWAAuthenticator')" class="main-link" style="cursor:pointer">IWA</a>
-            </div>
-            <%
-            }  if (localAuthenticatorNames.contains("FIDOAuthenticator")) {
-            %>
-            <div class="span3">
-                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpEntry.getKey())%>',
-                        'FIDOAuthenticator')" class="main-link" style="cursor:pointer">FIDO</a>
-            </div>
-            <%
-                    }
-                    }
-
-                }%>
-
-
+    <!-- footer -->
+    <footer class="footer">
+        <div class="container-fluid">
+            <p>WSO2 Identity Server | &copy;
+                <script>document.write(new Date().getFullYear());</script>
+                <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>. All Rights Reserved.
+            </p>
         </div>
-        <% } %>
-        </form>
-    </div>
+    </footer>
+
+    <script src="libs/jquery_1.11.3/jquery-1.11.3.js"></script>
+    <script src="libs/bootstrap_3.3.5/js/bootstrap.min.js"></script>
 
     <script>
         $(document).ready(function () {
@@ -280,6 +261,7 @@
                 var h = $(document).height();
                 $('.overlay').css("width", w + "px").css("height", h + "px").show();
             });
+            $('[data-toggle="popover"]').popover();
             $('.overlay').click(function () {
                 $(this).hide();
                 $('.main-link').next().hide();
@@ -306,10 +288,21 @@
                     "&sessionDataKey=<%=Encode.forUriComponent(request.getParameter("sessionDataKey"))%>";
         }
 
+        $('#popover').popover({
+            html: true,
+            title: function () {
+                return $("#popover-head").html();
+            },
+            content: function () {
+                return $("#popover-content").html();
+            }
+        });
+
     </script>
 
     </body>
     </html>
+
 
 </fmt:bundle>
 

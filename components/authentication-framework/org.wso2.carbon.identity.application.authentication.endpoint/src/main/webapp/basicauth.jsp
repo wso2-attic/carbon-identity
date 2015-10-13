@@ -18,51 +18,52 @@
 
 <%@ page import="org.owasp.encoder.Encode" %>
 
-<div id="loginTable1" class="identity-box">
-    <%
-        loginFailed = request.getParameter("loginFailed");
-        if (loginFailed != null) {
+<form action="../commonauth" method="post" id="loginForm" class="form-horizontal">
 
-    %>
-    <div class="alert alert-error">
-        <fmt:message key='<%=Encode.forHtml(request.getParameter("errorMessage"))%>'/>
+    <% if ("true".equals(loginFailed)) { %>
+    <div class="alert alert-error" id="error-msg">Username or password is
+        invalid
     </div>
-    <% } %>
+    <%}%>
 
-    <% if (StringUtils.isBlank(request.getParameter("username"))) { %>
-
-    <!-- Username -->
-    <div class="control-group">
-        <label class="control-label" for="username"><fmt:message key='username'/>:</label>
-
-        <div class="controls">
-            <input class="input-xlarge" type="text" id='username' name="username" style="height:20px"/>
-        </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <input id="username" name="username" type="text" class="form-control" tabindex="0"
+               placeholder="Username">
     </div>
-
-    <%} else { %>
-
-    <input type="hidden" id='username' name='username' value='<%=Encode.forHtmlAttribute
-    (request.getParameter("username"))%>'/>
-
-    <% } %>
-
-    <!--Password-->
-    <div class="control-group">
-        <label class="control-label" for="password"><fmt:message key='password'/>:</label>
-
-        <div class="controls">
-            <input type="password" id='password' name="password" class="input-xlarge" style="height:20px"/>
-            <input type="hidden" name="sessionDataKey" value='<%=Encode.forHtmlAttribute
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <input id="password" name="password" type="password" class="form-control"
+               placeholder="Password">
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <input type="hidden" name="sessionDataKey" value='<%=Encode.forHtmlAttribute
             (request.getParameter("sessionDataKey"))%>'/>
-            <label class="checkbox" style="margin-top:10px"><input type="checkbox" id="chkRemember"
-                                                                   name="chkRemember"><fmt:message
-                    key='remember.me'/></label>
-        </div>
     </div>
 
-    <div class="form-actions">
-        <input type="submit" value='<fmt:message key='login'/>' class="btn btn-primary">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <div class="checkbox">
+            <label>
+                <input type="checkbox"> Remember me on this computer
+            </label>
+        </div>
+        <br>
+
+        <div class="form-actions">
+            <button
+                    class="wr-btn grey-bg col-xs-12 col-md-12 col-lg-12 uppercase font-extra-large"
+                    type="submit">Sign in
+            </button>
+        </div>
     </div>
-</div>
+    <input type="hidden" name="sessionDataKey" value="0ac33a12-943a-459f-9eb4-06055d264d45">
+    <input type="hidden" name="RelayState" value="/store/pages/top-assets">
+
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+
+
+        <a id="registerLink" href="create-account.jsp" class="font-large">Create an
+            account</a>
+
+    </div>
+    <div class="clearfix"></div>
+</form>
 
