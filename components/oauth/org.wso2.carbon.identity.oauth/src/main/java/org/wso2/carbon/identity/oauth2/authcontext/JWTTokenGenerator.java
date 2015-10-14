@@ -92,6 +92,8 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
     private static final Base64 base64Url = new Base64(0, null, true);
 
+    private static final String SHA_512 = "SHA-512";
+
     private static volatile long ttl = -1L;
 
     private ClaimsRetriever claimsRetriever;
@@ -416,7 +418,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
             // TODO: maintain a hashmap with tenants' pubkey thumbprints after first initialization
 
             //generate the SHA-1 thumbprint of the certificate
-            MessageDigest digestValue = MessageDigest.getInstance("SHA-1");
+            MessageDigest digestValue = MessageDigest.getInstance(SHA_512);
             byte[] der = certificate.getEncoded();
             digestValue.update(der);
             byte[] digestInBytes = digestValue.digest();
