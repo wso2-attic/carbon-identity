@@ -53,8 +53,6 @@ public class TenantDataManager {
     // Tenant list dropdown related properties
     private static final String USERNAME = "mutual.ssl.username";
     private static final String USERNAME_HEADER = "username.header";
-    private static final String HOST = "identity.server.host";
-    private static final String PORT = "identity.server.port";
     private static final String CLIENT_KEY_STORE = "client.keyStore";
     private static final String CLIENT_TRUST_STORE = "client.trustStore";
     private static final String CLIENT_KEY_STORE_PASSWORD = "Carbon.Security.KeyStore.Password";
@@ -65,7 +63,6 @@ public class TenantDataManager {
     private static final String TENANT_LIST_ENABLED = "tenantListEnabled";
 
     // Service URL constants
-    private static final String HTTPS_URL = "https://";
     private static final String TENANT_MGT_ADMIN_SERVICE_URL = "/services/TenantMgtAdminService/retrieveTenants";
     private static final String COLON = ":";
 
@@ -77,7 +74,7 @@ public class TenantDataManager {
     private static final String TENANT_DATA_SEPARATOR = ",";
     private static final String RELATIVE_PATH_START_CHAR = ".";
     private static final String CHARACTER_ENCODING = "UTF-8";
-    private static final String CONFIG_RELATIVE_PATH = "./repository/conf/TenantConfig.properties";
+    private static final String CONFIG_RELATIVE_PATH = "./repository/conf/EndpointConfig.properties";
     private static final String CONFIG_FILE_NAME = "TenantConfig.properties";
     private static Properties prop;
     private static String carbonLogin = "";
@@ -143,8 +140,9 @@ public class TenantDataManager {
 
                 // Build the service URL of tenant management admin service
                 StringBuilder builder = new StringBuilder();
-                serviceURL = builder.append(HTTPS_URL).append(getPropertyValue(HOST)).append(COLON)
-                        .append(getPropertyValue(PORT)).append(TENANT_MGT_ADMIN_SERVICE_URL).toString();
+                serviceURL = builder.append(Constants.HTTPS_URL).append(getPropertyValue(Constants.HOST)).append
+                        (Constants.COLON)
+                        .append(getPropertyValue(Constants.PORT)).append(TENANT_MGT_ADMIN_SERVICE_URL).toString();
 
                 initialized = true;
             }
@@ -169,7 +167,7 @@ public class TenantDataManager {
      * @return Absolute file path
      * @throws java.io.IOException
      */
-    private static String buildFilePath(String path) throws IOException {
+    protected static String buildFilePath(String path) throws IOException {
 
         if (StringUtils.isNotEmpty(path) && path.startsWith(RELATIVE_PATH_START_CHAR)) {
             // Relative file path is given
@@ -189,7 +187,7 @@ public class TenantDataManager {
      * @param key Property key
      * @return Property value
      */
-    private static String getPropertyValue(String key) {
+    protected static String getPropertyValue(String key) {
         return prop.getProperty(key);
     }
 

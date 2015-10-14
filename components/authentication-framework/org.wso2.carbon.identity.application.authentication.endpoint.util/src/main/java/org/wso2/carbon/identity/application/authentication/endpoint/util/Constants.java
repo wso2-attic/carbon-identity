@@ -29,6 +29,11 @@ public class Constants {
     public static final String IDP_AUTHENTICATOR_MAP = "idpAuthenticatorMap";
     public static final String RESIDENT_IDP_RESERVED_NAME = "LOCAL";
 
+    public static final String HTTPS_URL = "https://";
+    public static final String HOST = "identity.server.host";
+    public static final String COLON = ":";
+    public static final String PORT = "identity.server.port";
+
     private Constants() {
     }
 
