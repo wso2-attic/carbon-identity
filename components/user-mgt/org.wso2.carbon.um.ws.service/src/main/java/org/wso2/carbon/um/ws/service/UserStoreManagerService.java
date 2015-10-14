@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 
 public class UserStoreManagerService extends AbstractAdmin {
@@ -67,8 +68,8 @@ public class UserStoreManagerService extends AbstractAdmin {
             throws UserStoreException {
 
         String userAttributeSeparator = ",";
-        String claimSeparator = super.getUserRealm().getRealmConfiguration().getUserStoreProperty
-                (MULTI_ATTRIBUTE_SEPARATOR);
+        String claimSeparator = super.getUserRealm().getRealmConfiguration().getUserStoreProperty(
+                MULTI_ATTRIBUTE_SEPARATOR);
 
         if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
             userAttributeSeparator = claimSeparator;
@@ -80,8 +81,20 @@ public class UserStoreManagerService extends AbstractAdmin {
             if (existingClaimValue == null) {
                 existingClaimValue = "";
             }
-            if (claim.getValue() != null && !"".equals(claim.getValue()) && !existingClaimValue.contains(
-                    claim.getValue())) {
+            if (claim.getValue() != null && !"".equals(claim.getValue())) {
+                if (existingClaimValue.contains(userAttributeSeparator)) {
+                    StringTokenizer st = new StringTokenizer(existingClaimValue, userAttributeSeparator);
+                    while (st.hasMoreElements()) {
+                        String existingValue = st.nextElement().toString();
+                        if (existingValue.equals(claim.getValue())) {
+                            return;
+                        }
+                    }
+                } else if(existingClaimValue.equals(claim.getValue())) {
+                    return;
+                }
+
+
                 String claimValue;
                 if (!"".equals(existingClaimValue)) {
                     claimValue = existingClaimValue + userAttributeSeparator + claim.getValue();
