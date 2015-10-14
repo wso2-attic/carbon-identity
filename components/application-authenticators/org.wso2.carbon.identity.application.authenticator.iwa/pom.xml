@@ -32,7 +32,7 @@
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.dblock.waffle.wso2</groupId>
+            <groupId>org.wso2.orbit.com.github.dblock.waffle</groupId>
             <artifactId>waffle-jna</artifactId>
         </dependency>
         <dependency>

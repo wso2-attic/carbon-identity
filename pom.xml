@@ -1384,6 +1384,11 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.authenticator.mutualssl</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.oauth.common</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
@@ -1558,7 +1563,7 @@
                 <version>${tomcat-util.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.dblock.waffle.wso2</groupId>
+                <groupId>org.wso2.orbit.com.github.dblock.waffle</groupId>
                 <artifactId>waffle-jna</artifactId>
                 <version>${waffle-jna.wso2.version}</version>
             </dependency>
@@ -1921,7 +1926,7 @@
         <juddi.wso2.version>3.0.3.wso2v2</juddi.wso2.version>
         <junit.version>4.11</junit.version>
         <version.javax.servlet>3.0.0.v201112011016</version.javax.servlet>
-        <oltu.version>1.0.0.wso2v1</oltu.version>
+        <oltu.version>1.0.0.wso2v2</oltu.version>
         <org.apache.oltu.oauth2.client.version>1.0.0</org.apache.oltu.oauth2.client.version>
         <oltu.package.import.version.range>[1.0.0, 2.0.0)</oltu.package.import.version.range>
         <apacheds.core.version>1.5.7</apacheds.core.version>
@@ -2008,7 +2013,7 @@
         <charon.wso2.version.identity>2.0.1</charon.wso2.version.identity>
         <charon.core.imp.pkg.version.range>[2.0.1,3.0.0)</charon.core.imp.pkg.version.range>
         <openid4java.version>1.0.0</openid4java.version>
-        <openid4java.wso2.version>1.0.0.wso2v1</openid4java.wso2.version>
+        <openid4java.wso2.version>1.0.0.wso2v2</openid4java.wso2.version>
         <openid4java.wso2.osgi.version.range>[1.0.0,2.0.0)</openid4java.wso2.osgi.version.range>
         <opensaml2.version>2.4.1.wso2v1</opensaml2.version>
         <opensaml.wso2.version>1.1.0.wso2v1</opensaml.wso2.version>
@@ -2026,8 +2031,8 @@
         <org.wso2.securevault.version>1.0.0-wso2v2</org.wso2.securevault.version>
         <hector-core.wso2.version>1.1.4.wso2v1</hector-core.wso2.version>
         <hector-core.imp.pkg.version.range>[1.1.4.wso2v1,2.0.0)</hector-core.imp.pkg.version.range>
-        <waffle.imp.pkg.version.range>[1.6.wso2v2, 2.0)</waffle.imp.pkg.version.range>
-        <waffle-jna.wso2.version>1.6.wso2v2</waffle-jna.wso2.version>
+        <waffle.imp.pkg.version.range>[1.6.wso2v3, 2.0)</waffle.imp.pkg.version.range>
+        <waffle-jna.wso2.version>1.6.wso2v3</waffle-jna.wso2.version>
         <waffle-jna.imp.pkg.version.range>[1.6.wso2v1, 2.0)</waffle-jna.imp.pkg.version.range>
         <tomcat.wso2.imp.pkg.version.range>[1.7.0,2.0)</tomcat.wso2.imp.pkg.version.range>
         <net.minidev.json.imp.pkg.version.range>[1.3.0, 2.0.0)</net.minidev.json.imp.pkg.version.range>

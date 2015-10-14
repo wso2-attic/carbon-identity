@@ -29,6 +29,7 @@ public class WFConstant {
     public static final String HT_STATE_SKIPPED = "SKIPPED";
     public static final String HT_STATE_PENDING = "PENDING";
 
+
     public static final Set<Class> NUMERIC_CLASSES;
 
     static {

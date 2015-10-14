@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.oauth.cache;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.oauth.listener.OAuthCacheRemoveListener;
 import org.wso2.carbon.utils.CarbonUtils;
 
 public class OAuthCache extends BaseCache<String, CacheEntry> {
@@ -32,6 +33,7 @@ public class OAuthCache extends BaseCache<String, CacheEntry> {
 
     private OAuthCache(String cacheName, int timeout) {
         super(cacheName,timeout);
+        super.addListener(new OAuthCacheRemoveListener());
         if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
             enableRequestScopeCache = Boolean.
                     parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));

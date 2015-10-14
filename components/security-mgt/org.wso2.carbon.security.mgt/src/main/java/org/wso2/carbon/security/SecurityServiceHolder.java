@@ -22,6 +22,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
@@ -35,6 +36,8 @@ public class SecurityServiceHolder {
     private static RealmService realmService;
 
     private static ConfigurationContextService ccService;
+
+    private static TenantRegistryLoader tenantRegistryLoader;
 
     private static Map<String, Resource> policyResourceMap = new HashMap<>();
 
@@ -83,6 +86,14 @@ public class SecurityServiceHolder {
 
     public static void addPolicyResource(String location, Resource resource) {
         policyResourceMap.put(location, resource);
+    }
+
+    public static TenantRegistryLoader getTenantRegistryLoader() {
+        return tenantRegistryLoader;
+    }
+
+    public static void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+        SecurityServiceHolder.tenantRegistryLoader = tenantRegistryLoader;
     }
 
     public static Map<String, Resource> getPolicyResourceMap() {

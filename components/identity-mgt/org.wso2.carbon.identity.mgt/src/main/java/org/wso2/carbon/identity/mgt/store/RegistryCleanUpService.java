@@ -57,6 +57,9 @@ public class RegistryCleanUpService {
      * Activate clean up task.
      */
     public void activateCleanUp() {
+        if(delayBetweenRuns == 0){
+            return;
+        }
         Runnable registryCleanUpTask = new RegistryCleanUpTask();
         scheduler.scheduleWithFixedDelay(registryCleanUpTask, initialDelay, delayBetweenRuns,
                 TimeUnit.MINUTES);
@@ -114,20 +117,25 @@ public class RegistryCleanUpService {
                             }
                         }
                     } catch (ResourceNotFoundException e) {
-                        log.error("No resource found for tenant " + tenant.getDomain(), e);
+                        if(log.isDebugEnabled()){
+                            log.debug("No resource found for tenant " + tenant.getDomain(), e);
+                        }
                     } catch (RegistryException e) {
-                        log.error("Error while deleting the expired confirmation code.", e);
+                        if(log.isDebugEnabled()){
+                            log.debug("Error while deleting the expired confirmation code.", e);
+                        }
                     } finally {
                         PrivilegedCarbonContext.endTenantFlow();
                     }
                 }
             } catch (UserStoreException e) {
-                log.error("Error while getting the tenant manager.", e);
+                if(log.isDebugEnabled()){
+                    log.debug("Error while getting the tenant manager.", e);
+                }
             }
             if (log.isDebugEnabled()) {
                 log.debug("Finished running the Identity-Management registry Data cleanup task.");
             }
-            log.info("Identity-Management registry Data cleanup task finished for removing expired Data");
         }
 
         /**
