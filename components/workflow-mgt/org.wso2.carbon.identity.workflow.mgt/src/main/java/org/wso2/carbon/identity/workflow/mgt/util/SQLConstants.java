@@ -93,7 +93,7 @@ public class SQLConstants {
             "DELETE FROM WF_WORKFLOW_CONFIG_PARAM WHERE WORKFLOW_ID = ?";
 
     public static final String GET_ASSOCIATIONS_FOR_EVENT_QUERY = "SELECT WF_WORKFLOW_ASSOCIATION.WORKFLOW_ID, " +
-                                                                  "WF_WORKFLOW.TEMPLATE_ID, WF_WORKFLOW.IMPL_ID, " +
+                                                                  "WF_WORKFLOW_ASSOCIATION.ID,WF_WORKFLOW_ASSOCIATION.ASSOC_NAME," +
                                                                   "WF_WORKFLOW_ASSOCIATION.ASSOC_CONDITION FROM " +
                                                                   "WF_WORKFLOW, " +
                                                                   "WF_WORKFLOW_ASSOCIATION WHERE " +

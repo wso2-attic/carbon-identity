@@ -226,10 +226,6 @@ public class TokenMgtDAO {
                     prepStmt.setString(2, scope);
                     prepStmt.execute();
                 }
-            } else {
-                prepStmt.setString(1, accessTokenId);
-                prepStmt.setString(2, "");
-                prepStmt.execute();
             }
 
         } catch (SQLIntegrityConstraintViolationException e) {

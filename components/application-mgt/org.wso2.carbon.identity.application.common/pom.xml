@@ -65,6 +65,7 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Import-Package>
                             javax.cache,
+                            javax.cache.event.*,
                             javax.crypto,
                             javax.crypto.spec,
                             javax.naming,

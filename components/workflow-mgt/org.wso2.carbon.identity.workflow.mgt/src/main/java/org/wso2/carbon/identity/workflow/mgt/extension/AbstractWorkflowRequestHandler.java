@@ -18,13 +18,19 @@
 
 package org.wso2.carbon.identity.workflow.mgt.extension;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.WorkFlowExecutorManager;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowExecutorResult;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.bean.RequestParameter;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
+import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
+import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.util.ExecutorResultState;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 
@@ -41,6 +47,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      */
     private static ThreadLocal<Boolean> workFlowCompleted = new ThreadLocal<Boolean>();
 
+    private static Log log = LogFactory.getLog(AbstractWorkflowRequestHandler.class);
     public static void unsetWorkFlowCompleted() {
 
         AbstractWorkflowRequestHandler.workFlowCompleted.remove();
@@ -56,7 +63,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
         AbstractWorkflowRequestHandler.workFlowCompleted.set(workFlowCompleted);
     }
 
-    public boolean startWorkFlow(Map<String, Object> wfParams, Map<String, Object> nonWfParams)
+    public WorkflowExecutorResult startWorkFlow(Map<String, Object> wfParams, Map<String, Object> nonWfParams)
             throws WorkflowException {
 
         return startWorkFlow(wfParams, nonWfParams, null);
@@ -71,12 +78,16 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
      * @return
      * @throws WorkflowException
      */
-    public boolean startWorkFlow(Map<String, Object> wfParams, Map<String, Object> nonWfParams, String uuid)
+    public WorkflowExecutorResult startWorkFlow(Map<String, Object> wfParams, Map<String, Object> nonWfParams, String uuid)
             throws WorkflowException {
 
         if (isWorkflowCompleted()) {
-            return true;
+            return new WorkflowExecutorResult(ExecutorResultState.COMPLETED);
         }
+        if (!isAssociated()) {
+            return new WorkflowExecutorResult(ExecutorResultState.NO_ASSOCIATION);
+        }
+
         WorkflowRequest workFlowRequest = new WorkflowRequest();
         List<RequestParameter> parameters = new ArrayList<RequestParameter>(wfParams.size() + nonWfParams.size() + 1);
         for (Map.Entry<String, Object> paramEntry : wfParams.entrySet()) {
@@ -94,8 +105,17 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
         workFlowRequest.setRequestParameters(parameters);
         workFlowRequest.setTenantId(CarbonContext.getThreadLocalCarbonContext().getTenantId());
         workFlowRequest.setUuid(uuid);
+
         engageWorkflow(workFlowRequest);
-        return false;
+
+        WorkflowExecutorResult workflowExecutorResult =
+                WorkFlowExecutorManager.getInstance().executeWorkflow(workFlowRequest);
+
+        if(workflowExecutorResult.getExecutorResultState() == ExecutorResultState.FAILED){
+            throw new WorkflowException(workflowExecutorResult.getMessage());
+        }
+
+        return workflowExecutorResult;
     }
 
     protected boolean isValueValid(String paramName, Object paramValue, String expectedType) {
@@ -155,7 +175,7 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     public void engageWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         workFlowRequest.setEventType(getEventId());
-        WorkFlowExecutorManager.getInstance().executeWorkflow(workFlowRequest);
+
     }
 
     @Override
@@ -208,5 +228,24 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
             unsetWorkFlowCompleted();
             return true;
         } else return false;
+    }
+
+    /**
+     * We can check whether the current event type is already associated with
+     * at-least one association or not by using isAssociated method.
+     *
+     * @return Boolean value for result of isAssociated
+     * @throws WorkflowException
+     */
+    public boolean isAssociated() throws WorkflowException{
+        boolean eventEngaged = false ;
+        try {
+            eventEngaged = WorkflowServiceDataHolder.getInstance().getWorkflowService().isEventAssociated(getEventId());
+        } catch (InternalWorkflowException e) {
+            String errorMsg = "Error occurred while checking any association for this event, " + e.getMessage() ;
+            log.error(errorMsg);
+            throw new WorkflowException(errorMsg,e);
+        }
+        return eventEngaged ;
     }
 }

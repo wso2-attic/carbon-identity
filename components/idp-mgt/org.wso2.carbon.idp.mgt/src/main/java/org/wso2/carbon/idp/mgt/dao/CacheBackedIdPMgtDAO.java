@@ -354,51 +354,6 @@ public class CacheBackedIdPMgtDAO {
     }
 
     /**
-     * @param dbConnection
-     * @param tenantId
-     * @param tenantDomain
-     * @return
-     * @throws IdentityProviderManagementException
-     */
-    public IdentityProvider getPrimaryIdP(Connection dbConnection, int tenantId,
-                                          String tenantDomain) throws IdentityProviderManagementException {
-
-        IdentityProvider identityProvider = primaryIdPs.get(tenantDomain);
-        if (identityProvider != null) {
-            return identityProvider;
-        } else {
-            log.debug("Cache entry not found for primary Identity Provider of tenant "
-                    + tenantDomain + ". Fetching from DB");
-        }
-
-        identityProvider = idPMgtDAO.getPrimaryIdP(dbConnection, tenantId, tenantDomain);
-
-        if (identityProvider != null) {
-            log.debug("Entry fetched from DB for primary Identity Provider of tenant "
-                    + tenantDomain + ". Updating cache");
-            IdPNameCacheKey idPNameCacheKey = new IdPNameCacheKey(
-                    identityProvider.getIdentityProviderName(), tenantDomain);
-            idPCacheByName.addToCache(idPNameCacheKey, new IdPCacheEntry(identityProvider));
-            if (identityProvider.getHomeRealmId() != null) {
-                IdPHomeRealmIdCacheKey idPHomeRealmIdCacheKey = new IdPHomeRealmIdCacheKey(
-                        identityProvider.getHomeRealmId(), tenantDomain);
-                idPCacheByHRI.addToCache(idPHomeRealmIdCacheKey,
-                        new IdPCacheEntry(identityProvider));
-            }
-            primaryIdPs.put(tenantDomain, identityProvider);
-            if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
-                    identityProvider.getIdentityProviderName())) {
-                residentIdPs.put(tenantDomain, identityProvider);
-            }
-        } else {
-            log.debug("Entry for primary Identity Provider of tenant " + tenantDomain
-                    + " not found in cache or DB");
-        }
-
-        return identityProvider;
-    }
-
-    /**
      * @param tenantId
      * @param role
      * @param tenantDomain
