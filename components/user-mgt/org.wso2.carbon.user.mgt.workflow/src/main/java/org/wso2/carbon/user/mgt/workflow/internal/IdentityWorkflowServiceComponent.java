@@ -80,8 +80,6 @@ public class IdentityWorkflowServiceComponent {
 // todo: commenting out for a test failure
 //        bundleContext.registerService(WorkflowRequestHandler.class.getName(), new ChangeCredentialWFRequestHandler(),
 //                null);
-        bundleContext.registerService(WorkflowRequestHandler.class.getName(), new SetUserClaimWFRequestHandler(), null);
-        bundleContext.registerService(WorkflowRequestHandler.class.getName(), new DeleteClaimWFRequestHandler(), null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(),
                 new DeleteMultipleClaimsWFRequestHandler(), null);
         bundleContext.registerService(WorkflowRequestHandler.class.getName(), new SetMultipleClaimsWFRequestHandler()
