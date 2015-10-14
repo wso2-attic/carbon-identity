@@ -190,6 +190,10 @@ public class IdentityConstants {
         public static final String SESSION_IDLE_TIMEOUT = "TimeConfig.SessionIdleTimeout";
         public static final String REMEMBER_ME_TIME_OUT = "TimeConfig.RememberMeTimeout";
         public static final String CLEAN_UP_PERIOD = "TimeConfig.PersistanceCleanUpPeriod";
+        public static final String CLEAN_UP_TIMEOUT = "TimeConfig.PersistanceCleanUpTimeout";
+
+        public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
+        public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
 
     }
 

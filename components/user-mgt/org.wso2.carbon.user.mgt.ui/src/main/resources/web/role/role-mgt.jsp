@@ -24,6 +24,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
+<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
@@ -263,15 +264,24 @@
     }
 
     if (userRealmInfo != null) {
-        domainNames = userRealmInfo.getDomainNames();
-        if (domainNames != null) {
-            List<String> list = new ArrayList<String>(Arrays.asList(domainNames));
-            list.add(UserAdminUIConstants.ALL_DOMAINS);
-            list.add(UserAdminUIConstants.INTERNAL_DOMAIN);
-            //list.add(UserAdminUIConstants.APPLICATION_DOMAIN);
-            //list.add(UserAdminUIConstants.WORKFLOW_DOMAIN);
-            domainNames = list.toArray(new String[list.size()]);
+        List<String> list = new ArrayList<String>();
+
+        UserStoreInfo[]  allUserStoreInfo = userRealmInfo.getUserStoresInfo();
+        if (allUserStoreInfo != null && allUserStoreInfo.length > 0) {
+            for (int i = 0; i < allUserStoreInfo.length; i++) {
+                if (allUserStoreInfo[i] != null) {
+                    if (allUserStoreInfo[i].getDomainName() != null && allUserStoreInfo[i].getReadGroupsEnabled()) {
+                        list.add(allUserStoreInfo[i].getDomainName());
+                    }
+                }
+            }
         }
+
+        list.add(UserAdminUIConstants.ALL_DOMAINS);
+        list.add(UserAdminUIConstants.INTERNAL_DOMAIN);
+        //list.add(UserAdminUIConstants.APPLICATION_DOMAIN);
+        //list.add(UserAdminUIConstants.WORKFLOW_DOMAIN);
+        domainNames = list.toArray(new String[list.size()]);
     }
 %>
 <fmt:bundle basename="org.wso2.carbon.userstore.ui.i18n.Resources">
