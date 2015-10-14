@@ -81,6 +81,7 @@ public class UserStoreManagerService extends AbstractAdmin {
             if (existingClaimValue == null) {
                 existingClaimValue = "";
             }
+
             if (claim.getValue() != null && !"".equals(claim.getValue())) {
                 if (existingClaimValue.contains(userAttributeSeparator)) {
                     StringTokenizer st = new StringTokenizer(existingClaimValue, userAttributeSeparator);
@@ -93,7 +94,6 @@ public class UserStoreManagerService extends AbstractAdmin {
                 } else if(existingClaimValue.equals(claim.getValue())) {
                     return;
                 }
-
 
                 String claimValue;
                 if (!"".equals(existingClaimValue)) {
