@@ -142,9 +142,13 @@
         <div id="workArea">
    			<script type="text/javascript">
                 function onClickUpdate() {
-                    var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.http'/>",
-                            validate, null, null);
-                    if (isValidated) {
+                    if($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
+                        var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.http'/>",
+                                validate, null, null);
+                        if (isValidated) {
+                            validate();
+                        }
+                    } else {
                         validate();
                     }
                 }
