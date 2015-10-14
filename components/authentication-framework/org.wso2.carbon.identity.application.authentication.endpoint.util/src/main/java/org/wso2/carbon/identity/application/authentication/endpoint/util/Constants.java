@@ -33,6 +33,7 @@ public class Constants {
     public static final String HOST = "identity.server.host";
     public static final String COLON = ":";
     public static final String PORT = "identity.server.port";
+    public static final String DASHBOARD_RELYING_PARTY = "wso2.my.dashboard";
 
     private Constants() {
     }

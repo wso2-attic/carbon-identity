@@ -21,8 +21,13 @@ package org.wso2.carbon.identity.application.authentication.endpoint.util;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
+import org.wso2.carbon.identity.user.registration.stub.UserRegistrationAdminServiceException;
 import org.wso2.carbon.identity.user.registration.stub.UserRegistrationAdminServiceStub;
+import org.wso2.carbon.identity.user.registration.stub.dto.UserDTO;
 import org.wso2.carbon.identity.user.registration.stub.dto.UserFieldDTO;
+
+import java.rmi.RemoteException;
+import java.util.Map;
 import java.util.Properties;
 
 public class UserRegistrationAdminServiceClient {
@@ -30,7 +35,7 @@ public class UserRegistrationAdminServiceClient {
     private UserRegistrationAdminServiceStub stub;
     private Properties prop;
     private static final String USER_REGISTRATION_SERVICE = "/services/UserRegistrationAdminService" +
-            ".UserRegistrationAdminServiceHttpsSoap12Endpoint/";
+            ".UserRegistrationAdminServiceHttpsSoap11Endpoint/";
 
     public UserRegistrationAdminServiceClient() throws AxisFault {
 
@@ -45,9 +50,36 @@ public class UserRegistrationAdminServiceClient {
         option.setManageSession(true);
     }
 
-    public void addUser () {
-        UserFieldDTO userFieldDTO = new UserFieldDTO();
-        System.out.println("Adddddddddd user");
+    public void addUser (Map<String,String> registrationProperties) throws RemoteException, UserRegistrationAdminServiceException {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserName(registrationProperties.get("reg-username"));
+        userDTO.setPassword(registrationProperties.get("reg-password"));
+        UserFieldDTO[] claims = new UserFieldDTO[3];
+        int i = 0;
+        for(Map.Entry<String, String> claim: registrationProperties.entrySet()) {
+            UserFieldDTO userFieldDTO = new UserFieldDTO();
+            if (claim.getKey().equals("reg-first-name")) {
+                userFieldDTO.setClaimUri("http://wso2.org/claims/givenname");
+                userFieldDTO.setFieldName("First Name");
+                userFieldDTO.setFieldValue(claim.getValue());
+                claims[i] = userFieldDTO;
+                i++;
+            } else if (claim.getKey().equals("reg-last-name")) {
+                userFieldDTO.setClaimUri("http://wso2.org/claims/lastname");
+                userFieldDTO.setFieldName("Last Name");
+                userFieldDTO.setFieldValue(claim.getValue());
+                claims[i] = userFieldDTO;
+                i++;
+            } else if (claim.getKey().equals("reg-email")) {
+                userFieldDTO.setClaimUri("http://wso2.org/claims/emailaddress");
+                userFieldDTO.setFieldName("Email Address");
+                userFieldDTO.setFieldValue(claim.getValue());
+                claims[i] = userFieldDTO;
+                i++;
+            }
+        }
+        userDTO.setUserFields(claims);
+        stub.addUser(userDTO);
     }
 
 }

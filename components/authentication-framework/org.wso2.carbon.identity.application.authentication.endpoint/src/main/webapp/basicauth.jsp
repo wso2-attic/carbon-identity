@@ -54,15 +54,14 @@
             </button>
         </div>
     </div>
-    <input type="hidden" name="sessionDataKey" value="0ac33a12-943a-459f-9eb4-06055d264d45">
-    <input type="hidden" name="RelayState" value="/store/pages/top-assets">
 
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
 
-
-        <a id="registerLink" href="create-account.jsp" class="font-large">Create an
+        <%if(request.getParameter("relyingParty").equals("wso2.my.dashboard")) { %>
+        <a id="registerLink" href="create-account.jsp?sessionDataKey=<%=Encode.forHtmlAttribute
+            (request.getParameter("sessionDataKey"))%>" class="font-large">Create an
             account</a>
-
+        <%} %>
     </div>
     <div class="clearfix"></div>
 </form>

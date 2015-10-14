@@ -1,5 +1,3 @@
-<%@ page
-        import="org.wso2.carbon.identity.application.authentication.endpoint.util.UserRegistrationAdminServiceClient" %>
 <!--
 * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -17,16 +15,38 @@
 * specific language governing permissions and limitations
 * under the License.
 -->
+<%@ page
+        import="org.wso2.carbon.identity.application.authentication.endpoint.util.UserRegistrationAdminServiceClient" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="org.wso2.carbon.identity.user.registration.stub.UserRegistrationAdminServiceException" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
+    String forwardTo;
+    try {
+        UserRegistrationAdminServiceClient registrationClient = new UserRegistrationAdminServiceClient();
+        Map<String, String> registrationParameters = new HashMap<String, String>();
+        registrationParameters.put("reg-username", request.getParameter("reg-username"));
+        registrationParameters.put("reg-first-name", request.getParameter("reg-first-name"));
+        registrationParameters.put("reg-last-name", request.getParameter("reg-last-name"));
+        registrationParameters.put("reg-password", request.getParameter("reg-password"));
+        registrationParameters.put("reg-email", request.getParameter("reg-email"));
+        registrationClient.addUser(registrationParameters);
+        forwardTo = "../dashboard/index.jag";
 
-  UserRegistrationAdminServiceClient registrationClient = new UserRegistrationAdminServiceClient();
+    } catch (Exception e) {
+        forwardTo = "create-account.jsp?sessionDataKey=" + request.getParameter("sessionDataKey") +
+                "&failedPrevious=true";
+    }
 
-  String userName = request.getParameter("reg-username");
-  String firstName = request.getParameter("reg-username");
-  String lastName = request.getParameter("reg-username");
-  String password = request.getParameter("reg-username");
-  String email = request.getParameter("reg-username");
-
-  registrationClient.addUser();
 
 %>
+<script type="text/javascript">
+    function forward() {
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
+    }
+</script>
+
+<script type="text/javascript">
+    forward();
+</script>

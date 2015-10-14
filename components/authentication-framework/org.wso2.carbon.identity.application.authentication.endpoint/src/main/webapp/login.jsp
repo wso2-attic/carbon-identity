@@ -172,7 +172,7 @@
                                             }
                                 %>
                                 <% if (isHubIdp) { %>
-                                <a href="#" data-toggle="popover"
+                                <a href="#" data-toggle="popover" data-placement="bottom"
                                    title="Sign in with <%=Encode.forHtmlContent(idpName)%>" id="popover">
                                     <img class="idp-image" src="images/login-icon.png"
                                          title="Sign in with <%=Encode.forHtmlContent(idpName)%>"/>

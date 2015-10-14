@@ -1,3 +1,4 @@
+<%@ page import="org.owasp.encoder.Encode" %>
 <!--
 * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
@@ -61,11 +62,31 @@
 
                     <div class="clearfix"></div>
                     <div class="boarder-all ">
+
+                        <% if (request.getParameter("failedPrevious") != null &&
+                            "true".equals(request.getParameter("failedPrevious"))) { %>
+                        <div class="alert alert-error" id="error-msg">Something went wrong. Please try again.
+                        </div>
+                        <%}%>
+
                         <div class="padding-double font-large">Enter all text fields to complete registration</div>
                         <!-- validation -->
                         <div class="padding-double">
                             <div id="regFormError" class="alert alert-error" style="display:none"></div>
                             <div id="regFormSuc" class="alert alert-success" style="display:none"></div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group">
+                                <label>First Name</label>
+                                <input type="text" name="reg-first-name"
+                                       data-claim-uri="http://wso2.org/claims/givenname"
+                                       class="form-control  required null">
+                            </div>
+
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group">
+                                <label>Last Name</label>
+                                <input type="text" name="reg-last-name" data-claim-uri="http://wso2.org/claims/lastname"
+                                       class="form-control  required null">
+                            </div>
 
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
                                 <label>Username</label>
@@ -90,19 +111,10 @@
                                        class="form-control email required null">
                             </div>
 
-                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group">
-                                <label>First Name</label>
-                                <input type="text" name="reg-first-name"
-                                       data-claim-uri="http://wso2.org/claims/givenname"
-                                       class="form-control  required null">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+                                <input type="hidden" name="sessionDataKey" value='<%=Encode.forHtmlAttribute
+            (request.getParameter("sessionDataKey"))%>'/>
                             </div>
-
-                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group">
-                                <label>Last Name</label>
-                                <input type="text" name="reg-last-name" data-claim-uri="http://wso2.org/claims/lastname"
-                                       class="form-control  required null">
-                            </div>
-
 
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
                                 <br><br>

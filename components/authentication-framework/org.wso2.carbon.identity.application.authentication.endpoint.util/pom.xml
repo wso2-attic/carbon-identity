@@ -65,6 +65,12 @@
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.user.registration.stub</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.axis2.wso2</groupId>
+                    <artifactId>axis2-client</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.wso2.securevault</groupId>
@@ -107,7 +113,9 @@
                             javax.xml.namespace,
                             org.w3c.dom,
                             org.xml.sax,
-                            javax.xml.xpath
+                            javax.xml.xpath,
+                            org.wso2.carbon.identity.user.registration.stub.*;version="${carbon.identity.package.import.version.range}",
+                            org.apache.axis2.*
                         </Import-Package>
                     </instructions>
                 </configuration>
