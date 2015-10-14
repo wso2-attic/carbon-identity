@@ -47,6 +47,7 @@ public class UserStoreManagerService extends AbstractAdmin {
             "- ";
     private static final String NULL_REALM_MESSAGE = "UserRealm is null";
     private static final String EMPTY = "";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
 
 
     public void addUser(String userName, String credential, String[] roleList, ClaimValue[] claims,
@@ -65,15 +66,25 @@ public class UserStoreManagerService extends AbstractAdmin {
     public void addUserClaimValues(String userName, ClaimValue[] claims, String profileName)
             throws UserStoreException {
 
+        String userAttributeSeparator = ",";
+        String claimSeparator = super.getUserRealm().getRealmConfiguration().getUserStoreProperty
+                (MULTI_ATTRIBUTE_SEPARATOR);
+
+        if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+            userAttributeSeparator = claimSeparator;
+        }
+
         for (ClaimValue claim : claims) {
-            String existingClaimValue = getUserStoreManager().getUserClaimValue(userName, claim.getClaimURI(), profileName);
+            String existingClaimValue = getUserStoreManager().getUserClaimValue(userName, claim.getClaimURI(),
+                                                                                profileName);
             if (existingClaimValue == null) {
                 existingClaimValue = "";
             }
-            if (claim.getValue() != null && !"".equals(claim.getValue())) {
+            if (claim.getValue() != null && !"".equals(claim.getValue()) && !existingClaimValue.contains(
+                    claim.getValue())) {
                 String claimValue;
                 if (!"".equals(existingClaimValue)) {
-                    claimValue = existingClaimValue + "," + claim.getValue();
+                    claimValue = existingClaimValue + userAttributeSeparator + claim.getValue();
                 } else {
                     claimValue = claim.getValue();
                 }
