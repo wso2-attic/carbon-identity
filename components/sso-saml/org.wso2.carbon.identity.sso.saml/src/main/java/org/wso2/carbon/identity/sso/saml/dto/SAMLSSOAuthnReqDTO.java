@@ -52,7 +52,7 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private boolean doSignResponse;
     private boolean doSignAssertions;
     private boolean isStratosDeployment = false;
-    private int attributeConsumingServiceIndex;
+    private int attributeConsumingServiceIndex = 0;
     private String nameIdClaimUri;
     private boolean idPInitSSOEnabled;
     private boolean idPInitSLOEnabled;

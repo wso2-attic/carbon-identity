@@ -25,14 +25,7 @@ import org.apache.xerces.util.SecurityManager;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.EncryptedAssertion;
-import org.opensaml.saml2.core.Issuer;
-import org.opensaml.saml2.core.LogoutRequest;
-import org.opensaml.saml2.core.LogoutResponse;
-import org.opensaml.saml2.core.RequestAbstractType;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.core.impl.AuthnRequestImpl;
+import org.opensaml.saml2.core.*;
 import org.opensaml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
@@ -92,31 +85,12 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
+import java.io.*;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.zip.DataFormatException;
-import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
+import java.util.*;
+import java.util.zip.*;
 
 public class SAMLSSOUtil {
 
@@ -938,20 +912,7 @@ public class SAMLSSOUtil {
 
         if (!authnReqDTO.isIdPInitSSOEnabled()) {
 
-            AuthnRequestImpl request = null;
-
-            try {
-                request = (AuthnRequestImpl) SAMLSSOUtil.unmarshall(SAMLSSOUtil.decode(authnReqDTO
-                        .getRequestMessageString()));
-            } catch (IdentityException e) {
-                request = (AuthnRequestImpl) SAMLSSOUtil.unmarshall(SAMLSSOUtil
-                        .decodeForPost(authnReqDTO.getRequestMessageString()));
-                if (log.isDebugEnabled()) {
-                    log.debug("Error while decoding authentication request.", e);
-                }
-            }
-
-            if (request.getAttributeConsumingServiceIndex() == null) {
+            if ( authnReqDTO.getAttributeConsumingServiceIndex() == 0) {
                 //SP has not provide a AttributeConsumingServiceIndex in the authnReqDTO
                 if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
                     if (spDO.isEnableAttributesByDefault()) {
@@ -964,7 +925,7 @@ public class SAMLSSOUtil {
                 }
             } else {
                 //SP has provide a AttributeConsumingServiceIndex in the authnReqDTO
-                index = request.getAttributeConsumingServiceIndex();
+                index = authnReqDTO.getAttributeConsumingServiceIndex();
             }
         } else {
             if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {

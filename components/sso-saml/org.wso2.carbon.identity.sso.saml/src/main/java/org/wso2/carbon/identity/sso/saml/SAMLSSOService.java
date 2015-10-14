@@ -91,6 +91,11 @@ public class SAMLSSOService {
             validationResp.setQueryString(queryString);
             validationResp.setRpSessionId(rpSessionId);
             validationResp.setIdPInitSSO(false);
+
+            Integer index = ((AuthnRequest) request).getAttributeConsumingServiceIndex();
+            if (index != null && index != 0) {
+                validationResp.setAttributeConsumingServiceIndex(index.toString());
+            }
             return validationResp;
         } else if (request instanceof LogoutRequest) {
             SPInitLogoutRequestProcessor logoutReqProcessor = new SPInitLogoutRequestProcessor();

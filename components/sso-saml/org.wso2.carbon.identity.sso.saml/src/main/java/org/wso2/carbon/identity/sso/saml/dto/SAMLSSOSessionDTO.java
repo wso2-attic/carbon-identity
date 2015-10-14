@@ -43,6 +43,7 @@ public class SAMLSSOSessionDTO implements Serializable {
     private boolean passiveAuth;
     private boolean forceAuth;
     private boolean isIdPInitSLO;
+    private String attributeConsumingServiceIndex;
 
     public String getHttpQueryString() {
         return httpQueryString;
@@ -195,5 +196,13 @@ public class SAMLSSOSessionDTO implements Serializable {
 
     public void setIdPInitSLO(boolean isIdPInitSLO) {
         this.isIdPInitSLO = isIdPInitSLO;
+    }
+
+    public String getAttributeConsumingServiceIndex() {
+        return attributeConsumingServiceIndex;
+    }
+
+    public void setAttributeConsumingServiceIndex(String attributeConsumingServiceIndex) {
+        this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
     }
 }

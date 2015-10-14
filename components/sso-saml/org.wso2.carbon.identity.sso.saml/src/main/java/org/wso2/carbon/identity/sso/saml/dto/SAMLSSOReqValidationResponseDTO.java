@@ -49,6 +49,7 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
     private boolean doSignResponse;
     private String signingAlgorithmUri;
     private String digestAlgorithmUri;
+    private String attributeConsumingServiceIndex;
 
     public String getDigestAlgorithmUri() {
         return digestAlgorithmUri;
@@ -281,5 +282,13 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
      */
     public void setDoSignResponse(boolean doSignResponse) {
         this.doSignResponse = doSignResponse;
+    }
+
+    public String getAttributeConsumingServiceIndex() {
+        return attributeConsumingServiceIndex;
+    }
+
+    public void setAttributeConsumingServiceIndex(String attributeConsumingServiceIndex) {
+        this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
     }
 }

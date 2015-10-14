@@ -155,7 +155,10 @@ public class SPInitSSOAuthnRequestValidator {
             validationResponse.setValid(true);
             validationResponse.setPassive(authnReq.isPassive());
             validationResponse.setForceAuthn(authnReq.isForceAuthn());
-
+            Integer index = authnReq.getAttributeConsumingServiceIndex();
+            if (index != null && index != 0){
+                validationResponse.setAttributeConsumingServiceIndex(index.toString());
+            }
             if (log.isDebugEnabled()) {
                 log.debug("Authentication Request Validation is successful..");
             }
