@@ -20,6 +20,7 @@ import org.apache.oltu.oauth2.client.response.OAuthClientResponse;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,24 +37,46 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
     private String tokenEndpoint;
     private String userInfoURL;
 
+    /**
+     * Initialize the Yahoo OAuth endpoint url.
+     */
     private void initOAuthEndpoint() {
 
         oAuthEndpoint = getAuthenticatorConfig()
                 .getParameterMap()
                 .get(YahooOAuth2AuthenticatorConstants.YAHOO_OAUTH2_ENDPOINT);
+
+        if(oAuthEndpoint == null) {
+            oAuthEndpoint = IdentityApplicationConstants.YAHOO_OAUTH2_URL;
+        }
     }
 
+    /**
+     * Initialize the Yahoo token endpoint url.
+     */
     private void initTokenEndpoint() {
 
         tokenEndpoint =  getAuthenticatorConfig()
                 .getParameterMap()
                 .get(YahooOAuth2AuthenticatorConstants.YAHOO_TOKEN_ENDPOINT);
+
+        if(tokenEndpoint == null) {
+            tokenEndpoint = IdentityApplicationConstants.YAHOO_TOKEN_URL;
+        }
     }
 
+    /**
+     * Initialize the Yahoo user info url.
+     */
     private void initUserInfoURL() {
+
         userInfoURL = getAuthenticatorConfig()
                 .getParameterMap()
                 .get(YahooOAuth2AuthenticatorConstants.YAHOO_USERINFO_URL);
+
+        if(userInfoURL == null) {
+            userInfoURL = IdentityApplicationConstants.YAHOO_USERINFO_URL;
+        }
     }
 
     /**
