@@ -116,6 +116,8 @@
                             org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",
                             org.wso2.carbon.bpel.stub.upload; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.bpel.stub.upload.types; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.bpel.stub.mgt;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.bpel.stub.mgt.types;version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.humantask.stub.upload; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.humantask.stub.upload.types; version="${carbon.identity.package.import.version.range}",
