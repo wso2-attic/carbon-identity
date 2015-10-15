@@ -86,6 +86,7 @@
         <module>features/user-mgt</module>
         <module>features/user-mgt-workflow</module>
         <module>features/workflow-mgt</module>
+        <module>features/agents</module>
     </modules>
 
     <repositories>
@@ -360,6 +361,12 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.common</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.sso.agent</artifactId>
                 <version>${carbon.identity.version}</version>
             </dependency>
 
