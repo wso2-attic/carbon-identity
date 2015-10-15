@@ -748,35 +748,6 @@
                 }
             %>
 
-            <%
-                if ((multipleUserStores || !userRealmInfo.getPrimaryUserStoreInfo().getReadOnly())
-                        && userRealmInfo.getPrimaryUserStoreInfo().getExternalIdP() == null
-                        && CarbonUIUtil.isUserAuthorized(request,
-                        "/permission/admin/configure/security/usermgt/users")) {
-            %>
-            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-top:2px;">
-
-                <%
-                    if (!multipleUserStores && userRealmInfo.getBulkImportSupported()) {
-                %>
-                <tr>
-                    <td class="addNewSecurity">
-                        <a href="bulk-import.jsp" class="icon-link"
-                           style="background-image:url(images/bulk-import.gif);"><fmt:message
-                                key="bulk.import.user"/></a>
-                    </td>
-                </tr>
-
-                <%
-                    }
-                %>
-
-            </table>
-
-            <%
-                }
-            %>
-
 
         </div>
     </div>
