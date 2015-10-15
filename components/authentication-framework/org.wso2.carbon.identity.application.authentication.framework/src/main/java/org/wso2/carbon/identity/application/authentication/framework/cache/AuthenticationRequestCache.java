@@ -18,11 +18,16 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceDataHolder;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.user.api.UserStoreException;
 
 /**
  * This cache keeps all parameters and headers which are directed towards authentication
@@ -33,6 +38,7 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 public class AuthenticationRequestCache extends
         BaseCache<AuthenticationRequestCacheKey, AuthenticationRequestCacheEntry> {
 
+    private static Log log = LogFactory.getLog(AuthenticationRequestCache.class);
     private static final String AUTHENTICATION_REQUEST_CACHE_NAME = "AuthenticationRequestCache";
     private static volatile AuthenticationRequestCache instance;
     private boolean enableRequestScopeCache = false;
@@ -58,7 +64,19 @@ public class AuthenticationRequestCache extends
     public void addToCache(AuthenticationRequestCacheKey key, AuthenticationRequestCacheEntry entry){
         super.addToCache(key,entry);
         if(enableRequestScopeCache){
-            SessionDataStore.getInstance().storeSessionData(key.getResultId(),AUTHENTICATION_REQUEST_CACHE_NAME,entry);
+            int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+            String tenantDomain = entry.getAuthenticationRequest().getTenantDomain();
+            try {
+                tenantId = FrameworkServiceDataHolder.getInstance().getRealmService().getTenantManager().
+                        getTenantId(tenantDomain);
+            } catch (UserStoreException e) {
+                if (log.isDebugEnabled()){
+                    log.debug("Error while retrieving tenant id from tenant domain : " + tenantDomain);
+                }
+            }
+
+            SessionDataStore.getInstance().storeSessionData(key.getResultId(),AUTHENTICATION_REQUEST_CACHE_NAME,
+                    entry, tenantId);
         }
     }
 
