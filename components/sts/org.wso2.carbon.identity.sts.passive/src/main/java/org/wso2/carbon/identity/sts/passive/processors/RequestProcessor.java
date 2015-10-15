@@ -33,8 +33,10 @@ import org.apache.rahas.impl.SAMLTokenIssuerConfig;
 import org.apache.rahas.impl.TokenIssuerUtil;
 import org.apache.ws.secpolicy.Constants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.RegistryResources;
+import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
@@ -56,6 +58,7 @@ import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
+import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.keystore.KeyStoreAdmin;
 import org.wso2.carbon.security.keystore.service.KeyStoreData;
 import org.wso2.carbon.security.util.RampartConfigUtil;
@@ -130,6 +133,19 @@ public abstract class RequestProcessor {
         element.addAttribute(parent.getOMFactory().createOMAttribute("Uri", null, uri));
     }
 
+    private KeyStoreData[] getKeyStores(UserRegistry systemRegistry) throws Exception {
+        KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext()
+                .getTenantId(), systemRegistry);
+        boolean isSuperAdmin = org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID == CarbonContext
+                .getThreadLocalCarbonContext().getTenantId() ? true : false;
+        return admin.getKeyStores(isSuperAdmin);
+    }
+
+    public static String generateKSNameFromDomainName(String tenantDomain) {
+        String ksName = tenantDomain.trim().replace(".", "-");
+        return ksName + ".jks";
+    }
+
     protected SAMLTokenIssuerConfig getSAMLTokenIssuerConfig(AxisService service, boolean isSuperTenant) throws Exception {
         UserRegistry systemRegistry = null;
         String keyAlias = null;
@@ -143,6 +159,7 @@ public abstract class RequestProcessor {
         String ttl;
         IdentityProvider identityProvider;
         String tenantDomain = "";
+        int tenantId;
         String idPEntityId = null;
 
         systemRegistry = (UserRegistry) IdentityPassiveSTSServiceComponent.getGovernanceSystemRegistry();
@@ -155,6 +172,7 @@ public abstract class RequestProcessor {
         }
 
         tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
         try {
             identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
         } catch (Exception e) {
@@ -187,14 +205,21 @@ public abstract class RequestProcessor {
             issuerName = "Identity-passive-sts";
         }
 
-        admin = new KeyStoreAdmin(MultitenantConstants.SUPER_TENANT_ID, systemRegistry);
-        keystores = admin.getKeyStores(isSuperTenant);
+        keystores = getKeyStores(systemRegistry);
 
         for (int i = 0; i < keystores.length; i++) {
-            if (KeyStoreUtil.isPrimaryStore(keystores[i].getKeyStoreName())) {
+            boolean superTenant = org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID == CarbonContext
+                    .getThreadLocalCarbonContext().getTenantId() ? true : false;
+            if (superTenant && KeyStoreUtil.isPrimaryStore(keystores[i].getKeyStoreName())) {
                 keyStoreName = keystores[i].getKeyStoreName();
-                privateKeyAlias = KeyStoreUtil.getPrivateKeyAlias(KeyStoreManager.getInstance(
-                        MultitenantConstants.SUPER_TENANT_ID).getKeyStore(keyStoreName));
+                privateKeyAlias = keystores[i].getKey().getAlias();
+                break;
+            } else if (!superTenant && generateKSNameFromDomainName(tenantDomain)
+                    .equals(keystores[i].getKeyStoreName())) {
+                keyStoreName = keystores[i].getKeyStoreName();
+                privateKeyAlias = tenantDomain;
+                keyPassword = KeyStoreManager.getInstance(tenantId).getKeyStorePassword(keyStoreName);
+                keyAlias = tenantDomain;
                 break;
             }
         }
