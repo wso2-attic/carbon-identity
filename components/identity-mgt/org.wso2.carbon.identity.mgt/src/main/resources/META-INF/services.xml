@@ -27,8 +27,7 @@
 		</parameter>
 		<parameter name="adminService" locked="true">true</parameter>
 		<parameter name="hiddenService" locked="false">false</parameter>
-		<parameter name="AuthorizationAction" locked="true">/permission/admin/login
-		</parameter>
+		<parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
 	</service>
 
 	<service name="AccountCredentialMgtConfigService" scope="transportsession">
@@ -40,8 +39,7 @@
 		</parameter>
 		<parameter name="adminService" locked="true">true</parameter>
 		<parameter name="hiddenService" locked="false">false</parameter>
-		<parameter name="AuthorizationAction" locked="true">/permission/admin/login
-		</parameter>
+		<parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
 	</service>
 
     <service name="UserIdentityManagementAdminService" scope="transportsession">
