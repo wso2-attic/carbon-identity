@@ -83,25 +83,29 @@ public class UserStoreManagerService extends AbstractAdmin {
             }
 
             if (claim.getValue() != null && !"".equals(claim.getValue())) {
+
+                boolean claimValueAlreadyExists = false;
                 if (existingClaimValue.contains(userAttributeSeparator)) {
                     StringTokenizer st = new StringTokenizer(existingClaimValue, userAttributeSeparator);
                     while (st.hasMoreElements()) {
                         String existingValue = st.nextElement().toString();
-                        if (existingValue.equals(claim.getValue())) {
-                            return;
+                        if (existingValue.equalsIgnoreCase(claim.getValue())) {
+                            claimValueAlreadyExists = true;
                         }
                     }
-                } else if(existingClaimValue.equals(claim.getValue())) {
-                    return;
+                } else if(existingClaimValue.equalsIgnoreCase(claim.getValue())) {
+                    claimValueAlreadyExists = true;
                 }
 
-                String claimValue;
-                if (!"".equals(existingClaimValue)) {
-                    claimValue = existingClaimValue + userAttributeSeparator + claim.getValue();
-                } else {
-                    claimValue = claim.getValue();
+                if(!claimValueAlreadyExists) {
+                    String claimValue;
+                    if (!"".equals(existingClaimValue)) {
+                        claimValue = existingClaimValue + userAttributeSeparator + claim.getValue();
+                    } else {
+                        claimValue = claim.getValue();
+                    }
+                    getUserStoreManager().setUserClaimValue(userName, claim.getClaimURI(), claimValue, profileName);
                 }
-                getUserStoreManager().setUserClaimValue(userName, claim.getClaimURI(), claimValue, profileName);
             }
         }
     }
