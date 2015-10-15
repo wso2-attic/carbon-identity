@@ -34,7 +34,6 @@ import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfi
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
 import org.wso2.carbon.identity.application.common.model.RoleMapping;
-import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;

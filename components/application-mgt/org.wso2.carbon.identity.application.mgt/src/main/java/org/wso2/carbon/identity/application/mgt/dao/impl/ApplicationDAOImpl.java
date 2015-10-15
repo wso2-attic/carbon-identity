@@ -50,7 +50,6 @@ import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.common.model.ServiceProviderProperty;
 import org.wso2.carbon.identity.application.common.model.User;
-import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtDBQueries;
