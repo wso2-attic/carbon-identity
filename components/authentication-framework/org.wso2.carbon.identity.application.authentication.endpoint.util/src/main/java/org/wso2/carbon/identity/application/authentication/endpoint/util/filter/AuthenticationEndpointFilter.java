@@ -22,7 +22,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.endpoint.util.AuthenticationEndpointUtil;
-import org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.authentication.endpoint.util.Constants;
 
 import javax.servlet.Filter;
@@ -123,8 +122,7 @@ public class AuthenticationEndpointFilter implements Filter {
             }
 
             Map<String, String> idpAuthenticatorMapping = new HashMap<String, String>();
-            String authenticators = CharacterEncoder.getSafeText(
-                    servletRequest.getParameter(REQUEST_PARAM_AUTHENTICATORS));
+            String authenticators = servletRequest.getParameter(REQUEST_PARAM_AUTHENTICATORS);
             if (authenticators != null) {
                 String[] authenticatorIdPMappings = authenticators.split(";");
                 for (String authenticatorIdPMapping : authenticatorIdPMappings) {
@@ -146,7 +144,7 @@ public class AuthenticationEndpointFilter implements Filter {
             }
 
             String loadPage;
-            String protocolType = CharacterEncoder.getSafeText(servletRequest.getParameter(REQUEST_PARAM_TYPE));
+            String protocolType = servletRequest.getParameter(REQUEST_PARAM_TYPE);
             if (SAMLSSO.equals(protocolType)) {
                 loadPage = URI_SAMLSSO_LOGIN;
             } else if (OPENID.equals(protocolType)) {

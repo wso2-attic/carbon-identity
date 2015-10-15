@@ -495,10 +495,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     }
                 } else {
                     inboundAuthReqConfigPrepStmt.setInt(1, tenantID);
-                    inboundAuthReqConfigPrepStmt.setString(2,
-                            CharacterEncoder.getSafeText(authRequest.getInboundAuthKey()));
-                    inboundAuthReqConfigPrepStmt.setString(3,
-                            CharacterEncoder.getSafeText(authRequest.getInboundAuthType()));
+                    inboundAuthReqConfigPrepStmt.setString(2,authRequest.getInboundAuthKey());
+                    inboundAuthReqConfigPrepStmt.setString(3,authRequest.getInboundAuthType());
                     inboundAuthReqConfigPrepStmt.setString(4, null);
                     inboundAuthReqConfigPrepStmt.setString(5, null);
                     inboundAuthReqConfigPrepStmt.setInt(6, applicationId);
@@ -545,8 +543,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     .prepareStatement(ApplicationMgtDBQueries.UPDATE_BASIC_APPINFO_WITH_PRO_USERSTORE);
 
             // PROVISIONING_USERSTORE_DOMAIN=?
-            inboundProConfigPrepStmt.setString(1, CharacterEncoder
-                    .getSafeText(inBoundProvisioningConfig.getProvisioningUserStore()));
+            inboundProConfigPrepStmt.setString(1, inBoundProvisioningConfig.getProvisioningUserStore());
             inboundProConfigPrepStmt.setInt(2, tenantID);
             inboundProConfigPrepStmt.setInt(3, applicationId);
             inboundProConfigPrepStmt.execute();
@@ -607,14 +604,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     }
 
                     outboundProConfigPrepStmt.setInt(1, tenantID);
-                    outboundProConfigPrepStmt.setString(2,
-                            CharacterEncoder.getSafeText(proProvider.getIdentityProviderName()));
-                    outboundProConfigPrepStmt.setString(3,
-                            CharacterEncoder.getSafeText(proConnector.getName()));
+                    outboundProConfigPrepStmt.setString(2, proProvider.getIdentityProviderName());
+                    outboundProConfigPrepStmt.setString(3, proConnector.getName());
                     outboundProConfigPrepStmt.setInt(4, applicationId);
-                    outboundProConfigPrepStmt
-                            .setString(5, CharacterEncoder.getSafeText(jitEnabled));
-                    outboundProConfigPrepStmt.setString(6, CharacterEncoder.getSafeText(blocking));
+                    outboundProConfigPrepStmt.setString(5, jitEnabled);
+                    outboundProConfigPrepStmt.setString(6, blocking);
                     outboundProConfigPrepStmt.addBatch();
 
                 }
@@ -786,8 +780,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             storeSubjectClaimUri = connection
                     .prepareStatement(ApplicationMgtDBQueries.UPDATE_BASIC_APPINFO_WITH_SUBJECT_CLAIM_URI);
             // SUBJECT_CLAIM_URI=? WHERE TENANT_ID= ? AND ID = ?
-            storeSubjectClaimUri.setString(1,
-                    CharacterEncoder.getSafeText(localAndOutboundAuthConfig.getSubjectClaimUri()));
+            storeSubjectClaimUri.setString(1, localAndOutboundAuthConfig.getSubjectClaimUri());
             storeSubjectClaimUri.setInt(2, tenantID);
             storeSubjectClaimUri.setInt(3, applicationId);
             storeSubjectClaimUri.executeUpdate();
@@ -813,8 +806,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             updateAuthTypePrepStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.UPDATE_BASIC_APPINFO_WITH_AUTH_TYPE);
             // AUTH_TYPE=? WHERE TENANT_ID= ? AND ID = ?
-            updateAuthTypePrepStmt.setString(1, CharacterEncoder
-                    .getSafeText(localAndOutboundAuthConfig.getAuthenticationType()));
+            updateAuthTypePrepStmt.setString(1, localAndOutboundAuthConfig.getAuthenticationType());
             updateAuthTypePrepStmt.setInt(2, tenantID);
             updateAuthTypePrepStmt.setInt(3, applicationId);
             updateAuthTypePrepStmt.execute();
@@ -1026,7 +1018,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 storeRoleClaimPrepStmt = connection
                         .prepareStatement(ApplicationMgtDBQueries.UPDATE_BASIC_APPINFO_WITH_ROLE_CLAIM);
                 // ROLE_CLAIM=? WHERE TENANT_ID= ? AND ID =
-                storeRoleClaimPrepStmt.setString(1, CharacterEncoder.getSafeText(roleClaim));
+                storeRoleClaimPrepStmt.setString(1, roleClaim);
                 storeRoleClaimPrepStmt.setInt(2, tenantID);
                 storeRoleClaimPrepStmt.setInt(3, applicationId);
                 storeRoleClaimPrepStmt.executeUpdate();
@@ -1088,18 +1080,15 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
                 // TENANT_ID, IDP_CLAIM, SP_CLAIM, APP_ID, IS_REQUESTED
                 storeClaimMapPrepStmt.setInt(1, tenantID);
-                storeClaimMapPrepStmt.setString(2,
-                        CharacterEncoder.getSafeText(mapping.getLocalClaim().getClaimUri()));
-                storeClaimMapPrepStmt.setString(3,
-                        CharacterEncoder.getSafeText(mapping.getRemoteClaim().getClaimUri()));
+                storeClaimMapPrepStmt.setString(2, mapping.getLocalClaim().getClaimUri());
+                storeClaimMapPrepStmt.setString(3, mapping.getRemoteClaim().getClaimUri());
                 storeClaimMapPrepStmt.setInt(4, applicationID);
                 if (mapping.isRequested()) {
                     storeClaimMapPrepStmt.setString(5, "1");
                 } else {
                     storeClaimMapPrepStmt.setString(5, "0");
                 }
-                storeClaimMapPrepStmt.setString(6,
-                        CharacterEncoder.getSafeText(mapping.getDefaultValue()));
+                storeClaimMapPrepStmt.setString(6, mapping.getDefaultValue());
                 storeClaimMapPrepStmt.addBatch();
 
                 if (log.isDebugEnabled()) {
@@ -1141,11 +1130,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             for (RoleMapping roleMapping : roleMappings) {
                 // TENANT_ID, IDP_ROLE, SP_ROLE, APP_ID
                 storeRoleMapPrepStmt.setInt(1, tenantID);
-                storeRoleMapPrepStmt
-                        .setString(2, CharacterEncoder.getSafeText(roleMapping.getLocalRole()
-                                .getLocalRoleName()));
-                storeRoleMapPrepStmt.setString(3,
-                        CharacterEncoder.getSafeText(roleMapping.getRemoteRole()));
+                storeRoleMapPrepStmt.setString(2, roleMapping.getLocalRole().getLocalRoleName());
+                storeRoleMapPrepStmt.setString(3, roleMapping.getRemoteRole());
                 storeRoleMapPrepStmt.setInt(4, applicationID);
                 storeRoleMapPrepStmt.addBatch();
 
@@ -1266,7 +1252,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             loadBasicAppInfoStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_BASIC_APP_INFO_BY_APP_NAME);
             // SELECT * FROM IDN_APPMGT_APP WHERE APP_NAME = ? AND TENANT_ID = ?
-            loadBasicAppInfoStmt.setString(1, CharacterEncoder.getSafeText(applicationName));
+            loadBasicAppInfoStmt.setString(1, applicationName);
             loadBasicAppInfoStmt.setInt(2, tenantID);
             basicAppDataResultSet = loadBasicAppInfoStmt.executeQuery();
             // ID, TENANT_ID, APP_NAME, USER_STORE, USERNAME, DESCRIPTION, ROLE_CLAIM, AUTH_TYPE,
@@ -1400,8 +1386,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         try {
             storeAppPrepStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_APPLICATION_NAME_BY_CLIENT_ID_AND_TYPE);
-            storeAppPrepStmt.setString(1, CharacterEncoder.getSafeText(clientId));
-            storeAppPrepStmt.setString(2, CharacterEncoder.getSafeText(type));
+            storeAppPrepStmt.setString(1, clientId);
+            storeAppPrepStmt.setString(2, type);
             storeAppPrepStmt.setInt(3, tenantID);
             appNameResult = storeAppPrepStmt.executeQuery();
             connection.commit();
@@ -1500,7 +1486,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         try {
             getAppIDPrepStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_APP_ID_BY_APP_NAME);
-            getAppIDPrepStmt.setString(1, CharacterEncoder.getSafeText(applicationName));
+            getAppIDPrepStmt.setString(1, applicationName);
             getAppIDPrepStmt.setInt(2, tenantID);
             appidResult = getAppIDPrepStmt.executeQuery();
 
@@ -1827,7 +1813,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         try {
             get = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_HUB_IDP_BY_NAME);
 
-            get.setString(1, CharacterEncoder.getSafeText(idPName));
+            get.setString(1, idPName);
             get.setInt(2, tenantId);
             resultSet = get.executeQuery();
 
@@ -2040,8 +2026,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 for (RequestPathAuthenticatorConfig auth : authenticators) {
                     // TENANT_ID, AUTHENTICATOR_NAME, APP_ID
                     storeReqPathAuthenticators.setInt(1, tenantID);
-                    storeReqPathAuthenticators.setString(2,
-                            CharacterEncoder.getSafeText(auth.getName()));
+                    storeReqPathAuthenticators.setString(2, auth.getName());
                     storeReqPathAuthenticators.setInt(3, applicationId);
                     storeReqPathAuthenticators.addBatch();
                 }
@@ -2218,7 +2203,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             deleteClientPrepStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.REMOVE_APP_FROM_APPMGT_APP);
-            deleteClientPrepStmt.setString(1, CharacterEncoder.getSafeText(appName));
+            deleteClientPrepStmt.setString(1, appName);
             deleteClientPrepStmt.setInt(2, tenantID);
             deleteClientPrepStmt.execute();
 
@@ -2517,8 +2502,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         try {
             storeAppPrepStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_APPLICATION_NAME_BY_CLIENT_ID_AND_TYPE);
-            storeAppPrepStmt.setString(1, CharacterEncoder.getSafeText(clientId));
-            storeAppPrepStmt.setString(2, CharacterEncoder.getSafeText(clientType));
+            storeAppPrepStmt.setString(1, clientId);
+            storeAppPrepStmt.setString(2, clientType);
             storeAppPrepStmt.setInt(3, tenantID);
             storeAppPrepStmt.setInt(4, tenantID);
             appNameResult = storeAppPrepStmt.executeQuery();
@@ -2572,7 +2557,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             getClaimPreStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_CLAIM_MAPPING_BY_APP_NAME);
             // IDP_CLAIM, SP_CLAIM, IS_REQUESTED
-            getClaimPreStmt.setString(1, CharacterEncoder.getSafeText(serviceProviderName));
+            getClaimPreStmt.setString(1, serviceProviderName);
             getClaimPreStmt.setInt(2, tenantID);
             resultSet = getClaimPreStmt.executeQuery();
 
@@ -2643,7 +2628,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     .prepareStatement(ApplicationMgtDBQueries.LOAD_CLAIM_MAPPING_BY_APP_NAME);
 
             // IDP_CLAIM, SP_CLAIM, IS_REQUESTED
-            getClaimPreStmt.setString(1, CharacterEncoder.getSafeText(serviceProviderName));
+            getClaimPreStmt.setString(1, serviceProviderName);
             getClaimPreStmt.setInt(2, tenantID);
             resultSet = getClaimPreStmt.executeQuery();
             while (resultSet.next()) {
@@ -2684,8 +2669,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         String sqlStmt = ApplicationMgtDBQueries.LOAD_IDP_AUTHENTICATOR_ID;
         try {
             prepStmt = conn.prepareStatement(sqlStmt);
-            prepStmt.setString(1, CharacterEncoder.getSafeText(authenticatorName));
-            prepStmt.setString(2, CharacterEncoder.getSafeText(idpName));
+            prepStmt.setString(1,authenticatorName);
+            prepStmt.setString(2, idpName);
             prepStmt.setInt(3, tenantId);
             prepStmt.setInt(4, tenantId);
             prepStmt.setInt(5, MultitenantConstants.SUPER_TENANT_ID);
@@ -2753,11 +2738,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             prepStmt = conn.prepareStatement(sqlStmt, new String[]{
                     DBUtils.getConvertedAutoGeneratedColumnName(dbProductName, "ID")});
             prepStmt.setInt(1, tenantId);
-            prepStmt.setString(2, CharacterEncoder.getSafeText(idpName));
+            prepStmt.setString(2, idpName);
             prepStmt.setInt(3, tenantId);
-            prepStmt.setString(4, CharacterEncoder.getSafeText(authenticatorName));
+            prepStmt.setString(4, authenticatorName);
             prepStmt.setString(5, "1");
-            prepStmt.setString(6, CharacterEncoder.getSafeText(authenticatorDispalyName));
+            prepStmt.setString(6, authenticatorDispalyName);
             prepStmt.execute();
             rs = prepStmt.getGeneratedKeys();
             if (rs.next()) {
