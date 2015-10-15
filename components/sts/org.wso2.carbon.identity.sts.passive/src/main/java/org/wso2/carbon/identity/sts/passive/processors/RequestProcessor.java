@@ -206,7 +206,8 @@ public abstract class RequestProcessor {
                     .getThreadLocalCarbonContext().getTenantId() ? true : false;
             if (superTenant && KeyStoreUtil.isPrimaryStore(keystores[i].getKeyStoreName())) {
                 keyStoreName = keystores[i].getKeyStoreName();
-                privateKeyAlias = keystores[i].getKey().getAlias();
+                privateKeyAlias = KeyStoreUtil.getPrivateKeyAlias(KeyStoreManager.getInstance(
+                        MultitenantConstants.SUPER_TENANT_ID).getKeyStore(keyStoreName));
                 break;
             } else if (!superTenant && generateKSNameFromDomainName(tenantDomain)
                     .equals(keystores[i].getKeyStoreName())) {
