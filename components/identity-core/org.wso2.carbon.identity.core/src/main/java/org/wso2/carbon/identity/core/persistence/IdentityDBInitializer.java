@@ -147,6 +147,14 @@ public class IdentityDBInitializer {
                 log.fatal(msg, e);
                 throw new Exception(msg, e);
             } finally {
+                if (statement != null) {
+                    try {
+                        statement.close();
+                    } catch (SQLException e) {
+                        log.error("Failed to close statement.", e);
+                    }
+                }
+
                 if (conn != null) {
                     try {
                         conn.close();
@@ -155,13 +163,6 @@ public class IdentityDBInitializer {
                     }
                 }
 
-                if (statement != null) {
-                    try {
-                        statement.close();
-                    } catch (SQLException e) {
-                        log.error("Failed to close statement.", e);
-                    }
-                }
             }
         } else {
             if (log.isDebugEnabled()) {
