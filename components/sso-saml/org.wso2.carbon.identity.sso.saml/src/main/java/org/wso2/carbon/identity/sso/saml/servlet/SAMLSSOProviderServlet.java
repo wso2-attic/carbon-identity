@@ -758,8 +758,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         authnReqDTO.setClaimMapping(authResult.getClaimMapping());
         authnReqDTO.setTenantDomain(sessionDTO.getTenantDomain());
         authnReqDTO.setIdPInitSLOEnabled(sessionDTO.isIdPInitSLO());
-        if (StringUtils.isNotBlank(sessionDTO.getAttributeConsumingServiceIndex())) {
-            authnReqDTO.setAttributeConsumingServiceIndex(Integer.parseInt(sessionDTO.getAttributeConsumingServiceIndex()));
+        if (!(sessionDTO.getAttributeConsumingServiceIndex() < 1)) {
+            authnReqDTO.setAttributeConsumingServiceIndex(sessionDTO.getAttributeConsumingServiceIndex());
         }
 
         SAMLSSOUtil.setIsSaaSApplication(authResult.isSaaSApp());
