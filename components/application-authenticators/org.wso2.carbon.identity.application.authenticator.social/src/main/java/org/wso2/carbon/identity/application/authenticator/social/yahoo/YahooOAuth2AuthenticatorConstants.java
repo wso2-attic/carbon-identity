@@ -28,8 +28,10 @@ public class YahooOAuth2AuthenticatorConstants {
 
     public static final String YAHOO_OAUTH2_ENDPOINT = "YahooOAuth2Endpoint";
     public static final String YAHOO_TOKEN_ENDPOINT = "YahooTokenEndpoint";
+    public static final String YAHOO_USERINFO_URL = "YahooUserInfoURL";
     public static final String YAHOO_CONNECTOR_FRIENDLY_NAME = "Yahoo OAuth2/OpenID Connect";
     public static final String YAHOO_CONNECTOR_NAME = "YahooOAUth2OpenIDAuthenticator";
+    public static final String YAHOO_SCOPE = "";
     public static final String USER_GUID = "xoauth_yahoo_guid";
     public static final String CALLBACK_URL = "Yahoo-callback-url";
     public static final String YAHOO_USER_DETAILS_JSON = "/profile?format=json";

@@ -17,6 +17,9 @@
  */
 package org.wso2.carbon.identity.application.authenticator.social.google;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
@@ -26,10 +29,6 @@ import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.common.utils.JSONUtils;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
@@ -43,14 +42,9 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -195,43 +189,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * Get Subject Attributes
-     *
-     * @param token
-     * @return
+     * Get google user claim uri.
+     * @param token OAuth client response.
+     * @return User claim uri.
      */
     @Override
-    protected Map<ClaimMapping, String> getSubjectAttributes(
-            OAuthClientResponse token) {
+    protected String getUserClaimUri(OAuthClientResponse token) {
 
-        Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
-
-        try {
-
-                String json = sendRequest(token.getParam(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT),
-                        token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
-            if (StringUtils.isNotBlank(json)) {
-                Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
-
-                if (jsonObject != null) {
-                    for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-                        claims.put(ClaimMapping.build(entry.getKey(),
-                                entry.getKey(), null, false), entry.getValue()
-                                .toString());
-                        if (log.isDebugEnabled()) {
-                            log.debug("Adding claim from end-point data mapping : " + entry.getKey() + " - " +
-                                    entry.getValue());
-                        }
-
-                    }
-                }
-
-            }
-        }catch (Exception e) {
-            log.error("Error occurred while accessing google user info endpoint", e);
-        }
-
-        return claims;
+        return token.getParam(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT);
     }
 
     /**
@@ -444,45 +409,5 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     @Override
     public String getName() {
         return GoogleOAuth2AuthenticationConstant.GOOGLE_CONNECTOR_NAME;
-    }
-
-    /**
-     * extra request sending to google user info end-point
-     *
-     * @param url
-     * @param accessToken
-     * @return
-     * @throws IOException
-     */
-    private String sendRequest(String url, String accessToken)
-            throws IOException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("claim url: " + url + " & accessToken : " + accessToken);
-        }
-        if (url != null) {
-            URL obj = new URL(url);
-            HttpURLConnection urlConnection = (HttpURLConnection) obj.openConnection();
-
-            urlConnection.setRequestMethod("GET");
-            // add request header
-            urlConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
-            BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            StringBuilder b = new StringBuilder();
-            String inputLine = in.readLine();
-            while (inputLine != null) {
-                b.append(inputLine).append("\n");
-                inputLine = in.readLine();
-            }
-            in.close();
-
-            if (log.isDebugEnabled()) {
-                log.debug("response: " + b.toString());
-            }
-        return b.toString();
-    }
-        else{
-            return StringUtils.EMPTY;
-        }
     }
 }
