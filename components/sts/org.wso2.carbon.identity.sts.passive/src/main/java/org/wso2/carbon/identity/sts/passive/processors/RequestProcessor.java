@@ -36,29 +36,23 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.RegistryResources;
-import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.application.common.model.PassiveSTSFederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.application.common.model.SAML2SSOFederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.AttributeCallbackHandler;
 import org.wso2.carbon.identity.sts.passive.RequestToken;
 import org.wso2.carbon.identity.sts.passive.ResponseToken;
 import org.wso2.carbon.identity.sts.passive.internal.IdentityPassiveSTSServiceComponent;
-import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
-import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.keystore.KeyStoreAdmin;
 import org.wso2.carbon.security.keystore.service.KeyStoreData;
 import org.wso2.carbon.security.util.RampartConfigUtil;
@@ -136,7 +130,7 @@ public abstract class RequestProcessor {
     private KeyStoreData[] getKeyStores(UserRegistry systemRegistry) throws Exception {
         KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext()
                 .getTenantId(), systemRegistry);
-        boolean isSuperAdmin = org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID == CarbonContext
+        boolean isSuperAdmin = MultitenantConstants.SUPER_TENANT_ID == CarbonContext
                 .getThreadLocalCarbonContext().getTenantId() ? true : false;
         return admin.getKeyStores(isSuperAdmin);
     }
@@ -158,7 +152,7 @@ public abstract class RequestProcessor {
         ServerConfiguration serverConfig = null;
         String ttl;
         IdentityProvider identityProvider;
-        String tenantDomain = "";
+        String tenantDomain;
         int tenantId;
         String idPEntityId = null;
 
@@ -208,7 +202,7 @@ public abstract class RequestProcessor {
         keystores = getKeyStores(systemRegistry);
 
         for (int i = 0; i < keystores.length; i++) {
-            boolean superTenant = org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID == CarbonContext
+            boolean superTenant = MultitenantConstants.SUPER_TENANT_ID == CarbonContext
                     .getThreadLocalCarbonContext().getTenantId() ? true : false;
             if (superTenant && KeyStoreUtil.isPrimaryStore(keystores[i].getKeyStoreName())) {
                 keyStoreName = keystores[i].getKeyStoreName();
