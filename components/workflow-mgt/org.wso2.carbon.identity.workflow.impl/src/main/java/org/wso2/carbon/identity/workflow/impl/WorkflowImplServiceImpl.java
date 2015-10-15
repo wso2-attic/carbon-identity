@@ -231,6 +231,10 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                     Version_type0 versionType = packageType.getVersions().getVersion()[j];
                     if (versionType.getIsLatest()) {
                         int numberOfProcesses = versionType.getProcesses().getProcess().length;
+                        if (numberOfProcesses == 0) {
+                            throw new WorkflowImplException("Error while deleting the BPS artifacts of: " +
+                                    workflow.getWorkflowName());
+                        }
                         for (int k = 0; k < numberOfProcesses; k++) {
                             String processStatus = versionType.getProcesses().getProcess()[k].getStatus().getValue();
                             if (StringUtils.equals(processStatus, WFImplConstant.BPS_STATUS_ACTIVE)) {
