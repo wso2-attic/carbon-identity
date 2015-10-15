@@ -978,9 +978,9 @@ public class ApplicationBean {
     public void update(HttpServletRequest request) {
 
         // update basic info.
-        serviceProvider.setApplicationName(CharacterEncoder.getSafeText(request.getParameter("spName")));
-        serviceProvider.setDescription(CharacterEncoder.getSafeText(request.getParameter("sp-description")));
-        String isSasApp = CharacterEncoder.getSafeText(request.getParameter("isSaasApp"));
+        serviceProvider.setApplicationName(request.getParameter("spName"));
+        serviceProvider.setDescription(request.getParameter("sp-description"));
+        String isSasApp = request.getParameter("isSaasApp");
         serviceProvider.setSaasApp((isSasApp != null && "on".equals(isSasApp)) ? true : false);
 
         if (serviceProvider.getLocalAndOutBoundAuthenticationConfig() == null) {
@@ -1116,8 +1116,8 @@ public class ApplicationBean {
             authRequestList.add(opicAuthenticationRequest);
         }
 
-        String passiveSTSRealm = CharacterEncoder.getSafeText(request.getParameter("passiveSTSRealm"));
-        String passiveSTSWReply = CharacterEncoder.getSafeText(request.getParameter("passiveSTSWReply"));
+        String passiveSTSRealm = request.getParameter("passiveSTSRealm");
+        String passiveSTSWReply = request.getParameter("passiveSTSWReply");
 
         if (passiveSTSRealm != null) {
             InboundAuthenticationRequestConfig opicAuthenticationRequest = new InboundAuthenticationRequestConfig();
@@ -1193,20 +1193,20 @@ public class ApplicationBean {
                 .setAlwaysSendBackAuthenticatedListOfIdPs(alwaysSendAuthListOfIdPs != null &&
                         "on".equals(alwaysSendAuthListOfIdPs) ? true : false);
 
-        String useTenantDomainInLocalSubjectIdentifier = CharacterEncoder.getSafeText(
-                request.getParameter("use_tenant_domain_in_local_subject_identifier"));
+        String useTenantDomainInLocalSubjectIdentifier = request.getParameter(
+                "use_tenant_domain_in_local_subject_identifier");
         serviceProvider.getLocalAndOutBoundAuthenticationConfig()
                 .setUseTenantDomainInLocalSubjectIdentifier(useTenantDomainInLocalSubjectIdentifier != null &&
                         "on".equals(useTenantDomainInLocalSubjectIdentifier) ? true : false);
 
-        String useUserstoreDomainInLocalSubjectIdentifier = CharacterEncoder.getSafeText(
-                request.getParameter("use_userstore_domain_in_local_subject_identifier"));
+        String useUserstoreDomainInLocalSubjectIdentifier = request.getParameter(
+                "use_userstore_domain_in_local_subject_identifier");
         serviceProvider.getLocalAndOutBoundAuthenticationConfig()
                 .setUseUserstoreDomainInLocalSubjectIdentifier(useUserstoreDomainInLocalSubjectIdentifier != null &&
                         "on".equals(useUserstoreDomainInLocalSubjectIdentifier) ? true : false);
 
 
-        String subjectClaimUri = CharacterEncoder.getSafeText(request.getParameter("subject_claim_uri"));
+        String subjectClaimUri = request.getParameter("subject_claim_uri");
         serviceProvider.getLocalAndOutBoundAuthenticationConfig()
                 .setSubjectClaimUri((subjectClaimUri != null && !subjectClaimUri.isEmpty()) ? subjectClaimUri : null);
 
@@ -1349,10 +1349,10 @@ public class ApplicationBean {
     public void updateLocalSp(HttpServletRequest request) {
 
         // update basic info.
-        serviceProvider.setApplicationName(CharacterEncoder.getSafeText(request.getParameter("spName")));
-        serviceProvider.setDescription(CharacterEncoder.getSafeText(request.getParameter("sp-description")));
+        serviceProvider.setApplicationName(request.getParameter("spName"));
+        serviceProvider.setDescription(request.getParameter("sp-description"));
 
-        String provisioningUserStore = CharacterEncoder.getSafeText(request.getParameter("scim-inbound-userstore"));
+        String provisioningUserStore = request.getParameter("scim-inbound-userstore");
         InboundProvisioningConfig inBoundProConfig = new InboundProvisioningConfig();
         inBoundProConfig.setProvisioningUserStore(provisioningUserStore);
         serviceProvider.setInboundProvisioningConfig(inBoundProConfig);
@@ -1367,11 +1367,9 @@ public class ApplicationBean {
 
         if (provisioningProviders != null && provisioningProviders.length > 0) {
             for (String proProvider : provisioningProviders) {
-                String connector = CharacterEncoder.getSafeText(request.getParameter(
-                        "provisioning_con_idp_" + proProvider));
-                String jitEnabled = CharacterEncoder.getSafeText(request.getParameter(
-                        "provisioning_jit_" + proProvider));
-                String blocking = CharacterEncoder.getSafeText(request.getParameter("blocking_prov_" + proProvider));
+                String connector = request.getParameter("provisioning_con_idp_" + proProvider);
+                String jitEnabled = request.getParameter("provisioning_jit_" + proProvider);
+                String blocking = request.getParameter("blocking_prov_" + proProvider);
 
                 JustInTimeProvisioningConfig jitpro = new JustInTimeProvisioningConfig();
 

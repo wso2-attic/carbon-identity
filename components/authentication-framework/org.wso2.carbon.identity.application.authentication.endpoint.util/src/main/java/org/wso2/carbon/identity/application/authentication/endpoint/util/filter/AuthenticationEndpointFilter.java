@@ -88,7 +88,7 @@ public class AuthenticationEndpointFilter implements Filter {
                 ((HttpServletRequest) servletRequest).getContextPath().length());
         if (StringUtils.isNotBlank(serviceProviderName)) {
             appSpecificCustomPageConfigKey = AuthenticationEndpointUtil.getApplicationSpecificCustomPageConfigKey
-                    (CharacterEncoder.getSafeText(serviceProviderName), relativePath);
+                    (serviceProviderName, relativePath);
         }
 
         if (appSpecificCustomPageConfigKey != null) {
@@ -116,7 +116,7 @@ public class AuthenticationEndpointFilter implements Filter {
         }
 
         if (((HttpServletRequest) servletRequest).getRequestURI().contains(URI_LOGIN)) {
-            String hrdParam = CharacterEncoder.getSafeText(servletRequest.getParameter(REQUEST_PARAM_HRD));
+            String hrdParam = servletRequest.getParameter(REQUEST_PARAM_HRD);
             if (hrdParam != null && "true".equalsIgnoreCase(hrdParam)) {
                 servletRequest.getRequestDispatcher("domain.jsp").forward(servletRequest, servletResponse);
                 return;

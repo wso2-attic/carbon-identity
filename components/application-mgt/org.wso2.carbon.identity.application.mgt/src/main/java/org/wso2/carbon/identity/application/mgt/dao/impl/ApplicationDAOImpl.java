@@ -239,10 +239,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             // TENANT_ID, APP_NAME, USER_STORE, USERNAME, DESCRIPTION, AUTH_TYPE
             storeAppPrepStmt.setInt(1, tenantID);
-            storeAppPrepStmt.setString(2, CharacterEncoder.getSafeText(applicationName));
-            storeAppPrepStmt.setString(3, CharacterEncoder.getSafeText(userStoreDomain));
-            storeAppPrepStmt.setString(4, CharacterEncoder.getSafeText(username));
-            storeAppPrepStmt.setString(5, CharacterEncoder.getSafeText(description));
+            storeAppPrepStmt.setString(2, applicationName);
+            storeAppPrepStmt.setString(3, userStoreDomain);
+            storeAppPrepStmt.setString(4, username);
+            storeAppPrepStmt.setString(5, description);
             // by default authentication type would be default.
             // default authenticator is defined system-wide - in the configuration file.
             storeAppPrepStmt.setString(6, ApplicationConstants.AUTH_TYPE_DEFAULT);
@@ -429,8 +429,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             storeAppPrepStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.UPDATE_BASIC_APPINFO);
             // SET APP_NAME=?, DESCRIPTION=? IS_SAAS_APP=? WHERE TENANT_ID= ? AND ID = ?
-            storeAppPrepStmt.setString(1, CharacterEncoder.getSafeText(applicationName));
-            storeAppPrepStmt.setString(2, CharacterEncoder.getSafeText(description));
+            storeAppPrepStmt.setString(1, applicationName);
+            storeAppPrepStmt.setString(2, description);
             storeAppPrepStmt.setString(3, isSaasApp ? "1" : "0");
             storeAppPrepStmt.setInt(4, tenantID);
             storeAppPrepStmt.setInt(5, applicationId);
@@ -486,14 +486,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 if (properties != null && properties.length > 0) {
                     for (Property prop : properties) {
                         inboundAuthReqConfigPrepStmt.setInt(1, tenantID);
-                        inboundAuthReqConfigPrepStmt.setString(2,
-                                CharacterEncoder.getSafeText(authRequest.getInboundAuthKey()));
-                        inboundAuthReqConfigPrepStmt.setString(3,
-                                CharacterEncoder.getSafeText(authRequest.getInboundAuthType()));
-                        inboundAuthReqConfigPrepStmt.setString(4,
-                                CharacterEncoder.getSafeText(prop.getName()));
-                        inboundAuthReqConfigPrepStmt.setString(5,
-                                CharacterEncoder.getSafeText(prop.getValue()));
+                        inboundAuthReqConfigPrepStmt.setString(2,authRequest.getInboundAuthKey());
+                        inboundAuthReqConfigPrepStmt.setString(3,authRequest.getInboundAuthType());
+                        inboundAuthReqConfigPrepStmt.setString(4,prop.getName());
+                        inboundAuthReqConfigPrepStmt.setString(5,prop.getValue());
                         inboundAuthReqConfigPrepStmt.setInt(6, applicationId);
                         inboundAuthReqConfigPrepStmt.addBatch();
                     }
