@@ -434,6 +434,8 @@ public class SSOAssertionConsumerService extends HttpServlet {
         Cookie ssoTokenCookie = getSSOTokenCookie(req);
         if (ssoTokenCookie == null) {
             ssoTokenCookie = new Cookie(SSO_TOKEN_ID, ssoTokenID);
+            ssoTokenCookie.setSecure(true);
+            ssoTokenCookie.setHttpOnly(true);
         }
         ssoTokenCookie.setMaxAge(SSO_SESSION_EXPIRE);
         resp.addCookie(ssoTokenCookie);
