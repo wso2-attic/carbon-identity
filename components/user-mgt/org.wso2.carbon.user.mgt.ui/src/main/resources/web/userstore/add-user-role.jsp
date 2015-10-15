@@ -127,7 +127,6 @@
                                     <a class="icon-link"
                                        style="background-image:url(images/user-roles.gif);"
                                        href="../role/add-step1.jsp"><fmt:message key="add-roles"/></a>
-
                                 </td>
                             </tr>
                             <% } %>
@@ -160,7 +159,6 @@
                         <%
                             }
                         %>
-
                     </td>
                 </tr>
             </table>
