@@ -28,7 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>Agent-feature</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - SAML SSO agent Feature Aggregator Module</name>
+    <name>WSO2 Carbon - Agent Feature Aggregator Module</name>
     <url>http://wso2.org</url>
 
     <modules>

@@ -28,7 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.identity.sso.agent.server.feature</artifactId>
     <packaging>pom</packaging>
-    <name>Identity SAML Single Sign-on Server Feature</name>
+    <name>SSO Agent server feature</name>
     <url>http://wso2.org</url>
     <description>This feature contains sso agent which is a library for sso and openid</description>
 
