@@ -938,20 +938,7 @@ public class SAMLSSOUtil {
 
         if (!authnReqDTO.isIdPInitSSOEnabled()) {
 
-            AuthnRequestImpl request = null;
-
-            try {
-                request = (AuthnRequestImpl) SAMLSSOUtil.unmarshall(SAMLSSOUtil.decode(authnReqDTO
-                        .getRequestMessageString()));
-            } catch (IdentityException e) {
-                request = (AuthnRequestImpl) SAMLSSOUtil.unmarshall(SAMLSSOUtil
-                        .decodeForPost(authnReqDTO.getRequestMessageString()));
-                if (log.isDebugEnabled()) {
-                    log.debug("Error while decoding authentication request.", e);
-                }
-            }
-
-            if (request.getAttributeConsumingServiceIndex() == null) {
+            if ( authnReqDTO.getAttributeConsumingServiceIndex() == 0) {
                 //SP has not provide a AttributeConsumingServiceIndex in the authnReqDTO
                 if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
                     if (spDO.isEnableAttributesByDefault()) {
@@ -964,7 +951,7 @@ public class SAMLSSOUtil {
                 }
             } else {
                 //SP has provide a AttributeConsumingServiceIndex in the authnReqDTO
-                index = request.getAttributeConsumingServiceIndex();
+                index = authnReqDTO.getAttributeConsumingServiceIndex();
             }
         } else {
             if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
