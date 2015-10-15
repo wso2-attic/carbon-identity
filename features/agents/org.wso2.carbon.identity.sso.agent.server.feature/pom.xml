@@ -41,6 +41,14 @@
             <groupId>opensaml.wso2</groupId>
             <artifactId>opensaml2</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.openid4java</groupId>
+            <artifactId>openid4java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>
+            <artifactId>oltu</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -70,8 +78,12 @@
                             <bundles>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.sso.agent</bundleDef>
                                 <bundleDef>opensaml.wso2:opensaml2</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.openid4java:openid4java</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.oltu.oauth2:oltu</bundleDef>
+                                <bundleDef>org.wso2.orbit.org.apache.httpcomponents:httpclient</bundleDef>
                             </bundles>
                             <importFeatures>
+                                <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
                                 <importFeatureDef>org.wso2.carbon.identity.core:${carbon.identity.version}</importFeatureDef>
                             </importFeatures>
                         </configuration>
