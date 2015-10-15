@@ -218,7 +218,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             DeployedPackagesPaginated deployedPackagesPaginated =
                     bpsPackagestub.listDeployedPackagesPaginated(0, workflow.getWorkflowName());
             PackageType[] packageTypes = deployedPackagesPaginated.get_package();
-            if (packageTypes == null && packageTypes.length == 0) {
+            if (packageTypes == null || packageTypes.length == 0) {
                 throw new WorkflowImplException("Error while deleting the BPS artifacts of: " +
                         workflow.getWorkflowName());
             }
