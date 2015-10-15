@@ -1024,10 +1024,6 @@ public class SCIMUserManager implements UserManager {
                 List<String> addedMembers = new ArrayList<>();
                 List<String> deletedMembers = new ArrayList<>();
 
-                if (addRequestedMembers.isEmpty() && deleteRequestedMembers.isEmpty()) {
-                    String users[] = carbonUM.getUserListOfRole(newGroup.getDisplayName());
-                    deletedMembers = Arrays.asList(users);
-                }
 
                 for (String addRequestedMember : addRequestedMembers) {
                     if ((!oldMembers.isEmpty()) && oldMembers.contains(addRequestedMember)) {
