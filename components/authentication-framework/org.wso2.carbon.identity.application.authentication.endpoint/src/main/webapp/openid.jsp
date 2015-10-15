@@ -23,7 +23,7 @@
         if (loginFailed != null) {
 
     %>
-    <div class="alert alert-error">
+    <div class="alert alert-danger">
         <fmt:message key='<%=Encode.forHtml(request.getParameter("errorMessage"))%>'/>
     </div>
     <% } %>
@@ -37,7 +37,7 @@
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Remember me on this computer
+                <input type="checkbox" id="chkRemember" name="chkRemember"> Remember me on this computer
             </label>
         </div>
         <br>

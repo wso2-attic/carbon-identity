@@ -65,50 +65,57 @@
 
                         <% if (request.getParameter("failedPrevious") != null &&
                             "true".equals(request.getParameter("failedPrevious"))) { %>
-                        <div class="alert alert-error" id="error-msg">Something went wrong. Please try again.
+                        <div class="alert alert-danger" id="error-msg">
+                            <%if (request.getParameter("errorCode").equals("1")) {%>
+                            Passwords did not match. Please try again.
+                            <%} else {%>
+                            Something went wrong. Please try again.
+                            <%}%>
+
                         </div>
                         <%}%>
 
                         <div class="padding-double font-large">Enter all text fields to complete registration</div>
                         <!-- validation -->
                         <div class="padding-double">
-                            <div id="regFormError" class="alert alert-error" style="display:none"></div>
+                            <div id="regFormError" class="alert alert-danger" style="display:none"></div>
                             <div id="regFormSuc" class="alert alert-success" style="display:none"></div>
 
                             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group">
                                 <label>First Name</label>
                                 <input type="text" name="reg-first-name"
                                        data-claim-uri="http://wso2.org/claims/givenname"
-                                       class="form-control  required null">
+                                       class="form-control" required>
                             </div>
 
                             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group">
                                 <label>Last Name</label>
                                 <input type="text" name="reg-last-name" data-claim-uri="http://wso2.org/claims/lastname"
-                                       class="form-control  required null">
+                                       class="form-control  required null" required>
                             </div>
 
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
                                 <label>Username</label>
                                 <input id="reg-username" name="reg-username" type="text"
-                                       class="form-control required usrName usrNameLength">
+                                       class="form-control required usrName usrNameLength" required>
                             </div>
                             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group">
                                 <label>Password</label>
                                 <input id="reg-password" name="reg-password" type="password"
-                                       class="form-control required passwordLength">
+                                       class="form-control" required>
                             </div>
                             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group">
                                 <label>Confirm password</label>
-                                <input id="reg-password2" name="password2" type="password" class="form-control required"
-                                       equalto="#reg-password">
+                                <input id="reg-password2" name="reg-password2" type="password" class="form-control"
+                                       data-match="reg-password" required>
                             </div>
 
 
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
                                 <label>Email</label>
-                                <input type="text" name="reg-email" data-claim-uri="http://wso2.org/claims/emailaddress"
-                                       class="form-control email required null">
+                                <input type="email" name="reg-email"
+                                       data-claim-uri="http://wso2.org/claims/emailaddress"
+                                       class="form-control" data-validate="email" required>
                             </div>
 
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
@@ -125,7 +132,7 @@
                             </div>
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
                                 <span class="margin-top padding-top-double font-large">Already have an account? </span>
-                                <a href="login.jsp" id="signInLink" class="font-large">Sign in</a>
+                                <a href="../dashboard/index.jag" id="signInLink" class="font-large">Sign in</a>
                             </div>
                             <div class="clearfix"></div>
                         </div>

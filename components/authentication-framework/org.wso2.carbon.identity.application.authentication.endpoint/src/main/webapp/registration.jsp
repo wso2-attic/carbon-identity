@@ -19,12 +19,16 @@
         import="org.wso2.carbon.identity.application.authentication.endpoint.util.UserRegistrationAdminServiceClient" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.HashMap" %>
-<%@ page import="org.wso2.carbon.identity.user.registration.stub.UserRegistrationAdminServiceException" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <%
     String forwardTo;
+    int errorCode = 0;
     try {
         UserRegistrationAdminServiceClient registrationClient = new UserRegistrationAdminServiceClient();
+        if (!request.getParameter("reg-password").equals(request.getParameter("reg-password2"))) {
+            errorCode = 1;
+            throw new Exception();
+        }
         Map<String, String> registrationParameters = new HashMap<String, String>();
         registrationParameters.put("reg-username", request.getParameter("reg-username"));
         registrationParameters.put("reg-first-name", request.getParameter("reg-first-name"));
@@ -35,8 +39,11 @@
         forwardTo = "../dashboard/index.jag";
 
     } catch (Exception e) {
+        if (errorCode == 0) {
+            errorCode = 2;
+        }
         forwardTo = "create-account.jsp?sessionDataKey=" + request.getParameter("sessionDataKey") +
-                "&failedPrevious=true";
+                "&failedPrevious=true&errorCode=" + errorCode;
     }
 
 

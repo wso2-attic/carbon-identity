@@ -18,10 +18,10 @@
 
 <%@ page import="org.owasp.encoder.Encode" %>
 
-<form action="../commonauth" method="post" id="loginForm" class="form-horizontal">
+<form action="../commonauth" method="post" id="loginForm">
 
     <% if ("true".equals(loginFailed)) { %>
-    <div class="alert alert-error" id="error-msg">Username or password is
+    <div class="alert alert-danger" id="error-msg">Username or password is
         invalid
     </div>
     <%}%>
@@ -42,7 +42,7 @@
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
         <div class="checkbox">
             <label>
-                <input type="checkbox"> Remember me on this computer
+                <input type="checkbox" id="chkRemember" name="chkRemember"> Remember me on this computer
             </label>
         </div>
         <br>
