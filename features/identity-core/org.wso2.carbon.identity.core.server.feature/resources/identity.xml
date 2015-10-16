@@ -61,7 +61,7 @@
          -->
         <!--OpenIDServerUrl>https://localhost:9443/openidserver</OpenIDServerUrl-->
         <!--OpenIDUserPattern>https://localhost:9443/openid/</OpenIDUserPattern-->
-        <OpenIDLoginUrl>https://localhost:9443/authenticationendpoint/openid_login.do</OpenIDLoginUrl>
+        <!--OpenIDLoginUrl>https://localhost:9443/authenticationendpoint/openid_login.do</OpenIDLoginUrl-->
 
         <!-- If the users must be prompted for approval -->
         <OpenIDSkipUserConsent>false</OpenIDSkipUserConsent>
