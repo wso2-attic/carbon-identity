@@ -443,7 +443,7 @@ public class FrameworkUtils {
     public static void sendToRetryPage(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         // TODO read the URL from framework config file rather than carbon.xml
-        response.sendRedirect(IdentityUtil.getServerURL("/authenticationendpoint/retry.do"));
+        response.sendRedirect(IdentityUtil.getServerURL("/authenticationendpoint/retry.do", false));
     }
 
     /**
