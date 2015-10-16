@@ -137,6 +137,10 @@ public class ConfigurationFacade {
         return FileBasedConfigurationBuilder.getInstance().getAuthenticationEndpointURL();
     }
 
+    public String getAuthenticationEndpointRetryURL() {
+        return FileBasedConfigurationBuilder.getInstance().getAuthenticationEndpointRetryURL();
+    }
+
     /**
      * Get the tenant list receiving urls
      *

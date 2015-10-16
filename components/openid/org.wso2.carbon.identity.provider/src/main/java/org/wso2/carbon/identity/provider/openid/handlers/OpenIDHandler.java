@@ -657,7 +657,7 @@ public class OpenIDHandler {
                 session.removeAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID);
 
                 // sending to the login page
-                String openIdEndpointUrl = IdentityUtil.getServerURL("/authenticationendpoint/openid_login.do", false);
+                String openIdEndpointUrl = org.wso2.carbon.identity.provider.openid.OpenIDUtil.getOpenIDLoginPageURL();
 
                 resp.sendRedirect(openIdEndpointUrl
                                   + OpenIDUtil.getLoginPageQueryParams((ParameterList) req.getSession().getAttribute(

@@ -117,6 +117,7 @@ public class IdentityConstants {
 
         public final static String OPENID_SERVER_URL = "OpenID.OpenIDServerUrl";
         public final static String OPENID_USER_PATTERN = "OpenID.OpenIDUserPattern";
+        public final static String OPENID_LOGIN_PAGE_URL = "OpenID.OpenIDLoginUrl";
         public final static String OPENID_SKIP_USER_CONSENT = "OpenID.OpenIDSkipUserConsent";
         public final static String OPENID_REMEMBER_ME_EXPIRY = "OpenID.OpenIDRememberMeExpiry";
         public final static String OPENID_USE_MULTIFACTOR_AUTHENTICATION = "OpenID.UseMultifactorAuthentication";

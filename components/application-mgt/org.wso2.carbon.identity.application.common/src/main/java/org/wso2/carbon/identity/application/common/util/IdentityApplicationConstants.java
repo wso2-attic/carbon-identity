@@ -166,6 +166,10 @@ public class IdentityApplicationConstants {
             }
         }
 
+        public static class FIDO{
+            public static final String FIDO_AUTH = "FidoAuth";
+        }
+
     }
 
     public static class OAuth10A {
