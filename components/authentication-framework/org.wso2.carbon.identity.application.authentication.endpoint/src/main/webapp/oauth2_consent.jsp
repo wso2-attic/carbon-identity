@@ -86,7 +86,7 @@
 
                 <div class="boarder-all ">
                     <div class="clearfix"></div>
-                    <form action="../commonauth" method="post" id="profile" name="oauth2_authz"
+                    <form action="../oauth2/authorize" method="post" id="profile" name="oauth2_authz"
                           class="form-horizontal" >
                         <div class="padding-double login-form">
                             <div class="form-group">
