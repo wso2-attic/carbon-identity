@@ -64,7 +64,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.URI;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
