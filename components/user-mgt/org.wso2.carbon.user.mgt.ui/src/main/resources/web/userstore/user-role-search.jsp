@@ -628,7 +628,7 @@
 
 
         <div id="workArea" style="margin-left: 10px">
-            <form id="id_search" name="filterForm" method="post" action="user-mgt.jsp">
+            <form id="id_search" name="filterForm" method="post" onsubmit="search();return false">
 
                 <h2  class="triggerIn" style="background-color: floralwhite;">
                     <div class="LargeHeader">
