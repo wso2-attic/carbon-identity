@@ -38,6 +38,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class UserStoreManagerService extends AbstractAdmin {
@@ -57,6 +59,13 @@ public class UserStoreManagerService extends AbstractAdmin {
 
     public void setUserClaimValues(String userName, ClaimValue[] claims, String profileName)
             throws UserStoreException {
+        // only allow alphanumeric characters for profile
+        Pattern regex = Pattern.compile("^[a-zA-Z0-9_]*$");
+        Matcher matcher = regex.matcher(profileName);
+
+        if (!matcher.matches()) {
+            throw new UserStoreException("Profile name cannot contain special characters other than underscore!");
+        }
         getUserStoreManager().setUserClaimValues(userName, convertClaimValueToMap(claims),
                 profileName);
 
