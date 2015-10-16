@@ -61,6 +61,7 @@ import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponent;
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponentHolder;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.DBUtils;
@@ -208,12 +209,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         int tenantID = MultitenantConstants.INVALID_TENANT_ID;
 
         if (tenantDomain != null) {
-            try {
-                tenantID = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
-                        .getTenantManager().getTenantId(tenantDomain);
-            } catch (UserStoreException e1) {
-                throw new IdentityApplicationManagementException("Error while reading application");
-            }
+            tenantID = IdentityTenantUtil.getTenantId(tenantDomain);
         }
 
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
@@ -309,12 +305,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         int tenantID = MultitenantConstants.INVALID_TENANT_ID;
         if (tenantDomain != null) {
-            try {
-                tenantID = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
-                        .getTenantManager().getTenantId(tenantDomain);
-            } catch (UserStoreException e1) {
-                throw new IdentityApplicationManagementException("Error while reading application");
-            }
+            tenantID = IdentityTenantUtil.getTenantId(tenantDomain);
         }
 
         try {

@@ -26,6 +26,7 @@ import org.wso2.carbon.identity.application.authentication.framework.store.Sessi
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 
@@ -64,15 +65,9 @@ public class AuthenticationContextCache extends
         if (enableRequestScopeCache) {
             int tenantId = MultitenantConstants.INVALID_TENANT_ID;
             String tenantDomain = entry.getContext().getTenantDomain();
-            try {
-                tenantId =FrameworkServiceDataHolder.getInstance().getRealmService().getTenantManager().getTenantId
-                        (tenantDomain);
-            } catch (UserStoreException e) {
-                if (log.isDebugEnabled()){
-                    log.debug("Error while retrieving tenant id from tenant domain : " + tenantDomain);
-                }
+            if (tenantDomain != null) {
+                tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
             }
-
             SessionDataStore.getInstance().storeSessionData(key.getContextId(), AUTHENTICATION_CONTEXT_CACHE_NAME,
                     entry, tenantId);
         }
