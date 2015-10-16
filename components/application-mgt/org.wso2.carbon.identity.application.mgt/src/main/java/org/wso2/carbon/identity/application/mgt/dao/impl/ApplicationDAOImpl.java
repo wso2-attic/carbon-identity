@@ -60,6 +60,7 @@ import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponent;
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponentHolder;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.DBUtils;
@@ -134,7 +135,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * @throws SQLException
      */
     private void addServiceProviderProperties(Connection dbConnection, int spId,
-            List<ServiceProviderProperty> properties)
+            List<ServiceProviderProperty> properties, int tenantId)
             throws SQLException {
         String sqlStmt = ApplicationMgtDBQueries.ADD_SP_METADATA;
         PreparedStatement prepStmt = null;
@@ -146,6 +147,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 prepStmt.setString(2, property.getName());
                 prepStmt.setString(3, property.getValue());
                 prepStmt.setString(4, property.getDisplayName());
+                prepStmt.setInt(5, tenantId);
                 prepStmt.addBatch();
             }
             prepStmt.executeBatch();
@@ -164,7 +166,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * @throws SQLException
      */
     private void updateServiceProviderProperties(Connection dbConnection, int spId,
-            List<ServiceProviderProperty> properties)
+            List<ServiceProviderProperty> properties, int tenantId)
             throws SQLException {
 
         PreparedStatement prepStmt = null;
@@ -180,6 +182,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 prepStmt.setString(2, property.getName());
                 prepStmt.setString(3, property.getValue());
                 prepStmt.setString(4, property.getDisplayName());
+                prepStmt.setInt(5, tenantId);
                 prepStmt.addBatch();
             }
             prepStmt.executeBatch();
@@ -205,12 +208,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         int tenantID = MultitenantConstants.INVALID_TENANT_ID;
 
         if (tenantDomain != null) {
-            try {
-                tenantID = ApplicationManagementServiceComponentHolder.getInstance().getRealmService()
-                        .getTenantManager().getTenantId(tenantDomain);
-            } catch (UserStoreException e1) {
-                throw new IdentityApplicationManagementException("Error while reading application");
-            }
+            tenantID = IdentityTenantUtil.getTenantId(tenantDomain);
         }
 
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
@@ -267,7 +265,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             if (serviceProvider.getSpProperties() != null) {
                 addServiceProviderProperties(connection, applicationId,
-                        Arrays.asList(serviceProvider.getSpProperties()));
+                        Arrays.asList(serviceProvider.getSpProperties()), tenantID);
             }
 
             if (log.isDebugEnabled()) {
@@ -298,11 +296,16 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      */
 
     @Override
-    public void updateApplication(ServiceProvider serviceProvider)
+    public void updateApplication(ServiceProvider serviceProvider, String tenantDomain)
             throws IdentityApplicationManagementException {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         int applicationId = serviceProvider.getApplicationID();
+
+        int tenantID = MultitenantConstants.INVALID_TENANT_ID;
+        if (tenantDomain != null) {
+            tenantID = IdentityTenantUtil.getTenantId(tenantDomain);
+        }
 
         try {
             if (ApplicationManagementServiceComponent.getFileBasedSPs().containsKey(
@@ -352,7 +355,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             if (serviceProvider.getSpProperties() != null) {
                 updateServiceProviderProperties(connection, applicationId,
-                        Arrays.asList(serviceProvider.getSpProperties()));
+                        Arrays.asList(serviceProvider.getSpProperties()), tenantID);
             }
 
             if (!connection.getAutoCommit()) {

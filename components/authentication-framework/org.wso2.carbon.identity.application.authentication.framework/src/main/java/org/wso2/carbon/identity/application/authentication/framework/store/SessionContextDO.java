@@ -33,11 +33,21 @@ public class SessionContextDO {
 
     private Timestamp timestamp;
 
+    private int tenantId;
+
     public SessionContextDO(String key, String type, Object entry, Timestamp timestamp) {
         this.type = type;
         this.key = key;
         this.entry = entry;
         this.timestamp = timestamp;
+    }
+
+    public SessionContextDO(String key, String type, Object entry, Timestamp timestamp, int tenantId) {
+        this.type = type;
+        this.key = key;
+        this.entry = entry;
+        this.timestamp = timestamp;
+        this.tenantId = tenantId;
     }
 
     public String getKey() {
@@ -70,5 +80,13 @@ public class SessionContextDO {
 
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public int getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(int tenantId) {
+        this.tenantId = tenantId;
     }
 }

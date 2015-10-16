@@ -77,7 +77,7 @@ public class ApplicationIdentityProviderMgtListener extends AbstractIdentityProv
                                     .getDefaultAuthenticatorConfig();
                             fedIdp.setDefaultAuthenticatorConfig(currentDefaultAuthenticatorConfig);
                             ApplicationMgtSystemConfig.getInstance().getApplicationDAO()
-                                    .updateApplication(serviceProvider);
+                                    .updateApplication(serviceProvider, tenantDomain);
                         }
                     }
                 }
