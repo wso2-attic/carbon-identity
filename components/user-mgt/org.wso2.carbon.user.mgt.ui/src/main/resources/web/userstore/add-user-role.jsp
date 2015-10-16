@@ -77,7 +77,6 @@
         boolean multipleUserStores = false;
         UserRealmInfo userRealmInfo = null;
 
-
             try {
     			String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
     			String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
