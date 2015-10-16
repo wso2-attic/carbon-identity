@@ -54,7 +54,6 @@
     boolean newFilter = false;
     boolean doUserList = true;
     boolean showFilterMessage = false;
-    boolean multipleUserStores = false;
     String forwardTo = "user-mgt.jsp";
 
     FlaggedName[] datas = null;
@@ -96,9 +95,6 @@
     // retrieve session attributes
     String currentUser = (String) session.getAttribute("logged-user");
     UserRealmInfo userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
-    if (userRealmInfo != null) {
-        multipleUserStores = userRealmInfo.getMultipleUserStore();
-    }
     java.lang.String errorAttribute = (java.lang.String) session.getAttribute(UserAdminUIConstants.DO_USER_LIST);
 
     String claimUri = request.getParameter("claimUri");

@@ -85,9 +85,9 @@
     					.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     			UserAdminClient client = new UserAdminClient(cookie,backendServerURL, configContext);
     			userRealmInfo = client.getUserRealmInfo();
-                if (userRealmInfo != null) {
+                       if (userRealmInfo != null) {
                     multipleUserStores = userRealmInfo.getMultipleUserStore();
-                }
+                       }
     			session.setAttribute(UserAdminUIConstants.USER_STORE_INFO,userRealmInfo);
     		} catch (Exception e) {
     			CarbonUIMessage uiMsg = new CarbonUIMessage(e.getMessage(),
