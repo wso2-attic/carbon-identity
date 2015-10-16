@@ -198,6 +198,9 @@ public class IdentityConstants {
         public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
         public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
 
+        //PassiveSTS
+        public static final String PASSIVE_STS_RETRY = "PassiveSTS.RetryURL";
+
     }
 
     /**
