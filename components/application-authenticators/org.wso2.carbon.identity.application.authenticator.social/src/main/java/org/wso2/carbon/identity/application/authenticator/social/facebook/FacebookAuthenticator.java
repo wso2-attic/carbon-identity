@@ -18,14 +18,14 @@
 
 package org.wso2.carbon.identity.application.authenticator.social.facebook;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.utils.JSONUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
@@ -35,6 +35,7 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,6 +56,76 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
 
     private static final long serialVersionUID = -4844100162196896194L;
     private static final Log log = LogFactory.getLog(FacebookAuthenticator.class);
+    private String tokenEndpoint;
+    private String oAuthEndpoint;
+    private String userInfoEndpoint;
+
+
+    /**
+     * initiate tokenEndpoint
+     */
+    private void initTokenEndpoint() {
+        this.tokenEndpoint = getAuthenticatorConfig().getParameterMap().get(FacebookAuthenticatorConstants
+                .FB_TOKEN_URL);
+        if (StringUtils.isBlank(this.tokenEndpoint)) {
+            this.tokenEndpoint = IdentityApplicationConstants.FB_TOKEN_URL;
+        }
+    }
+
+    /**
+     * initiate authorization server endpoint
+     */
+    private void initOAuthEndpoint() {
+        this.oAuthEndpoint = getAuthenticatorConfig().getParameterMap().get(FacebookAuthenticatorConstants
+                .FB_AUTHZ_URL);
+        if (StringUtils.isBlank(this.oAuthEndpoint)) {
+            this.oAuthEndpoint = IdentityApplicationConstants.FB_AUTHZ_URL;
+        }
+    }
+
+    /**
+     * initiate userInfoEndpoint
+     */
+    private void initUserInfoEndPoint() {
+        this.userInfoEndpoint = getAuthenticatorConfig().getParameterMap().get(FacebookAuthenticatorConstants
+                .FB_USER_INFO_URL);
+        if (StringUtils.isBlank(this.userInfoEndpoint)) {
+            this.userInfoEndpoint = IdentityApplicationConstants.FB_USER_INFO_URL;
+        }
+    }
+
+    /**
+     * get the tokenEndpoint.
+     * @return tokenEndpoint
+     */
+    private String getTokenEndpoint() {
+        if (StringUtils.isBlank(this.tokenEndpoint)) {
+            initTokenEndpoint();
+        }
+        return this.tokenEndpoint;
+    }
+
+    /**
+     * get the oAuthEndpoint.
+     * @return oAuthEndpoint
+     */
+    private String getAuthorizationServerEndpoint() {
+        if (StringUtils.isBlank(this.oAuthEndpoint)) {
+            initOAuthEndpoint();
+        }
+        return this.oAuthEndpoint;
+    }
+
+    /**
+     * get the userInfoEndpoint.
+     * @return userInfoEndpoint
+     */
+    private String getUserInfoEndpoint() {
+        if (StringUtils.isBlank(this.userInfoEndpoint)) {
+            initUserInfoEndPoint();
+        }
+        return this.userInfoEndpoint;
+    }
 
     @Override
     public boolean canHandle(HttpServletRequest request) {
@@ -78,7 +149,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
         try {
             Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
             String clientId = authenticatorProperties.get(FacebookAuthenticatorConstants.CLIENT_ID);
-            String authorizationEP = authenticatorProperties.get(FacebookAuthenticatorConstants.FB_AUTHZ_URL);
+            String authorizationEP = getAuthorizationServerEndpoint();
             String scope = authenticatorProperties.get(FacebookAuthenticatorConstants.SCOPE);
 
             if (StringUtils.isEmpty(scope)) {
@@ -122,8 +193,8 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
                     authenticatorProperties.get(FacebookAuthenticatorConstants.CLIENT_SECRET);
             String userInfoFields = authenticatorProperties.get(FacebookAuthenticatorConstants.USER_INFO_FIELDS);
 
-            String tokenEndPoint = authenticatorProperties.get(FacebookAuthenticatorConstants.FB_TOKEN_URL);
-            String fbauthUserInfoUrl = authenticatorProperties.get(FacebookAuthenticatorConstants.FB_USER_INFO_URL);
+            String tokenEndPoint = getTokenEndpoint();
+            String fbauthUserInfoUrl = getUserInfoEndpoint();
 
             String callbackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
 
