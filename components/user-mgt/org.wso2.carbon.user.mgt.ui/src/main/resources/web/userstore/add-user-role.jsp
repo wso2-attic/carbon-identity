@@ -74,7 +74,7 @@
 
     </script>
     <%
-       boolean multipleUserStores = false;
+        boolean multipleUserStores = false;
         UserRealmInfo userRealmInfo = null;
 
 
