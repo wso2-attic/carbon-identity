@@ -162,7 +162,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                     SAMLSSOUtil.setTenantDomainInThreadLocal(sessionDTO.getTenantDomain());
                     if (sessionDTO.isInvalidLogout()) {
                         log.warn("Redirecting to default logout page due to an invalid logout request");
-                        resp.sendRedirect(IdentityUtil.getServerURL(SAMLSSOConstants.DEFAULT_LOGOUT_LOCATION, true));
+                        resp.sendRedirect(IdentityUtil.getServerURL(SAMLSSOConstants.DEFAULT_LOGOUT_LOCATION, false));
                     } else if (sessionDTO.isLogoutReq()) {
                         handleLogoutResponseFromFramework(req, resp, sessionDTO);
                     } else {
@@ -239,7 +239,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                                   String acUrl, HttpServletRequest req,
                                   HttpServletResponse resp) throws ServletException, IOException {
 
-        String redirectURL = IdentityUtil.getServerURL(SAMLSSOConstants.NOTIFICATION_ENDPOINT, true);
+        String redirectURL = IdentityUtil.getServerURL(SAMLSSOConstants.NOTIFICATION_ENDPOINT, false);
 
         //TODO Send status codes rather than full messages in the GET request
         String queryParams = "?" + SAMLSSOConstants.STATUS + "=" + URLEncoder.encode(status, "UTF-8") +
@@ -265,7 +265,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         SAMLSSOService samlSSOService = new SAMLSSOService();
 
         SAMLSSOReqValidationResponseDTO signInRespDTO = samlSSOService.validateIdPInitSSORequest(
-                relayState, queryString, getQueryParams(req), IdentityUtil.getServerURL(SAMLSSOConstants.DEFAULT_LOGOUT_LOCATION, true), sessionId,
+                relayState, queryString, getQueryParams(req), IdentityUtil.getServerURL(SAMLSSOConstants.DEFAULT_LOGOUT_LOCATION, false), sessionId,
                 rpSessionId, authMode, isLogout);
 
         if (!signInRespDTO.isLogOutReq()) {

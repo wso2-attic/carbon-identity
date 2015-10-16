@@ -142,13 +142,8 @@
         </div>
         <% } %>
 
-        <% String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(Constants.WEB_CONTEXT_ROOT);
-            if (StringUtils.isNotBlank(webContextRoot)) { %>
-        <form action="../<%=webContextRoot%>/commonauth" method="post" id="loginForm" class="form-horizontal">
-                    <% }else{%>
-            <form action="../commonauth" method="post" id="loginForm" class="form-horizontal">
-                        <%}%>
-                        <%
+        <form action="../commonauth" method="post" id="loginForm" class="form-horizontal">
+                    <%
                 if(localAuthenticatorNames.size()>0) {
 
                     if(localAuthenticatorNames.size()>0 && localAuthenticatorNames.contains("OpenIDAuthenticator")){
@@ -299,11 +294,11 @@
 
             if (domain != "") {
                 document.location = "../commonauth?idp=" + key + "&authenticator=" + value +
-                "&sessionDataKey=<%=Encode.forUriComponent(request.getParameter("sessionDataKey"))%>&domain=" +
+                        "&sessionDataKey=<%=Encode.forUriComponent(request.getParameter("sessionDataKey"))%>&domain=" +
                         domain;
             } else {
                 document.location = "../commonauth?idp=" + key + "&authenticator=" + value +
-                "&sessionDataKey=<%=Encode.forUriComponent(request.getParameter("sessionDataKey"))%>";
+                        "&sessionDataKey=<%=Encode.forUriComponent(request.getParameter("sessionDataKey"))%>";
             }
         }
 

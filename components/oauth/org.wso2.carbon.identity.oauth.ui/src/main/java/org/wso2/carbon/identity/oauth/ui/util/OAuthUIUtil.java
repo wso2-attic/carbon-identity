@@ -53,6 +53,7 @@ public class OAuthUIUtil {
         String oauthServletContext = "/oauth2";
         if (oauthVersion.equals(OAuthConstants.OAuthVersions.VERSION_1A)) {
             oauthServletContext = "/oauth";
+            endpointURL = IdentityUtil.getServerURL("", true);
         }
         return endpointURL + oauthServletContext + endpointType;
     }

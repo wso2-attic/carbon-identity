@@ -85,7 +85,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
                 scope = FacebookAuthenticatorConstants.EMAIL;
             }
 
-            String callbackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false);
+            String callbackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
 
             String state = context.getContextIdentifier() + "," + FacebookAuthenticatorConstants.FACEBOOK_LOGIN_TYPE;
 
@@ -125,7 +125,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
             String tokenEndPoint = authenticatorProperties.get(FacebookAuthenticatorConstants.FB_TOKEN_URL);
             String fbauthUserInfoUrl = authenticatorProperties.get(FacebookAuthenticatorConstants.FB_USER_INFO_URL);
 
-            String callbackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false);
+            String callbackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
 
             String code = getAuthorizationCode(request);
             String token = getToken(tokenEndPoint, clientId, clientSecret, callbackUrl, code);

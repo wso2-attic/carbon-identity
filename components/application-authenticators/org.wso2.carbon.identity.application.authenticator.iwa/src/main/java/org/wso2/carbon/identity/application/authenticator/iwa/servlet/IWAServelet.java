@@ -67,7 +67,7 @@ public class IWAServelet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String commonAuthURL = IdentityUtil.getServerURL(IWAConstants.COMMON_AUTH_EP, false);
+        String commonAuthURL = IdentityUtil.getServerURL(IWAConstants.COMMON_AUTH_EP, true);
         String param = request.getParameter(IWAConstants.IWA_PARAM_STATE);
         if (param == null) {
             throw new IllegalArgumentException(IWAConstants.IWA_PARAM_STATE + " parameter is null.");

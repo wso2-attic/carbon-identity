@@ -119,7 +119,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
                 }
 
                 if (callBackUrl == null) {
-                    callBackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false);
+                    callBackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
                 }
 
                 String state = context.getContextIdentifier() + "," + OIDCAuthenticatorConstants.LOGIN_TYPE;
@@ -320,7 +320,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             log.debug("callBackUrl : " + callBackUrl);
 
             if (callBackUrl == null) {
-                callBackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false);
+                callBackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
             }
 
             @SuppressWarnings({"unchecked"})

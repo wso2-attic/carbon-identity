@@ -464,6 +464,6 @@ public class PassiveSTS extends HttpServlet {
 
     private void sendToRetryPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        response.sendRedirect(IdentityUtil.getServerURL( "/authenticationendpoint/retry.do", true));
+        response.sendRedirect(IdentityUtil.getServerURL( "/authenticationendpoint/retry.do", false));
     }
 }

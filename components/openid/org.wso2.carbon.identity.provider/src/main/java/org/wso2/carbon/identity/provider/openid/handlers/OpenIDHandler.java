@@ -447,7 +447,7 @@ public class OpenIDHandler {
          */
         request.getSession().setAttribute(OpenIDConstants.SessionAttribute.OPENID, claimedID);
 
-        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false);
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
         String selfPath = request.getContextPath();
         String sessionDataKey = UUIDGenerator.generateUUID();
 
