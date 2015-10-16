@@ -74,9 +74,9 @@
 
     </script>
     <%
-    	UserRealmInfo userRealmInfo = null;
-        boolean multipleUserStores = false;
-            String currentUser = (String) session.getAttribute("logged-user");
+       boolean multipleUserStores = false;
+        UserRealmInfo userRealmInfo = null;
+
 
             try {
     			String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
