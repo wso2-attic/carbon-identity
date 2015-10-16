@@ -25,7 +25,7 @@
 	import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="java.util.ResourceBundle"%>
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.UiUtil"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
@@ -47,7 +47,7 @@
 
 	<%
 		String spName = (String) request.getParameter("spName");
-		ApplicationBean appBean = UiUtil.getApplicationBeanFromSession(request, spName);
+		ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, spName);
 
 		if (spName != null && !"".equals(spName)) {
 

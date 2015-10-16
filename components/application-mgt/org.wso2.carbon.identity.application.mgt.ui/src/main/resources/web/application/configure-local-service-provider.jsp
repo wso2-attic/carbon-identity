@@ -30,7 +30,7 @@
 <%@ page import="org.owasp.encoder.Encode" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.UiUtil"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil"%>
 <carbon:breadcrumb label="breadcrumb.service.provider" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
                     topPage="true" request="<%=request%>" />
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -41,7 +41,7 @@
 
 
 <%
-    ApplicationBean appBean = UiUtil.getApplicationBeanFromSession(request, request.getParameter("spName"));
+    ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, request.getParameter("spName"));
 	String spName = appBean.getServiceProvider().getApplicationName();
 	      
 	StringBuffer localAuthTypes = new StringBuffer();

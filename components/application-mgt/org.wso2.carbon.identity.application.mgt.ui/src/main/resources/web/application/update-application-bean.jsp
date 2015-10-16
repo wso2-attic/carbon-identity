@@ -18,7 +18,7 @@
 
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.UiUtil"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
@@ -41,7 +41,7 @@
 	<%
 		String spName = request.getParameter("spName");
 			if (spName != null && !"".equals(spName)) {
-                ApplicationBean appBean = UiUtil.getApplicationBeanFromSession(request, spName);
+                ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, spName);
 				if ("wso2carbon-local-sp".equals(spName)) {
 					appBean.updateLocalSp(request);
 				} else {

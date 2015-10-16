@@ -25,7 +25,7 @@
 <%@ page
 	import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.UiUtil"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
@@ -46,7 +46,7 @@
 
 
 <%
-ApplicationBean appBean = UiUtil.getApplicationBeanFromSession(request, request.getParameter("spName"));
+ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, request.getParameter("spName"));
 if (appBean.getServiceProvider()==null || appBean.getServiceProvider().getApplicationName()==null){
 // if appbean is not set properly redirect the user to list-service-provider.jsp.
 %>

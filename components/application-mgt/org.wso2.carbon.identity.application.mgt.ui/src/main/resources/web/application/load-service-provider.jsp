@@ -30,7 +30,7 @@
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.UiUtil"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil"%>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
@@ -56,7 +56,7 @@
 		String spName = request.getParameter("spName");
 	    String BUNDLE = "org.wso2.carbon.identity.application.mgt.ui.i18n.Resources";
 	    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-	    ApplicationBean appBean = UiUtil.getApplicationBeanFromSession(request, spName);
+	    ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, spName);
 	    appBean.reset();
 		if (spName != null && !"".equals(spName)) {
 		

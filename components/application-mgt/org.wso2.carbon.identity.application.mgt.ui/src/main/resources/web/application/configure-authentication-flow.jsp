@@ -27,7 +27,7 @@
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page
 	import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
-<%@ page import="org.wso2.carbon.identity.application.mgt.ui.UiUtil"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil"%>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="breadcrumb.advanced.auth.step.config" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
@@ -38,7 +38,7 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    ApplicationBean appBean = UiUtil.getApplicationBeanFromSession(request, request.getParameter("spName"));
+    ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, request.getParameter("spName"));
 	String spName = appBean.getServiceProvider().getApplicationName();
 	Map<String, String> claimMapping = appBean.getClaimMapping();
 		

@@ -16,16 +16,17 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.application.mgt.ui;
+package org.wso2.carbon.identity.application.mgt.ui.util;
 
-import javax.servlet.http.HttpServletRequest;
+import org.wso2.carbon.identity.application.mgt.ui.ApplicationBean;
+import javax.servlet.http.HttpSession;
 
-public class UiUtil {
-    static public ApplicationBean getApplicationBeanFromSession(HttpServletRequest httpServletRequest, String spName) {
-        if (httpServletRequest.getSession().getAttribute(spName) == null) {
+public class ApplicationMgtUIUtil {
+    static public ApplicationBean getApplicationBeanFromSession(HttpSession session, String spName) {
+        if (session.getAttribute(spName) == null) {
             ApplicationBean applicationBean = new ApplicationBean();
-            httpServletRequest.getSession().setAttribute(spName, applicationBean);
+            session.setAttribute(spName, applicationBean);
         }
-        return (ApplicationBean)httpServletRequest.getSession().getAttribute(spName);
+        return (ApplicationBean)session.getAttribute(spName);
     }
 }
