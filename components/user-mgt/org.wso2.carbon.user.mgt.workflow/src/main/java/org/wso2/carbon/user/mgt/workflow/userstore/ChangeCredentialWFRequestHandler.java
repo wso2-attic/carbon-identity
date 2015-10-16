@@ -29,6 +29,7 @@ import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.user.mgt.workflow.util.UserStoreWFConstants;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -63,7 +64,7 @@ public class ChangeCredentialWFRequestHandler extends AbstractWorkflowRequestHan
         wfParams.put(USER_STORE_DOMAIN, userStoreDomain);
         nonWfParams.put(OLD_CREDENTIAL, oldCredential.toString());
         nonWfParams.put(NEW_CREDENTIAL, newCredential.toString());
-        return startWorkFlow(wfParams, nonWfParams);
+        return startWorkFlow(wfParams, nonWfParams).getExecutorResultState().state();
     }
 
     @Override

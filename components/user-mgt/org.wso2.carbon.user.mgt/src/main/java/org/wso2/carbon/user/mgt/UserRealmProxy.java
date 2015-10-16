@@ -647,6 +647,13 @@ public class UserRealmProxy {
             UserStoreInfo info = new UserStoreInfo();
 
             info.setReadOnly(manager.isReadOnly());
+
+            boolean readRolesEnabled = Boolean.parseBoolean(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
+            info.setReadGroupsEnabled(readRolesEnabled);
+            boolean writeRolesEnabled = Boolean.parseBoolean(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED));
+            info.setWriteGroupsEnabled(!manager.isReadOnly() && readRolesEnabled && writeRolesEnabled);
             info.setPasswordsExternallyManaged(realmConfig.isPasswordsExternallyManaged());
             info.setPasswordRegEx(realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JS_REG_EX));

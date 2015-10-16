@@ -308,7 +308,7 @@ public class RecoveryProcessor {
 
         try {
             dataDO = dataStore.load(internalCode);
-            if (sequence != 2) {
+            if (dataDO != null && sequence != 2) {
                 dataStore.invalidate(dataDO);
             }
 

@@ -149,6 +149,10 @@ location.href = 'list-service-provider.jsp';
     if(idPName != null && idPName.equals("")){
         idPName = null;
     }
+
+    if(ApplicationBean.AUTH_TYPE_FLOW.equals(authTypeReq) && "update".equals(action)) {
+        isNeedToUpdate = true;
+    }
     
     String authType = appBean.getAuthenticationType();
 

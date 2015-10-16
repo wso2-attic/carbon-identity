@@ -29,6 +29,7 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProviderProperty" %>
 
 <%
     String BUNDLE = "org.wso2.carbon.idp.mgt.ui.i18n.Resources";
@@ -54,22 +55,32 @@
         properties[0] = property;
         samlFedAuthn.setProperties(properties);
 
-        FederatedAuthenticatorConfig propertyHolderConfig = new FederatedAuthenticatorConfig();
-        propertyHolderConfig.setName(IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
-        properties = new Property[2];
-        property = new Property();
-        property.setName(IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT);
-        property.setValue(request.getParameter("sessionIdleTimeout"));
-        properties[0] = property;
-        property = new Property();
-        property.setName(IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT);
-        property.setValue(request.getParameter("rememberMeTimeout"));
-        properties[1] = property;
-        propertyHolderConfig.setProperties(properties);
+        FederatedAuthenticatorConfig passiveStsFedAuthn = new FederatedAuthenticatorConfig();
+        passiveStsFedAuthn.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME);
+        Property[] stsProperties = new Property[1];
+        Property stsProperty = new Property();
+        stsProperty.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID);
+        stsProperty.setValue(request.getParameter("passiveSTSIdPEntityId"));
+        stsProperties[0] = stsProperty;
+        passiveStsFedAuthn.setProperties(stsProperties);
+
         FederatedAuthenticatorConfig[] federatedAuthenticators = new FederatedAuthenticatorConfig[2];
         federatedAuthenticators[0] = samlFedAuthn;
-        federatedAuthenticators[1] = propertyHolderConfig;
+        federatedAuthenticators[1] = passiveStsFedAuthn;
         identityProvider.setFederatedAuthenticatorConfigs(federatedAuthenticators);
+
+        IdentityProviderProperty[] idpProperties = new IdentityProviderProperty[2];
+        IdentityProviderProperty propertySessionIdelTimeout = new IdentityProviderProperty();
+        propertySessionIdelTimeout.setName(IdentityApplicationConstants.SESSION_IDLE_TIME_OUT);
+        propertySessionIdelTimeout.setValue(request.getParameter("sessionIdleTimeout"));
+
+        IdentityProviderProperty propertyRememberMeTimeout = new IdentityProviderProperty();
+        propertyRememberMeTimeout.setName(IdentityApplicationConstants.REMEMBER_ME_TIME_OUT);
+        propertyRememberMeTimeout.setValue(request.getParameter("rememberMeTimeout"));
+        idpProperties[0] = propertySessionIdelTimeout;
+        idpProperties[1] = propertyRememberMeTimeout;
+        identityProvider.setIdpProperties(idpProperties);
+
         client.updateResidentIdP(identityProvider);
         String message = MessageFormat.format(resourceBundle.getString("success.updating.resident.idp"),null);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);

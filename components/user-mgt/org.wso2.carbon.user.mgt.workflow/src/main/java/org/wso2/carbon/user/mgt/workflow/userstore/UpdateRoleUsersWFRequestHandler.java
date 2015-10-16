@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.user.mgt.workflow.util.UserStoreWFConstants;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,7 +47,7 @@ import java.util.UUID;
 
 public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHandler {
 
-    private static final String FRIENDLY_NAME = "Update Role Users";
+    private static final String FRIENDLY_NAME = "Update Users Of Role";
     private static final String FRIENDLY_DESCRIPTION = "Triggered when users are added to/removed from a role.";
 
     private static final String ROLENAME = "Role Name";
@@ -90,11 +91,11 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
             entities[i + newUsers.length + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_USER,
                     tenant);
         }
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.UPDATE_ROLE_USERS_EVENT) && !Boolean.TRUE
+        if (workflowService.isEventAssociated(UserStoreWFConstants.UPDATE_ROLE_USERS_EVENT) && !Boolean.TRUE
                 .equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {
             throw new WorkflowException("Operation is not valid.");
         }
-        boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
+        boolean state = startWorkFlow(wfParams, nonWfParams, uuid).getExecutorResultState().state();
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
         // updated
