@@ -32,7 +32,6 @@ import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.RequestAbstractType;
 import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.core.impl.AuthnRequestImpl;
 import org.opensaml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
@@ -1249,5 +1248,24 @@ public class SAMLSSOUtil {
         } finally {
             deflaterOutputStream.close();
         }
+    }
+
+    public static String getNotificationEndpoint(){
+        String redirectURL = IdentityUtil.getProperty(IdentityConstants.ServerConfig
+                .NOTIFICATION_ENDPOINT);
+        if (StringUtils.isBlank(redirectURL)){
+            redirectURL = IdentityUtil.getServerURL(SAMLSSOConstants.NOTIFICATION_ENDPOINT, false);
+        }
+        return redirectURL;
+    }
+
+    public static String getDefaultLogoutEndpoint(){
+        String defaultLogoutLocation = IdentityUtil.getProperty(IdentityConstants.ServerConfig
+                .DEFAULT_LOGOUT_ENDPOINT);
+        if (StringUtils.isBlank(defaultLogoutLocation)){
+            defaultLogoutLocation = IdentityUtil.getServerURL(SAMLSSOConstants
+                    .DEFAULT_LOGOUT_ENDPOINT, false);
+        }
+        return defaultLogoutLocation;
     }
 }
