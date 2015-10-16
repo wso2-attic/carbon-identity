@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.config;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
@@ -134,11 +135,19 @@ public class ConfigurationFacade {
     }
 
     public String getAuthenticationEndpointURL() {
-        return FileBasedConfigurationBuilder.getInstance().getAuthenticationEndpointURL();
+        String authenticationEndpointURL = FileBasedConfigurationBuilder.getInstance().getAuthenticationEndpointURL();
+        if (StringUtils.isBlank(authenticationEndpointURL)){
+            authenticationEndpointURL = "/authenticationendpoint/login.do";
+        }
+        return authenticationEndpointURL;
     }
 
     public String getAuthenticationEndpointRetryURL() {
-        return FileBasedConfigurationBuilder.getInstance().getAuthenticationEndpointRetryURL();
+        String authenticationEndpointRetryURL = FileBasedConfigurationBuilder.getInstance().getAuthenticationEndpointRetryURL();
+        if (StringUtils.isBlank(authenticationEndpointRetryURL)){
+            authenticationEndpointRetryURL = "/authenticationendpoint/retry.do";
+        }
+        return authenticationEndpointRetryURL;
     }
 
     /**

@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.application.authenticator.fido;
 
 import com.yubico.u2f.data.messages.AuthenticateRequestData;
 import com.yubico.u2f.data.messages.AuthenticateResponse;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
@@ -119,7 +120,7 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
             String loginPage;
             loginPage = context.getAuthenticatorProperties().get(IdentityApplicationConstants.Authenticator.FIDO
                     .FIDO_AUTH);
-            if (loginPage == null){
+            if (StringUtils.isBlank(loginPage)){
                 loginPage = ConfigurationFacade.getInstance().getAuthenticationEndpointURL().replace("login.do",
                         "fido-auth.jsp");
             }

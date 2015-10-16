@@ -160,7 +160,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                         log.warn("Redirecting to default logout page due to an invalid logout request");
                         String defaultLogoutLocation = IdentityUtil.getProperty(IdentityConstants.ServerConfig
                                 .DEFAULT_LOGOUT_LOCATION);
-                        if (defaultLogoutLocation == null){
+                        if (StringUtils.isBlank(defaultLogoutLocation)){
                             defaultLogoutLocation = IdentityUtil.getServerURL(SAMLSSOConstants
                                     .DEFAULT_LOGOUT_LOCATION, false);
                         }
@@ -243,7 +243,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
         String redirectURL = IdentityUtil.getProperty(IdentityConstants.ServerConfig
                 .NOTIFICATION_ENDPOINT);
-        if (redirectURL == null){
+        if (StringUtils.isBlank(redirectURL)){
             redirectURL = IdentityUtil.getServerURL(SAMLSSOConstants.NOTIFICATION_ENDPOINT, false);
         }
 
@@ -272,7 +272,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
         String defaultLogoutLocation = IdentityUtil.getProperty(IdentityConstants.ServerConfig
                 .DEFAULT_LOGOUT_LOCATION);
-        if (defaultLogoutLocation == null){
+        if (StringUtils.isBlank(defaultLogoutLocation)){
             defaultLogoutLocation = IdentityUtil.getServerURL(SAMLSSOConstants
                     .DEFAULT_LOGOUT_LOCATION, false);
         }
