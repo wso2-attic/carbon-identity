@@ -485,10 +485,10 @@ public class CacheBackedIdPMgtDAO {
      * @return
      * @throws IdentityProviderManagementException
      */
-    public boolean isSimilarIdPEntityIdsAvailble(String idPEntityId, int tenantId)
+    public boolean isSimilarIdPEntityIdsAvailble(String authenticatorName, String idPEntityId, int tenantId)
             throws IdentityProviderManagementException {
 
-        return idPMgtDAO.isSimilarIdPEntityIdsAvailble(idPEntityId, tenantId);
+        return idPMgtDAO.isSimilarIdPEntityIdsAvailble(authenticatorName, idPEntityId, tenantId);
     }
 
 }
