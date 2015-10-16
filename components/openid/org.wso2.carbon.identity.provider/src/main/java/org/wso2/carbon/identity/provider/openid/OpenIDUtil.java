@@ -221,6 +221,16 @@ public class OpenIDUtil {
         return openIDServerURL;
     }
 
+    public static String getOpenIDLoginPageURL() {
+        // Read from OpenID configuration in identity.xml
+        String openIDServerURL = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_LOGIN_PAGE_URL);
+        // If configuration are not defined,  build URL from server configurations.
+        if (StringUtils.isBlank(openIDServerURL)) {
+            openIDServerURL = IdentityUtil.getServerURL("/authenticationendpoint/openid_login.do", false);
+        }
+        return openIDServerURL;
+    }
+
     public static String getOpenIDUserPattern() {
         // Read from OpenID configuration in identity.xml
         String openIDUserPattern = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_USER_PATTERN);

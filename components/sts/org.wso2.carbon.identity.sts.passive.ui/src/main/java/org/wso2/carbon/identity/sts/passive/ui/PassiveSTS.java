@@ -30,6 +30,7 @@ import org.wso2.carbon.identity.application.authentication.framework.cache.Authe
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
@@ -44,6 +45,7 @@ import org.wso2.carbon.identity.sts.passive.ui.cache.SessionDataCacheEntry;
 import org.wso2.carbon.identity.sts.passive.ui.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.sts.passive.ui.client.IdentityPassiveSTSClient;
 import org.wso2.carbon.identity.sts.passive.ui.dto.SessionDTO;
+import org.wso2.carbon.identity.sts.passive.ui.util.PassiveSTSUtil;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.ui.CarbonUIUtil;
@@ -467,6 +469,6 @@ public class PassiveSTS extends HttpServlet {
 
     private void sendToRetryPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        response.sendRedirect(IdentityUtil.getServerURL( "/authenticationendpoint/retry.do", false));
+        response.sendRedirect(PassiveSTSUtil.getRetryUrl());
     }
 }
