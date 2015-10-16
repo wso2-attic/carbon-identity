@@ -121,7 +121,7 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
                     .FIDO_AUTH);
             if (loginPage == null){
                 loginPage = ConfigurationFacade.getInstance().getAuthenticationEndpointURL().replace("login.do",
-                        "authentication.jsp");
+                        "fido-auth.jsp");
             }
             //username from basic authenticator.
             AuthenticatedUser user = getUsername(context);

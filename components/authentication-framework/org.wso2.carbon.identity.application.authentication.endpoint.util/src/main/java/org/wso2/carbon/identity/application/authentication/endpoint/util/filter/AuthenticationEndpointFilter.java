@@ -154,7 +154,7 @@ public class AuthenticationEndpointFilter implements Filter {
             } else if (OAUTH2.equals(protocolType) || OIDC.equals(protocolType)) {
                 loadPage = URI_OAUTH2_LOGIN;
             } else if (FIDO.equals(protocolType)) {
-                loadPage = "authentication.jsp";
+                loadPage = "fido-auth.jsp";
             } else {
                 loadPage = "login.jsp";
             }
