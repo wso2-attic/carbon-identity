@@ -98,7 +98,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
      *
      * @return userInfoEndpoint
      */
-    private String getUserInfoEndpoint() {
+    private String getUserInfoEndpoint(Map<String, String> authenticatorProperties) {
         if (StringUtils.isBlank(this.userInfoEndpoint)) {
             initUserInfoEndPoint();
         }
@@ -180,7 +180,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
 
         try {
-            String json = sendRequest(getUserInfoEndpoint() + token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
+            String json = sendRequest(getUserInfoEndpoint(null) + token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
             if (StringUtils.isNotBlank(json)) {
                 Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
 

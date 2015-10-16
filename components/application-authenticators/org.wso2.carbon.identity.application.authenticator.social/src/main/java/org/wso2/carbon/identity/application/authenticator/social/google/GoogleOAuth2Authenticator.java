@@ -79,7 +79,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     private void initOAuthEndpoint() {
         this.oAuthEndpoint = getAuthenticatorConfig().getParameterMap().get(GoogleOAuth2AuthenticationConstant
-                .GOOGLE_OAUTH_ENDPOINT);
+                .GOOGLE_AUTHZ_ENDPOINT);
         if (StringUtils.isBlank(this.oAuthEndpoint)) {
             this.oAuthEndpoint = IdentityApplicationConstants.GOOGLE_OAUTH_URL;
         }
@@ -102,7 +102,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
      * @return userInfoEndpoint
      */
 
-    private String getUserInfoEndpoint() {
+    private String getUserInfoEndpoint(Map<String, String> authenticatorProperties) {
         if (StringUtils.isBlank(this.userInfoEndpoint)) {
             initUserInfoEndPoint();
         }
@@ -260,7 +260,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         try {
 
-            String json = sendRequest(getUserInfoEndpoint(), token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
+            String json = sendRequest(getUserInfoEndpoint(null), token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
             if (StringUtils.isNotBlank(json)) {
                 Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
 

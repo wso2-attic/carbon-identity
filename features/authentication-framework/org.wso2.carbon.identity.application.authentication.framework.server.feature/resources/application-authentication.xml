@@ -90,10 +90,10 @@
 			<!--Parameter name="OpenIDManager">org.wso2.carbon.identity.application.authenticator.openid.manager.DefaultOpenIDManager</Parameter>
 			<Parameter name="AttributesRequestor">org.wso2.carbon.identity.application.authenticator.openid.manager.SampleAttributesRequestor</Parameter-->
 		</AuthenticatorConfig>
-		<AuthenticatorConfig name="GoogleOAUth2OpenIDAuthenticator" enabled="true">
+		<AuthenticatorConfig name="GoogleOIDCAuthenticator" enabled="true">
 			<Parameter name="GoogleTokenEndpoint">https://accounts.google.com/o/oauth2/token</Parameter>
-			<Parameter name="GoogleOauthEndpoint">https://accounts.google.com/o/oauth2/auth</Parameter>
-			<Parameter name="GoogleuserInfoEndpoint">https://www.googleapis.com/oauth2/v3/userinfo?schema=openid</Parameter>
+			<Parameter name="GoogleAuthzEndpoint">https://accounts.google.com/o/oauth2/auth</Parameter>
+			<Parameter name="GoogleUserInfoEndpoint">https://www.googleapis.com/oauth2/v3/userinfo?schema=openid</Parameter>
 		</AuthenticatorConfig>
 		<AuthenticatorConfig name="MicrosoftWindowsLive" enabled="true">
 			<Parameter name="AuthTokenEndpoint">https://login.live.com/oauth20_token.srf</Parameter>
