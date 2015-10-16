@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.oauth2;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
@@ -61,9 +62,6 @@ import java.util.Map;
  */
 @SuppressWarnings("unused")
 public class OAuth2Service extends AbstractAdmin {
-
-    public static final String IMPLICIT = "implicit";
-    public static final String REFRESH_TOKEN = "refresh_token";
 
     private static Log log = LogFactory.getLog(OAuth2Service.class);
 
@@ -240,8 +238,7 @@ public class OAuth2Service extends AbstractAdmin {
                     StringUtils.isNotEmpty(revokeRequestDTO.getToken())) {
 
                 boolean refreshTokenFirst = false;
-                if (revokeRequestDTO.getToken_type() != null &&
-                        REFRESH_TOKEN.equals(revokeRequestDTO.getToken_type())) {
+                if (StringUtils.equals(GrantType.REFRESH_TOKEN.toString(), revokeRequestDTO.getToken_type())) {
                     refreshTokenFirst = true;
                 }
 
@@ -249,17 +246,36 @@ public class OAuth2Service extends AbstractAdmin {
                 AccessTokenDO accessTokenDO = null;
 
                 if (refreshTokenFirst) {
+
                     refreshTokenDO = tokenMgtDAO
                             .validateRefreshToken(revokeRequestDTO.getConsumerKey(), revokeRequestDTO.getToken());
-                    if (refreshTokenDO == null) {
+
+                    if (refreshTokenDO == null ||
+                            StringUtils.isEmpty(refreshTokenDO.getRefreshTokenState()) ||
+                                    !(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE
+                                            .equals(refreshTokenDO.getRefreshTokenState()) ||
+                                      OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED
+                                              .equals(refreshTokenDO.getRefreshTokenState()))) {
+
                         accessTokenDO = tokenMgtDAO.retrieveAccessToken(revokeRequestDTO.getToken(), true);
+                        refreshTokenDO = null;
                     }
 
                 } else {
                     accessTokenDO = tokenMgtDAO.retrieveAccessToken(revokeRequestDTO.getToken(), true);
                     if (accessTokenDO == null) {
+
                         refreshTokenDO = tokenMgtDAO
                                 .validateRefreshToken(revokeRequestDTO.getConsumerKey(), revokeRequestDTO.getToken());
+
+                        if (refreshTokenDO == null ||
+                                StringUtils.isEmpty(refreshTokenDO.getRefreshTokenState()) ||
+                                !(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE
+                                        .equals(refreshTokenDO.getRefreshTokenState()) ||
+                                        OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED
+                                                .equals(refreshTokenDO.getRefreshTokenState()))) {
+                            return revokeResponseDTO;
+                        }
                     }
                 }
 
@@ -271,7 +287,7 @@ public class OAuth2Service extends AbstractAdmin {
                     grantType = refreshTokenDO.getGrantType();
                 }
 
-                if (!IMPLICIT.equals(grantType) &&
+                if (!StringUtils.equals(OAuthConstants.GrantTypes.IMPLICIT, grantType) &&
                         !OAuth2Util.authenticateClient(revokeRequestDTO.getConsumerKey(),
                                 revokeRequestDTO.getConsumerSecret())) {
 
@@ -283,10 +299,7 @@ public class OAuth2Service extends AbstractAdmin {
                     return revokeRespDTO;
                 }
 
-                if (refreshTokenDO != null && StringUtils.isNotEmpty(refreshTokenDO.getRefreshTokenState()) &&
-                        (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(refreshTokenDO.getRefreshTokenState()) ||
-                                OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED
-                                .equals(refreshTokenDO.getRefreshTokenState()))) {
+                if (refreshTokenDO != null) {
 
                     org.wso2.carbon.identity.oauth.OAuthUtil
                             .clearOAuthCache(revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser(),
@@ -311,7 +324,10 @@ public class OAuth2Service extends AbstractAdmin {
                                 .clearOAuthCache(revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser());
                         org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(revokeRequestDTO.getToken());
                         tokenMgtDAO.revokeTokens(new String[] { revokeRequestDTO.getToken() });
-                        addRevokeResponseHeaders(revokeResponseDTO, revokeRequestDTO.getToken(), accessTokenDO.getRefreshToken(), accessTokenDO.getAuthzUser().toString());
+                        addRevokeResponseHeaders(revokeResponseDTO,
+                                revokeRequestDTO.getToken(),
+                                accessTokenDO.getRefreshToken(),
+                                accessTokenDO.getAuthzUser().toString());
                 }
 
                 return revokeResponseDTO;

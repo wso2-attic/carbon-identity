@@ -718,10 +718,6 @@ public class TokenMgtDAO {
 
             connection.commit();
 
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance.";
-            log.error(errorMsg, e);
-            throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
             throw new IdentityOAuth2Exception("Error when validating a refresh token", e);
         } finally {
@@ -852,9 +848,6 @@ public class TokenMgtDAO {
 
             connection.commit();
 
-        } catch (IdentityException e) {
-            String errorMsg = "Error when getting an Identity Persistence Store instance";
-            throw new IdentityOAuth2Exception(errorMsg, e);
         } catch (SQLException e) {
             throw new IdentityOAuth2Exception("Error when retrieving Access Token : " + accessTokenIdentifier, e);
         } finally {

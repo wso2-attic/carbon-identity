@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.oauth2.authz.handlers;
 
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.io.Charsets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
@@ -43,9 +44,6 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
 
     private static Log log = LogFactory.getLog(TokenResponseTypeHandler.class);
 
-    public static final String TOKEN = "token";
-    public static final String IMPLICIT = "implicit";
-
     @Override
     public OAuth2AuthorizeRespDTO issue(OAuthAuthzReqMessageContext oauthAuthzMsgCtx)
             throws IdentityOAuth2Exception {
@@ -63,7 +61,8 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
 
         String responseType = oauthAuthzMsgCtx.getAuthorizationReqDTO().getResponseType();
 
-        String grantType = TOKEN.equals(responseType) ? IMPLICIT : responseType;
+        String grantType = StringUtils.equals(OAuthConstants.GrantTypes.TOKEN, responseType) ?
+                OAuthConstants.GrantTypes.IMPLICIT : responseType;
 
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
         if (isUsernameCaseSensitive) {
