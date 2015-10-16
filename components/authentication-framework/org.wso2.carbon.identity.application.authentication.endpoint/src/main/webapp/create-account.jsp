@@ -39,6 +39,7 @@
 
     <!-- header -->
     <header class="header header-default">
+        <div class="container-fluid"><br></div>
         <div class="container-fluid">
             <div class="pull-left brand float-remove-xs text-center-xs">
                 <a href="#">
@@ -64,7 +65,7 @@
                     <div class="boarder-all ">
 
                         <% if (request.getParameter("failedPrevious") != null &&
-                                "true" .equals(request.getParameter("failedPrevious"))) { %>
+                                Boolean.parseBoolean(request.getParameter("failedPrevious"))) { %>
                         <div class="alert alert-danger" id="error-msg">
                             <%if (request.getParameter("errorCode").equals("1")) {%>
                             Passwords did not match. Please try again.

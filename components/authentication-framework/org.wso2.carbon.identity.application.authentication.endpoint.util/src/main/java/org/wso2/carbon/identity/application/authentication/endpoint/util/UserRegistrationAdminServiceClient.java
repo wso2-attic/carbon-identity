@@ -32,28 +32,16 @@ import java.util.Properties;
 
 public class UserRegistrationAdminServiceClient {
 
-    private static final String USERNAME_ELEMENT_ID = "reg-username";
-    private static final String PASSWORD_ELEMENT_ID = "reg-password";
-    private static final String FIRST_NAME_ELEMENT_ID = "reg-first-name";
-    private static final String FIRST_NAME_CLAIM_URI = "http://wso2.org/claims/givenname";
-    private static final String FIRST_NAME = "First Name";
-    private static final String LAST_NAME_ELEMENT_ID = "reg-last-name";
-    private static final String LAST_NAME_CLAIM_URI = "http://wso2.org/claims/lastname";
-    private static final String LAST_NAME = "Last Name";
-    private static final String EMAIL_ELEMENT_ID = "reg-email";
-    private static final String EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
-    private static final String EMAIL_ADDRESS = "Email Address";
+
     private UserRegistrationAdminServiceStub stub;
     private Properties prop;
-    private static final String USER_REGISTRATION_SERVICE = "/services/UserRegistrationAdminService" +
-            ".UserRegistrationAdminServiceHttpsSoap11Endpoint/";
 
     public UserRegistrationAdminServiceClient() throws AxisFault {
 
         StringBuilder builder = new StringBuilder();
         String serviceURL = builder.append(Constants.HTTPS_URL).append(TenantDataManager.getPropertyValue(Constants
                 .HOST)).append(Constants.COLON).append(TenantDataManager.getPropertyValue(Constants.PORT)).append
-                (USER_REGISTRATION_SERVICE).toString();
+                (Constants.UserRegistrationConstants.USER_REGISTRATION_SERVICE).toString();
         stub = new UserRegistrationAdminServiceStub(serviceURL);
 
         ServiceClient client = stub._getServiceClient();
@@ -71,27 +59,27 @@ public class UserRegistrationAdminServiceClient {
     public void addUser(Map<String, String> registrationProperties) throws RemoteException,
             UserRegistrationAdminServiceException {
         UserDTO userDTO = new UserDTO();
-        userDTO.setUserName(registrationProperties.get(USERNAME_ELEMENT_ID));
-        userDTO.setPassword(registrationProperties.get(PASSWORD_ELEMENT_ID));
+        userDTO.setUserName(registrationProperties.get(Constants.UserRegistrationConstants.USERNAME_ELEMENT_ID));
+        userDTO.setPassword(registrationProperties.get(Constants.UserRegistrationConstants.PASSWORD_ELEMENT_ID));
         UserFieldDTO[] claims = new UserFieldDTO[3];
         int i = 0;
         for (Map.Entry<String, String> claim : registrationProperties.entrySet()) {
             UserFieldDTO userFieldDTO = new UserFieldDTO();
-            if (claim.getKey().equals(FIRST_NAME_ELEMENT_ID)) {
-                userFieldDTO.setClaimUri(FIRST_NAME_CLAIM_URI);
-                userFieldDTO.setFieldName(FIRST_NAME);
+            if (claim.getKey().equals(Constants.UserRegistrationConstants.FIRST_NAME_ELEMENT_ID)) {
+                userFieldDTO.setClaimUri(Constants.UserRegistrationConstants.FIRST_NAME_CLAIM_URI);
+                userFieldDTO.setFieldName(Constants.UserRegistrationConstants.FIRST_NAME);
                 userFieldDTO.setFieldValue(claim.getValue());
                 claims[i] = userFieldDTO;
                 i++;
-            } else if (claim.getKey().equals(LAST_NAME_ELEMENT_ID)) {
-                userFieldDTO.setClaimUri(LAST_NAME_CLAIM_URI);
-                userFieldDTO.setFieldName(LAST_NAME);
+            } else if (claim.getKey().equals(Constants.UserRegistrationConstants.LAST_NAME_ELEMENT_ID)) {
+                userFieldDTO.setClaimUri(Constants.UserRegistrationConstants.LAST_NAME_CLAIM_URI);
+                userFieldDTO.setFieldName(Constants.UserRegistrationConstants.LAST_NAME);
                 userFieldDTO.setFieldValue(claim.getValue());
                 claims[i] = userFieldDTO;
                 i++;
-            } else if (claim.getKey().equals(EMAIL_ELEMENT_ID)) {
-                userFieldDTO.setClaimUri(EMAIL_CLAIM_URI);
-                userFieldDTO.setFieldName(EMAIL_ADDRESS);
+            } else if (claim.getKey().equals(Constants.UserRegistrationConstants.EMAIL_ELEMENT_ID)) {
+                userFieldDTO.setClaimUri(Constants.UserRegistrationConstants.EMAIL_CLAIM_URI);
+                userFieldDTO.setFieldName(Constants.UserRegistrationConstants.EMAIL_ADDRESS);
                 userFieldDTO.setFieldValue(claim.getValue());
                 claims[i] = userFieldDTO;
                 i++;

@@ -88,6 +88,7 @@
 
     <!-- header -->
     <header class="header header-default">
+        <div class="container-fluid"><br></div>
         <div class="container-fluid">
             <div class="pull-left brand float-remove-xs text-center-xs">
                 <a href="#">
@@ -181,12 +182,13 @@
                                         <label class="font-large">Sign in with <%=Encode.forHtmlContent(idpName)%></label>
                                     </div>
                                     <div id="popover-content" class="hide">
-                                        <form>
-                                            <input type='text' id='domainName'/>
-                                            <input type="button" class="btn btn-primary go-btn"
-                                                   onClick="javascript: myFunction('<%=Encode.forJavaScriptAttribute(idpName)%>',
-                                                           '<%=Encode.forJavaScriptAttribute(idpEntry.getValue())%>','domainName')"
-                                                   value="Go"/>
+                                        <form class="form-inline">
+                                            <div class="form-group">
+                                                <input id="domainName" class="form-control" type="text"
+                                                       placeholder="Domain Name">
+                                            </div>
+                                            <button class="btn btn-primary go-btn" onclick="javascript: myFunction('idp2',
+                                                           'openid','domainName')">Go</button>
                                         </form>
 
                                     </div>

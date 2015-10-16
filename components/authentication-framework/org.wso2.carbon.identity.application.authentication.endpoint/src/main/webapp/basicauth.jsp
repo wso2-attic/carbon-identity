@@ -20,7 +20,7 @@
 
 <form action="../commonauth" method="post" id="loginForm">
 
-    <% if ("true".equals(loginFailed)) { %>
+    <% if (Boolean.parseBoolean(loginFailed)) { %>
     <div class="alert alert-danger" id="error-msg">Username or password is
         invalid
     </div>

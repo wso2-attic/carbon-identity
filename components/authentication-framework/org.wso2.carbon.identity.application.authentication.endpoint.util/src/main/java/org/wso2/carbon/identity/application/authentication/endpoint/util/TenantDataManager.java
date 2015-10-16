@@ -50,32 +50,6 @@ public class TenantDataManager {
 
     private static final Log log = LogFactory.getLog(TenantDataManager.class);
 
-    // Tenant list dropdown related properties
-    private static final String USERNAME = "mutual.ssl.username";
-    private static final String USERNAME_HEADER = "username.header";
-    private static final String CLIENT_KEY_STORE = "client.keyStore";
-    private static final String CLIENT_TRUST_STORE = "client.trustStore";
-    private static final String CLIENT_KEY_STORE_PASSWORD = "Carbon.Security.KeyStore.Password";
-    private static final String CLIENT_TRUST_STORE_PASSWORD = "Carbon.Security.TrustStore.Password";
-    private static final String HOSTNAME_VERIFICATION_ENABLED = "hostname.verification.enabled";
-    private static final String KEY_MANAGER_TYPE = "key.manager.type";
-    private static final String TRUST_MANAGER_TYPE = "trust.manager.type";
-    private static final String TENANT_LIST_ENABLED = "tenantListEnabled";
-
-    // Service URL constants
-    private static final String TENANT_MGT_ADMIN_SERVICE_URL = "/services/TenantMgtAdminService/retrieveTenants";
-    private static final String COLON = ":";
-
-    // String constants for SOAP response processing
-    private static final String RETURN = "return";
-    private static final String RETRIEVE_TENANTS_RESPONSE = "retrieveTenantsResponse";
-    private static final String TENANT_DOMAIN = "tenantDomain";
-    private static final String ACTIVE = "active";
-    private static final String TENANT_DATA_SEPARATOR = ",";
-    private static final String RELATIVE_PATH_START_CHAR = ".";
-    private static final String CHARACTER_ENCODING = "UTF-8";
-    private static final String CONFIG_RELATIVE_PATH = "./repository/conf/EndpointConfig.properties";
-    private static final String CONFIG_FILE_NAME = "TenantConfig.properties";
     private static Properties prop;
     private static String carbonLogin = "";
     private static String serviceURL;
@@ -98,51 +72,60 @@ public class TenantDataManager {
         try {
             if (!initialized) {
                 prop = new Properties();
-                String configFilePath = buildFilePath(CONFIG_RELATIVE_PATH);
+                String configFilePath = buildFilePath(Constants.TenantConstants.CONFIG_RELATIVE_PATH);
                 File configFile = new File(configFilePath);
 
                 if (configFile.exists()) {
-                    log.info(CONFIG_FILE_NAME + " file loaded from " + CONFIG_RELATIVE_PATH);
+                    log.info(Constants.TenantConstants.CONFIG_FILE_NAME + " file loaded from " + Constants
+                            .TenantConstants.CONFIG_RELATIVE_PATH);
                     inputStream = new FileInputStream(configFile);
 
                     prop.load(inputStream);
                     // Resolve encrypted properties with secure vault
                     resolveSecrets(prop);
                 } else {
-                    log.info(CONFIG_FILE_NAME + " file loaded from authentication endpoint webapp");
-                    inputStream = TenantDataManager.class.getClassLoader().getResourceAsStream(CONFIG_FILE_NAME);
+                    log.info(Constants.TenantConstants.CONFIG_FILE_NAME + " file loaded from authentication endpoint " +
+                            "webapp");
+                    inputStream = TenantDataManager.class.getClassLoader().getResourceAsStream(Constants
+                            .TenantConstants.CONFIG_FILE_NAME);
                     prop.load(inputStream);
                 }
 
-                usernameHeaderName = getPropertyValue(USERNAME_HEADER);
+                usernameHeaderName = getPropertyValue(Constants.TenantConstants.USERNAME_HEADER);
 
-                carbonLogin = getPropertyValue(USERNAME);
+                carbonLogin = getPropertyValue(Constants.TenantConstants.USERNAME);
 
                 // Base64 encoded username
-                carbonLogin = Base64.encode(carbonLogin.getBytes(CHARACTER_ENCODING));
+                carbonLogin = Base64.encode(carbonLogin.getBytes(Constants.TenantConstants.CHARACTER_ENCODING));
 
-                String clientKeyStorePath = buildFilePath(getPropertyValue(CLIENT_KEY_STORE));
-                String clientTrustStorePath = buildFilePath(getPropertyValue(CLIENT_TRUST_STORE));
+                String clientKeyStorePath = buildFilePath(getPropertyValue(Constants.TenantConstants.CLIENT_KEY_STORE));
+                String clientTrustStorePath = buildFilePath(getPropertyValue(Constants.TenantConstants
+                        .CLIENT_TRUST_STORE));
 
-                if (StringUtils.isNotEmpty(getPropertyValue(KEY_MANAGER_TYPE))) {
-                    TenantMgtAdminServiceClient.setKeyManagerType(getPropertyValue(KEY_MANAGER_TYPE));
+                if (StringUtils.isNotEmpty(getPropertyValue(Constants.TenantConstants.KEY_MANAGER_TYPE))) {
+                    TenantMgtAdminServiceClient.setKeyManagerType(getPropertyValue(Constants.TenantConstants
+                            .KEY_MANAGER_TYPE));
                 }
-                if (StringUtils.isNotEmpty(getPropertyValue(TRUST_MANAGER_TYPE))) {
-                    TenantMgtAdminServiceClient.setTrustManagerType(getPropertyValue(TRUST_MANAGER_TYPE));
+                if (StringUtils.isNotEmpty(getPropertyValue(Constants.TenantConstants.TRUST_MANAGER_TYPE))) {
+                    TenantMgtAdminServiceClient.setTrustManagerType(getPropertyValue(Constants.TenantConstants
+                            .TRUST_MANAGER_TYPE));
                 }
 
                 TenantMgtAdminServiceClient
-                        .loadKeyStore(clientKeyStorePath, getPropertyValue(CLIENT_KEY_STORE_PASSWORD));
+                        .loadKeyStore(clientKeyStorePath, getPropertyValue(Constants.TenantConstants
+                                .CLIENT_KEY_STORE_PASSWORD));
                 TenantMgtAdminServiceClient
-                        .loadTrustStore(clientTrustStorePath, getPropertyValue(CLIENT_TRUST_STORE_PASSWORD));
+                        .loadTrustStore(clientTrustStorePath, getPropertyValue(Constants.TenantConstants
+                                .CLIENT_TRUST_STORE_PASSWORD));
                 TenantMgtAdminServiceClient.initMutualSSLConnection(Boolean.parseBoolean(
-                        getPropertyValue(HOSTNAME_VERIFICATION_ENABLED)));
+                        getPropertyValue(Constants.TenantConstants.HOSTNAME_VERIFICATION_ENABLED)));
 
                 // Build the service URL of tenant management admin service
                 StringBuilder builder = new StringBuilder();
                 serviceURL = builder.append(Constants.HTTPS_URL).append(getPropertyValue(Constants.HOST)).append
                         (Constants.COLON)
-                        .append(getPropertyValue(Constants.PORT)).append(TENANT_MGT_ADMIN_SERVICE_URL).toString();
+                        .append(getPropertyValue(Constants.PORT)).append(Constants.TenantConstants
+                                .TENANT_MGT_ADMIN_SERVICE_URL).toString();
 
                 initialized = true;
             }
@@ -154,7 +137,8 @@ public class TenantDataManager {
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    log.error("Failed to close the FileInputStream, file : " + CONFIG_FILE_NAME, e);
+                    log.error("Failed to close the FileInputStream, file : " + Constants.TenantConstants
+                            .CONFIG_FILE_NAME, e);
                 }
             }
         }
@@ -167,11 +151,12 @@ public class TenantDataManager {
      * @return Absolute file path
      * @throws java.io.IOException
      */
-    protected static String buildFilePath(String path) throws IOException {
+    private static String buildFilePath(String path) throws IOException {
 
-        if (StringUtils.isNotEmpty(path) && path.startsWith(RELATIVE_PATH_START_CHAR)) {
+        if (StringUtils.isNotEmpty(path) && path.startsWith(Constants.TenantConstants.RELATIVE_PATH_START_CHAR)) {
             // Relative file path is given
-            File currentDirectory = new File(new File(RELATIVE_PATH_START_CHAR).getAbsolutePath());
+            File currentDirectory = new File(new File(Constants.TenantConstants.RELATIVE_PATH_START_CHAR)
+                    .getAbsolutePath());
             path = currentDirectory.getCanonicalPath() + File.separator + path;
         }
 
@@ -235,7 +220,7 @@ public class TenantDataManager {
 
         if (StringUtils.isNotEmpty(dataList)) {
             synchronized (tenantDomainList) {
-                String[] domains = dataList.split(TENANT_DATA_SEPARATOR);
+                String[] domains = dataList.split(Constants.TenantConstants.TENANT_DATA_SEPARATOR);
                 // Remove all existing tenant domains from the list
                 tenantDomainList.clear();
 
@@ -263,8 +248,9 @@ public class TenantDataManager {
                 XPath xpath = xpf.newXPath();
 
                 InputSource inputSource = new InputSource(new StringReader(xmlString));
-                String xPathExpression = "/*[local-name() = '" + RETRIEVE_TENANTS_RESPONSE + "']/*[local-name() = '" +
-                                         RETURN + "']";
+                String xPathExpression = "/*[local-name() = '" + Constants.TenantConstants.RETRIEVE_TENANTS_RESPONSE
+                        + "']/*[local-name() = '" +
+                        Constants.TenantConstants.RETURN + "']";
                 NodeList nodeList = null;
                 nodeList = (NodeList) xpath.evaluate(xPathExpression, inputSource, XPathConstants.NODESET);
 
@@ -287,7 +273,7 @@ public class TenantDataManager {
                             Node dataItem = tenantData.item(j);
                             String localName = dataItem.getLocalName();
 
-                            if (ACTIVE.equals(localName)) {
+                            if (Constants.TenantConstants.ACTIVE.equals(localName)) {
                                 // Current element has domain status active or inactive
                                 activeChecked = true;
                                 if (Boolean.parseBoolean(dataItem.getTextContent())) {
@@ -295,7 +281,7 @@ public class TenantDataManager {
                                 }
                             }
 
-                            if (TENANT_DOMAIN.equals(localName)) {
+                            if (Constants.TenantConstants.TENANT_DOMAIN.equals(localName)) {
                                 // Current element has domain name of the tenant
                                 domainChecked = true;
                                 tenantDomain = dataItem.getTextContent();
@@ -336,7 +322,7 @@ public class TenantDataManager {
         if (!initAttempted && !initialized) {
             init();
         }
-        return Boolean.parseBoolean(getPropertyValue(TENANT_LIST_ENABLED));
+        return Boolean.parseBoolean(getPropertyValue(Constants.TenantConstants.TENANT_LIST_ENABLED));
     }
 
     /**
@@ -366,7 +352,8 @@ public class TenantDataManager {
                 }
             }
         } else {
-            log.warn("Secret Resolver is not present. Will not resolve encryptions in " + CONFIG_RELATIVE_PATH + " file");
+            log.warn("Secret Resolver is not present. Will not resolve encryptions in " + Constants.TenantConstants
+                    .CONFIG_RELATIVE_PATH + " file");
         }
     }
 }
