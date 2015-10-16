@@ -216,7 +216,7 @@ public class OpenIDUtil {
         String openIDServerURL = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SERVER_URL);
         // If configuration are not defined,  build URL from server configurations.
         if (StringUtils.isBlank(openIDServerURL)) {
-            openIDServerURL = IdentityUtil.getServerURL(OpenIDServerConstants.OPENID_SERVER);
+            openIDServerURL = IdentityUtil.getServerURL(OpenIDServerConstants.OPENID_SERVER, true);
         }
         return openIDServerURL;
     }
@@ -226,7 +226,7 @@ public class OpenIDUtil {
         String openIDUserPattern = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_USER_PATTERN);
         // If configuration are not defined,  build URL from server configurations.
         if (StringUtils.isBlank(openIDUserPattern)) {
-            openIDUserPattern = IdentityUtil.getServerURL(OpenIDServerConstants.OPENID);
+            openIDUserPattern = IdentityUtil.getServerURL(OpenIDServerConstants.OPENID, true);
         }
         return openIDUserPattern;
     }

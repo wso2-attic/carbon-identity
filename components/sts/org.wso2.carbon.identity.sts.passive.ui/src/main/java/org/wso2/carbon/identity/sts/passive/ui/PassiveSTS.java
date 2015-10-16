@@ -285,9 +285,9 @@ public class PassiveSTS extends HttpServlet {
     private void sendToAuthenticationFramework(HttpServletRequest request, HttpServletResponse response,
                                                String sessionDataKey, SessionDTO sessionDTO) throws IOException {
 
-        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
 
-        String selfPath = URLEncoder.encode("/" + FrameworkConstants.PASSIVE_STS, StandardCharsets.UTF_8.name());
+        String selfPath = request.getContextPath();
         //Authentication context keeps data which should be sent to commonAuth endpoint
         AuthenticationRequest authenticationRequest = new AuthenticationRequest();
         authenticationRequest.setRelyingParty(sessionDTO.getRealm());
@@ -467,6 +467,6 @@ public class PassiveSTS extends HttpServlet {
 
     private void sendToRetryPage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        response.sendRedirect(IdentityUtil.getServerURL( "/authenticationendpoint/retry.do"));
+        response.sendRedirect(IdentityUtil.getServerURL( "/authenticationendpoint/retry.do", false));
     }
 }

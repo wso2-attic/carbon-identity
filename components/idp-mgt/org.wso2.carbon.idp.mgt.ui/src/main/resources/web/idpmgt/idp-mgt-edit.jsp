@@ -822,7 +822,7 @@
         oidcQueryParam = "";
     }
     if (StringUtils.isBlank(idPAlias)) {
-        idPAlias = IdentityUtil.getServerURL("/oauth2/token");
+        idPAlias = IdentityUtil.getServerURL("/oauth2/token", false);
     }
     String provisionStaticDropdownDisabled = "";
     String provisionDynamicDropdownDisabled = "";
