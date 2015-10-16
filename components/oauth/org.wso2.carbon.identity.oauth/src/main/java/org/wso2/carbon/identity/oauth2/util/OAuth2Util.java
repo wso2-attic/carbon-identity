@@ -407,20 +407,6 @@ public class OAuth2Util {
         return userId;
     }
 
-    public static String getSafeText(String text) {
-        if (text == null) {
-            return text;
-        }
-        text = text.trim();
-        if (text.indexOf('<') > -1) {
-            text = text.replace("<", "&lt;");
-        }
-        if (text.indexOf('>') > -1) {
-            text = text.replace(">", "&gt;");
-        }
-        return text;
-    }
-
     public static long getTokenExpireTimeMillis(AccessTokenDO accessTokenDO) {
 
         if (accessTokenDO == null) {
