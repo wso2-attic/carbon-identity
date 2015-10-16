@@ -176,6 +176,8 @@ public class IdentityConstants {
         //SAML SSO Service config
         public final static String ENTITY_ID = "SSOService.EntityID";
         public final static String SSO_IDP_URL = "SSOService.IdentityProviderURL";
+        public final static String DEFAULT_LOGOUT_LOCATION = "SSOService.DefaultLogoutEndpoint";
+        public final static String NOTIFICATION_ENDPOINT = "SSOService.NotificationEndpoint";
         public final static String SSO_ATTRIB_CLAIM_DIALECT = "SSOService.AttributesClaimDialect";
         public static final String SINGLE_LOGOUT_RETRY_COUNT = "SSOService.SingleLogoutRetryCount";
         public static final String SINGLE_LOGOUT_RETRY_INTERVAL = "SSOService.SingleLogoutRetryInterval";

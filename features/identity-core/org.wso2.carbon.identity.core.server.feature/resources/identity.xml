@@ -270,8 +270,8 @@
             If that doesn't satisfy uncomment the following config and explicitly configure the value
         -->
         <!--IdentityProviderURL>https://localhost:9443/samlsso</IdentityProviderURL-->
-        <DefaultLogoutLocation>https://localhost:9443</DefaultLogoutLocation>
-        <NotificationEndpoint>https://localhost:9443</NotificationEndpoint>
+        <!--DefaultLogoutEndpoint>https://localhost:9443/authenticationendpoint/samlsso_logout.do</DefaultLogoutEndpoint-->
+        <!--NotificationEndpoint>https://localhost:9443/authenticationendpoint/samlsso_notification.do</NotificationEndpoint-->
         <SingleLogoutRetryCount>5</SingleLogoutRetryCount>
         <SingleLogoutRetryInterval>60000</SingleLogoutRetryInterval>
         <!-- in milli seconds -->
