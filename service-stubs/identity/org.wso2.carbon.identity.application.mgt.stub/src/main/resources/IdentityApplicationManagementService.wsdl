@@ -223,9 +223,9 @@
             </xs:complexType>
             <xs:complexType name="InboundProvisioningConfig">
                 <xs:sequence>
+                    <xs:element minOccurs="0" name="dumbMode" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="provisioningEnabled" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="provisioningUserStore" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="isDumbMode" type="xs:boolean"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="JustInTimeProvisioningConfig">
