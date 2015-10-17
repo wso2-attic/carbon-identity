@@ -63,7 +63,7 @@
             <script type="text/javascript">
                 function onClickAdd() {
                     if($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
-                        var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.http'/>",
+                        var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.not.https'/>",
                                 validate, null, null);
                         if (isValidated) {
                             validate();
@@ -73,6 +73,13 @@
                     }
                 }
                 function validate() {
+                    var callbackUrl = document.getElementById('callback').value;
+                    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+                    if (!regexp.test(callbackUrl) || callbackUrl.indexOf(",") > -1) {
+                        CARBON.showWarningDialog("<fmt:message key='callback.is.not.url'/>", null, null);
+                        return false;
+                    }
+
                     var value = document.getElementsByName("application")[0].value;
                     if (value == '') {
                         CARBON.showWarningDialog('<fmt:message key="application.is.required"/>');
@@ -157,7 +164,7 @@
 		                    <tr id="callback_row">
 		                        <td class="leftCol-small"><fmt:message key='callback'/><span class="required">*</span></td>
                                 <td><input class="text-box-big" id="callback" name="callback" type="text"
-                                           black-list-patterns="http-url"/></td>
+                                           white-list-patterns="https-url"/></td>
 		                    </tr>
 		                     <tr id="grant_row" name="grant_row">
 		                        <td class="leftCol-small"><fmt:message key='grantTypes'/></td>
