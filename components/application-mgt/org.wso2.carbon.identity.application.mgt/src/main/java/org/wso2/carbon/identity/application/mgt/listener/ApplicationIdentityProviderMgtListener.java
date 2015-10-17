@@ -76,11 +76,6 @@ public class ApplicationIdentityProviderMgtListener extends AbstractIdentityProv
                             FederatedAuthenticatorConfig currentDefaultAuthenticatorConfig = identityProvider
                                     .getDefaultAuthenticatorConfig();
                             fedIdp.setDefaultAuthenticatorConfig(currentDefaultAuthenticatorConfig);
-                            IdentityProvider[] federatedIdentityProviders = new IdentityProvider[1];
-                            federatedIdentityProviders[0] = fedIdp;
-                            authSteps[0].setFederatedIdentityProviders(federatedIdentityProviders);
-                            localAndOutboundAuthConfig.setAuthenticationSteps(authSteps);
-                            serviceProvider.setLocalAndOutBoundAuthenticationConfig(localAndOutboundAuthConfig);
                             ApplicationMgtSystemConfig.getInstance().getApplicationDAO()
                                     .updateApplication(serviceProvider, tenantDomain);
                         }
@@ -94,7 +89,7 @@ public class ApplicationIdentityProviderMgtListener extends AbstractIdentityProv
                             FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = federatedIdp.getFederatedAuthenticatorConfigs();
                             String federatedConfigOption = federatedAuthenticatorConfigs[0].getName();
                             for (FederatedAuthenticatorConfig config : idpFederatedConfig) {
-                                if (config.getName().equals(federatedConfigOption) && !config.isEnabled()) {
+                                if (StringUtils.equals(config.getName(), federatedConfigOption) && !config.isEnabled()) {
                                     throw new IdentityProviderManagementException(config.getName() + " is selected in a Service Provider");
                                 }
                             }
