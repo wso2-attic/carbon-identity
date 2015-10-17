@@ -56,7 +56,7 @@
                         <Import-Package>
                             org.w3c.dom,
                             org.xml.sax,
-                            javax.xml.parsers; version="[0.0.0,0.1.0)",
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
                             org.apache.xml.serialize; resolution:=optional,
                             org.apache.xerces.util; resolution:=optional,
                             org.apache.axis2; version="${axis2.osgi.version.range}",

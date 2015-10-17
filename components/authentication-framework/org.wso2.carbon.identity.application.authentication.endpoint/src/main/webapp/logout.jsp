@@ -17,62 +17,97 @@
   --%>
 
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<html lang="en">
+
+<html>
 <head>
     <meta charset="utf-8">
-    <title>WSO2 Identity Server</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <title>WSO2 Identity Server</title>
 
-    <!-- Le styles -->
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/localstyles.css" rel="stylesheet">
-    <!--[if lt IE 8]>
-    <link href="css/localstyles-ie7.css" rel="stylesheet">
-    <![endif]-->
+    <link rel="icon" href="images/favicon.png" type="image/x-icon"/>
+    <link href="libs/bootstrap_3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/Roboto.css" rel="stylesheet">
+    <link href="css/custom-common.css" rel="stylesheet">
 
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-    <script src="assets/js/html5.js"></script>
+    <script src="js/html5shiv.min.js"></script>
+    <script src="js/respond.min.js"></script>
     <![endif]-->
-    <script src="assets/js/jquery-1.7.1.min.js"></script>
-    <script src="js/scripts.js"></script>
-    <style>
-        div.different-login-container a.truncate {
-            width: 148px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    </style>
-
 </head>
 
 <body>
-<div class="overlay" style="display:none"></div>
-<div class="header-strip">&nbsp;</div>
-<div class="header-back">
-    <div class="container">
-        <div class="row">
-            <div class="span12">
-                <a class="logo">&nbsp;</a>
-            </div>
+
+<script type="text/javascript">
+    function approved() {
+        document.getElementById('consent').value = "approve";
+        document.getElementById("oauth2_authz").submit();
+    }
+    function approvedAlways() {
+        document.getElementById('consent').value = "approveAlways";
+        document.getElementById("oauth2_authz").submit();
+    }
+    function deny() {
+        document.getElementById('consent').value = "deny";
+        document.getElementById("oauth2_authz").submit();
+    }
+</script>
+
+<!-- header -->
+<header class="header header-default">
+    <div class="container-fluid"><br></div>
+    <div class="container-fluid">
+        <div class="pull-left brand float-remove-xs text-center-xs">
+            <a href="#">
+                <img src="images/logo-inverse.svg" alt="wso2" title="wso2" class="logo">
+                <h1><em>Identity Server</em></h1>
+            </a>
         </div>
     </div>
-</div>
+</header>
 
-<div class="header-text">
+<!-- page content -->
+<div class="container-fluid body-wrapper">
 
-</div>
-<div class="container">
     <div class="row">
-        <div class="span12">
-            <h1>You have successfully logged out.</h1>
+        <div class="col-md-12">
+
+            <!-- content -->
+            <div class="container col-xs-10 col-sm-6 col-md-6 col-lg-3 col-centered wr-content wr-login col-centered">
+                <div class="boarder-all ">
+                    <div class="clearfix"></div>
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="span12">
+                                <h1>You have successfully logged out.</h1>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
         </div>
+        <!-- /content -->
+
     </div>
 </div>
+<!-- /content/body -->
 
+</div>
+
+<!-- footer -->
+<footer class="footer">
+    <div class="container-fluid">
+        <p>WSO2 Identity Server | &copy; <script>document.write(new Date().getFullYear());</script> <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>. All Rights Reserved.</p>
+    </div>
+</footer>
+
+<script src="libs/jquery_1.11.3/jquery-1.11.3.js"></script>
+<script src="libs/bootstrap_3.3.5/js/bootstrap.min.js"></script>
 </body>
 </html>
+
+
+

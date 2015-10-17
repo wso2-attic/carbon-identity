@@ -84,7 +84,7 @@
                         </Private-Package>
                         <Import-Package>
                             javax.crypto,
-                            javax.xml.parsers,
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
                             javax.xml.namespace,
                             javax.xml.stream,
                             org.w3c.dom.*,

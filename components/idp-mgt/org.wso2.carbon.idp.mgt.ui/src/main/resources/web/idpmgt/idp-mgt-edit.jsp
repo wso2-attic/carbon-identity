@@ -4436,19 +4436,19 @@ function doValidation() {
                 </div>
             </td>
         </tr>
-        <tr>
+        <tr style="display:none;">
             <td class="leftCol-med labelField">Facebook Authentication Endpoint:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="fbAuthnEndpoint"
                        name="fbAuthnEndpoint" type="text" value=<%=Encode.forHtmlAttribute(fbAuthnEndpoint)%>></td>
         </tr>
-        <tr>
+        <tr style="display:none;">
             <td class="leftCol-med labelField">Facebook OAuth2 Token Endpoint:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="fbOauth2TokenEndpoint"
                        name="fbOauth2TokenEndpoint" type="text" value=<%=Encode.forHtmlAttribute(fbOauth2TokenEndpoint)%>></td>
         </tr>
-        <tr>
+        <tr style="display:none;">
             <td class="leftCol-med labelField">Facebook User Information Endpoint:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="fbUserInfoEndpoint"

@@ -614,6 +614,14 @@ public class OAuth2Util {
             }
             return oAuth2ConsentPageUrl;
         }
+
+        public static String getOAuth2ErrorPageUrl() {
+            String oAuth2ErrorPageUrl = OAuthServerConfiguration.getInstance().getOauth2ErrorPageUrl();
+            if(StringUtils.isBlank(oAuth2ErrorPageUrl)){
+                oAuth2ErrorPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_error.do", false);
+            }
+            return oAuth2ErrorPageUrl;
+        }
     }
 
     public static boolean isOIDCAuthzRequest(Set<String> scope) {

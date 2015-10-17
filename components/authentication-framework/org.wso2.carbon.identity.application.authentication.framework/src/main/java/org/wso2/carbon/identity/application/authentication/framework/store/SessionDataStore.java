@@ -60,7 +60,7 @@ public class SessionDataStore {
     private static final String OPERATION_DELETE = "DELETE";
     private static final String OPERATION_STORE = "STORE";
     private static final String SQL_INSERT_STORE_OPERATION =
-            "INSERT INTO IDN_AUTH_SESSION_STORE(SESSION_ID, SESSION_TYPE, OPERATION, SESSION_OBJECT, TIME_CREATED) VALUES (?,?,?,?,?)";
+            "INSERT INTO IDN_AUTH_SESSION_STORE(SESSION_ID, SESSION_TYPE, OPERATION, SESSION_OBJECT, TIME_CREATED, TENANT_ID) VALUES (?,?,?,?,?,?)";
     private static final String SQL_INSERT_DELETE_OPERATION =
             "INSERT INTO IDN_AUTH_SESSION_STORE(SESSION_ID, SESSION_TYPE,OPERATION, TIME_CREATED) VALUES (?,?,?,?)";
     private static final String SQL_DELETE_STORE_OPERATIONS_TASK =
@@ -276,6 +276,11 @@ public class SessionDataStore {
     }
 
     public void storeSessionData(String key, String type, Object entry) {
+
+        storeSessionData(key, type, entry, -1);
+    }
+
+    public void storeSessionData(String key, String type, Object entry, int tenantId) {
         if (!enablePersist) {
             return;
         }
@@ -283,7 +288,7 @@ public class SessionDataStore {
         if (maxPoolSize > 0) {
             sessionContextQueue.push(new SessionContextDO(key, type, entry, timestamp));
         } else {
-            persistSessionData(key, type, entry, timestamp);
+            persistSessionData(key, type, entry, timestamp, tenantId);
         }
     }
 
@@ -328,7 +333,7 @@ public class SessionDataStore {
         deleteDELETEOperationsTask(timestamp);
     }
 
-    public void persistSessionData(String key, String type, Object entry, Timestamp timestamp) {
+    public void persistSessionData(String key, String type, Object entry, Timestamp timestamp, int tenantId) {
         if (!enablePersist) {
             return;
         }
@@ -348,6 +353,7 @@ public class SessionDataStore {
             preparedStatement.setString(3, OPERATION_STORE);
             setBlobObject(preparedStatement, entry, 4);
             preparedStatement.setLong(5, timestamp.getTime());
+            preparedStatement.setInt(6, tenantId);
             preparedStatement.executeUpdate();
             if (!connection.getAutoCommit()) {
                 connection.commit();

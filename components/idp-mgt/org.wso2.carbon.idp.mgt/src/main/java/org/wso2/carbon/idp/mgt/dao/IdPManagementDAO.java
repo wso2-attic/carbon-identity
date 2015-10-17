@@ -187,7 +187,7 @@ public class IdPManagementDAO {
      * @throws SQLException
      */
     private void addIdentityProviderProperties(Connection dbConnection, int idpId,
-            List<IdentityProviderProperty> properties)
+            List<IdentityProviderProperty> properties, int tenantId)
             throws SQLException {
         String sqlStmt = IdPManagementConstants.SQLQueries.ADD_IDP_METADATA;
         PreparedStatement prepStmt = null;
@@ -199,6 +199,7 @@ public class IdPManagementDAO {
                 prepStmt.setString(2, property.getName());
                 prepStmt.setString(3, property.getValue());
                 prepStmt.setString(4, property.getDisplayName());
+                prepStmt.setInt(5, tenantId);
                 prepStmt.addBatch();
             }
             prepStmt.executeBatch();
@@ -217,7 +218,7 @@ public class IdPManagementDAO {
      * @throws SQLException
      */
     private void updateIdentityProviderProperties(Connection dbConnection, int idpId,
-            List<IdentityProviderProperty> properties)
+            List<IdentityProviderProperty> properties, int tenantId)
             throws SQLException {
 
         PreparedStatement prepStmt = null;
@@ -233,6 +234,7 @@ public class IdPManagementDAO {
                 prepStmt.setString(2, property.getName());
                 prepStmt.setString(3, property.getValue());
                 prepStmt.setString(4, property.getDisplayName());
+                prepStmt.setInt(5, tenantId);
                 prepStmt.addBatch();
             }
             prepStmt.executeBatch();
@@ -1502,7 +1504,8 @@ public class IdPManagementDAO {
 
             }
             if(identityProvider.getIdpProperties() != null) {
-                addIdentityProviderProperties(dbConnection, idPId, Arrays.asList(identityProvider.getIdpProperties()));
+                addIdentityProviderProperties(dbConnection, idPId, Arrays.asList(identityProvider.getIdpProperties())
+                        , tenantId);
             }
 
             dbConnection.commit();
@@ -1672,7 +1675,7 @@ public class IdPManagementDAO {
 
                 if(newIdentityProvider.getIdpProperties() != null) {
                     updateIdentityProviderProperties(dbConnection, idpId,
-                            Arrays.asList(newIdentityProvider.getIdpProperties()));
+                            Arrays.asList(newIdentityProvider.getIdpProperties()), tenantId);
                 }
 
             }

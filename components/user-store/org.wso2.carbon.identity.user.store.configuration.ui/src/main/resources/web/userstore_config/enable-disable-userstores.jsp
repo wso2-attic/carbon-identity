@@ -55,6 +55,7 @@
             session.removeAttribute(UserAdminUIConstants.USER_STORE_INFO);
             session.removeAttribute(UserAdminUIConstants.USER_LIST_CACHE);
             session.removeAttribute(UserAdminUIConstants.ROLE_LIST_CACHE);
+            session.removeAttribute(UserAdminUIConstants.ROLE_LIST_DOMAIN_FILTER);
             forwardTo = "index.jsp?region=region1&item=userstores_mgt_menu";
         } catch (Exception e) {
             String message = resourceBundle.getString("invalid.domain.not.updated");

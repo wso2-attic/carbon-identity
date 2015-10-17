@@ -76,6 +76,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -206,7 +207,36 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @return : list of default properties(mandatory+optional)
      */
     public Properties getUserStoreManagerProperties(String className) throws IdentityUserStoreMgtException {
-        return (Properties) UserStoreManagerRegistry.getUserStoreProperties(className);
+        Properties properties = UserStoreManagerRegistry.getUserStoreProperties(className);
+
+        if (properties != null && properties.getOptionalProperties() != null) {
+
+            Property[] optionalProperties =  properties.getOptionalProperties();
+
+            boolean foundUniqueIDProperty = false;
+            for (Property property : optionalProperties) {
+                if (UserStoreConfigurationConstant.UNIQUE_ID_CONSTANT.equals(property.getName())) {
+                    foundUniqueIDProperty = true;
+                    break;
+                }
+            }
+            if (!foundUniqueIDProperty) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Inserting property : " + UserStoreConfigurationConstant.UNIQUE_ID_CONSTANT +
+                            " since " + UserStoreConfigurationConstant.UNIQUE_ID_CONSTANT +
+                            " property not defined as an optional property in " + className + " class");
+                }
+                List<Property> optionalPropertyList = new ArrayList<>(Arrays.asList(optionalProperties));
+                Property uniqueIDProperty = new Property(
+                        UserStoreConfigurationConstant.UNIQUE_ID_CONSTANT, "", "", null);
+                optionalPropertyList.add(uniqueIDProperty);
+
+                properties.setOptionalProperties(
+                        optionalPropertyList.toArray(new Property[optionalPropertyList.size()]));
+            }
+        }
+
+        return properties;
     }
 
     /**

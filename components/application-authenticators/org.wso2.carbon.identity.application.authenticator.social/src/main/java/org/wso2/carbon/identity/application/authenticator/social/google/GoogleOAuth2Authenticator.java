@@ -43,47 +43,94 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     private static final long serialVersionUID = -4154255583070524018L;
+    private String tokenEndpoint;
+    private String oAuthEndpoint;
+    private String userInfoEndpoint;
 
     private static Log log = LogFactory.getLog(GoogleOAuth2Authenticator.class);
 
     /**
+     * initiate tokenEndpoint
+     */
+    private void initTokenEndpoint() {
+        this.tokenEndpoint = getAuthenticatorConfig().getParameterMap().get(GoogleOAuth2AuthenticationConstant
+                .GOOGLE_TOKEN_ENDPOINT);
+        if (StringUtils.isBlank(this.tokenEndpoint)) {
+            this.tokenEndpoint = IdentityApplicationConstants.GOOGLE_TOKEN_URL;
+        }
+    }
+
+    /**
+     * initiate authorization server endpoint
+     */
+    private void initOAuthEndpoint() {
+        this.oAuthEndpoint = getAuthenticatorConfig().getParameterMap().get(GoogleOAuth2AuthenticationConstant
+                .GOOGLE_AUTHZ_ENDPOINT);
+        if (StringUtils.isBlank(this.oAuthEndpoint)) {
+            this.oAuthEndpoint = IdentityApplicationConstants.GOOGLE_OAUTH_URL;
+        }
+    }
+
+    /**
+     * initiate userInfoEndpoint
+     */
+    private void initUserInfoEndPoint() {
+        this.userInfoEndpoint = getAuthenticatorConfig().getParameterMap().get(GoogleOAuth2AuthenticationConstant
+                .GOOGLE_USERINFO_ENDPOINT);
+        if (StringUtils.isBlank(this.userInfoEndpoint)) {
+            this.userInfoEndpoint = IdentityApplicationConstants.GOOGLE_USERINFO_URL;
+        }
+    }
+
+    /**
+     * Get UserInfo Endpoint
+     *
+     * @return userInfoEndpoint
+     */
+
+    private String getUserInfoEndpoint(Map<String, String> authenticatorProperties) {
+        if (StringUtils.isBlank(this.userInfoEndpoint)) {
+            initUserInfoEndPoint();
+        }
+        return this.userInfoEndpoint;
+    }
+
+
+    /**
      * Get Authorization Server Endpoint
      *
-     * @param authenticatorProperties
-     * @return
+     * @param authenticatorProperties this is not used currently in the method
+     * @return oAuthEndpoint
      */
     @Override
-    protected String getAuthorizationServerEndpoint(
-            Map<String, String> authenticatorProperties) {
-
-        return authenticatorProperties.get(GoogleOAuth2AuthenticationConstant.GOOGLE_OAUTH_ENDPOINT);
+    protected String getAuthorizationServerEndpoint(Map<String, String> authenticatorProperties) {
+        if (StringUtils.isBlank(this.oAuthEndpoint)) {
+            initOAuthEndpoint();
+        }
+        return this.oAuthEndpoint;
     }
 
     /**
      * Get Token Endpoint
      *
-     * @param authenticatorProperties
-     * @return
+     * @param authenticatorProperties this is not used currently in the method
+     * @return tokenEndpoint
      */
     @Override
-    protected String getTokenEndpoint(
-            Map<String, String> authenticatorProperties) {
-
-        return authenticatorProperties.get(GoogleOAuth2AuthenticationConstant.GOOGLE_TOKEN_ENDPOINT);
+    protected String getTokenEndpoint(Map<String, String> authenticatorProperties) {
+        if (StringUtils.isBlank(this.tokenEndpoint)) {
+            initTokenEndpoint();
+        }
+        return this.tokenEndpoint;
     }
 
     /**
@@ -195,43 +242,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * Get Subject Attributes
-     *
-     * @param token
-     * @return
+     * Get google user info endpoint.
+     * @param token OAuth client response.
+     * @return User info endpoint.
      */
     @Override
-    protected Map<ClaimMapping, String> getSubjectAttributes(
-            OAuthClientResponse token) {
+    protected String getUserInfoEndpoint(OAuthClientResponse token, Map<String, String> authenticatorProperties) {
 
-        Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
-
-        try {
-
-                String json = sendRequest(token.getParam(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT),
-                        token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
-            if (StringUtils.isNotBlank(json)) {
-                Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
-
-                if (jsonObject != null) {
-                    for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-                        claims.put(ClaimMapping.build(entry.getKey(),
-                                entry.getKey(), null, false), entry.getValue()
-                                .toString());
-                        if (log.isDebugEnabled()) {
-                            log.debug("Adding claim from end-point data mapping : " + entry.getKey() + " - " +
-                                    entry.getValue());
-                        }
-
-                    }
-                }
-
-            }
-        }catch (Exception e) {
-            log.error("Error occurred while accessing google user info endpoint", e);
-        }
-
-        return claims;
+        return token.getParam(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT);
     }
 
     /**
@@ -265,27 +283,6 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         callbackUrl.setRequired(true);
         callbackUrl.setDescription("Enter value corresponding to callback url.");
         configProperties.add(callbackUrl);
-
-        Property oauthEndpoint = new Property();
-        oauthEndpoint.setDisplayName("Google Oauth Endpoint");
-        oauthEndpoint.setName(GoogleOAuth2AuthenticationConstant.GOOGLE_OAUTH_ENDPOINT);
-        oauthEndpoint.setValue(IdentityApplicationConstants.GOOGLE_OAUTH_URL);
-        oauthEndpoint.setDescription("Enter value corresponding to google oauth endpoint.");
-        configProperties.add(oauthEndpoint);
-
-        Property tokenEndpoint = new Property();
-        tokenEndpoint.setDisplayName("Google Token Endpoint");
-        tokenEndpoint.setName(GoogleOAuth2AuthenticationConstant.GOOGLE_TOKEN_ENDPOINT);
-        tokenEndpoint.setValue(IdentityApplicationConstants.GOOGLE_TOKEN_URL);
-        tokenEndpoint.setDescription("Enter value corresponding to google token endpoint.");
-        configProperties.add(tokenEndpoint);
-
-        Property userInfoEndpoint = new Property();
-        userInfoEndpoint.setDisplayName("Google User Info Endpoint");
-        userInfoEndpoint.setName(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT);
-        userInfoEndpoint.setValue(IdentityApplicationConstants.GOOGLE_USERINFO_URL);
-        userInfoEndpoint.setDescription("Enter value corresponding to google user info endpoint.");
-        configProperties.add(userInfoEndpoint);
 
         return configProperties;
     }
@@ -367,7 +364,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
                     Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
 
                     if (jsonObject != null) {
-                        Map<ClaimMapping, String> claims = getSubjectAttributes(oAuthResponse);
+                        Map<ClaimMapping, String> claims = getSubjectAttributes(oAuthResponse, authenticatorProperties);
 
                         String authenticatedUser = (String) jsonObject.get(OIDCAuthenticatorConstants.Claim.EMAIL);
                         AuthenticatedUser authenticatedUserObj = AuthenticatedUser
@@ -444,45 +441,5 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     @Override
     public String getName() {
         return GoogleOAuth2AuthenticationConstant.GOOGLE_CONNECTOR_NAME;
-    }
-
-    /**
-     * extra request sending to google user info end-point
-     *
-     * @param url
-     * @param accessToken
-     * @return
-     * @throws IOException
-     */
-    private String sendRequest(String url, String accessToken)
-            throws IOException {
-
-        if (log.isDebugEnabled()) {
-            log.debug("claim url: " + url + " & accessToken : " + accessToken);
-        }
-        if (url != null) {
-            URL obj = new URL(url);
-            HttpURLConnection urlConnection = (HttpURLConnection) obj.openConnection();
-
-            urlConnection.setRequestMethod("GET");
-            // add request header
-            urlConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
-            BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            StringBuilder b = new StringBuilder();
-            String inputLine = in.readLine();
-            while (inputLine != null) {
-                b.append(inputLine).append("\n");
-                inputLine = in.readLine();
-            }
-            in.close();
-
-            if (log.isDebugEnabled()) {
-                log.debug("response: " + b.toString());
-            }
-        return b.toString();
-    }
-        else{
-            return StringUtils.EMPTY;
-        }
     }
 }

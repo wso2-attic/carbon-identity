@@ -24,103 +24,127 @@
     String scopeString = request.getParameter("scope");
 %>
 
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="utf-8">
-    <title>WSO2 Identity Server OAuth2 Consent</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <title>WSO2 Identity Server</title>
 
-    <!-- Le styles -->
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/localstyles.css" rel="stylesheet">
-    <!--[if lt IE 8]>
-    <link href="css/localstyles-ie7.css" rel="stylesheet">
-    <![endif]-->
+    <link rel="icon" href="images/favicon.png" type="image/x-icon"/>
+    <link href="libs/bootstrap_3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/Roboto.css" rel="stylesheet">
+    <link href="css/custom-common.css" rel="stylesheet">
 
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-    <script src="assets/js/html5.js"></script>
+    <script src="js/html5shiv.min.js"></script>
+    <script src="js/respond.min.js"></script>
     <![endif]-->
-    <script src="assets/js/jquery-1.7.1.min.js"></script>
-    <script src="js/scripts.js"></script>
 </head>
 
 <body>
 
-<div class="header-strip">&nbsp;</div>
-<div class="header-back">
-    <div class="container">
-        <div class="row">
-            <div class="span12">
-                <a class="logo">&nbsp</a>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="header-text">
-    <div class="container">
-        <div class="row">
-            <div class="span12 content-section">
-                You are logged in as <strong><%=Encode.forHtml(loggedInUser)%>
-            </strong>.
-                <strong>
-                    <%=Encode.forHtml(request.getParameter("application"))%>
-                </strong> requests access to your profile information
-            </div>
-        </div>
-    </div>
-</div>
+<script type="text/javascript">
+    function approved() {
+        document.getElementById('consent').value = "approve";
+        document.getElementById("oauth2_authz").submit();
+    }
+    function approvedAlways() {
+        document.getElementById('consent').value = "approveAlways";
+        document.getElementById("oauth2_authz").submit();
+    }
+    function deny() {
+        document.getElementById('consent').value = "deny";
+        document.getElementById("oauth2_authz").submit();
+    }
+</script>
 
-<div class="container main-login-container" style="margin-top:10px;">
+<!-- header -->
+<header class="header header-default">
+    <div class="container-fluid"><br></div>
+    <div class="container-fluid">
+        <div class="pull-left brand float-remove-xs text-center-xs">
+            <a href="#">
+                <img src="images/logo-inverse.svg" alt="wso2" title="wso2" class="logo">
+                <h1><em>Identity Server</em></h1>
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- page content -->
+<div class="container-fluid body-wrapper">
+
     <div class="row">
-        <div class="span12 content-section">
-            <script type="text/javascript">
-                function approved() {
-                    document.getElementById('consent').value = "approve";
-                    document.getElementById("oauth2_authz").submit();
-                }
-                function approvedAlways() {
-                    document.getElementById('consent').value = "approveAlways";
-                    document.getElementById("oauth2_authz").submit();
-                }
-                function deny() {
-                    document.getElementById('consent').value = "deny";
-                    document.getElementById("oauth2_authz").submit();
-                }
-            </script>
+        <div class="col-md-12">
 
-            <form id="oauth2_authz" name="oauth2_authz" method="post" action="../oauth2/authorize">
-                <table width="100%" class="styledLeft">
-                    <tbody>
-                    <tr>
-                        <td class="buttonRow" colspan="2">
-                            <input type="button" class="btn btn-primary btn-large" id="approve" name="approve"
-                                   onclick="javascript: approved(); return false;"
-                                   value="Approve"/>
-                            <input type="button" class="btn btn-primary btn-large" id="approveAlways"
-                                   name="approveAlways"
-                                   onclick="javascript: approvedAlways(); return false;"
-                                   value="Approve Always"/>
-                            <input class="btn btn-primary-deny btn-large" type="reset"
-                                   value="Deny" onclick="javascript: deny(); return false;"/>
+            <!-- content -->
+            <div class="container col-xs-10 col-sm-6 col-md-6 col-lg-3 col-centered wr-content wr-login col-centered">
+                <div>
+                    <h2
+                            class="wr-title uppercase blue-bg padding-double white boarder-bottom-blue margin-none">Authorize
+                    </h2>
+                </div>
 
-                            <input type="hidden" name="<%=Constants.SESSION_DATA_KEY_CONSENT%>"
-                                   value="<%=Encode.forHtmlAttribute(request
+                <div class="boarder-all ">
+                    <div class="clearfix"></div>
+                    <form action="../oauth2/authorize" method="post" id="oauth2_authz" name="oauth2_authz" class="form-horizontal" >
+                        <div class="padding-double login-form">
+                            <div class="form-group">
+                                <p><strong>
+                                    <%=Encode.forHtml(request.getParameter("application"))%>
+                                </strong> requests access to your profile information </p>
+                            </div>
+                    <table width="100%" class="styledLeft">
+                        <tbody>
+                        <tr>
+                            <td class="buttonRow" colspan="2">
+
+                                <div style="text-align:left;">
+                                    <input type="button" class="btn  btn-primary" id="approve" name="approve"
+                                           onclick="javascript: approved(); return false;"
+                                           value="Approve"/>
+                                    <input type="button" class="btn" id="chkApprovedAlways"
+                                           onclick="javascript: approvedAlways(); return false;"
+                                           value="Approve Always"/>
+                                    <input type="hidden" id="hasApprovedAlways" name="hasApprovedAlways"
+                                           value="false"/>
+                                    <input class="btn" type="reset" value="Deny"
+                                           onclick="javascript: deny(); return false;"/>
+                                </div>
+
+                                <input type="hidden" name="<%=Constants.SESSION_DATA_KEY_CONSENT%>"
+                                       value="<%=Encode.forHtmlAttribute(request
                                    .getParameter(Constants.SESSION_DATA_KEY_CONSENT))%>"/>
-                            <input type="hidden" name="consent" id="consent"
-                                   value="deny"/>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </form>
+                                <input type="hidden" name="consent" id="consent"
+                                       value="deny"/>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+
+            </div>
+            <!-- /content -->
+
         </div>
     </div>
+    <!-- /content/body -->
+
 </div>
 
+<!-- footer -->
+<footer class="footer">
+    <div class="container-fluid">
+        <p>WSO2 Identity Server | &copy; <script>document.write(new Date().getFullYear());</script> <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>. All Rights Reserved.</p>
+    </div>
+</footer>
+
+<script src="libs/jquery_1.11.3/jquery-1.11.3.js"></script>
+<script src="libs/bootstrap_3.3.5/js/bootstrap.min.js"></script>
 </body>
 </html>
-

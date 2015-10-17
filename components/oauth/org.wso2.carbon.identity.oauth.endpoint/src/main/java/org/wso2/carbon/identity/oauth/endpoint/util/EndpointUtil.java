@@ -168,7 +168,7 @@ public class EndpointUtil {
         if (redirectUri != null && !"".equals(redirectUri)) {
             errorPageUrl = redirectUri;
         } else {
-            errorPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_error.do", false);
+            errorPageUrl = OAuth2Util.OAuthURL.getOAuth2ErrorPageUrl();
         }
         try {
             errorPageUrl += "?" + OAuthConstants.OAUTH_ERROR_CODE + "=" + URLEncoder.encode(errorCode, "UTF-8") + "&"
