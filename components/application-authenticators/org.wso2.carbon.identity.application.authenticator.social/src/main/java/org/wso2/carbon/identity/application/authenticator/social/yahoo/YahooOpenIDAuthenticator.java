@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public class YahooOpenIDAuthenticator extends OpenIDAuthenticator {
 
     private static final long serialVersionUID = -782801773114711699L;

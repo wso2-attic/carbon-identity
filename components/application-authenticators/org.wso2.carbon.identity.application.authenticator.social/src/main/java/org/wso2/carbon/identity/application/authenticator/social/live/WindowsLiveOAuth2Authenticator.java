@@ -175,7 +175,8 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
      * @return
      */
     @Override
-    protected Map<ClaimMapping, String> getSubjectAttributes(OAuthClientResponse token) {
+    protected Map<ClaimMapping, String> getSubjectAttributes(OAuthClientResponse token,
+                                                             Map<String, String> authenticatorProperties) {
 
         Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
 
