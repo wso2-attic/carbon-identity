@@ -124,11 +124,24 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     }
 
     /**
+     *
+     * @param context
+     * @param jsonObject
      * @param token
      * @return
      */
-    protected String getAuthenticateUser(OAuthClientResponse token) {
-        return null;
+
+    protected String getAuthenticateUser(AuthenticationContext context, Map<String, Object> jsonObject,OAuthClientResponse token) {
+        return (String) jsonObject.get("sub");
+    }
+
+    protected String getCallBackURL(Map<String, String> authenticatorProperties) {
+        return getCallbackUrl(authenticatorProperties);
+    }
+
+
+    protected String getQueryString(Map<String, String> authenticatorProperties) {
+        return authenticatorProperties.get(FrameworkConstants.QUERY_PARAMS);
     }
 
     /**
@@ -223,7 +236,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
                 OAuthClientRequest authzRequest;
 
-                String queryString = authenticatorProperties.get(FrameworkConstants.QUERY_PARAMS);
+                String queryString = getQueryString(authenticatorProperties);
                 Map<String, String> paramValueMap = new HashMap<String, String>();
 
                 if (queryString != null) {
@@ -348,6 +361,9 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             // TODO : return access token and id token to framework
             String accessToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
             String idToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ID_TOKEN);
+            if (log.isDebugEnabled()) {
+                log.debug("Retrieved the Access Token:" + accessToken + " Id Token:" + idToken);
+            }
 
             if (accessToken != null
                     && (idToken != null || !requiredIDToken(authenticatorProperties))) {
@@ -362,6 +378,9 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                     String json = new String(decoded);
 
                     Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Retrieved the User Information:" + jsonObject);
+                    }
 
                     if (jsonObject != null) {
                         Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
@@ -391,7 +410,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                             }
                         }
                         if (authenticatedUser == null) {
-                            authenticatedUser = (String) jsonObject.get("sub");
+                            authenticatedUser = getAuthenticateUser(context,jsonObject,oAuthResponse);
                         }
                         if (authenticatedUser == null) {
                             throw new AuthenticationFailedException("Cannot find federated User Identifier");
@@ -409,11 +428,9 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                         throw new AuthenticationFailedException("Decoded json object is null");
                     }
                 } else {
-                    AuthenticatedUser authenticatedUserObj = AuthenticatedUser
-                            .createFederateAuthenticatedUserFromSubjectIdentifier(getAuthenticateUser(oAuthResponse));
-                    authenticatedUserObj.setUserAttributes(getSubjectAttributes(oAuthResponse,
-                            authenticatorProperties));
-                    context.setSubject(authenticatedUserObj);
+                    if (log.isDebugEnabled()) {
+                        log.debug("The IdToken is null");
+                    }
                 }
 
             } else {
