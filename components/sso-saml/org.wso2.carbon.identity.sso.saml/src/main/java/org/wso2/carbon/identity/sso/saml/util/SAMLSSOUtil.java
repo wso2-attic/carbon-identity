@@ -517,7 +517,7 @@ public class SAMLSSOUtil {
         if (destinationURLs.size() == 0) {
             String configDestination = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
             if (StringUtils.isBlank(configDestination)) {
-                configDestination = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL);
+                configDestination = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL,true);
             }
             destinationURLs.add(configDestination);
         }
