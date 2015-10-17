@@ -514,7 +514,7 @@ public class ProvisioningManagementDAO {
             if (rs.next()) {
                 return rs.getString(1);
             } else {
-                throw new IdentityApplicationManagementException("Given Local ID does not exist");
+                throw new IdentityApplicationManagementException("Given Local ID :"+localId+" does not exist");
             }
         } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
