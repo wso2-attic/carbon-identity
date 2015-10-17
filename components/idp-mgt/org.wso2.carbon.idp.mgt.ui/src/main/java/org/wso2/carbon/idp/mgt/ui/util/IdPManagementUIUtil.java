@@ -1678,16 +1678,4 @@ public class IdPManagementUIUtil {
         return null;
     }
 
-    public static List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> getPropertySetStartsWith(
-            org.wso2.carbon.identity.application.common.model.idp.xsd.Property[] properties,
-            String startWith) {
-        List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> propertySet = new ArrayList<org
-                .wso2.carbon.identity.application.common.model.idp.xsd.Property>();
-        for (org.wso2.carbon.identity.application.common.model.idp.xsd.Property property : properties) {
-            if (property.getName().startsWith(startWith)) {
-                propertySet.add(property);
-            }
-        }
-        return propertySet;
-    }
 }

@@ -26,6 +26,7 @@
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProviderProperty" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
 
@@ -68,7 +69,7 @@
                     IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL).getValue();
             samlSLOUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL).getValue();
-            destinationURLList = IdPManagementUIUtil.getPropertySetStartsWith(properties, IdentityApplicationConstants
+            destinationURLList = IdentityApplicationManagementUtil.getPropertySetStartsWith(properties, IdentityApplicationConstants
                     .Authenticator.SAML2SSO.DESTINATION_URL_PREFIX);
             if (destinationURLList.size() == 0){
                 destinationURLList.add(IdPManagementUIUtil.getProperty(properties,

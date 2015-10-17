@@ -61,6 +61,7 @@ import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.SAML2SSOFederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
@@ -502,24 +503,6 @@ public class SAMLSSOUtil {
 
         List<String> destinationURLs = new ArrayList<String>();
         IdentityProvider identityProvider;
-        int tenantId;
-
-        if (StringUtils.isBlank(tenantDomain) || "null".equals(tenantDomain)) {
-            tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-            tenantId = MultitenantConstants.SUPER_TENANT_ID;
-        } else {
-            try {
-                tenantId = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
-            } catch (UserStoreException e) {
-                throw new IdentityException("Error occurred while retrieving tenant id from tenant domain", e);
-            }
-
-            if (MultitenantConstants.INVALID_TENANT_ID == tenantId) {
-                throw new IdentityException("Invalid tenant domain - '" + tenantDomain + "'");
-            }
-        }
-
-        IdentityTenantUtil.initializeRegistry(tenantId, tenantDomain);
 
         try {
             identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
@@ -529,17 +512,9 @@ public class SAMLSSOUtil {
                             tenantDomain, e);
         }
         FederatedAuthenticatorConfig[] authnConfigs = identityProvider.getFederatedAuthenticatorConfigs();
-        for (FederatedAuthenticatorConfig config : authnConfigs) {
-            if (IdentityApplicationConstants.Authenticator.SAML2SSO.NAME.equals(config.getName())) {
-                for (Property prop : config.getProperties()) {
-                    if (prop.getName().startsWith(IdentityApplicationConstants.Authenticator.SAML2SSO
-                            .DESTINATION_URL_PREFIX)) {
-                        destinationURLs.add(prop.getValue());
-                    }
-                }
-
-            }
-        }
+        destinationURLs.addAll(IdentityApplicationManagementUtil.getPropertyValuesForNameStartsWith(authnConfigs,
+                IdentityApplicationConstants.Authenticator.SAML2SSO.NAME, IdentityApplicationConstants.Authenticator
+                        .SAML2SSO.DESTINATION_URL_PREFIX));
         if (destinationURLs.size() == 0) {
             String configDestination = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
             if (StringUtils.isBlank(configDestination)) {
