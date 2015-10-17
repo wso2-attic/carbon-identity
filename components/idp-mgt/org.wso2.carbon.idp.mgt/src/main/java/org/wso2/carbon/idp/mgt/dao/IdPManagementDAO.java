@@ -2481,7 +2481,7 @@ public class IdPManagementDAO {
         }
     }
 
-    public boolean isSimilarIdPEntityIdsAvailble(String authenticatorName, String idPEntityId, int tenantId)
+    public boolean isIdPAvailableForAuthenticatorProperty(String authenticatorName, String idPEntityId, int tenantId)
             throws IdentityProviderManagementException {
         boolean isAvailable = false;
         Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
