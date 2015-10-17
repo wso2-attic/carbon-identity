@@ -41,7 +41,7 @@ public class OpenIDProviderServlet extends HttpServlet {
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         try{
-            String frontEndUrl = IdentityUtil.getServerURL("/authenticationendpoint/openid_login.do");
+            String frontEndUrl = org.wso2.carbon.identity.provider.openid.OpenIDUtil.getOpenIDLoginPageURL();
             OpenIDHandler provider = OpenIDHandler.getInstance(null);
             provider.setFrontEndUrl(frontEndUrl);
             String response = null;

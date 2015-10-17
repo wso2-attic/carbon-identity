@@ -127,6 +127,11 @@
         <jsp-file>/tenant_refresh_endpoint.jsp</jsp-file>
     </servlet>
 
+    <servlet>
+        <servlet-name>registration.do</servlet-name>
+        <jsp-file>/registration.jsp</jsp-file>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>retry.do</servlet-name>
         <url-pattern>/retry.do</url-pattern>
@@ -190,6 +195,11 @@
     <servlet-mapping>
         <servlet-name>tenantlistrefresher.do</servlet-name>
         <url-pattern>/tenantlistrefresher.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>registration.do</servlet-name>
+        <url-pattern>/registration.do</url-pattern>
     </servlet-mapping>
 
     <error-page>

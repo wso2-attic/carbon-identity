@@ -82,8 +82,7 @@ public class SQLConstants {
 
 
     public static final String ADD_WORKFLOW_PARAMS_QUERY = "INSERT INTO WF_WORKFLOW_CONFIG_PARAM(WORKFLOW_ID, " +
-                                                           "PARAM_NAME, PARAM_VALUE, PARAM_QNAME, PARAM_HOLDER) " +
-                                                           "VALUES(?, ?, ?, ?, ?)";
+            "PARAM_NAME, PARAM_VALUE, PARAM_QNAME, PARAM_HOLDER, TENANT_ID) VALUES(?, ?, ?, ?, ?, ?)";
 
     public static final String UPDATE_WORKFLOW_PARAMS_QUERY = "UPDATE WF_WORKFLOW_CONFIG_PARAM SET " +
                                                               "PARAM_NAME=?, PARAM_VALUE=?, PARAM_QNAME=?, " +
@@ -305,8 +304,7 @@ public class SQLConstants {
                                                                                   " ?";
 
     public static final String ADD_WORKFLOW_REQUEST_RELATIONSHIP = "INSERT INTO WF_WORKFLOW_REQUEST_RELATION " +
-                                                                   "(RELATIONSHIP_ID, WORKFLOW_ID, REQUEST_ID, " +
-                                                                   "UPDATED_AT, STATUS) VALUES (?, ?, ?, ?, ?)";
+            "(RELATIONSHIP_ID, WORKFLOW_ID, REQUEST_ID, UPDATED_AT, STATUS, TENANT_ID) VALUES (?, ?, ?, ?, ?, ?)";
 
     public static final String GET_REQUEST_ID_OF_RELATIONSHIP = "SELECT REQUEST_ID FROM " +
                                                                 "WF_WORKFLOW_REQUEST_RELATION WHERE RELATIONSHIP_ID =" +

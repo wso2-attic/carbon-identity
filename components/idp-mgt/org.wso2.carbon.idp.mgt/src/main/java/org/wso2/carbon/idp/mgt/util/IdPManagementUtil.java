@@ -93,7 +93,7 @@ public class IdPManagementUtil {
     public static int getRememberMeTimeout(String tenantDomain) {
 
         IdentityProviderManager identityProviderManager = IdentityProviderManager.getInstance();
-        int rememberMeTimeout = Integer.parseInt(IdentityApplicationConstants.REMEMBER_ME_TIME_OUT);
+        int rememberMeTimeout = Integer.parseInt(IdentityApplicationConstants.REMEMBER_ME_TIME_OUT_DEFAULT);
 
         try {
             IdentityProvider identityProvider = identityProviderManager.getResidentIdP(tenantDomain);
