@@ -32,11 +32,9 @@ import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioning
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import org.wso2.carbon.identity.provisioning.OutboundProvisioningManager;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
 import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
 import org.wso2.carbon.identity.provisioning.listener.DefaultInboundUserProvisioningListener;
 import org.wso2.carbon.identity.scim.common.group.SCIMGroupHandler;
@@ -52,12 +50,10 @@ import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.wso2.charon.core.attributes.Attribute;
-import org.wso2.charon.core.attributes.SimpleAttribute;
 import org.wso2.charon.core.exceptions.CharonException;
 import org.wso2.charon.core.exceptions.DuplicateResourceException;
 import org.wso2.charon.core.exceptions.NotFoundException;
 import org.wso2.charon.core.extensions.UserManager;
-import org.wso2.charon.core.objects.AbstractSCIMObject;
 import org.wso2.charon.core.objects.Group;
 import org.wso2.charon.core.objects.SCIMObject;
 import org.wso2.charon.core.objects.User;
@@ -77,6 +73,8 @@ public class SCIMUserManager implements UserManager {
     private UserStoreManager carbonUM = null;
     private ClaimManager carbonClaimManager = null;
     private String consumerName;
+    private boolean isBulkUserAdd = false;
+
 
     public SCIMUserManager(UserStoreManager carbonUserStoreManager, String userName,
                            ClaimManager claimManager) {
@@ -93,36 +91,29 @@ public class SCIMUserManager implements UserManager {
     @Override
     public User createUser(User user, boolean isBulkUserAdd) throws CharonException, DuplicateResourceException {
 
+        String userStoreName = null;
+        ServiceProvider serviceProvider = getServiceProvider(isBulkUserAdd);
+
         try {
-
-            ThreadLocalProvisioningServiceProvider threadLocalSP = IdentityApplicationManagementUtil
-                    .getThreadLocalProvisioningServiceProvider();
-            //isBulkUserAdd is true indicates bulk user add
-            if (isBulkUserAdd) {
-                threadLocalSP.setBulkUserAdd(true);
-            }
-
-            String userStoreName = null;
-
             if (!UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase(getUserStoreDomainFromSP())) {
                 userStoreName = getUserStoreDomainFromSP();
             }
-
-            StringBuilder userName = new StringBuilder();
-
-            if (userStoreName != null && userStoreName.trim().length() > 0) {
-                // if we have set a user store under provisioning configuration - we should only use
-                // that.
-                String currentUserName = user.getUserName();
-                currentUserName = UserCoreUtil.removeDomainFromName(currentUserName);
-                user.setUserName(userName.append(userStoreName)
-                        .append(CarbonConstants.DOMAIN_SEPARATOR).append(currentUserName)
-                        .toString());
-            }
-
         } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Error retrieving User Store name. ", e);
         }
+
+        StringBuilder userName = new StringBuilder();
+
+        if (StringUtils.isBlank(userStoreName)) {
+            // if we have set a user store under provisioning configuration - we should only use
+            // that.
+            String currentUserName = user.getUserName();
+            currentUserName = UserCoreUtil.removeDomainFromName(currentUserName);
+            user.setUserName(userName.append(userStoreName)
+                                     .append(CarbonConstants.DOMAIN_SEPARATOR).append(currentUserName)
+                                     .toString());
+        }
+
 
         try {
             //TODO: Start tenant flow at the scim authentication point
@@ -133,7 +124,14 @@ public class SCIMUserManager implements UserManager {
             carbonContext.setUsername(consumerName);
 
             //if operating in dumb mode, do not persist the operation, only provision to providers
-
+            if (serviceProvider.getInboundProvisioningConfig().isDumbMode()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("This instance is operating in dumb mode. " +
+                              "Hence, operation is not persisted, it will only be provisioned."
+                              + "provisioned user : " + user.getUserName());
+                }
+                this.provision(ProvisioningOperation.POST, user);
+            }else {
                 //Persist in carbon user store
                 if (log.isDebugEnabled()) {
                     log.debug("Creating user: " + user.getUserName());
@@ -159,7 +157,7 @@ public class SCIMUserManager implements UserManager {
                 }
                 carbonUM.addUser(user.getUserName(), user.getPassword(), null, claimsMap, null);
                 log.info("User: " + user.getUserName() + " is created through SCIM.");
-
+            }
         } catch (UserStoreException e) {
             String errMsg = "Error in adding the user: " + user.getUserName() + " to the user store. ";
             errMsg += e.getMessage();
@@ -175,6 +173,14 @@ public class SCIMUserManager implements UserManager {
     public User getUser(String userId) throws CharonException {
         if (log.isDebugEnabled()) {
             log.debug("Retrieving user: " + userId);
+        }
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
+            if (log.isDebugEnabled()) {
+                log.debug("This instance is operating in dumb mode. Hence, do not retrieve users from user store");
+            }
+            User user = new User();
+            user.setId(userId);
+            return user;
         }
         User scimUser = null;
         try {
@@ -318,7 +324,15 @@ public class SCIMUserManager implements UserManager {
 
     @Override
     public User updateUser(User user) throws CharonException {
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
+            if (log.isDebugEnabled()) {
+                log.debug("This instance is operating in dumb mode. " +
+                          "Hence, operation is not persisted, it will only be provisioned.");
+            }
+            this.provision(ProvisioningOperation.PUT, user);
+            return user;
 
+        }
             if (log.isDebugEnabled()) {
                 log.debug("Updating user: " + user.getUserName());
             }
@@ -402,6 +416,14 @@ public class SCIMUserManager implements UserManager {
     @Override
     public User patchUser(User newUser, User oldUser, String[] attributesToDelete) throws CharonException {
 
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
+            if (log.isDebugEnabled()) {
+                log.debug("This instance is operating in dumb mode. " +
+                          "Hence, operation is not persisted, it will only be provisioned.");
+            }
+            this.provision(ProvisioningOperation.PATCH, newUser);
+            return newUser;
+        }
             if (log.isDebugEnabled()) {
                 log.debug("Updating user: " + newUser.getUserName());
             }
@@ -470,7 +492,15 @@ public class SCIMUserManager implements UserManager {
 
     @Override
     public void deleteUser(String userId) throws NotFoundException, CharonException {
-
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
+            if (log.isDebugEnabled()) {
+                log.debug("This instance is operating in dumb mode. " +
+                          "Hence, operation is not persisted, it will only be provisioned.");
+            }
+            User user = new User();
+            user.setId(userId);
+            this.provision(ProvisioningOperation.DELETE, user);
+        }else {
             if (log.isDebugEnabled()) {
                 log.debug("Deleting user: " + userId);
             }
@@ -482,11 +512,11 @@ public class SCIMUserManager implements UserManager {
                 about the provisioning route.*/
                 SCIMCommonUtils.setThreadLocalIsManagedThroughSCIMEP(true);
                 userNames = carbonUM.getUserList(SCIMConstants.ID_URI, userId,
-                        UserCoreConstants.DEFAULT_PROFILE);
+                                                 UserCoreConstants.DEFAULT_PROFILE);
                 String userStoreDomainFromSP = null;
                 try {
                     userStoreDomainFromSP = getUserStoreDomainFromSP();
-                }catch (IdentityApplicationManagementException e){
+                } catch (IdentityApplicationManagementException e) {
                     throw new CharonException("Error retrieving User Store name. ", e);
                 }
                 if (userNames == null || userNames.length == 0) {
@@ -496,7 +526,8 @@ public class SCIMUserManager implements UserManager {
                     }
                     throw new NotFoundException();
                 } else if (userStoreDomainFromSP != null &&
-                           !(userStoreDomainFromSP.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(userNames[0])))) {
+                           !(userStoreDomainFromSP
+                                   .equalsIgnoreCase(UserCoreUtil.extractDomainFromName(userNames[0])))) {
                     throw new CharonException("User :" + userNames[0] + "is not belong to user store " +
                                               userStoreDomainFromSP + "Hence user updating fail");
                 } else {
@@ -509,11 +540,19 @@ public class SCIMUserManager implements UserManager {
             } catch (org.wso2.carbon.user.core.UserStoreException e) {
                 throw new CharonException("Error in deleting user: " + userName, e);
             }
+        }
     }
 
     @Override
     public Group createGroup(Group group) throws CharonException, DuplicateResourceException {
-
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
+            if (log.isDebugEnabled()) {
+                log.debug("This instance is operating in dumb mode. " +
+                          "Hence, operation is not persisted, it will only be provisioned.");
+            }
+            this.provision(ProvisioningOperation.POST, group);
+            return group;
+        }
             if (log.isDebugEnabled()) {
                 log.debug("Creating group: " + group.getDisplayName());
             }
@@ -629,6 +668,14 @@ public class SCIMUserManager implements UserManager {
         if (log.isDebugEnabled()) {
             log.debug("Retrieving group with id: " + id);
         }
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
+            if (log.isDebugEnabled()) {
+                log.debug("This instance is operating in dumb mode. Hence, do not retrieve users from user store");
+            }
+            Group group = new Group();
+            group.setId(id);
+            return group;
+        }
         Group group = null;
         try {
             SCIMGroupHandler groupHandler = new SCIMGroupHandler(carbonUM.getTenantId());
@@ -735,6 +782,15 @@ public class SCIMUserManager implements UserManager {
     @Override
     public Group updateGroup(Group oldGroup, Group newGroup) throws CharonException {
 
+        //if operating in dumb mode, do not persist the operation, only provision to providers
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
+            if (log.isDebugEnabled()) {
+                log.debug("This instance is operating in dumb mode. " +
+                          "Hence, operation is not persisted, it will only be provisioned.");
+            }
+            this.provision(ProvisioningOperation.PUT, newGroup);
+            return newGroup;
+        }
         try {
             String userStoreDomainFromSP = getUserStoreDomainFromSP();
             if(userStoreDomainFromSP != null && !userStoreDomainFromSP.equalsIgnoreCase(
@@ -898,6 +954,16 @@ public class SCIMUserManager implements UserManager {
      */
     @Override
     public Group patchGroup(Group oldGroup, Group newGroup) throws CharonException {
+
+        //if operating in dumb mode, do not persist the operation, only provision to providers
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
+            if (log.isDebugEnabled()) {
+                log.debug("This instance is operating in dumb mode. " +
+                          "Hence, operation is not persisted, it will only be provisioned.");
+            }
+            this.provision(ProvisioningOperation.PATCH, newGroup);
+            return newGroup;
+        }
         try {
             String userStoreDomainFromSP = getUserStoreDomainFromSP();
             if (userStoreDomainFromSP != null && !userStoreDomainFromSP
@@ -1068,6 +1134,16 @@ public class SCIMUserManager implements UserManager {
     @Override
     public void deleteGroup(String groupId) throws NotFoundException, CharonException {
 
+        //if operating in dumb mode, do not persist the operation, only provision to providers
+        if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
+            if (log.isDebugEnabled()) {
+                log.debug("This instance is operating in dumb mode. " +
+                          "Hence, operation is not persisted, it will only be provisioned.");
+            }
+            Group group = new Group();
+            group.setId(groupId);
+            this.provision(ProvisioningOperation.DELETE, group);
+        }else {
             if (log.isDebugEnabled()) {
                 log.debug("Deleting group: " + groupId);
             }
@@ -1084,7 +1160,7 @@ public class SCIMUserManager implements UserManager {
                     String userStoreDomainFromSP = null;
                     try {
                         userStoreDomainFromSP = getUserStoreDomainFromSP();
-                    }catch (IdentityApplicationManagementException e){
+                    } catch (IdentityApplicationManagementException e) {
                         throw new CharonException("Error retrieving User Store name. ", e);
                     }
                     if (userStoreDomainFromSP != null &&
@@ -1107,6 +1183,7 @@ public class SCIMUserManager implements UserManager {
             } catch (UserStoreException | IdentitySCIMException e) {
                 throw new CharonException("Error occurred while deleting group " + groupId, e);
             }
+        }
     }
 
     private User getSCIMMetaUser(String userName) throws CharonException {
@@ -1223,36 +1300,66 @@ public class SCIMUserManager implements UserManager {
         return groupHandler.getGroupWithAttributes(group, groupName);
     }
 
-
-    private void provision(ProvisioningOperation provisioningMethod, SCIMObject provisioningObject) throws CharonException {
+    /**
+     * SCIM dumb mode provisioning flaw start from this method
+     *
+     * @param provisioningMethod
+     * @param provisioningObject
+     * @throws CharonException
+     */
+    private void provision(ProvisioningOperation provisioningMethod, SCIMObject provisioningObject)
+            throws CharonException {
 
         String domainName = UserCoreUtil.getDomainName(carbonUM.getRealmConfiguration());
         try {
 
-            Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes = new HashMap<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>>();
+            Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> outboundAttributes =
+                    new HashMap();
 
-            if (provisioningObject.getAttribute("password") != null) {
-                outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                                IdentityProvisioningConstants.PASSWORD_CLAIM_URI, null, null, false),
-                        Arrays.asList(new String[]{((SimpleAttribute) provisioningObject.getAttribute("password"))
-                                .getStringValue()}));
+            ProvisioningEntity provisioningEntity = null;
+            ProvisioningEntityBuilder provisioningEntityBuilder = ProvisioningEntityBuilder.getInstance();
+            if (provisioningObject instanceof User) {
+                User user = (User) provisioningObject;
+                if (ProvisioningOperation.POST.equals(provisioningMethod)) {
+                    provisioningEntity =
+                            provisioningEntityBuilder
+                                    .buildProvisioningEntityForUserAdd(provisioningObject, outboundAttributes,
+                                                                       domainName);
+                } else if (ProvisioningOperation.DELETE.equals(provisioningMethod)) {
+                    provisioningEntity = provisioningEntityBuilder
+                            .buildProvisioningEntityForUserDelete(provisioningObject, outboundAttributes,
+                                                                  domainName);
+                } else if (ProvisioningOperation.PUT.equals(provisioningMethod)) {
+                    provisioningEntity = provisioningEntityBuilder
+                            .buildProvisioningEntityForUserUpdate(provisioningObject, outboundAttributes,
+                                                                  domainName);
+                } else if (ProvisioningOperation.PATCH.equals(provisioningMethod)) {
+                    provisioningEntity = provisioningEntityBuilder
+                            .buildProvisioningEntityForUserPatch(provisioningObject, outboundAttributes,
+                                                                 domainName);
+                }
+            } else if (provisioningObject instanceof Group) {
+                Group group = (Group) provisioningObject;
+                if (ProvisioningOperation.POST.equals(provisioningMethod)) {
+                    provisioningEntity = provisioningEntityBuilder
+                            .buildProvisioningEntityForGroupAdd(provisioningObject, outboundAttributes,
+                                                                domainName);
+                } else if (ProvisioningOperation.DELETE.equals(provisioningMethod)) {
+                    provisioningEntity = provisioningEntityBuilder
+                            .buildProvisioningEntityForGroupDelete(provisioningObject, outboundAttributes,
+                                                                   domainName);
+                } else if (ProvisioningOperation.PUT.equals(provisioningMethod)) {
+                    provisioningEntity = provisioningEntityBuilder
+                            .buildProvisioningEntityForGroupUpdate(provisioningObject, outboundAttributes,
+                                                                   domainName);
+                } else if (ProvisioningOperation.PATCH.equals(provisioningMethod)) {
+                    provisioningEntity =
+                            provisioningEntityBuilder
+                                    .buildProvisioningEntityForGroupPatch(provisioningObject, outboundAttributes,
+                                                                          domainName);
+                }
             }
 
-            if (provisioningObject.getAttribute(USER_NAME_STRING) != null) {
-                outboundAttributes.put(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
-                                IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null, false),
-                        Arrays.asList(new String[]{((SimpleAttribute) provisioningObject.getAttribute(USER_NAME_STRING))
-                                .getStringValue()}));
-            }
-
-            String domainAwareName = UserCoreUtil.addDomainToName(provisioningObject.getAttribute(USER_NAME_STRING).getName
-                    (), domainName);
-            ProvisioningEntity provisioningEntity = new ProvisioningEntity(
-                    ProvisioningEntityType.USER, domainAwareName, provisioningMethod,
-                    outboundAttributes);
-            Map<String, String> inboundAttributes = AttributeMapper.getClaimsMap((AbstractSCIMObject) provisioningObject);
-
-            provisioningEntity.setInboundAttributes(inboundAttributes);
             String tenantDomainName = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
             ThreadLocalProvisioningServiceProvider threadLocalServiceProvider;
@@ -1266,9 +1373,10 @@ public class SCIMUserManager implements UserManager {
                 if (threadLocalServiceProvider.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
                     try {
                         serviceProvider = ApplicationManagementService.getInstance()
-                                .getServiceProviderNameByClientId(
-                                        threadLocalServiceProvider.getServiceProviderName(),
-                                        "oauth2", tenantDomainName);
+                                                                      .getServiceProviderNameByClientId(
+                                                                              threadLocalServiceProvider
+                                                                                      .getServiceProviderName(),
+                                                                              "oauth2", tenantDomainName);
                     } catch (IdentityApplicationManagementException e) {
                         log.error("Error while provisioning", e);
                         return;
@@ -1277,19 +1385,24 @@ public class SCIMUserManager implements UserManager {
 
                 // call framework method to provision the user.
                 OutboundProvisioningManager.getInstance().provision(provisioningEntity,
-                        serviceProvider, threadLocalServiceProvider.getClaimDialect(),
-                        tenantDomainName, threadLocalServiceProvider.isJustInTimeProvisioning());
+                                                                    serviceProvider,
+                                                                    threadLocalServiceProvider.getClaimDialect(),
+                                                                    tenantDomainName, threadLocalServiceProvider
+                        .isJustInTimeProvisioning());
             } else {
                 // call framework method to provision the user.
                 OutboundProvisioningManager.getInstance()
-                        .provision(provisioningEntity, ApplicationConstants.LOCAL_SP,
-                                DefaultInboundUserProvisioningListener.WSO2_CARBON_DIALECT, tenantDomainName, false);
+                                           .provision(provisioningEntity, ApplicationConstants.LOCAL_SP,
+                                                      DefaultInboundUserProvisioningListener.WSO2_CARBON_DIALECT,
+                                                      tenantDomainName, false);
             }
 
         } catch (NotFoundException e) {
             throw new CharonException("Failed to find resource in external user store.", e);
         } catch (IdentityProvisioningException e) {
             throw new CharonException("Error while provisioning to externaluser store in dumb mode.", e);
+        } catch (IdentityApplicationManagementException e) {
+            throw new CharonException("Could not find dumb mode provisioned entity in DB.", e);
         }
     }
 
@@ -1353,5 +1466,29 @@ public class SCIMUserManager implements UserManager {
             userMembers.put(membersId.get(i), membersDisplayNames.get(i));
         }
         return userMembers;
+    }
+
+
+
+    private ServiceProvider getServiceProvider(boolean isBulkUserAdd) throws CharonException {
+
+        ThreadLocalProvisioningServiceProvider threadLocalSP = IdentityApplicationManagementUtil
+                .getThreadLocalProvisioningServiceProvider();
+        //isBulkUserAdd is true indicates bulk user add
+        if (isBulkUserAdd) {
+            threadLocalSP.setBulkUserAdd(true);
+        }
+        try {
+            if (threadLocalSP.getServiceProviderType() == ProvisioningServiceProviderType.OAUTH) {
+                return ApplicationManagementService.getInstance().getServiceProviderByClientId(
+                                                           threadLocalSP.getServiceProviderName(),
+                                                           "oauth2", threadLocalSP.getTenantDomain());
+            } else {
+                return ApplicationManagementService.getInstance().getServiceProvider(
+                        threadLocalSP.getServiceProviderName(), threadLocalSP.getTenantDomain());
+            }
+        } catch (IdentityApplicationManagementException e) {
+            throw new CharonException("Error retrieving Service Provider. ", e);
+        }
     }
 }

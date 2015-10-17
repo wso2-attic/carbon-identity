@@ -316,8 +316,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             // update basic information of the application.
             // you can change application name, description, isSasApp...
-            updateBasicApplicationData(applicationId, serviceProvider.getApplicationName(),
-                    serviceProvider.getDescription(), serviceProvider.isSaasApp(), connection);
+            updateBasicApplicationData(serviceProvider, connection);
             updateInboundProvisioningConfiguration(applicationId,
                     serviceProvider.getInboundProvisioningConfig(), connection);
 
@@ -378,19 +377,19 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     }
 
     /**
-     * @param applicationId
-     * @param applicationName
-     * @param description
+     * @param serviceProvider
      * @param connection
      * @throws SQLException
      * @throws UserStoreException
      * @throws IdentityApplicationManagementException
      */
 
-    private void updateBasicApplicationData(int applicationId, String applicationName,
-                                            String description, boolean isSaasApp, Connection connection) throws SQLException, UserStoreException,
+    private void updateBasicApplicationData(ServiceProvider serviceProvider, Connection connection) throws SQLException, UserStoreException,
             IdentityApplicationManagementException {
-
+        int applicationId = serviceProvider.getApplicationID();
+        String applicationName = serviceProvider.getApplicationName();
+        String description = serviceProvider.getDescription();
+        boolean isSaasApp = serviceProvider.isSaasApp();
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String storedAppName = null;
 
@@ -434,8 +433,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             storeAppPrepStmt.setString(1, applicationName);
             storeAppPrepStmt.setString(2, description);
             storeAppPrepStmt.setString(3, isSaasApp ? "1" : "0");
-            storeAppPrepStmt.setInt(4, tenantID);
-            storeAppPrepStmt.setInt(5, applicationId);
+            storeAppPrepStmt.setInt(5, tenantID);
+            storeAppPrepStmt.setInt(6, applicationId);
             storeAppPrepStmt.executeUpdate();
 
         } finally {
@@ -542,12 +541,13 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             }
 
             inboundProConfigPrepStmt = connection
-                    .prepareStatement(ApplicationMgtDBQueries.UPDATE_BASIC_APPINFO_WITH_PRO_USERSTORE);
+                    .prepareStatement(ApplicationMgtDBQueries.UPDATE_BASIC_APPINFO_WITH_PRO_PROPERTIES);
 
             // PROVISIONING_USERSTORE_DOMAIN=?
             inboundProConfigPrepStmt.setString(1, inBoundProvisioningConfig.getProvisioningUserStore());
-            inboundProConfigPrepStmt.setInt(2, tenantID);
-            inboundProConfigPrepStmt.setInt(3, applicationId);
+            inboundProConfigPrepStmt.setString(2, inBoundProvisioningConfig.isDumbMode() ? "1" : "0");
+            inboundProConfigPrepStmt.setInt(3, tenantID);
+            inboundProConfigPrepStmt.setInt(4, applicationId);
             inboundProConfigPrepStmt.execute();
 
         } finally {
@@ -639,7 +639,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         try {
 
             inboundProConfigPrepStmt = connection
-                    .prepareStatement(ApplicationMgtDBQueries.LOAD_PRO_USERSTORE_BY_APP_ID);
+                    .prepareStatement(ApplicationMgtDBQueries.LOAD_PRO_PROPERTIES_BY_APP_ID);
             // PROVISIONING_USERSTORE_DOMAIN
             inboundProConfigPrepStmt.setInt(1, tenantID);
             inboundProConfigPrepStmt.setInt(2, applicationId);
@@ -647,6 +647,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             while (resultSet.next()) {
                 inBoundProvisioningConfig.setProvisioningUserStore(resultSet.getString(1));
+                inBoundProvisioningConfig.setDumbMode("1".equals(resultSet.getString(2)));
             }
 
         } finally {

@@ -694,6 +694,10 @@ var roleMappinRowID = -1;
 		}
 	}
     
+    function disable() {
+        document.getElementById("scim-inbound-userstore").disabled =!document.getElementById("scim-inbound-userstore").disabled;
+        document.getElementById("dumb").value = document.getElementById("scim-inbound-userstore").disabled;
+    }
 </script>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources">
@@ -1519,7 +1523,7 @@ var roleMappinRowID = -1;
                   </td></tr>
                    <tr>
                         <td >
-                          <select style="min-width: 250px;" id="scim-inbound-userstore" name="scim-inbound-userstore">
+                          <select style="min-width: 250px;" id="scim-inbound-userstore" name="scim-inbound-userstore" <%=appBean.getServiceProvider().getDumbMode() ? "disabled" : "" %>>
                           		<option value="">---Select---</option>
                                 <%
                                     if(userStoreDomains != null && userStoreDomains.length > 0){
@@ -1544,6 +1548,11 @@ var roleMappinRowID = -1;
                           <div class="sectionHelp">
                                 <fmt:message key='help.inbound.scim'/>
                             </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="dumb" id="dumb" value="false" onclick ="disable()" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getIsDumbMode() ? "checked" : "" %>>Enable Dumb Mode<br>
                         </td>
                     </tr>
                     </table>
