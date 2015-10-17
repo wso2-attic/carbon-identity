@@ -76,8 +76,28 @@ public class ApplicationIdentityProviderMgtListener extends AbstractIdentityProv
                             FederatedAuthenticatorConfig currentDefaultAuthenticatorConfig = identityProvider
                                     .getDefaultAuthenticatorConfig();
                             fedIdp.setDefaultAuthenticatorConfig(currentDefaultAuthenticatorConfig);
+                            IdentityProvider[] federatedIdentityProviders = new IdentityProvider[1];
+                            federatedIdentityProviders[0] = fedIdp;
+                            authSteps[0].setFederatedIdentityProviders(federatedIdentityProviders);
+                            localAndOutboundAuthConfig.setAuthenticationSteps(authSteps);
+                            serviceProvider.setLocalAndOutBoundAuthenticationConfig(localAndOutboundAuthConfig);
                             ApplicationMgtSystemConfig.getInstance().getApplicationDAO()
                                     .updateApplication(serviceProvider, tenantDomain);
+                        }
+                    }
+                } else if (authSteps.length >= 1) {
+                    //Check whether the selected authenticator option in multi step authentication, is disabled in the updated Idp
+                    FederatedAuthenticatorConfig[] idpFederatedConfig = identityProvider.getFederatedAuthenticatorConfigs();
+                    for (AuthenticationStep authStep : authSteps) {
+                        IdentityProvider[] federatedIdentityProviders = authStep.getFederatedIdentityProviders();
+                        for (IdentityProvider federatedIdp : federatedIdentityProviders) {
+                            FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = federatedIdp.getFederatedAuthenticatorConfigs();
+                            String federatedConfigOption = federatedAuthenticatorConfigs[0].getName();
+                            for (FederatedAuthenticatorConfig config : idpFederatedConfig) {
+                                if (config.getName().equals(federatedConfigOption) && !config.isEnabled()) {
+                                    throw new IdentityProviderManagementException(config.getName() + " is selected in a Service Provider");
+                                }
+                            }
                         }
                     }
                 }
