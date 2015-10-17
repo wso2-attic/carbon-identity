@@ -114,7 +114,6 @@
 			<Parameter name="AuthnEndpoint">http://www.facebook.com/dialog/oauth</Parameter>
 			<Parameter name="UserInfoEndpoint">https://graph.facebook.com/me</Parameter>
 		</AuthenticatorConfig>
-		</AuthenticatorConfig>
 		<AuthenticatorConfig  name="FIDOAuthenticator" enabled="true">
 			<Parameter name="FidoAuth">/authenticationendpoint/fido-auth.jsp</Parameter>
 		</AuthenticatorConfig>
