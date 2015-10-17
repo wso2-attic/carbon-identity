@@ -2484,6 +2484,39 @@ public class IdPManagementDAO {
         }
     }
 
+    public boolean isIdPAvailableForAuthenticatorProperty(String authenticatorName, String propertyName, String idPEntityId, int tenantId)
+            throws IdentityProviderManagementException {
+        boolean isAvailable = false;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        try {
+            String sqlStmt = IdPManagementConstants.SQLQueries.GET_SIMILAR_IDP_ENTITIY_IDS;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, propertyName);
+            prepStmt.setString(2, idPEntityId);
+            prepStmt.setInt(3, tenantId);
+            prepStmt.setString(4, authenticatorName);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                isAvailable = rs.getInt(1) > 0;
+            }
+            dbConnection.commit();
+        } catch (SQLException e) {
+            throw new IdentityProviderManagementException("Error occurred while searching for similar IdP EntityIds", e);
+        } finally {
+            if (prepStmt != null) {
+                IdentityApplicationManagementUtil.closeStatement(prepStmt);
+            }
+            if (rs != null) {
+                IdentityApplicationManagementUtil.closeResultSet(rs);
+            }
+            IdentityApplicationManagementUtil.closeConnection(dbConnection);
+        }
+        return isAvailable;
+    }
+
     private int getAuthenticatorIdentifier(Connection dbConnection, int idPId, String authnType)
             throws SQLException, IdentityProviderManagementException {
 
@@ -2506,37 +2539,5 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.closeResultSet(rs);
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
         }
-    }
-
-    public boolean isSimilarIdPEntityIdsAvailble(String idPEntityId, int tenantId)
-            throws IdentityProviderManagementException {
-        boolean isAvailable = false;
-        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-
-        try {
-            String sqlStmt = IdPManagementConstants.SQLQueries.GET_SIMILAR_IDP_ENTITIY_IDS;
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, "IdPEntityId");
-            prepStmt.setString(2, idPEntityId);
-            prepStmt.setInt(3, tenantId);
-            rs = prepStmt.executeQuery();
-            if (rs.next()) {
-                isAvailable = rs.getInt(1) > 0;
-            }
-            dbConnection.commit();
-        } catch (SQLException e) {
-            throw new IdentityProviderManagementException("Error occurred while searching for similar IdP EntityIds", e);
-        } finally {
-            if (prepStmt != null) {
-                IdentityApplicationManagementUtil.closeStatement(prepStmt);
-            }
-            if (rs != null) {
-                IdentityApplicationManagementUtil.closeResultSet(rs);
-            }
-            IdentityApplicationManagementUtil.closeConnection(dbConnection);
-        }
-        return isAvailable;
     }
 }
