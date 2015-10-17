@@ -44,6 +44,8 @@ public class AccessTokenDO extends CacheEntry {
 
     private String authorizationCode;
 
+    private String grantType;
+
     private Timestamp issuedTime;
 
     private Timestamp refreshTokenIssuedTime;
@@ -209,5 +211,13 @@ public class AccessTokenDO extends CacheEntry {
 
     public void setAuthorizationCode(String authorizationCode) {
         this.authorizationCode = authorizationCode;
+    }
+
+    public String getGrantType() {
+        return grantType;
+    }
+
+    public void setGrantType(String grantType) {
+        this.grantType = grantType;
     }
 }
