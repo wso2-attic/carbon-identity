@@ -118,7 +118,7 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
             throws AuthenticationFailedException {
         String iwaURL = null;
         try {
-            iwaURL = IdentityUtil.getServerURL(IWAConstants.IWA_AUTH_EP) + "?" + IWAConstants.IWA_PARAM_STATE + "=" +
+            iwaURL = IdentityUtil.getServerURL(IWAConstants.IWA_AUTH_EP, true) + "?" + IWAConstants.IWA_PARAM_STATE + "=" +
                      URLEncoder.encode(ctx, IWAConstants.UTF_8);
             response.sendRedirect(response.encodeRedirectURL(iwaURL));
         } catch (IOException e) {

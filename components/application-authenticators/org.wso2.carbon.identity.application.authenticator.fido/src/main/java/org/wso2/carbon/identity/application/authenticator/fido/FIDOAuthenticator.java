@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.application.authenticator.fido;
 
 import com.yubico.u2f.data.messages.AuthenticateRequestData;
 import com.yubico.u2f.data.messages.AuthenticateResponse;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
@@ -34,6 +35,7 @@ import org.wso2.carbon.identity.application.authenticator.fido.dto.FIDOUser;
 import org.wso2.carbon.identity.application.authenticator.fido.u2f.U2FService;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.fido.util.FIDOUtil;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.user.core.UserCoreConstants;
 
@@ -115,8 +117,13 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
         U2FService u2FService = U2FService.getInstance();
         try {
             //authentication page's URL.
-            String loginPage = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
-            loginPage = loginPage.replace("login.do", "authentication.jsp");
+            String loginPage;
+            loginPage = context.getAuthenticatorProperties().get(IdentityApplicationConstants.Authenticator.FIDO
+                    .FIDO_AUTH);
+            if (StringUtils.isBlank(loginPage)){
+                loginPage = ConfigurationFacade.getInstance().getAuthenticationEndpointURL().replace("login.do",
+                        "fido-auth.jsp");
+            }
             //username from basic authenticator.
             AuthenticatedUser user = getUsername(context);
             //origin as appID eg.: http://example.com:8080
@@ -126,14 +133,12 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
             AuthenticateRequestData data = u2FService.startAuthentication(fidoUser);
             //redirect to FIDO login page
             if (data != null) {
-
-
                 response.sendRedirect(response.encodeRedirectURL(loginPage + ("?"))
                         + "&authenticators=" + getName() + ":" + "LOCAL" + "&type=fido&sessionDataKey=" +
                         request.getParameter("sessionDataKey") +
                         "&data=" + data.toJson());
             } else {
-                String redirectURL = loginPage.replace("authentication.jsp", "retry.do");
+                String redirectURL = ConfigurationFacade.getInstance().getAuthenticationEndpointRetryURL();
                 redirectURL = response.encodeRedirectURL(redirectURL + ("?")) + "&failedUsername=" + URLEncoder.encode(user.getUserName(), IdentityCoreConstants.UTF_8) +
                         "&statusMsg=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_ERROR_MESSAGE, IdentityCoreConstants.UTF_8) +
                         "&status=" + URLEncoder.encode(FIDOAuthenticatorConstants.AUTHENTICATION_STATUS, IdentityCoreConstants.UTF_8);

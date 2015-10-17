@@ -146,19 +146,19 @@ public class ApplicationMgtDBQueries {
     // DELETE query - Oauth
     public static final String REMOVE_OAUTH_APPLICATION = "DELETE FROM IDN_OAUTH_CONSUMER_APPS WHERE CONSUMER_KEY=?";
 
-    public static final String LOAD_IDP_AUTHENTICATOR_ID = "SELECT A.ID FROM IDP_AUTHENTICATOR A JOIN IDP B ON A.IDP_ID"
-            +
-            "= B" +
-            ".ID WHERE A.NAME =? AND B.NAME=? AND ((A.TENANT_ID =? AND B.TENANT_ID =?) OR (B.TENANT_ID=? AND B" +
-            ".NAME LIKE 'SHARED_%'))";
+    public static final String LOAD_IDP_AUTHENTICATOR_ID = "SELECT A.ID FROM IDP_AUTHENTICATOR A JOIN IDP B ON A" +
+            ".IDP_ID= B.ID WHERE A.NAME =? AND B.NAME=? AND ((A.TENANT_ID =? AND B.TENANT_ID =?) OR (B.TENANT_ID=? " +
+            "AND B.NAME LIKE 'SHARED_%'))";
     public static final String LOAD_IDP_AND_AUTHENTICATOR_NAMES = "SELECT A.NAME, B.NAME, " +
             "B.DISPLAY_NAME FROM IDP A JOIN IDP_AUTHENTICATOR B ON A.ID = B.IDP_ID WHERE B.ID =? AND ((A.TENANT_ID =?" +
             " AND B.TENANT_ID =?) OR  (A.TENANT_ID=? AND A.NAME LIKE 'SHARED_%' AND B.TENANT_ID=?))";
     public static final String STORE_LOCAL_AUTHENTICATOR = "INSERT INTO IDP_AUTHENTICATOR (TENANT_ID, IDP_ID, NAME," +
             "IS_ENABLED, DISPLAY_NAME) VALUES (?, (SELECT ID FROM IDP WHERE IDP.NAME=? AND IDP.TENANT_ID =?), ?, ?, ?)";
 
-    public static final String GET_SP_METADATA_BY_SP_ID = "SELECT ID, NAME, VALUE, DISPLAY_NAME FROM SP_METADATA WHERE SP_ID = ?";
-    public static final String ADD_SP_METADATA = "INSERT INTO SP_METADATA (SP_ID, NAME, VALUE, DISPLAY_NAME) VALUES (?, ?, ?, ?)";
+    public static final String GET_SP_METADATA_BY_SP_ID = "SELECT ID, NAME, VALUE, DISPLAY_NAME FROM SP_METADATA " +
+            "WHERE SP_ID = ?";
+    public static final String ADD_SP_METADATA = "INSERT INTO SP_METADATA (SP_ID, NAME, VALUE, DISPLAY_NAME, " +
+            "TENANT_ID) VALUES (?, ?, ?, ?, ?)";
     public static final String DELETE_SP_METADATA = "DELETE FROM SP_METADATA WHERE SP_ID = ?";
 
 

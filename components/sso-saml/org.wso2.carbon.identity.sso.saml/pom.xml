@@ -106,7 +106,7 @@
                             javax.cache,
                             javax.crypto.*,
                             javax.net.ssl,
-                            javax.xml.parsers,
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
                             javax.xml.namespace,
                             javax.security.auth.x500,
                             javax.servlet; version="${imp.pkg.version.javax.servlet}",

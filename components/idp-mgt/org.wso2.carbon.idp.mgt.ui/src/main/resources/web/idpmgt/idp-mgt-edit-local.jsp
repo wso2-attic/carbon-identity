@@ -52,6 +52,7 @@
     String tokenUrl = null;
     String userInfoUrl = null;
     String passiveSTSUrl = null;
+    String passivestsIdPEntityId = null;
     String stsUrl = null;
     String sessionIdleTimeout = null;
     String rememberMeTimeout = null;
@@ -92,6 +93,8 @@
         } else if(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME.equals(federatedAuthenticator.getName())){
             passiveSTSUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL).getValue();
+            passivestsIdPEntityId = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID).getValue();
         } else if(IdentityApplicationConstants.Authenticator.WSTrust.NAME.equals(federatedAuthenticator.getName())){
             stsUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.WSTrust.IDENTITY_PROVIDER_URL).getValue();
@@ -458,6 +461,16 @@ jQuery(document).ready(function(){
             		</h2>
             		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="passivestsconfig">
                     <table class="carbonFormTable">
+                        <tr>
+                            <td class="leftCol-med labelField"><fmt:message key='idp.entity.id'/>:</td>
+                            <td>
+                                <input id="passiveSTSIdPEntityId" name="passiveSTSIdPEntityId" type="text" value="<%=Encode.forHtmlAttribute(passivestsIdPEntityId)%>"/>
+                                <div class="sectionHelp">
+                                    <fmt:message key='idp.entity.id.help'/>
+                                </div>
+                            </td>
+                        </tr>
+
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='passive.sts.url'/>:</td>
                             <td><%=Encode.forHtmlContent(passiveSTSUrl)%></td>

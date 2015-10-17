@@ -564,7 +564,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
             authRequest.setProtocolBinding(SAMLConstants.SAML2_POST_BINDING_URI);
         }
 
-        String acsUrl =  IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
+        String acsUrl =  IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
 
         authRequest.setAssertionConsumerServiceURL(acsUrl);
         authRequest.setIssuer(issuer);

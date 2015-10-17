@@ -25,9 +25,7 @@
         <parameter name="ServiceClass" locked="false">
             org.wso2.carbon.identity.user.account.association.UserAccountAssociationService
         </parameter>
-        <parameter name="AuthorizationAction" locked="true">
-            /permission/admin/login
-        </parameter>
+        <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
     </service>
     <parameter name="adminService" locked="true">true</parameter>
     <parameter name="hiddenService" locked="true">false</parameter>

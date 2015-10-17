@@ -49,7 +49,7 @@ public class OAuth2Parameters implements Serializable {
     }
 
     public void setApplicationName(String applicationName) {
-        this.applicationName = OAuth2Util.getSafeText(applicationName);
+        this.applicationName = applicationName;
     }
 
     public String getRedirectURI() {
@@ -57,7 +57,7 @@ public class OAuth2Parameters implements Serializable {
     }
 
     public void setRedirectURI(String redirectURI) {
-        this.redirectURI = OAuth2Util.getSafeText(redirectURI);
+        this.redirectURI = redirectURI;
     }
 
     public Set<String> getScopes() {
@@ -73,7 +73,7 @@ public class OAuth2Parameters implements Serializable {
     }
 
     public void setState(String state) {
-        this.state = OAuth2Util.getSafeText(state);
+        this.state = state;
     }
 
     public String getResponseType() {
@@ -81,7 +81,7 @@ public class OAuth2Parameters implements Serializable {
     }
 
     public void setResponseType(String responseType) {
-        this.responseType = OAuth2Util.getSafeText(responseType);
+        this.responseType = responseType;
     }
 
     public String getClientId() {
@@ -89,7 +89,7 @@ public class OAuth2Parameters implements Serializable {
     }
 
     public void setClientId(String clientId) {
-        this.clientId = OAuth2Util.getSafeText(clientId);
+        this.clientId = clientId;
     }
 
     /**
@@ -103,7 +103,7 @@ public class OAuth2Parameters implements Serializable {
      * @param nonce the nonce to set
      */
     public void setNonce(String nonce) {
-        this.nonce = OAuth2Util.getSafeText(nonce);
+        this.nonce = nonce;
     }
 
     /**
@@ -117,7 +117,7 @@ public class OAuth2Parameters implements Serializable {
      * @param display the display to set
      */
     public void setDisplay(String display) {
-        this.display = OAuth2Util.getSafeText(display);
+        this.display = display;
     }
 
     /**
@@ -131,7 +131,7 @@ public class OAuth2Parameters implements Serializable {
      * @param prompt the prompt to set
      */
     public void setPrompt(String prompt) {
-        this.prompt = OAuth2Util.getSafeText(prompt);
+        this.prompt = prompt;
     }
 
     /**
@@ -145,7 +145,7 @@ public class OAuth2Parameters implements Serializable {
      * @param id_token_hint the id_token_hint to set
      */
     public void setIDTokenHint(String id_token_hint) {
-        this.id_token_hint = OAuth2Util.getSafeText(id_token_hint);
+        this.id_token_hint = id_token_hint;
     }
 
     /**
@@ -159,7 +159,7 @@ public class OAuth2Parameters implements Serializable {
      * @param login_hint the login_hint to set
      */
     public void setLoginHint(String login_hint) {
-        this.login_hint = OAuth2Util.getSafeText(login_hint);
+        this.login_hint = login_hint;
     }
 
     public LinkedHashSet getACRValues() {

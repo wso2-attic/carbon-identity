@@ -32,7 +32,6 @@ import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.RequestAbstractType;
 import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.core.impl.AuthnRequestImpl;
 import org.opensaml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
@@ -974,20 +973,7 @@ public class SAMLSSOUtil {
 
         if (!authnReqDTO.isIdPInitSSOEnabled()) {
 
-            AuthnRequestImpl request = null;
-
-            try {
-                request = (AuthnRequestImpl) SAMLSSOUtil.unmarshall(SAMLSSOUtil.decode(authnReqDTO
-                        .getRequestMessageString()));
-            } catch (IdentityException e) {
-                request = (AuthnRequestImpl) SAMLSSOUtil.unmarshall(SAMLSSOUtil
-                        .decodeForPost(authnReqDTO.getRequestMessageString()));
-                if (log.isDebugEnabled()) {
-                    log.debug("Error while decoding authentication request.", e);
-                }
-            }
-
-            if (request.getAttributeConsumingServiceIndex() == null) {
+            if ( authnReqDTO.getAttributeConsumingServiceIndex() == 0) {
                 //SP has not provide a AttributeConsumingServiceIndex in the authnReqDTO
                 if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
                     if (spDO.isEnableAttributesByDefault()) {
@@ -1000,7 +986,7 @@ public class SAMLSSOUtil {
                 }
             } else {
                 //SP has provide a AttributeConsumingServiceIndex in the authnReqDTO
-                index = request.getAttributeConsumingServiceIndex();
+                index = authnReqDTO.getAttributeConsumingServiceIndex();
             }
         } else {
             if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
@@ -1298,5 +1284,24 @@ public class SAMLSSOUtil {
         } finally {
             deflaterOutputStream.close();
         }
+    }
+
+    public static String getNotificationEndpoint(){
+        String redirectURL = IdentityUtil.getProperty(IdentityConstants.ServerConfig
+                .NOTIFICATION_ENDPOINT);
+        if (StringUtils.isBlank(redirectURL)){
+            redirectURL = IdentityUtil.getServerURL(SAMLSSOConstants.NOTIFICATION_ENDPOINT, false);
+        }
+        return redirectURL;
+    }
+
+    public static String getDefaultLogoutEndpoint(){
+        String defaultLogoutLocation = IdentityUtil.getProperty(IdentityConstants.ServerConfig
+                .DEFAULT_LOGOUT_ENDPOINT);
+        if (StringUtils.isBlank(defaultLogoutLocation)){
+            defaultLogoutLocation = IdentityUtil.getServerURL(SAMLSSOConstants
+                    .DEFAULT_LOGOUT_ENDPOINT, false);
+        }
+        return defaultLogoutLocation;
     }
 }

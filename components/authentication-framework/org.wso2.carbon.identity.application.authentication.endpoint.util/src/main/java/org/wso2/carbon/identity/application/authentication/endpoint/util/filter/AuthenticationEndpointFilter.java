@@ -22,7 +22,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.endpoint.util.AuthenticationEndpointUtil;
-import org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.authentication.endpoint.util.Constants;
 
 import javax.servlet.Filter;
@@ -88,7 +87,7 @@ public class AuthenticationEndpointFilter implements Filter {
                 ((HttpServletRequest) servletRequest).getContextPath().length());
         if (StringUtils.isNotBlank(serviceProviderName)) {
             appSpecificCustomPageConfigKey = AuthenticationEndpointUtil.getApplicationSpecificCustomPageConfigKey
-                    (CharacterEncoder.getSafeText(serviceProviderName), relativePath);
+                    (serviceProviderName, relativePath);
         }
 
         if (appSpecificCustomPageConfigKey != null) {
@@ -116,15 +115,14 @@ public class AuthenticationEndpointFilter implements Filter {
         }
 
         if (((HttpServletRequest) servletRequest).getRequestURI().contains(URI_LOGIN)) {
-            String hrdParam = CharacterEncoder.getSafeText(servletRequest.getParameter(REQUEST_PARAM_HRD));
+            String hrdParam = servletRequest.getParameter(REQUEST_PARAM_HRD);
             if (hrdParam != null && "true".equalsIgnoreCase(hrdParam)) {
                 servletRequest.getRequestDispatcher("domain.jsp").forward(servletRequest, servletResponse);
                 return;
             }
 
             Map<String, String> idpAuthenticatorMapping = new HashMap<String, String>();
-            String authenticators = CharacterEncoder.getSafeText(
-                    servletRequest.getParameter(REQUEST_PARAM_AUTHENTICATORS));
+            String authenticators = servletRequest.getParameter(REQUEST_PARAM_AUTHENTICATORS);
             if (authenticators != null) {
                 String[] authenticatorIdPMappings = authenticators.split(";");
                 for (String authenticatorIdPMapping : authenticatorIdPMappings) {
@@ -146,7 +144,7 @@ public class AuthenticationEndpointFilter implements Filter {
             }
 
             String loadPage;
-            String protocolType = CharacterEncoder.getSafeText(servletRequest.getParameter(REQUEST_PARAM_TYPE));
+            String protocolType = servletRequest.getParameter(REQUEST_PARAM_TYPE);
             if (SAMLSSO.equals(protocolType)) {
                 loadPage = URI_SAMLSSO_LOGIN;
             } else if (OPENID.equals(protocolType)) {
@@ -156,7 +154,7 @@ public class AuthenticationEndpointFilter implements Filter {
             } else if (OAUTH2.equals(protocolType) || OIDC.equals(protocolType)) {
                 loadPage = URI_OAUTH2_LOGIN;
             } else if (FIDO.equals(protocolType)) {
-                loadPage = "authentication.jsp";
+                loadPage = "fido-auth.jsp";
             } else {
                 loadPage = "login.jsp";
             }
