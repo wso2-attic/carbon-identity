@@ -44,7 +44,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         oAuthEndpoint = getAuthenticatorConfig()
                 .getParameterMap()
-                .get(YahooOAuth2AuthenticatorConstants.YAHOO_OAUTH2_ENDPOINT);
+                .get(YahooOAuth2AuthenticatorConstants.YAHOO_OAUTHZ_ENDPOINT);
 
         if(oAuthEndpoint == null) {
             oAuthEndpoint = IdentityApplicationConstants.YAHOO_OAUTH2_URL;
@@ -72,7 +72,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         userInfoURL = getAuthenticatorConfig()
                 .getParameterMap()
-                .get(YahooOAuth2AuthenticatorConstants.YAHOO_USERINFO_URL);
+                .get(YahooOAuth2AuthenticatorConstants.YAHOO_USERINFO_ENDPOINT);
 
         if(userInfoURL == null) {
             userInfoURL = IdentityApplicationConstants.YAHOO_USERINFO_URL;
@@ -146,12 +146,12 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * Get the user claim uri.
+     * Get the user info endpoint.
      * @param token OAuth client response.
-     * @return User claim uri.
+     * @return User info endpoint.
      */
     @Override
-    protected String getUserClaimUri(OAuthClientResponse token) {
+    protected String getUserInfoEndpoint(OAuthClientResponse token, Map<String, String> authenticatorProperties) {
 
         String userGUID = token.getParam(YahooOAuth2AuthenticatorConstants.USER_GUID);
         String url = getUserInfoURL()

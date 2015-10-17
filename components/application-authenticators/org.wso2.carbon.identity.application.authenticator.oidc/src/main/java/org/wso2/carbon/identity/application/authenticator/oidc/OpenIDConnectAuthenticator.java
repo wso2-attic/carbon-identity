@@ -132,26 +132,30 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     }
 
     /**
-     *
-     * @param token
-     * @return
+     * Get user info endpoint.
+     * @param token OAuthClientResponse
+     * @param authenticatorProperties Map<String, String>
+     * @return User info endpoint.
      */
-    protected String getUserClaimUri(OAuthClientResponse token) {
-        return null;
+    protected String getUserInfoEndpoint(OAuthClientResponse token, Map<String, String> authenticatorProperties) {
+        return authenticatorProperties.get(IdentityApplicationConstants.Authenticator.OIDC.USER_INFO_URL);
     }
 
     /**
-     * @param token
-     * @return
+     * Get subject attributes.
+     * @param token OAuthClientResponse
+     * @param authenticatorProperties Map<String, String>
+     * @return Map<ClaimMapping, String> Claim mappings.
      */
-    protected Map<ClaimMapping, String> getSubjectAttributes(OAuthClientResponse token) {
+    protected Map<ClaimMapping, String> getSubjectAttributes(OAuthClientResponse token,
+                                                             Map<String, String> authenticatorProperties) {
 
         Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
 
         try {
 
             String accessToken = token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
-            String url = getUserClaimUri(token);
+            String url = getUserInfoEndpoint(token, authenticatorProperties);
 
             String json = sendRequest(url, accessToken);
 
@@ -184,7 +188,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             }
 
         } catch (Exception e) {
-            log.error("Error occurred while accessing yahoo user info endpoint", e);
+            log.error("Error occurred while accessing user info endpoint", e);
         }
 
         return claims;
@@ -407,7 +411,8 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 } else {
                     AuthenticatedUser authenticatedUserObj = AuthenticatedUser
                             .createFederateAuthenticatedUserFromSubjectIdentifier(getAuthenticateUser(oAuthResponse));
-                    authenticatedUserObj.setUserAttributes(getSubjectAttributes(oAuthResponse));
+                    authenticatedUserObj.setUserAttributes(getSubjectAttributes(oAuthResponse,
+                            authenticatorProperties));
                     context.setSubject(authenticatedUserObj);
                 }
 
@@ -420,7 +425,13 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
         }
     }
 
-    private OAuthClientRequest getaccessRequest(String tokenEndPoint, String clientId, String code, String clientSecret, String callbackurl) throws AuthenticationFailedException {
+    private OAuthClientRequest getaccessRequest(String tokenEndPoint,
+                                                String clientId,
+                                                String code,
+                                                String clientSecret,
+                                                String callbackurl)
+            throws AuthenticationFailedException {
+
         OAuthClientRequest accessRequest = null;
         try {
             accessRequest = OAuthClientRequest.tokenLocation(tokenEndPoint)
@@ -437,7 +448,9 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
         return accessRequest;
     }
 
-    private OAuthClientResponse getOauthResponse(OAuthClient oAuthClient, OAuthClientRequest accessRequest) throws AuthenticationFailedException {
+    private OAuthClientResponse getOauthResponse(OAuthClient oAuthClient, OAuthClientRequest accessRequest)
+            throws AuthenticationFailedException {
+
         OAuthClientResponse oAuthResponse = null;
         try {
             oAuthResponse = oAuthClient.accessToken(accessRequest);

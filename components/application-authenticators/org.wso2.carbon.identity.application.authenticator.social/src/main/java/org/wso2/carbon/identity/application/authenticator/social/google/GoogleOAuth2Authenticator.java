@@ -189,12 +189,12 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * Get google user claim uri.
+     * Get google user info endpoint.
      * @param token OAuth client response.
-     * @return User claim uri.
+     * @return User info endpoint.
      */
     @Override
-    protected String getUserClaimUri(OAuthClientResponse token) {
+    protected String getUserInfoEndpoint(OAuthClientResponse token, Map<String, String> authenticatorProperties) {
 
         return token.getParam(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT);
     }
@@ -332,7 +332,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
                     Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
 
                     if (jsonObject != null) {
-                        Map<ClaimMapping, String> claims = getSubjectAttributes(oAuthResponse);
+                        Map<ClaimMapping, String> claims = getSubjectAttributes(oAuthResponse, authenticatorProperties);
 
                         String authenticatedUser = (String) jsonObject.get(OIDCAuthenticatorConstants.Claim.EMAIL);
                         AuthenticatedUser authenticatedUserObj = AuthenticatedUser

@@ -31,7 +31,6 @@ public class OIDCAuthenticatorConstants {
     public static final String OAUTH2_ERROR = "error";
 
     public static final String ACCESS_TOKEN = "access_token";
-    public static final String REFRESH_TOKEN = "refresh_token";
     public static final String ID_TOKEN = "id_token";
 
     public static final String CLIENT_ID = "ClientId";
