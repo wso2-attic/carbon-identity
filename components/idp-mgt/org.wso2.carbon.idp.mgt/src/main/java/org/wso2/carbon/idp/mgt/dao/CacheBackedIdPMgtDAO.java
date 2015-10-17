@@ -485,10 +485,10 @@ public class CacheBackedIdPMgtDAO {
      * @return
      * @throws IdentityProviderManagementException
      */
-    public boolean isIdPAvailableForAuthenticatorProperty(String authenticatorName, String idPEntityId, int tenantId)
+    public boolean isIdPAvailableForAuthenticatorProperty(String authenticatorName, String propertyName, String idPEntityId, int tenantId)
             throws IdentityProviderManagementException {
 
-        return idPMgtDAO.isIdPAvailableForAuthenticatorProperty(authenticatorName, idPEntityId, tenantId);
+        return idPMgtDAO.isIdPAvailableForAuthenticatorProperty(authenticatorName, propertyName, idPEntityId, tenantId);
     }
 
 }

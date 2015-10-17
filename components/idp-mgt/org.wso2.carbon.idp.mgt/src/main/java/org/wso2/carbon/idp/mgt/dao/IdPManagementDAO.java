@@ -2481,7 +2481,7 @@ public class IdPManagementDAO {
         }
     }
 
-    public boolean isIdPAvailableForAuthenticatorProperty(String authenticatorName, String idPEntityId, int tenantId)
+    public boolean isIdPAvailableForAuthenticatorProperty(String authenticatorName, String propertyName, String idPEntityId, int tenantId)
             throws IdentityProviderManagementException {
         boolean isAvailable = false;
         Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
@@ -2491,7 +2491,7 @@ public class IdPManagementDAO {
         try {
             String sqlStmt = IdPManagementConstants.SQLQueries.GET_SIMILAR_IDP_ENTITIY_IDS;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, "IdPEntityId");
+            prepStmt.setString(1, propertyName);
             prepStmt.setString(2, idPEntityId);
             prepStmt.setInt(3, tenantId);
             prepStmt.setString(4, authenticatorName);
