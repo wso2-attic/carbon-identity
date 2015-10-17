@@ -48,6 +48,22 @@ public class IdentityApplicationConstants {
 
     public static final String YAHOO_AUTHZ_URL = "https://me.yahoo.com/";
 
+    public static final String YAHOO_OAUTH2_URL = "https://api.login.yahoo.com/oauth2/request_auth";
+    public static final String YAHOO_TOKEN_URL = "https://api.login.yahoo.com/oauth2/get_token";
+    public static final String YAHOO_USERINFO_URL = "https://social.yahooapis.com/v1/user/";
+
+    public static final String SESSION_IDLE_TIME_OUT = "SessionIdleTimeout";
+    public static final String REMEMBER_ME_TIME_OUT = "RememberMeTimeout";
+    public static final String SESSION_IDLE_TIME_OUT_DEFAULT = "15";
+    public static final String REMEMBER_ME_TIME_OUT_DEFAULT = "20160";
+
+    public static final String NAME = "IDPProperties";
+    public static final String CLEAN_UP_TIMEOUT = "CleanUpTimeout";
+    public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
+    public static final String CLEAN_UP_PERIOD = "CleanUpPeriod";
+    public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
+    public static final String TIME_CONFIG = "TimeConfig";
+
     public static class ConfigElements {
         public static final String PROPERTIES = "Properties";
         public static final String PROPERTY = "Property";
@@ -123,6 +139,7 @@ public class IdentityApplicationConstants {
             public static final String NAME = "passivests";
             public static final String REALM_ID = "RealmId";
             public static final String IDENTITY_PROVIDER_URL = "IdentityProviderUrl";
+            public static final String IDENTITY_PROVIDER_ENTITY_ID = "IdPEntityId";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
 
             private PassiveSTS() {
@@ -153,20 +170,8 @@ public class IdentityApplicationConstants {
             }
         }
 
-        public static class IDPProperties {
-            public static final String NAME = "IDPProperties";
-            public static final String SESSION_IDLE_TIME_OUT = "SessionIdleTimeout";
-            public static final String SESSION_IDLE_TIME_OUT_DEFAULT = "15";
-            public static final String REMEMBER_ME_TIME_OUT = "RememberMeTimeout";
-            public static final String REMEMBER_ME_TIME_OUT_DEFAULT = "20160";
-            public static final String CLEAN_UP_TIMEOUT = "CleanUpTimeout";
-            public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
-            public static final String CLEAN_UP_PERIOD = "CleanUpPeriod";
-            public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
-            public static final String TIME_CONFIG = "TimeConfig";
-            private IDPProperties() {
-                throw new AssertionError("Must not initiate an object of IDPProperties class");
-            }
+        public static class FIDO{
+            public static final String FIDO_AUTH = "FidoAuth";
         }
 
     }

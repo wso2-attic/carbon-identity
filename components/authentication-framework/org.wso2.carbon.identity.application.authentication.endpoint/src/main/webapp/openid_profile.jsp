@@ -31,27 +31,22 @@
 %>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
-    <html lang="en">
+
+    <html>
     <head>
         <meta charset="utf-8">
-        <title>OpenID2.0 Profile</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="">
-        <meta name="author" content="">
+        <title>OpenID2.0 Profile</title>
 
-        <!-- Le styles -->
-        <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-        <link href="css/localstyles.css" rel="stylesheet">
-        <!--[if lt IE 8]>
-        <link href="css/localstyles-ie7.css" rel="stylesheet">
-        <![endif]-->
+        <link rel="icon" href="images/favicon.png" type="image/x-icon"/>
+        <link href="libs/bootstrap_3.3.5/css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/Roboto.css" rel="stylesheet">
+        <link href="css/custom-common.css" rel="stylesheet">
 
-        <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
         <!--[if lt IE 9]>
-        <script src="assets/js/html5.js"></script>
+        <script src="js/html5shiv.min.js"></script>
+        <script src="js/respond.min.js"></script>
         <![endif]-->
-        <script src="assets/js/jquery-1.7.1.min.js"></script>
-        <link media="all" type="text/css" rel="stylesheet" href="css/openid-provider.css">
 
         <script type="text/javascript">
             function submitProfileSelection() {
@@ -69,90 +64,119 @@
             }
         </script>
 
-
     </head>
 
     <body>
 
-    <div class="header-strip">&nbsp;</div>
-    <div class="header-back">
-        <div class="container">
-            <div class="row">
-                <div class="span12">
-                    <a class="logo">&nbsp</a>
-                </div>
+    <!-- header -->
+    <header class="header header-default">
+        <div class="container-fluid"><br></div>
+        <div class="container-fluid">
+            <div class="pull-left brand float-remove-xs text-center-xs">
+                <a href="#">
+                    <img src="images/logo-inverse.svg" alt="wso2" title="wso2" class="logo">
+
+                    <h1><em>Identity Server</em></h1>
+                </a>
             </div>
         </div>
-    </div>
+    </header>
 
-    <div class="header-text">
-        <div class="container">
-            <div class="row">
-                <div class="span12 content-section">
-                    <fmt:message key='signin.to.authenticate1'/> <strong>"<%=Encode.forHtml(openidreturnto)%>" </strong>
-                    <fmt:message key='signin.to.authenticate2'/><%if (!openididentity.endsWith("/openid/")) {%><strong>
-                    "<%=Encode.forHtml(openididentity)%>"</strong><% } else { %><strong> "<%=Encode.forHtml(openididentity)%>
-                                                                         &lt;username&gt;"</strong><% } %>.
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="container-fluid body-wrapper">
 
-    <div class="container main-login-container" style="margin-top:10px;">
         <div class="row">
-            <div class="span12 content-section">
-                <h3 style="text-align:left;margin-bottom:10px;">OpenID User Claims</h3>
+            <div class="col-md-12">
 
-                <div>
-                    <form action="../openidserver" id="profile" name="profile" class="form-horizontal">
-                        <div class="control-group">
-                            <div class="controls" style="margin-left: 0px !important;">
+                <!-- content -->
+                <div
+                        class="container col-xs-12 col-sm-10 col-md-7 col-lg-5 ol-centered wr-content wr-login col-centered">
+                    <div>
+                        <h2
+                                class="wr-title uppercase blue-bg padding-double white boarder-bottom-blue margin-none">
+                            Open ID User Claims
+                        </h2>
 
-                                <%
-                                    if (claimTags != null && claimTags.length > 0) { %>
-                                <table class="table table-striped table-bordered">
-                                    <tr>
-                                        <th>Claim URI</th>
-                                        <th>Claim Value</th>
-                                    </tr>
-                                    <%
-                                        for (int i = 0; i < claimTags.length; i++) {
-                                            String claimTag = claimTags[i];
-                                            if ("MultiAttributeSeparator".equals(claimTag)) {
-                                                continue;
-                                            }
-                                    %>
-                                    <tr>
-                                        <td><%=Encode.forHtmlContent(claimTag)%>
-                                        </td>
-                                        <td><%=Encode.forHtmlContent(claimValues[i])%>
-                                        </td>
-                                    </tr>
-                                    <%
-                                        } %>
-                                </table>
-                                <%
-                                    }
-                                %>
+
+                    </div>
+                    <div class="boarder-all ">
+                        <div class="clearfix"></div>
+
+                        <div class="padding-double login-form">
+                            <div>
+                                <form action="../openidserver" id="profile" name="profile" class="form-horizontal">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 control-group">
+                                        <div class="controls" style="margin-left: 0px !important;">
+
+                                            <%
+                                                if (claimTags != null && claimTags.length > 0) { %>
+                                            <table class="table table-striped table-bordered">
+                                                <tr>
+                                                    <th>Claim URI</th>
+                                                    <th>Claim Value</th>
+                                                </tr>
+                                                <%
+                                                    for (int i = 0; i < claimTags.length; i++) {
+                                                        String claimTag = claimTags[i];
+                                                        if ("MultiAttributeSeparator" .equals(claimTag)) {
+                                                            continue;
+                                                        }
+                                                %>
+                                                <tr>
+                                                    <td><%=Encode.forHtmlContent(claimTag)%>
+                                                    </td>
+                                                    <td><%=Encode.forHtmlContent(claimValues[i])%>
+                                                    </td>
+                                                </tr>
+                                                <%
+                                                    } %>
+                                            </table>
+                                            <%
+                                                }
+                                            %>
+                                        </div>
+                                    </div>
+
+                                    <div style="text-align:left;">
+                                        <input type="button" class="btn  btn-primary" id="approve" name="approve"
+                                               onclick="javascript: approved(); return false;"
+                                               value="<fmt:message key='approve'/>"/>
+                                        <input type="button" class="btn" id="chkApprovedAlways"
+                                               onclick="javascript: approvedAlways();"
+                                               value="<fmt:message key='approve.always'/>"/>
+                                        <input type="hidden" id="hasApprovedAlways" name="hasApprovedAlways"
+                                               value="false"/>
+                                        <input class="btn" type="reset" value="<fmt:message key='cancel'/>"
+                                               onclick="javascript:document.location.href='<%=openidreturnto%>'"/>
+                                    </div>
+                                </form>
+
                             </div>
+                            <div class="clearfix"></div>
                         </div>
 
-                        <div style="text-align:left;">
-                            <input type="button" class="btn  btn-primary" id="approve" name="approve"
-                                   onclick="javascript: approved(); return false;"
-                                   value="<fmt:message key='approve'/>"/>
-                            <input type="button" class="btn" id="chkApprovedAlways"
-                                   onclick="javascript: approvedAlways();" value="<fmt:message key='approve.always'/>"/>
-                            <input type="hidden" id="hasApprovedAlways" name="hasApprovedAlways" value="false"/>
-                            <input class="btn" type="reset" value="<fmt:message key='cancel'/>"
-                                   onclick="javascript:document.location.href='<%=openidreturnto%>'"/>
-                        </div>
-                    </form>
-
+                    </div>
                 </div>
+                <!-- /content -->
+
             </div>
         </div>
+        <!-- /content/body -->
+
     </div>
+
+    <!-- footer -->
+    <footer class="footer">
+        <div class="container-fluid">
+            <p>WSO2 Identity Server | &copy;
+                <script>document.write(new Date().getFullYear());</script>
+                <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>. All Rights Reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script src="libs/jquery_1.11.3/jquery-1.11.3.js"></script>
+    <script src="libs/bootstrap_3.3.5/js/bootstrap.min.js"></script>
     </body>
     </html>
+
 </fmt:bundle>

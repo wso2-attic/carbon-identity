@@ -15,31 +15,41 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   --%>
+
 <%@ page import="org.owasp.encoder.Encode" %>
-<div id="loginTable1" class="identity-box">
+<form action="../commonauth" method="post" id="loginForm" class="form-horizontal">
     <%
         loginFailed = request.getParameter("loginFailed");
         if (loginFailed != null) {
 
     %>
-    <div class="alert alert-error">
+    <div class="alert alert-danger">
         <fmt:message key='<%=Encode.forHtml(request.getParameter("errorMessage"))%>'/>
     </div>
     <% } %>
 
-    <div class="control-group">
-        <label class="control-label" for="claimed_id">OpenID:</label>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <input class="input-large" type="text" id="claimed_id" name="claimed_id" size='30' placeholder="Open ID"/>
+        <input type="hidden" name="sessionDataKey"
+               value='<%=Encode.forHtmlAttribute(request.getParameter("sessionDataKey"))%>'/>
+    </div>
 
-        <div class="controls">
-            <input class="input-large" type="text" id="claimed_id" name="claimed_id" size='30'/>
-            <input type="hidden" name="sessionDataKey" value='<%=Encode.forHtmlAttribute(request.getParameter("sessionDataKey"))%>'/>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" id="chkRemember" name="chkRemember"> Remember me on this computer
+            </label>
+        </div>
+        <br>
+
+        <div class="form-actions">
+            <button
+                    class="wr-btn grey-bg col-xs-12 col-md-12 col-lg-12 uppercase font-extra-large"
+                    type="submit">Sign in
+            </button>
         </div>
     </div>
 
-    <div class="form-actions">
-        <input type="submit" value='<fmt:message key='login'/>' class="btn btn-primary">
-    </div>
 
-</div>
-
-
+    <div class="clearfix"></div>
+</form>

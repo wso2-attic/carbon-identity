@@ -19,10 +19,37 @@
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
 public class WorkflowAssociation {
+
+    private int associationId;
+    private String associationName ;
+    private String eventId;
+    private String associationCondition;
     private String workflowId;
-    private String templateId;
-    private String implId;
-    private String condition;
+    private boolean isEnabled;
+
+    public int getAssociationId() {
+        return associationId;
+    }
+
+    public void setAssociationId(int associationId) {
+        this.associationId = associationId;
+    }
+
+    public String getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
+
+    public String getAssociationCondition() {
+        return associationCondition;
+    }
+
+    public void setAssociationCondition(String associationCondition) {
+        this.associationCondition = associationCondition;
+    }
 
     public String getWorkflowId() {
         return workflowId;
@@ -32,27 +59,19 @@ public class WorkflowAssociation {
         this.workflowId = workflowId;
     }
 
-    public String getTemplateId() {
-        return templateId;
+    public boolean isEnabled() {
+        return isEnabled;
     }
 
-    public void setTemplateId(String templateId) {
-        this.templateId = templateId;
+    public void setIsEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
     }
 
-    public String getImplId() {
-        return implId;
+    public String getAssociationName() {
+        return associationName;
     }
 
-    public void setImplId(String implId) {
-        this.implId = implId;
-    }
-
-    public String getCondition() {
-        return condition;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
+    public void setAssociationName(String associationName) {
+        this.associationName = associationName;
     }
 }

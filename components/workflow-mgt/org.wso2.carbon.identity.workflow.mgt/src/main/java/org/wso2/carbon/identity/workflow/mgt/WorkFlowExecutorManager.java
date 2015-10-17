@@ -28,6 +28,7 @@ import org.jaxen.JaxenException;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
+import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowAssociation;
 import org.wso2.carbon.identity.workflow.mgt.dao.RequestEntityRelationshipDAO;
 import org.wso2.carbon.identity.workflow.mgt.dao.WorkflowDAO;
@@ -38,6 +39,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.util.ExecutorResultState;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestBuilder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
@@ -62,26 +64,26 @@ public class WorkFlowExecutorManager {
         return instance;
     }
 
-    public void executeWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
+    public WorkflowExecutorResult executeWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
         if (StringUtils.isBlank(workFlowRequest.getUuid())) {
             workFlowRequest.setUuid(UUID.randomUUID().toString());
         }
         OMElement xmlRequest = WorkflowRequestBuilder.buildXMLRequest(workFlowRequest);
+        WorkflowRequestAssociationDAO requestAssociationDAO = new WorkflowRequestAssociationDAO();
         WorkflowDAO workflowDAO = new WorkflowDAO();
         List<WorkflowAssociation> associations =
-                workflowDAO.getWorkflowAssociationsForRequest(workFlowRequest.getEventType(), workFlowRequest
+                requestAssociationDAO.getWorkflowAssociationsForRequest(workFlowRequest.getEventType(), workFlowRequest
                         .getTenantId());
         if (CollectionUtils.isEmpty(associations)) {
-            handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null, "");
-            return;
+            return new WorkflowExecutorResult(ExecutorResultState.NO_ASSOCIATION);
         }
         boolean workflowEngaged = false;
         boolean requestSaved = false;
         for (WorkflowAssociation association : associations) {
             try {
-                AXIOMXPath axiomxPath = new AXIOMXPath(association.getCondition());
+                AXIOMXPath axiomxPath = new AXIOMXPath(association.getAssociationCondition());
                 if (axiomxPath.booleanValueOf(xmlRequest)) {
                     workflowEngaged = true;
                     if (!requestSaved) {
@@ -94,28 +96,33 @@ public class WorkFlowExecutorManager {
                     String relationshipId = UUID.randomUUID().toString();
                     WorkflowRequest requestToSend = workFlowRequest.clone();
                     requestToSend.setUuid(relationshipId);
+                    Workflow workflow = workflowDAO.getWorkflow(association.getWorkflowId());
                     AbstractWorkflow templateImplementation = WorkflowServiceDataHolder.getInstance()
-                            .getWorkflowImpls().get(association.getTemplateId()).get(association.getImplId());
+                            .getWorkflowImpls().get(workflow.getTemplateId()).get(workflow.getWorkflowImplId());
                     List<Parameter> parameterList = workflowDAO.getWorkflowParams(association.getWorkflowId());
                     templateImplementation.execute(requestToSend, parameterList);
                     workflowRequestAssociationDAO.addNewRelationship(relationshipId, association.getWorkflowId(),
                                                                      workFlowRequest
                                                                              .getUuid(), WorkflowRequestStatus.PENDING
-                                                                             .toString());
+                                                                             .toString(), workFlowRequest.getTenantId());
                 }
             } catch (JaxenException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Error when executing the xpath expression:" + association.getCondition() + " , on " +
-                              xmlRequest, e);
-                }
+                String errorMsg = "Error when executing the xpath expression:" + association.getAssociationCondition() + " , on " +
+                                  xmlRequest ;
+                log.error( errorMsg, e);
+                return new WorkflowExecutorResult(ExecutorResultState.FAILED, errorMsg);
             } catch (CloneNotSupportedException e) {
-                log.error("Error while cloning workflowRequest object at executor manager.", e);
+                String errorMsg = "Error while cloning workflowRequest object at executor manager." ;
+                log.error(errorMsg, e);
+                return new WorkflowExecutorResult(ExecutorResultState.FAILED, errorMsg);
             }
         }
 
         if (!workflowEngaged) {
-            handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null, "");
+            //handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null, "");
+            return new WorkflowExecutorResult(ExecutorResultState.CONDITION_FAILED);
         }
+        return new WorkflowExecutorResult(ExecutorResultState.STARTED_ASSOCIATION);
     }
 
     private void handleCallback(WorkflowRequest request, String status, Map<String, Object> additionalParams, String

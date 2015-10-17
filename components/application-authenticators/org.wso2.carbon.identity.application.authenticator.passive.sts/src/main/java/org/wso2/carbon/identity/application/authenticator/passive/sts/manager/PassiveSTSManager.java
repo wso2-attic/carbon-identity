@@ -120,7 +120,7 @@ public class PassiveSTSManager {
                                String contextIdentifier, Map<String, String> authenticationProperties)
             throws PassiveSTSException {
 
-        String replyUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
+        String replyUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
         String action = "wsignin1.0";
         String realm = authenticationProperties.get(PassiveSTSConstants.REALM_ID);
         String redirectUrl = loginPage + "?wa=" + action + "&wreply=" + replyUrl + "&wtrealm=" + realm;

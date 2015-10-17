@@ -145,13 +145,22 @@ public class IdentityDBInitializer {
                 String msg = "Failed to create database tables for Identity meta-data store. " + e.getMessage();
                 throw new IdentityRuntimeException(msg, e);
             } finally {
-                try {
-                    if (conn != null) {
-                        conn.close();
+                if (statement != null) {
+                    try {
+                        statement.close();
+                    } catch (SQLException e) {
+                        log.error("Failed to close statement.", e);
                     }
-                } catch (SQLException e) {
-                    log.error("Failed to close database connection.", e);
                 }
+
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) {
+                        log.error("Failed to close database connection.", e);
+                    }
+                }
+
             }
         } else {
             if (log.isDebugEnabled()) {

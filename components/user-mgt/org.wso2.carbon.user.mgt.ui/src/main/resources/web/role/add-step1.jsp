@@ -87,7 +87,7 @@
         if (allUserStoreInfo != null && allUserStoreInfo.length > 0) {
             for (int i = 0; i < allUserStoreInfo.length; i++) {
                 if (allUserStoreInfo[i] != null) {
-                    if (allUserStoreInfo[i].getDomainName() != null && !allUserStoreInfo[i].getReadOnly()) {
+                    if (allUserStoreInfo[i].getDomainName() != null && allUserStoreInfo[i].getWriteGroupsEnabled()) {
                         domainNames.add(allUserStoreInfo[i].getDomainName());
                     }
                 }

@@ -33,13 +33,23 @@ import org.apache.rahas.impl.SAMLTokenIssuerConfig;
 import org.apache.rahas.impl.TokenIssuerUtil;
 import org.apache.ws.secpolicy.Constants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
+import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
+import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provider.AttributeCallbackHandler;
 import org.wso2.carbon.identity.sts.passive.RequestToken;
 import org.wso2.carbon.identity.sts.passive.ResponseToken;
 import org.wso2.carbon.identity.sts.passive.internal.IdentityPassiveSTSServiceComponent;
+import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
@@ -117,6 +127,19 @@ public abstract class RequestProcessor {
         element.addAttribute(parent.getOMFactory().createOMAttribute("Uri", null, uri));
     }
 
+    private KeyStoreData[] getKeyStores(UserRegistry systemRegistry) throws Exception {
+        KeyStoreAdmin admin = new KeyStoreAdmin(CarbonContext.getThreadLocalCarbonContext()
+                .getTenantId(), systemRegistry);
+        boolean isSuperAdmin = MultitenantConstants.SUPER_TENANT_ID == CarbonContext
+                .getThreadLocalCarbonContext().getTenantId() ? true : false;
+        return admin.getKeyStores(isSuperAdmin);
+    }
+
+    public static String generateKSNameFromDomainName(String tenantDomain) {
+        String ksName = tenantDomain.trim().replace(".", "-");
+        return ksName + ".jks";
+    }
+
     protected SAMLTokenIssuerConfig getSAMLTokenIssuerConfig(AxisService service, boolean isSuperTenant) throws Exception {
         UserRegistry systemRegistry = null;
         String keyAlias = null;
@@ -128,6 +151,10 @@ public abstract class RequestProcessor {
         String issuerName = null;
         ServerConfiguration serverConfig = null;
         String ttl;
+        IdentityProvider identityProvider;
+        String tenantDomain;
+        int tenantId;
+        String idPEntityId = null;
 
         systemRegistry = (UserRegistry) IdentityPassiveSTSServiceComponent.getGovernanceSystemRegistry();
 
@@ -138,10 +165,33 @@ public abstract class RequestProcessor {
             return null;
         }
 
+        tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+        try {
+            identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
+        } catch (Exception e) {
+            throw new Exception(
+                    "Error occurred while retrieving Resident Identity Provider information for tenant " + tenantDomain,
+                    e);
+        }
+
+        FederatedAuthenticatorConfig config = IdentityApplicationManagementUtil
+                .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
+                        IdentityApplicationConstants.Authenticator.PassiveSTS.NAME);
+        Property property = IdentityApplicationManagementUtil.getProperty(config.getProperties(),
+                IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID);
+        if(property != null){
+            idPEntityId = property.getValue();
+        }
+
+        if (idPEntityId == null) {
+            idPEntityId = IdentityUtil.getProperty(IdentityConstants.ServerConfig.ENTITY_ID);
+        }
+
         serverConfig = ServerConfiguration.getInstance();
         keyAlias = serverConfig.getFirstProperty("Security.KeyStore.KeyAlias");
         keyPassword = serverConfig.getFirstProperty("Security.KeyStore.KeyPassword");
-        issuerName = serverConfig.getFirstProperty("HostName");
+        issuerName = idPEntityId;
         ttl = serverConfig.getFirstProperty("STSTimeToLive");
 
         if (issuerName == null) {
@@ -149,14 +199,22 @@ public abstract class RequestProcessor {
             issuerName = "Identity-passive-sts";
         }
 
-        admin = new KeyStoreAdmin(MultitenantConstants.SUPER_TENANT_ID, systemRegistry);
-        keystores = admin.getKeyStores(isSuperTenant);
+        keystores = getKeyStores(systemRegistry);
 
         for (int i = 0; i < keystores.length; i++) {
-            if (KeyStoreUtil.isPrimaryStore(keystores[i].getKeyStoreName())) {
+            boolean superTenant = MultitenantConstants.SUPER_TENANT_ID == CarbonContext
+                    .getThreadLocalCarbonContext().getTenantId() ? true : false;
+            if (superTenant && KeyStoreUtil.isPrimaryStore(keystores[i].getKeyStoreName())) {
                 keyStoreName = keystores[i].getKeyStoreName();
                 privateKeyAlias = KeyStoreUtil.getPrivateKeyAlias(KeyStoreManager.getInstance(
                         MultitenantConstants.SUPER_TENANT_ID).getKeyStore(keyStoreName));
+                break;
+            } else if (!superTenant && generateKSNameFromDomainName(tenantDomain)
+                    .equals(keystores[i].getKeyStoreName())) {
+                keyStoreName = keystores[i].getKeyStoreName();
+                privateKeyAlias = tenantDomain;
+                keyPassword = KeyStoreManager.getInstance(tenantId).getKeyStorePassword(keyStoreName);
+                keyAlias = tenantDomain;
                 break;
             }
         }

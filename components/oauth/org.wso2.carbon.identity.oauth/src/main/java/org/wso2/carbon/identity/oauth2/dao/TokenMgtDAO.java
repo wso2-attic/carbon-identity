@@ -230,12 +230,9 @@ public class TokenMgtDAO {
                 for (String scope : accessTokenDO.getScope()) {
                     prepStmt.setString(1, accessTokenId);
                     prepStmt.setString(2, scope);
+                    prepStmt.setInt(3, tenantId);
                     prepStmt.execute();
                 }
-            } else {
-                prepStmt.setString(1, accessTokenId);
-                prepStmt.setString(2, "");
-                prepStmt.execute();
             }
 
         } catch (SQLIntegrityConstraintViolationException e) {

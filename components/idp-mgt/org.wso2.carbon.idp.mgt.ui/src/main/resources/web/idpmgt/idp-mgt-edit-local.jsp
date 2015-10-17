@@ -16,13 +16,14 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig"%>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProviderProperty" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
 
@@ -47,6 +48,7 @@
     String tokenUrl = null;
     String userInfoUrl = null;
     String passiveSTSUrl = null;
+    String passivestsIdPEntityId = null;
     String stsUrl = null;
     String sessionIdleTimeout = null;
     String rememberMeTimeout = null;
@@ -80,15 +82,11 @@
         } else if(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME.equals(federatedAuthenticator.getName())){
             passiveSTSUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL).getValue();
+            passivestsIdPEntityId = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID).getValue();
         } else if(IdentityApplicationConstants.Authenticator.WSTrust.NAME.equals(federatedAuthenticator.getName())){
             stsUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.WSTrust.IDENTITY_PROVIDER_URL).getValue();
-        } else if(IdentityApplicationConstants.Authenticator.IDPProperties.NAME.equals(federatedAuthenticator.getName())){
-            sessionIdleTimeout = IdPManagementUIUtil.getProperty(properties,
-                    IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT).getValue();
-            rememberMeTimeout = IdPManagementUIUtil.
-                    getProperty(properties,
-                            IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT).getValue();
         }
     }
     String scimUserEp = null;
@@ -109,6 +107,18 @@
             }
         }
     }
+
+    IdentityProviderProperty[] idpProperties = residentIdentityProvider.getIdpProperties();
+    if (idpProperties != null) {
+        for (IdentityProviderProperty property : idpProperties) {
+            if (property.getName().equals(IdentityApplicationConstants.SESSION_IDLE_TIME_OUT)) {
+                sessionIdleTimeout = property.getValue();
+            } else if (property.getName().equals(IdentityApplicationConstants.REMEMBER_ME_TIME_OUT)) {
+                rememberMeTimeout = property.getValue();
+            }
+        }
+    }
+
     session.setAttribute("returnToPath", "../idpmgt/idp-mgt-edit-local.jsp");
     session.setAttribute("cancelLink", "../idpmgt/idp-mgt-edit-local.jsp");
     session.setAttribute("backLink", "../idpmgt/idp-mgt-edit-local.jsp");
@@ -284,6 +294,16 @@ jQuery(document).ready(function(){
             		</h2>
             		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="passivestsconfig">
                     <table class="carbonFormTable">
+                        <tr>
+                            <td class="leftCol-med labelField"><fmt:message key='idp.entity.id'/>:</td>
+                            <td>
+                                <input id="passiveSTSIdPEntityId" name="passiveSTSIdPEntityId" type="text" value="<%=Encode.forHtmlAttribute(passivestsIdPEntityId)%>"/>
+                                <div class="sectionHelp">
+                                    <fmt:message key='idp.entity.id.help'/>
+                                </div>
+                            </td>
+                        </tr>
+
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='passive.sts.url'/>:</td>
                             <td><%=Encode.forHtmlContent(passiveSTSUrl)%></td>
