@@ -86,7 +86,7 @@
                             javax.cache,
                             javax.crypto,
                             javax.xml.bind,
-                            javax.xml.parsers,
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
                             javax.xml.transform,
                             javax.xml.transform.dom,
                             javax.xml.transform.stream,
