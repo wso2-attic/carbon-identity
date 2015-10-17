@@ -82,6 +82,14 @@ public final class OAuthConstants {
     public static final String ID_TOKEN = "id_token";
 
 
+    public static class GrantTypes {
+        public static final String IMPLICIT = "implicit";
+        public static final String TOKEN = "token";
+
+        private GrantTypes() {
+        }
+    }
+
     public static class OAuthVersions {
         public static final String VERSION_1A = "OAuth-1.0a";
         public static final String VERSION_2 = "OAuth-2.0";

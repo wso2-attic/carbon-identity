@@ -17,6 +17,7 @@
 package org.wso2.carbon.identity.application.authenticator.social.yahoo;
 
 import org.apache.oltu.oauth2.client.response.OAuthClientResponse;
+import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
 import org.wso2.carbon.identity.application.common.model.Property;
@@ -140,7 +141,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
      * @return GUID of the authenticated user.
      */
     @Override
-    protected String getAuthenticateUser(OAuthClientResponse token) {
+    protected String getAuthenticateUser(AuthenticationContext context, Map<String, Object> jsonObject, OAuthClientResponse token) {
 
         return token.getParam(YahooOAuth2AuthenticatorConstants.USER_GUID);
     }
