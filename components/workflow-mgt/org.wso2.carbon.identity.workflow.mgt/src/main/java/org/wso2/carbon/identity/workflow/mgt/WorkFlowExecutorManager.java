@@ -104,7 +104,7 @@ public class WorkFlowExecutorManager {
                     workflowRequestAssociationDAO.addNewRelationship(relationshipId, association.getWorkflowId(),
                                                                      workFlowRequest
                                                                              .getUuid(), WorkflowRequestStatus.PENDING
-                                                                             .toString());
+                                                                             .toString(), workFlowRequest.getTenantId());
                 }
             } catch (JaxenException e) {
                 String errorMsg = "Error when executing the xpath expression:" + association.getAssociationCondition() + " , on " +

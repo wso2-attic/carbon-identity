@@ -213,7 +213,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 String callbackurl = getCallbackUrl(authenticatorProperties);
 
                 if (callbackurl == null) {
-                    callbackurl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
+                    callbackurl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
                 }
 
                 String state = context.getContextIdentifier() + ","
@@ -323,7 +323,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             String callbackurl = getCallbackUrl(authenticatorProperties);
 
             if (callbackurl == null) {
-                callbackurl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
+                callbackurl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
             }
 
             @SuppressWarnings({"unchecked"})

@@ -238,7 +238,8 @@ public class WorkflowDAO {
      * @param workflowId Workflow Id
      * @throws InternalWorkflowException
      */
-    public void addWorkflowParams(List<Parameter> parameterList, String workflowId) throws InternalWorkflowException {
+    public void addWorkflowParams(List<Parameter> parameterList, String workflowId, int tenantId) throws
+            InternalWorkflowException {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
@@ -252,6 +253,7 @@ public class WorkflowDAO {
                 prepStmt.setString(3, parameter.getParamValue());
                 prepStmt.setString(4, parameter.getqName());
                 prepStmt.setString(5, parameter.getHolder());
+                prepStmt.setInt(6, tenantId);
 
                 prepStmt.executeUpdate();
             }

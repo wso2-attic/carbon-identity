@@ -447,8 +447,8 @@ public class OpenIDHandler {
          */
         request.getSession().setAttribute(OpenIDConstants.SessionAttribute.OPENID, claimedID);
 
-        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
-        String selfPath = URLEncoder.encode("/" + FrameworkConstants.OPENID_SERVER, "UTF-8");
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+        String selfPath = request.getContextPath();
         String sessionDataKey = UUIDGenerator.generateUUID();
 
         //Authentication context keeps data which should be sent to commonAuth endpoint
@@ -657,7 +657,7 @@ public class OpenIDHandler {
                 session.removeAttribute(OpenIDConstants.SessionAttribute.AUTHENTICATED_OPENID);
 
                 // sending to the login page
-                String openIdEndpointUrl = IdentityUtil.getServerURL("/authenticationendpoint/openid_login.do");
+                String openIdEndpointUrl = org.wso2.carbon.identity.provider.openid.OpenIDUtil.getOpenIDLoginPageURL();
 
                 resp.sendRedirect(openIdEndpointUrl
                                   + OpenIDUtil.getLoginPageQueryParams((ParameterList) req.getSession().getAttribute(

@@ -34,7 +34,7 @@
 <%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 
 <%
-    String providerId = CharacterEncoder.getSafeText(request.getParameter("providerId"));
+    String providerId = request.getParameter("providerId");
 
     SCIMProviderDTO provider = null;
     String forwardTo = null;

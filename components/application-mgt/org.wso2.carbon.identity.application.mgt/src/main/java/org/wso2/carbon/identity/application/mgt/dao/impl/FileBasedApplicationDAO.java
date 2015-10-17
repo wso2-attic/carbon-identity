@@ -70,7 +70,7 @@ public class FileBasedApplicationDAO implements ApplicationDAO {
     }
 
     @Override
-    public void updateApplication(ServiceProvider applicationDTO)
+    public void updateApplication(ServiceProvider applicationDTO, String tenantDomain)
             throws IdentityApplicationManagementException {
         throw new IdentityApplicationManagementException("Not supported in file based dao.");
     }
