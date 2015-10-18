@@ -200,16 +200,17 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                         // If unlock time is specified then unlock the account.
                         if ((userIdentityDTO.getUnlockTime() != 0) && (System.currentTimeMillis() >= userIdentityDTO.getUnlockTime())) {
 
-                            userIdentityDTO.setAccountLock(false);
-                            userIdentityDTO.setUnlockTime(0);
-
-                            try {
-                                module.store(userIdentityDTO, userStoreManager);
-                            } catch (IdentityException e) {
-                                throw new UserStoreException(
-                                        "Error while saving user store data for user : "
-                                                + userName, e);
-                            }
+                            unlockUser(userIdentityDTO, userName, userStoreManager);
+//                            userIdentityDTO.setAccountLock(false);
+//                            userIdentityDTO.setUnlockTime(0);
+//
+//                            try {
+//                                module.store(userIdentityDTO, userStoreManager);
+//                            } catch (IdentityException e) {
+//                                throw new UserStoreException(
+//                                        "Error while saving user store data for user : "
+//                                                + userName, e);
+//                            }
                         } else {
                             IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(
                                     UserCoreConstants.ErrorCode.USER_IS_LOCKED,
@@ -384,7 +385,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                             }
 
                             userIdentityDTO.setAccountLock(true);
-                            userIdentityDTO.setFailAttempts(0);
                             // lock time from the config
                             int lockTime = IdentityMgtConfig.getInstance().getAuthPolicyLockingTime();
                             if (lockTime != 0) {
@@ -418,15 +418,16 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                     // if the account was locked due to account verification process,
                     // the unlock the account and reset the number of failedAttempts
                     if (userIdentityDTO.isAccountLocked() || userIdentityDTO.getFailAttempts() > 0 || userIdentityDTO.getAccountLock()) {
-                        userIdentityDTO.setAccountLock(false);
-                        userIdentityDTO.setFailAttempts(0);
-                        userIdentityDTO.setUnlockTime(0);
-                        try {
-                            module.store(userIdentityDTO, userStoreManager);
-                        } catch (IdentityException e) {
-                            throw new UserStoreException("Error while saving user store data for user : "
-                                    + userName, e);
-                        }
+                        unlockUser(userIdentityDTO, userName, userStoreManager);
+//                        userIdentityDTO.setAccountLock(false);
+//                        userIdentityDTO.setFailAttempts(0);
+//                        userIdentityDTO.setUnlockTime(0);
+//                        try {
+//                            module.store(userIdentityDTO, userStoreManager);
+//                        } catch (IdentityException e) {
+//                            throw new UserStoreException("Error while saving user store data for user : "
+//                                    + userName, e);
+//                        }
                     }
                 }
             }
@@ -795,6 +796,15 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants
                     .ErrorCode.USER_IS_LOCKED);
             IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
+        } else {
+            boolean failedLoginAttempts = Boolean.parseBoolean(claims.get(UserIdentityDataStore.FAIL_LOGIN_ATTEMPTS));
+            if (failedLoginAttempts) {
+                UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
+                if (userIdentityDTO == null) {
+                    userIdentityDTO = new UserIdentityClaimsDO(userName);
+                }
+                unlockUser(userIdentityDTO, userName, userStoreManager);
+            }
         }
 
         // Top level try and finally blocks are used to unset thread local variables
@@ -939,6 +949,20 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             throws UserStoreException {
 
        return true;
+    }
+
+
+    private void unlockUser(UserIdentityClaimsDO userIdentityDTO, String userName,
+                            UserStoreManager userStoreManager) throws UserStoreException {
+        userIdentityDTO.setAccountLock(false);
+        userIdentityDTO.setFailAttempts(0);
+        userIdentityDTO.setUnlockTime(0);
+        try {
+            module.store(userIdentityDTO, userStoreManager);
+        } catch (IdentityException e) {
+            throw new UserStoreException("Error while saving user store data for user : "
+                    + userName, e);
+        }
     }
 
 }

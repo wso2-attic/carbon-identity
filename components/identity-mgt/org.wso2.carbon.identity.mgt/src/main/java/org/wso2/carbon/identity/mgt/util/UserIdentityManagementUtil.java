@@ -184,6 +184,7 @@ public class UserIdentityManagementUtil {
         if (userIdentityDO != null) {
             userIdentityDO.setAccountLock(false);
             userIdentityDO.setUnlockTime(0);
+            userIdentityDO.setFailAttempts(0);
             store.store(userIdentityDO, userStoreManager);
         } else {
             throw new IdentityException("No user account found for user " + userName);
