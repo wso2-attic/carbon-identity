@@ -1058,7 +1058,7 @@ public class SCIMUserManager implements UserManager {
                 List<String> addRequestedMembers = newGroup.getMembersWithDisplayName(null);
                 List<String> deleteRequestedMembers =
                         newGroup.getMembersWithDisplayName(SCIMConstants.CommonSchemaConstants.OPERATION_DELETE);
-
+                boolean metaDeleteGroup = false;
                 //Handling meta data attributes coming from SCIM request. Through meta attributes all existing members
                 // can be replaced with new set of members
                 if (newGroup.getAttributesOfMeta() != null &&
@@ -1068,6 +1068,7 @@ public class SCIMUserManager implements UserManager {
                                 "All Existing members will be deleted through SCIM meta attributes Hence operation " +
                                 "delete is Invalid");
                         deleteRequestedMembers = new ArrayList<>();
+                        metaDeleteGroup = true;
                     }
                     String users[] = carbonUM.getUserListOfRole(newGroup.getDisplayName());
                     if (addRequestedMembers.isEmpty()) {
@@ -1090,7 +1091,7 @@ public class SCIMUserManager implements UserManager {
                 List<String> addedMembers = new ArrayList<>();
                 List<String> deletedMembers = new ArrayList<>();
 
-                if (addRequestedMembers.isEmpty() && deleteRequestedMembers.isEmpty()) {
+                if (addRequestedMembers.isEmpty() && metaDeleteGroup) {
                     String users[] = carbonUM.getUserListOfRole(newGroup.getDisplayName());
                     deletedMembers = Arrays.asList(users);
                 }
