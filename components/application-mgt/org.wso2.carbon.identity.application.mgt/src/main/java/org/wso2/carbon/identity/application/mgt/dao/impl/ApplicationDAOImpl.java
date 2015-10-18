@@ -433,8 +433,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             storeAppPrepStmt.setString(1, applicationName);
             storeAppPrepStmt.setString(2, description);
             storeAppPrepStmt.setString(3, isSaasApp ? "1" : "0");
-            storeAppPrepStmt.setInt(5, tenantID);
-            storeAppPrepStmt.setInt(6, applicationId);
+            storeAppPrepStmt.setInt(4, tenantID);
+            storeAppPrepStmt.setInt(5, applicationId);
             storeAppPrepStmt.executeUpdate();
 
         } finally {
