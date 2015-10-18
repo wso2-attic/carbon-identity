@@ -20,7 +20,8 @@ public class ProfileMgtEventListener extends AbstractIdentityUserOperationEventL
     }
 
     @Override
-    public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName, UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
+                                           UserStoreManager userStoreManager) throws UserStoreException {
     //The following black listed patterns contain possible invalid inputs for profile which could be used for a stored
     //XSS attack.
         if(!IdentityValidationUtil.isValid(profileName,new String[]{"ALPHANUMERICS_ONLY","DIGITS_ONLY"},new String[]{
