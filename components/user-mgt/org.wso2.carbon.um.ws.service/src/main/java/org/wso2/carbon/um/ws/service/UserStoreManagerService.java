@@ -72,7 +72,7 @@ public class UserStoreManagerService extends AbstractAdmin {
         String claimSeparator = super.getUserRealm().getRealmConfiguration().getUserStoreProperty(
                 MULTI_ATTRIBUTE_SEPARATOR);
 
-        if (StringUtils.isNotBlank(claimSeparator) {
+        if (StringUtils.isNotBlank(claimSeparator)) {
             userAttributeSeparator = claimSeparator;
         }
 
