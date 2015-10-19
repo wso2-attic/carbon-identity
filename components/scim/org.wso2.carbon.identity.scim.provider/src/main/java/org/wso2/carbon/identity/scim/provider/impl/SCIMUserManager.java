@@ -104,7 +104,7 @@ public class SCIMUserManager implements UserManager {
 
         StringBuilder userName = new StringBuilder();
 
-        if (StringUtils.isBlank(userStoreName)) {
+        if (!StringUtils.isBlank(userStoreName)) {
             // if we have set a user store under provisioning configuration - we should only use
             // that.
             String currentUserName = user.getUserName();
