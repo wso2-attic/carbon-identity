@@ -91,7 +91,6 @@
     			CarbonUIMessage uiMsg = new CarbonUIMessage(e.getMessage(),
     					CarbonUIMessage.ERROR, e);
     			session.setAttribute(CarbonUIMessage.ID, uiMsg);
-    			return;
     		}
     %>
 
@@ -135,9 +134,10 @@
             <% } %>
 
             <%
-                UserStoreInfo userStoreInfo = Util.getUserStoreInfoForUser(currentUser, userRealmInfo);
-                if (!userStoreInfo.getReadOnly() && CarbonUIUtil.isUserAuthorized(request,
-                        "/permission/admin/login") && !userStoreInfo.getPasswordsExternallyManaged()) {
+                if(userRealmInfo != null){
+                    UserStoreInfo userStoreInfo = Util.getUserStoreInfoForUser(currentUser, userRealmInfo);
+                    if (!userStoreInfo.getReadOnly() && CarbonUIUtil.isUserAuthorized(request,
+                            "/permission/admin/login") && !userStoreInfo.getPasswordsExternallyManaged()) {
             %>
             <br/>
             <table class="styledLeft">
@@ -153,7 +153,14 @@
                 </tr>
                 </tbody>
             </table>
-            <% }%>
+            <%      }
+                }
+            else {%>
+                <script type="text/javascript">
+                    location.href = "<%=request.getHeader("referer")%>";
+                </script>
+            <%}
+            %>
             </td>
 
         </div>
