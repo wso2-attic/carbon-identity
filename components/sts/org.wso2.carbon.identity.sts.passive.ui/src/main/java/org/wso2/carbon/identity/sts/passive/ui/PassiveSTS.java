@@ -403,10 +403,56 @@ public class PassiveSTS extends HttpServlet {
             }
         }
 
-        //TODO send logout request to authentication framework
-        request.getSession().invalidate();
+        try {
+            sendFrameworkForLogout(request, response);
+        } catch (ServletException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Error while sending the logout request", e);
+            }
+        }
+    }
 
-        response.sendRedirect(getAttribute(request.getParameterMap(), PassiveRequestorConstants.REPLY_TO));
+    private void sendFrameworkForLogout(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Map paramMap = request.getParameterMap();
+
+        SessionDTO sessionDTO = new SessionDTO();
+        sessionDTO.setAction(getAttribute(paramMap, PassiveRequestorConstants.ACTION));
+        sessionDTO.setAttributes(getAttribute(paramMap, PassiveRequestorConstants.ATTRIBUTE));
+        sessionDTO.setContext(getAttribute(paramMap, PassiveRequestorConstants.CONTEXT));
+        sessionDTO.setReplyTo(getAttribute(paramMap, PassiveRequestorConstants.REPLY_TO));
+        sessionDTO.setPseudo(getAttribute(paramMap, PassiveRequestorConstants.PSEUDO));
+        sessionDTO.setRealm(getAttribute(paramMap, PassiveRequestorConstants.REALM));
+        sessionDTO.setRequest(getAttribute(paramMap, PassiveRequestorConstants.REQUEST));
+        sessionDTO.setRequestPointer(getAttribute(paramMap, PassiveRequestorConstants.REQUEST_POINTER));
+        sessionDTO.setPolicy(getAttribute(paramMap, PassiveRequestorConstants.POLCY));
+        sessionDTO.setReqQueryString(request.getQueryString());
+
+        String sessionDataKey = UUIDGenerator.generateUUID();
+        addSessionDataToCache(sessionDataKey, sessionDTO, IdPManagementUtil.getIdleSessionTimeOut
+                (CarbonContext.getThreadLocalCarbonContext().getTenantDomain()));
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
+
+        String selfPath = request.getContextPath();
+        AuthenticationRequest authenticationRequest = new
+                AuthenticationRequest();
+        authenticationRequest.addRequestQueryParam(FrameworkConstants.RequestParams.LOGOUT,
+                new String[]{Boolean.TRUE.toString()});
+        authenticationRequest.setRequestQueryParams(request.getParameterMap());
+        authenticationRequest.setCommonAuthCallerPath(selfPath);
+        authenticationRequest.appendRequestQueryParams(request.getParameterMap());
+        for (Enumeration e = request.getHeaderNames(); e.hasMoreElements(); ) {
+            String headerName = e.nextElement().toString();
+            authenticationRequest.addHeader(headerName, request.getHeader(headerName));
+        }
+
+        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
+                (authenticationRequest);
+        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
+        String queryParams = "?" + FrameworkConstants.SESSION_DATA_KEY + "=" + sessionDataKey
+                + "&" + FrameworkConstants.RequestParams.TYPE + "=" + FrameworkConstants.PASSIVE_STS;
+
+        response.sendRedirect(commonAuthURL + queryParams);
+
     }
 
     private void handleAuthenticationRequest(HttpServletRequest request, HttpServletResponse response)
