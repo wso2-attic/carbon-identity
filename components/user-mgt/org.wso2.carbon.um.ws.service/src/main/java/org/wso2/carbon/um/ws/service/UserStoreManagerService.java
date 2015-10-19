@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.um.ws.service;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -71,7 +72,7 @@ public class UserStoreManagerService extends AbstractAdmin {
         String claimSeparator = super.getUserRealm().getRealmConfiguration().getUserStoreProperty(
                 MULTI_ATTRIBUTE_SEPARATOR);
 
-        if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+        if (StringUtils.isNotBlank(claimSeparator) {
             userAttributeSeparator = claimSeparator;
         }
 
@@ -82,7 +83,7 @@ public class UserStoreManagerService extends AbstractAdmin {
                 existingClaimValue = "";
             }
 
-            if (claim.getValue() != null && !"".equals(claim.getValue())) {
+            if (StringUtils.isNotBlank(claim.getValue())) {
 
                 boolean claimValueAlreadyExists = false;
                 if (existingClaimValue.contains(userAttributeSeparator)) {
