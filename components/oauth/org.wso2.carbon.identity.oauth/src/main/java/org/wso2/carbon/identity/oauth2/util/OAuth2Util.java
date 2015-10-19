@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.model.User;
-import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
@@ -34,7 +33,6 @@ import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
-import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
 import org.wso2.carbon.identity.oauth.dao.OAuthConsumerDAO;
 import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
@@ -56,7 +54,6 @@ import java.util.TreeMap;
  */
 public class OAuth2Util {
 
-    public static final String IMPLICIT = "implicit";
     private static Log log = LogFactory.getLog(OAuth2Util.class);
     private static boolean cacheEnabled = OAuthServerConfiguration.getInstance().isCacheEnabled();
     private static OAuthCache cache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
@@ -152,6 +149,7 @@ public class OAuth2Util {
                 }
             }
         }
+
         // Cache miss
         if (clientSecret == null) {
             OAuthConsumerDAO oAuthConsumerDAO = new OAuthConsumerDAO();
@@ -169,34 +167,13 @@ public class OAuth2Util {
         }
 
         if (!clientSecret.equals(clientSecretProvided)) {
-            if(StringUtils.isEmpty(clientSecretProvided) || StringUtils.isEmpty(clientSecretProvided.trim())) {
-                OAuthAppDAO appDAO = new OAuthAppDAO();
-                OAuthAppDO appDO = appDAO.getAppInformation(clientId);
-                String grantTypesString = appDO.getGrantTypes();
-                boolean isOnlyImplicit = true;
-                if (StringUtils.isNotEmpty(grantTypesString) && StringUtils.isNotEmpty(grantTypesString.trim())) {
-                    String[] grantTypes = grantTypesString.split(",");
-                    for (String grantType : grantTypes) {
-                        if (StringUtils.isNotBlank(grantType) && !IMPLICIT.equals(grantType.trim())) {
-                            isOnlyImplicit = false;
-                        }
-                    }
-                }
-                if (isOnlyImplicit == true) {
-                    if(log.isDebugEnabled()){
-                        log.debug("Application " + appDO.getApplicationName() + " is registered only for Implicit " +
-                                "grant type. Therefore providing client secret for token revocation is optional");
-                    }
-                } else {
-                    return false;
-                }
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Provided the Client ID : " + clientId +
-                            " and Client Secret do not match with the issued credentials.");
-                    }
-                return false;
+
+            if (log.isDebugEnabled()) {
+                log.debug("Provided the Client ID : " + clientId +
+                        " and Client Secret do not match with the issued credentials.");
             }
+
+            return false;
         }
 
         if (log.isDebugEnabled()) {
@@ -204,6 +181,7 @@ public class OAuth2Util {
         }
 
         if (cacheEnabled && !cacheHit) {
+
             cache.addToCache(new OAuthCacheKey(clientId), new ClientCredentialDO(clientSecret));
             if (log.isDebugEnabled()) {
                 log.debug("Client credentials were added to the cache for client id : " + clientId);

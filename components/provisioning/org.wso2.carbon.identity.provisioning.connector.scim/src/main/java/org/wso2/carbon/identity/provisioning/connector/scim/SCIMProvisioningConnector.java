@@ -24,15 +24,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
-import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
-import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
-import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
-import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
+import org.wso2.carbon.identity.provisioning.*;
 import org.wso2.carbon.identity.scim.common.impl.ProvisioningClient;
 import org.wso2.carbon.identity.scim.common.utils.AttributeMapper;
+import org.wso2.carbon.identity.scim.common.utils.SCIMCommonConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.charon.core.config.SCIMConfigConstants;
 import org.wso2.charon.core.config.SCIMProvider;
@@ -117,7 +112,9 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
                     createGroup(provisioningEntity);
                 } else if (provisioningEntity.getOperation() == ProvisioningOperation.PUT) {
                     updateGroup(provisioningEntity);
-                } else {
+                } else if (provisioningEntity.getOperation() == ProvisioningOperation.PATCH) {
+                    updateGroup(provisioningEntity);
+                }else {
                     log.warn("Unsupported provisioning operation.");
                 }
             } else {
@@ -337,11 +334,22 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
                     group.setMember(members);
                 }
             }
-
-            ProvisioningClient scimProvsioningClient = new ProvisioningClient(scimProvider, group,
-                    httpMethod, null);
-            scimProvsioningClient.provisionUpdateGroup();
-
+            String oldGroupName = ProvisioningUtil.getAttributeValue(groupEntity,
+                                                                IdentityProvisioningConstants.OLD_GROUP_NAME_CLAIM_URI);
+            ProvisioningClient scimProvsioningClient = null;
+            if (StringUtils.isEmpty(oldGroupName)) {
+                scimProvsioningClient = new ProvisioningClient(scimProvider, group, httpMethod, null);
+            } else {
+                Map<String, Object> additionalInformation = new HashMap();
+                additionalInformation.put(SCIMCommonConstants.IS_ROLE_NAME_CHANGED_ON_UPDATE, true);
+                additionalInformation.put(SCIMCommonConstants.OLD_GROUP_NAME, oldGroupName);
+                scimProvsioningClient = new ProvisioningClient(scimProvider, group, httpMethod, additionalInformation);
+            }
+            if (ProvisioningOperation.PUT.equals(groupEntity.getOperation())) {
+                scimProvsioningClient.provisionUpdateGroup();
+            }else if(ProvisioningOperation.PATCH.equals(groupEntity.getOperation())){
+                scimProvsioningClient.provisionPatchGroup();
+            }
         } catch (Exception e) {
             throw new IdentityProvisioningException("Error while updating group.", e);
         }

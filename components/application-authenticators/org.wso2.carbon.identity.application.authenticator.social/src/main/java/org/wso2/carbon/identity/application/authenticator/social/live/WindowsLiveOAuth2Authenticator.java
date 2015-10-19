@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.client.response.OAuthClientResponse;
 import org.apache.oltu.oauth2.common.utils.JSONUtils;
+import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -166,7 +167,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
      * @return
      */
     @Override
-    protected String getAuthenticateUser(OAuthClientResponse token) {
+    protected String getAuthenticateUser(AuthenticationContext context, Map<String, Object> jsonObject, OAuthClientResponse token) {
         return token.getParam(WindowsLiveOAuth2AuthenticatorConstants.USER_ID);
     }
 

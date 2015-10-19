@@ -755,6 +755,154 @@ public class ProvisioningClient implements Runnable {
         }
     }
 
+    public void provisionPatchGroup() throws IdentitySCIMException {
+        String userName = null;
+        try {
+            //get provider details
+            String groupEPURL = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_GROUP_ENDPOINT);
+            String userEPURL = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USER_ENDPOINT);
+            userName = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_USERNAME);
+            String password = provider.getProperty(SCIMConfigConstants.ELEMENT_NAME_PASSWORD);
+            String contentType = provider.getProperty(SCIMConstants.CONTENT_TYPE_HEADER);
+
+            if (contentType == null) {
+                contentType = SCIMConstants.APPLICATION_JSON;
+            }
+
+            /*get the groupId of the group being provisioned from the particular provider by filtering
+              with display name*/
+            GetMethod getMethod = new GetMethod(groupEPURL);
+            //add filter query parameter
+            //check if role name is updated
+            if (additionalProvisioningInformation != null && (Boolean) additionalProvisioningInformation.get(
+                    SCIMCommonConstants.IS_ROLE_NAME_CHANGED_ON_UPDATE)) {
+                getMethod.setQueryString(
+                        GROUP_FILTER + additionalProvisioningInformation.get(SCIMCommonConstants.OLD_GROUP_NAME));
+            } else {
+                getMethod.setQueryString(GROUP_FILTER + ((Group) scimObject).getDisplayName());
+            }
+            //add authorization headers
+            getMethod.addRequestHeader(SCIMConstants.AUTHORIZATION_HEADER,
+                                       BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
+
+            //create http client
+            HttpClient httpFilterClient = new HttpClient();
+            //send the request
+            int responseStatus = httpFilterClient.executeMethod(getMethod);
+
+            String response = getMethod.getResponseBodyAsString();
+            if (logger.isDebugEnabled()) {
+                logger.debug("SCIM - filter operation inside 'update group' provisioning " +
+                             "returned with response code: " + responseStatus);
+                logger.debug("Filter Group Response: " + response);
+            }
+            SCIMClient scimClient = new SCIMClient();
+            if (scimClient.evaluateResponseStatus(responseStatus)) {
+                //decode the response to extract the groupId.
+                ListedResource listedResource = scimClient.decodeSCIMResponseWithListedResource(
+                        response, SCIMConstants.identifyFormat(contentType), objectType);
+                List<SCIMObject> groups = listedResource.getScimObjects();
+                String groupId = null;
+                //we expect only one user in the list
+                for (SCIMObject group : groups) {
+                    groupId = ((Group) group).getId();
+                }
+
+                String url = groupEPURL + "/" + groupId;
+
+                //now start sending the update request.
+
+                //get list of users in the group, if any, by userNames
+                List<String> users = ((Group) scimObject).getMembersWithDisplayName();
+
+                Group copiedGroup = null;
+
+                if (CollectionUtils.isNotEmpty(users)) {
+                    //create a deep copy of the group since we are going to update the member ids
+                    copiedGroup = (Group) CopyUtil.deepCopy(scimObject);
+                    //delete existing members in the group since we are going to update it with
+                    copiedGroup.deleteAttribute(SCIMConstants.GroupSchemaConstants.MEMBERS);
+                    //create http client
+                    HttpClient httpFilterUserClient = new HttpClient();
+                    //create get method for filtering
+                    GetMethod getUserMethod = new GetMethod(userEPURL);
+                    getUserMethod.addRequestHeader(SCIMConstants.AUTHORIZATION_HEADER,
+                                                   BasicAuthUtil.getBase64EncodedBasicAuthHeader(
+                                                           userName, password));
+                    //get corresponding userIds
+                    for (String user : users) {
+                        String filter = USER_FILTER + user;
+                        getUserMethod.setQueryString(filter);
+                        int responseCode = httpFilterUserClient.executeMethod(getUserMethod);
+                        String filterUserResponse = getUserMethod.getResponseBodyAsString();
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("SCIM - 'filter user' operation inside 'update group' provisioning " +
+                                         "returned with response code: " + responseCode);
+                            logger.debug("Filter User Response: " + filterUserResponse);
+                        }
+                        //check for success of the response
+                        if (scimClient.evaluateResponseStatus(responseCode)) {
+                            ListedResource listedUserResource =
+                                    scimClient.decodeSCIMResponseWithListedResource(
+                                            filterUserResponse, SCIMConstants.identifyFormat(contentType),
+                                            SCIMConstants.USER_INT);
+                            List<SCIMObject> filteredUsers = listedUserResource.getScimObjects();
+                            String userId = null;
+                            for (SCIMObject filteredUser : filteredUsers) {
+                                //we expect only one result here
+                                userId = ((User) filteredUser).getId();
+                            }
+                            copiedGroup.setGroupMember(userId, user);
+                        } else {
+                            //decode scim exception and extract the specific error message.
+                            AbstractCharonException exception =
+                                    scimClient.decodeSCIMException(
+                                            filterUserResponse, SCIMConstants.identifyFormat(contentType));
+                            logger.error(exception.getDescription());
+                        }
+                    }
+                }
+
+                //now send the update request.
+                PostMethod patchMethod = new PostMethod(url){
+                    @Override
+                    public String getName() {
+                        return "PATCH";
+                    }
+                };
+                patchMethod.addRequestHeader(
+                        SCIMConstants.AUTHORIZATION_HEADER,
+                        BasicAuthUtil.getBase64EncodedBasicAuthHeader(userName, password));
+                String encodedGroup = scimClient.encodeSCIMObject(
+                        (AbstractSCIMObject) scimObject, SCIMConstants.identifyFormat(contentType));
+                RequestEntity putRequestEntity = new StringRequestEntity(
+                        encodedGroup, contentType, null);
+                patchMethod.setRequestEntity(putRequestEntity);
+
+                HttpClient httpUpdateClient = new HttpClient();
+                int updateResponseStatus = httpUpdateClient.executeMethod(patchMethod);
+                String updateResponse = patchMethod.getResponseBodyAsString();
+
+                logger.info("SCIM - update group operation returned with response code: " +
+                            updateResponseStatus);
+                if (!scimClient.evaluateResponseStatus(updateResponseStatus)) {
+                    //decode scim exception and extract the specific error message.
+                    AbstractCharonException exception = scimClient.decodeSCIMException(
+                            updateResponse, SCIMConstants.identifyFormat(contentType));
+                    logger.error(exception.getDescription());
+                }
+            } else {
+                //decode scim exception and extract the specific error message.
+                AbstractCharonException exception =
+                        scimClient.decodeSCIMException(
+                                response, SCIMConstants.identifyFormat(contentType));
+                logger.error(exception.getDescription());
+            }
+        } catch (CharonException | IOException | BadRequestException e) {
+            throw new IdentitySCIMException("Error in provisioning 'delete group' operation for user : " + userName, e);
+        }
+    }
+
     /**
      * When an object implementing interface <code>Runnable</code> is used
      * to create a thread, starting the thread causes the object's

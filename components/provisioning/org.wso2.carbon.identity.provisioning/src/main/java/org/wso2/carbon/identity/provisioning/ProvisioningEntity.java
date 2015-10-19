@@ -63,6 +63,18 @@ public class ProvisioningEntity implements Serializable {
     }
 
     /**
+     *
+     * @param entityTpe
+     * @param operation
+     */
+    public ProvisioningEntity(ProvisioningEntityType entityTpe, ProvisioningOperation operation,
+                              Map<ClaimMapping, List<String>> attributes) {
+        this.entityType = entityTpe;
+        this.operation = operation;
+        this.attributes = attributes;
+    }
+
+    /**
      * @return
      */
     public ProvisioningEntityType getEntityType() {
@@ -116,6 +128,10 @@ public class ProvisioningEntity implements Serializable {
      */
     public String getEntityName() {
         return entityName;
+    }
+
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
     }
 
     public boolean isJitProvisioning() {

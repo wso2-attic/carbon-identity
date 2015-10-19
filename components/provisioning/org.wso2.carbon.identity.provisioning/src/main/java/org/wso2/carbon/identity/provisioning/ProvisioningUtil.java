@@ -90,4 +90,24 @@ public class ProvisioningUtil {
             attributeMap.put(clmMapping, attributeList);
         }
     }
+
+    /**
+     * Required provisioning entity attribute value can be retrieved by passing attribute key, return null if value is
+     * not found
+     * @param provisioningEntity
+     * @param claimURI
+     * @return
+     */
+    public static String getAttributeValue(ProvisioningEntity provisioningEntity, String claimURI){
+        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> attributes =
+                provisioningEntity.getAttributes();
+        if(!attributes.isEmpty()){
+            List<String> valueList = attributes.get(org.wso2.carbon.identity.application.common.model.ClaimMapping
+                                                            .build(claimURI, null, null, false));
+            if (valueList != null && !valueList.isEmpty()) {
+                return valueList.get(0);
+            }
+        }
+        return null;
+    }
 }

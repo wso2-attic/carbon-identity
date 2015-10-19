@@ -57,6 +57,7 @@ public class ApplicationBean {
     public static final String IDP_LOCAL_NAME = "LOCAL";
 
     public static final String LOCAL_IDP = "wso2carbon-local-idp";
+    public static final String DUMB = "dumb";
 
     private ServiceProvider serviceProvider;
     private IdentityProvider[] federatedIdentityProviders;
@@ -996,6 +997,7 @@ public class ApplicationBean {
         String provisioningUserStore = request.getParameter("scim-inbound-userstore");
         InboundProvisioningConfig inBoundProConfig = new InboundProvisioningConfig();
         inBoundProConfig.setProvisioningUserStore(provisioningUserStore);
+        inBoundProConfig.setDumbMode(Boolean.parseBoolean(request.getParameter(DUMB)));
         serviceProvider.setInboundProvisioningConfig(inBoundProConfig);
 
         // update outbound provisioning data.
@@ -1349,6 +1351,7 @@ public class ApplicationBean {
         String provisioningUserStore = request.getParameter("scim-inbound-userstore");
         InboundProvisioningConfig inBoundProConfig = new InboundProvisioningConfig();
         inBoundProConfig.setProvisioningUserStore(provisioningUserStore);
+        inBoundProConfig.setDumbMode(Boolean.parseBoolean(request.getParameter(DUMB)));
         serviceProvider.setInboundProvisioningConfig(inBoundProConfig);
 
         String[] provisioningProviders = request.getParameterValues("provisioning_idp");

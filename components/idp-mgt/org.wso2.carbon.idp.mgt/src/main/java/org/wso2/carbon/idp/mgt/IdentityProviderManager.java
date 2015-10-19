@@ -1371,7 +1371,9 @@ public class IdentityProviderManager {
                         for (Property property : properties) {
                             if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(
                                     property.getName())) {
-                                if (dao.isSimilarIdPEntityIdsAvailble(property.getValue(), tenantId)) {
+                                if (dao.isIdPAvailableForAuthenticatorProperty(authConfig.getName(),
+                                        IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID,
+                                        property.getValue(), tenantId)) {
                                     String msg = "An Identity Provider Entity Id has already been registered with the " +
                                             "name '" + property.getValue() + "' for tenant '" + tenantDomain + "'";
                                     throw new IdentityProviderManagementException(msg);
@@ -1423,7 +1425,9 @@ public class IdentityProviderManager {
                                         (property.getValue())) {
                                     return true;
                                 } else {
-                                    if (dao.isSimilarIdPEntityIdsAvailble(property.getValue(), tenantId)) {
+                                    if (dao.isIdPAvailableForAuthenticatorProperty(fedAuthnConfig.getName(),
+                                            IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID,
+                                            property.getValue(), tenantId)) {
                                         String msg = "An Identity Provider Entity Id has already been registered " +
                                                 "with the name '" +
                                                 property.getValue() + "' for tenant '" + tenantDomain + "'";
