@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -34,6 +35,7 @@ import java.util.Map;
 
 public class UserStoreActionListener extends AbstractIdentityUserOperationEventListener {
 
+    public static final String DO_PRE_SET_USER_CLAIM_VALUES_PROPERTY = "doPreSetUserClaimValues";
     private static Log log = LogFactory.getLog(UserStoreActionListener.class);
 
     @Override
@@ -150,7 +152,8 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
                                            UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable()) {
+        if (!isEnable() || IdentityMgtEventListener.threadLocalProperties.get().containsKey
+                (DO_PRE_SET_USER_CLAIM_VALUES_PROPERTY)) {
             return true;
         }
         try {
