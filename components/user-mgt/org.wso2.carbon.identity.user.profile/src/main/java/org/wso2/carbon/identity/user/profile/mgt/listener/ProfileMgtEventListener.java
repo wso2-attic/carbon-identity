@@ -39,7 +39,7 @@ public class ProfileMgtEventListener extends AbstractIdentityUserOperationEventL
 
     @Override
     public int getExecutionOrderId() {
-        return 70 ;
+        return 110 ;
     }
 
     @Override
