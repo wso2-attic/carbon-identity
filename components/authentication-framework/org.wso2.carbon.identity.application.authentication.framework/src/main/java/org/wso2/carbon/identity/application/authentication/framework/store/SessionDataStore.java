@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.application.authentication.framework.store;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -277,7 +278,7 @@ public class SessionDataStore {
 
     public void storeSessionData(String key, String type, Object entry) {
 
-        storeSessionData(key, type, entry, -1);
+        storeSessionData(key, type, entry, MultitenantConstants.INVALID_TENANT_ID);
     }
 
     public void storeSessionData(String key, String type, Object entry, int tenantId) {
