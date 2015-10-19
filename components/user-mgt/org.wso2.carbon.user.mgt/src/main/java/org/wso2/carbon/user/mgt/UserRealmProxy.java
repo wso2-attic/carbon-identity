@@ -683,7 +683,10 @@ public class UserRealmProxy {
             return info;
         } catch (UserStoreException e) {
             // previously logged so logging not needed
-            throw new UserAdminException(e.getMessage(), e);
+            throw new UserAdminException("Error getting user realm information from domain '" + manager
+                    .getRealmConfiguration()
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME) + "': " + e.getMessage
+                    (), e);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new UserAdminException(e.getMessage(), e);
