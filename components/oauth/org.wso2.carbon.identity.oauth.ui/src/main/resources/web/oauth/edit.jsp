@@ -142,13 +142,24 @@
         <div id="workArea">
    			<script type="text/javascript">
                 function onClickUpdate() {
-                    var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.http'/>",
-                            validate, null, null);
-                    if (isValidated) {
+                    if($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
+                        var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.not.https'/>",
+                                validate, null, null);
+                        if (isValidated) {
+                            validate();
+                        }
+                    } else {
                         validate();
                     }
                 }
                 function validate() {
+                    var callbackUrl = document.getElementById('callback').value;
+                    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+                    if (!regexp.test(callbackUrl) || callbackUrl.indexOf(",") > -1) {
+                        CARBON.showWarningDialog("<fmt:message key='callback.is.not.url'/>", null, null);
+                        return false;
+                    }
+
                     var value = document.getElementsByName("application")[0].value;
                     if (value == '') {
                         CARBON.showWarningDialog('<fmt:message key="application.is.required"/>');
@@ -218,7 +229,7 @@
 		                        <td class="leftCol-small"><fmt:message key='callback'/><span class="required">*</span></td>
                                 <td><input class="text-box-big" id="callback" name="callback"
                                            type="text" value="<%=Encode.forHtmlAttribute(app.getCallbackUrl())%>"
-                                           black-list-patterns="http-url"/></td>
+                                           white-list-patterns="https-url"/></td>
 		                    </tr>
                             <script>
                                 if(<%=app.getOAuthVersion().equals(OAuthConstants.OAuthVersions.VERSION_1A)%> || <%=codeGrant%> || <%=implicitGrant%>){

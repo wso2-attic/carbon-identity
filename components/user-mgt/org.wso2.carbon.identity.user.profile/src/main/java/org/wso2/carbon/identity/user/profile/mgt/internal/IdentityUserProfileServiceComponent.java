@@ -22,9 +22,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.identity.user.profile.mgt.listener.ProfileMgtEventListener;
 import org.wso2.carbon.identity.user.profile.mgt.util.ServiceHodler;
 import org.wso2.carbon.identity.user.store.configuration.listener.UserStoreConfigListener;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 
 /**
  * @scr.component name="identity.user.profile.mgt.component" immediate="true"
@@ -51,6 +53,15 @@ public class IdentityUserProfileServiceComponent {
                 }
             } else {
                 log.error("User profile management - UserStoreConfigListener could not be registered.");
+            }
+            ServiceRegistration profileMgtEventSR = ctxt.getBundleContext().registerService(
+                    UserOperationEventListener.class.getName(), new ProfileMgtEventListener(), null);
+            if (profileMgtEventSR != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("User profile management - ProfileMgtEventListener registered.");
+                }
+            } else {
+                log.error("User profile management - ProfileMgtEventListener could not be registered.");
             }
         } catch (Throwable e) {
             log.error("Failed to activate ProfileMgt bundle ", e);

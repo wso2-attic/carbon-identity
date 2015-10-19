@@ -61,6 +61,7 @@
          -->
         <!--OpenIDServerUrl>https://localhost:9443/openidserver</OpenIDServerUrl-->
         <!--OpenIDUserPattern>https://localhost:9443/openid/</OpenIDUserPattern-->
+        <!--OpenIDLoginUrl>https://localhost:9443/authenticationendpoint/openid_login.do</OpenIDLoginUrl-->
 
         <!-- If the users must be prompted for approval -->
         <OpenIDSkipUserConsent>false</OpenIDSkipUserConsent>
@@ -132,6 +133,7 @@
         <!--OAuth2UserInfoEPUrl>https://localhost:9443/oauth2/userinfo</OAuth2UserInfoEPUrl-->
         <!--OIDCConsentPage>https://localhost:9443/authenticationendpoint/oauth2_consent.do</OIDCConsentPage-->
         <!--OAuth2ConsentPage>https://localhost:9443/authenticationendpoint/oauth2_authz.do</OAuth2ConsentPage-->
+        <!--OAuth2ErrorPage>https://localhost:9443/authenticationendpoint/oauth2_error.do</OAuth2ErrorPage-->
 
         <!-- Default validity period for Authorization Code in seconds -->
         <AuthorizationCodeDefaultValidityPeriod>300</AuthorizationCodeDefaultValidityPeriod>
@@ -268,6 +270,8 @@
             If that doesn't satisfy uncomment the following config and explicitly configure the value
         -->
         <!--IdentityProviderURL>https://localhost:9443/samlsso</IdentityProviderURL-->
+        <!--DefaultLogoutEndpoint>https://localhost:9443/authenticationendpoint/samlsso_logout.do</DefaultLogoutEndpoint-->
+        <!--NotificationEndpoint>https://localhost:9443/authenticationendpoint/samlsso_notification.do</NotificationEndpoint-->
         <SingleLogoutRetryCount>5</SingleLogoutRetryCount>
         <SingleLogoutRetryInterval>60000</SingleLogoutRetryInterval>
         <!-- in milli seconds -->
@@ -308,6 +312,7 @@
             If that doesn't satisfy uncomment the following config and explicitly configure the value
         -->
         <!--IdentityProviderURL>https://localhost:9443/passivests</IdentityProviderURL-->
+        <!--RetryURL>https://localhost:9443/authenticationendpoint/retry.do</RetryURL-->
     </PassiveSTS>
 
     <EntitlementSettings>

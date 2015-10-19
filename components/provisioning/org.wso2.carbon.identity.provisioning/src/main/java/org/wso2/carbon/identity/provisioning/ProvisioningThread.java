@@ -20,10 +20,13 @@ package org.wso2.carbon.identity.provisioning;
 
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.provisioning.dao.CacheBackedProvisioningMgtDAO;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -78,6 +81,16 @@ public class ProvisioningThread implements Callable<Boolean> {
                 // store provisioned identifier for future reference.
                 storeProvisionedEntityIdentifier(idPName, connectorType, provisioningEntity,
                         tenantDomainName);
+            } else if (provisioningEntity.getEntityType() == ProvisioningEntityType.GROUP &&
+                       provisioningEntity.getOperation() == ProvisioningOperation.PUT) {
+
+                String newGroupName = ProvisioningUtil.getAttributeValue(provisioningEntity,
+                                                                IdentityProvisioningConstants.NEW_GROUP_NAME_CLAIM_URI);
+                if(newGroupName != null){
+                    // update provisioned entity name for future reference. this is applicable for only
+                    // group name update
+                    dao.updateProvisionedEntityName(provisioningEntity);
+                }
             }
 
             success = true;

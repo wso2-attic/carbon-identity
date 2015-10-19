@@ -47,12 +47,13 @@ public class OAuthUIUtil {
      */
     public static String getAbsoluteEndpointURL(String endpointType, String oauthVersion, HttpServletRequest request) {
 
-        String endpointURL = IdentityUtil.getServerURL("");
+        String endpointURL = IdentityUtil.getServerURL("", false);
 
         // get the servlet context from the OAuth version.
         String oauthServletContext = "/oauth2";
         if (oauthVersion.equals(OAuthConstants.OAuthVersions.VERSION_1A)) {
             oauthServletContext = "/oauth";
+            endpointURL = IdentityUtil.getServerURL("", true);
         }
         return endpointURL + oauthServletContext + endpointType;
     }

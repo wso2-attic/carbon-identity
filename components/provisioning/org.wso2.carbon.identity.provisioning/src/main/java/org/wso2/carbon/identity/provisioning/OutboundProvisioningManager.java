@@ -376,7 +376,9 @@ public class OutboundProvisioningManager {
             throws IdentityProvisioningException {
 
         try {
-
+            if(provisioningEntity.getEntityName() == null) {
+                setProvisioningEntityName(provisioningEntity);
+            }
             // get details about the service provider.any in-bound provisioning request via
             // the SOAP based API (or the management console) - or SCIM API with HTTP Basic
             // Authentication is considered as coming from the local service provider.
@@ -927,5 +929,73 @@ public class OutboundProvisioningManager {
         if (log.isDebugEnabled()) {
             log.debug(generateMessageOnFailureProvisioningOperation(idPName, connectorType, provisioningEntity), e);
         }
+    }
+
+    /**
+     * If ProvisioningEntity does not contains entity name, load it from from IDP_PROVISIONING_ENTITY table
+     * @param provisioningEntity
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    private ProvisioningEntity setProvisioningEntityName(ProvisioningEntity provisioningEntity)
+            throws IdentityApplicationManagementException {
+        String provisionedEntityName = dao.getProvisionedEntityNameByLocalId(
+                ProvisioningUtil.getAttributeValue(provisioningEntity, IdentityProvisioningConstants.ID_CLAIM_URI));
+
+        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> attributeList =
+                provisioningEntity.getAttributes();
+
+        ProvisioningEntityType provisioningEntityType = provisioningEntity.getEntityType();
+        ProvisioningOperation provisioningOperation = provisioningEntity.getOperation();
+
+        if (ProvisioningEntityType.USER.equals(provisioningEntityType)) {
+
+            attributeList.put(org.wso2.carbon.identity.application.common.model.ClaimMapping
+                                      .build(IdentityProvisioningConstants.USERNAME_CLAIM_URI, null, null,
+                                             false), Arrays.asList(new String[] { provisionedEntityName }));
+
+        } else if (ProvisioningEntityType.GROUP.equals(provisioningEntityType)) {
+
+            if (ProvisioningOperation.PUT.equals(provisioningOperation)) {
+                String oldGroupName = provisionedEntityName;
+                String currentGroupName = ProvisioningUtil
+                        .getAttributeValue(provisioningEntity, IdentityProvisioningConstants.GROUP_CLAIM_URI);
+                if (!oldGroupName.equals(currentGroupName)) {
+                    attributeList.put(org.wso2.carbon.identity.application.common.model.ClaimMapping
+                                              .build(IdentityProvisioningConstants.OLD_GROUP_NAME_CLAIM_URI,
+                                                     null, null, false),
+                                      Arrays.asList(new String[] { oldGroupName }));
+                    attributeList.put(org.wso2.carbon.identity.application.common.model.ClaimMapping
+                                              .build(IdentityProvisioningConstants.NEW_GROUP_NAME_CLAIM_URI,
+                                                     null, null, false),
+                                      Arrays.asList(new String[] { currentGroupName }));
+                }
+            } else if (ProvisioningOperation.PATCH.equals(provisioningOperation)) {
+                String oldGroupName = provisionedEntityName;
+                String currentGroupName = ProvisioningUtil
+                        .getAttributeValue(provisioningEntity, IdentityProvisioningConstants.GROUP_CLAIM_URI);
+                if (currentGroupName == null) {
+                    currentGroupName = oldGroupName;
+                }
+                if (!oldGroupName.equals(currentGroupName)) {
+                    attributeList.put(org.wso2.carbon.identity.application.common.model.ClaimMapping
+                                              .build(IdentityProvisioningConstants.OLD_GROUP_NAME_CLAIM_URI,
+                                                     null, null, false),
+                                      Arrays.asList(new String[] { oldGroupName }));
+                    attributeList.put(org.wso2.carbon.identity.application.common.model.ClaimMapping
+                                              .build(IdentityProvisioningConstants.NEW_GROUP_NAME_CLAIM_URI,
+                                                     null, null, false),
+                                      Arrays.asList(new String[] { currentGroupName }));
+                }
+            }
+        }
+        String userStoreDomain = ProvisioningUtil.getAttributeValue(provisioningEntity,
+                                                             IdentityProvisioningConstants.USER_STORE_DOMAIN_CLAIM_URI);
+        if (log.isDebugEnabled()) {
+            log.debug("Adding domain name : " + userStoreDomain + " to name : " + provisionedEntityName);
+        }
+        provisioningEntity
+                .setEntityName(UserCoreUtil.addDomainToName(provisionedEntityName, userStoreDomain));
+        return provisioningEntity;
     }
 }

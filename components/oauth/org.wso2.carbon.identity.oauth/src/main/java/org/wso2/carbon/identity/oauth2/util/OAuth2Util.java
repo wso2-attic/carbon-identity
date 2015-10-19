@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.model.User;
-import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
@@ -34,7 +33,6 @@ import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
-import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
 import org.wso2.carbon.identity.oauth.dao.OAuthConsumerDAO;
 import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
@@ -56,7 +54,6 @@ import java.util.TreeMap;
  */
 public class OAuth2Util {
 
-    public static final String IMPLICIT = "implicit";
     private static Log log = LogFactory.getLog(OAuth2Util.class);
     private static boolean cacheEnabled = OAuthServerConfiguration.getInstance().isCacheEnabled();
     private static OAuthCache cache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
@@ -152,6 +149,7 @@ public class OAuth2Util {
                 }
             }
         }
+
         // Cache miss
         if (clientSecret == null) {
             OAuthConsumerDAO oAuthConsumerDAO = new OAuthConsumerDAO();
@@ -169,34 +167,13 @@ public class OAuth2Util {
         }
 
         if (!clientSecret.equals(clientSecretProvided)) {
-            if(StringUtils.isEmpty(clientSecretProvided) || StringUtils.isEmpty(clientSecretProvided.trim())) {
-                OAuthAppDAO appDAO = new OAuthAppDAO();
-                OAuthAppDO appDO = appDAO.getAppInformation(clientId);
-                String grantTypesString = appDO.getGrantTypes();
-                boolean isOnlyImplicit = true;
-                if (StringUtils.isNotEmpty(grantTypesString) && StringUtils.isNotEmpty(grantTypesString.trim())) {
-                    String[] grantTypes = grantTypesString.split(",");
-                    for (String grantType : grantTypes) {
-                        if (StringUtils.isNotBlank(grantType) && !IMPLICIT.equals(grantType.trim())) {
-                            isOnlyImplicit = false;
-                        }
-                    }
-                }
-                if (isOnlyImplicit == true) {
-                    if(log.isDebugEnabled()){
-                        log.debug("Application " + appDO.getApplicationName() + " is registered only for Implicit " +
-                                "grant type. Therefore providing client secret for token revocation is optional");
-                    }
-                } else {
-                    return false;
-                }
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Provided the Client ID : " + clientId +
-                            " and Client Secret do not match with the issued credentials.");
-                    }
-                return false;
+
+            if (log.isDebugEnabled()) {
+                log.debug("Provided the Client ID : " + clientId +
+                        " and Client Secret do not match with the issued credentials.");
             }
+
+            return false;
         }
 
         if (log.isDebugEnabled()) {
@@ -204,6 +181,7 @@ public class OAuth2Util {
         }
 
         if (cacheEnabled && !cacheHit) {
+
             cache.addToCache(new OAuthCacheKey(clientId), new ClientCredentialDO(clientSecret));
             if (log.isDebugEnabled()) {
                 log.debug("Client credentials were added to the cache for client id : " + clientId);
@@ -407,20 +385,6 @@ public class OAuth2Util {
         return userId;
     }
 
-    public static String getSafeText(String text) {
-        if (text == null) {
-            return text;
-        }
-        text = text.trim();
-        if (text.indexOf('<') > -1) {
-            text = text.replace("<", "&lt;");
-        }
-        if (text.indexOf('>') > -1) {
-            text = text.replace(">", "&gt;");
-        }
-        return text;
-    }
-
     public static long getTokenExpireTimeMillis(AccessTokenDO accessTokenDO) {
 
         if (accessTokenDO == null) {
@@ -568,7 +532,7 @@ public class OAuth2Util {
         public static String getOAuth1RequestTokenUrl() {
             String oauth1RequestTokenUrl = OAuthServerConfiguration.getInstance().getOAuth1RequestTokenUrl();
             if(StringUtils.isBlank(oauth1RequestTokenUrl)){
-                oauth1RequestTokenUrl = IdentityUtil.getServerURL("oauth/request-token");
+                oauth1RequestTokenUrl = IdentityUtil.getServerURL("oauth/request-token", true);
             }
             return oauth1RequestTokenUrl;
         }
@@ -576,7 +540,7 @@ public class OAuth2Util {
         public static String getOAuth1AuthorizeUrl() {
             String oauth1AuthorizeUrl = OAuthServerConfiguration.getInstance().getOAuth1AuthorizeUrl();
             if(StringUtils.isBlank(oauth1AuthorizeUrl)){
-                oauth1AuthorizeUrl = IdentityUtil.getServerURL("oauth/authorize-url");
+                oauth1AuthorizeUrl = IdentityUtil.getServerURL("oauth/authorize-url", true);
             }
             return oauth1AuthorizeUrl;
         }
@@ -584,7 +548,7 @@ public class OAuth2Util {
         public static String getOAuth1AccessTokenUrl() {
             String oauth1AccessTokenUrl = OAuthServerConfiguration.getInstance().getOAuth1AccessTokenUrl();
             if(StringUtils.isBlank(oauth1AccessTokenUrl)){
-                oauth1AccessTokenUrl = IdentityUtil.getServerURL("oauth/access-token");
+                oauth1AccessTokenUrl = IdentityUtil.getServerURL("oauth/access-token", true);
             }
             return oauth1AccessTokenUrl;
         }
@@ -592,7 +556,7 @@ public class OAuth2Util {
         public static String getOAuth2AuthzEPUrl() {
             String oauth2AuthzEPUrl = OAuthServerConfiguration.getInstance().getOAuth2AuthzEPUrl();
             if(StringUtils.isBlank(oauth2AuthzEPUrl)){
-                oauth2AuthzEPUrl = IdentityUtil.getServerURL("oauth2/authorize");
+                oauth2AuthzEPUrl = IdentityUtil.getServerURL("oauth2/authorize", false);
             }
             return oauth2AuthzEPUrl;
         }
@@ -600,7 +564,7 @@ public class OAuth2Util {
         public static String getOAuth2TokenEPUrl() {
             String oauth2TokenEPUrl = OAuthServerConfiguration.getInstance().getOAuth2TokenEPUrl();
             if(StringUtils.isBlank(oauth2TokenEPUrl)){
-                oauth2TokenEPUrl = IdentityUtil.getServerURL("oauth2/token");
+                oauth2TokenEPUrl = IdentityUtil.getServerURL("oauth2/token", false);
             }
             return oauth2TokenEPUrl;
         }
@@ -608,7 +572,7 @@ public class OAuth2Util {
         public static String getOAuth2UserInfoEPUrl() {
             String oauth2UserInfoEPUrl = OAuthServerConfiguration.getInstance().getOauth2UserInfoEPUrl();
             if(StringUtils.isBlank(oauth2UserInfoEPUrl)){
-                oauth2UserInfoEPUrl = IdentityUtil.getServerURL("oauth2/userinfo");
+                oauth2UserInfoEPUrl = IdentityUtil.getServerURL("oauth2/userinfo", false);
             }
             return oauth2UserInfoEPUrl;
         }
@@ -616,7 +580,7 @@ public class OAuth2Util {
         public static String getOIDCConsentPageUrl() {
             String OIDCConsentPageUrl = OAuthServerConfiguration.getInstance().getOIDCConsentPageUrl();
             if(StringUtils.isBlank(OIDCConsentPageUrl)){
-                OIDCConsentPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_consent.do");
+                OIDCConsentPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_consent.do", false);
             }
             return OIDCConsentPageUrl;
         }
@@ -624,9 +588,17 @@ public class OAuth2Util {
         public static String getOAuth2ConsentPageUrl() {
             String oAuth2ConsentPageUrl = OAuthServerConfiguration.getInstance().getOauth2ConsentPageUrl();
             if(StringUtils.isBlank(oAuth2ConsentPageUrl)){
-                oAuth2ConsentPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_authz.do");
+                oAuth2ConsentPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_authz.do", false);
             }
             return oAuth2ConsentPageUrl;
+        }
+
+        public static String getOAuth2ErrorPageUrl() {
+            String oAuth2ErrorPageUrl = OAuthServerConfiguration.getInstance().getOauth2ErrorPageUrl();
+            if(StringUtils.isBlank(oAuth2ErrorPageUrl)){
+                oAuth2ErrorPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_error.do", false);
+            }
+            return oAuth2ErrorPageUrl;
         }
     }
 

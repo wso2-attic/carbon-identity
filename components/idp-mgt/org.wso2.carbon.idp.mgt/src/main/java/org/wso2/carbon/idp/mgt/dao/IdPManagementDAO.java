@@ -34,7 +34,6 @@ import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfi
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
 import org.wso2.carbon.identity.application.common.model.RoleMapping;
-import org.wso2.carbon.identity.application.common.util.CharacterEncoder;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
@@ -188,7 +187,7 @@ public class IdPManagementDAO {
      * @throws SQLException
      */
     private void addIdentityProviderProperties(Connection dbConnection, int idpId,
-            List<IdentityProviderProperty> properties)
+            List<IdentityProviderProperty> properties, int tenantId)
             throws SQLException {
         String sqlStmt = IdPManagementConstants.SQLQueries.ADD_IDP_METADATA;
         PreparedStatement prepStmt = null;
@@ -200,6 +199,7 @@ public class IdPManagementDAO {
                 prepStmt.setString(2, property.getName());
                 prepStmt.setString(3, property.getValue());
                 prepStmt.setString(4, property.getDisplayName());
+                prepStmt.setInt(5, tenantId);
                 prepStmt.addBatch();
             }
             prepStmt.executeBatch();
@@ -218,7 +218,7 @@ public class IdPManagementDAO {
      * @throws SQLException
      */
     private void updateIdentityProviderProperties(Connection dbConnection, int idpId,
-            List<IdentityProviderProperty> properties)
+            List<IdentityProviderProperty> properties, int tenantId)
             throws SQLException {
 
         PreparedStatement prepStmt = null;
@@ -234,6 +234,7 @@ public class IdPManagementDAO {
                 prepStmt.setString(2, property.getName());
                 prepStmt.setString(3, property.getValue());
                 prepStmt.setString(4, property.getDisplayName());
+                prepStmt.setInt(5, tenantId);
                 prepStmt.addBatch();
             }
             prepStmt.executeBatch();
@@ -380,7 +381,7 @@ public class IdPManagementDAO {
                 prepStmt.setString(1, "0");
             }
             prepStmt.setInt(2, idpId);
-            prepStmt.setString(3, CharacterEncoder.getSafeText(federatedAuthenticatorConfig.getName()));
+            prepStmt.setString(3, federatedAuthenticatorConfig.getName());
             prepStmt.executeUpdate();
 
             int authnId = getAuthenticatorIdentifier(dbConnection, idpId,
@@ -390,14 +391,14 @@ public class IdPManagementDAO {
 
                 sqlStmt = IdPManagementConstants.SQLQueries.UPDATE_IDP_AUTH_PROP_SQL;
                 prepStmt = dbConnection.prepareStatement(sqlStmt);
-                prepStmt.setString(1, CharacterEncoder.getSafeText(property.getValue()));
+                prepStmt.setString(1, property.getValue());
                 if (property.isConfidential()) {
                     prepStmt.setString(2, "1");
                 } else {
                     prepStmt.setString(2, "0");
                 }
                 prepStmt.setInt(3, authnId);
-                prepStmt.setString(4, CharacterEncoder.getSafeText(property.getName()));
+                prepStmt.setString(4, property.getName());
                 int rows = prepStmt.executeUpdate();
 
                 if (rows == 0) {
@@ -407,8 +408,8 @@ public class IdPManagementDAO {
                     prepStmt = dbConnection.prepareStatement(sqlStmt);
                     prepStmt.setInt(1, authnId);
                     prepStmt.setInt(2, tenantId);
-                    prepStmt.setString(3, CharacterEncoder.getSafeText(property.getName()));
-                    prepStmt.setString(4, CharacterEncoder.getSafeText(property.getValue()));
+                    prepStmt.setString(3, property.getName());
+                    prepStmt.setString(4, property.getValue());
                     if (property.isConfidential()) {
                         prepStmt.setString(5, "1");
                     } else {
@@ -458,8 +459,8 @@ public class IdPManagementDAO {
             } else {
                 prepStmt.setString(3, "0");
             }
-            prepStmt.setString(4, CharacterEncoder.getSafeText(authnConfig.getName()));
-            prepStmt.setString(5, CharacterEncoder.getSafeText(authnConfig.getDisplayName()));
+            prepStmt.setString(4, authnConfig.getName());
+            prepStmt.setString(5, authnConfig.getDisplayName());
             prepStmt.execute();
 
             int authnId = getAuthenticatorIdentifier(dbConnection, idpId, authnConfig.getName());
@@ -474,8 +475,8 @@ public class IdPManagementDAO {
                 prepStmt = dbConnection.prepareStatement(sqlStmt);
                 prepStmt.setInt(1, authnId);
                 prepStmt.setInt(2, tenantId);
-                prepStmt.setString(3, CharacterEncoder.getSafeText(property.getName()));
-                prepStmt.setString(4, CharacterEncoder.getSafeText(property.getValue()));
+                prepStmt.setString(3, property.getName());
+                prepStmt.setString(4, property.getValue());
                 if (property.isConfidential()) {
                     prepStmt.setString(5, "1");
                 } else {
@@ -739,7 +740,7 @@ public class IdPManagementDAO {
                         // TENANT_ID, IDP_ID, PROVISIONING_CONNECTOR_TYPE, IS_ENABLED, IS_DEFAULT
                         prepBaseStmt.setInt(1, tenantId);
                         prepBaseStmt.setInt(2, idpId);
-                        prepBaseStmt.setString(3, CharacterEncoder.getSafeText(connector.getName()));
+                        prepBaseStmt.setString(3, connector.getName());
 
                         if (connector.isEnabled()) {
                             prepBaseStmt.setString(4, "1");
@@ -771,7 +772,7 @@ public class IdPManagementDAO {
                                     // PROPERTY_VALUE, PROPERTY_BLOB_VALUE, PROPERTY_TYPE, IS_SECRET
                                     prepStmt.setInt(1, tenantId);
                                     prepStmt.setInt(2, provisioningConfigID);
-                                    prepStmt.setString(3, CharacterEncoder.getSafeText(config.getName()));
+                                    prepStmt.setString(3, config.getName());
 
                                     // TODO : Sect property type accordingly
                                     if (IdentityApplicationConstants.ConfigElements.PROPERTY_TYPE_BLOB.equals
@@ -780,7 +781,7 @@ public class IdPManagementDAO {
                                         setBlobValue(config.getValue(), prepStmt, 5);
                                         prepStmt.setString(6, config.getType());
                                     } else {
-                                        prepStmt.setString(4, CharacterEncoder.getSafeText(config.getValue()));
+                                        prepStmt.setString(4, config.getValue());
                                         setBlobValue(null, prepStmt, 5);
                                         prepStmt.setString(6, IdentityApplicationConstants.ConfigElements.
                                                 PROPERTY_TYPE_STRING);
@@ -814,14 +815,14 @@ public class IdPManagementDAO {
 
     private void setBlobValue(String value, PreparedStatement prepStmt, int index) throws SQLException, IOException {
         if (value != null) {
-            InputStream inputStream = new ByteArrayInputStream(CharacterEncoder.getSafeText(value).getBytes());
+            InputStream inputStream = new ByteArrayInputStream(value.getBytes());
             if (inputStream != null) {
                 prepStmt.setBinaryStream(index, inputStream, inputStream.available());
             } else {
-                prepStmt.setBinaryStream(index, new ByteArrayInputStream(CharacterEncoder.getSafeText("").getBytes()), 0);
+                prepStmt.setBinaryStream(index, new ByteArrayInputStream("".getBytes()), 0);
             }
         } else {
-            prepStmt.setBinaryStream(index, new ByteArrayInputStream(CharacterEncoder.getSafeText("").getBytes()), 0);
+            prepStmt.setBinaryStream(index, new ByteArrayInputStream("".getBytes()), 0);
         }
     }
 
@@ -1025,7 +1026,7 @@ public class IdPManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, tenantId);
             prepStmt.setInt(2, MultitenantConstants.SUPER_TENANT_ID);
-            prepStmt.setString(3, CharacterEncoder.getSafeText(idPName));
+            prepStmt.setString(3, idPName);
             rs = prepStmt.executeQuery();
             int idpId = -1;
 
@@ -1172,8 +1173,8 @@ public class IdPManagementDAO {
             // SP_IDP_ROLE_CLAIM_URI,SP_IDP_DEFAULT_AUTHENTICATOR_NAME,SP_IDP_DEFAULT_PRO_CONNECTOR_NAME
             String sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_BY_AUTHENTICATOR_PROPERTY;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, CharacterEncoder.getSafeText(property));
-            prepStmt.setString(2, CharacterEncoder.getSafeText(value));
+            prepStmt.setString(1, property);
+            prepStmt.setString(2, value);
             prepStmt.setInt(3, tenantId);
             rs = prepStmt.executeQuery();
             int idpId = -1;
@@ -1314,7 +1315,7 @@ public class IdPManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, tenantId);
             prepStmt.setInt(2, MultitenantConstants.SUPER_TENANT_ID);
-            prepStmt.setString(3, CharacterEncoder.getSafeText(realmId));
+            prepStmt.setString(3, realmId);
             rs = prepStmt.executeQuery();
             if (rs.next()) {
                 idPName = rs.getString("NAME");
@@ -1362,7 +1363,7 @@ public class IdPManagementDAO {
 
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, tenantId);
-            prepStmt.setString(2, CharacterEncoder.getSafeText(identityProvider.getIdentityProviderName()));
+            prepStmt.setString(2, identityProvider.getIdentityProviderName());
 
             if (identityProvider.isPrimary()) {
                 prepStmt.setString(3, "1");
@@ -1370,7 +1371,7 @@ public class IdPManagementDAO {
                 prepStmt.setString(3, "0");
             }
 
-            prepStmt.setString(4, CharacterEncoder.getSafeText(identityProvider.getHomeRealmId()));
+            prepStmt.setString(4, identityProvider.getHomeRealmId());
 
             if (StringUtils.isNotBlank(identityProvider.getCertificate())) {
                 try {
@@ -1382,7 +1383,7 @@ public class IdPManagementDAO {
             }
             setBlobValue(identityProvider.getCertificate(), prepStmt, 5);
 
-            prepStmt.setString(6, CharacterEncoder.getSafeText(identityProvider.getAlias()));
+            prepStmt.setString(6, identityProvider.getAlias());
 
             if (identityProvider.getJustInTimeProvisioningConfig() != null
                     && identityProvider.getJustInTimeProvisioningConfig().isProvisioningEnabled()) {
@@ -1391,8 +1392,7 @@ public class IdPManagementDAO {
                 // provisioned locally.
                 prepStmt.setString(7, "1");
                 // user will be provisioned to the configured user store.
-                prepStmt.setString(8, CharacterEncoder.getSafeText(identityProvider.getJustInTimeProvisioningConfig()
-                        .getProvisioningUserStore()));
+                prepStmt.setString(8, identityProvider.getJustInTimeProvisioningConfig().getProvisioningUserStore());
             } else {
                 prepStmt.setString(7, "0");
                 prepStmt.setString(8, null);
@@ -1401,30 +1401,28 @@ public class IdPManagementDAO {
             if (identityProvider.getClaimConfig() != null) {
                 // this is how we find the subject name from the authentication response.
                 // this claim URI is in identity provider's own dialect.
-                prepStmt.setString(9, CharacterEncoder.getSafeText(identityProvider.getClaimConfig().getUserClaimURI()));
+                prepStmt.setString(9, identityProvider.getClaimConfig().getUserClaimURI());
                 // this is how we find the role name from the authentication response.
                 // this claim URI is in identity provider's own dialect.
-                prepStmt.setString(10, CharacterEncoder.getSafeText(identityProvider.getClaimConfig().getRoleClaimURI()));
+                prepStmt.setString(10, identityProvider.getClaimConfig().getRoleClaimURI());
             } else {
                 prepStmt.setString(9, null);
                 prepStmt.setString(10, null);
             }
 
             if (identityProvider.getDefaultAuthenticatorConfig() != null) {
-                prepStmt.setString(11, CharacterEncoder.getSafeText(identityProvider.getDefaultAuthenticatorConfig()
-                        .getName()));
+                prepStmt.setString(11, identityProvider.getDefaultAuthenticatorConfig().getName());
             } else {
                 prepStmt.setString(11, null);
             }
 
             if (identityProvider.getDefaultProvisioningConnectorConfig() != null) {
-                prepStmt.setString(12, CharacterEncoder.getSafeText(identityProvider.getDefaultProvisioningConnectorConfig()
-                        .getName()));
+                prepStmt.setString(12, identityProvider.getDefaultProvisioningConnectorConfig().getName());
             } else {
                 prepStmt.setString(12, null);
             }
 
-            prepStmt.setString(13, CharacterEncoder.getSafeText(identityProvider.getIdentityProviderDescription()));
+            prepStmt.setString(13, identityProvider.getIdentityProviderDescription());
 
             if (identityProvider.isFederationHub()) {
                 prepStmt.setString(14, "1");
@@ -1439,12 +1437,12 @@ public class IdPManagementDAO {
                 prepStmt.setString(15, "0");
             }
 
-            prepStmt.setString(16, CharacterEncoder.getSafeText(identityProvider.getProvisioningRole()));
+            prepStmt.setString(16, identityProvider.getProvisioningRole());
 
             // enabled by default
             prepStmt.setString(17, "1");
 
-            prepStmt.setString(18, CharacterEncoder.getSafeText(identityProvider.getDisplayName()));
+            prepStmt.setString(18, identityProvider.getDisplayName());
 
             prepStmt.executeUpdate();
             prepStmt.clearParameters();
@@ -1506,7 +1504,8 @@ public class IdPManagementDAO {
 
             }
             if(identityProvider.getIdpProperties() != null) {
-                addIdentityProviderProperties(dbConnection, idPId, Arrays.asList(identityProvider.getIdpProperties()));
+                addIdentityProviderProperties(dbConnection, idPId, Arrays.asList(identityProvider.getIdpProperties())
+                        , tenantId);
             }
 
             dbConnection.commit();
@@ -1552,7 +1551,7 @@ public class IdPManagementDAO {
             String sqlStmt = IdPManagementConstants.SQLQueries.UPDATE_IDP_SQL;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
 
-            prepStmt.setString(1, CharacterEncoder.getSafeText(newIdentityProvider.getIdentityProviderName()));
+            prepStmt.setString(1, newIdentityProvider.getIdentityProviderName());
 
             if (newIdentityProvider.isPrimary()) {
                 prepStmt.setString(2, "1");
@@ -1560,7 +1559,7 @@ public class IdPManagementDAO {
                 prepStmt.setString(2, "0");
             }
 
-            prepStmt.setString(3, CharacterEncoder.getSafeText(newIdentityProvider.getHomeRealmId()));
+            prepStmt.setString(3, newIdentityProvider.getHomeRealmId());
 
             if (StringUtils.isNotBlank(newIdentityProvider.getCertificate())) {
                 try {
@@ -1571,14 +1570,13 @@ public class IdPManagementDAO {
             }
             setBlobValue(newIdentityProvider.getCertificate(), prepStmt, 4);
 
-            prepStmt.setString(5, CharacterEncoder.getSafeText(newIdentityProvider.getAlias()));
+            prepStmt.setString(5, newIdentityProvider.getAlias());
 
             if (newIdentityProvider.getJustInTimeProvisioningConfig() != null
                     && newIdentityProvider.getJustInTimeProvisioningConfig()
                     .isProvisioningEnabled()) {
                 prepStmt.setString(6, "1");
-                prepStmt.setString(7, CharacterEncoder.getSafeText(newIdentityProvider.getJustInTimeProvisioningConfig()
-                        .getProvisioningUserStore()));
+                prepStmt.setString(7, newIdentityProvider.getJustInTimeProvisioningConfig().getProvisioningUserStore());
 
             } else {
                 prepStmt.setString(6, "0");
@@ -1586,10 +1584,8 @@ public class IdPManagementDAO {
             }
 
             if (newIdentityProvider.getClaimConfig() != null) {
-                prepStmt.setString(8, CharacterEncoder.getSafeText(newIdentityProvider.getClaimConfig().
-                        getUserClaimURI()));
-                prepStmt.setString(9, CharacterEncoder.getSafeText(newIdentityProvider.getClaimConfig().
-                        getRoleClaimURI()));
+                prepStmt.setString(8, newIdentityProvider.getClaimConfig().getUserClaimURI());
+                prepStmt.setString(9, newIdentityProvider.getClaimConfig().getRoleClaimURI());
             } else {
                 prepStmt.setString(8, null);
                 prepStmt.setString(9, null);
@@ -1598,8 +1594,7 @@ public class IdPManagementDAO {
             // update the default authenticator
             if (newIdentityProvider.getDefaultAuthenticatorConfig() != null
                     && newIdentityProvider.getDefaultAuthenticatorConfig().getName() != null) {
-                prepStmt.setString(10, CharacterEncoder.getSafeText(newIdentityProvider.getDefaultAuthenticatorConfig()
-                        .getName()));
+                prepStmt.setString(10, newIdentityProvider.getDefaultAuthenticatorConfig().getName());
             } else {
                 // its not a must to have a default authenticator.
                 prepStmt.setString(10, null);
@@ -1608,15 +1603,13 @@ public class IdPManagementDAO {
             // update the default provisioning connector.
             if (newIdentityProvider.getDefaultProvisioningConnectorConfig() != null
                     && newIdentityProvider.getDefaultProvisioningConnectorConfig().getName() != null) {
-                prepStmt.setString(11, CharacterEncoder.getSafeText(newIdentityProvider.
-                        getDefaultProvisioningConnectorConfig()
-                        .getName()));
+                prepStmt.setString(11, newIdentityProvider.getDefaultProvisioningConnectorConfig().getName());
             } else {
                 // its not a must to have a default provisioning connector..
                 prepStmt.setString(11, null);
             }
 
-            prepStmt.setString(12, CharacterEncoder.getSafeText(newIdentityProvider.getIdentityProviderDescription()));
+            prepStmt.setString(12, newIdentityProvider.getIdentityProviderDescription());
 
             if (newIdentityProvider.isFederationHub()) {
                 prepStmt.setString(13, "1");
@@ -1631,7 +1624,7 @@ public class IdPManagementDAO {
                 prepStmt.setString(14, "0");
             }
 
-            prepStmt.setString(15, CharacterEncoder.getSafeText(newIdentityProvider.getProvisioningRole()));
+            prepStmt.setString(15, newIdentityProvider.getProvisioningRole());
 
             if (newIdentityProvider.isEnable()) {
                 prepStmt.setString(16, "1");
@@ -1639,10 +1632,10 @@ public class IdPManagementDAO {
                 prepStmt.setString(16, "0");
             }
 
-            prepStmt.setString(17, CharacterEncoder.getSafeText(newIdentityProvider.getDisplayName()));
+            prepStmt.setString(17, newIdentityProvider.getDisplayName());
 
             prepStmt.setInt(18, tenantId);
-            prepStmt.setString(19, CharacterEncoder.getSafeText(currentIdentityProvider.getIdentityProviderName()));
+            prepStmt.setString(19, currentIdentityProvider.getIdentityProviderName());
 
             prepStmt.executeUpdate();
 
@@ -1653,7 +1646,7 @@ public class IdPManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, tenantId);
             prepStmt.setInt(2, MultitenantConstants.SUPER_TENANT_ID);
-            prepStmt.setString(3, CharacterEncoder.getSafeText(newIdentityProvider.getIdentityProviderName()));
+            prepStmt.setString(3, newIdentityProvider.getIdentityProviderName());
             ResultSet rs = prepStmt.executeQuery();
 
             if (rs.next()) {
@@ -1682,7 +1675,7 @@ public class IdPManagementDAO {
 
                 if(newIdentityProvider.getIdpProperties() != null) {
                     updateIdentityProviderProperties(dbConnection, idpId,
-                            Arrays.asList(newIdentityProvider.getIdpProperties()));
+                            Arrays.asList(newIdentityProvider.getIdpProperties()), tenantId);
                 }
 
             }
@@ -1713,7 +1706,7 @@ public class IdPManagementDAO {
             prepStmtFedIdp = dbConnection.prepareStatement(sqlStmt);
             prepStmtFedIdp.setInt(1, tenantId);
             prepStmtFedIdp.setInt(2, MultitenantConstants.SUPER_TENANT_ID);
-            prepStmtFedIdp.setString(3, CharacterEncoder.getSafeText(idPName));
+            prepStmtFedIdp.setString(3, idPName);
             rsFedIdp = prepStmtFedIdp.executeQuery();
             if (rsFedIdp.next()) {
                 isReffered = rsFedIdp.getInt(1) > 0;
@@ -1722,7 +1715,7 @@ public class IdPManagementDAO {
                 sqlStmt = IdPManagementConstants.SQLQueries.GET_SP_PROVISIONING_CONNECTOR_REFS;
                 prepStmtProvIdp = dbConnection.prepareStatement(sqlStmt);
                 prepStmtProvIdp.setInt(1, tenantId);
-                prepStmtProvIdp.setString(2, CharacterEncoder.getSafeText(idPName));
+                prepStmtProvIdp.setString(2, idPName);
                 rsProvIdp = prepStmtProvIdp.executeQuery();
                 if (rsProvIdp.next()) {
                     isReffered = rsProvIdp.getInt(1) > 0;
@@ -1805,9 +1798,9 @@ public class IdPManagementDAO {
         try {
             String sqlStmt = IdPManagementConstants.SQLQueries.RENAME_ROLE_LISTENER_SQL;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, CharacterEncoder.getSafeText(newRoleName));
+            prepStmt.setString(1, newRoleName);
             prepStmt.setInt(2, tenantId);
-            prepStmt.setString(3, CharacterEncoder.getSafeText(oldRoleName));
+            prepStmt.setString(3, oldRoleName);
             prepStmt.executeUpdate();
             dbConnection.commit();
         } catch (SQLException e) {
@@ -1900,9 +1893,9 @@ public class IdPManagementDAO {
         try {
             String sqlStmt = IdPManagementConstants.SQLQueries.RENAME_CLAIM_SQL;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, CharacterEncoder.getSafeText(newClaimURI));
+            prepStmt.setString(1, newClaimURI);
             prepStmt.setInt(2, tenantId);
-            prepStmt.setString(3, CharacterEncoder.getSafeText(oldClaimURI));
+            prepStmt.setString(3, oldClaimURI);
             prepStmt.executeUpdate();
             dbConnection.commit();
         } catch (SQLException e) {
@@ -1945,7 +1938,7 @@ public class IdPManagementDAO {
             prepStmt = conn.prepareStatement(sqlStmt);
             prepStmt.setString(1, "1");
             prepStmt.setInt(2, tenantId);
-            prepStmt.setString(3, CharacterEncoder.getSafeText(tenantIdPs.get(0).getIdentityProviderName()));
+            prepStmt.setString(3, tenantIdPs.get(0).getIdentityProviderName());
             prepStmt.setString(4, "0");
             prepStmt.executeUpdate();
         } else {
@@ -1975,7 +1968,7 @@ public class IdPManagementDAO {
             for (Claim claim : claims) {
                 prepStmt.setInt(1, idPId);
                 prepStmt.setInt(2, tenantId);
-                prepStmt.setString(3, CharacterEncoder.getSafeText(claim.getClaimUri()));
+                prepStmt.setString(3, claim.getClaimUri());
                 prepStmt.addBatch();
                 prepStmt.clearParameters();
             }
@@ -2014,8 +2007,8 @@ public class IdPManagementDAO {
                         && mapping.getLocalClaim().getClaimUri() != null) {
 
                     prepStmt.setInt(1, idPId);
-                    prepStmt.setString(2, CharacterEncoder.getSafeText(mapping.getLocalClaim().getClaimUri()));
-                    prepStmt.setString(3, CharacterEncoder.getSafeText(mapping.getDefaultValue()));
+                    prepStmt.setString(2, mapping.getLocalClaim().getClaimUri());
+                    prepStmt.setString(3, mapping.getDefaultValue());
                     prepStmt.setInt(4, tenantId);
                     if (mapping.isRequested()) {
                         prepStmt.setString(5, "1");
@@ -2088,8 +2081,8 @@ public class IdPManagementDAO {
 
                     prepStmt.setInt(1, idpClaimId);
                     prepStmt.setInt(2, tenantId);
-                    prepStmt.setString(3, CharacterEncoder.getSafeText(localClaimURI));
-                    prepStmt.setString(4, CharacterEncoder.getSafeText(mapping.getDefaultValue()));
+                    prepStmt.setString(3, localClaimURI);
+                    prepStmt.setString(4, mapping.getDefaultValue());
 
                     if (mapping.isRequested()) {
                         prepStmt.setString(5, "1");
@@ -2136,7 +2129,7 @@ public class IdPManagementDAO {
             for (String idpRole : idpRoleNames) {
                 prepStmt.setInt(1, idPId);
                 prepStmt.setInt(2, tenantId);
-                prepStmt.setString(3, CharacterEncoder.getSafeText(idpRole));
+                prepStmt.setString(3, idpRole);
                 prepStmt.addBatch();
                 prepStmt.clearParameters();
             }
@@ -2203,8 +2196,8 @@ public class IdPManagementDAO {
                     // SP_IDP_ROLE_ID, SP_TENANT_ID, SP_USER_STORE_ID, SP_LOCAL_ROLE
                     prepStmt.setInt(1, idpRoleId);
                     prepStmt.setInt(2, tenantId);
-                    prepStmt.setString(3, CharacterEncoder.getSafeText(userStoreId));
-                    prepStmt.setString(4, CharacterEncoder.getSafeText(localRole));
+                    prepStmt.setString(3, userStoreId);
+                    prepStmt.setString(4, localRole);
                     prepStmt.addBatch();
                 } else {
                     throw new IdentityProviderManagementException("Cannot find Identity Provider role " +
@@ -2300,7 +2293,7 @@ public class IdPManagementDAO {
                 sqlStmt = IdPManagementConstants.SQLQueries.ADD_IDP_ROLES_SQL;
                 prepStmt = conn.prepareStatement(sqlStmt);
                 prepStmt.setInt(1, idPId);
-                prepStmt.setString(2, CharacterEncoder.getSafeText(addedRole));
+                prepStmt.setString(2, addedRole);
                 prepStmt.addBatch();
             }
 
@@ -2312,9 +2305,9 @@ public class IdPManagementDAO {
             for (int i = 0; i < renamedOldRoles.size(); i++) {
                 sqlStmt = IdPManagementConstants.SQLQueries.UPDATE_IDP_ROLES_SQL;
                 prepStmt = conn.prepareStatement(sqlStmt);
-                prepStmt.setString(1, CharacterEncoder.getSafeText(renamedNewRoles.get(i)));
+                prepStmt.setString(1, renamedNewRoles.get(i));
                 prepStmt.setInt(2, idPId);
-                prepStmt.setString(3, CharacterEncoder.getSafeText(renamedOldRoles.get(i)));
+                prepStmt.setString(3, renamedOldRoles.get(i));
                 prepStmt.addBatch();
             }
 
@@ -2429,7 +2422,7 @@ public class IdPManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, tenantId);
             prepStmt.setInt(2, MultitenantConstants.SUPER_TENANT_ID);
-            prepStmt.setString(3, CharacterEncoder.getSafeText(idpName));
+            prepStmt.setString(3, idpName);
             rs = prepStmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -2477,7 +2470,7 @@ public class IdPManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, tenantId);
             prepStmt.setInt(2, MultitenantConstants.SUPER_TENANT_ID);
-            prepStmt.setString(3, CharacterEncoder.getSafeText(idPName));
+            prepStmt.setString(3, idPName);
             rs = prepStmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt("ID");
@@ -2491,31 +2484,7 @@ public class IdPManagementDAO {
         }
     }
 
-    private int getAuthenticatorIdentifier(Connection dbConnection, int idPId, String authnType)
-            throws SQLException, IdentityProviderManagementException {
-
-        String sqlStmt = null;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-        try {
-            sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_AUTH_SQL;
-            prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setInt(1, idPId);
-            prepStmt.setString(2, CharacterEncoder.getSafeText(authnType));
-            rs = prepStmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("ID");
-            } else {
-                throw new IdentityProviderManagementException("Cannot find authenticator : "
-                        + authnType);
-            }
-        } finally {
-            IdentityApplicationManagementUtil.closeResultSet(rs);
-            IdentityApplicationManagementUtil.closeStatement(prepStmt);
-        }
-    }
-
-    public boolean isSimilarIdPEntityIdsAvailble(String idPEntityId, int tenantId)
+    public boolean isIdPAvailableForAuthenticatorProperty(String authenticatorName, String propertyName, String idPEntityId, int tenantId)
             throws IdentityProviderManagementException {
         boolean isAvailable = false;
         Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
@@ -2525,9 +2494,10 @@ public class IdPManagementDAO {
         try {
             String sqlStmt = IdPManagementConstants.SQLQueries.GET_SIMILAR_IDP_ENTITIY_IDS;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, "IdPEntityId");
+            prepStmt.setString(1, propertyName);
             prepStmt.setString(2, idPEntityId);
             prepStmt.setInt(3, tenantId);
+            prepStmt.setString(4, authenticatorName);
             rs = prepStmt.executeQuery();
             if (rs.next()) {
                 isAvailable = rs.getInt(1) > 0;
@@ -2545,5 +2515,29 @@ public class IdPManagementDAO {
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
         }
         return isAvailable;
+    }
+
+    private int getAuthenticatorIdentifier(Connection dbConnection, int idPId, String authnType)
+            throws SQLException, IdentityProviderManagementException {
+
+        String sqlStmt = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        try {
+            sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_AUTH_SQL;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setInt(1, idPId);
+            prepStmt.setString(2, authnType);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("ID");
+            } else {
+                throw new IdentityProviderManagementException("Cannot find authenticator : "
+                        + authnType);
+            }
+        } finally {
+            IdentityApplicationManagementUtil.closeResultSet(rs);
+            IdentityApplicationManagementUtil.closeStatement(prepStmt);
+        }
     }
 }

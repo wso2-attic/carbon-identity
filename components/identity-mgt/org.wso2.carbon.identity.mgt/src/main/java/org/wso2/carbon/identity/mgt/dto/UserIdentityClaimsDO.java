@@ -224,7 +224,7 @@ public class UserIdentityClaimsDO implements Serializable {
         } else if (UserIdentityDataStore.UNLOCKING_TIME.equalsIgnoreCase(claim)) {
             setUnlockTime(Long.parseLong(value));
         } else if (UserIdentityDataStore.ONE_TIME_PASSWORD.equalsIgnoreCase(claim)) {
-            setOneTimeLogin(Boolean.parseBoolean(claim));
+            setOneTimeLogin(Boolean.parseBoolean(value));
         } else if (UserIdentityDataStore.PASSWORD_CHANGE_REQUIRED.equalsIgnoreCase(claim)) {
             setPasswordChangeRequired(Boolean.parseBoolean(value));
         } else if (UserIdentityDataStore.LAST_LOGON_TIME.equalsIgnoreCase(claim)) {

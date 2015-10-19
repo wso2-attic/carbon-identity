@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authenticator.social.yahoo;
 
+@Deprecated
 public class YahooOpenIDAuthenticatorConstants {
 
     public static final String YAHOO_AUTHENTICATOR_NAME = "YahooOpenIDAuthenticator";

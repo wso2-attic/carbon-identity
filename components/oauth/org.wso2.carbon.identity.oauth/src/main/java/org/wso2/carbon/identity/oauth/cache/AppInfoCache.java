@@ -61,9 +61,10 @@ public class AppInfoCache extends BaseCache<String, OAuthAppDO> {
     @Override
     public void addToCache(String key, OAuthAppDO entry) {
         super.addToCache(key, entry);
-        SessionDataStore.getInstance().storeSessionData(key, OAUTH_APP_INFO_CACHE_NAME, entry);
+        int tenantId = entry.getTenantId();
+        SessionDataStore.getInstance().storeSessionData(key, OAUTH_APP_INFO_CACHE_NAME, entry, tenantId);
         if(enableRequestScopeCache){
-            SessionDataStore.getInstance().storeSessionData(key,OAUTH_APP_INFO_CACHE_NAME,entry);
+            SessionDataStore.getInstance().storeSessionData(key,OAUTH_APP_INFO_CACHE_NAME,entry, tenantId);
         }
     }
 

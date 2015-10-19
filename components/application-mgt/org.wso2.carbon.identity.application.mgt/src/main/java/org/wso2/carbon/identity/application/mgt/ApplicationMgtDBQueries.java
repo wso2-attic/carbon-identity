@@ -46,8 +46,8 @@ public class ApplicationMgtDBQueries {
             "WHERE TENANT_ID= ? AND ID = ?";
     public static final String UPDATE_BASIC_APPINFO_WITH_AUTH_TYPE = "UPDATE SP_APP SET AUTH_TYPE=? WHERE TENANT_ID= ? "+
             "AND ID = ?";
-    public static final String UPDATE_BASIC_APPINFO_WITH_PRO_USERSTORE = "UPDATE SP_APP SET PROVISIONING_USERSTORE_" +
-            "DOMAIN=? WHERE TENANT_ID= ? AND ID = ?";
+    public static final String UPDATE_BASIC_APPINFO_WITH_PRO_PROPERTIES = "UPDATE SP_APP SET PROVISIONING_USERSTORE_" +
+            "DOMAIN=?, IS_DUMB_MODE=? WHERE TENANT_ID= ? AND ID = ?";
     public static final String UPDATE_SP_PERMISSIONS = "UPDATE UM_PERMISSION SET UM_RESOURCE_ID=? WHERE UM_ID=?";
 
     public static final String STORE_CLIENT_INFO = "INSERT INTO SP_INBOUND_AUTH (TENANT_ID, INBOUND_AUTH_KEY," +
@@ -117,7 +117,7 @@ public class ApplicationMgtDBQueries {
             "TENANT_ID= ? AND ID = ?";
     public static final String LOAD_REQ_PATH_AUTHENTICATORS_BY_APP_ID = "SELECT AUTHENTICATOR_NAME FROM " +
             "SP_REQ_PATH_AUTHENTICATOR WHERE APP_ID = ? AND TENANT_ID = ?";
-    public static final String LOAD_PRO_USERSTORE_BY_APP_ID = "SELECT PROVISIONING_USERSTORE_DOMAIN FROM " +
+    public static final String LOAD_PRO_PROPERTIES_BY_APP_ID = "SELECT PROVISIONING_USERSTORE_DOMAIN, IS_DUMB_MODE FROM " +
             "SP_APP WHERE TENANT_ID= ? AND ID = ?";
     public static final String LOAD_PRO_CONNECTORS_BY_APP_ID = "SELECT IDP_NAME, CONNECTOR_NAME, IS_JIT_ENABLED, " +
             "BLOCKING FROM SP_PROVISIONING_CONNECTOR WHERE APP_ID = ? AND TENANT_ID = ?";
@@ -146,19 +146,19 @@ public class ApplicationMgtDBQueries {
     // DELETE query - Oauth
     public static final String REMOVE_OAUTH_APPLICATION = "DELETE FROM IDN_OAUTH_CONSUMER_APPS WHERE CONSUMER_KEY=?";
 
-    public static final String LOAD_IDP_AUTHENTICATOR_ID = "SELECT A.ID FROM IDP_AUTHENTICATOR A JOIN IDP B ON A.IDP_ID"
-            +
-            "= B" +
-            ".ID WHERE A.NAME =? AND B.NAME=? AND ((A.TENANT_ID =? AND B.TENANT_ID =?) OR (B.TENANT_ID=? AND B" +
-            ".NAME LIKE 'SHARED_%'))";
+    public static final String LOAD_IDP_AUTHENTICATOR_ID = "SELECT A.ID FROM IDP_AUTHENTICATOR A JOIN IDP B ON A" +
+            ".IDP_ID= B.ID WHERE A.NAME =? AND B.NAME=? AND ((A.TENANT_ID =? AND B.TENANT_ID =?) OR (B.TENANT_ID=? " +
+            "AND B.NAME LIKE 'SHARED_%'))";
     public static final String LOAD_IDP_AND_AUTHENTICATOR_NAMES = "SELECT A.NAME, B.NAME, " +
             "B.DISPLAY_NAME FROM IDP A JOIN IDP_AUTHENTICATOR B ON A.ID = B.IDP_ID WHERE B.ID =? AND ((A.TENANT_ID =?" +
             " AND B.TENANT_ID =?) OR  (A.TENANT_ID=? AND A.NAME LIKE 'SHARED_%' AND B.TENANT_ID=?))";
     public static final String STORE_LOCAL_AUTHENTICATOR = "INSERT INTO IDP_AUTHENTICATOR (TENANT_ID, IDP_ID, NAME," +
             "IS_ENABLED, DISPLAY_NAME) VALUES (?, (SELECT ID FROM IDP WHERE IDP.NAME=? AND IDP.TENANT_ID =?), ?, ?, ?)";
 
-    public static final String GET_SP_METADATA_BY_SP_ID = "SELECT ID, NAME, VALUE, DISPLAY_NAME FROM SP_METADATA WHERE SP_ID = ?";
-    public static final String ADD_SP_METADATA = "INSERT INTO SP_METADATA (SP_ID, NAME, VALUE, DISPLAY_NAME) VALUES (?, ?, ?, ?)";
+    public static final String GET_SP_METADATA_BY_SP_ID = "SELECT ID, NAME, VALUE, DISPLAY_NAME FROM SP_METADATA " +
+            "WHERE SP_ID = ?";
+    public static final String ADD_SP_METADATA = "INSERT INTO SP_METADATA (SP_ID, NAME, VALUE, DISPLAY_NAME, " +
+            "TENANT_ID) VALUES (?, ?, ?, ?, ?)";
     public static final String DELETE_SP_METADATA = "DELETE FROM SP_METADATA WHERE SP_ID = ?";
 
 
