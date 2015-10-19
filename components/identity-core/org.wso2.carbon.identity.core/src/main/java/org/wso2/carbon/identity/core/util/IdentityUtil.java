@@ -74,6 +74,12 @@ import java.util.Map;
 
 public class IdentityUtil {
 
+    public static final ThreadLocal<HashMap<String, Object>> threadLocalProperties = new ThreadLocal<HashMap<String, Object>>() {
+        @Override
+        protected HashMap<String, Object> initialValue() {
+            return new HashMap<String, Object>();
+        }
+    };
     private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
     private final static char[] ppidDisplayCharMap = new char[]{'Q', 'L', '2', '3', '4', '5',
             '6', '7', '8', '9', 'A', 'B', 'C',
