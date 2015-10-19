@@ -19,6 +19,7 @@
 package org.wso2.carbon.security.ui.client;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
@@ -44,7 +45,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.rmi.RemoteException;
 import java.security.KeyStore;
 import java.util.Enumeration;
 
@@ -63,7 +63,7 @@ public class KeyStoreAdminClient {
             Options option = client.getOptions();
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
-        } catch (RemoteException e) {
+        } catch (AxisFault e) {
             log.error("Error in creating KeyStoreAdminClient", e);
             throw e;
         }
