@@ -436,7 +436,7 @@ public class PassiveSTS extends HttpServlet {
         AuthenticationRequest authenticationRequest = new
                 AuthenticationRequest();
         authenticationRequest.addRequestQueryParam(FrameworkConstants.RequestParams.LOGOUT,
-                new String[]{"true"});
+                new String[]{Boolean.TRUE.toString()});
         authenticationRequest.setRequestQueryParams(request.getParameterMap());
         authenticationRequest.setCommonAuthCallerPath(selfPath);
         authenticationRequest.appendRequestQueryParams(request.getParameterMap());
@@ -448,8 +448,8 @@ public class PassiveSTS extends HttpServlet {
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                 (authenticationRequest);
         FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
-        String queryParams = "?sessionDataKey=" + sessionDataKey
-                + "&" + "type" + "=" + "passivests";
+        String queryParams = "?" + FrameworkConstants.SESSION_DATA_KEY + "=" + sessionDataKey
+                + "&" + FrameworkConstants.RequestParams.TYPE + "=" + FrameworkConstants.PASSIVE_STS;
 
         response.sendRedirect(commonAuthURL + queryParams);
 
