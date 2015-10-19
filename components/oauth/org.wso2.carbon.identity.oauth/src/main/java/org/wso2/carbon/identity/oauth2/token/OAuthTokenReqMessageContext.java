@@ -32,8 +32,6 @@ public class OAuthTokenReqMessageContext {
 
     private String[] scope;
 
-    private int tenantID;
-
     private long validityPeriod = OAuthConstants.UNASSIGNED_VALIDITY_PERIOD;
 
     private Properties properties = new Properties();
@@ -60,14 +58,6 @@ public class OAuthTokenReqMessageContext {
 
     public void setScope(String[] scope) {
         this.scope = scope;
-    }
-
-    public int getTenantID() {
-        return tenantID;
-    }
-
-    public void setTenantID(int tenantID) {
-        this.tenantID = tenantID;
     }
 
     public long getValidityPeriod() {

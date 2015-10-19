@@ -249,14 +249,14 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             throws IdentityOAuth2Exception {
         try {
             String tenantDomain = request.getOauth2AccessTokenReqDTO().getTenantDomain();
-            int tenantId = request.getTenantID();
+
             if (tenantDomain == null) {
                 tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
             }
-            if (tenantId == 0) {
-                tenantId = OAuth2Util.getTenantId(tenantDomain);
-            }
-            Key privateKey = null;
+
+            int tenantId = OAuth2Util.getTenantId(tenantDomain);
+
+            Key privateKey;
 
             if (!(privateKeys.containsKey(tenantId))) {
                 // get tenant's key store manager
