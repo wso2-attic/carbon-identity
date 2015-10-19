@@ -62,6 +62,7 @@ public class FileBasedConfigurationBuilder {
     private static Map<String, Object> configuration = new HashMap<String, Object>();
 
     private String authenticationEndpointURL;
+    private String authenticationEndpointRetryURL;
 
     /**
      * List of URLs that receive the tenant list
@@ -149,6 +150,7 @@ public class FileBasedConfigurationBuilder {
 
             //########### Read Authentication Endpoint URL ###########
             readAuthenticationEndpointURL(rootElement);
+            readAuthenticationEndpointRetryURL(rootElement);
 
             //########### Read tenant data listener URLs ###########
             readTenantDataListenerURLs(rootElement);
@@ -468,6 +470,15 @@ public class FileBasedConfigurationBuilder {
         }
     }
 
+    private void readAuthenticationEndpointRetryURL(OMElement documentElement) {
+        OMElement authEndpointRetryURLElem = documentElement.getFirstChildWithName(IdentityApplicationManagementUtil.
+                getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_AUTHENTICATION_ENDPOINT_RETRY_URL));
+
+        if (authEndpointRetryURLElem != null) {
+            authenticationEndpointRetryURL = authEndpointRetryURLElem.getText();
+        }
+    }
+
     private void readCacheTimeOut(OMElement cacheTimeoutElem, String value) {
         Integer timeout;
 
@@ -783,6 +794,14 @@ public class FileBasedConfigurationBuilder {
 
     public void setAuthenticationEndpointURL(String authenticationEndpointURL) {
         this.authenticationEndpointURL = authenticationEndpointURL;
+    }
+
+    public String getAuthenticationEndpointRetryURL() {
+        return authenticationEndpointRetryURL;
+    }
+
+    public void setAuthenticationEndpointRetryURL(String authenticationEndpointRetryURL) {
+        this.authenticationEndpointRetryURL = authenticationEndpointRetryURL;
     }
 
     /**

@@ -54,7 +54,6 @@
     boolean newFilter = false;
     boolean doUserList = true;
     boolean showFilterMessage = false;
-    boolean multipleUserStores = false;
     String forwardTo = "user-mgt.jsp";
 
     FlaggedName[] datas = null;
@@ -96,9 +95,6 @@
     // retrieve session attributes
     String currentUser = (String) session.getAttribute("logged-user");
     UserRealmInfo userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
-    if (userRealmInfo != null) {
-        multipleUserStores = userRealmInfo.getMultipleUserStore();
-    }
     java.lang.String errorAttribute = (java.lang.String) session.getAttribute(UserAdminUIConstants.DO_USER_LIST);
 
     String claimUri = request.getParameter("claimUri");
@@ -745,35 +741,6 @@
             <%
                         }
                     }
-                }
-            %>
-
-            <%
-                if ((multipleUserStores || !userRealmInfo.getPrimaryUserStoreInfo().getReadOnly())
-                        && userRealmInfo.getPrimaryUserStoreInfo().getExternalIdP() == null
-                        && CarbonUIUtil.isUserAuthorized(request,
-                        "/permission/admin/configure/security/usermgt/users")) {
-            %>
-            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-top:2px;">
-
-                <%
-                    if (!multipleUserStores && userRealmInfo.getBulkImportSupported()) {
-                %>
-                <tr>
-                    <td class="addNewSecurity">
-                        <a href="bulk-import.jsp" class="icon-link"
-                           style="background-image:url(images/bulk-import.gif);"><fmt:message
-                                key="bulk.import.user"/></a>
-                    </td>
-                </tr>
-
-                <%
-                    }
-                %>
-
-            </table>
-
-            <%
                 }
             %>
 

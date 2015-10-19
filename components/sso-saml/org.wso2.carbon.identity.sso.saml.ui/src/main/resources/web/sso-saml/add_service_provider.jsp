@@ -289,7 +289,7 @@ function addAssertionConsumerURL() {
 }
 
 function onClickAddACRUrl() {
-    var isValidated = doValidateInputToConfirm(document.getElementById('assertionConsumerURLTxt'), "<fmt:message key='sp.enter.http.endpoint.address'/>",
+    var isValidated = doValidateInputToConfirm(document.getElementById('assertionConsumerURLTxt'), "<fmt:message key='sp.not.https.endpoint.address'/>",
             addAssertionConsumerURL, null, null);
     if (isValidated) {
         addAssertionConsumerURL();
@@ -735,7 +735,7 @@ function clearAll() {
         <font color="red">*</font>
     </td>
     <td>
-        <input type="text" id="assertionConsumerURLTxt" class="text-box-big" value="" black-list-patterns="http-url"/>
+        <input type="text" id="assertionConsumerURLTxt" class="text-box-big" value="" white-list-patterns="https-url"/>
         <input id="addAssertionConsumerURLBtn" type="button" value="<fmt:message key="saml.sso.add.acs"/>"
                onclick="onClickAddACRUrl()"/>
     </td>

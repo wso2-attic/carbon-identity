@@ -35,6 +35,8 @@ public class RefreshTokenValidationDataDO {
 
     private String refreshTokenState;
 
+    private String grantType;
+
     private Timestamp issuedTime;
 
     private long validityPeriodInMillis;
@@ -93,5 +95,13 @@ public class RefreshTokenValidationDataDO {
 
     public void setTokenId(String tokenId) {
         this.tokenId = tokenId;
+    }
+
+    public String getGrantType() {
+        return grantType;
+    }
+
+    public void setGrantType(String grantType) {
+        this.grantType = grantType;
     }
 }

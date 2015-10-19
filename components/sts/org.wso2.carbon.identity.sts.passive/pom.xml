@@ -118,6 +118,8 @@
                             org.wso2.carbon.registry.api;version="${carbon.kernel.registry.imp.pkg.version}",
                             org.wso2.carbon.registry.core.*;version="${carbon.kernel.registry.imp.pkg.version}",
 
+                            org.wso2.carbon.idp.mgt; version="${carbon.identity.package.import.version.range}",
+
                             org.wso2.carbon.identity.provider;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.application.common.*;

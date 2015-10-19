@@ -199,13 +199,15 @@ public class IdPManagementConstants {
                 "IDP_AUTHENTICATOR_PROPERTY idp_auth_pro ON idp_auth.ID = idp_auth_pro.AUTHENTICATOR_ID " +
                 "WHERE  idp_auth_pro.PROPERTY_KEY =?  AND idp_auth_pro.PROPERTY_VALUE = ? AND idp_auth_pro.TENANT_ID =?";
 
-        public static final String GET_SIMILAR_IDP_ENTITIY_IDS = "SELECT COUNT(*) FROM IDP_AUTHENTICATOR_PROPERTY " +
-                "WHERE PROPERTY_KEY=? " +
-                "AND PROPERTY_VALUE=? AND TENANT_ID=?";
+        public static final String GET_SIMILAR_IDP_ENTITIY_IDS =
+                "SELECT COUNT(prop.ID) FROM IDP_AUTHENTICATOR_PROPERTY prop INNER JOIN IDP_AUTHENTICATOR auth " +
+                        "WHERE prop.PROPERTY_KEY=? " +
+                        "AND prop.PROPERTY_VALUE=? AND prop.TENANT_ID=? AND auth.NAME = ? AND auth.ID = prop.AUTHENTICATOR_ID";
+
         public static final String GET_IDP_METADATA_BY_IDP_ID = "SELECT ID, NAME, VALUE, DISPLAY_NAME FROM " +
                 "IDP_METADATA WHERE IDP_ID = ?";
-        public static final String ADD_IDP_METADATA = "INSERT INTO IDP_METADATA (IDP_ID, NAME, VALUE, DISPLAY_NAME) "
-                + "VALUES (?, ?, ?, ?)";
+        public static final String ADD_IDP_METADATA = "INSERT INTO IDP_METADATA (IDP_ID, NAME, VALUE, DISPLAY_NAME, " +
+                "TENANT_ID) VALUES (?, ?, ?, ?, ?)";
         public static final String DELETE_IDP_METADATA = "DELETE FROM IDP_METADATA WHERE IDP_ID = ?";
     }
 }

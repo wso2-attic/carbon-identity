@@ -262,7 +262,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
             workflowDAO.removeWorkflowParams(workflow.getWorkflowId());
             workflowDAO.updateWorkflow(workflow);
         }
-        workflowDAO.addWorkflowParams(parameterList, workflow.getWorkflowId());
+        workflowDAO.addWorkflowParams(parameterList, workflow.getWorkflowId(), tenantId);
 
 
     }

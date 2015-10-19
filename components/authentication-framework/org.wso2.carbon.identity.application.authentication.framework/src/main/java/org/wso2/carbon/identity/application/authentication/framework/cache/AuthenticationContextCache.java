@@ -18,15 +18,22 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceDataHolder;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.user.api.UserStoreException;
 
 public class AuthenticationContextCache extends
         BaseCache<AuthenticationContextCacheKey, AuthenticationContextCacheEntry> {
 
+    private static Log log = LogFactory.getLog(AuthenticationContextCache.class);
     private static final String AUTHENTICATION_CONTEXT_CACHE_NAME = "AuthenticationContextCache";
     private static volatile AuthenticationContextCache instance;
     private boolean useCache = true;
@@ -56,7 +63,13 @@ public class AuthenticationContextCache extends
             super.addToCache(key, entry);
         }
         if (enableRequestScopeCache) {
-            SessionDataStore.getInstance().storeSessionData(key.getContextId(), AUTHENTICATION_CONTEXT_CACHE_NAME, entry);
+            int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+            String tenantDomain = entry.getContext().getTenantDomain();
+            if (tenantDomain != null) {
+                tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+            }
+            SessionDataStore.getInstance().storeSessionData(key.getContextId(), AUTHENTICATION_CONTEXT_CACHE_NAME,
+                    entry, tenantId);
         }
     }
 
