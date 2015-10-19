@@ -24,6 +24,7 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.extension.AbstractWorkflowRequestHandler;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -67,6 +68,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
         } finally {
+            AddUserWFRequestHandler.setWorkFlowCompleted(true);
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
@@ -112,6 +114,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
         } finally {
+            DeleteUserWFRequestHandler.setWorkFlowCompleted(true);
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
@@ -142,6 +145,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
         } finally {
+            SetMultipleClaimsWFRequestHandler.setWorkFlowCompleted(true);
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
@@ -166,6 +170,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
         } finally {
+            SetMultipleClaimsWFRequestHandler.setWorkFlowCompleted(true);
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
@@ -191,6 +196,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
         } finally {
+            DeleteMultipleClaimsWFRequestHandler.setWorkFlowCompleted(true);
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
@@ -220,6 +226,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
         } finally {
+            DeleteMultipleClaimsWFRequestHandler.setWorkFlowCompleted(true);
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
@@ -245,6 +252,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
         } finally {
+            AddRoleWFRequestHandler.setWorkFlowCompleted(true);
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
@@ -269,6 +277,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
         } finally {
+            DeleteRoleWFRequestHandler.setWorkFlowCompleted(true);
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
@@ -293,6 +302,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
         } finally {
+            UpdateRoleNameWFRequestHandler.setWorkFlowCompleted(true);
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
@@ -317,6 +327,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
         } finally {
+            UpdateRoleUsersWFRequestHandler.setWorkFlowCompleted(true);
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
@@ -341,6 +352,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             // Sending e.getMessage() since it is required to give error message to end user.
             throw new UserStoreException(e.getMessage(), e);
         } finally {
+            UpdateUserRolesWFRequestHandler.setWorkFlowCompleted(true);
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
