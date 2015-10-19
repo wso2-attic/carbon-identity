@@ -62,7 +62,7 @@ public class KeyStoreAdminClient {
             Options option = client.getOptions();
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
-        } catch (java.lang.Exception e) {
+        } catch (org.apache.axis2.AxisFault e) {
             log.error("Error in creating KeyStoreAdminClient", e);
             throw e;
         }
