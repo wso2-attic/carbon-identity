@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.rmi.RemoteException;
 import java.security.KeyStore;
 import java.util.Enumeration;
 
@@ -62,7 +63,7 @@ public class KeyStoreAdminClient {
             Options option = client.getOptions();
             option.setManageSession(true);
             option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
-        } catch (java.lang.Exception e) {
+        } catch (RemoteException e) {
             log.error("Error in creating KeyStoreAdminClient", e);
             throw e;
         }
