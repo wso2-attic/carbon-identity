@@ -23,7 +23,7 @@ import org.apache.axiom.om.OMElement;
 import java.io.Serializable;
 import java.util.Iterator;
 
-public class Property implements Serializable {
+public class Property implements Serializable, Comparable {
 
     private static final long serialVersionUID = 2423059969331364604L;
 
@@ -35,6 +35,7 @@ public class Property implements Serializable {
     private boolean required;
     private String description;
     private String type;
+    private int displayOrder;
 
     public Property() {
 
@@ -77,8 +78,9 @@ public class Property implements Serializable {
                 }
             } else if ("Description".equals(elementName)) {
                 property.setDescription(element.getText());
+            } else if ("DisplayOrder".equals(elementName)) {
+                property.setDisplayOrder(Integer.parseInt(element.getText()));
             }
-
         }
 
         return property;
@@ -196,6 +198,14 @@ public class Property implements Serializable {
         this.type = type;
     }
 
+    public int getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(int displayOrder) {
+        this.displayOrder = displayOrder;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -222,5 +232,16 @@ public class Property implements Serializable {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (value != null ? value.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int compareTo(Object obj) {
+        Property property = (Property) obj;
+        if (displayOrder == property.getDisplayOrder())
+            return 0;
+        else if (displayOrder > property.getDisplayOrder())
+            return 1;
+        else
+            return -1;
     }
 }

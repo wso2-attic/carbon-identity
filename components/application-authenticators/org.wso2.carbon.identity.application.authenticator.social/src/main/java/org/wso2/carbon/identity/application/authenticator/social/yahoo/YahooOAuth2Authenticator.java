@@ -206,6 +206,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientId.setDisplayName("Client Id");
         clientId.setRequired(true);
         clientId.setDescription("Enter Yahoo IDP client identifier value");
+        clientId.setDisplayOrder(1);
         configProperties.add(clientId);
 
         Property clientSecret = new Property();
@@ -214,12 +215,14 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientSecret.setRequired(true);
         clientSecret.setConfidential(true);
         clientSecret.setDescription("Enter Yahoo IDP client secret value");
+        clientSecret.setDisplayOrder(2);
         configProperties.add(clientSecret);
 
         Property callbackUrl = new Property();
         callbackUrl.setDisplayName("Callback URL");
         callbackUrl.setName(YahooOAuth2AuthenticatorConstants.CALLBACK_URL);
         callbackUrl.setDescription("Enter value corresponding to callback url.");
+        callbackUrl.setDisplayOrder(3);
         configProperties.add(callbackUrl);
 
         return configProperties;

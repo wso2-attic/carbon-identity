@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.internal;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.equinox.http.helper.ContextPathServletAdaptor;
@@ -43,6 +44,7 @@ import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import javax.servlet.Servlet;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -191,10 +193,12 @@ public class FrameworkServiceComponent {
         FrameworkServiceDataHolder.getInstance().getAuthenticators().add(authenticator);
 
         Property[] configProperties = null;
+        List<Property> configurationProperties = authenticator.getConfigurationProperties();
 
-        if (authenticator.getConfigurationProperties() != null
-            && !authenticator.getConfigurationProperties().isEmpty()) {
-            configProperties = authenticator.getConfigurationProperties().toArray(new Property[0]);
+        if (configurationProperties != null
+                && !configurationProperties.isEmpty()) {
+            Collections.sort(configurationProperties);
+            configProperties = configurationProperties.toArray(new Property[0]);
         }
 
         if (authenticator instanceof LocalApplicationAuthenticator) {

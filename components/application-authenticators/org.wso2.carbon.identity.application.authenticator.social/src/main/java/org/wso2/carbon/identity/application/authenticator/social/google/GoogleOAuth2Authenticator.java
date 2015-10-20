@@ -171,6 +171,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientId.setDisplayName("Client Id");
         clientId.setRequired(true);
         clientId.setDescription("Enter Google IDP client identifier value");
+        clientId.setDisplayOrder(1);
         configProperties.add(clientId);
 
         Property clientSecret = new Property();
@@ -179,6 +180,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientSecret.setRequired(true);
         clientSecret.setConfidential(true);
         clientSecret.setDescription("Enter Google IDP client secret value");
+        clientSecret.setDisplayOrder(2);
         configProperties.add(clientSecret);
 
         Property callbackUrl = new Property();
@@ -186,6 +188,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         callbackUrl.setName(GoogleOAuth2AuthenticationConstant.CALLBACK_URL);
         callbackUrl.setRequired(true);
         callbackUrl.setDescription("Enter value corresponding to callback url.");
+        callbackUrl.setDisplayOrder(3);
         configProperties.add(callbackUrl);
 
         Property scope = new Property();
@@ -193,6 +196,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         scope.setName("AdditionalQueryParameters");
         scope.setValue("");
         scope.setDescription("Additional query parameters. e.g: paramName1=value1");
+        scope.setDisplayOrder(4);
         configProperties.add(scope);
 
         return configProperties;
