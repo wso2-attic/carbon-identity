@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.user.api.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -34,6 +35,11 @@ import java.util.Map;
 
 public class UserStoreActionListener extends AbstractIdentityUserOperationEventListener {
 
+    public static final String DO_PRE_AUTHENTICATE_IDENTITY_PROPERTY = "doPreAuthenticate";
+    public static final String DO_POST_AUTHENTICATE_IDENTITY_PROPERTY = "doPostAuthenticate";
+    public static final String DO_POST_ADD_USER_IDENTITY_PROPERTY = "doPostAddUser";
+    public static final String DO_PRE_SET_USER_CLAIM_VALUES_IDENTITY_PROPERT = "doPreSetUserClaimValues";
+    public static final String DO_POST_UPDATE_CREDENTIAL_IDENTITY_PROPERTY = "doPostUpdateCredential";
     private static Log log = LogFactory.getLog(UserStoreActionListener.class);
 
     @Override
@@ -50,7 +56,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     public boolean doPreAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
                                 String profile, UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable()) {
+        if (!isEnable() || isCalledViaIdentityMgtListners()) {
             return true;
         }
         try {
@@ -96,7 +102,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable()) {
+        if (!isEnable() || isCalledViaIdentityMgtListners()) {
             return true;
         }
         try {
@@ -119,7 +125,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName,
                                           UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
+        if (!isEnable() || isCalledViaIdentityMgtListners()) {
             return true;
         }
 
@@ -150,7 +156,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
                                            UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable()) {
+        if (!isEnable() || isCalledViaIdentityMgtListners()) {
             return true;
         }
         try {
@@ -174,7 +180,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     public boolean doPreDeleteUserClaimValues(String userName, String[] claims, String profileName, UserStoreManager
             userStoreManager) throws UserStoreException {
 
-        if (!isEnable()) {
+        if (!isEnable() || isCalledViaIdentityMgtListners()) {
             return true;
         }
         try {
@@ -198,7 +204,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreDeleteUserClaimValue(String userName, String claimURI, String profileName,
                                              UserStoreManager userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
+        if (!isEnable() || isCalledViaIdentityMgtListners()) {
             return true;
         }
 
@@ -229,7 +235,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             userStoreManager) throws UserStoreException {
 
         try {
-            if (!isEnable()) {
+            if (!isEnable() || isCalledViaIdentityMgtListners()) {
                 return true;
             }
             AddRoleWFRequestHandler addRoleWFRequestHandler = new AddRoleWFRequestHandler();
@@ -252,7 +258,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable()) {
+        if (!isEnable() || isCalledViaIdentityMgtListners()) {
             return true;
         }
         try {
@@ -276,7 +282,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager) throws
             UserStoreException {
-        if (!isEnable()) {
+        if (!isEnable() || isCalledViaIdentityMgtListners()) {
             return true;
         }
         try {
@@ -300,7 +306,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers, UserStoreManager
             userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
+        if (!isEnable() || isCalledViaIdentityMgtListners()) {
             return true;
         }
         try {
@@ -324,7 +330,7 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
     @Override
     public boolean doPreUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles, UserStoreManager
             userStoreManager) throws UserStoreException {
-        if (!isEnable()) {
+        if (!isEnable() || isCalledViaIdentityMgtListners()) {
             return true;
         }
         try {
@@ -343,5 +349,13 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
+    }
+
+    private boolean isCalledViaIdentityMgtListners() {
+        return IdentityUtil.threadLocalProperties.get().containsKey(DO_PRE_AUTHENTICATE_IDENTITY_PROPERTY) ||
+                IdentityUtil .threadLocalProperties.get().containsKey(DO_POST_AUTHENTICATE_IDENTITY_PROPERTY) ||
+                IdentityUtil .threadLocalProperties .get().containsKey(DO_POST_ADD_USER_IDENTITY_PROPERTY) ||
+                IdentityUtil.threadLocalProperties.get() .containsKey(DO_PRE_SET_USER_CLAIM_VALUES_IDENTITY_PROPERT)
+                || IdentityUtil.threadLocalProperties.get().containsKey (DO_POST_UPDATE_CREDENTIAL_IDENTITY_PROPERTY);
     }
 }
