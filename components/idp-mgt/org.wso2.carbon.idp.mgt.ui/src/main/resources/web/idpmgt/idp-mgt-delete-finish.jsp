@@ -44,7 +44,7 @@
         String message = e.getMessage(); //MessageFormat.format(resourceBundle.getString("error.deleting.idp"),new Object[]{e.getMessage()});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
     } finally {
-        session.removeAttribute("identityProvider");
+        session.removeAttribute("idpUniqueIdMap");
         session.removeAttribute("identityProviderList");
     }
 %>
