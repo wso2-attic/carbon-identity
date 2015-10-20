@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.mgt;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -92,6 +93,8 @@ public class IdentityMgtConfig {
     private PolicyRegistry policyRegistry = new PolicyRegistry();
 
     protected Properties properties = new Properties();
+
+    private long registryCleanUpPeriod;
 
     /*
      * Define the pattern of the configuration file. Assume following
@@ -322,6 +325,12 @@ public class IdentityMgtConfig {
                 }
             }
 
+            String registryCleanUpPeriod = properties.getProperty(IdentityMgtConstants.PropertyConfig
+                    .REGISTRY_CLEANUP_PERIOD);
+            if (StringUtils.isNotBlank(registryCleanUpPeriod)) {
+                this.registryCleanUpPeriod = Long.parseLong(registryCleanUpPeriod);
+            }
+
             int i = 1;
             while (true) {
                 String module = properties.
@@ -529,6 +538,10 @@ public class IdentityMgtConfig {
 
     public PolicyRegistry getPolicyRegistry() {
         return policyRegistry;
+    }
+
+    public long getRegistryCleanUpPeriod() {
+        return registryCleanUpPeriod;
     }
 
     /**

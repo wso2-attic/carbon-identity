@@ -188,6 +188,7 @@
 
 
     <script type="text/javascript" src="js/jquery-1.11.3.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.11.1.min.js"></script>
     <script type="text/javascript" src="js/tokenizer.js"></script>
     <link rel="stylesheet" type="text/css" href="css/input_style.css">
 
@@ -222,7 +223,12 @@
         }
 
         function doCancel() {
-            location.href = '<%=requestPath%>.jsp?wizard=finish';
+            function cancel() {
+                location.href = '<%=requestPath%>.jsp?wizard=finish';
+            }
+
+            CARBON.showConfirmationDialog('<fmt:message key="confirmation.request.delete"/> ?',
+                    cancel, null);
         }
 
 
@@ -291,8 +297,8 @@
             if(stepOrder > 0){
                 //alert($("#p-step-1-users").tokenizer('get'));
             }
-            if(stepOrder == 0 || ( $("#p-step-1-users").tokenizer('get') == ""  && $("#p-step-1-roles").tokenizer('get') == "" ) ){
-                return false ;
+            if (stepOrder == 0 || ( $("#p-step-1-users").tokenizer('get') == "" && $("#p-step-1-roles").tokenizer('get') == "" )) {
+                return false;
             }
 
             <%
@@ -459,7 +465,6 @@
                                                         .put(split[3], stringParameterMap.get(key).getParamValue());
                                             }
                                         }
-                                        WorkflowUIUtil.test("S",stepMap);
                                         %>
                                         jQuery(document).ready(function(){
 
@@ -613,7 +618,8 @@
                                                 var currentValues = $("#p-step-" + currentStep + "-" + category).val();
                                                 for(var i=0;i<allList.length;i++) {
                                                     var newItem = allList[i];
-                                                    $("#p-step-" + currentStep + "-" + category).tokenizer('push',newItem);
+                                                    $("#p-step-" + currentStep + "-" + category).tokenizer('push',
+                                                            newItem);
                                                 }
                                                 var newValues = $("#p-step-" + currentStep + "-" + category).tokenizer('get');
 
@@ -626,7 +632,8 @@
                                             //alert("cl");
                                             for(var x = 1 ; x<= stepOrder ;  ){
                                                 //alert(x);
-                                                if($("#p-step-"+x+"-users").tokenizer('get') == "" && $("#p-step-"+x+"-roles").tokenizer('get') == ""){
+                                                if ($("#p-step-" + x + "-users").tokenizer('get') == "" &&
+                                                        $("#p-step-" + x + "-roles").tokenizer('get') == "") {
                                                     deleteStep(document.getElementById("delete-obj-"+x));
                                                 }else{
                                                     x++ ;

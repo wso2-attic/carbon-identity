@@ -131,8 +131,20 @@ public class OpenIDManager {
 
             // Returning OP Url
             SSOAgentDataHolder.getInstance().setConsumerManager(manager);
+            StringBuilder destinationUrl = new StringBuilder(authReq.getDestinationUrl(true));
 
-            return authReq.getDestinationUrl(true);
+            if (ssoAgentConfig.getQueryParams() != null && !ssoAgentConfig.getQueryParams().isEmpty()) {
+                StringBuilder builder = new StringBuilder();
+                for (Map.Entry<String, String[]> entry : ssoAgentConfig.getQueryParams().entrySet()) {
+                    if (entry.getKey() != null && entry.getValue() != null && entry.getValue().length > 0) {
+                        for (String param : entry.getValue()) {
+                            builder.append("&").append(entry.getKey()).append("=").append(param);
+                        }
+                    }
+                }
+                destinationUrl.append(builder);
+            }
+            return destinationUrl.toString();
 
         } catch (YadisException e) {
             if (e.getErrorCode() == 1796) {

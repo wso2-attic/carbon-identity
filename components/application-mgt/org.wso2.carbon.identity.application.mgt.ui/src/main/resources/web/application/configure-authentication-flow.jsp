@@ -25,8 +25,11 @@
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page
+	import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil"%>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" scope="session"/>
+
 <carbon:breadcrumb label="breadcrumb.advanced.auth.step.config" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
                     topPage="true" request="<%=request%>" />
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -35,6 +38,7 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
+    ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, request.getParameter("spName"));
 	String spName = appBean.getServiceProvider().getApplicationName();
 	Map<String, String> claimMapping = appBean.getClaimMapping();
 		
@@ -49,7 +53,7 @@
 	
 	if (localAuthenticatorConfigs!=null && localAuthenticatorConfigs.length>0) {
 		for(LocalAuthenticatorConfig auth : localAuthenticatorConfigs) {
-			localAuthTypes.append(startOption + auth.getName() + middleOption + auth.getDisplayName() + endOPtion);
+			localAuthTypes.append(startOption + Encode.forHtmlAttribute(auth.getName()) + middleOption + Encode.forHtmlContent(auth.getDisplayName()) + endOPtion);
 		}
 	}
 
@@ -82,13 +86,13 @@ var authMap = {};
 						fedAuthenticatorDisplayType.append(fedAuth.getDisplayName());
 						fedAuthenticatorType.append(fedAuth.getName());
 					}else{
-						fedAuthenticatorDisplayType.append(fedAuth.getDisplayName() +",");
-						fedAuthenticatorType.append(fedAuth.getName()+",");
+						fedAuthenticatorDisplayType.append(fedAuth.getDisplayName() + ",");
+						fedAuthenticatorType.append(fedAuth.getName() + ",");
 					}
 					
-					fedAuthType.append(startOption + fedAuth.getName() + middleOption + fedAuth.getDisplayName() + endOPtion);
+					fedAuthType.append(startOption + Encode.forHtmlAttribute(fedAuth.getName()) + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOPtion);
 					if(fedAuth.getEnabled()){
-						enabledfedAuthType.append(startOption + fedAuth.getName() + middleOption + fedAuth.getDisplayName() + endOPtion);
+						enabledfedAuthType.append(startOption + Encode.forHtmlAttribute(fedAuth.getName()) + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOPtion);
 					}
 					idpAuthenticatorsStatus.put(idp.getIdentityProviderName()+"_"+fedAuth.getName(), fedAuth.getEnabled());
 					i++;
@@ -97,9 +101,9 @@ var authMap = {};
 				idpAuthenticators.put(idp.getIdentityProviderName(), fedAuthType.toString());
 				enabledIdpAuthenticators.put(idp.getIdentityProviderName(), enabledfedAuthType.toString());
 				
-				idpType.append(startOption + idp.getIdentityProviderName() + "\" data=\""+fedAuthenticatorDisplayType.toString() + "\""+ " data-values=\""+fedAuthenticatorType.toString() + "\" >" + idp.getIdentityProviderName() + endOPtion);
+				idpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+ Encode.forHtmlAttribute(fedAuthenticatorDisplayType.toString()) + "\""+ " data-values=\""+ Encode.forHtmlAttribute(fedAuthenticatorType.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOPtion);
 				if(idp.getEnable() && enabledfedAuthType.length() > 0){
-					enabledIdpType.append(startOption + idp.getIdentityProviderName() + "\" data=\""+fedAuthenticatorDisplayType.toString() + "\""+ " data-values=\""+fedAuthenticatorType.toString() + "\" >" + idp.getIdentityProviderName() + endOPtion);
+					enabledIdpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+ Encode.forHtmlAttribute(fedAuthenticatorDisplayType.toString()) + "\""+ " data-values=\""+ Encode.forHtmlAttribute(fedAuthenticatorType.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOPtion);
 				}
 			} 
 		}
@@ -118,9 +122,8 @@ var authMap = {};
 					FederatedAuthenticatorConfig fedAuth = idp.getDefaultAuthenticatorConfig();
 					String options = idpAuthenticators.get(idp.getIdentityProviderName());
 					if (fedAuth != null && options != null) {
-						String authName = fedAuth.getName();
-						String oldOption = startOption + fedAuth.getName() + middleOption + fedAuth.getDisplayName() + endOPtion;
-						String newOption = startOption + fedAuth.getName() + "\" selected=\"selected" + middleOption + fedAuth.getDisplayName()+ ((idpAuthenticatorsStatus.get(idp.getIdentityProviderName()+"_"+fedAuth.getName()) != null && idpAuthenticatorsStatus.get(idp.getIdentityProviderName()+"_"+fedAuth.getName()))  ? "" : disbleText) + endOPtion;
+						String oldOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOPtion;
+						String newOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName())+ ((idpAuthenticatorsStatus.get(idp.getIdentityProviderName()+"_"+fedAuth.getName()) != null && idpAuthenticatorsStatus.get(idp.getIdentityProviderName()+"_"+fedAuth.getName()))  ? "" : disbleText) + endOPtion;
 						if(options.contains(oldOption)){
 							options = options.replace(oldOption, newOption);
 						} else {
@@ -129,7 +132,7 @@ var authMap = {};
 						stepIdpAuthenticators.put(step.getStepOrder()+"_"+idp.getIdentityProviderName(), options);
 					} else if (fedAuth != null && options == null) {
 						// All Federated Authenticators are disabled. But saved one is available
-						String disabledOption = startOption + fedAuth.getName() + "\" selected=\"selected" + middleOption + fedAuth.getDisplayName()+ disbleText + endOPtion;
+						String disabledOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName())+ disbleText + endOPtion;
 						stepIdpAuthenticators.put(step.getStepOrder()+"_"+idp.getIdentityProviderName(), disabledOption);
 					} else {
 						// No saved Federated Authenticators
@@ -179,7 +182,7 @@ var img = "";
         })
         jQuery('#stepsAddLink').click(function(){
         	stepOrder++;
-        	jQuery('#stepsConfRow').append(jQuery('<h2 id="step_head_'+stepOrder+'" class="sectionSeperator trigger active step_heads" style="background-color: beige; clear: both;"><input type="hidden" value="'+stepOrder+'" name="auth_step" id="auth_step"><a class="step_order_header" href="#">Step '+stepOrder+'</a><a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;"></a></h2><div class="toggle_container sectionSub step_contents" style="margin-bottom:10px;" id="step_dev_'+stepOrder+'"> <div style="padding-bottom: 5px"><table class="carbonFormTable"><tr><td><input type="checkbox" style="vertical-align: middle;" id="subject_step_'+stepOrder+'" name="subject_step_'+stepOrder+'" class="subject_steps" onclick="setSubjectStep(this)"><label for="subject_step_'+stepOrder+'" style="cursor: pointer;">Use subject identifier from this step</label></td></tr><tr><td><input type="checkbox" style="vertical-align: middle;" id="attribute_step_'+stepOrder+'" name="attribute_step_'+stepOrder+'" class="attribute_steps" onclick="setAttributeStep(this)" ><label for="attribute_step_'+stepOrder+'" style="cursor: pointer;">Use attributes from this step</label></td></tr></table></div><h2 id="local_auth_head_'+stepOrder+'" class="sectionSeperator trigger active" style="background-color: floralwhite;"><a href="#">Local Authenticators</a></h2><div class="toggle_container sectionSub" style="margin-bottom:10px;" id="local_auth_head_dev_'+stepOrder+'"><table class="styledLeft" width="100%" id="local_auth_table_'+stepOrder+'"><thead><tr><td><select name="step_'+stepOrder+'_local_oauth_select" style="float: left; min-width: 150px;font-size:13px;"><%=localAuthTypes.toString()%></select><a id="claimMappingAddLinkss" onclick="addLocalRow(this,'+stepOrder+');return false;" class="icon-link claimMappingAddLinkssLocal" style="background-image:url(images/add.gif);">Add Authenticator</a></td></tr></thead></table> </div><%if (enabledIdpType.length() > 0) { %> <h2 id="fed_auth_head_'+stepOrder+'" class="sectionSeperator trigger active" style="background-color: floralwhite;"><a href="#">Federated Authenticators</a></h2><div class="toggle_container sectionSub" style="margin-bottom:10px;" id="fed_auth_head_dev_'+stepOrder+'"><table class="styledLeft" width="100%" id="fed_auth_table_'+stepOrder+'"><thead> <tr><td><select name="idpAuthType_'+stepOrder+'" style="float: left; min-width: 150px;font-size:13px;"><%=Encode.forJavaScriptAttribute(Encode.forHtml(enabledIdpType.toString()))%></select><a id="claimMappingAddLinkss" onclick="addIDPRow(this,'+stepOrder+');return false;" class="icon-link claimMappingAddLinkssIdp" style="background-image:url(images/add.gif);">Add Authenticator</a></td></tr></thead></table></div><%}%></div>'));
+        	jQuery('#stepsConfRow').append(jQuery('<h2 id="step_head_'+stepOrder+'" class="sectionSeperator trigger active step_heads" style="background-color: beige; clear: both;"><input type="hidden" value="'+stepOrder+'" name="auth_step" id="auth_step"><a class="step_order_header" href="#">Step '+stepOrder+'</a><a onclick="deleteStep(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif);float:right;width: 9px;"></a></h2><div class="toggle_container sectionSub step_contents" style="margin-bottom:10px;" id="step_dev_'+stepOrder+'"> <div style="padding-bottom: 5px"><table class="carbonFormTable"><tr><td><input type="checkbox" style="vertical-align: middle;" id="subject_step_'+stepOrder+'" name="subject_step_'+stepOrder+'" class="subject_steps" onclick="setSubjectStep(this)"><label for="subject_step_'+stepOrder+'" style="cursor: pointer;">Use subject identifier from this step</label></td></tr><tr><td><input type="checkbox" style="vertical-align: middle;" id="attribute_step_'+stepOrder+'" name="attribute_step_'+stepOrder+'" class="attribute_steps" onclick="setAttributeStep(this)" ><label for="attribute_step_'+stepOrder+'" style="cursor: pointer;">Use attributes from this step</label></td></tr></table></div><h2 id="local_auth_head_'+stepOrder+'" class="sectionSeperator trigger active" style="background-color: floralwhite;"><a href="#">Local Authenticators</a></h2><div class="toggle_container sectionSub" style="margin-bottom:10px;" id="local_auth_head_dev_'+stepOrder+'"><table class="styledLeft" width="100%" id="local_auth_table_'+stepOrder+'"><thead><tr><td><select name="step_'+stepOrder+'_local_oauth_select" style="float: left; min-width: 150px;font-size:13px;"><%=localAuthTypes.toString()%></select><a id="claimMappingAddLinkss" onclick="addLocalRow(this,'+stepOrder+');return false;" class="icon-link claimMappingAddLinkssLocal" style="background-image:url(images/add.gif);">Add Authenticator</a></td></tr></thead></table> </div><%if (enabledIdpType.length() > 0) { %> <h2 id="fed_auth_head_'+stepOrder+'" class="sectionSeperator trigger active" style="background-color: floralwhite;"><a href="#">Federated Authenticators</a></h2><div class="toggle_container sectionSub" style="margin-bottom:10px;" id="fed_auth_head_dev_'+stepOrder+'"><table class="styledLeft" width="100%" id="fed_auth_table_'+stepOrder+'"><thead> <tr><td><select name="idpAuthType_'+stepOrder+'" style="float: left; min-width: 150px;font-size:13px;"><%=enabledIdpType.toString()%></select><a id="claimMappingAddLinkss" onclick="addIDPRow(this,'+stepOrder+');return false;" class="icon-link claimMappingAddLinkssIdp" style="background-image:url(images/add.gif);">Add Authenticator</a></td></tr></thead></table></div><%}%></div>'));
         	if(!$('#stepsConfRow').is(":visible")){
                 $(jQuery('#stepsConfRow')).toggle();
             }
@@ -384,7 +387,7 @@ var img = "";
         </h2>
         <div id="workArea">
             <form id="configure-auth-flow-form" method="post" name="configure-auth-flow-form" method="post" action="configure-authentication-flow-finish.jsp" >        
-           
+            <input type=hidden name=spName value='<%=Encode.forHtmlAttribute(spName)%>'/>
           
            
             <h2 id="authentication_step_config_head" class="sectionSeperator trigger active">
@@ -429,7 +432,7 @@ var img = "";
 							             	<tr>
 							             		<td>
 							             			<select name="step_<%=step.getStepOrder()%>_local_oauth_select"  style="float: left; min-width: 150px;font-size:13px;">
-							             				<%=Encode.forHtmlContent(localAuthTypes.toString())%>
+							             				<%=localAuthTypes.toString()%>
 							             			</select>
 							             			<a id="claimMappingAddLinkss" onclick="addLocalRow(this,'<%=step.getStepOrder()%>');return false;" class="icon-link claimMappingAddLinkssLocal" style="background-image:url(images/add.gif);">Add Authenticator
 							             			</a>
@@ -472,7 +475,7 @@ var img = "";
 							             	 <tr style="<%=enabledIdpType.length() > 0 ? "" : "display:none"%>" >
 							             	  <td>							             	  
 							             		<select name="idpAuthType_<%=step.getStepOrder()%>" style="float: left; min-width: 150px;font-size:13px;">
-							             			<%=Encode.forHtmlContent(enabledIdpType.toString())%>
+							             			<%=enabledIdpType.toString()%>
 							             		</select>
 							             		<a id="claimMappingAddLinkss" onclick="addIDPRow(this,'<%=step.getStepOrder()%>');return false;" class="icon-link claimMappingAddLinkssIdp" style="background-image:url(images/add.gif);">Add Authenticator</a>
 							             	  </td>
@@ -493,7 +496,7 @@ var img = "";
 							      	      			<%=Encode.forHtmlContent(idp.getIdentityProviderName()) + (idpEnableStatus.get(idp.getIdentityProviderName()) != null && idpEnableStatus.get(idp.getIdentityProviderName()) ? "" : disbleText) %>
 							      	      		</td>
 							      	      		<td>
-                                                    <select name="step_<%=step.getStepOrder()%>_idp_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>_fed_authenticator" style="float: left; min-width: 150px;font-size:13px;"><%=Encode.forHtmlContent(stepIdpAuthenticators.get(step.getStepOrder()) +"_"+ Encode.forHtmlContent(idp.getIdentityProviderName()))%></select>
+                                                    <select name="step_<%=step.getStepOrder()%>_idp_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>_fed_authenticator" style="float: left; min-width: 150px;font-size:13px;"><%=stepIdpAuthenticators.get(step.getStepOrder() +"_"+ idp.getIdentityProviderName())%></select>
 							      	      		</td>
 							      	      		<td class="leftCol-small" >
 							      	      		<a onclick="deleteIDPRow(this);return false;" href="#" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
@@ -517,7 +520,7 @@ var img = "";
             <!-- sectionSub Div -->
             <div class="buttonRow">
                 <input type="button" value="<fmt:message key='button.update.service.provider'/>" onclick="createAppOnclick();"/>
-                <input type="button" value="<fmt:message key='button.cancel'/>" onclick="javascript:location.href='configure-service-provider.jsp?display=auth_config'"/>
+                <input type="button" value="<fmt:message key='button.cancel'/>" onclick="javascript:location.href='configure-service-provider.jsp?display=auth_config&spName=<%=Encode.forUriComponent(spName)%>'"/>
             </div>
             </form>
         </div>

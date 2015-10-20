@@ -151,9 +151,9 @@ public class WorkflowServiceDataHolder {
         }
     }
 
-    public WorkflowRequestHandler getRequestHandler(String handlerId) {
+    public WorkflowRequestHandler getRequestHandler(String eventId) {
 
-        return workflowRequestHandlers.get(handlerId);
+        return workflowRequestHandlers.get(eventId);
     }
 
     public List<WorkflowRequestHandler> listRequestHandlers() {

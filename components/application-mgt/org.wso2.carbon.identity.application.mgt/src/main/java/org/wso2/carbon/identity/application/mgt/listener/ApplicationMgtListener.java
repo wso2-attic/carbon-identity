@@ -53,7 +53,8 @@ public interface ApplicationMgtListener {
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws IdentityApplicationManagementException
      */
-    public boolean doPreCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException;
+    public boolean doPreCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException;
 
     /**
      * Define any additional actions after creating an application
@@ -64,7 +65,8 @@ public interface ApplicationMgtListener {
      * @return
      * @throws IdentityApplicationManagementException
      */
-    public boolean doPostCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException;
+    public boolean doPostCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException;
 
     /**
      * Define any additional actions before updating an application
@@ -75,7 +77,8 @@ public interface ApplicationMgtListener {
      * @return
      * @throws IdentityApplicationManagementException
      */
-    public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException;
+    public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException;
 
     /**
      * Define any additional actions after updating an application
@@ -86,7 +89,8 @@ public interface ApplicationMgtListener {
      * @return
      * @throws IdentityApplicationManagementException
      */
-    public boolean doPostUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException;
+    public boolean doPostUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException;
 
     /**
      * Define any additional actions before deleting an application
@@ -97,7 +101,8 @@ public interface ApplicationMgtListener {
      * @return
      * @throws IdentityApplicationManagementException
      */
-    public boolean doPreDeleteApplication(String applicationName, String tenantDomain, String userName) throws IdentityApplicationManagementException;
+    public boolean doPreDeleteApplication(String applicationName, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException;
 
     /**
      * Define any additional actions after deleting an application
@@ -108,6 +113,7 @@ public interface ApplicationMgtListener {
      * @return
      * @throws IdentityApplicationManagementException
      */
-    public boolean doPostDeleteApplication(String applicationName, String tenantDomain, String userName) throws IdentityApplicationManagementException;
+    public boolean doPostDeleteApplication(String applicationName, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException;
 
 }

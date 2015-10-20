@@ -27,11 +27,12 @@
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String BUNDLE = "org.wso2.carbon.idp.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-    String callback = CharacterEncoder.getSafeText(request.getParameter("callback"));
+    String callback = request.getParameter("callback");
     if(callback == null || callback != null && callback.equals("")){
         callback = "idp-mgt-list.jsp";
     }
@@ -50,7 +51,7 @@
     }
 %>
 <script type="text/javascript">
-    location.href = "<%=callback%>";
+    location.href = "<%=Encode.forUriComponent(callback)%>";
 </script>
 
 

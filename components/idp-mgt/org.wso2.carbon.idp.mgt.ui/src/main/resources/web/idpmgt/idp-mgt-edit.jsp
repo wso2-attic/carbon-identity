@@ -35,14 +35,14 @@
 <%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
-<%@page import="java.util.ArrayList"%>
 <%@page import="java.util.Set"%>
+<%@ page import="org.wso2.carbon.identity.core.util.IdentityUtil" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"
@@ -52,7 +52,7 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    String idPName = CharacterEncoder.getSafeText(request.getParameter("idPName"));
+    String idPName = request.getParameter("idPName");
     if (idPName != null && idPName.equals("")) {
         idPName = null;
     }
@@ -821,8 +821,8 @@
     if (oidcQueryParam == null) {
         oidcQueryParam = "";
     }
-    if (idPAlias == null) {
-        idPAlias = tokenUrl;
+    if (StringUtils.isBlank(idPAlias)) {
+        idPAlias = IdentityUtil.getServerURL("/oauth2/token", false);
     }
     String provisionStaticDropdownDisabled = "";
     String provisionDynamicDropdownDisabled = "";
@@ -856,6 +856,10 @@
             openIdDefaultDisabled = "disabled=\'disabled\'";
         }
     }
+    if(StringUtils.isBlank(openIdUrl)){
+        openIdUrl = StringUtils.EMPTY;
+    }
+
     String saml2SSOEnabledChecked = "";
     String saml2SSODefaultDisabled = "";
     if (identityProvider != null) {
@@ -877,6 +881,9 @@
     }
     if (spEntityId == null) {
         spEntityId = "";
+    }
+    if(StringUtils.isBlank(ssoUrl)){
+        ssoUrl = StringUtils.EMPTY;
     }
     String authnRequestSignedChecked = "";
     if (identityProvider != null) {
@@ -905,8 +912,8 @@
             sloEnabledChecked = "checked=\'checked\'";
         }
     }
-    if (logoutUrl == null) {
-        logoutUrl = "";
+    if(StringUtils.isBlank(logoutUrl)){
+        logoutUrl = StringUtils.EMPTY;
     }
     String logoutRequestSignedChecked = "";
     if (identityProvider != null) {
@@ -920,7 +927,7 @@
             authnResponseSignedChecked = "checked=\'checked\'";
         }
     }
-    
+
     String signAlgoDropdownDisabled="";
     if(!isAuthnRequestSigned){
         signAlgoDropdownDisabled = "disabled=\'disabled\'";
@@ -930,39 +937,39 @@
     if(!isAuthnRequestSigned){
         digestAlgoDropdownDisabled = "disabled=\'disabled\'";
     }
-    
+
     String authnContextClassRefDropdownDisabled="";
     String authnContextComparisonDropdownDisabled="";
     if("no".equals(includeAuthenticationContext)){
         authnContextClassRefDropdownDisabled = "disabled=\'disabled\'";
         authnContextComparisonDropdownDisabled = "disabled=\'disabled\'";
     }
-    
+
     String includeNameIdPolicyChecked="";
     if(identityProvider != null){
         if(includeNameIdPolicy){
             includeNameIdPolicyChecked = "checked=\'checked\'";
         }
     }
-    
+
     String includeCertChecked = "";
     if(identityProvider != null){
         if(includeCert){
             includeCertChecked = "checked=\'checked\'";
         }
     }
-    
+
     String includeProtocolBindingChecked = "";
     if(identityProvider != null){
         if(includeProtocolBinding){
             includeProtocolBindingChecked = "checked=\'checked\'";
         }
     }
-    
+
     if(attributeConsumingServiceIndex == null) {
         attributeConsumingServiceIndex = "";
     }
-    
+
     String oidcEnabledChecked = "";
     String oidcDefaultDisabled = "";
     if (identityProvider != null) {
@@ -986,6 +993,13 @@
     if (clientSecret == null) {
         clientSecret = "";
     }
+    if(StringUtils.isBlank(authzUrl)){
+        authzUrl = StringUtils.EMPTY;
+    }
+    if(StringUtils.isBlank(tokenUrl)){
+        tokenUrl = StringUtils.EMPTY;
+    }
+
     String passiveSTSEnabledChecked = "";
     String passiveSTSDefaultDisabled = "";
     if (identityProvider != null) {
@@ -1005,6 +1019,10 @@
     if (passiveSTSRealm == null) {
         passiveSTSRealm = "";
     }
+    if(StringUtils.isBlank(passiveSTSUrl)){
+        passiveSTSUrl = StringUtils.EMPTY;
+    }
+
     String fbAuthEnabledChecked = "";
     String fbAuthDefaultDisabled = "";
 
@@ -1458,8 +1476,8 @@ function deleteRow(obj) {
 
 function disableDefaultPwd(chkbx) {
     document.getElementById("scim-default-pwd").value = "";
-    var disabled = chkbx.checked ? "disabled" : "";
-    document.getElementById("scim-default-pwd").setAttribute("disabled", disabled);
+    var disabled = chkbx.checked;
+    document.getElementById("scim-default-pwd").disabled = disabled;
 }
 
 jQuery(document).ready(function () {
@@ -2414,14 +2432,15 @@ function idpMgtUpdate() {
                                                                                         doEditFinish();
                                                                                     },
                                                                                     function () {
-                                                                                        location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                                                        location.href =
+                                                                                                "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                                                     });
                                                                         } else {
                                                                             doEditFinish();
                                                                         }
                                                                     },
                                                                     function () {
-                                                                        location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                                     });
                                                         } else {
                                                             if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2436,7 +2455,8 @@ function idpMgtUpdate() {
                                                                             doEditFinish();
                                                                         },
                                                                         function () {
-                                                                            location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                                            location.href =
+                                                                                    "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                                         });
                                                             } else {
                                                                 doEditFinish();
@@ -2444,7 +2464,7 @@ function idpMgtUpdate() {
                                                         }
                                                     },
                                                     function () {
-                                                        location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                     });
                                         } else {
                                             if (jQuery('#deleteClaimMappings').val() == 'true') {
@@ -2459,7 +2479,7 @@ function idpMgtUpdate() {
 
                                                         },
                                                         function () {
-                                                            location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                         });
                                             } else {
                                                 if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2474,7 +2494,7 @@ function idpMgtUpdate() {
                                                                 doEditFinish();
                                                             },
                                                             function () {
-                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                             });
                                                 } else {
                                                     doEditFinish();
@@ -2483,7 +2503,7 @@ function idpMgtUpdate() {
                                         }
                                     },
                                     function () {
-                                        location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                     });
                         } else {
                             if (allDeletedRoleStr != "") {
@@ -2502,7 +2522,7 @@ function idpMgtUpdate() {
 
                                                         },
                                                         function () {
-                                                            location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                         });
                                             } else {
                                                 if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2517,7 +2537,7 @@ function idpMgtUpdate() {
                                                                 doEditFinish();
                                                             },
                                                             function () {
-                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                             });
                                                 } else {
                                                     doEditFinish();
@@ -2525,7 +2545,7 @@ function idpMgtUpdate() {
                                             }
                                         },
                                         function () {
-                                            location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                            location.href = "idp-mgt-edit.jsp?idPName=Encode.forUriComponent(idPName)%>";
                                         });
                             } else {
                                 if (jQuery('#deleteClaimMappings').val() == 'true') {
@@ -2549,14 +2569,14 @@ function idpMgtUpdate() {
                                                                 doEditFinish();
                                                             },
                                                             function () {
-                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                             });
                                                 } else {
                                                     doEditFinish();
                                                 }
                                             },
                                             function () {
-                                                location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                             });
                                 } else {
                                     if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2571,7 +2591,7 @@ function idpMgtUpdate() {
                                                     doEditFinish();
                                                 },
                                                 function () {
-                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                 });
                                     } else {
                                         doEditFinish();
@@ -2581,7 +2601,7 @@ function idpMgtUpdate() {
                         }
                     },
                     function () {
-                        location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                     });
         } else {
             if (allDeletedClaimStr != "") {
@@ -2604,7 +2624,7 @@ function idpMgtUpdate() {
 
                                                         },
                                                         function () {
-                                                            location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                         });
                                             } else {
                                                 if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2619,7 +2639,7 @@ function idpMgtUpdate() {
                                                                 doEditFinish();
                                                             },
                                                             function () {
-                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                             });
                                                 } else {
                                                     doEditFinish();
@@ -2627,7 +2647,7 @@ function idpMgtUpdate() {
                                             }
                                         },
                                         function () {
-                                            location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                         });
                             } else {
                                 if (jQuery('#deleteClaimMappings').val() == 'true') {
@@ -2651,14 +2671,14 @@ function idpMgtUpdate() {
                                                                 doEditFinish();
                                                             },
                                                             function () {
-                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                             });
                                                 } else {
                                                     doEditFinish();
                                                 }
                                             },
                                             function () {
-                                                location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                             });
                                 } else {
                                     if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2673,7 +2693,7 @@ function idpMgtUpdate() {
                                                     doEditFinish();
                                                 },
                                                 function () {
-                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                 });
                                     } else {
                                         doEditFinish();
@@ -2682,7 +2702,7 @@ function idpMgtUpdate() {
                             }
                         },
                         function () {
-                            location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                            location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                         });
             } else {
                 if (allDeletedRoleStr != "") {
@@ -2710,14 +2730,14 @@ function idpMgtUpdate() {
                                                                 doEditFinish();
                                                             },
                                                             function () {
-                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                             });
                                                 } else {
                                                     doEditFinish();
                                                 }
                                             },
                                             function () {
-                                                location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                             });
                                 } else {
                                     if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2732,7 +2752,7 @@ function idpMgtUpdate() {
                                                     doEditFinish();
                                                 },
                                                 function () {
-                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                 });
                                     } else {
                                         doEditFinish();
@@ -2740,7 +2760,7 @@ function idpMgtUpdate() {
                                 }
                             },
                             function () {
-                                location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                             });
                 } else {
                     if (jQuery('#deleteClaimMappings').val() == 'true') {
@@ -2764,14 +2784,14 @@ function idpMgtUpdate() {
                                                     doEditFinish();
                                                 },
                                                 function () {
-                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                                 });
                                     } else {
                                         doEditFinish();
                                     }
                                 },
                                 function () {
-                                    location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                    location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                 });
                     } else {
                         if (jQuery('#deleteRoleMappings').val() == 'true') {
@@ -2786,7 +2806,7 @@ function idpMgtUpdate() {
                                         doEditFinish();
                                     },
                                     function () {
-                                        location.href = "idp-mgt-edit.jsp?idPName=<%=idPName%>";
+                                        location.href = "idp-mgt-edit.jsp?idPName=<%=Encode.forUriComponent(idPName)%>";
                                     });
                         } else {
                             doEditFinish();
@@ -3094,7 +3114,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='name'/>:<span class="required">*</span></td>
             <td>
-                <input id="idPName" name="idPName" type="text" value="<%=idPName%>" autofocus/>
+                <input id="idPName" name="idPName" type="text" value="<%=Encode.forHtmlAttribute(idPName)%>" autofocus/>
                 <%if (identityProvider != null && identityProvider.getEnable()) { %>
                 <input id="enable" name="enable" type="hidden" value="1">
                 <%} %>
@@ -3108,7 +3128,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='idp.display.name'/>:</td>
             <td>
-                <input id="idpDisplayName" name="idpDisplayName" type="text" value="<%=idpDisplayName%>" autofocus/>
+                <input id="idpDisplayName" name="idpDisplayName" type="text" value="<%=Encode.forHtmlAttribute(idpDisplayName)%>" autofocus/>
 
                 <div class="sectionHelp">
                     <fmt:message key='idp.display.name.help'/>
@@ -3119,7 +3139,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='description'/></td>
             <td>
-                <input id="idPDescription" name="idPDescription" type="text" value="<%=description%>" autofocus/>
+                <input id="idPDescription" name="idPDescription" type="text" value="<%=Encode.forHtmlAttribute(description)%>" autofocus/>
 
                 <div class="sectionHelp">
                     <fmt:message key='description.help'/>
@@ -3146,7 +3166,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='home.realm.id'/>:</td>
             <td>
-                <input id="realmId" name="realmId" type="text" value="<%=realmId%>" autofocus/>
+                <input id="realmId" name="realmId" type="text" value="<%=Encode.forHtmlAttribute(realmId)%>" autofocus/>
 
                 <div class="sectionHelp">
                     <fmt:message key='home.realm.id.help'/>
@@ -3186,35 +3206,35 @@ function doValidation() {
                                 if (certData.getIssuerDN() != null) {
                                     issuerDN = certData.getIssuerDN();
                                 }
-                            %><%=issuerDN%>
+                            %><%=Encode.forHtmlContent(issuerDN)%>
                             </td>
                             <td><%
                                 String subjectDN = "";
                                 if (certData.getSubjectDN() != null) {
                                     subjectDN = certData.getSubjectDN();
                                 }
-                            %><%=subjectDN%>
+                            %><%=Encode.forHtmlContent(subjectDN)%>
                             </td>
                             <td><%
                                 String notAfter = "";
                                 if (certData.getNotAfter() != null) {
                                     notAfter = certData.getNotAfter();
                                 }
-                            %><%=notAfter%>
+                            %><%=Encode.forHtmlContent(notAfter)%>
                             </td>
                             <td><%
                                 String notBefore = "";
                                 if (certData.getNotBefore() != null) {
                                     notBefore = certData.getNotBefore();
                                 }
-                            %><%=notBefore%>
+                            %><%=Encode.forHtmlContent(notBefore)%>
                             </td>
                             <td><%
                                 String serialNo = "";
                                 if (certData.getSerialNumber() != null) {
                                     serialNo = certData.getSerialNumber().toString();
                                 }
-                            %><%=serialNo%>
+                            %><%=Encode.forHtmlContent(serialNo)%>
                             </td>
                             <td><%=certData.getVersion()%>
                             </td>
@@ -3230,7 +3250,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='resident.idp.alias'/>:</td>
             <td>
-                <input id="tokenEndpointAlias" name="tokenEndpointAlias" type="text" value="<%=idPAlias%>" autofocus/>
+                <input id="tokenEndpointAlias" name="tokenEndpointAlias" type="text" value="<%=Encode.forHtmlAttribute(idPAlias)%>" autofocus/>
 
                 <div class="sectionHelp">
                     <fmt:message key='resident.idp.alias.help'/>
@@ -3305,18 +3325,18 @@ function doValidation() {
                     <% for (int i = 0; i < claimMappings.length; i++) { %>
                     <tr>
                         <td><input type="text" style=" width: 90%; " class="claimrow"
-                                   value="<%=claimMappings[i].getRemoteClaim().getClaimUri()%>" id="claimrowid_<%=i%>"
+                                   value="<%=Encode.forHtmlAttribute(claimMappings[i].getRemoteClaim().getClaimUri())%>" id="claimrowid_<%=i%>"
                                    name="claimrowname_<%=i%>"/></td>
                         <td>
                             <select id="claimrow_id_wso2_<%=i%>" class="claimrow_wso2" name="claimrow_name_wso2_<%=i%>">
                                 <option value="">--- Select Claim URI ---</option>
                                         <% for(String wso2ClaimName : claimUris) { 
 													if(claimMappings[i].getLocalClaim().getClaimUri() != null && claimMappings[i].getLocalClaim().getClaimUri().equals(wso2ClaimName)){	%>
-                                <option selected="selected" value="<%=wso2ClaimName%>"><%=wso2ClaimName%>
+                                <option selected="selected" value="<%=Encode.forHtmlAttribute(wso2ClaimName)%>"><%=Encode.forHtmlContent(wso2ClaimName)%>
                                 </option>
                                         <%
 													} else{ %>
-                                <option value="<%=wso2ClaimName%>"><%=wso2ClaimName%>
+                                <option value="<%=Encode.forHtmlAttribute(wso2ClaimName)%>"><%=Encode.forHtmlContent(wso2ClaimName)%>
                                 </option>
                                         <%}
 												}%>
@@ -3449,10 +3469,11 @@ function doValidation() {
                     %>
                     <tr>
                         <td><input type="text" style="width: 99%;" class="claimrow"
-                                   value="<%=claimMappings[i].getRemoteClaim().getClaimUri()%>"
+                                   value="<%=Encode.forHtmlAttribute(claimMappings[i].getRemoteClaim().getClaimUri())%>"
                                    id="advancnedIdpClaim_<%=i%>" name="advancnedIdpClaim_<%=i%>"/></td>
                         <td><input type="text" style="width: 99%;" class="claimrow"
-                                   value="<%=claimMappings[i].getDefaultValue() != null ? claimMappings[i].getDefaultValue() : "" %>"
+                                   value="<%=claimMappings[i].getDefaultValue() != null ?
+                                   Encode.forHtmlAttribute(claimMappings[i].getDefaultValue()) : "" %>"
                                    id="advancedDefault_<%=i%>" name="advancedDefault_<%=i%>"/></td>
                         <td>
                             <a title="<fmt:message key='delete.claim'/>"
@@ -3533,7 +3554,8 @@ function doValidation() {
                         for (int i = 0; i < roleMappings.length; i++) {
                     %>
                     <tr>
-                        <td><input type="text" value="<%=roleMappings[i].getRemoteRole()%>" id="rolerowname_<%=i%>"
+                        <td><input type="text" value="<%=Encode.forHtmlAttribute(roleMappings[i].getRemoteRole())%>"
+                                   id="rolerowname_<%=i%>"
                                    name="rolerowname_<%=i%>"/></td>
                         <td><input type="text" value="<%=UserCoreUtil.addDomainToName(roleMappings[i].getLocalRole().getLocalRoleName(), roleMappings[i].getLocalRole().getUserStoreId())%>" id="localrowname_<%=i%>" name="localrowname_<%=i%>"/></td>
                         <td>
@@ -3575,7 +3597,7 @@ function doValidation() {
             <td class="leftCol-med labelField"><fmt:message key='provisioning.role'/>:</td>
             <td>
                 <input id="idpProvisioningRole" class="leftCol-med" name="idpProvisioningRole" type="text"
-                       value="<%=provisioningRole%>"/>
+                       value="<%=Encode.forHtmlAttribute(provisioningRole)%>"/>
 
                 <div class="sectionHelp">
                     <fmt:message key='provisioning.role.help'/>
@@ -3633,7 +3655,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='openid.url'/>:<span class="required">*</span></td>
             <td>
-                <input id="openIdUrl" name="openIdUrl" type="text" value="<%=openIdUrl%>"/>
+                <input id="openIdUrl" name="openIdUrl" type="text" value="<%=Encode.forHtmlAttribute(openIdUrl)%>"/>
 
                 <div class="sectionHelp">
                     <fmt:message key='openid.url.help'/>
@@ -3663,7 +3685,7 @@ function doValidation() {
             <td class="leftCol-med labelField"><fmt:message key='query.param'/>:</td>
             <td>
                 <%if (openidQueryParam != null) { %>
-                <input id="openidQueryParam" name="openidQueryParam" type="text" value=<%=openidQueryParam%>>
+                <input id="openidQueryParam" name="openidQueryParam" type="text" value=<%=Encode.forHtmlAttribute(openidQueryParam)%>>
                 <% } else { %>
                 <input id="openidQueryParam" name="openidQueryParam" type="text"/>
                 <% } %>
@@ -3715,7 +3737,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='idp.entity.id'/>:<span class="required">*</span></td>
             <td>
-                <input id="idPEntityId" name="idPEntityId" type="text" value=<%=idPEntityId%>>
+                <input id="idPEntityId" name="idPEntityId" type="text" value=<%=Encode.forHtmlAttribute(idPEntityId)%>>
 
                 <div class="sectionHelp">
                     <fmt:message key='idp.entity.id.help'/>
@@ -3725,7 +3747,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='sp.entity.id'/>:<span class="required">*</span></td>
             <td>
-                <input id="spEntityId" name="spEntityId" type="text" value=<%=spEntityId%>>
+                <input id="spEntityId" name="spEntityId" type="text" value=<%=Encode.forHtmlAttribute(spEntityId)%>>
 
                 <div class="sectionHelp">
                     <fmt:message key='sp.entity.id.help'/>
@@ -3735,7 +3757,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='sso.url'/>:<span class="required">*</span></td>
             <td>
-                <input id="ssoUrl" name="ssoUrl" type="text" value=<%=ssoUrl%>>
+                <input id="ssoUrl" name="ssoUrl" type="text" value=<%=Encode.forHtmlAttribute(ssoUrl)%>>
 
                 <div class="sectionHelp">
                     <fmt:message key='sso.url.help'/>
@@ -3749,7 +3771,7 @@ function doValidation() {
             <td>
                 <div class="sectionCheckbox">
                     <input id="authnRequestSigned" name="authnRequestSigned"
-                           type="checkbox" <%=authnRequestSignedChecked%>/>
+                           type="checkbox" <%=Encode.forHtmlAttribute(authnRequestSignedChecked)%>/>
                                 <span style="display:inline-block" class="sectionHelp">
                                     <fmt:message key='authn.request.signed.help'/>
                                 </span>
@@ -3851,11 +3873,11 @@ function doValidation() {
 	                  for(String algorithm : signatureAlgorithms){
 	                      if(signatureAlgorithm != null && algorithm.equalsIgnoreCase(signatureAlgorithm)){
 	                  %>
-	                  <option selected="selected"><%=signatureAlgorithm%></option>
+	                  <option selected="selected"><%=Encode.forHtmlContent(signatureAlgorithm)%></option>
 	                  <%
 	                  } else {
 	                  %>
-	                  <option><%=algorithm%></option>
+	                  <option><%=Encode.forHtmlContent(algorithm)%></option>
 	                  <%
 	                              }
 	                          }
@@ -3878,11 +3900,11 @@ function doValidation() {
 	                  for(String algorithm : digestAlgorithms){
 	                      if(digestAlgorithm != null && algorithm.equalsIgnoreCase(digestAlgorithm)){
 	                  %>
-	                  <option selected="selected"><%=digestAlgorithm%></option>
+	                  <option selected="selected"><%=Encode.forHtmlContent(digestAlgorithm)%></option>
 	               <%
 	                   } else {
 	               %>
-	                  	<option><%=algorithm%></option>
+	                  	<option><%=Encode.forHtmlContent(algorithm)%></option>
 	                  <%
 	                      }
 	                  }
@@ -3899,8 +3921,10 @@ function doValidation() {
 	      <tr>
 	          <td class="leftCol-med labelField"><fmt:message key='attr.consuming.service.index'/>:</td>
 	          <td>
-	              <input id="attrConsumingServiceIndex" name="AttributeConsumingServiceIndex" type="text" value=<%=attributeConsumingServiceIndex%>>
-	              <div class="sectionHelp">
+                  <input id="attrConsumingServiceIndex" name="AttributeConsumingServiceIndex" type="text"
+                         value=<%=Encode.forHtmlAttribute(attributeConsumingServiceIndex)%>>
+
+                  <div class="sectionHelp">
 	                  <fmt:message key='attr.consuming.service.index.help'/>
 	              </div>
 	          </td>
@@ -4013,11 +4037,11 @@ function doValidation() {
 	                  for(String authnContextClass : authenticationContextClasses){
 	                      if( authnContextClass != null && authnContextClass.equalsIgnoreCase(authenticationContextClass)){
 	                    %>
-	                    <option selected="selected"><%=authenticationContextClass%></option>
+	                    <option selected="selected"><%=Encode.forHtmlContent(authenticationContextClass)%></option>
 	                    <%
 	                  	} else {
 	                  %>
-	                  		<option><%=authnContextClass%></option>
+	                  		<option><%=Encode.forHtmlContent(authnContextClass)%></option>
 	                  <%
 	                      }
 	                  }
@@ -4041,11 +4065,11 @@ function doValidation() {
 	                  for(String authnContextComparisonLevel : authenticationContextComparisonLevels){
 	                      if(authnContextComparisonLevel != null && authnContextComparisonLevel.equals(authenticationContextComparisonLevel)){
 	                  %>
-	                  		<option selected="selected"><%=authenticationContextComparisonLevel%></option>
+	                  		<option selected="selected"><%=Encode.forHtmlContent(authenticationContextComparisonLevel)%></option>
 	                   <%
 	                   } else {
 	                   %>
-	                  		<option><%=authnContextComparisonLevel%></option>
+	                  		<option><%=Encode.forHtmlContent(authnContextComparisonLevel)%></option>
 	                  <%
 	                      }
 	                  }
@@ -4108,7 +4132,7 @@ function doValidation() {
                     }
                 %>
 
-                <input id="samlQueryParam" name="samlQueryParam" type="text" value=<%=samlQueryParam%>>
+                <input id="samlQueryParam" name="samlQueryParam" type="text" value=<%=Encode.forHtmlAttribute(samlQueryParam)%>>
 
                 <div class="sectionHelp">
                     <fmt:message key='query.param.help'/>
@@ -4158,7 +4182,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='authz.endpoint'/>:<span class="required">*</span></td>
             <td>
-                <input id="authzUrl" name="authzUrl" type="text" value=<%=authzUrl%>>
+                <input id="authzUrl" name="authzUrl" type="text" value=<%=Encode.forHtmlAttribute(authzUrl)%>>
 
                 <div class="sectionHelp">
                     <fmt:message key='authz.endpoint.help'/>
@@ -4168,7 +4192,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='token.endpoint'/>:<span class="required">*</span></td>
             <td>
-                <input id="tokenUrl" name="tokenUrl" type="text" value=<%=tokenUrl%>>
+                <input id="tokenUrl" name="tokenUrl" type="text" value=<%=Encode.forHtmlAttribute(tokenUrl)%>>
 
                 <div class="sectionHelp">
                     <fmt:message key='token.endpoint.help'/>
@@ -4178,7 +4202,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='client.id'/>:<span class="required">*</span></td>
             <td>
-                <input id="clientId" name="clientId" type="text" value=<%=clientId%>>
+                <input id="clientId" name="clientId" type="text" value=<%=Encode.forHtmlAttribute(clientId)%>>
 
                 <div class="sectionHelp">
                     <fmt:message key='client.id.help'/>
@@ -4189,7 +4213,7 @@ function doValidation() {
             <td class="leftCol-med labelField"><fmt:message key='client.secret'/>:<span class="required">*</span></td>
             <td>
                 <div id="showHideButtonDivIdOauth" style="border:1px solid rgb(88, 105, 125);" class="leftCol-med">
-                    <input id="clientSecret" name="clientSecret" type="password" value="<%=clientSecret%>"
+                    <input id="clientSecret" name="clientSecret" type="password" value="<%=Encode.forHtmlAttribute(clientSecret)%>"
                            style="  outline: none; border: none; min-width: 175px; max-width: 180px;"/>
 	                            <span id="showHideButtonIdOauth" style=" float: right; padding-right: 5px;">
 	                        		<a style="margin-top: 5px;" class="showHideBtn"
@@ -4224,7 +4248,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='query.param'/>:</td>
             <td>
-                <input id="oidcQueryParam" name="oidcQueryParam" type="text" value=<%=oidcQueryParam%>>
+                <input id="oidcQueryParam" name="oidcQueryParam" type="text" value=<%=Encode.forHtmlAttribute(oidcQueryParam)%>>
 
                 <div class="sectionHelp">
                     <fmt:message key='query.param.help'/>
@@ -4275,7 +4299,7 @@ function doValidation() {
             <td class="leftCol-med labelField"><fmt:message key='passive.sts.realm'/>:<span class="required">*</span>
             </td>
             <td>
-                <input id="passiveSTSRealm" name="passiveSTSRealm" type="text" value="<%=passiveSTSRealm%>"/>
+                <input id="passiveSTSRealm" name="passiveSTSRealm" type="text" value="<%=Encode.forHtmlAttribute(passiveSTSRealm)%>"/>
 
                 <div class="sectionHelp">
                     <fmt:message key='passive.sts.realm.help'/>
@@ -4285,7 +4309,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='passive.sts.url'/>:<span class="required">*</span></td>
             <td>
-                <input id="passiveSTSUrl" name="passiveSTSUrl" type="text" value="<%=passiveSTSUrl%>"/>
+                <input id="passiveSTSUrl" name="passiveSTSUrl" type="text" value="<%=Encode.forHtmlAttribute(passiveSTSUrl)%>"/>
 
                 <div class="sectionHelp">
                     <fmt:message key='passive.sts.url.help'/>
@@ -4317,7 +4341,7 @@ function doValidation() {
             <td class="leftCol-med labelField"><fmt:message key='query.param'/>:</td>
             <td>
                 <input id="passiveSTSQueryParam" name="passiveSTSQueryParam" type="text"
-                       value=<%=passiveSTSQueryParam%>>
+                       value=<%=Encode.forHtmlAttribute(passiveSTSQueryParam)%>>
 
                 <div class="sectionHelp">
                     <fmt:message key='query.param.help'/>
@@ -4367,7 +4391,7 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='client.id'/>:<span class="required">*</span></td>
             <td>
-                <input id="fbClientId" name="fbClientId" type="text" value="<%=fbClientId%>"/>
+                <input id="fbClientId" name="fbClientId" type="text" value="<%=Encode.forHtmlAttribute(fbClientId)%>"/>
 
                 <div class="sectionHelp">
                     <fmt:message key='fbauth.client.id.help'/>
@@ -4378,7 +4402,7 @@ function doValidation() {
             <td class="leftCol-med labelField"><fmt:message key='client.secret'/>:<span class="required">*</span></td>
             <td>
                 <div id="showHideButtonDivId" style="border:1px solid rgb(88, 105, 125);" class="leftCol-med">
-                    <input id="fbClientSecret" name="fbClientSecret" type="password" value="<%=fbClientSecret%>"
+                    <input id="fbClientSecret" name="fbClientSecret" type="password" value="<%=Encode.forHtmlAttribute(fbClientSecret)%>"
                            style="  outline: none; border: none; min-width: 175px; max-width: 180px;"/>
        							<span id="showHideButtonId" style=" float: right; padding-right: 5px;"> 
        								<a style="margin-top: 5px;" class="showHideBtn"
@@ -4394,7 +4418,7 @@ function doValidation() {
             <td class="leftCol-med labelField"><fmt:message key='fbauth.scope'/>:</td>
             <td>
                 <input id="fbScope" name="fbScope" type="text"
-                       value="<%=fbScope%>"/>
+                       value="<%=Encode.forHtmlAttribute(fbScope)%>"/>
 
                 <div class="sectionHelp">
                     <fmt:message key='fbauth.scope.help'/>
@@ -4405,30 +4429,30 @@ function doValidation() {
             <td class="leftCol-med labelField"><fmt:message key='fbauth.user.information.fields'/>:</td>
             <td>
                 <input id="fbUserInfoFields" name="fbUserInfoFields" type="text"
-                       value="<%=fbUserInfoFields%>"/>
+                       value="<%=Encode.forHtmlAttribute(fbUserInfoFields)%>"/>
 
                 <div class="sectionHelp">
                     <fmt:message key='fbauth.user.information.fields.help'/>
                 </div>
             </td>
         </tr>
-        <tr>
+        <tr style="display:none;">
             <td class="leftCol-med labelField">Facebook Authentication Endpoint:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="fbAuthnEndpoint"
-                       name="fbAuthnEndpoint" type="text" value=<%=fbAuthnEndpoint%>></td>
+                       name="fbAuthnEndpoint" type="text" value=<%=Encode.forHtmlAttribute(fbAuthnEndpoint)%>></td>
         </tr>
-        <tr>
+        <tr style="display:none;">
             <td class="leftCol-med labelField">Facebook OAuth2 Token Endpoint:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="fbOauth2TokenEndpoint"
-                       name="fbOauth2TokenEndpoint" type="text" value=<%=fbOauth2TokenEndpoint%>></td>
+                       name="fbOauth2TokenEndpoint" type="text" value=<%=Encode.forHtmlAttribute(fbOauth2TokenEndpoint)%>></td>
         </tr>
-        <tr>
+        <tr style="display:none;">
             <td class="leftCol-med labelField">Facebook User Information Endpoint:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="fbUserInfoEndpoint"
-                       name="fbUserInfoEndpoint" type="text" value=<%=fbUserInfoEndpoint%>></td>
+                       name="fbUserInfoEndpoint" type="text" value=<%=Encode.forHtmlAttribute(fbUserInfoEndpoint)%>></td>
         </tr>
     </table>
 </div>
@@ -4625,7 +4649,7 @@ function doValidation() {
                                 for (String userStoreDomain : userStoreDomains) {
                                     if (provisioningUserStoreId != null && userStoreDomain.equals(provisioningUserStoreId)) {
                         %>
-                        <option selected="selected"><%=userStoreDomain%>
+                        <option selected="selected"><%=Encode.forHtmlContent(userStoreDomain)%>
                         </option>
                         <%
                         } else {
@@ -4709,7 +4733,7 @@ function doValidation() {
                     key='google.provisioning.domain.name'/>:<span class="required">*</span></td>
             <td><input id="google_prov_domain_name"
                        name="google_prov_domain_name" type="text"
-                       value="<%=googleDomainName%>"/>
+                       value="<%=Encode.forHtmlAttribute(googleDomainName)%>"/>
 
                 <div class="sectionHelp">
                     <fmt:message key='google.provisioning.domain.name.help'/>
@@ -4746,7 +4770,7 @@ function doValidation() {
                 <div style=" display: none; ">
                     <label> Given name default value : </label> <input
                         id="google_prov_givenname" name="google_prov_givenname"
-                        type="text" value="<%=googleGivenNameDefaultValue%>"/>
+                        type="text" value="<%=Encode.forHtmlAttribute(googleGivenNameDefaultValue)%>"/>
                 </div>
                 <div class="sectionHelp">
                     <fmt:message
@@ -4767,7 +4791,7 @@ function doValidation() {
                 <div style=" display: none;">
                     <label> Family name default value : </label> <input
                         id="google_prov_familyname" name="google_prov_familyname"
-                        type="text" value="<%=googleFamilyNameDefaultValue%>"/>
+                        type="text" value="<%=Encode.forHtmlAttribute(googleFamilyNameDefaultValue)%>"/>
                 </div>
                 <div class="sectionHelp">
                     <fmt:message
@@ -4783,7 +4807,7 @@ function doValidation() {
                 <div>
                     <input id="google_prov_service_acc_email"
                            name="google_prov_service_acc_email" type="text"
-                           value="<%=googleProvServiceAccEmail%>"/>
+                           value="<%=Encode.forHtmlAttribute(googleProvServiceAccEmail)%>"/>
                 </div>
                 <div class="sectionHelp">
                     <fmt:message
@@ -4818,7 +4842,7 @@ function doValidation() {
                 <div>
                     <input id="google_prov_admin_email"
                            name="google_prov_admin_email" type="text"
-                           value="<%=googleProvAdminEmail%>"/>
+                           value="<%=Encode.forHtmlAttribute(googleProvAdminEmail)%>"/>
                 </div>
                 <div class="sectionHelp">
                     <fmt:message key='google.provisioning.admin.email.help'/>
@@ -4832,7 +4856,7 @@ function doValidation() {
                 <div>
                     <input id="google_prov_application_name"
                            name="google_prov_application_name" type="text"
-                           value="<%=googleProvApplicationName%>"/>
+                           value="<%=Encode.forHtmlAttribute(googleProvApplicationName)%>"/>
                 </div>
                 <div class="sectionHelp">
                     <fmt:message key='google.provisioning.application.name.help'/>
@@ -4848,7 +4872,7 @@ function doValidation() {
                 <div>
                     <input id="google_prov_pattern"
                            name="google_prov_pattern" type="text"
-                           value="<%=googleProvPattern%>"/>
+                           value="<%=Encode.forHtmlAttribute(googleProvPattern)%>"/>
                 </div>
                 <div class="sectionHelp">
                     <fmt:message key='google_prov_pattern.help'/>
@@ -4864,7 +4888,7 @@ function doValidation() {
                 <div>
                     <input id="google_prov_separator"
                            name="google_prov_separator" type="text"
-                           value="<%=googleProvisioningSeparator%>"/>
+                           value="<%=Encode.forHtmlAttribute(googleProvisioningSeparator)%>"/>
                 </div>
                 <div class="sectionHelp">
                     <fmt:message key='google.provisioning.separator.help'/>
@@ -4924,60 +4948,61 @@ function doValidation() {
             <td class="leftCol-med labelField">API version:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-api-version"
-                       name="sf-api-version" type="text" value=<%=sfApiVersion %>></td>
+                       name="sf-api-version" type="text" value=<%=Encode.forHtmlAttribute(sfApiVersion) %>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField">Domain Name:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-domain-name"
-                       name="sf-domain-name" type="text" value=<%=sfDomainName %>></td>
+                       name="sf-domain-name" type="text" value=<%=Encode.forHtmlAttribute(sfDomainName) %>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField">Client ID:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-clientid"
-                       name="sf-clientid" type="text" value=<%=sfClientId %>></td>
+                       name="sf-clientid" type="text" value=<%=Encode.forHtmlAttribute(sfClientId) %>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField">Client Secret:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-client-secret"
-                       name="sf-client-secret" type="password" value=<%=sfClientSecret %>></td>
+                       name="sf-client-secret" type="password" value=<%=Encode.forHtmlAttribute(sfClientSecret) %>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField">Username:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-username"
-                       name="sf-username" type="text" value=<%=sfUserName %>></td>
+                       name="sf-username" type="text" value=<%=Encode.forHtmlAttribute(sfUserName) %>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField">Password:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-password"
-                       name="sf-password" type="password" value=<%=sfPassword %>></td>
+                       name="sf-password" type="password" value=<%=Encode.forHtmlAttribute(sfPassword) %>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField">OAuth2 Token Endpoint:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-token-endpoint"
-                       name="sf-token-endpoint" type="text" value=<%=sfOauth2TokenEndpoint%>></td>
+                       name="sf-token-endpoint" type="text"
+                       value=<%=Encode.forHtmlAttribute(sfOauth2TokenEndpoint)%>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField">Provisioning Pattern:</td>
             <td><input class="text-box-big" id="sf-prov-pattern"
-                       name="sf-prov-pattern" type="text" value=<%=sfProvPattern%>></td>
+                       name="sf-prov-pattern" type="text" value=<%=Encode.forHtmlAttribute(sfProvPattern)%>></td>
         </tr>
 
         <tr>
             <td class="leftCol-med labelField">Provisioning Separator:</td>
             <td><input class="text-box-big" id="sf-prov-separator"
-                       name="sf-prov-separator" type="text" value=<%=sfProvSeparator%>></td>
+                       name="sf-prov-separator" type="text" value=<%=Encode.forHtmlAttribute(sfProvSeparator)%>></td>
         </tr>
 
         <tr>
             <td class="leftCol-med labelField">Provisioning Domain:</td>
             <td><input class="text-box-big" id="sf-prov-domainName"
-                       name="sf-prov-domainName" type="text" value=<%=sfProvDomainName%>></td>
+                       name="sf-prov-domainName" type="text" value=<%=Encode.forHtmlAttribute(sfProvDomainName)%>></td>
         </tr>
 
     </table>
@@ -5034,29 +5059,29 @@ function doValidation() {
             <td class="leftCol-med labelField">Username:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="scim-username"
-                       name="scim-username" type="text" value=<%=scimUserName %>></td>
+                       name="scim-username" type="text" value=<%=Encode.forHtmlAttribute(scimUserName) %>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField">Password:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="scim-password"
-                       name="scim-password" type="password" value=<%=scimPassword %>></td>
+                       name="scim-password" type="password" value=<%=Encode.forHtmlAttribute(scimPassword) %>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField">User Endpoint:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="scim-user-ep"
-                       name="scim-user-ep" type="text" value=<%=scimUserEp %>></td>
+                       name="scim-user-ep" type="text" value=<%=Encode.forHtmlAttribute(scimUserEp) %>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField">Group Endpoint:</td>
             <td><input class="text-box-big" id="scim-group-ep"
-                       name="scim-group-ep" type="text" value=<%=scimGroupEp %>></td>
+                       name="scim-group-ep" type="text" value=<%=Encode.forHtmlAttribute(scimGroupEp) %>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField">User Store Domain:</td>
             <td><input class="text-box-big" id="scim-user-store-domain" name="scim-user-store-domain" type="text"
-                       value=<%=scimUserStoreDomain%>></td>
+                       value=<%=Encode.forHtmlAttribute(scimUserStoreDomain)%>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField"><label><fmt:message
@@ -5132,25 +5157,25 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField">Username:</td>
             <td><input class="text-box-big" id="spml-username"
-                       name="spml-username" type="text" value=<%=spmlUserName %>></td>
+                       name="spml-username" type="text" value=<%=Encode.forHtmlAttribute(spmlUserName) %>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField">Password:</td>
             <td><input class="text-box-big" id="spml-password"
-                       name="spml-password" type="password" value=<%=spmlPassword %>></td>
+                       name="spml-password" type="password" value=<%=Encode.forHtmlAttribute(spmlPassword) %>></td>
         </tr>
         <tr>
             <td class="leftCol-med labelField">SPML Endpoint:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="spml-ep" name="spml-ep"
-                       type="text" value=<%=spmlEndpoint %>></td>
+                       type="text" value=<%=Encode.forHtmlAttribute(spmlEndpoint) %>></td>
         </tr>
 
         <tr>
             <td class="leftCol-med labelField">SPML ObjectClass:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="spml-oc" name="spml-oc"
-                       type="text" value=<%=spmlObjectClass %>></td>
+                       type="text" value=<%=Encode.forHtmlAttribute(spmlObjectClass) %>></td>
         </tr>
 
     </table>

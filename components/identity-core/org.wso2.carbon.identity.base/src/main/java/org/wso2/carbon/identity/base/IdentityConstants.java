@@ -117,6 +117,7 @@ public class IdentityConstants {
 
         public final static String OPENID_SERVER_URL = "OpenID.OpenIDServerUrl";
         public final static String OPENID_USER_PATTERN = "OpenID.OpenIDUserPattern";
+        public final static String OPENID_LOGIN_PAGE_URL = "OpenID.OpenIDLoginUrl";
         public final static String OPENID_SKIP_USER_CONSENT = "OpenID.OpenIDSkipUserConsent";
         public final static String OPENID_REMEMBER_ME_EXPIRY = "OpenID.OpenIDRememberMeExpiry";
         public final static String OPENID_USE_MULTIFACTOR_AUTHENTICATION = "OpenID.UseMultifactorAuthentication";
@@ -175,6 +176,8 @@ public class IdentityConstants {
         //SAML SSO Service config
         public final static String ENTITY_ID = "SSOService.EntityID";
         public final static String SSO_IDP_URL = "SSOService.IdentityProviderURL";
+        public final static String DEFAULT_LOGOUT_ENDPOINT = "SSOService.DefaultLogoutEndpoint";
+        public final static String NOTIFICATION_ENDPOINT = "SSOService.NotificationEndpoint";
         public final static String SSO_ATTRIB_CLAIM_DIALECT = "SSOService.AttributesClaimDialect";
         public static final String SINGLE_LOGOUT_RETRY_COUNT = "SSOService.SingleLogoutRetryCount";
         public static final String SINGLE_LOGOUT_RETRY_INTERVAL = "SSOService.SingleLogoutRetryInterval";
@@ -190,6 +193,13 @@ public class IdentityConstants {
         public static final String SESSION_IDLE_TIMEOUT = "TimeConfig.SessionIdleTimeout";
         public static final String REMEMBER_ME_TIME_OUT = "TimeConfig.RememberMeTimeout";
         public static final String CLEAN_UP_PERIOD = "TimeConfig.PersistanceCleanUpPeriod";
+        public static final String CLEAN_UP_TIMEOUT = "TimeConfig.PersistanceCleanUpTimeout";
+
+        public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
+        public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
+
+        //PassiveSTS
+        public static final String PASSIVE_STS_RETRY = "PassiveSTS.RetryURL";
 
     }
 

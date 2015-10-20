@@ -132,7 +132,11 @@
     <script type="text/javascript">
 
         function doCancel() {
-            location.href = '<%=requestPath%>.jsp?wizard=finish';
+            function cancel() {
+                location.href = '<%=requestPath%>.jsp?wizard=finish';
+            }
+            CARBON.showConfirmationDialog('<fmt:message key="confirmation.request.delete"/> ?',
+                    cancel, null);
         }
 
         function submitPage(){

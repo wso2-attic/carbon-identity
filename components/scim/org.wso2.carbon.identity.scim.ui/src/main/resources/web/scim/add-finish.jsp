@@ -36,11 +36,11 @@
 <%@ page import="java.util.ResourceBundle" %>
 
 <%
-    String providerId = CharacterEncoder.getSafeText(request.getParameter("providerId"));
-    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
-    String password = CharacterEncoder.getSafeText(request.getParameter("password"));
-    String userURL = CharacterEncoder.getSafeText(request.getParameter("userURL"));
-    String groupURL = CharacterEncoder.getSafeText(request.getParameter("groupURL"));
+    String providerId = request.getParameter("providerId");
+    String username = request.getParameter("username");
+    String password = request.getParameter("password");
+    String userURL = request.getParameter("userURL");
+    String groupURL = request.getParameter("groupURL");
 
     String forwardTo = "index.jsp";
     String BUNDLE = "org.wso2.carbon.identity.scim.ui.i18n.Resources";

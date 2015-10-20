@@ -135,7 +135,7 @@
         noOfSelectedAttributes ++;
     }
 
-    ruleId = CharacterEncoder.getSafeText(request.getParameter("ruleId"));
+    ruleId = request.getParameter("ruleId");
     if (ruleId != null && ruleId.trim().length() > 0 && !ruleId.trim().equals("null")) {
         ruleDTO = entitlementPolicyBean.getRuleDTO(ruleId);
     }

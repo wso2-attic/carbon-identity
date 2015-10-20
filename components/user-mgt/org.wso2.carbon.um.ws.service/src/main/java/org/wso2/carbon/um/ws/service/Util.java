@@ -21,6 +21,7 @@ package org.wso2.carbon.um.ws.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.core.UserStoreException;
 
@@ -58,6 +59,6 @@ public class Util {
 
     static boolean isSuperTenant() {
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        return tenantId == 0;
+        return tenantId == MultitenantConstants.SUPER_TENANT_ID;
     }
 }

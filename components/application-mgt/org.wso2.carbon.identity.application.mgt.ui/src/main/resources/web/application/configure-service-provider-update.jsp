@@ -28,11 +28,8 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
-
-<jsp:useBean id="appBean"
-	class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"
-	scope="session" />
-
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil"%>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -51,7 +48,7 @@
 
 	<%
 		String spName = request.getParameter("spName");
-
+        ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, spName);
 		if (spName != null && !"".equals(spName)) {
 
 			String BUNDLE = "org.wso2.carbon.identity.application.mgt.ui.i18n.Resources";

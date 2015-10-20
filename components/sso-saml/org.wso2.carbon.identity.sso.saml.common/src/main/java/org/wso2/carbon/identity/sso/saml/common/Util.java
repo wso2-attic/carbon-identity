@@ -90,17 +90,6 @@ public class Util {
         return status >= 200 && status < 300;
     }
 
-    /**
-     * Return
-     *
-     * @param request
-     * @param parameter
-     * @return
-     */
-    public static String getSafeInput(HttpServletRequest request, String parameter) {
-        return CharacterEncoder.getSafeText(request.getParameter(parameter));
-    }
-
     public static SAMLSSOServiceProviderDTO[] doPaging(int pageNumber,
                                                        SAMLSSOServiceProviderDTO[] serviceProviderSet) {
 

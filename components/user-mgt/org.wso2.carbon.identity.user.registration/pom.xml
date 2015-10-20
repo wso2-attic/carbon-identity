@@ -65,7 +65,7 @@
                             org.wso2.carbon.identity.user.registration.internal
                         </Private-Package>
                         <Import-Package>
-                            javax.xml.parsers,
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
 
                             org.xml.sax,
                             org.w3c.dom,

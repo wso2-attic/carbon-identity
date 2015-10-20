@@ -143,7 +143,7 @@
                             javax.crypto,
                             javax.crypto.spec,
                             javax.xml.namespace,
-                            javax.xml.parsers,
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
                             javax.xml.transform.*; version = 0.0.0,
                             javax.xml.stream; version="${equinox.osgi.stax-api.imp.pkg.version.range}",
                             javax.servlet; version="${imp.pkg.version.javax.servlet}",
@@ -180,6 +180,7 @@
                             org.wso2.carbon.core;version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.core.util; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.user.core.*; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
 
                             org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",

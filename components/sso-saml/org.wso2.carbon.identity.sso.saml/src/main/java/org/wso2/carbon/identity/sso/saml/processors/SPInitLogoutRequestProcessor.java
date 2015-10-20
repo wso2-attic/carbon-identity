@@ -170,7 +170,7 @@ public class SPInitLogoutRequestProcessor {
                     // Validate 'Destination'
                     String idpUrl = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
                     if (StringUtils.isBlank(idpUrl)) {
-                        idpUrl = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL);
+                        idpUrl = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL, true);
                     }
 
                     if (logoutRequest.getDestination() == null ||

@@ -24,10 +24,7 @@ import java.io.Serializable;
 
 public class ThreadLocalProvisioningServiceProvider implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -486701265390312767L;
+    private static final long serialVersionUID = 8869773391988526466L;
 
     private String serviceProviderName;
     private String claimDialect;

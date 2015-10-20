@@ -121,7 +121,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             ServiceProvider serviceProvider = null;
 
             try {
-                String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                String tenantDomain = request.getOauth2AccessTokenReqDTO().getTenantDomain();
                 String spName = applicationMgtService.getServiceProviderNameByClientId(
                         request.getOauth2AccessTokenReqDTO().getClientId(), INBOUND_AUTH2_TYPE, tenantDomain);
                 serviceProvider = applicationMgtService.getApplicationExcludingFileBasedSPs(spName, tenantDomain);
@@ -147,9 +147,17 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                                 "user " + username + ", claim " + claim;
                         throw new IdentityOAuth2Exception(error, e);
                     } catch (UserStoreException e) {
-                        String error = "Error occurred while getting user claim for domain " + domainName + ", " +
-                                "user " + username + ", claim " + claim;
-                        throw new IdentityOAuth2Exception(error, e);
+                        if (e.getMessage().contains("UserNotFound")) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("User " + username + " not found in user store");
+                            }
+                            subject = request.getAuthorizedUser().toString();
+                        } else {
+                            String error = "Error occurred while getting user claim for domain " + domainName + ", " +
+                                    "user " + username + ", claim " + claim;
+                            throw new IdentityOAuth2Exception(error, e);
+                        }
+
                     }
                 }
             }

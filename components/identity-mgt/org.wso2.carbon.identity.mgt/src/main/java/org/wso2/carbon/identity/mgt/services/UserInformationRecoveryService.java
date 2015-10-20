@@ -348,6 +348,7 @@ public class UserInformationRecoveryService {
                 Utils.updatePassword(userDTO.getUserId(), tenantId, newPassword);
                 log.info("Credential is updated for user : " + userDTO.getUserId()
                         + " and tenant domain : " + userDTO.getTenantDomain());
+                IdentityMgtConfig.getInstance().getRecoveryDataStore().invalidate(userDTO.getUserId(), tenantId);
                 bean = new VerificationBean(true);
             } else {
                 String msg = "Invalid user tried to update credential with user Id : "
@@ -851,14 +852,14 @@ public class UserInformationRecoveryService {
                 vBean.setVerified(true);
             }
         } catch (UserStoreException | IdentityException e) {
-            UserIdentityManagementUtil.getCustomErrorMessages(e, userName);
+            vBean = UserIdentityManagementUtil.getCustomErrorMessages(e, userName);
             //Rollback if user exists
             try {
                 if (userStoreManager.isExistingUser(userName)) {
                     userStoreManager.deleteUser(userName);
                 }
             } catch (org.wso2.carbon.user.core.UserStoreException e1) {
-                UserIdentityManagementUtil.getCustomErrorMessages(e1, userName);
+                vBean = UserIdentityManagementUtil.getCustomErrorMessages(e1, userName);
             }
 
             return vBean;

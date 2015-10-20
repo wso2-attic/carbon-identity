@@ -45,8 +45,14 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml</artifactId>
+            <groupId>opensaml.wso2</groupId>
+            <artifactId>opensaml2</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.openid4java</groupId>
@@ -92,7 +98,7 @@
                             javax.servlet;version="${imp.pkg.version.javax.servlet}",
                             javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
                             javax.xml.namespace,
-                            javax.xml.parsers,
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
                             com.google.gson;version="${com.google.code.gson.osgi.version.range}",
                             org.apache.http.conn.ssl; version="${httpcomponents-httpclient.imp.pkg.version.range}",
                             org.apache.xerces.util;resolution:=optional,

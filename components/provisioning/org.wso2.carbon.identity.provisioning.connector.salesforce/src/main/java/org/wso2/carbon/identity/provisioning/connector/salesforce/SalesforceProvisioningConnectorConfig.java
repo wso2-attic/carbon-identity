@@ -32,7 +32,8 @@ import java.util.Properties;
 
 public class SalesforceProvisioningConnectorConfig implements Serializable {
 
-    private static final long serialVersionUID = 1466757093641438420L;
+    private static final long serialVersionUID = -4476579393653814433L;
+
     private static final Log log = LogFactory.getLog(SalesforceProvisioningConnectorConfig.class);
     private Properties configs;
 

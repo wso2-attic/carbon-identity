@@ -185,4 +185,14 @@ public class CacheBackedProvisioningMgtDAO {
         }
     }
 
+    public void updateProvisionedEntityName(ProvisioningEntity provisioningEntity) throws
+                                                                                IdentityApplicationManagementException {
+        //todo: as an improvement cache implementation need to be done
+        provisioningMgtDAO.updateProvisioningEntityName(provisioningEntity);
+    }
+
+    public String getProvisionedEntityNameByLocalId(String localId) throws IdentityApplicationManagementException {
+        //todo: as an improvement cache implementation need to be done
+        return provisioningMgtDAO.getProvisionedEntityNameByLocalId(localId);
+    }
 }

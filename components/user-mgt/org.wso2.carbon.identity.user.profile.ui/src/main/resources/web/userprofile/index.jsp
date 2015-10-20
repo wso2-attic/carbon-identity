@@ -207,8 +207,8 @@
            %>		
 			<tr>
                 <td width="50%">
-                    <a href="edit.jsp?username=<%=Encode.forUriComponent(username)%>&profile=
-				        <%=Encode.forUriComponent(profileName)%>&fromUserMgt=<%=Encode.forUriComponent(fromUserMgt)%>">
+                    <a href="edit.jsp?username=<%=Encode.forUriComponent(username)%>&profile=<%=Encode.
+                    forUriComponent(profileName)%>&fromUserMgt=<%=Encode.forUriComponent(fromUserMgt)%>">
                         <%=Encode.forHtmlContent(profileName)%>
                     </a>
                 </td>

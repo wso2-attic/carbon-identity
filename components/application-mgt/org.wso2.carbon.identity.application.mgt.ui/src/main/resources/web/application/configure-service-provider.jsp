@@ -25,6 +25,7 @@
 <%@ page
 	import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
@@ -35,7 +36,6 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" scope="session"/>
 <carbon:breadcrumb label="breadcrumb.service.provider" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
                     topPage="true" request="<%=request%>" />
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -46,6 +46,7 @@
 
 
 <%
+ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, request.getParameter("spName"));
 if (appBean.getServiceProvider()==null || appBean.getServiceProvider().getApplicationName()==null){
 // if appbean is not set properly redirect the user to list-service-provider.jsp.
 %>
@@ -148,6 +149,10 @@ location.href = 'list-service-provider.jsp';
     if(idPName != null && idPName.equals("")){
         idPName = null;
     }
+
+    if(ApplicationBean.AUTH_TYPE_FLOW.equals(authTypeReq) && "update".equals(action)) {
+        isNeedToUpdate = true;
+    }
     
     String authType = appBean.getAuthenticationType();
 
@@ -162,7 +167,7 @@ location.href = 'list-service-provider.jsp';
 
 	if (requestPathAuthenticators!=null && requestPathAuthenticators.length>0){
 		for(RequestPathAuthenticatorConfig reqAuth : requestPathAuthenticators) {
-			requestPathAuthTypes.append(startOption + reqAuth.getName() + middleOption + reqAuth.getDisplayName() + endOPtion);
+			requestPathAuthTypes.append(startOption + Encode.forHtmlAttribute(reqAuth.getName()) + middleOption + Encode.forHtmlContent(reqAuth.getDisplayName()) + endOPtion);
 		}
 	}
 	
@@ -195,9 +200,9 @@ location.href = 'list-service-provider.jsp';
 					} else {
 						provisioningConnectors.append(proConnector.getEnabled() ? proConnector.getName() + "," : "");
 					}
-					connType.append(startOption + proConnector.getName() + middleOption + proConnector.getName() + endOPtion);
+					connType.append(startOption + Encode.forHtmlAttribute(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOPtion);
 					if(proConnector.getEnabled()){
-						enabledConnType.append(startOption + proConnector.getName() + middleOption + proConnector.getName() + endOPtion);	
+						enabledConnType.append(startOption + Encode.forHtmlAttribute(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOPtion);
 					}
 					IdpProConnectorsStatus.put(idp.getIdentityProviderName()+"_"+proConnector.getName(), proConnector.getEnabled());
 					i++;
@@ -205,7 +210,7 @@ location.href = 'list-service-provider.jsp';
 				proIdpConnector.put(idp.getIdentityProviderName(), connType.toString());
 				if(idp.getEnable()){
 					enabledProIdpConnector.put(idp.getIdentityProviderName(), enabledConnType.toString());
-					idpType.append(startOption + idp.getIdentityProviderName() + "\" data=\""+provisioningConnectors.toString() + "\" >" + idp.getIdentityProviderName() + endOPtion); 
+					idpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+Encode.forHtmlAttribute(provisioningConnectors.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOPtion);
 				}
 			} 
 		}
@@ -219,9 +224,8 @@ location.href = 'list-service-provider.jsp';
 				ProvisioningConnectorConfig proIdp = idp.getDefaultProvisioningConnectorConfig();
 				String options = proIdpConnector.get(idp.getIdentityProviderName());
 				if (proIdp!=null && options != null) {
-					String conName = proIdp.getName();
-					String oldOption = startOption + proIdp.getName() + middleOption + proIdp.getName() + endOPtion;
-					String newOption = startOption + proIdp.getName() + "\" selected=\"selected" + middleOption + proIdp.getName()+ (IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) != null && IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) ? "" : disbleText) + endOPtion;
+					String oldOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + middleOption + Encode.forHtmlContent(proIdp.getName()) + endOPtion;
+					String newOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName())+ (IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) != null && IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) ? "" : disbleText) + endOPtion;
 					if(options.contains(oldOption)) {
 						options = options.replace(oldOption, newOption);
 					} else {
@@ -229,7 +233,7 @@ location.href = 'list-service-provider.jsp';
 					}
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), options);
 				} else if(proIdp!=null && options == null) {
-					String disabledOption = startOption + proIdp.getName() + "\" selected=\"selected" + middleOption + proIdp.getName() + disbleText + endOPtion;
+					String disabledOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName()) + disbleText + endOPtion;
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), disabledOption);
 				} else {
 					options = enabledProIdpConnector.get(idp.getIdentityProviderName());
@@ -358,7 +362,7 @@ var roleMappinRowID = -1;
 		
 		$.ajax({
 		    type: "POST",
-			url: "update-application-bean.jsp",
+			url: 'update-application-bean.jsp?spName=<%=Encode.forUriComponent(spName)%>',
 		    data: $("#configure-sp-form").serialize(),
 		    success: function(){
 		    	location.href=redirectURL;
@@ -415,7 +419,7 @@ var roleMappinRowID = -1;
     }
 	
 	function onAdvanceAuthClick() {
-		location.href="configure-authentication-flow.jsp"
+		location.href='configure-authentication-flow.jsp?spName=<%=Encode.forUriComponent(spName)%>';
 	}
     
     jQuery(document).ready(function(){
@@ -542,7 +546,7 @@ var roleMappinRowID = -1;
     		
     		$.ajax({
     		    type: "POST",
-    			url: "configure-service-provider-update.jsp",
+    			url: 'configure-service-provider-update.jsp?spName=<%=Encode.forUriComponent(spName)%>',
     		    data: $("#configure-sp-form").serialize()
     		});
         }
@@ -690,6 +694,10 @@ var roleMappinRowID = -1;
 		}
 	}
     
+    function disable() {
+        document.getElementById("scim-inbound-userstore").disabled =!document.getElementById("scim-inbound-userstore").disabled;
+        document.getElementById("dumb").value = document.getElementById("scim-inbound-userstore").disabled;
+    }
 </script>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources">
@@ -723,9 +731,16 @@ var roleMappinRowID = -1;
                     </tr>
                     <tr>
                     	<td class="leftCol-med">
-                             <input type="checkbox"  id="isSaasApp" name="isSaasApp" <%=appBean.getServiceProvider().getSaasApp() ? "checked" : "" %>/><label for="isSaasApp"><fmt:message key="config.application.isSaasApp"/></label>
+                             <label for="isSaasApp"><fmt:message key="config.application.isSaasApp"/></label>
                         </td>
-                        <td></td>
+                        <td>
+                            <div class="sectionCheckbox">
+                                <input type="checkbox"  id="isSaasApp" name="isSaasApp" <%=appBean.getServiceProvider().getSaasApp() ? "checked" : "" %>/>
+                                <span style="display:inline-block" class="sectionHelp">
+                                    <fmt:message key='help.saas'/>
+                                </span>
+                            </div>
+                        </td>
                     </tr>
                 </table>
             </div>
@@ -1409,9 +1424,9 @@ var roleMappinRowID = -1;
                     		<td class="leftCol-med labelField"/>
                         	<td>
                         	<% if(ApplicationBean.AUTH_TYPE_FLOW.equals(appBean.getAuthenticationType())) { %>
-                        		<input type="radio" id="advanced" name="auth_type" value="flow" onclick="updateBeanAndRedirect('configure-authentication-flow.jsp');" checked><label style="cursor: pointer; color: #2F7ABD;" for="advanced"><fmt:message key="config.authentication.type.flow"/></label>
+                        		<input type="radio" id="advanced" name="auth_type" value="flow" onclick="updateBeanAndRedirect('configure-authentication-flow.jsp?spName=<%=Encode.forUriComponent(spName)%>');" checked><label style="cursor: pointer; color: #2F7ABD;" for="advanced"><fmt:message key="config.authentication.type.flow"/></label>
                         	<% } else { %>
-                        		<input type="radio" id="advanced" name="auth_type" value="flow" onclick="updateBeanAndRedirect('configure-authentication-flow.jsp')"><label style="cursor: pointer; color: #2F7ABD;" for="advanced"><fmt:message key="config.authentication.type.flow"/></label>
+                        		<input type="radio" id="advanced" name="auth_type" value="flow" onclick="updateBeanAndRedirect('configure-authentication-flow.jsp?spName=<%=Encode.forUriComponent(spName)%>')"><label style="cursor: pointer; color: #2F7ABD;" for="advanced"><fmt:message key="config.authentication.type.flow"/></label>
                         		<% } %>
                         	</td>
                     	</tr>               
@@ -1454,7 +1469,7 @@ var roleMappinRowID = -1;
                     	<thead>
                     	<tr>
                     		<td>
-                    			<select name="reqPathAuthType" style="float: left; min-width: 150px;font-size:13px;"><%=Encode.forHtmlContent(requestPathAuthTypes.toString())%></select>
+                    			<select name="reqPathAuthType" style="float: left; min-width: 150px;font-size:13px;"><%=requestPathAuthTypes.toString()%></select>
                     			<a id="reqPathAuthenticatorAddLink" class="icon-link" style="background-image:url(images/add.gif);">Add</a>
                     			<div style="clear:both"></div>
                            		<div class="sectionHelp">
@@ -1508,7 +1523,7 @@ var roleMappinRowID = -1;
                   </td></tr>
                    <tr>
                         <td >
-                          <select style="min-width: 250px;" id="scim-inbound-userstore" name="scim-inbound-userstore">
+                          <select style="min-width: 250px;" id="scim-inbound-userstore" name="scim-inbound-userstore" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getDumbMode() ? "disabled" : "" %>>
                           		<option value="">---Select---</option>
                                 <%
                                     if(userStoreDomains != null && userStoreDomains.length > 0){
@@ -1535,6 +1550,11 @@ var roleMappinRowID = -1;
                             </div>
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="dumb" id="dumb" value="false" onclick ="disable()" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getDumbMode() ? "checked" : "" %>>Enable Dumb Mode<br>
+                        </td>
+                    </tr>
                     </table>
                 </div>
             
@@ -1553,7 +1573,7 @@ var roleMappinRowID = -1;
 					<tr>
 						<td>				             	  
 							 <select name="provisioning_idps" style="float: left; min-width: 150px;font-size:13px;">
-							             			<%=Encode.forHtmlContent(idpType.toString())%>
+							 <%=idpType.toString()%>
 							 </select>
 						     <a id="provisioningIdpAdd" onclick="addIDPRow(this);return false;" class="icon-link" style="background-image:url(images/add.gif);"></a>
 						</td>
@@ -1593,17 +1613,17 @@ var roleMappinRowID = -1;
 							      	      		</td>
 							      	      		<td> 
 							      	      			<% if(selectedProIdpConnectors.get(idp.getIdentityProviderName()) != null) { %>
-							      	      				<select name="provisioning_con_idp_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" style="float: left; min-width: 150px;font-size:13px;"><%=selectedProIdpConnectors.get(Encode.forHtmlContent(idp.getIdentityProviderName()))%></select>
+							      	      				<select name="provisioning_con_idp_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" style="float: left; min-width: 150px;font-size:13px;"><%=selectedProIdpConnectors.get(idp.getIdentityProviderName())%></select>
 							      	      			<% } %>
 							      	      		</td>
 							      	      		 <td>
                             						<div class="sectionCheckbox">
-                                						<input type="checkbox" id="blocking_prov_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" name="blocking_prov_<%=idp.getIdentityProviderName()%>" <%=blocking ? "checked" : "" %>>Blocking
+                                						<input type="checkbox" id="blocking_prov_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" name="blocking_prov_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" <%=blocking ? "checked" : "" %>>Blocking
                    									</div>
                         						</td>
 							      	      		 <td>
                             						<div class="sectionCheckbox">
-                                						<input type="checkbox" id="provisioning_jit_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" name="provisioning_jit_<%=idp.getIdentityProviderName()%>" <%=jitEnabled ? "checked" : "" %>>Enable JIT
+                                						<input type="checkbox" id="provisioning_jit_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" name="provisioning_jit_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" <%=jitEnabled ? "checked" : "" %>>Enable JIT
                    									</div>
                         						</td>
 							      	      		<td class="leftCol-small" >
@@ -1629,5 +1649,13 @@ var roleMappinRowID = -1;
             </form>
         </div>
     </div>
+	<script>
+		update();
+		function update() {
+			if (window.location.href.indexOf("action=delete") > -1) {
+				createAppOnclick();
+			}
+		}
+	</script>
 
 </fmt:bundle>

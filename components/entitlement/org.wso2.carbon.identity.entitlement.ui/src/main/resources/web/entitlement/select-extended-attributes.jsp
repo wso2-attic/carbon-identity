@@ -47,11 +47,11 @@
     Set<String> categories = entitlementPolicyBean.getCategorySet();
     Map<String, Set<String>> attributeIdMap =  entitlementPolicyBean.getDefaultAttributeIdMap();
     Map<String, Set<String>> dataTypeMap =  entitlementPolicyBean.getDefaultDataTypeMap();
-    String selectedCategory  = CharacterEncoder.getSafeText(request.getParameter("category"));
-    String selectFunction  = CharacterEncoder.getSafeText(request.getParameter("function"));
-    String selectedAttributeId = CharacterEncoder.getSafeText(request.getParameter("category"));
-    String selectedDataType = CharacterEncoder.getSafeText(request.getParameter("category"));
-    String selectedParams =  CharacterEncoder.getSafeText(request.getParameter("category"));
+    String selectedCategory  = request.getParameter("category");
+    String selectFunction  = request.getParameter("function");
+    String selectedAttributeId = request.getParameter("category");
+    String selectedDataType = request.getParameter("category");
+    String selectedParams =  request.getParameter("category");
 
     if(selectedCategory != null && selectedCategory.trim().length() > 0){
         ExtendAttributeDTO attributeDTO = new ExtendAttributeDTO();

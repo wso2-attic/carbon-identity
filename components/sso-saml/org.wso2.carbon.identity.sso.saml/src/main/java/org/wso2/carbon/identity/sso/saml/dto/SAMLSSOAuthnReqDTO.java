@@ -25,6 +25,8 @@ import java.util.Map;
 
 public class SAMLSSOAuthnReqDTO implements Serializable {
 
+    private static final long serialVersionUID = -8883458443469019318L;
+
     private AuthenticatedUser user;
     private String password;
     private String issuer;
@@ -50,7 +52,7 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private boolean doSignResponse;
     private boolean doSignAssertions;
     private boolean isStratosDeployment = false;
-    private int attributeConsumingServiceIndex;
+    private int attributeConsumingServiceIndex = 0;
     private String nameIdClaimUri;
     private boolean idPInitSSOEnabled;
     private boolean idPInitSLOEnabled;
