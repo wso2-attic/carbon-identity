@@ -612,56 +612,68 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      */
     public void changeUserStoreState(String domain, Boolean isDisable) throws IdentityUserStoreMgtException{
 
-        File userStoreConfigFile = createConfigurationFile(domain);
-        StreamResult result = new StreamResult(userStoreConfigFile);
-        if (!userStoreConfigFile.exists()) {
-            String errorMessage = "Cannot edit user store." + domain + " does not exist.";
-            throw new IdentityUserStoreMgtException(errorMessage);
+        String currentAuthorizedUserName = CarbonContext.getThreadLocalCarbonContext().getUsername();
+        int index = currentAuthorizedUserName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR);
+        String currentUserDomain = null;
+        if (index > 0) {
+            currentUserDomain = currentAuthorizedUserName.substring(0, index);
         }
 
-        DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = null;
-        try {
-            documentBuilder = documentFactory.newDocumentBuilder();
-            Document doc = documentBuilder.parse(userStoreConfigFile);
+        if (currentUserDomain != null && currentUserDomain.equalsIgnoreCase(domain) && isDisable) {
+            log.error("Error while disabling user store from a user who is in the same user store.");
+            throw new IdentityUserStoreMgtException("Error while updating user store state.");
+        } else {
+            File userStoreConfigFile = createConfigurationFile(domain);
+            StreamResult result = new StreamResult(userStoreConfigFile);
+            if (!userStoreConfigFile.exists()) {
+                String errorMessage = "Cannot edit user store." + domain + " does not exist.";
+                throw new IdentityUserStoreMgtException(errorMessage);
+            }
 
-            NodeList elements = doc.getElementsByTagName("Property");
-            for (int i = 0; i < elements.getLength(); i++) {
-                //Assumes a property element only have attribute 'name'
-                if ("Disabled".compareToIgnoreCase(elements.item(i).getAttributes().item(0).getNodeValue()) == 0) {
-                    elements.item(i).setTextContent(String.valueOf(isDisable));
-                    break;
+            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = null;
+            try {
+                documentBuilder = documentFactory.newDocumentBuilder();
+                Document doc = documentBuilder.parse(userStoreConfigFile);
+
+                NodeList elements = doc.getElementsByTagName("Property");
+                for (int i = 0; i < elements.getLength(); i++) {
+                    //Assumes a property element only have attribute 'name'
+                    if ("Disabled".compareToIgnoreCase(elements.item(i).getAttributes().item(0).getNodeValue()) == 0) {
+                        elements.item(i).setTextContent(String.valueOf(isDisable));
+                        break;
+                    }
                 }
+
+                DOMSource source = new DOMSource(doc);
+
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+                transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "6");
+                transformer.transform(source, result);
+
+                if (log.isDebugEnabled()) {
+                    log.debug("New state :" + isDisable + " of the user store \'" + domain + "\' successfully written to the file system");
+                }
+            } catch (ParserConfigurationException e) {
+                log.error(e.getMessage(), e);
+                throw new IdentityUserStoreMgtException("Error while updating user store state", e);
+            } catch (SAXException e) {
+                log.error(e.getMessage(), e);
+                throw new IdentityUserStoreMgtException("Error while updating user store state", e);
+            } catch (TransformerConfigurationException e) {
+                log.error(e.getMessage(), e);
+                throw new IdentityUserStoreMgtException("Error while updating user store state", e);
+            } catch (TransformerException e) {
+                log.error(e.getMessage(), e);
+                throw new IdentityUserStoreMgtException("Error while updating user store state", e);
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+                throw new IdentityUserStoreMgtException("Error while updating user store state", e);
             }
-
-            DOMSource source = new DOMSource(doc);
-
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "6");
-            transformer.transform(source, result);
-
-            if (log.isDebugEnabled()) {
-                log.debug("New state :" + isDisable + " of the user store \'" + domain + "\' successfully written to the file system");
-            }
-        } catch (ParserConfigurationException e) {
-            log.error(e.getMessage(),e);
-            throw new IdentityUserStoreMgtException("Error while updating user store state",e);
-        } catch (SAXException e) {
-            log.error(e.getMessage(),e);
-            throw new IdentityUserStoreMgtException("Error while updating user store state",e);
-        } catch (TransformerConfigurationException e) {
-            log.error(e.getMessage(),e);
-            throw new IdentityUserStoreMgtException("Error while updating user store state",e);
-        } catch (TransformerException e) {
-            log.error(e.getMessage(),e);
-            throw new IdentityUserStoreMgtException("Error while updating user store state",e);
-        } catch (IOException e) {
-            log.error(e.getMessage(),e);
-            throw new IdentityUserStoreMgtException("Error while updating user store state",e);
         }
     }
 
