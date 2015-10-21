@@ -48,11 +48,21 @@
         identityProvider.setHomeRealmId(request.getParameter("homeRealmId"));
         FederatedAuthenticatorConfig samlFedAuthn = new FederatedAuthenticatorConfig();
         samlFedAuthn.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
-        Property[] properties = new Property[1];
+        String[] destinationUrls = request.getParameter("destinationURLs").split(",");
+        Property[] properties = new Property[1+destinationUrls.length];
         Property property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
         property.setValue(request.getParameter("idPEntityId"));
         properties[0] = property;
+        if (destinationUrls != null && destinationUrls.length > 0) {
+            for (int destinationCount = 1; destinationCount <= destinationUrls.length; destinationCount++) {
+                property = new Property();
+                property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.DESTINATION_URL_PREFIX + "_" + destinationCount);
+                property.setValue(destinationUrls[destinationCount-1]);
+                properties[destinationCount] = property;
+            }
+
+        }
         samlFedAuthn.setProperties(properties);
 
         FederatedAuthenticatorConfig passiveStsFedAuthn = new FederatedAuthenticatorConfig();
