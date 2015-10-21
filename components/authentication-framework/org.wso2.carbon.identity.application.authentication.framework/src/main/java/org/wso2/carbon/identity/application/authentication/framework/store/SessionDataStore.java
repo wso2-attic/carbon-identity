@@ -179,9 +179,11 @@ public class SessionDataStore {
         if (!enablePersist) {
             log.info("Session Data Persistence of Authentication framework is not enabled.");
         }
-        String isCleanUpEnabledVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.CleanUp.Enable");
-        String isOperationCleanUpEnabledVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataOperations.CleanUp.Enable");
-        String operationCleanUpPeriodVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataOperations.CleanUp.CleanUpPeriod");
+        String isCleanUpEnabledVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.SessionDataCleanUp.Enable");
+
+        String isOperationCleanUpEnabledVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.OperationDataCleanUp.Enable");
+        String operationCleanUpPeriodVal = IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.OperationDataCleanUp.CleanUpPeriod");
+
 
         if (StringUtils.isBlank(isCleanUpEnabledVal)) {
             isCleanUpEnabledVal = defaultCleanUpEnabled;
@@ -189,19 +191,22 @@ public class SessionDataStore {
         if (StringUtils.isBlank(isOperationCleanUpEnabledVal)) {
             isOperationCleanUpEnabledVal = defaultOperationCleanUpEnabled;
         }
-        if (!StringUtils.isBlank(operationCleanUpPeriodVal)) {
-            operationCleanUpPeriod = Long.parseLong(operationCleanUpPeriodVal);
-        }
+
         if (Boolean.parseBoolean(isCleanUpEnabledVal)) {
             long sessionCleanupPeriod = IdentityUtil.getCleanUpPeriod(
                     CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
-            SessionCleanUpService sessionCleanUpService = new SessionCleanUpService(sessionCleanupPeriod, sessionCleanupPeriod);
+            SessionCleanUpService sessionCleanUpService = new SessionCleanUpService(sessionCleanupPeriod/4,
+                    sessionCleanupPeriod);
             sessionCleanUpService.activateCleanUp();
         } else {
             log.info("Session Data CleanUp Task of Authentication framework is not enabled.");
         }
         if (Boolean.parseBoolean(isOperationCleanUpEnabledVal)) {
-            OperationCleanUpService operationCleanUpService = new OperationCleanUpService(operationCleanUpPeriod, operationCleanUpPeriod);
+            if (StringUtils.isNotBlank(operationCleanUpPeriodVal)) {
+                operationCleanUpPeriod = Long.parseLong(operationCleanUpPeriodVal);
+            }
+            OperationCleanUpService operationCleanUpService = new OperationCleanUpService(operationCleanUpPeriod/4,
+                    operationCleanUpPeriod);
             operationCleanUpService.activateCleanUp();
         } else {
             log.info("Session Data Operations CleanUp Task of Authentication framework is not enabled.");
