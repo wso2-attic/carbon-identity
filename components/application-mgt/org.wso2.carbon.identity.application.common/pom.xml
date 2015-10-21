@@ -42,6 +42,10 @@
             <artifactId>org.wso2.carbon.identity.base</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.idp.mgt.stub</artifactId>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
@@ -77,6 +81,10 @@
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
                             org.apache.commons.collections; version="${commons-collections.wso2.osgi.version.range}",
+
+                            org.wso2.carbon.identity.application.common.model.idp.xsd; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.idp.mgt.stub; version="${carbon.identity.package.import.version.range}",
+                            org.apache.axis2.*; version="${axis2.osgi.version.range}",
 
                             org.wso2.carbon.utils.*; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.user.core.util; version="${carbon.kernel.package.import.version.range}",
