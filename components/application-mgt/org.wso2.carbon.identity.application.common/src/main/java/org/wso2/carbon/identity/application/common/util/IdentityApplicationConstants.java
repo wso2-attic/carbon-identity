@@ -63,6 +63,7 @@ public class IdentityApplicationConstants {
     public static final String CLEAN_UP_PERIOD = "CleanUpPeriod";
     public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
     public static final String TIME_CONFIG = "TimeConfig";
+    public static final String COMMONAUTH = "commonauth";
 
     public static class ConfigElements {
         public static final String PROPERTIES = "Properties";
@@ -198,6 +199,7 @@ public class IdentityApplicationConstants {
         public static final String OAUTH2_AUTHZ_URL = "OAuth2AuthzEPUrl";
         public static final String OAUTH2_TOKEN_URL = "OAuth2TokenEPUrl";
         public static final String OAUTH2_USER_INFO_EP_URL = "OAuth2UserInfoEPUrl";
+        public static final String CALLBACK_URL = "callbackUrl";
 
         private OAuth2() {
             throw new AssertionError("Must not initiate an object of OAuth2 class");

@@ -104,7 +104,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
      * @return
      */
     protected String getCallbackUrl(Map<String, String> authenticatorProperties) {
-        return null;
+        return authenticatorProperties.get(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
     }
 
     /**
@@ -457,6 +457,11 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                     if (log.isDebugEnabled()) {
                         log.debug("The IdToken is null");
                     }
+                    AuthenticatedUser authenticatedUserObj = AuthenticatedUser
+                            .createFederateAuthenticatedUserFromSubjectIdentifier(getAuthenticateUser(oAuthResponse));
+                    authenticatedUserObj.setUserAttributes(getSubjectAttributes(oAuthResponse,
+                            authenticatorProperties));
+                    context.setSubject(authenticatedUserObj);
                 }
 
             } else {

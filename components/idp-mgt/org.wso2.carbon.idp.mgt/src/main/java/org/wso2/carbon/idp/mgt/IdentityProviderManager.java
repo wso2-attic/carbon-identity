@@ -113,6 +113,7 @@ public class IdentityProviderManager {
         String oauth1AccessTokenUrl = null;
         String oauth2AuthzEPUrl = null;
         String oauth2TokenEPUrl = null;
+        String callBackURI = null;
         String oauth2UserInfoEPUrl = null;
         String passiveStsUrl = null;
         String stsUrl = null;
@@ -154,6 +155,11 @@ public class IdentityProviderManager {
                 getConfigElement("OAuth.OAuth2TokenEPUrl");
         if(elem != null){
             oauth2TokenEPUrl = elem.getText();
+        }
+        elem = IdentityConfigParser.getInstance().
+                getConfigElement("OAuth.CallBackURI");
+        if(elem != null){
+            callBackURI = elem.getText();
         }
         elem = IdentityConfigParser.getInstance().
                 getConfigElement("OAuth.OAuth2UserInfoEPUrl");
@@ -207,6 +213,12 @@ public class IdentityProviderManager {
             serverUrl = IdentityUtil.getServerURL("", false) + "/";
             oauth2TokenEPUrl = serverUrl + "oauth2/token";
         }
+
+        if(StringUtils.isBlank(callBackURI)){
+            serverUrl = IdentityUtil.getServerURL("", false) + "/";
+            callBackURI = serverUrl + "commonauth";
+        }
+
         if(StringUtils.isBlank(oauth2UserInfoEPUrl)){
             serverUrl = IdentityUtil.getServerURL("", false) + "/";
             oauth2UserInfoEPUrl = serverUrl + "oauth2/userinfo";
@@ -384,6 +396,14 @@ public class IdentityProviderManager {
             tokenUrlProp.setName(IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL);
             tokenUrlProp.setValue(oauth2TokenEPUrl);
             propertiesList.add(tokenUrlProp);
+        }
+
+        if (IdentityApplicationManagementUtil.getProperty(oidcFedAuthn.getProperties(),
+                IdentityApplicationConstants.Authenticator.OIDC.CALLBACK_URL) == null) {
+            Property callBackURIPpropery = new Property();
+            callBackURIPpropery.setName(IdentityApplicationConstants.Authenticator.OIDC.CALLBACK_URL);
+            callBackURIPpropery.setValue(callBackURI);
+            propertiesList.add(callBackURIPpropery);
         }
         if (IdentityApplicationManagementUtil.getProperty(oidcFedAuthn.getProperties(),
                 IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_USER_INFO_EP_URL) == null) {
