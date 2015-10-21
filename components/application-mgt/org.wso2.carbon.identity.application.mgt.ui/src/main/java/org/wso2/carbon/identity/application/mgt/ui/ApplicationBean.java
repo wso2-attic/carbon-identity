@@ -997,7 +997,7 @@ public class ApplicationBean {
         String provisioningUserStore = request.getParameter("scim-inbound-userstore");
         InboundProvisioningConfig inBoundProConfig = new InboundProvisioningConfig();
         inBoundProConfig.setProvisioningUserStore(provisioningUserStore);
-        inBoundProConfig.setIsDumbMode(Boolean.parseBoolean(request.getParameter(DUMB)));
+        inBoundProConfig.setDumbMode(Boolean.parseBoolean(request.getParameter(DUMB)));
         serviceProvider.setInboundProvisioningConfig(inBoundProConfig);
 
         // update outbound provisioning data.
@@ -1351,7 +1351,7 @@ public class ApplicationBean {
         String provisioningUserStore = request.getParameter("scim-inbound-userstore");
         InboundProvisioningConfig inBoundProConfig = new InboundProvisioningConfig();
         inBoundProConfig.setProvisioningUserStore(provisioningUserStore);
-        inBoundProConfig.setIsDumbMode(Boolean.parseBoolean(request.getParameter(DUMB)));
+        inBoundProConfig.setDumbMode(Boolean.parseBoolean(request.getParameter(DUMB)));
         serviceProvider.setInboundProvisioningConfig(inBoundProConfig);
 
         String[] provisioningProviders = request.getParameterValues("provisioning_idp");

@@ -17,7 +17,12 @@
  */
 package org.wso2.carbon.identity.application.authenticator.oidc;
 
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONValue;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.client.OAuthClient;
 import org.apache.oltu.oauth2.client.URLConnectionClient;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
@@ -37,9 +42,16 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.A
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.application.authenticator.oidc.internal.OpenIDConnectAuthenticatorServiceComponent;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.user.api.UserRealm;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,6 +61,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator implements
@@ -385,17 +398,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                     if (jsonObject != null) {
                         Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
 
-                        for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-                            claims.put(
-                                    ClaimMapping.build(entry.getKey(), entry.getKey(), null, false),
-                                    entry.getValue().toString());
-                            if (log.isDebugEnabled()) {
-                                log.debug("Adding claim mapping : " + entry.getKey() + " <> "
-                                        + entry.getKey() + " : " + entry.getValue());
-                            }
-
-                        }
-
                         String authenticatedUser = null;
                         String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
                                 IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
@@ -414,6 +416,30 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                         }
                         if (authenticatedUser == null) {
                             throw new AuthenticationFailedException("Cannot find federated User Identifier");
+                        }
+
+                        String tenantDomain = MultitenantUtils.getTenantDomain(authenticatedUser);
+                        String domainName = UserCoreUtil.extractDomainFromName(authenticatedUser);
+                        UserStoreManager userStore;
+                        String attributeSeparator = null;
+                        try {
+                            int tenantId = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
+                                    .getTenantManager().getTenantId(tenantDomain);
+                            UserRealm userRealm = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
+                                    .getTenantUserRealm(tenantId);
+                            userStore = (UserStoreManager) userRealm.getUserStoreManager();
+                            attributeSeparator = userStore.getSecondaryUserStoreManager(domainName)
+                                    .getRealmConfiguration()
+                                    .getUserStoreProperty(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+
+
+                        } catch (UserStoreException e) {
+                            throw new AuthenticationFailedException("Error while retrieving multi attribute " +
+                                    "separator", e);
+                        }
+
+                        for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+                            buildClaimMappings(claims, entry, attributeSeparator);
                         }
 
                         AuthenticatedUser authenticatedUserObj = AuthenticatedUser
@@ -440,6 +466,36 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             log.error(e.getMessage(), e);
             throw new AuthenticationFailedException(e.getMessage(), e);
         }
+    }
+
+    protected void buildClaimMappings(Map<ClaimMapping, String> claims, Map.Entry<String, Object> entry, String
+            separator) {
+        String claimValue = null;
+        if (StringUtils.isBlank(separator)) {
+            separator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
+        }
+        try {
+            JSONArray jsonArray = (JSONArray) JSONValue.parseWithException(entry.getValue().toString());
+            if (jsonArray != null && jsonArray.size() > 0) {
+                Iterator attributeIterator = jsonArray.iterator();
+                while (attributeIterator.hasNext()) {
+                    if (claimValue == null) {
+                        claimValue = attributeIterator.next().toString();
+                    } else {
+                        claimValue = claimValue + separator + attributeIterator.next().toString();
+                    }
+                }
+
+            }
+        } catch (Exception e) {
+            claimValue = entry.getValue().toString();
+        }
+
+        claims.put(ClaimMapping.build(entry.getKey(), entry.getKey(), null, false), claimValue);
+        if (log.isDebugEnabled()) {
+            log.debug("Adding claim mapping : " + entry.getKey() + " <> " + entry.getKey() + " : " + claimValue);
+        }
+
     }
 
     private OAuthClientRequest getaccessRequest(String tokenEndPoint,

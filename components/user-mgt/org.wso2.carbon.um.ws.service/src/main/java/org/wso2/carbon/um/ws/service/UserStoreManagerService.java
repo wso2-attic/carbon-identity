@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.um.ws.service;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
@@ -38,6 +39,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 
 public class UserStoreManagerService extends AbstractAdmin {
@@ -47,6 +49,7 @@ public class UserStoreManagerService extends AbstractAdmin {
             "- ";
     private static final String NULL_REALM_MESSAGE = "UserRealm is null";
     private static final String EMPTY = "";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
 
 
     public void addUser(String userName, String credential, String[] roleList, ClaimValue[] claims,
@@ -65,19 +68,45 @@ public class UserStoreManagerService extends AbstractAdmin {
     public void addUserClaimValues(String userName, ClaimValue[] claims, String profileName)
             throws UserStoreException {
 
+        String userAttributeSeparator = ",";
+        String claimSeparator = super.getUserRealm().getRealmConfiguration().getUserStoreProperty(
+                MULTI_ATTRIBUTE_SEPARATOR);
+
+        if (StringUtils.isNotBlank(claimSeparator)) {
+            userAttributeSeparator = claimSeparator;
+        }
+
         for (ClaimValue claim : claims) {
-            String existingClaimValue = getUserStoreManager().getUserClaimValue(userName, claim.getClaimURI(), profileName);
+            String existingClaimValue = getUserStoreManager().getUserClaimValue(userName, claim.getClaimURI(),
+                                                                                profileName);
             if (existingClaimValue == null) {
                 existingClaimValue = "";
             }
-            if (claim.getValue() != null && !"".equals(claim.getValue())) {
-                String claimValue;
-                if (!"".equals(existingClaimValue)) {
-                    claimValue = existingClaimValue + "," + claim.getValue();
-                } else {
-                    claimValue = claim.getValue();
+
+            if (StringUtils.isNotBlank(claim.getValue())) {
+
+                boolean claimValueAlreadyExists = false;
+                if (existingClaimValue.contains(userAttributeSeparator)) {
+                    StringTokenizer st = new StringTokenizer(existingClaimValue, userAttributeSeparator);
+                    while (st.hasMoreElements()) {
+                        String existingValue = st.nextElement().toString();
+                        if (existingValue.equalsIgnoreCase(claim.getValue())) {
+                            claimValueAlreadyExists = true;
+                        }
+                    }
+                } else if(existingClaimValue.equalsIgnoreCase(claim.getValue())) {
+                    claimValueAlreadyExists = true;
                 }
-                getUserStoreManager().setUserClaimValue(userName, claim.getClaimURI(), claimValue, profileName);
+
+                if(!claimValueAlreadyExists) {
+                    String claimValue;
+                    if (!"".equals(existingClaimValue)) {
+                        claimValue = existingClaimValue + userAttributeSeparator + claim.getValue();
+                    } else {
+                        claimValue = claim.getValue();
+                    }
+                    getUserStoreManager().setUserClaimValue(userName, claim.getClaimURI(), claimValue, profileName);
+                }
             }
         }
     }

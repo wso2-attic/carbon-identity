@@ -1523,7 +1523,7 @@ var roleMappinRowID = -1;
                   </td></tr>
                    <tr>
                         <td >
-                          <select style="min-width: 250px;" id="scim-inbound-userstore" name="scim-inbound-userstore" <%=appBean.getServiceProvider().getDumbMode() ? "disabled" : "" %>>
+                          <select style="min-width: 250px;" id="scim-inbound-userstore" name="scim-inbound-userstore" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getDumbMode() ? "disabled" : "" %>>
                           		<option value="">---Select---</option>
                                 <%
                                     if(userStoreDomains != null && userStoreDomains.length > 0){
@@ -1552,7 +1552,7 @@ var roleMappinRowID = -1;
                     </tr>
                     <tr>
                         <td>
-                            <input type="checkbox" name="dumb" id="dumb" value="false" onclick ="disable()" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getIsDumbMode() ? "checked" : "" %>>Enable Dumb Mode<br>
+                            <input type="checkbox" name="dumb" id="dumb" value="false" onclick ="disable()" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getDumbMode() ? "checked" : "" %>>Enable Dumb Mode<br>
                         </td>
                     </tr>
                     </table>

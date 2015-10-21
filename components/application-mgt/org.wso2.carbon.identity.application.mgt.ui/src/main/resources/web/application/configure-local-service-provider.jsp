@@ -237,7 +237,7 @@
                   </td></tr>
                    <tr>
                         <td >
-                           <select style="min-width: 250px;" id="scim-inbound-userstore" name="scim-inbound-userstore" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getIsDumbMode() ? "disabled" : "" %>>
+                           <select style="min-width: 250px;" id="scim-inbound-userstore" name="scim-inbound-userstore" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getDumbMode() ? "disabled" : "" %>>
                           		<option value="">---Select---</option>
                                 <%
                                     if(userStoreDomains != null && userStoreDomains.length > 0){
