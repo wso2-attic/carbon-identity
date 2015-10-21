@@ -19,14 +19,61 @@
 package org.wso2.carbon.identity.application.mgt.ui.util;
 
 import org.wso2.carbon.identity.application.mgt.ui.ApplicationBean;
+
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class ApplicationMgtUIUtil {
-    static public ApplicationBean getApplicationBeanFromSession(HttpSession session, String spName) {
-        if (session.getAttribute(spName) == null) {
-            ApplicationBean applicationBean = new ApplicationBean();
-            session.setAttribute(spName, applicationBean);
+
+    /**
+     * Get related application bean from the session.
+     *
+     * @param session HTTP Session.
+     * @param spName  Service provider name.
+     * @return ApplicationBean
+     */
+    public static ApplicationBean getApplicationBeanFromSession(HttpSession session, String spName) {
+
+        Map<String, UUID> spUniqueIdMap;
+
+        if (session.getAttribute("spUniqueIdMap") == null) {
+
+            spUniqueIdMap = new HashMap<String, UUID>();
+            session.setAttribute("spUniqueIdMap", spUniqueIdMap);
+        } else {
+
+            spUniqueIdMap = (HashMap<String, UUID>) session.getAttribute("spUniqueIdMap");
         }
-        return (ApplicationBean)session.getAttribute(spName);
+
+        if (spUniqueIdMap.get(spName) == null) {
+
+            ApplicationBean applicationBean = new ApplicationBean();
+            UUID uuid = UUID.randomUUID();
+
+            spUniqueIdMap.put(spName, uuid);
+            session.setAttribute(uuid.toString(), applicationBean);
+        }
+
+        return (ApplicationBean) session.getAttribute(spUniqueIdMap.get(spName).toString());
+    }
+
+    /**
+     * Remove related application bean from the session.
+     *
+     * @param session Http Session.
+     * @param spName  Service provider name.
+     */
+    public static void removeApplicationBeanFromSession(HttpSession session, String spName) {
+
+        Map<String, UUID> spUniqueIdMap = (HashMap<String, UUID>) session.getAttribute("spUniqueIdMap");
+
+        if (spUniqueIdMap.get(spName) == null) {
+            return;
+        }
+
+        session.removeAttribute(spUniqueIdMap.get(spName).toString());
+        spUniqueIdMap.remove(spName);
     }
 }
