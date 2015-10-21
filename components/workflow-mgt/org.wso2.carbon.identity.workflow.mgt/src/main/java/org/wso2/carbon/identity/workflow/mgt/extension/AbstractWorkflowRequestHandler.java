@@ -182,14 +182,18 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     public void onWorkflowCompletion(String status, WorkflowRequest originalRequest, Map<String, Object>
             responseParams) throws WorkflowException {
 
-        Map<String, Object> requestParams = new HashMap<String, Object>();
-        for (RequestParameter parameter : originalRequest.getRequestParameters()) {
-            requestParams.put(parameter.getName(), parameter.getValue());
+        try {
+            Map<String, Object> requestParams = new HashMap<String, Object>();
+            for (RequestParameter parameter : originalRequest.getRequestParameters()) {
+                requestParams.put(parameter.getName(), parameter.getValue());
+            }
+            if (retryNeedAtCallback()) {
+                setWorkFlowCompleted(true);
+            }
+            onWorkflowCompletion(status, requestParams, responseParams, originalRequest.getTenantId());
+        } finally {
+            unsetWorkFlowCompleted();
         }
-        if (retryNeedAtCallback()) {
-            setWorkFlowCompleted(true);
-        }
-        onWorkflowCompletion(status, requestParams, responseParams, originalRequest.getTenantId());
     }
 
     /**
@@ -225,7 +229,6 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     private boolean isWorkflowCompleted() {
 
         if (retryNeedAtCallback() && getWorkFlowCompleted() != null && getWorkFlowCompleted()) {
-            unsetWorkFlowCompleted();
             return true;
         } else return false;
     }

@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.handler.request.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -231,8 +232,8 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
             if (!sequenceConfig.getApplicationConfig().isSaaSApp()) {
                 String spTenantDomain = context.getTenantDomain();
                 String userTenantDomain = sequenceConfig.getAuthenticatedUser().getTenantDomain();
-                if (userTenantDomain != null && !userTenantDomain.isEmpty()) {
-                    if (spTenantDomain != null && !spTenantDomain.isEmpty() && !spTenantDomain.equals
+                if (StringUtils.isNotEmpty(userTenantDomain)) {
+                    if (StringUtils.isNotEmpty(spTenantDomain) && !spTenantDomain.equals
                             (userTenantDomain)) {
                         throw new FrameworkException("Service Provider tenant domain must be equal to user tenant " +
                                                      "domain for non-SaaS applications");
