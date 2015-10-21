@@ -141,16 +141,6 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         return token.getParam(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT);
     }
 
-    /**
-     * Get google callbackurl.
-     * @param authenticatorProperties
-     * @return callbackurl
-     */
-    @Override
-    protected String getCallBackURL(Map<String, String> authenticatorProperties) {
-        return authenticatorProperties.get(GoogleOAuth2AuthenticationConstant.CALLBACK_URL);
-    }
-
     @Override
     protected String getQueryString(Map<String, String> authenticatorProperties) {
         return authenticatorProperties.get(GoogleOAuth2AuthenticationConstant.ADDITIONAL_QUERY_PARAMS);
@@ -183,7 +173,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         Property callbackUrl = new Property();
         callbackUrl.setDisplayName("Callback Url");
-        callbackUrl.setName(GoogleOAuth2AuthenticationConstant.CALLBACK_URL);
+        callbackUrl.setName(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
         callbackUrl.setRequired(true);
         callbackUrl.setDescription("Enter value corresponding to callback url.");
         configProperties.add(callbackUrl);

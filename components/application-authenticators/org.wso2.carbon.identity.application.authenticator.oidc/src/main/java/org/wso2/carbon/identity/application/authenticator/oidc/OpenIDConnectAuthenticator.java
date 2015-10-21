@@ -104,7 +104,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
      * @return
      */
     protected String getCallbackUrl(Map<String, String> authenticatorProperties) {
-        return null;
+        return authenticatorProperties.get(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
     }
 
     /**
@@ -382,7 +382,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                     && (idToken != null || !requiredIDToken(authenticatorProperties))) {
 
                 context.setProperty(OIDCAuthenticatorConstants.ACCESS_TOKEN, accessToken);
-
+                Map<String, Object> jsonObject = new HashMap<>();
                 if (idToken != null) {
                     context.setProperty(OIDCAuthenticatorConstants.ID_TOKEN, idToken);
 
@@ -390,7 +390,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                     byte[] decoded = Base64.decodeBase64(base64Body.getBytes());
                     String json = new String(decoded);
 
-                    Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
+                    jsonObject = JSONUtils.parseJSON(json);
                     if (log.isDebugEnabled()) {
                         log.debug("Retrieved the User Information:" + jsonObject);
                     }
@@ -457,6 +457,12 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                     if (log.isDebugEnabled()) {
                         log.debug("The IdToken is null");
                     }
+                    AuthenticatedUser authenticatedUserObj = AuthenticatedUser
+                            .createFederateAuthenticatedUserFromSubjectIdentifier(getAuthenticateUser(context,
+                                    jsonObject, oAuthResponse));
+                    authenticatedUserObj.setUserAttributes(getSubjectAttributes(oAuthResponse,
+                            authenticatorProperties));
+                    context.setSubject(authenticatedUserObj);
                 }
 
             } else {
