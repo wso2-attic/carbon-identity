@@ -31,11 +31,6 @@ public class CarbonRemoteUserStoreMangerTest extends TestCase {
         super.setUp();
     }
 
-
-//    public void testClaimManger() throws Exception{
-//        testExtendsAbstractUserStoreManager();
-//    }
-
     public void testExtendsAbstractUserStoreManager() throws Exception {
 
         try {
@@ -45,13 +40,12 @@ public class CarbonRemoteUserStoreMangerTest extends TestCase {
             AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager)
                     getSecondaryUserStoreManager("carbonUserStoreManager");
 
-            fail("Should expect class not found exception");
 
         } catch (ClassCastException e) {
-            assertTrue(e.getMessage() != null);
+            fail("RemoteUserStoreManager has not extended AbstractUserStoreManager class");
             //expect cannot case CarbonRemoteUserStoreManger to AbstractUserStoreManager
         } catch (Exception e) {
-            fail("Should expect class not found exception");
+            fail("No exception expected.");
         }
     }
 
