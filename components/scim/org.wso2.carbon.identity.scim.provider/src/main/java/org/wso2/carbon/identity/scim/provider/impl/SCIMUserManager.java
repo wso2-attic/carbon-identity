@@ -567,12 +567,18 @@ public class SCIMUserManager implements UserManager {
                         roleNameWithDomain = UserCoreUtil
                                 .addDomainToName(UserCoreUtil.removeDomainFromName(originalName), domainName);
                     } else if (originalName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
-                        roleNameWithDomain = originalName;
-                        domainName = originalName.split(UserCoreConstants.DOMAIN_SEPARATOR)[0];
+                        domainName = originalName.split(UserCoreConstants.DOMAIN_SEPARATOR)[0].toLowerCase();
+                        roleNameWithDomain = domainName.toLowerCase() + UserCoreConstants.DOMAIN_SEPARATOR +
+                                UserCoreUtil.removeDomainFromName(originalName);
                     } else {
-                        roleNameWithDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME +
-                                             CarbonConstants.DOMAIN_SEPARATOR + originalName;
-                        domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+                        String primaryDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+                        if (carbonUM.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                                .PROPERTY_DOMAIN_NAME) != null) {
+                            primaryDomain = carbonUM.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                                    .PROPERTY_DOMAIN_NAME).toLowerCase();
+                        }
+                        roleNameWithDomain = primaryDomain + UserCoreConstants.DOMAIN_SEPARATOR + originalName;
+                        domainName = primaryDomain;
                     }
                 } catch (IdentityApplicationManagementException e) {
                     throw new CharonException("Error retrieving User Store name. ", e);
