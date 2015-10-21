@@ -254,7 +254,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                 tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
             }
 
-            int tenantId = OAuth2Util.getTenantId(tenantDomain);
+            int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
 
             Key privateKey;
 
