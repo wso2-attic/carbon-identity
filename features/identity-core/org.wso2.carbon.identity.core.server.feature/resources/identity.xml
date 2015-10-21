@@ -23,17 +23,23 @@
         <!-- <SkipDBSchemaCreation>false</SkipDBSchemaCreation> -->
         <!--SessionDataPersist>
             <Enable>true</Enable>
-            <EnableCleanUp>true</EnableCleanUp>
-            <Temporary>false</Temporary-->
-        <!--/SessionDataPersist-->
+            <Temporary>false</Temporary>
+            <SessionDataCleanUp>
+                <Enable>true</Enable>
+                <CleanUpTimeout>20160</CleanUpTimeout>
+                <CleanUpPeriod>1140</CleanUpPeriod>
+            </SessionDataCleanUp>
+            <OperationDataCleanUp>
+                <Enable>true</Enable>
+                <CleanUpPeriod>720</CleanUpPeriod>
+            </OperationDataCleanUp>
+        </SessionDataPersist-->
     </JDBCPersistenceManager>
 
     <!-- Time configurations are in minutes -->
     <TimeConfig>
         <SessionIdleTimeout>15</SessionIdleTimeout>
         <RememberMeTimeout>20160</RememberMeTimeout>
-        <PersistanceCleanUpTimeout>20160</PersistanceCleanUpTimeout>
-        <PersistanceCleanUpPeriod>1140</PersistanceCleanUpPeriod>
     </TimeConfig>
 
     <!-- Security configurations -->
