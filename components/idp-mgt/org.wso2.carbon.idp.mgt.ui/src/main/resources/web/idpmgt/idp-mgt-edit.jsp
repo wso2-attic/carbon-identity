@@ -110,6 +110,7 @@
     String clientSecret = null;
     String authzUrl = null;
     String tokenUrl = null;
+    String callBackUrl = null;
     boolean isOIDCUserIdInClaims = false;
     boolean isPassiveSTSEnabled = false;
     boolean isPassiveSTSDefault = false;
@@ -356,6 +357,13 @@
                     if (tokenUrlProp != null) {
                         tokenUrl = tokenUrlProp.getValue();
                     }
+                    Property callBackURLProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.OIDC.CALLBACK_URL);
+                    if (callBackURLProp != null) {
+                        callBackUrl = callBackURLProp.getValue();
+                    }
+
+
                     Property clientIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
                             IdentityApplicationConstants.Authenticator.OIDC.CLIENT_ID);
                     if (clientIdProp != null) {
@@ -998,6 +1006,10 @@
     }
     if(StringUtils.isBlank(tokenUrl)){
         tokenUrl = StringUtils.EMPTY;
+    }
+
+    if(StringUtils.isBlank(callBackUrl)){
+        callBackUrl = IdentityUtil.getServerURL(IdentityApplicationConstants.COMMONAUTH, true);
     }
 
     String passiveSTSEnabledChecked = "";
@@ -4222,6 +4234,17 @@ function doValidation() {
                 </div>
                 <div class="sectionHelp">
                     <fmt:message key='client.secret.help'/>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="leftCol-med labelField"><fmt:message key='callbackurl'/>
+            <td>
+                <input id="callbackUrl" name="callbackUrl" type="text" value=<%=Encode.forHtmlAttribute(callBackUrl)%>>
+
+                <div class="sectionHelp">
+                    <fmt:message key='callbackUrl.help'/>
                 </div>
             </td>
         </tr>

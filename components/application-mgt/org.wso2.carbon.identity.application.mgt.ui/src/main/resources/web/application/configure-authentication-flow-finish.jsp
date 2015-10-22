@@ -46,7 +46,7 @@
 	%>
 
 	<script>
-		location.href = 'configure-service-provider.jsp?authType=flow&display=auth_config&action=update&spName=<%=Encode.forUriComponent(spName)';
+		location.href = 'configure-service-provider.jsp?authType=flow&display=auth_config&action=update&spName=<%=Encode.forUriComponent(spName)%>';
 	</script>
 
 

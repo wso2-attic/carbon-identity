@@ -220,7 +220,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         Property callbackUrl = new Property();
         callbackUrl.setDisplayName("Callback URL");
-        callbackUrl.setName(YahooOAuth2AuthenticatorConstants.CALLBACK_URL);
+        callbackUrl.setName(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
         callbackUrl.setDescription("Enter value corresponding to callback url.");
         callbackUrl.setDisplayOrder(3);
         configProperties.add(callbackUrl);

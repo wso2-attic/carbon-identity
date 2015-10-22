@@ -1137,6 +1137,10 @@ public class IdentityApplicationManagementUtil {
         return samlAuthnContextClasses.keySet();
     }
 
+    /**
+     *
+     * @return the Signing Algorithm URI defined in configuration
+     */
     public static String getSigningAlgoURIByConfig() {
         if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig
                 .SSO_DEFAULT_SIGNING_ALGORITHM))) {
@@ -1145,6 +1149,11 @@ public class IdentityApplicationManagementUtil {
             return IdentityApplicationConstants.XML.SignatureAlgorithmURI.RSA_SHA1;
         }
     }
+
+    /**
+     *
+     * @return the Digest Algorithm URI defined in configuration
+     */
     public static String getDigestAlgoURIByConfig() {
         if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig
                 .SSO_DEFAULT_DIGEST_ALGORITHM))) {
@@ -1152,5 +1161,46 @@ public class IdentityApplicationManagementUtil {
         } else {
             return IdentityApplicationConstants.XML.DigestAlgorithmURI.SHA1;
         }
+    }
+
+    /**
+     * This is used in front end. Property is the type of stub generated property
+     * @param properties properties list to iterate
+     * @param startWith the peoperty list startswith the given name
+     * @return
+     */
+    public static List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> getPropertySetStartsWith(
+            org.wso2.carbon.identity.application.common.model.idp.xsd.Property[] properties,
+            String startWith) {
+        List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> propertySet = new ArrayList<org
+                .wso2.carbon.identity.application.common.model.idp.xsd.Property>();
+        for (org.wso2.carbon.identity.application.common.model.idp.xsd.Property property : properties) {
+            if (property.getName().startsWith(startWith)) {
+                propertySet.add(property);
+            }
+        }
+        return propertySet;
+    }
+
+    /**
+     * This is used in back end. Property is the type of stub generated property
+     * @param authnConfigs authenticatorConfigs to iterate
+     * @param authenticatorName authenticator name of which the values are needed
+     * @param propNameStartsWith the prefix of the property name
+     * @return the list of values which statrts with the propNameStartsWith.
+     */
+    public static List<String> getPropertyValuesForNameStartsWith(FederatedAuthenticatorConfig[] authnConfigs, String authenticatorName, String propNameStartsWith){
+        List<String> propValueSet = new ArrayList<String>();
+        for (FederatedAuthenticatorConfig config : authnConfigs) {
+            if (authenticatorName.equals(config.getName())) {
+                for (Property prop : config.getProperties()) {
+                    if (prop.getName().startsWith(propNameStartsWith)) {
+                        propValueSet.add(prop.getValue());
+                    }
+                }
+
+            }
+        }
+        return propValueSet;
     }
 }

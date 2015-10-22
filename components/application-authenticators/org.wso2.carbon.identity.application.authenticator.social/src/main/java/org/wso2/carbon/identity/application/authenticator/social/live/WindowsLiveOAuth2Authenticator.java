@@ -122,14 +122,6 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
      * @return
      */
     @Override
-    protected String getCallbackUrl(Map<String, String> authenticatorProperties) {
-        return authenticatorProperties.get(WindowsLiveOAuth2AuthenticatorConstants.CALLBACK_URL);
-    }
-
-    /**
-     * @return
-     */
-    @Override
     protected String getTokenEndpoint(Map<String, String> authenticatorProperties) {
         if (StringUtils.isBlank(this.tokenEndpoint)) {
             initTokenEndpoint();
@@ -222,7 +214,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         Property callbackUrl = new Property();
         callbackUrl.setDisplayName("Callback Url");
-        callbackUrl.setName(WindowsLiveOAuth2AuthenticatorConstants.CALLBACK_URL);
+        callbackUrl.setName(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
         callbackUrl.setRequired(true);
         callbackUrl.setDescription("Enter value corresponding to callback url.");
         callbackUrl.setDisplayOrder(1);
