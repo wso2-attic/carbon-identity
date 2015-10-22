@@ -32,9 +32,6 @@ import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.common.utils.JSONUtils;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
@@ -238,7 +235,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
                 String callbackurl = getCallbackUrl(authenticatorProperties);
 
-                if (callbackurl == null) {
+                if (StringUtils.isBlank(callbackurl)) {
                     callbackurl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
                 }
 
@@ -348,7 +345,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
             String callbackurl = getCallbackUrl(authenticatorProperties);
 
-            if (callbackurl == null) {
+            if (StringUtils.isBlank(callbackurl)) {
                 callbackurl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
             }
 
