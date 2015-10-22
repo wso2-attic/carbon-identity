@@ -308,7 +308,7 @@ public class IdentityUtil {
             try {
                 serverUri = new URL(serverUri, proxyContextPath);
             } catch (MalformedURLException e) {
-                throw new IdentityRuntimeException("Error while getting server URL.", e);
+                throw new IdentityRuntimeException("Error while appending proxy context path to server url.", e);
             }
         }
         // If webContextRoot is defined then append it
@@ -319,7 +319,7 @@ public class IdentityUtil {
                 try {
                     serverUri = new URL(serverUri, webContextRoot);
                 } catch (MalformedURLException e) {
-                    throw new IdentityRuntimeException("Error while getting server URL.", e);
+                    throw new IdentityRuntimeException("Error while appending web context root to server url.", e);
                 }
             }
         }
@@ -327,7 +327,7 @@ public class IdentityUtil {
             try {
                 serverUri = new URL(serverUri, endpoint);
             } catch (MalformedURLException e) {
-                throw new IdentityRuntimeException("Error while getting server URL.", e);
+                throw new IdentityRuntimeException("\"Error while appending endpoint to server url.", e);
             }
         }
         return serverUri.toString();
