@@ -180,8 +180,7 @@
                             max++;
                             continue;
                         }
-                        PaginatedNamesBean bean = Util.
-                                retrievePaginatedFlaggedName(i, dataList);
+                        PaginatedNamesBean bean = Util.retrievePaginatedFlaggedName(i, dataList);
                         flaggedNameMap.put(i, bean);
                         if (bean.getNumberOfPages() == i + 1) {
                             break;
@@ -509,7 +508,8 @@
                                                         arg += " and ";
                                                     }
                                                 }
-                                                message = resourceBundle.getString("more.roles.others").replace("{0}", arg);
+                                                message = MessageFormat.format
+                                                        (resourceBundle.getString("more.roles.others"), arg);
                                             } else {
                                                 message = resourceBundle.getString("more.roles.primary");
                                             }
@@ -528,7 +528,7 @@
                                         arg += " and ";
                                     }
                                 }
-                                message = resourceBundle.getString("more.roles").replace("{0}", arg);
+                                message = MessageFormat.format(resourceBundle.getString("more.roles"), arg);
                             %>
                             <strong><%=Encode.forHtml(message)%>
                             </strong>

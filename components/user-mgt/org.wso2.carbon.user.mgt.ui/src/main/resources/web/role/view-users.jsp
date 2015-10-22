@@ -174,20 +174,14 @@
     }
     if (doUserList || newFilter) {
         try {
-            String cookie =
-                    (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-            String backendServerURL =
-                    CarbonUIUtil.getServerURL(config.getServletContext(),
-                            session);
-            ConfigurationContext configContext =
-                    (ConfigurationContext) config.getServletContext()
-                            .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-            UserAdminClient client =
-                    new UserAdminClient(cookie, backendServerURL,
-                            configContext);
+            String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+            String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+            ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
+                    .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+            UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
             UserManagementWorkflowServiceClient UserMgtClient = new
                     UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
-            if (filter.length() > 0) {
+            if (StringUtils.isNotEmpty(filter)) {
                 FlaggedName[] data = client.getUsersOfRole(roleName, filter, 0);
                 if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
                     String[] DeletePendingRolesList = UserMgtClient.
@@ -207,8 +201,7 @@
                 }
                 dataList = new ArrayList<FlaggedName>(Arrays.asList(data));
                 exceededDomains = dataList.remove(dataList.size() - 1);
-                session.setAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE_EXCEEDED,
-                        exceededDomains);
+                session.setAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE_EXCEEDED, exceededDomains);
                 if (CollectionUtils.isNotEmpty(dataList)) {
                     flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
                     int max = pageNumber + cachePages;
@@ -217,9 +210,7 @@
                             max++;
                             continue;
                         }
-                        PaginatedNamesBean bean =
-                                Util.retrievePaginatedFlaggedName(i,
-                                        dataList);
+                        PaginatedNamesBean bean = Util.retrievePaginatedFlaggedName(i, dataList);
                         flaggedNameMap.put(i, bean);
                         if (bean.getNumberOfPages() == i + 1) {
                             break;
@@ -502,7 +493,7 @@
                                             arg += " and ";
                                         }
                                     }
-                                    message = resourceBundle.getString("more.users.others").replace("{0}", arg);
+                                    message = MessageFormat.format(resourceBundle.getString("more.users.others"), arg);
                                 } else {
                                     message = resourceBundle.getString("more.users.primary");
                                 }
@@ -521,7 +512,7 @@
                             arg += " and ";
                         }
                     }
-                    message = resourceBundle.getString("more.users").replace("{0}", arg);
+                    message = MessageFormat.format(resourceBundle.getString("more.users"), arg);
                 %>
                 <strong><%=Encode.forHtml(message)%>
                 </strong>
