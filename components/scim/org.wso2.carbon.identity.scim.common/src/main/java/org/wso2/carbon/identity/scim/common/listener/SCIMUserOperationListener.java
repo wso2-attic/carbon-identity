@@ -311,6 +311,8 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                 domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
             String roleNameWithDomain = UserCoreUtil.addDomainToName(roleName, domainName);
+            // UserCore Util functionality does not append primary
+            roleNameWithDomain = SCIMCommonUtils.getGroupNameWithDomain(roleNameWithDomain);
 
             //query role name from identity table
             try {
