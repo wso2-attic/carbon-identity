@@ -447,7 +447,7 @@
 
                                             String userName = user.getItemName();
                                             String displayName = user.getItemDisplayName();
-                                            if (displayName == null || displayName.trim().length() == 0) {
+                                            if (StringUtils.isBlank(displayName)) {
                                                 displayName = userName;
                                             }
                             %>
