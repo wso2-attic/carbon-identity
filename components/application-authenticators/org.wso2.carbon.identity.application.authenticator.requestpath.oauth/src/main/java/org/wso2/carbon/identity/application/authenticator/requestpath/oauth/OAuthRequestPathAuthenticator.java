@@ -44,7 +44,6 @@ public class OAuthRequestPathAuthenticator extends AbstractApplicationAuthentica
     private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
     private static final String BEARER_SCHEMA = "Bearer";
     private static final String AUTHENTICATOR_NAME = "OAuthRequestPathAuthenticator";
-    private static final String ACCESS_TOKEN = "access_token";
     private static Log log = LogFactory.getLog(OAuthRequestPathAuthenticator.class);
 
     @Override
@@ -61,7 +60,7 @@ public class OAuthRequestPathAuthenticator extends AbstractApplicationAuthentica
             if (BEARER_SCHEMA.equals(headerPart[0])) {
                 return true;
             }
-        } else if (request.getParameter(ACCESS_TOKEN) != null) {
+        } else if (request.getParameter("token") != null) {
             return true;
         }
 
@@ -79,7 +78,7 @@ public class OAuthRequestPathAuthenticator extends AbstractApplicationAuthentica
         if (headerValue != null) {
             token = headerValue.trim().split(" ")[1];
         } else {
-            token = request.getParameter(ACCESS_TOKEN);
+            token = request.getParameter("token");
         }
 
 
