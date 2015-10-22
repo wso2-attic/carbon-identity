@@ -23,12 +23,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceDataHolder;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -53,7 +55,6 @@ import java.util.concurrent.LinkedBlockingDeque;
  * And these events are stored with unique sessionId, operation type and operation initiated timestamp.
  * Expired DELETE operations and related STORE operations will be deleted by a OperationCleanUpService task.
  * All expired operations will be deleted by SessionCleanUpService task.
- *
  */
 public class SessionDataStore {
     private static final Log log = LogFactory.getLog(SessionDataStore.class);
@@ -65,10 +66,10 @@ public class SessionDataStore {
     private static final String SQL_INSERT_DELETE_OPERATION =
             "INSERT INTO IDN_AUTH_SESSION_STORE(SESSION_ID, SESSION_TYPE,OPERATION, TIME_CREATED) VALUES (?,?,?,?)";
     private static final String SQL_DELETE_STORE_OPERATIONS_TASK =
-            "DELETE FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '"+OPERATION_STORE+"' AND SESSION_ID in (" +
-            "SELECT SESSION_ID  FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '"+OPERATION_DELETE+"' AND TIME_CREATED < ?)";
+            "DELETE FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '" + OPERATION_STORE + "' AND SESSION_ID in (" +
+                    "SELECT SESSION_ID  FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '" + OPERATION_DELETE + "' AND TIME_CREATED < ?)";
     private static final String SQL_DELETE_DELETE_OPERATIONS_TASK =
-            "DELETE FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '"+OPERATION_DELETE+"' AND  TIME_CREATED < ?";
+            "DELETE FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '" + OPERATION_DELETE + "' AND  TIME_CREATED < ?";
 
     private static final String SQL_DESERIALIZE_OBJECT_MYSQL =
             "SELECT OPERATION, SESSION_OBJECT, TIME_CREATED FROM IDN_AUTH_SESSION_STORE WHERE SESSION_ID =? AND" +
@@ -94,8 +95,8 @@ public class SessionDataStore {
 
     private static int maxPoolSize = 100;
     private long operationCleanUpPeriod = 720;
-    private String defaultCleanUpEnabled ="true";
-    private String defaultOperationCleanUpEnabled ="false";
+    private String defaultCleanUpEnabled = "true";
+    private String defaultOperationCleanUpEnabled = "false";
     private static BlockingDeque<SessionContextDO> sessionContextQueue = new LinkedBlockingDeque();
     private static volatile SessionDataStore instance;
     private boolean enablePersist;
@@ -195,7 +196,7 @@ public class SessionDataStore {
         if (Boolean.parseBoolean(isCleanUpEnabledVal)) {
             long sessionCleanupPeriod = IdentityUtil.getCleanUpPeriod(
                     CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
-            SessionCleanUpService sessionCleanUpService = new SessionCleanUpService(sessionCleanupPeriod/4,
+            SessionCleanUpService sessionCleanUpService = new SessionCleanUpService(sessionCleanupPeriod / 4,
                     sessionCleanupPeriod);
             sessionCleanUpService.activateCleanUp();
         } else {
@@ -205,14 +206,14 @@ public class SessionDataStore {
             if (StringUtils.isNotBlank(operationCleanUpPeriodVal)) {
                 operationCleanUpPeriod = Long.parseLong(operationCleanUpPeriodVal);
             }
-            OperationCleanUpService operationCleanUpService = new OperationCleanUpService(operationCleanUpPeriod/4,
+            OperationCleanUpService operationCleanUpService = new OperationCleanUpService(operationCleanUpPeriod / 4,
                     operationCleanUpPeriod);
             operationCleanUpService.activateCleanUp();
         } else {
             log.info("Session Data Operations CleanUp Task of Authentication framework is not enabled.");
         }
     }
-    
+
     public static SessionDataStore getInstance() {
         if (instance == null) {
             synchronized (SessionDataStore.class) {
@@ -265,7 +266,7 @@ public class SessionDataStore {
             preparedStatement.setString(1, key);
             preparedStatement.setString(2, type);
             resultSet = preparedStatement.executeQuery();
-            if(resultSet.next()) {
+            if (resultSet.next()) {
                 String operation = resultSet.getString(1);
                 if ((OPERATION_STORE.equals(operation))) {
                     return new SessionContextDO(key, type, getBlobObject(resultSet.getBinaryStream(2)), new Timestamp
@@ -352,13 +353,21 @@ public class SessionDataStore {
         }
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
+
+        // create a nano time stamp relative to Unix Epoch
+        long currentStandardNano = timestamp.getTime() * 1000000;
+        long currentSystemNano = System.nanoTime();
+
+        currentStandardNano = currentStandardNano + (currentSystemNano - FrameworkServiceDataHolder.getInstance()
+                .getNanoTimeReference());
+
         try {
             preparedStatement = connection.prepareStatement(sqlInsertSTORE);
             preparedStatement.setString(1, key);
             preparedStatement.setString(2, type);
             preparedStatement.setString(3, OPERATION_STORE);
             setBlobObject(preparedStatement, entry, 4);
-            preparedStatement.setLong(5, timestamp.getTime());
+            preparedStatement.setLong(5, currentStandardNano);
             preparedStatement.setInt(6, tenantId);
             preparedStatement.executeUpdate();
             if (!connection.getAutoCommit()) {
