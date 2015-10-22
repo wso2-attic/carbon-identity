@@ -67,6 +67,10 @@ public class ApplicationMgtUIUtil {
      */
     public static void removeApplicationBeanFromSession(HttpSession session, String spName) {
 
+        if(session.getAttribute("spUniqueIdMap") == null) {
+            return;
+        }
+
         Map<String, UUID> spUniqueIdMap = (HashMap<String, UUID>) session.getAttribute("spUniqueIdMap");
 
         if (spUniqueIdMap.get(spName) == null) {
