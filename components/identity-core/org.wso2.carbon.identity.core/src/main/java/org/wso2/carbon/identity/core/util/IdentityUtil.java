@@ -64,7 +64,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketException;
-import java.net.URI;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -76,8 +75,8 @@ import java.util.Map;
 
 public class IdentityUtil {
 
-    public static final ThreadLocal<HashMap<String, Object>> threadLocalProperties = new ThreadLocal<HashMap<String,
-            Object>>() {
+    public static final ThreadLocal<HashMap<String, Object>> threadLocalProperties = new
+            ThreadLocal<HashMap<String, Object>>() {
         @Override
         protected HashMap<String, Object> initialValue() {
             return new HashMap<String, Object>();
@@ -327,7 +326,7 @@ public class IdentityUtil {
             try {
                 serverUri = new URL(serverUri, endpoint);
             } catch (MalformedURLException e) {
-                throw new IdentityRuntimeException("\"Error while appending endpoint to server url.", e);
+                throw new IdentityRuntimeException("Error while appending endpoint to server url.", e);
             }
         }
         return serverUri.toString();
