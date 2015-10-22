@@ -379,9 +379,8 @@ public class SAMLSSOUtil {
                 byte[] xmlMessageBytes = new byte[5000];
                 int resultLength = inflater.inflate(xmlMessageBytes);
 
-                if (inflater.getRemaining() > 0) {
-                    throw new RuntimeException("didn't allocate enough space to hold "
-                            + "decompressed data");
+                if (!inflater.finished() ){
+                    throw new RuntimeException("End of the compressed data stream has NOT been reached");
                 }
 
                 inflater.end();
