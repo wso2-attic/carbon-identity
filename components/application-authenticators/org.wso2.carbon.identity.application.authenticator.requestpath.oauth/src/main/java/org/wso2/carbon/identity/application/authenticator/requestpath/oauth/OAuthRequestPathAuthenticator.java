@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.application.authenticator.requestpath.oauth;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.common.OAuth;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.RequestPathApplicationAuthenticator;
@@ -44,7 +45,6 @@ public class OAuthRequestPathAuthenticator extends AbstractApplicationAuthentica
     private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
     private static final String BEARER_SCHEMA = "Bearer";
     private static final String AUTHENTICATOR_NAME = "OAuthRequestPathAuthenticator";
-    private static final String ACCESS_TOKEN = "access_token";
     private static Log log = LogFactory.getLog(OAuthRequestPathAuthenticator.class);
 
     @Override
@@ -61,7 +61,7 @@ public class OAuthRequestPathAuthenticator extends AbstractApplicationAuthentica
             if (BEARER_SCHEMA.equals(headerPart[0])) {
                 return true;
             }
-        } else if (request.getParameter(ACCESS_TOKEN) != null) {
+        } else if (request.getParameter(OAuth.OAUTH_ACCESS_TOKEN) != null) {
             return true;
         }
 
@@ -79,7 +79,7 @@ public class OAuthRequestPathAuthenticator extends AbstractApplicationAuthentica
         if (headerValue != null) {
             token = headerValue.trim().split(" ")[1];
         } else {
-            token = request.getParameter(ACCESS_TOKEN);
+            token = request.getParameter(OAuth.OAUTH_ACCESS_TOKEN);
         }
 
 
