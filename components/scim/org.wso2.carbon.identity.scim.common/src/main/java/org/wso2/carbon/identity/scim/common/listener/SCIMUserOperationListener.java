@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.scim.common.group.SCIMGroupHandler;
 import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
+import org.wso2.carbon.identity.scim.common.utils.SCIMCommonUtils;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
