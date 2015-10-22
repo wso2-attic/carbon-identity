@@ -322,7 +322,7 @@ public class SessionDataStore {
         }
         try {
             statement = connection.prepareStatement(sqlDeleteExpiredDataTask);
-            statement.setLong(1, timestamp.getTime());
+            statement.setLong(1, timestamp.getTime()*1000000);
             statement.execute();
             if (!connection.getAutoCommit()) {
                 connection.commit();
