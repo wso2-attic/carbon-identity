@@ -62,8 +62,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.URI;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -74,7 +76,8 @@ import java.util.Map;
 
 public class IdentityUtil {
 
-    public static final ThreadLocal<HashMap<String, Object>> threadLocalProperties = new ThreadLocal<HashMap<String, Object>>() {
+    public static final ThreadLocal<HashMap<String, Object>> threadLocalProperties = new ThreadLocal<HashMap<String,
+            Object>>() {
         @Override
         protected HashMap<String, Object> initialValue() {
             return new HashMap<String, Object>();
@@ -293,22 +296,39 @@ public class IdentityUtil {
             serverUrl += ":" + mgtTransportPort;
         }
         // If ProxyContextPath is defined then append it
-        URI serverUri = URI.create(serverUrl);
+        URL serverUri = null;
+        try {
+            serverUri = new URL(serverUrl);
+        } catch (MalformedURLException e) {
+            throw new IdentityRuntimeException("Error while getting server URL.", e);
+        }
         String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
                 .PROXY_CONTEXT_PATH);
         if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()) {
-            serverUri = serverUri.resolve(proxyContextPath);
+            try {
+                serverUri = new URL(serverUri, proxyContextPath);
+            } catch (MalformedURLException e) {
+                throw new IdentityRuntimeException("Error while getting server URL.", e);
+            }
         }
         // If webContextRoot is defined then append it
         if (addWebContextRoot) {
             String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
                     .WEB_CONTEXT_ROOT);
             if (StringUtils.isNotBlank(webContextRoot)) {
-                serverUri = serverUri.resolve(webContextRoot);
+                try {
+                    serverUri = new URL(serverUri, webContextRoot);
+                } catch (MalformedURLException e) {
+                    throw new IdentityRuntimeException("Error while getting server URL.", e);
+                }
             }
         }
         if (StringUtils.isNotBlank(endpoint)) {
-            serverUri = serverUri.resolve(endpoint);
+            try {
+                serverUri = new URL(serverUri, endpoint);
+            } catch (MalformedURLException e) {
+                throw new IdentityRuntimeException("Error while getting server URL.", e);
+            }
         }
         return serverUri.toString();
     }
