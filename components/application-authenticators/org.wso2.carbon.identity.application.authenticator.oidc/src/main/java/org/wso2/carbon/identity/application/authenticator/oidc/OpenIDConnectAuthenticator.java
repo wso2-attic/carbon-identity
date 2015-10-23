@@ -428,8 +428,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                                     .getTenantUserRealm(tenantId);
                             if (userRealm != null) {
                                 userStore = (UserStoreManager) userRealm.getUserStoreManager();
-                                attributeSeparator = userStore
-                                        .getRealmConfiguration()
+                                attributeSeparator = userStore.getRealmConfiguration()
                                         .getUserStoreProperty(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
                                 if (log.isDebugEnabled()) {
                                     log.debug("For the claim mapping: " + attributeSeparator +
