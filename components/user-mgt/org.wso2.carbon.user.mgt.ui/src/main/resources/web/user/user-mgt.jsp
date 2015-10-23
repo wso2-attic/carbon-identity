@@ -564,8 +564,16 @@
                     </td>
                     <td>
                         <%
+                            boolean enableActionsForAdmin = true;
+                            if(userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName))){
+                                if(Util.getUserStoreInfoForUser(userName,userRealmInfo).getCaseSensitiveUsername()){
+                                    enableActionsForAdmin = userRealmInfo.getAdminUser().equals(currentUser);
+                                } else {
+                                    enableActionsForAdmin = userRealmInfo.getAdminUser().equalsIgnoreCase(currentUser);
+                                }
+                            }
                             if (userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName)) &&
-                                    !userRealmInfo.getAdminUser().equals(currentUser)) {
+                                    !enableActionsForAdmin) {
                         %>
                         <a href="#" class="icon-link" title="Operation is Disabled"
                            style="background-image:url(../admin/images/edit.gif);color:#CCC;"><fmt:message
