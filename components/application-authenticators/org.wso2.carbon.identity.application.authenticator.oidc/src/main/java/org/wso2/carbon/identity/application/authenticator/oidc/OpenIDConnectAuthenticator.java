@@ -418,7 +418,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                             throw new AuthenticationFailedException("Cannot find federated User Identifier");
                         }
 
-
                         String attributeSeparator = null;
                         try {
                             String tenantDomain = context.getTenantDomain();
