@@ -418,28 +418,8 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                             throw new AuthenticationFailedException("Cannot find federated User Identifier");
                         }
 
-                        String tenantDomain = MultitenantUtils.getTenantDomain(authenticatedUser);
-                        String domainName = UserCoreUtil.extractDomainFromName(authenticatedUser);
-                        UserStoreManager userStore;
-                        String attributeSeparator = null;
-                        try {
-                            int tenantId = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
-                                    .getTenantManager().getTenantId(tenantDomain);
-                            UserRealm userRealm = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
-                                    .getTenantUserRealm(tenantId);
-                            userStore = (UserStoreManager) userRealm.getUserStoreManager();
-                            attributeSeparator = userStore.getSecondaryUserStoreManager(domainName)
-                                    .getRealmConfiguration()
-                                    .getUserStoreProperty(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
-
-
-                        } catch (UserStoreException e) {
-                            throw new AuthenticationFailedException("Error while retrieving multi attribute " +
-                                    "separator", e);
-                        }
-
                         for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-                            buildClaimMappings(claims, entry, attributeSeparator);
+                            buildClaimMappings(claims, entry, null);
                         }
 
                         AuthenticatedUser authenticatedUserObj = AuthenticatedUser
