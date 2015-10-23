@@ -43,6 +43,8 @@
 <%@ page import="java.util.Map" %>
 <%@page import="java.util.Set"%>
 <%@ page import="org.wso2.carbon.identity.core.util.IdentityUtil" %>
+<%@ page import="java.util.Arrays" %>
+<%@ page import="java.util.Comparator" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"
@@ -4192,26 +4194,6 @@ function doValidation() {
             </td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField"><fmt:message key='authz.endpoint'/>:<span class="required">*</span></td>
-            <td>
-                <input id="authzUrl" name="authzUrl" type="text" value=<%=Encode.forHtmlAttribute(authzUrl)%>>
-
-                <div class="sectionHelp">
-                    <fmt:message key='authz.endpoint.help'/>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="leftCol-med labelField"><fmt:message key='token.endpoint'/>:<span class="required">*</span></td>
-            <td>
-                <input id="tokenUrl" name="tokenUrl" type="text" value=<%=Encode.forHtmlAttribute(tokenUrl)%>>
-
-                <div class="sectionHelp">
-                    <fmt:message key='token.endpoint.help'/>
-                </div>
-            </td>
-        </tr>
-        <tr>
             <td class="leftCol-med labelField"><fmt:message key='client.id'/>:<span class="required">*</span></td>
             <td>
                 <input id="clientId" name="clientId" type="text" value=<%=Encode.forHtmlAttribute(clientId)%>>
@@ -4237,7 +4219,26 @@ function doValidation() {
                 </div>
             </td>
         </tr>
+        <tr>
+            <td class="leftCol-med labelField"><fmt:message key='authz.endpoint'/>:<span class="required">*</span></td>
+            <td>
+                <input id="authzUrl" name="authzUrl" type="text" value=<%=Encode.forHtmlAttribute(authzUrl)%>>
 
+                <div class="sectionHelp">
+                    <fmt:message key='authz.endpoint.help'/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="leftCol-med labelField"><fmt:message key='token.endpoint'/>:<span class="required">*</span></td>
+            <td>
+                <input id="tokenUrl" name="tokenUrl" type="text" value=<%=Encode.forHtmlAttribute(tokenUrl)%>>
+
+                <div class="sectionHelp">
+                    <fmt:message key='token.endpoint.help'/>
+                </div>
+            </td>
+        </tr>
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='callbackurl'/>
             <td>
@@ -4565,6 +4566,19 @@ function doValidation() {
         </tr>
 
         <% Property[] properties = fedConfig.getProperties();
+           Arrays.sort(properties, new Comparator<Property>() {
+               public int compare(Property obj1, Property obj2) {
+                   Property property1 = (Property) obj1;
+                   Property property2 = (Property) obj2;
+                   if (property1.getDisplayOrder() == property2.getDisplayOrder())
+                       return 0;
+                   else if (property1.getDisplayOrder() > property2.getDisplayOrder())
+                       return 1;
+                   else
+                       return -1;
+               }
+           });
+
             if (properties != null && properties.length > 0) {
                 for (Property prop : properties) {
                     if (prop != null && prop.getDisplayName() != null) {

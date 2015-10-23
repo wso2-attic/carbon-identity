@@ -23,9 +23,11 @@ import org.apache.commons.collections.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class FederatedAuthenticatorConfig implements Serializable {
 
@@ -68,7 +70,6 @@ public class FederatedAuthenticatorConfig implements Serializable {
                 }
 
                 if (CollectionUtils.isNotEmpty(propertiesArrList)) {
-                    Collections.sort(propertiesArrList);
                     Property[] propertiesArr = propertiesArrList.toArray(new Property[0]);
                     federatedAuthenticatorConfig.setProperties(propertiesArr);
                 }
@@ -127,7 +128,8 @@ public class FederatedAuthenticatorConfig implements Serializable {
         if (properties == null) {
             return;
         }
-        this.properties = properties;
+        Set<Property> propertySet = new HashSet<Property>(Arrays.asList(properties));
+        this.properties = propertySet.toArray(new Property[propertySet.size()]);
     }
 
     /**

@@ -21,9 +21,10 @@ package org.wso2.carbon.identity.application.common.model;
 import org.apache.axiom.om.OMElement;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Iterator;
 
-public class Property implements Serializable, Comparable {
+public class Property implements Serializable {
 
     private static final long serialVersionUID = 2423059969331364604L;
 
@@ -234,14 +235,16 @@ public class Property implements Serializable, Comparable {
         return result;
     }
 
-    @Override
-    public int compareTo(Object obj) {
-        Property property = (Property) obj;
-        if (displayOrder == property.getDisplayOrder())
+   /* @Override
+    public int compare(Object obj1, Object obj2) {
+        Property property1 = (Property) obj1;
+        Property property2 = (Property) obj2;
+
+        if (property1.getDisplayOrder() == property2.getDisplayOrder())
             return 0;
-        else if (displayOrder > property.getDisplayOrder())
+        else if (property1.getDisplayOrder() > property2.getDisplayOrder())
             return 1;
         else
             return -1;
-    }
+    }*/
 }
