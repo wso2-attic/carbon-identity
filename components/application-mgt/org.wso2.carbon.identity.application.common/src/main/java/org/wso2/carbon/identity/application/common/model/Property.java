@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.application.common.model;
 import org.apache.axiom.om.OMElement;
 
 import java.io.Serializable;
-import java.util.Comparator;
 import java.util.Iterator;
 
 public class Property implements Serializable {
@@ -234,17 +233,4 @@ public class Property implements Serializable {
         result = 31 * result + (value != null ? value.hashCode() : 0);
         return result;
     }
-
-   /* @Override
-    public int compare(Object obj1, Object obj2) {
-        Property property1 = (Property) obj1;
-        Property property2 = (Property) obj2;
-
-        if (property1.getDisplayOrder() == property2.getDisplayOrder())
-            return 0;
-        else if (property1.getDisplayOrder() > property2.getDisplayOrder())
-            return 1;
-        else
-            return -1;
-    }*/
 }

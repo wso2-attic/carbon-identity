@@ -201,7 +201,7 @@ public class FrameworkServiceComponent {
         Property[] configProperties = null;
 
         if (authenticator.getConfigurationProperties() != null
-                && !authenticator.getConfigurationProperties().isEmpty()) {
+            && !authenticator.getConfigurationProperties().isEmpty()) {
             configProperties = authenticator.getConfigurationProperties().toArray(new Property[0]);
         }
 
