@@ -180,6 +180,50 @@ public class SessionDataStore {
             sqlDeleteExpiredDataTask = SQL_DELETE_EXPIRED_DATA_TASK;
         }
 
+        if (StringUtils.isBlank(sqlSelect) || StringUtils.isBlank(sqlDeleteSTORETask)) {
+            Connection connection = null;
+            try {
+                connection = IdentityDatabaseUtil.getDBConnection();
+
+                if (StringUtils.isBlank(sqlSelect)) {
+                    if (connection.getMetaData().getDriverName().contains("MySQL")
+                            || connection.getMetaData().getDriverName().contains("H2")) {
+                        sqlSelect = SQL_DESERIALIZE_OBJECT_MYSQL;
+                    } else if (connection.getMetaData().getDatabaseProductName().contains("DB2")) {
+                        sqlSelect = SQL_DESERIALIZE_OBJECT_DB2SQL;
+                    } else if (connection.getMetaData().getDriverName().contains("MS SQL")
+                            || connection.getMetaData().getDriverName().contains("Microsoft")) {
+                        sqlSelect = SQL_DESERIALIZE_OBJECT_MSSQL;
+                    } else if (connection.getMetaData().getDriverName().contains("PostgreSQL")) {
+                        sqlSelect = SQL_DESERIALIZE_OBJECT_POSTGRESQL;
+                    } else if (connection.getMetaData().getDriverName().contains("Informix")) {
+                        // Driver name = "IBM Informix JDBC Driver for IBM Informix Dynamic Server"
+                        sqlSelect = SQL_DESERIALIZE_OBJECT_INFORMIX;
+                    } else {
+                        sqlSelect = SQL_DESERIALIZE_OBJECT_ORACLE;
+                    }
+                }
+
+                if (StringUtils.isBlank(sqlDeleteSTORETask)) {
+                    if (connection.getMetaData().getDriverName().contains("MySQL")) {
+                        sqlDeleteSTORETask = SQL_DELETE_STORE_OPERATIONS_TASK_MYSQL;
+                    } else {
+                        sqlDeleteSTORETask = SQL_DELETE_STORE_OPERATIONS_TASK;
+                    }
+                }
+            } catch (IdentityRuntimeException | SQLException e) {
+                log.warn("Error while retrieving the database type. Using default");
+                if (StringUtils.isBlank(sqlSelect)) {
+                    sqlSelect = SQL_DESERIALIZE_OBJECT_MYSQL;
+                }
+                if (StringUtils.isBlank(sqlDeleteSTORETask)) {
+                    sqlDeleteSTORETask = SQL_DELETE_STORE_OPERATIONS_TASK;
+                }
+            } finally {
+                IdentityDatabaseUtil.closeConnection(connection);
+            }
+        }
+
         if (!enablePersist) {
             log.info("Session Data Persistence of Authentication framework is not enabled.");
         }
@@ -247,24 +291,6 @@ public class SessionDataStore {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            if (StringUtils.isBlank(sqlSelect)) {
-                if (connection.getMetaData().getDriverName().contains("MySQL")
-                        || connection.getMetaData().getDriverName().contains("H2")) {
-                    sqlSelect = SQL_DESERIALIZE_OBJECT_MYSQL;
-                } else if (connection.getMetaData().getDatabaseProductName().contains("DB2")) {
-                    sqlSelect = SQL_DESERIALIZE_OBJECT_DB2SQL;
-                } else if (connection.getMetaData().getDriverName().contains("MS SQL")
-                        || connection.getMetaData().getDriverName().contains("Microsoft")) {
-                    sqlSelect = SQL_DESERIALIZE_OBJECT_MSSQL;
-                } else if (connection.getMetaData().getDriverName().contains("PostgreSQL")) {
-                    sqlSelect = SQL_DESERIALIZE_OBJECT_POSTGRESQL;
-                } else if (connection.getMetaData().getDriverName().contains("Informix")) {
-                    // Driver name = "IBM Informix JDBC Driver for IBM Informix Dynamic Server"
-                    sqlSelect = SQL_DESERIALIZE_OBJECT_INFORMIX;
-                } else {
-                    sqlSelect = SQL_DESERIALIZE_OBJECT_ORACLE;
-                }
-            }
             preparedStatement = connection.prepareStatement(sqlSelect);
             preparedStatement.setString(1, key);
             preparedStatement.setString(2, type);
@@ -449,13 +475,6 @@ public class SessionDataStore {
             return;
         }
         try {
-            if (StringUtils.isBlank(sqlDeleteSTORETask)) {
-                if (connection.getMetaData().getDriverName().contains("MySQL")) {
-                    sqlDeleteSTORETask = SQL_DELETE_STORE_OPERATIONS_TASK_MYSQL;
-                } else {
-                    sqlDeleteSTORETask = SQL_DELETE_STORE_OPERATIONS_TASK;
-                }
-            }
             statement = connection.prepareStatement(sqlDeleteSTORETask);
             statement.setLong(1, timestamp.getTime());
             statement.execute();
