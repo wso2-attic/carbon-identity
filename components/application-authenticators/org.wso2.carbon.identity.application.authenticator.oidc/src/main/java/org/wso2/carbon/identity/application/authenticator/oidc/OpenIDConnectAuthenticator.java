@@ -418,19 +418,25 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                             throw new AuthenticationFailedException("Cannot find federated User Identifier");
                         }
 
-                        String tenantDomain = MultitenantUtils.getTenantDomain(authenticatedUser);
-                        String domainName = UserCoreUtil.extractDomainFromName(authenticatedUser);
-                        UserStoreManager userStore;
+
                         String attributeSeparator = null;
                         try {
+                            String tenantDomain = context.getTenantDomain();
+                            UserStoreManager userStore;
                             int tenantId = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
                                     .getTenantManager().getTenantId(tenantDomain);
                             UserRealm userRealm = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
                                     .getTenantUserRealm(tenantId);
-                            userStore = (UserStoreManager) userRealm.getUserStoreManager();
-                            attributeSeparator = userStore.getSecondaryUserStoreManager(domainName)
-                                    .getRealmConfiguration()
-                                    .getUserStoreProperty(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+                            if (userRealm != null) {
+                                userStore = (UserStoreManager) userRealm.getUserStoreManager();
+                                attributeSeparator = userStore
+                                        .getRealmConfiguration()
+                                        .getUserStoreProperty(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+                                if (log.isDebugEnabled()) {
+                                    log.debug("For the claim mapping: " + attributeSeparator +
+                                            " is used as the attributeSeparator in tenant: " + tenantDomain);
+                                }
+                            }
 
 
                         } catch (UserStoreException e) {
