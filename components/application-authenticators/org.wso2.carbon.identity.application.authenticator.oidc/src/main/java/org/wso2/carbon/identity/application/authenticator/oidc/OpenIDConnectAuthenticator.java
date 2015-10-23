@@ -423,7 +423,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                         try {
                             String tenantDomain = context.getTenantDomain();
                             if (StringUtils.isBlank(tenantDomain)) {
-                                tenantDomain = (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+                                tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
                             }
                             int tenantId = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
                                     .getTenantManager().getTenantId(tenantDomain);
