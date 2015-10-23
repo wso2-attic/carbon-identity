@@ -138,11 +138,13 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                         + "\",\"" + "AuthenticatedIdPs" + "\" : \"" + sequenceConfig.getAuthenticatedIdPs()
                         + "\"";
 
-                AUDIT_LOG.info(String.format(
-                        FrameworkConstants.AUDIT_MESSAGE,
-                        sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier(),
-                        "Logout",
-                        externalIdPConfig.getIdPName(), auditData, FrameworkConstants.AUDIT_SUCCESS));
+                if (sequenceConfig.getAuthenticatedUser() != null) {
+                    AUDIT_LOG.info(String.format(
+                            FrameworkConstants.AUDIT_MESSAGE,
+                            sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier(),
+                            "Logout",
+                            externalIdPConfig.getIdPName(), auditData, FrameworkConstants.AUDIT_SUCCESS));
+                }
             }
         }
 
