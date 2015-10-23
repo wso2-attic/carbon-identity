@@ -35,6 +35,7 @@ import org.apache.oltu.oauth2.common.utils.JSONUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
@@ -421,13 +422,15 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                         String attributeSeparator = null;
                         try {
                             String tenantDomain = context.getTenantDomain();
-                            UserStoreManager userStore;
+                            if (StringUtils.isBlank(tenantDomain)) {
+                                tenantDomain = (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+                            }
                             int tenantId = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
                                     .getTenantManager().getTenantId(tenantDomain);
                             UserRealm userRealm = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
                                     .getTenantUserRealm(tenantId);
                             if (userRealm != null) {
-                                userStore = (UserStoreManager) userRealm.getUserStoreManager();
+                                UserStoreManager userStore = (UserStoreManager) userRealm.getUserStoreManager();
                                 attributeSeparator = userStore.getRealmConfiguration()
                                         .getUserStoreProperty(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
                                 if (log.isDebugEnabled()) {
