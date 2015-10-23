@@ -642,7 +642,7 @@
                                     && !Util.decodeHTMLCharacters(userName).equals(userRealmInfo.getAdminUser()) &&
                                     users[i].getEditable()) {
                         %>
-                        <a href="#" onclick="deleteUser('<%=Encode.forJavaScriptAttribute(userName)%>')"
+                        <a href="#" onclick="deleteUser('<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(userName))%>')"
                            class="icon-link"
                            style="background-image:url(images/delete.gif);"><fmt:message
                                 key="delete"/></a>

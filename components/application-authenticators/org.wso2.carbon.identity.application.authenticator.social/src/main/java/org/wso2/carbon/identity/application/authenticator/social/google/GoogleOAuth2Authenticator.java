@@ -185,7 +185,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         Property scope = new Property();
         scope.setDisplayName("Additional Query Parameters");
         scope.setName("AdditionalQueryParameters");
-        scope.setValue("");
+        scope.setValue("scope=openid email profile");
         scope.setDescription("Additional query parameters. e.g: paramName1=value1");
         configProperties.add(scope);
 
