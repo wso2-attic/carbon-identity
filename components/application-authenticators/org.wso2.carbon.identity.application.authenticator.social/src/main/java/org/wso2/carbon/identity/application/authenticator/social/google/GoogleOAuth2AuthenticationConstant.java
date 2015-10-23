@@ -26,7 +26,7 @@ public class GoogleOAuth2AuthenticationConstant {
     public static final String GOOGLE_USERINFO_ENDPOINT = "GoogleUserInfoEndpoint";
     public static final String GOOGLE_CONNECTOR_FRIENDLY_NAME = "Google OAuth2/OpenID Connect";
     public static final String GOOGLE_CONNECTOR_NAME = "GoogleOIDCAuthenticator";
-    public static final String QUERY_STRING = "scope=openid%20email%20profile";
+    public static final String GOOGLE_SCOPE = "openid email profile";
     public static final String CALLBACK_URL = "Google-callback-url";
     public static final String ADDITIONAL_QUERY_PARAMS = "AdditionalQueryParameters";
 }
