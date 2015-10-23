@@ -65,9 +65,10 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
                     .PROPERTY_DOMAIN_NAME);
 
             int tenantId = userStoreManager.getTenantId() ;
+            String currentUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
-
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(currentUser);
             return addUserWFRequestHandler.startAddUserFlow(domain, userName, credential, roleList, claims, profile);
         } catch (WorkflowException e) {
             // Sending e.getMessage() since it is required to give error message to end user.
@@ -110,8 +111,10 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             int tenantId = userStoreManager.getTenantId() ;
+            String currentUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(currentUser);
 
             return deleteUserWFRequestHandler.startDeleteUserFlow(domain, userName);
         } catch (WorkflowException e) {
@@ -138,8 +141,10 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
             int tenantId = userStoreManager.getTenantId() ;
+            String currentUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(currentUser);
 
             return setMultipleClaimsWFRequestHandler.startSetMultipleClaimsWorkflow(domain, userName, claims,
                                                                                     profileName);
@@ -164,8 +169,10 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             int tenantId = userStoreManager.getTenantId() ;
+            String currentUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(currentUser);
 
             return setMultipleClaimsWFRequestHandler.startSetMultipleClaimsWorkflow(domain, userName, claims, profileName);
         } catch (WorkflowException e) {
@@ -188,8 +195,10 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
             String domain = userStoreManager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
                                                                                                   .PROPERTY_DOMAIN_NAME);
             int tenantId = userStoreManager.getTenantId() ;
+            String currentUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(currentUser);
 
             return deleteMultipleClaimsWFRequestHandler.startDeleteMultipleClaimsWorkflow(domain, userName, claims,
                     profileName);
@@ -217,8 +226,10 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
             int tenantId = userStoreManager.getTenantId() ;
+            String currentUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(currentUser);
 
             return deleteMultipleClaimsWFRequestHandler.startDeleteMultipleClaimsWorkflow(domain, userName, claims,
                                                                                           profileName);
@@ -243,8 +254,10 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
             int tenantId = userStoreManager.getTenantId() ;
+            String currentUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(currentUser);
 
             return addRoleWFRequestHandler.startAddRoleFlow(domain, roleName, userList, permissions);
         } catch (WorkflowException e) {
@@ -267,8 +280,10 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
             int tenantId = userStoreManager.getTenantId() ;
+            String currentUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(currentUser);
 
             return deleteRoleWFRequestHandler.startDeleteRoleFlow(domain, roleName);
         } catch (WorkflowException e) {
@@ -291,8 +306,10 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
             int tenantId = userStoreManager.getTenantId() ;
+            String currentUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(currentUser);
 
             return updateRoleNameWFRequestHandler.startUpdateRoleNameFlow(domain, roleName, newRoleName);
         } catch (WorkflowException e) {
@@ -315,8 +332,10 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
             int tenantId = userStoreManager.getTenantId() ;
+            String currentUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(currentUser);
 
             return updateRoleUsersWFRequestHandler.startUpdateRoleUsersFlow(domain, roleName, deletedUsers, newUsers);
         } catch (WorkflowException e) {
@@ -339,8 +358,10 @@ public class UserStoreActionListener extends AbstractIdentityUserOperationEventL
                                                                                                   .PROPERTY_DOMAIN_NAME);
 
             int tenantId = userStoreManager.getTenantId() ;
+            String currentUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(currentUser);
 
             return updateUserRolesWFRequestHandler.startUpdateUserRolesFlow(domain, userName, deletedRoles, newRoles);
         } catch (WorkflowException e) {
