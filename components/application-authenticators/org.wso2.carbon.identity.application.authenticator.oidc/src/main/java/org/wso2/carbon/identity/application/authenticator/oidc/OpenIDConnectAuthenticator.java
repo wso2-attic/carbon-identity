@@ -32,6 +32,7 @@ import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.common.utils.JSONUtils;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
@@ -39,10 +40,14 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.A
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.application.authenticator.oidc.internal.OpenIDConnectAuthenticatorServiceComponent;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.user.api.UserRealm;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -421,8 +426,38 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                     }
                 }
 
+                String attributeSeparator = null;
+
+                try {
+
+                    String tenantDomain = context.getTenantDomain();
+
+                    if (StringUtils.isBlank(tenantDomain)) {
+                        tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+                    }
+
+                    int tenantId = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
+                            .getTenantManager().getTenantId(tenantDomain);
+                    UserRealm userRealm = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
+                            .getTenantUserRealm(tenantId);
+
+                    if (userRealm != null) {
+                        UserStoreManager userStore = (UserStoreManager) userRealm.getUserStoreManager();
+                        attributeSeparator = userStore.getRealmConfiguration()
+                                .getUserStoreProperty(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+                        if (log.isDebugEnabled()) {
+                            log.debug("For the claim mapping: " + attributeSeparator +
+                                    " is used as the attributeSeparator in tenant: " + tenantDomain);
+                        }
+                    }
+
+                } catch (UserStoreException e) {
+                    throw new AuthenticationFailedException("Error while retrieving multi attribute " +
+                            "separator", e);
+                }
+
                 for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-                    buildClaimMappings(claims, entry, null);
+                    buildClaimMappings(claims, entry, attributeSeparator);
                 }
 
                 authenticatedUserObj = AuthenticatedUser
