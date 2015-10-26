@@ -707,8 +707,8 @@ var roleMappinRowID = -1;
         </h2>
         <div id="workArea">
             <form id="configure-sp-form" method="post" name="configure-sp-form" method="post" action="configure-service-provider-finish.jsp" >
-            <input type="hidden" name="oldSPName" value="<%=Encode.forHtmlAttribute(spName)%>"	/>
-            <input type="hidden" id="isNeedToUpdate" value="<%=isNeedToUpdate%>">
+            <input type="hidden" name="oldSPName" value="<%=Encode.forHtmlAttribute(spName)%>"/>
+            <input type="hidden" id="isNeedToUpdate" value="<%=isNeedToUpdate%>"/>
             <div class="sectionSeperator togglebleTitle"><fmt:message key='title.config.app.basic.config'/></div>
             <div class="sectionSub">
                 <table class="carbonFormTable">
