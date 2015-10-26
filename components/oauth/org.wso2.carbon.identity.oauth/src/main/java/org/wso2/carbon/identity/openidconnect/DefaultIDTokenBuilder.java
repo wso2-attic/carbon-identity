@@ -248,15 +248,12 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
     protected String signJWTWithRSA(JWTClaimsSet jwtClaimsSet, OAuthTokenReqMessageContext request)
             throws IdentityOAuth2Exception {
         try {
-            String tenantDomain = request.getOauth2AccessTokenReqDTO().getTenantDomain();
-            int tenantId = request.getTenantID();
-            if (tenantDomain == null) {
-                tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-            }
-            if (tenantId == 0) {
-                tenantId = OAuth2Util.getTenantId(tenantDomain);
-            }
-            Key privateKey = null;
+
+            String tenantDomain = request.getAuthorizedUser().getTenantDomain();
+
+            int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+
+            Key privateKey;
 
             if (!(privateKeys.containsKey(tenantId))) {
                 // get tenant's key store manager

@@ -26,6 +26,7 @@ import org.wso2.carbon.identity.application.authentication.framework.AbstractApp
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.LocalApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.InvalidCredentialsException;
@@ -75,6 +76,7 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
                                              user.getUserStoreDomain(), AuthenticateResponse.fromJson(tokenResponse));
             fidoUser.setAppID(appID);
             u2FService.finishAuthentication(fidoUser);
+            context.setSubject(user);
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("FIDO authentication filed : " + tokenResponse);
@@ -159,20 +161,19 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
 
     private AuthenticatedUser getUsername(AuthenticationContext context) {
         //username from authentication context.
-        String username = "";
         AuthenticatedUser authenticatedUser = null;
         for (int i = 1; i <= context.getSequenceConfig().getStepMap().size(); i++) {
-            if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
-                    context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
-                            .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
-                authenticatedUser = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser();
+            StepConfig stepConfig = context.getSequenceConfig().getStepMap().get(i);
+            if (stepConfig.getAuthenticatedUser() != null && stepConfig.getAuthenticatedAutenticator()
+                    .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
+                authenticatedUser = stepConfig.getAuthenticatedUser();
                 if (authenticatedUser.getUserStoreDomain() == null) {
                     authenticatedUser.setUserStoreDomain(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME);
                 }
 
 
                 if (log.isDebugEnabled()) {
-                    log.debug("username :" + username);
+                    log.debug("username :" + authenticatedUser.toString());
                 }
                 break;
             }
