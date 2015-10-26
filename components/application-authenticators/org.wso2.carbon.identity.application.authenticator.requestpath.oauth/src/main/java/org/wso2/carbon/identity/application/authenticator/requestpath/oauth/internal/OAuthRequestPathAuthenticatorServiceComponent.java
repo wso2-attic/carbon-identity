@@ -51,23 +51,23 @@ public class OAuthRequestPathAuthenticatorServiceComponent {
             OAuthRequestPathAuthenticator auth = new OAuthRequestPathAuthenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), auth, null);
             if (log.isDebugEnabled()) {
-                log.info("OAuthRequestPathAuthenticator bundle is activated");
+                log.debug("OAuthRequestPathAuthenticator bundle is activated");
             }
         } catch (Throwable e) {
-            if (log.isDebugEnabled()) {
-                log.error("OAuthRequestPathAuthenticator bundle activation failed");
-            }
+            log.error("OAuthRequestPathAuthenticator bundle activation failed", e);
         }
     }
 
     protected void deactivate(ComponentContext context) {
         if (log.isDebugEnabled()) {
-            log.info("OAuthRequestPathAuthenticator bundle is deactivated");
+            log.debug("OAuthRequestPathAuthenticator bundle is deactivated");
         }
     }
 
     protected void unsetRealmService(RealmService realmService) {
-        log.debug("UnSetting the Realm Service");
+        if(log.isDebugEnabled()) {
+            log.debug("UnSetting the Realm Service");
+        }
         OAuthRequestPathAuthenticatorServiceComponent.realmService = null;
     }
 
