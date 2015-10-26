@@ -70,17 +70,17 @@ import java.util.Map;
 public class UserInformationRecoveryService {
 
     Log log = LogFactory.getLog(UserInformationRecoveryService.class);
-    private static final String EXISTING_USER = "UserAlreadyExisting";
+    private static final String EXISTING_USER = "Username already exists in the system";
     private static final String INVALID_CLAIM_URL = "InvalidClaimUrl";
-    private static final String INVALID_USER_NAME = "InvalidUserName";
+    private static final String INVALID_USER_NAME = "User name must be a non null string";
     private static final String EXISTING_ROLE = "RoleExisting";
-    private static final String READ_ONLY_STORE = "ReadOnlyUserStoreManager";
+    private static final String READ_ONLY_STORE = "User store is read only";
     private static final String READ_ONLY_PRIMARY_STORE = "ReadOnlyPrimaryUserStoreManager";
     private static final String INVALID_ROLE = "InvalidRole";
     private static final String ANONYMOUS_USER = "AnonymousUser";
     private static final String INVALID_OPERATION = "InvalidOperation";
     private static final String NO_READ_WRITE_PERMISSIONS = "NoReadWritePermission";
-    private static final String PASSWORD_INVALID = "PasswordInvalid";
+    private static final String PASSWORD_INVALID = "Credential must be a non null string";
     private static final String SHARED_USER_ROLES = "SharedUserRoles";
     private static final String REMOVE_ADMIN_USER = "RemoveAdminUser";
     private static final String LOGGED_IN_USER = "LoggedInUser";
