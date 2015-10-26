@@ -97,7 +97,7 @@
     boolean includeNameIdPolicy = true;
     boolean includeProtocolBinding = true;
     boolean includeCert = true;
-    
+
     String requestMethod = "redirect";
     boolean isSLOEnabled = false;
     boolean isLogoutRequestSigned = false;
@@ -129,6 +129,12 @@
     String fbOauth2TokenEndpoint = null;
     String fbUserInfoEndpoint = null;
 
+    // To check for existence of authenticator bundles
+    boolean isOpenidAuthenticatorActive = false;
+    boolean isSamlssoAuthenticatorActive = false;
+    boolean isOpenidconnectAuthenticatorActive = false;
+    boolean isPassivestsAuthenticatorActive = false;
+    boolean isFacebookAuthenticatorActive = false;
 
     // Claims
     String[] claimUris = new String[0];
@@ -259,6 +265,7 @@
                     fedAuthnConfig.setProperties(new Property[0]);
                 }
                 if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.OpenID.NAME)) {
+                    isOpenidAuthenticatorActive = true;
                     allFedAuthConfigs.remove(fedAuthnConfig.getName());
                     isOpenIdEnabled = fedAuthnConfig.getEnabled();
 
@@ -279,6 +286,7 @@
                         isOpenIdUserIdInClaims = Boolean.parseBoolean(isOpenIdUserIdInClaimsProp.getValue());
                     }
                 } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.Facebook.NAME)) {
+                    isFacebookAuthenticatorActive = true;
                     allFedAuthConfigs.remove(fedAuthnConfig.getName());
                     isFBAuthEnabled = fedAuthnConfig.getEnabled();
                     Property fbClientIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
@@ -321,6 +329,7 @@
                         fbUserInfoEndpoint = fbUserInfoEndpointProp.getValue();
                     }
                 } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME)) {
+                    isPassivestsAuthenticatorActive = true;
                     allFedAuthConfigs.remove(fedAuthnConfig.getName());
                     isPassiveSTSEnabled = fedAuthnConfig.getEnabled();
                     Property passiveSTSRealmProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
@@ -345,6 +354,7 @@
                     }
 
                 } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.OIDC.NAME)) {
+                    isOpenidconnectAuthenticatorActive = true;
                     allFedAuthConfigs.remove(fedAuthnConfig.getName());
                     isOIDCEnabled = fedAuthnConfig.getEnabled();
                     Property authzUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
@@ -386,6 +396,7 @@
                     }
 
                 } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME)) {
+                    isSamlssoAuthenticatorActive = true;
                     allFedAuthConfigs.remove(fedAuthnConfig.getName());
                     isSAML2SSOEnabled = fedAuthnConfig.getEnabled();
                     Property idPEntityIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
@@ -940,7 +951,7 @@
     if(!isAuthnRequestSigned){
         signAlgoDropdownDisabled = "disabled=\'disabled\'";
     }
-    
+
 	String digestAlgoDropdownDisabled="";
     if(!isAuthnRequestSigned){
         digestAlgoDropdownDisabled = "disabled=\'disabled\'";
@@ -1712,12 +1723,12 @@ jQuery(document).ready(function () {
     });
 
     claimURIDropdownPopulator();
-    
+
     var $signature_algorithem_dropdown = jQuery('#signature_algorithem_dropdown');
     var $digest_algorithem_dropdown = jQuery('#digest_algorithem_dropdown');
     var $authentication_context_class_dropdown =  jQuery('#authentication_context_class_dropdown');
     var $auth_context_comparison_level_dropdown = jQuery('#auth_context_comparison_level_dropdown');
-    
+
     jQuery('#authnRequestSigned').click(function(){
         if(jQuery(this).is(":checked") || jQuery("#logoutRequestSigned").is(":checked")){
             jQuery('#signature_algorithem_dropdown').removeAttr('disabled');
@@ -1727,7 +1738,7 @@ jQuery(document).ready(function () {
             jQuery('#digest_algorithem_dropdown').attr('disabled',true);
         }
     });
-    
+
     jQuery('#logoutRequestSigned').click(function(){
         if(jQuery(this).is(":checked") || jQuery("#authnRequestSigned").is(":checked")){
             jQuery('#signature_algorithem_dropdown').removeAttr('disabled');
@@ -1737,17 +1748,17 @@ jQuery(document).ready(function () {
             jQuery('#digest_algorithem_dropdown').attr('disabled',true);
         }
     });
-    
+
     jQuery('#includeAuthnCtxNo').click(function(){
 		jQuery('#authentication_context_class_dropdown').attr('disabled',true);
         jQuery('#auth_context_comparison_level_dropdown').attr('disabled',true);
     });
-    
+
     jQuery('#includeAuthnCtxYes').click(function(){
    		jQuery('#authentication_context_class_dropdown').removeAttr('disabled');
         jQuery('#auth_context_comparison_level_dropdown').removeAttr('disabled');
     });
-    
+
     jQuery('#includeAuthnCtxReq').click(function(){
     	jQuery('#authentication_context_class_dropdown').attr('disabled',true);
         jQuery('#auth_context_comparison_level_dropdown').attr('disabled',true);
@@ -3140,7 +3151,8 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='idp.display.name'/>:</td>
             <td>
-                <input id="idpDisplayName" name="idpDisplayName" type="text" value="<%=Encode.forHtmlAttribute(idpDisplayName)%>" autofocus/>
+                <input id="idpDisplayName" name="idpDisplayName" type="text"
+                       value="<%=Encode.forHtmlAttribute(idpDisplayName)%>" autofocus/>
 
                 <div class="sectionHelp">
                     <fmt:message key='idp.display.name.help'/>
@@ -3151,7 +3163,8 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='description'/></td>
             <td>
-                <input id="idPDescription" name="idPDescription" type="text" value="<%=Encode.forHtmlAttribute(description)%>" autofocus/>
+                <input id="idPDescription" name="idPDescription" type="text"
+                       value="<%=Encode.forHtmlAttribute(description)%>" autofocus/>
 
                 <div class="sectionHelp">
                     <fmt:message key='description.help'/>
@@ -3627,6 +3640,7 @@ function doValidation() {
 
 <div class="toggle_container sectionSub" style="margin-bottom:10px;" id="outBoundAuth">
 
+<% if (isOpenidAuthenticatorActive) { %>
 <h2 id="openid_head" class="sectionSeperator trigger active" style="background-color: beige;">
     <a href="#"><fmt:message key="openid.config"/></a>
 
@@ -3708,6 +3722,9 @@ function doValidation() {
         </tr>
     </table>
 </div>
+<% } %>
+
+<% if (isSamlssoAuthenticatorActive) { %>
 
 <h2 id="saml2_sso_head" class="sectionSeperator trigger active" style="background-color: beige;">
     <a href="#"><fmt:message key="saml2.web.sso.config"/></a>
@@ -3873,13 +3890,13 @@ function doValidation() {
                 </div>
             </td>
         </tr>
-        
+
         <!-- Signature Algorithm -->
-                    
+
 	      <tr>
 	          <td class="leftCol-med labelField"><fmt:message key='signature.algorithm'/>:</td>
 	          <td>
-	
+
 	              <select id="signature_algorithem_dropdown" name="SignatureAlgorithm" <%=signAlgoDropdownDisabled%>>
 	                  <%
 	                  for(String algorithm : signatureAlgorithms){
@@ -3900,13 +3917,13 @@ function doValidation() {
 	              </div>
 	          </td>
 	      </tr>
-	      
+
 	      <!-- Digest Algorithm -->
-	      
+
 	      <tr>
 	          <td class="leftCol-med labelField"><fmt:message key='digest.algorithm'/>:</td>
 	          <td>
-	
+
 	              <select id="digest_algorithem_dropdown" name="DigestAlgorithm" <%=digestAlgoDropdownDisabled%>>
 	                  <%
 	                  for(String algorithm : digestAlgorithms){
@@ -3927,9 +3944,9 @@ function doValidation() {
 	              </div>
 	          </td>
 	      </tr>
-	      
+
 	      <!-- Attribute Consuming Service Index -->
-	      
+
 	      <tr>
 	          <td class="leftCol-med labelField"><fmt:message key='attr.consuming.service.index'/>:</td>
 	          <td>
@@ -3941,16 +3958,16 @@ function doValidation() {
 	              </div>
 	          </td>
 	      </tr>
-	      
+
 	      <!-- Force Authentication -->
-	      
+
 	      <tr>
 	          <td class="leftCol-med labelField">
 	              <label for="forceAuthentication"><fmt:message key='enable.force.authentication'/></label>
 	          </td>
 	          <td>
 	              <div class="sectionCheckbox">
-	
+
 	                  <label><input type="radio" value="yes" <%
 	              if(forceAuthentication !=null && forceAuthentication.equals("yes")){%>checked="checked"<%
 	                      }%> name="ForceAuthentication"  /> Yes </label>
@@ -3959,16 +3976,16 @@ function doValidation() {
 	                          ="checked"<%}%> name="ForceAuthentication" />No </label>
 	                  <label><input type="radio" value="as_request" <%
 	              if(forceAuthentication!=null&&forceAuthentication.equals("as_request")){%>checked="checked"<%}%> name="ForceAuthentication" />As Per Request</label>
-	
+
 	              </div>
 	              <div class="sectionHelp" style="margin-top: 5px" >
 	                  <fmt:message key='enable.force.authentication.help'/>
 	              </div>
 	          </td>
 	      </tr>
-	      
+
 	      <!-- Include Public Cert -->
-	      
+
 	      <tr>
 	          <td class="leftCol-med labelField">
 	              <label for="includeCert"><fmt:message key='include.cert'/></label>
@@ -3982,9 +3999,9 @@ function doValidation() {
 	              </div>
 	          </td>
 	      </tr>
-	      
+
 	      <!-- Include Protocol Binding -->
-	      
+
 	      <tr>
 	          <td class="leftCol-med labelField">
 	              <label for="includeProtocolBinding"><fmt:message key='include.protocol.binding'/></label>
@@ -3998,9 +4015,9 @@ function doValidation() {
 	              </div>
 	          </td>
 	      </tr>
-	      
+
 	      <!-- Include NameID Policy -->
-	
+
 	      <tr>
 	          <td class="leftCol-med labelField">
 	              <label for="includeNameIDPolicy"><fmt:message key='include.name.id.policy'/></label>
@@ -4014,7 +4031,7 @@ function doValidation() {
 	              </div>
 	          </td>
 	      </tr>
-	      
+
 	      <!-- Include Authentication Context -->
 	      <tr>
 	          <td class="leftCol-med labelField">
@@ -4037,13 +4054,13 @@ function doValidation() {
 	              </div>
 	          </td>
 	      </tr>
-	      
+
 	      <!-- Authentication Context Class -->
-	
+
 	<tr>
 	                   <td class="leftCol-med labelField"><fmt:message key='authentication.context.class'/>:</td>
 	          <td>
-	
+
 	              <select id="authentication_context_class_dropdown" name="AuthnContextClassRef" <%=authnContextClassRefDropdownDisabled%>>
 	                  <%
 	                  for(String authnContextClass : authenticationContextClasses){
@@ -4059,19 +4076,19 @@ function doValidation() {
 	                  }
 	                  %>
 	              </select>
-	
+
 	              <div class="sectionHelp" style="margin-top: 5px">
 	                  <fmt:message key='authentication.context.class.help'/>
 	              </div>
 	          </td>
 	      </tr>
-	      
+
 	      <!-- Authenticatin Context Comparison Level -->
-	
+
 	<tr>
 	                  <td class="leftCol-med labelField"><fmt:message key='authentication.context.comparison'/>:</td>
 	          <td>
-	
+
 	              <select id="auth_context_comparison_level_dropdown" name="AuthnContextComparisonLevel" <%=authnContextComparisonDropdownDisabled%>>
 	                  <%
 	                  for(String authnContextComparisonLevel : authenticationContextComparisonLevels){
@@ -4092,7 +4109,7 @@ function doValidation() {
 	              </div>
 	          </td>
 	      </tr>
-        
+
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='saml2.sso.user.id.location'/>:</td>
             <td>
@@ -4153,6 +4170,9 @@ function doValidation() {
         </tr>
     </table>
 </div>
+<% } %>
+
+<% if (isOpenidconnectAuthenticatorActive) { %>
 
 <h2 id="oauth2_head" class="sectionSeperator trigger active" style="background-color: beige;">
     <a href="#"><fmt:message key="oidc.config"/></a>
@@ -4281,6 +4301,10 @@ function doValidation() {
     </table>
 </div>
 
+<% } %>
+
+<% if (isPassivestsAuthenticatorActive) { %>
+
 <h2 id="passive_sts_head" class="sectionSeperator trigger active" style="background-color: beige;">
     <a href="#"><fmt:message key="passive.sts.config"/></a>
 
@@ -4373,6 +4397,11 @@ function doValidation() {
         </tr>
     </table>
 </div>
+
+<% } %>
+
+
+<% if (isFacebookAuthenticatorActive) { %>
 
 <h2 id="fb_auth_head" class="sectionSeperator trigger active" style="background-color: beige;">
     <a href="#"><fmt:message key="fbauth.config"/></a>
@@ -4479,6 +4508,8 @@ function doValidation() {
         </tr>
     </table>
 </div>
+
+<% } %>
 
 <%
 
