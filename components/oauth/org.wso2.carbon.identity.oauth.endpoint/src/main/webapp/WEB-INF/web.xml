@@ -22,6 +22,17 @@
 
     <display-name>OAuth2 Endpoints</display-name>
 
+    <filter>
+        <filter-name>CRLFPreventionFilter</filter-name>
+        <filter-class>org.wso2.carbon.ui.filters.CRLFPreventionFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>CRLFPreventionFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+
     <servlet>
         <servlet-name>OAuth2Endpoints</servlet-name>
         <servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
