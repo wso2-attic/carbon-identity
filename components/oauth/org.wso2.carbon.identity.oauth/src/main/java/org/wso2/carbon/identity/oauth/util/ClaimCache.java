@@ -31,7 +31,6 @@ public class ClaimCache extends BaseCache<String, CacheEntry> {
     private static final String CLAIM_CACHE_NAME = "ClaimCache";
 
     private static ClaimCache instance;
-    private boolean enableRequestScopeCache = false;
 
     private ClaimCache(String cacheName) {
         super(cacheName);
@@ -39,9 +38,6 @@ public class ClaimCache extends BaseCache<String, CacheEntry> {
 
     private ClaimCache(String cacheName, int timeout) {
         super(cacheName, timeout);
-        if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
-            enableRequestScopeCache = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
-        }
     }
 
     public static ClaimCache getInstance(int timeout) {
@@ -58,9 +54,7 @@ public class ClaimCache extends BaseCache<String, CacheEntry> {
 
     public void addToCache(CacheKey key, CacheEntry entry) {
         super.addToCache(key.toString(), entry);
-        if (enableRequestScopeCache) {
-            SessionDataStore.getInstance().storeSessionData(key.toString(), CLAIM_CACHE_NAME, entry);
-        }
+
     }
 
     public CacheEntry getValueFromCache(CacheKey key) {
@@ -69,8 +63,5 @@ public class ClaimCache extends BaseCache<String, CacheEntry> {
 
     public void clearCacheEntry(CacheKey key) {
         super.clearCacheEntry(key.toString());
-        if (enableRequestScopeCache) {
-            SessionDataStore.getInstance().clearSessionData(key.toString(), CLAIM_CACHE_NAME);
-        }
     }
 }
