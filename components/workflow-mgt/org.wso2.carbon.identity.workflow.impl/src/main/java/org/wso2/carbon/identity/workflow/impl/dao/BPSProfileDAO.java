@@ -38,8 +38,6 @@ import java.util.Map;
 
 public class BPSProfileDAO {
 
-    CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-
     /**
      *
      *
@@ -291,11 +289,13 @@ public class BPSProfileDAO {
 
     private String encryptPassword(String passwordValue) throws CryptoException {
 
+        CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
         return cryptoUtil.encryptAndBase64Encode(passwordValue.getBytes(Charset.forName("UTF-8")));
     }
 
     private String decryptPassword(String passwordValue) throws UnsupportedEncodingException, CryptoException {
 
+        CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
         byte[] decryptedPasswordBytes = cryptoUtil.base64DecodeAndDecrypt(passwordValue);
         return new String(decryptedPasswordBytes, "UTF-8");
 
