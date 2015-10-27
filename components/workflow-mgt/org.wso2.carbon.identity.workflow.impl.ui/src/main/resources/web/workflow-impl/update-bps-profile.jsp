@@ -87,13 +87,49 @@
                 passwordField.value="" ;
             }
         }
+
+        function doSubmit(){
+
+
+
+            var param  = document.getElementById('id-<%=WorkflowUIConstants.PARAM_BPS_MANAGER_HOST%>');
+            if(param.value.length == 0){
+                CARBON.showErrorDialog('<fmt:message key="workflow.error.profile.manager.host.empty"/>', null, null);
+                return false;
+            }
+
+            param  = document.getElementById('id-<%=WorkflowUIConstants.PARAM_BPS_WORKER_HOST%>');
+            if(param.value.length == 0){
+                CARBON.showErrorDialog('<fmt:message key="workflow.error.profile.worker.host.empty"/>', null, null);
+                return false;
+            }
+
+            param  = document.getElementById('id-<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>');
+            if(param.value.length == 0){
+                CARBON.showErrorDialog('<fmt:message key="workflow.error.profile.manager.user.empty"/>', null, null);
+                return false;
+            }
+
+            param  = document.getElementById('id-<%=WorkflowUIConstants.PARAM_CARBON_AUTH_USER%>');
+            if(param.value.length == 0){
+                CARBON.showErrorDialog('<fmt:message key="workflow.error.profile.callback.user.empty"/>', null, null);
+                return false;
+            }
+
+
+            var formObj  = document.getElementById('id-bps-profile');
+            formObj.submit();
+
+        }
+
+
     </script>
 
     <div id="middle">
         <h2><fmt:message key='workflow.bps.profile.add'/></h2>
 
         <div id="workArea">
-            <form method="post" name="serviceAdd" action="update-bps-profile-finish.jsp">
+            <form id="id-bps-profile" method="post" name="serviceAdd" action="update-bps-profile-finish.jsp">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
                        value="<%=WorkflowUIConstants.ACTION_VALUE_UPDATE%>">
                 <table class="styledLeft noBorders">
@@ -118,15 +154,15 @@
                     <tbody>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.manager.host'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_MANAGER_HOST%>" value="<%=bpsProfile.getManagerHostURL()%>"/></td>
+                        <td><input id='id-<%=WorkflowUIConstants.PARAM_BPS_MANAGER_HOST%>' type="text" name="<%=WorkflowUIConstants.PARAM_BPS_MANAGER_HOST%>" value="<%=bpsProfile.getManagerHostURL()%>"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.worker.host'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_WORKER_HOST%>" value="<%=bpsProfile.getWorkerHostURL()%>"/></td>
+                        <td><input id='id-<%=WorkflowUIConstants.PARAM_BPS_WORKER_HOST%>' type="text" name="<%=WorkflowUIConstants.PARAM_BPS_WORKER_HOST%>" value="<%=bpsProfile.getWorkerHostURL()%>"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.auth.user'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>" value="<%=bpsProfile.getUsername()%>"/></td>
+                        <td><input id='id-<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>' type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>" value="<%=bpsProfile.getUsername()%>"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.auth.password'/></td>
@@ -146,7 +182,7 @@
                     <tbody>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.callback.auth.user'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_USER%>" value="<%=bpsProfile.getCallbackUser()%>"/></td>
+                        <td><input id='id-<%=WorkflowUIConstants.PARAM_CARBON_AUTH_USER%>' type="text" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_USER%>" value="<%=bpsProfile.getCallbackUser()%>"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.callback.auth.password'/></td>
@@ -160,7 +196,7 @@
                 <table style="margin-top: 10px">
                     <tr>
                         <td class="buttonRow">
-                            <input class="button" value="<fmt:message key="update"/>" type="submit"/>
+                            <input class="button" value="<fmt:message key="update"/>" type="button" onclick="doSubmit();"/>
                             <input class="button" value="<fmt:message key="cancel"/>" type="button"
                                    onclick="doCancel();"/>
                         </td>
