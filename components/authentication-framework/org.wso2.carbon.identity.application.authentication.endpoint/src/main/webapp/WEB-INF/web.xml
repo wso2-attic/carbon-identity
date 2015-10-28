@@ -216,4 +216,11 @@
         <exception-type>java.lang.Throwable</exception-type>
         <location>/generic-exception-response.jsp</location>
     </error-page>
+
+    <session-config>
+        <cookie-config>
+            <secure>true</secure>
+        </cookie-config>
+    </session-config>
+
 </web-app>
