@@ -274,6 +274,7 @@
 
         function doPaginate(page, pageNumberParameterName, pageNumber) {
             var form = document.createElement("form");
+            form.id = "paginateForm";
             form.setAttribute("method", "POST");
             form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
             var selectedRolesStr = "";
@@ -305,11 +306,12 @@
             unselectedRolesElem.setAttribute("value", unselectedRolesStr);
             form.appendChild(unselectedRolesElem);
             document.body.appendChild(form);
-            form.submit();
+            $("#paginateForm").submit();
         }
 
         function doSelectAllRetrieved() {
             var form = document.createElement("form");
+            form.id = "selectAllRetrievedForm";
             form.setAttribute("method", "POST");
             form.setAttribute("action", "view-users.jsp?pageNumber=" + <%=pageNumber%> +"&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
             var selectedRolesElem = document.createElement("input");
@@ -318,12 +320,13 @@
             selectedRolesElem.setAttribute("value", "ALL");
             form.appendChild(selectedRolesElem);
             document.body.appendChild(form);
-            form.submit();
+            $("#selectAllRetrievedForm").submit();
 
         }
 
         function doUnSelectAllRetrieved() {
             var form = document.createElement("form");
+            form.id = "unSelectAllRetrievedForm";
             form.setAttribute("method", "POST");
             form.setAttribute("action", "view-users.jsp?pageNumber=" + <%=pageNumber%> +"&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
             var unselectedRolesElem = document.createElement("input");
@@ -332,7 +335,7 @@
             unselectedRolesElem.setAttribute("value", "ALL");
             form.appendChild(unselectedRolesElem);
             document.body.appendChild(form);
-            form.submit();
+            $("#unSelectAllRetrievedForm").submit();
         }
 
         $(document).ready(function () {
