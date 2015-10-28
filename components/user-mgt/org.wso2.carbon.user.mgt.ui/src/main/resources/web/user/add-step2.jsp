@@ -54,6 +54,7 @@
     boolean showFilterMessage = false;
     boolean newFilter = false;
     boolean doUserList = true;
+    String currentUser = (String) session.getAttribute("logged-user");
     List<FlaggedName> dataList = null;
     FlaggedName exceededDomains = null;
     FlaggedName[] roles = null;
@@ -321,7 +322,9 @@
                                                         String doCheck = "";
                                                         String doEdit = "";
                                                         if (name.getItemName()
-                                                                .equals(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME)) {
+                                                                .equals(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME) ||
+                                                                (!currentUser.equals(userRealmInfo.getAdminUser()) && name
+                                                                        .getItemName().equals(userRealmInfo.getAdminRole()))) {
                                                             continue;
                                                         } else if (userRealmInfo.getEveryOneRole()
                                                                                 .equals(name.getItemName())) {
