@@ -126,7 +126,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                     log.error("Exception while getting IdP by name", e);
                 }
             }
-            if (sequenceConfig != null) {
+            if (sequenceConfig != null && sequenceConfig.getAuthenticatedUser() != null) {
                 String auditData = "\"" + "ContextIdentifier" + "\" : \"" + context.getContextIdentifier()
                         + "\",\"" + "LoggedOutUser" + "\" : \"" + sequenceConfig.getAuthenticatedUser().
                         getAuthenticatedSubjectIdentifier()
@@ -138,7 +138,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                         + "\",\"" + "AuthenticatedIdPs" + "\" : \"" + sequenceConfig.getAuthenticatedIdPs()
                         + "\"";
 
-                if (sequenceConfig.getAuthenticatedUser() != null) {
+                if (externalIdPConfig != null) {
                     AUDIT_LOG.info(String.format(
                             FrameworkConstants.AUDIT_MESSAGE,
                             sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier(),
