@@ -201,8 +201,8 @@ public class IdPManagementConstants {
 
         public static final String GET_SIMILAR_IDP_ENTITIY_IDS =
                 "SELECT COUNT(prop.ID) FROM IDP_AUTHENTICATOR_PROPERTY prop INNER JOIN IDP_AUTHENTICATOR auth " +
-                        "WHERE prop.PROPERTY_KEY=? " +
-                        "AND prop.PROPERTY_VALUE=? AND prop.TENANT_ID=? AND auth.NAME = ? AND auth.ID = prop.AUTHENTICATOR_ID";
+                        "ON auth.ID = prop.AUTHENTICATOR_ID WHERE prop.PROPERTY_KEY=? " +
+                        "AND prop.PROPERTY_VALUE=? AND prop.TENANT_ID=? AND auth.NAME = ?";
 
         public static final String GET_IDP_METADATA_BY_IDP_ID = "SELECT ID, NAME, VALUE, DISPLAY_NAME FROM " +
                 "IDP_METADATA WHERE IDP_ID = ?";
