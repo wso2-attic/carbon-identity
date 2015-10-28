@@ -40,16 +40,19 @@ public class UserManagementWorkflowService {
      * @param wfOperationType Operation Type of the Work-flow.
      * @param wfStatus        Current Status of the Work-flow.
      * @param entityType      Entity Type of the Work-flow.
+     * @param entityIdFilter        Entity ID filter to search
      * @return
      * @throws WorkflowException
      */
 
-    public List<String> listAllEntityNames(String wfOperationType, String wfStatus, String entityType)
+    public List<String> listAllEntityNames(String wfOperationType, String wfStatus, String entityType, String
+            entityIdFilter)
             throws WorkflowException {
 
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
-        List<String> entityNames = workflowService.listEntityNames(wfOperationType, wfStatus, entityType, tenantID);
+        List<String> entityNames = workflowService.listEntityNames(wfOperationType, wfStatus, entityType, tenantID,
+                entityIdFilter);
         return entityNames;
 
     }

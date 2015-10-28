@@ -213,7 +213,7 @@
                     activeUserList = new LinkedHashSet<FlaggedName>(preactiveUserList);
 
                     String[] AddPendingUsersList = UserMgtClient.
-                            listAllEntityNames("ADD_USER", "PENDING", "USER");
+                            listAllEntityNames("ADD_USER", "PENDING", "USER", modifiedFilter);
                     workFlowAddPendingUsersList = new LinkedHashSet<String>(Arrays.asList(AddPendingUsersList));
 
                     for (String s : AddPendingUsersList) {
@@ -223,7 +223,7 @@
                         workFlowAddPendingUsers.add(flaggedName);
                     }
                     String[] DeletePendingUsersList = UserMgtClient.
-                            listAllEntityNames("DELETE_USER", "PENDING", "USER");
+                            listAllEntityNames("DELETE_USER", "PENDING", "USER", "*");
                     workFlowDeletePendingUsers = new LinkedHashSet<String>(Arrays.asList(DeletePendingUsersList));
 
                     for (Iterator<FlaggedName> iterator = activeUserList.iterator(); iterator.hasNext(); ) {
