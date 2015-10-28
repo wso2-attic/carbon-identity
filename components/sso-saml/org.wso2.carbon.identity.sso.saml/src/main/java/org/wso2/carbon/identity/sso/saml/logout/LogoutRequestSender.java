@@ -216,7 +216,7 @@ public class LogoutRequestSender {
                     }
                     if (response != null && (SAMLSSOUtil.isHttpSuccessStatusCode(statusCode) || SAMLSSOUtil
                             .isHttpRedirectStatusCode(statusCode))) {
-                        log.info("single logout request is sent to : " + logoutReqDTO.getAssertionConsumerURL() +
+                        log.debug("single logout request is sent to : " + logoutReqDTO.getAssertionConsumerURL() +
                                 " is returned with " + HttpStatus.getStatusText(response.getStatusLine().getStatusCode()));
                         isSuccessfullyLogout = true;
                         break;
