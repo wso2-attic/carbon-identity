@@ -46,8 +46,7 @@ public class UserManagementWorkflowService {
      */
 
     public List<String> listAllEntityNames(String wfOperationType, String wfStatus, String entityType, String
-            entityIdFilter)
-            throws WorkflowException {
+            entityIdFilter) throws WorkflowException {
 
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 

@@ -95,7 +95,8 @@ public class UserAdminUIConstants {
     public static final String ROLE_LIST_ADD_ROLE_USER_CACHE_EXCEEDED = "role.list.add.role.cache.exceeded.domains";
     
     public static final String SHARED_ROLE_ENABLED = "shared.role.enabled";
-    
+
+    public static final String WILD_CARD = "*";
 
     private UserAdminUIConstants(){
 
