@@ -24,6 +24,7 @@ import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
@@ -147,6 +148,7 @@ public class AccessTokenIssuer {
         OAuthAppDO oAuthAppDO = getAppInformation(tokenReqDTO);
         if (!authzGrantHandler.isOfTypeApplicationUser()) {
             tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(oAuthAppDO.getUserName()));
+            tokReqMsgCtx.getAuthorizedUser().setTenantDomain(IdentityTenantUtil.getTenantDomain(oAuthAppDO.getTenantId()));
         }
 
         boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
@@ -223,8 +225,17 @@ public class AccessTokenIssuer {
                     .getValueFromCache(oldCacheKey);
             AuthorizationGrantCacheKey newCacheKey = new AuthorizationGrantCacheKey(tokenRespDTO.getAccessToken());
             int authorizationGrantCacheTimeout = OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout();
-            AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).addToCache(newCacheKey, authorizationGrantCacheEntry);
-            AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).clearCacheEntry(oldCacheKey);
+
+            if (AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).getValueFromCache(newCacheKey) == null) {
+                if(log.isDebugEnabled()){
+                   log.debug("No AuthorizationGrantCache entry found for the access token:"+ newCacheKey.getUserAttributesId()+
+                   ", hence adding to cache");
+                }
+                AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).addToCache(newCacheKey, authorizationGrantCacheEntry);
+                AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).clearCacheEntry(oldCacheKey);
+            } else{
+                //if the user attributes are already saved for access token, no need to add again.
+            }
         }
     }
 

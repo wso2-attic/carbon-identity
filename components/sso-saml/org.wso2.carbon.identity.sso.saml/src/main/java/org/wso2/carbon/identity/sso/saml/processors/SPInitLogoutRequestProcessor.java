@@ -134,12 +134,24 @@ public class SPInitLogoutRequestProcessor {
                                     "Issuer name :" + splitIssuer[0] + " " + "has being spilt");
                         }
                     } else {
-                        SAMLSSOUtil.setTenantDomainInThreadLocal(
-                                sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
+                        SAMLSSOServiceProviderDO serviceProvider = sessionInfoData.getServiceProviderList().get(issuer);
+                        if (serviceProvider != null) {
+                            SAMLSSOUtil.setTenantDomainInThreadLocal(
+                                    sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
+                        } else {
+                            throw new IdentityException("Service provider :" + issuer + " does not exist in session " +
+                                    "info data.");
+                        }
                     }
                 } else {
-                    SAMLSSOUtil.setTenantDomainInThreadLocal(
-                            sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
+                    SAMLSSOServiceProviderDO serviceProvider = sessionInfoData.getServiceProviderList().get(issuer);
+                    if (serviceProvider != null) {
+                        SAMLSSOUtil.setTenantDomainInThreadLocal(
+                                sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
+                    } else {
+                        throw new IdentityException("Service provider :" + issuer + " does not exist in session info " +
+                                "data.");
+                    }
                 }
                 subject = sessionInfoData.getSubject(issuer);
 

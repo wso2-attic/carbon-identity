@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.bpel.stub.upload.types.UploadedFileItem;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHolder;
 import org.wso2.carbon.identity.workflow.impl.util.WorkflowDeployerClient;
@@ -186,7 +187,7 @@ public class BPELDeployer implements TemplateInitializer {
         }
         placeHolderValues.put(BPELDeployer.Constants.BPS_HOST_NAME, url);
         placeHolderValues.put(Constants.URL_TENANT_CONTEXT, tenantContext);
-        placeHolderValues.put(BPELDeployer.Constants.CARBON_HOST_NAME, BPELDeployer.Constants.CARBON_HOST_URL);
+        placeHolderValues.put(BPELDeployer.Constants.CARBON_HOST_NAME, IdentityUtil.getServerURL("", true));
         placeHolderValues.put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_USER, (bpsProfile.getCallbackUser() != null ?
                                                                                  bpsProfile.getCallbackUser() : ""));
         placeHolderValues
@@ -428,17 +429,5 @@ public class BPELDeployer implements TemplateInitializer {
 
         private static final String TEMP_DIR_PROPERTY = "java.io.tmpdir";
         private static final String ZIP_TYPE = "zip";
-
-        private static final String CARBON_HOST_URL;
-
-        static {
-            String PORT_OFFSET = "Ports.Offset";
-            String HOST_NAME = "HostName";
-            int DEFAULT_HTTPS_PORT = 9443;
-            CARBON_HOST_URL = "https://" + ServerConfiguration.getInstance().getFirstProperty(HOST_NAME) + ":" +
-                              //adds the offset defined in the server configs to the default 9763 port
-                              (Integer.parseInt(ServerConfiguration.getInstance().getFirstProperty(PORT_OFFSET)) +
-                               DEFAULT_HTTPS_PORT);
-        }
     }
 }

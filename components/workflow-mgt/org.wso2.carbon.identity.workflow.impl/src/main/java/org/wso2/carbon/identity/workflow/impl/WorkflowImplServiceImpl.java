@@ -204,7 +204,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             ProcessManagementServiceStub bpsProcessStub = null;
 
             //Authorizing BPS Package Management & BPS Process Management Stubs.
-            String host = bpsProfile.getWorkerHostURL();
+            String host = bpsProfile.getManagerHostURL();
             URL bpsPackageServicesUrl = new URL(new URL(host), WFImplConstant.BPS_PACKAGE_SERVICES_URL);
             bpsPackagestub = new BPELPackageManagementServiceStub(bpsPackageServicesUrl.toString());
             ServiceClient bpsPackageClient = bpsPackagestub._getServiceClient();
