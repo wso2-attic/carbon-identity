@@ -200,7 +200,6 @@ public class Utils {
         }
     }
 
-
     /**
      * get email address from user store
      *
