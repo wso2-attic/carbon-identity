@@ -186,8 +186,11 @@ public class Utils {
         }
         try {
             if (userStoreManager != null) {
-                claimValue = userStoreManager.getUserClaimValue(userName, claim,
-                        UserCoreConstants.DEFAULT_PROFILE);
+                Map<String, String> claimsMap = userStoreManager
+                        .getUserClaimValues(userName, new String[]{claim}, UserCoreConstants.DEFAULT_PROFILE);
+                if (claimsMap != null && !claimsMap.isEmpty()) {
+                    claimValue = claimsMap.get(claim);
+                }
             }
             return claimValue;
         } catch (Exception e) {
@@ -342,7 +345,7 @@ public class Utils {
         return userDomain;
     }
 
-    
+
     public static String[] getChallengeUris() {
         //TODO
         return new String[]{IdentityMgtConstants.DEFAULT_CHALLENGE_QUESTION_URI01,
