@@ -144,7 +144,7 @@
                 FlaggedName[] data = client.getUsersOfRole(roleName, filter, -1);
                 if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
                     String[] DeletePendingRolesList = UserMgtClient.
-                            listAllEntityNames("DELETE_USER", "PENDING", "USER", UserAdminUIConstants.WILD_CARD);
+                            listAllEntityNames("DELETE_USER", "PENDING", "USER", filter);
                     workFlowDeletePendingUsers = new LinkedHashSet<String>(Arrays.asList(DeletePendingRolesList));
                     String pendingStatus = "[Pending User for Delete]";
                     if (data != null) {

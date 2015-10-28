@@ -96,8 +96,6 @@ public class UserAdminUIConstants {
     
     public static final String SHARED_ROLE_ENABLED = "shared.role.enabled";
 
-    public static final String WILD_CARD = "*";
-
     private UserAdminUIConstants(){
 
     }

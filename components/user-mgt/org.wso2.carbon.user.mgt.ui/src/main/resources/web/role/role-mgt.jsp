@@ -196,7 +196,7 @@
                     }
 
                     String[] DeletePendingUsersList = UserMgtClient.
-                            listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE", UserAdminUIConstants.WILD_CARD);
+                            listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE", modifiedFilter);
                     workFlowDeletePendingRoles = new LinkedHashSet<String>(Arrays.asList(DeletePendingUsersList));
 
                     for (Iterator<FlaggedName> iterator = activeRoleList.iterator(); iterator.hasNext(); ) {

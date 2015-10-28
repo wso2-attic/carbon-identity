@@ -223,7 +223,7 @@
                         workFlowAddPendingUsers.add(flaggedName);
                     }
                     String[] DeletePendingUsersList = UserMgtClient.
-                            listAllEntityNames("DELETE_USER", "PENDING", "USER", UserAdminUIConstants.WILD_CARD);
+                            listAllEntityNames("DELETE_USER", "PENDING", "USER", modifiedFilter);
                     workFlowDeletePendingUsers = new LinkedHashSet<String>(Arrays.asList(DeletePendingUsersList));
 
                     for (Iterator<FlaggedName> iterator = activeUserList.iterator(); iterator.hasNext(); ) {
