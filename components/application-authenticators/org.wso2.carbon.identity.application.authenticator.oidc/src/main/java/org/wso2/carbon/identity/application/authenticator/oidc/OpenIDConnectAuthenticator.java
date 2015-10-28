@@ -370,6 +370,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             // create OAuth client that uses custom http client under the hood
             OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
             OAuthClientResponse oAuthResponse = null;
+            Map<String, Object> jsonObject = null;
             oAuthResponse = getOauthResponse(oAuthClient, accessRequest);
 
             // TODO : return access token and id token to framework
@@ -461,6 +462,11 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                         throw new AuthenticationFailedException("Decoded json object is null");
                     }
                 } else {
+                    AuthenticatedUser authenticatedUserObj = AuthenticatedUser
+                            .createFederateAuthenticatedUserFromSubjectIdentifier(getAuthenticateUser(context, jsonObject, oAuthResponse));
+                    authenticatedUserObj.setUserAttributes(getSubjectAttributes(oAuthResponse,
+                            authenticatorProperties));
+                    context.setSubject(authenticatedUserObj);
                     if (log.isDebugEnabled()) {
                         log.debug("The IdToken is null");
                     }
