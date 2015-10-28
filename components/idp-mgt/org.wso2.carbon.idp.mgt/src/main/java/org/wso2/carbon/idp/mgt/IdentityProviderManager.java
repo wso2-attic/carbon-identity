@@ -207,7 +207,7 @@ public class IdentityProviderManager {
             oauth2UserInfoEPUrl = IdentityUtil.getServerURL("oauth2/userinfo", false);
         }
         if(StringUtils.isBlank(passiveStsUrl)){
-            passiveStsUrl = IdentityUtil.getServerURL("passivests", false);
+            passiveStsUrl = IdentityUtil.getServerURL("passivests", true);
         }
         if(StringUtils.isBlank(stsUrl)){
             stsUrl = IdentityUtil.getServerURL("services/" + tenantContext + "wso2carbon-sts", true);
