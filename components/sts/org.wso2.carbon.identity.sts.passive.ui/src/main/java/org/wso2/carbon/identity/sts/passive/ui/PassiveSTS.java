@@ -433,8 +433,7 @@ public class PassiveSTS extends HttpServlet {
         String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
 
         String selfPath = request.getRequestURI();
-        AuthenticationRequest authenticationRequest = new
-                AuthenticationRequest();
+        AuthenticationRequest authenticationRequest = new AuthenticationRequest();
         authenticationRequest.addRequestQueryParam(FrameworkConstants.RequestParams.LOGOUT,
                 new String[]{Boolean.TRUE.toString()});
         authenticationRequest.setRequestQueryParams(request.getParameterMap());
