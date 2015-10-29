@@ -137,7 +137,6 @@
                                     "/permission/admin/configure/security/usermgt/users")) {
                         %>
                         <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-top:2px;">
-
                             <tr>
                                 <td class="addNewSecurity">
                                     <a href="../user/bulk-import.jsp" class="icon-link"
@@ -145,7 +144,6 @@
                                             key="bulk.import.user"/></a>
                                 </td>
                             </tr>
-
                         </table>
 
                         <%

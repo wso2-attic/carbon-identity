@@ -225,14 +225,11 @@ public class SQLConstants {
                                                               ".ENTITY_NAME = ? AND TABLE2.ENTITY_TYPE = ? AND TABLE1" +
                                                               ".TENANT_ID = ? AND TABLE2.TENANT_ID = ?";
 
-    public static final String GET_REQUEST_ENTITY_NAMES = "SELECT WF_REQUEST_ENTITY_RELATIONSHIP.ENTITY_NAME FROM " +
-                                                          "WF_REQUEST,WF_REQUEST_ENTITY_RELATIONSHIP WHERE WF_REQUEST" +
-                                                          ".UUID = WF_REQUEST_ENTITY_RELATIONSHIP.REQUEST_ID"
-                                                          +
-                                                          " AND WF_REQUEST.OPERATION_TYPE = ? AND  WF_REQUEST.STATUS " +
-                                                          " = ? AND " +
-                                                          "WF_REQUEST_ENTITY_RELATIONSHIP.ENTITY_TYPE = ? AND " +
-                                                          "WF_REQUEST_ENTITY_RELATIONSHIP.TENANT_ID = ? ";
+    public static final String GET_REQUEST_ENTITY_NAMES = "SELECT WF_REQUEST_ENTITY_RELATIONSHIP.ENTITY_NAME FROM  " +
+            "WF_REQUEST,WF_REQUEST_ENTITY_RELATIONSHIP WHERE WF_REQUEST .UUID = WF_REQUEST_ENTITY_RELATIONSHIP" +
+            ".REQUEST_ID AND WF_REQUEST.OPERATION_TYPE = ? AND  WF_REQUEST.STATUS   = ? AND " +
+            "WF_REQUEST_ENTITY_RELATIONSHIP.ENTITY_TYPE = ?  AND WF_REQUEST_ENTITY_RELATIONSHIP.TENANT_ID = ? AND " +
+            "WF_REQUEST_ENTITY_RELATIONSHIP.ENTITY_NAME LIKE ?";
 
     public static final String GET_REQUESTS_OF_USER = "SELECT UUID, OPERATION_TYPE, CREATED_AT, UPDATED_AT, STATUS, " +
                                                       "REQUEST FROM WF_REQUEST WHERE CREATED_BY = ? AND TENANT_ID = ?";
