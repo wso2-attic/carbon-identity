@@ -56,6 +56,7 @@ import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
 
 import java.util.ArrayList;
@@ -814,7 +815,7 @@ public class UserInformationRecoveryService {
             IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
             if (isListenerEnable && config.isAuthPolicyAccountLockOnCreation()) {
-                UserDTO userDTO = new UserDTO(userName);
+                UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
                 userDTO.setTenantId(tenantId);
 
                 UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
