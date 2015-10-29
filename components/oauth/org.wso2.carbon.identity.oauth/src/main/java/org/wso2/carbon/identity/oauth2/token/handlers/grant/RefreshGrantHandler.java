@@ -149,7 +149,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             tokenId = UUID.randomUUID().toString();
             accessToken = oauthIssuerImpl.accessToken();
             refreshToken = oauthIssuerImpl.refreshToken();
-            grantType = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType();
+            grantType = oauth2AccessTokenReqDTO.getGrantType();
 
             boolean renew = OAuthServerConfiguration.getInstance().isRefreshTokenRenewalEnabled();
 
