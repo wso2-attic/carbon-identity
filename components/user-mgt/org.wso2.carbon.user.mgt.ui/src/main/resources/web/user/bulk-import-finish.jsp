@@ -48,6 +48,7 @@
                 byte[] content = null;
                 String fileName = null;
                 String password = null;
+                String userStoreDomain = null;
                 for (Object item : items) {
                     DiskFileItem diskFileItem = (DiskFileItem) item;
                     String name = diskFileItem.getFieldName();
@@ -59,6 +60,8 @@
                         content = fileItem.get();
                     } else if (name.equals("password")) {
                         password = new String(diskFileItem.get());
+                    } else if (name.equals("userStore")){
+                        userStoreDomain = new String (diskFileItem.get());
                     }
                 }
 
@@ -67,7 +70,7 @@
                 ConfigurationContext configContext =
                         (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);                
                 UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
-                client.bulkImportUsers(fileName, Util.buildDataHandler(content), password);
+                client.bulkImportUsers(userStoreDomain, fileName, Util.buildDataHandler(content), password);
                 forwardTo = "user-mgt.jsp?ordinal=1";
             } else {
                 throw new Exception("unexpected.data");
