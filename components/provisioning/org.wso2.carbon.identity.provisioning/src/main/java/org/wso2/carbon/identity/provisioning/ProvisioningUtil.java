@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.provisioning;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -33,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ProvisioningUtil {
+
+    private static final Log log = LogFactory.getLog(ProvisioningUtil.class);
 
     private ProvisioningUtil() {
     }
