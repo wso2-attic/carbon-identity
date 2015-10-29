@@ -42,6 +42,7 @@ import org.wso2.carbon.identity.provisioning.cache.ServiceProviderProvisioningCo
 import org.wso2.carbon.identity.provisioning.dao.CacheBackedProvisioningMgtDAO;
 import org.wso2.carbon.identity.provisioning.dao.ProvisioningManagementDAO;
 import org.wso2.carbon.identity.provisioning.internal.IdentityProvisionServiceComponent;
+import org.wso2.carbon.identity.provisioning.util.ClaimMgtUtils;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
@@ -716,14 +717,14 @@ public class OutboundProvisioningManager {
                 // in-bound claim dialect is service provider specific.
                 // we have read the claim mapping from service provider claim
                 // configuration.
-                return IdentityApplicationManagementUtil.getMappedClaims(outboundClaimDialect,
+                return ProvisioningUtil.getMappedClaims(outboundClaimDialect,
                         inboundAttributes, spClaimMappings, provisioningEntity.getAttributes(),
                         tenantDomainName);
             } else {
                 // in-bound claim dialect is not service provider specific.
                 // its been supplied by the corresponding in-bound provisioning servlet
                 // or listener.
-                return IdentityApplicationManagementUtil.getMappedClaims(outboundClaimDialect,
+                return ProvisioningUtil.getMappedClaims(outboundClaimDialect,
                         inboundAttributes, inboundClaimDialect, provisioningEntity.getAttributes(),
                         tenantDomainName);
             }
@@ -736,13 +737,13 @@ public class OutboundProvisioningManager {
                 // in-bound claim dialect is service provider specific.
                 // we have read the claim mapping from service provider claim
                 // configuration.
-                return IdentityApplicationManagementUtil.getMappedClaims(idpClaimMappings,
+                return ProvisioningUtil.getMappedClaims(idpClaimMappings,
                         inboundAttributes, spClaimMappings, provisioningEntity.getAttributes());
             } else {
                 // in-bound claim dialect is not service provider specific.
                 // its been supplied by the corresponding in-bound provisioning servlet
                 // or listener.
-                return IdentityApplicationManagementUtil.getMappedClaims(idpClaimMappings,
+                return ProvisioningUtil.getMappedClaims(idpClaimMappings,
                         inboundAttributes, inboundClaimDialect, provisioningEntity.getAttributes(),
                         tenantDomainName);
             }
