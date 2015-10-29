@@ -432,7 +432,7 @@ public class PassiveSTS extends HttpServlet {
                 (CarbonContext.getThreadLocalCarbonContext().getTenantDomain()));
         String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
 
-        String selfPath = request.getContextPath();
+        String selfPath = request.getRequestURI();
         AuthenticationRequest authenticationRequest = new
                 AuthenticationRequest();
         authenticationRequest.addRequestQueryParam(FrameworkConstants.RequestParams.LOGOUT,
