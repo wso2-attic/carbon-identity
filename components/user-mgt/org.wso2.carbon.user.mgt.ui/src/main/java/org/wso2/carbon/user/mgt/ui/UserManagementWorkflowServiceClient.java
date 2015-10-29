@@ -57,15 +57,16 @@ public class UserManagementWorkflowServiceClient {
      * @param wfOperationType Operation Type of the Work-flow.
      * @param wfStatus        Current Status of the Work-flow.
      * @param entityType      Entity Type of the Work-flow.
+     * @param entityIdFilter        Entity ID filter to search
      * @return
      * @throws java.rmi.RemoteException
      * @throws org.wso2.carbon.user.mgt.workflow.stub.UserManagementWorkflowServiceWorkflowExceptionException
      */
 
-    public String[] listAllEntityNames(String wfOperationType, String wfStatus, String entityType)
-            throws RemoteException, UserManagementWorkflowServiceWorkflowExceptionException {
+    public String[] listAllEntityNames(String wfOperationType, String wfStatus, String entityType, String
+            entityIdFilter) throws RemoteException, UserManagementWorkflowServiceWorkflowExceptionException {
 
-        String[] entityNames = stub.listAllEntityNames(wfOperationType, wfStatus, entityType);
+        String[] entityNames = stub.listAllEntityNames(wfOperationType, wfStatus, entityType, entityIdFilter);
         if (entityNames == null) {
             entityNames = new String[0];
         }
