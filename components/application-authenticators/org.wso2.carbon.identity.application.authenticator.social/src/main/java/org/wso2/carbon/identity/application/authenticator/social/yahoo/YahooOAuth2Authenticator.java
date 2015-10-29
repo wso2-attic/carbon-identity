@@ -16,14 +16,20 @@
 
 package org.wso2.carbon.identity.application.authenticator.social.yahoo;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.client.response.OAuthClientResponse;
+import org.apache.oltu.oauth2.common.utils.JSONUtils;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +37,8 @@ import java.util.Map;
  * OAuth 2.0 Authenticator for Yahoo.
  */
 public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
+
+    private static Log log = LogFactory.getLog(YahooOAuth2Authenticator.class);
 
     private static final long serialVersionUID = -4290245763061524219L;
 
@@ -190,6 +198,59 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
     @Override
     protected boolean requiredIDToken(Map<String, String> authenticatorProperties) {
         return false;
+    }
+
+    /**
+     * Get subject attributes.
+     * @param token OAuthClientResponse
+     * @param authenticatorProperties Map<String, String>
+     * @return Map<ClaimMapping, String> Claim mappings.
+     */
+    protected Map<ClaimMapping, String> getSubjectAttributes(OAuthClientResponse token,
+                                                             Map<String, String> authenticatorProperties) {
+
+        Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
+
+        try {
+
+            String accessToken = token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
+            String url = getUserInfoEndpoint(token, authenticatorProperties);
+
+            String json = sendRequest(url, accessToken);
+
+            if (!StringUtils.isNotBlank(json)) {
+                log.info("Unable to fetch user claims. Proceeding without user claims");
+                return claims;
+            }
+
+            Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
+
+            // Extract the inside profile JSON object.
+            Map<String, Object> profile = JSONUtils.parseJSON(
+                    jsonObject.entrySet().iterator().next().getValue().toString());
+
+            if (profile == null) {
+                log.info("Invalid user profile object. Proceeding without user claims");
+                return claims;
+            }
+
+            for (Map.Entry<String, Object> data : profile.entrySet()) {
+
+                String key = data.getKey();
+
+                claims.put(ClaimMapping.build(key, key, null, false), profile.get(key).toString());
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Adding claims from end-point data mapping : " + key + " - " +
+                            profile.get(key).toString());
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("Error occurred while accessing user info endpoint", e);
+        }
+
+        return claims;
     }
 
     /**
