@@ -221,7 +221,7 @@
             <form id="configure-sp-form" method="post" name="configure-sp-form" method="post" action="configure-service-provider-finish.jsp" >
             <input type="hidden" value="wso2carbon-local-sp" name="spName">
             <input type="hidden" value="<%=Encode.forHtmlAttribute(appBean.getServiceProvider().getDescription())%>" name="sp-description">
-			<input type="hidden" name="oldSPName" value="<%=Encode.forHtmlAttribute(spName)%>"/>
+            <input type="hidden" name="oldSPName" value="<%=Encode.forHtmlAttribute(spName)%>"/>
             
             <h2 id="inbound_provisioning_head" class="sectionSeperator trigger active">
                 <a href="#"><fmt:message key="inbound.provisioning.head"/></a>
