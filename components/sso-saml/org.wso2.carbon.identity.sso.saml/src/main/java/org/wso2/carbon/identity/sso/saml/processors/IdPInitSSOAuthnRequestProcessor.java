@@ -153,7 +153,9 @@ public class IdPInitSSOAuthnRequestProcessor {
             }
 
             if (log.isDebugEnabled()) {
-                log.debug(samlssoRespDTO.getRespString());
+                if (samlssoRespDTO.getRespString() != null) {
+                    log.debug(samlssoRespDTO.getRespString());
+                }
             }
 
             return samlssoRespDTO;
