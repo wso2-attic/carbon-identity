@@ -172,7 +172,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     protected Map<ClaimMapping, String> getSubjectAttributes(OAuthClientResponse token,
                                                              Map<String, String> authenticatorProperties) {
 
-        Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
+        Map<ClaimMapping, String> claims = new HashMap<>();
 
         try {
 
@@ -181,8 +181,10 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
             String json = sendRequest(url, accessToken);
 
-            if (!StringUtils.isNotBlank(json)) {
-                log.info("Unable to fetch user claims. Proceeding without user claims");
+            if (StringUtils.isBlank(json)) {
+                if(log.isDebugEnabled()) {
+                    log.debug("Unable to fetch user claims. Proceeding without user claims");
+                }
                 return claims;
             }
 
@@ -237,9 +239,9 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 OAuthClientRequest authzRequest;
 
                 String queryString = getQueryString(authenticatorProperties);
-                Map<String, String> paramValueMap = new HashMap<String, String>();
+                Map<String, String> paramValueMap = new HashMap<>();
 
-                if (!StringUtils.isBlank(queryString)) {
+                if (StringUtils.isNotBlank(queryString)) {
                     String[] params = queryString.split("&");
                     if (params != null && params.length > 0) {
                         for (String param : params) {
@@ -360,13 +362,13 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             // TODO : return access token and id token to framework
             String accessToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
 
-            if (accessToken == null) {
-                throw new AuthenticationFailedException("Authentication Failed");
+            if (StringUtils.isBlank(accessToken)) {
+                throw new AuthenticationFailedException("Access token is empty or null");
             }
 
             String idToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ID_TOKEN);
 
-            if (idToken == null && requiredIDToken(authenticatorProperties)) {
+            if (StringUtils.isBlank(idToken) && requiredIDToken(authenticatorProperties)) {
                 throw new AuthenticationFailedException("Id token is required and is missing");
             }
 
@@ -377,10 +379,10 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             context.setProperty(OIDCAuthenticatorConstants.ACCESS_TOKEN, accessToken);
 
             AuthenticatedUser authenticatedUserObj;
-            Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
+            Map<ClaimMapping, String> claims = new HashMap<>();
             Map<String, Object> jsonObject = new HashMap<>();
 
-            if (idToken != null) {
+            if (StringUtils.isNotBlank(idToken)) {
 
                 context.setProperty(OIDCAuthenticatorConstants.ID_TOKEN, idToken);
 
@@ -479,9 +481,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             context.setSubject(authenticatedUserObj);
 
         } catch (OAuthProblemException e) {
-
-            log.error(e.getMessage(), e);
-            throw new AuthenticationFailedException(e.getMessage(), e);
+            throw new AuthenticationFailedException("Authentication process failed", e);
         }
     }
 
