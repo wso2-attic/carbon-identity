@@ -140,6 +140,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         String accessToken;
         String refreshToken;
         String userStoreDomain = null;
+        String grantType;
 
         Timestamp refreshTokenIssuedTime = null;
         long refreshTokenValidityPeriodInMillis = 0;
@@ -148,6 +149,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             tokenId = UUID.randomUUID().toString();
             accessToken = oauthIssuerImpl.accessToken();
             refreshToken = oauthIssuerImpl.refreshToken();
+            grantType = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType();
 
             boolean renew = OAuthServerConfiguration.getInstance().isRefreshTokenRenewalEnabled();
 
@@ -234,6 +236,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         accessTokenDO.setRefreshToken(refreshToken);
         accessTokenDO.setTokenId(tokenId);
         accessTokenDO.setAccessToken(accessToken);
+        accessTokenDO.setGrantType(grantType);
 
         RefreshTokenValidationDataDO oldAccessToken =
                 (RefreshTokenValidationDataDO)tokReqMsgCtx.getProperty(PREV_ACCESS_TOKEN);
