@@ -590,7 +590,7 @@ function isContainRaw(tbody) {
 }
 
 function clearAll() {
-    document.addServiceProvider.action = "update_claims.jsp?action=clear";
+    document.addServiceProvider.action = "update_claims.jsp?action=clear&spName=<%=Encode.forUriComponent(request.getParameter("spName"))%>";
     document.addServiceProvider.submit();
 }
 </script>
