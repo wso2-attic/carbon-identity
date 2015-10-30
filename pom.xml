@@ -1847,6 +1847,11 @@
                 <artifactId>org.apache.oltu.oauth2.client</artifactId>
                 <version>${org.apache.oltu.oauth2.client.version}</version>
             </dependency>
+            <dependency>
+                <groupId>net.sf.ehcache.wso2</groupId>
+                <artifactId>ehcache</artifactId>
+                <version>${ehcache.version}</version>
+            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -2066,7 +2071,7 @@
         <com.yubico.version>0.14.0</com.yubico.version>
         <encoder.wso2.version>1.2.0.wso2v1</encoder.wso2.version>
         <javax.xml.parsers.import.pkg.version>[0.0.0, 1.0.0)</javax.xml.parsers.import.pkg.version>
-
+        <ehcache.version>1.5.0.wso2v3</ehcache.version>
 
         <project.scm.id>my-scm-server</project.scm.id>
     </properties>
