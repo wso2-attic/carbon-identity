@@ -31,6 +31,7 @@
 
 <%
     List<IdentityProvider> identityProvidersList = (List<IdentityProvider>)session.getAttribute("identityProviderList");
+    String identityProvider= "identityProvider";
     if(identityProvidersList == null){
 %>
         <script type="text/javascript">
@@ -122,7 +123,11 @@
                         <tr>
                             <td colspan="3"><i><fmt:message key='no.idp'/></i></td>
                         </tr>
-                    <% } %>
+                    <% }
+                        if (session.getAttribute(identityProvider) != null) {
+                            session.removeAttribute(identityProvider);
+                        }
+                    %>
                 </tbody>
             </table>
             </div>
