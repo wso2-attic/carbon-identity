@@ -15,7 +15,7 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://workflow.mgt.user.carbon.wso2.org" xmlns:ax2656="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://workflow.mgt.user.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax2658="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://workflow.mgt.user.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://workflow.mgt.user.carbon.wso2.org">
     <wsdl:documentation>UserManagementWorkflowService</wsdl:documentation>
     <wsdl:types>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd">
@@ -23,12 +23,12 @@
                 <xs:sequence/>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax2657="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://workflow.mgt.user.carbon.wso2.org">
+        <xs:schema xmlns:ax2659="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://workflow.mgt.user.carbon.wso2.org">
             <xs:import namespace="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd"/>
             <xs:element name="UserManagementWorkflowServiceWorkflowException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="WorkflowException" nillable="true" type="ax2657:WorkflowException"/>
+                        <xs:element minOccurs="0" name="WorkflowException" nillable="true" type="ax2659:WorkflowException"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -38,6 +38,7 @@
                         <xs:element minOccurs="0" name="wfOperationType" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="wfStatus" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="entityType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="entityIdFilter" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>

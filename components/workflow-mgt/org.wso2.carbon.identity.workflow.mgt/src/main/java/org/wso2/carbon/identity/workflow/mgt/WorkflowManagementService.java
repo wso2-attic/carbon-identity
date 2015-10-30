@@ -96,6 +96,6 @@ public interface WorkflowManagementService {
     WorkflowRequest[] getRequestsFromFilter(String user, String beginDate, String endDate, String
             dateCategory, int tenantId, String status) throws WorkflowException;
 
-    List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID) throws
-                                                                                                           InternalWorkflowException;
+    List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID, String
+            idFilter) throws InternalWorkflowException;
 }

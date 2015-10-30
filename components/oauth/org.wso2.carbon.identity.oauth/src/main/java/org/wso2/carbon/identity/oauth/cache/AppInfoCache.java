@@ -32,13 +32,9 @@ public class AppInfoCache extends BaseCache<String, OAuthAppDO> {
     private static final String OAUTH_APP_INFO_CACHE_NAME = "AppInfoCache";
 
     private static volatile AppInfoCache instance;
-    private boolean enableRequestScopeCache = false;
 
     private AppInfoCache(String cacheName, int timeout) {
         super(cacheName, timeout);
-        if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
-            enableRequestScopeCache = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
-        }
     }
 
     /**
@@ -61,28 +57,15 @@ public class AppInfoCache extends BaseCache<String, OAuthAppDO> {
     @Override
     public void addToCache(String key, OAuthAppDO entry) {
         super.addToCache(key, entry);
-        int tenantId = entry.getTenantId();
-        SessionDataStore.getInstance().storeSessionData(key, OAUTH_APP_INFO_CACHE_NAME, entry, tenantId);
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().storeSessionData(key,OAUTH_APP_INFO_CACHE_NAME,entry, tenantId);
-        }
     }
 
     @Override
     public OAuthAppDO getValueFromCache(String key) {
-        OAuthAppDO oAuthAppDO = super.getValueFromCache(key);
-        if (oAuthAppDO == null) {
-            oAuthAppDO = (OAuthAppDO) SessionDataStore.getInstance().getSessionData(key, OAUTH_APP_INFO_CACHE_NAME);
-        }
-        return oAuthAppDO;
+        return super.getValueFromCache(key);
     }
 
     @Override
     public void clearCacheEntry(String key) {
         super.clearCacheEntry(key);
-        SessionDataStore.getInstance().clearSessionData(key, OAUTH_APP_INFO_CACHE_NAME);
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().clearSessionData(key,OAUTH_APP_INFO_CACHE_NAME);
-        }
     }
 }

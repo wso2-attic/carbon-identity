@@ -610,7 +610,19 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @param domain:   Name of the domain to be updated
      * @param isDisable : Whether to disable/enable domain(true/false)
      */
-    public void changeUserStoreState(String domain, Boolean isDisable) throws IdentityUserStoreMgtException{
+    public void changeUserStoreState(String domain, Boolean isDisable) throws IdentityUserStoreMgtException {
+
+        String currentAuthorizedUserName = CarbonContext.getThreadLocalCarbonContext().getUsername();
+        int index = currentAuthorizedUserName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR);
+        String currentUserDomain = null;
+        if (index > 0) {
+            currentUserDomain = currentAuthorizedUserName.substring(0, index);
+        }
+
+        if (currentUserDomain != null && currentUserDomain.equalsIgnoreCase(domain) && isDisable) {
+            log.error("Error while disabling user store from a user who is in the same user store.");
+            throw new IdentityUserStoreMgtException("Error while updating user store state.");
+        }
 
         File userStoreConfigFile = createConfigurationFile(domain);
         StreamResult result = new StreamResult(userStoreConfigFile);
