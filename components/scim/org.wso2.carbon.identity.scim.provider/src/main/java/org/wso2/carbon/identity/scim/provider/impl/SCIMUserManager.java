@@ -1011,6 +1011,10 @@ public class SCIMUserManager implements UserManager {
 
                 List<String> userIds = newGroup.getMembers();
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
+
+                String groupDisplayNamesUpperCaseDomain = convertDomainToUpperCase(newGroup.getDisplayName());
+                newGroup.setDisplayName(groupDisplayNamesUpperCaseDomain);
+
                 String[] userNames = null;
                 if (userIds != null) {
                     for (String userId : userIds) {
@@ -1023,7 +1027,15 @@ public class SCIMUserManager implements UserManager {
                                     "Hence, can not update the group: " + oldGroup.getDisplayName();
                             throw new CharonException(error);
                         } else {
-                            if (!userDisplayNames.contains(userNames[0])) {
+                            boolean isUserNameMatches = false;
+                            for(String userName : userDisplayNames) {
+                                String caseInsensitiveDomainWithUserName = convertDomainToUpperCase(userName);
+                                if(caseInsensitiveDomainWithUserName.equalsIgnoreCase(userNames[0])){
+                                    isUserNameMatches = true;
+                                    break;
+                                }
+                            }
+                            if (!isUserNameMatches) {
                                 throw new CharonException("Given SCIM user Id and name not matching..");
                             }
                         }
@@ -1056,29 +1068,41 @@ public class SCIMUserManager implements UserManager {
 
                 //SCIM request does not have operation attribute for new members need be added hence parsing null
                 List<String> addRequestedMembers = newGroup.getMembersWithDisplayName(null);
+                List<String> addRequestMembersUpperCaseDomain = new ArrayList<>();
                 List<String> deleteRequestedMembers =
                         newGroup.getMembersWithDisplayName(SCIMConstants.CommonSchemaConstants.OPERATION_DELETE);
+                List<String> deleteRequestMembersUpperCaseDomain = new ArrayList<>();
+
+                for (String addMember : addRequestedMembers){
+                    String addRequestMemberUpperCaseDomain = convertDomainToUpperCase(addMember);
+                    addRequestMembersUpperCaseDomain.add(addRequestMemberUpperCaseDomain);
+                }
+
+                for (String deleteMember : deleteRequestedMembers){
+                    String deleteRequestMemberUpperCaseDomain = convertDomainToUpperCase(deleteMember);
+                    deleteRequestMembersUpperCaseDomain.add(deleteRequestMemberUpperCaseDomain);
+                }
 
                 //Handling meta data attributes coming from SCIM request. Through meta attributes all existing members
                 // can be replaced with new set of members
                 boolean metaDeleteAllMembers = false;
                 if (newGroup.getAttributesOfMeta() != null &&
                     SCIMConstants.GroupSchemaConstants.MEMBERS.equals(newGroup.getAttributesOfMeta().get(0))) {
-                    if (!deleteRequestedMembers.isEmpty()) {
+                    if (!deleteRequestMembersUpperCaseDomain.isEmpty()) {
                         log.warn(
                                 "All Existing members will be deleted through SCIM meta attributes Hence operation " +
                                 "delete is Invalid");
-                        deleteRequestedMembers = new ArrayList<>();
+                        deleteRequestMembersUpperCaseDomain = new ArrayList<>();
                         metaDeleteAllMembers = true;
                     }
                     String users[] = carbonUM.getUserListOfRole(newGroup.getDisplayName());
-                    if (addRequestedMembers.isEmpty()) {
+                    if (addRequestMembersUpperCaseDomain.isEmpty()) {
                         carbonUM.updateUserListOfRole(newGroup.getDisplayName(), users, new String[0]);
                     } else {
                         //If new set of members contains an old members, save those old members without deleting from user store
                         List<String> membersDeleteFromUserStore = new ArrayList<String>();
                         for (String user : users) {
-                            if (!addRequestedMembers.contains(user)) {
+                            if (!addRequestMembersUpperCaseDomain.contains(user)) {
                                 membersDeleteFromUserStore.add(user);
                             }
                         }
@@ -1092,19 +1116,19 @@ public class SCIMUserManager implements UserManager {
                 List<String> addedMembers = new ArrayList<>();
                 List<String> deletedMembers = new ArrayList<>();
 
-                if (addRequestedMembers.isEmpty() && metaDeleteAllMembers) {
+                if (addRequestMembersUpperCaseDomain.isEmpty() && metaDeleteAllMembers) {
                     String users[] = carbonUM.getUserListOfRole(newGroup.getDisplayName());
                     deletedMembers = Arrays.asList(users);
                 }
 
-                for (String addRequestedMember : addRequestedMembers) {
+                for (String addRequestedMember : addRequestMembersUpperCaseDomain) {
                     if ((!oldMembers.isEmpty()) && oldMembers.contains(addRequestedMember)) {
                         continue;
                     }
                     addedMembers.add(addRequestedMember);
                 }
 
-                for (String deleteRequestedMember : deleteRequestedMembers) {
+                for (String deleteRequestedMember : deleteRequestMembersUpperCaseDomain) {
                     if ((!oldMembers.isEmpty()) && oldMembers.contains(deleteRequestedMember)) {
                         deletedMembers.add(deleteRequestedMember);
                     } else {
@@ -1492,5 +1516,12 @@ public class SCIMUserManager implements UserManager {
         } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Error retrieving Service Provider. ", e);
         }
+    }
+
+    private String convertDomainToUpperCase(String name){
+        String domainName = UserCoreUtil.extractDomainFromName(name);
+        domainName = domainName.toUpperCase();
+        String domainFreeName = UserCoreUtil.removeDomainFromName(name);
+        return UserCoreUtil.addDomainToName(domainFreeName, domainName);
     }
 }
