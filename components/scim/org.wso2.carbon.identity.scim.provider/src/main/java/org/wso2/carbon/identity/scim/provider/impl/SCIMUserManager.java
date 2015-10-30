@@ -1012,7 +1012,9 @@ public class SCIMUserManager implements UserManager {
                 List<String> userIds = newGroup.getMembers();
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
 
-                String groupDisplayNamesUpperCaseDomain = convertDomainToUpperCase(newGroup.getDisplayName());
+                String groupDisplayNamesUpperCaseDomain = UserCoreUtil
+                        .addDomainToName(UserCoreUtil.removeDomainFromName(newGroup.getDisplayName()),
+                                UserCoreUtil.extractDomainFromName(newGroup.getDisplayName()));
                 newGroup.setDisplayName(groupDisplayNamesUpperCaseDomain);
 
                 String[] userNames = null;
@@ -1029,7 +1031,9 @@ public class SCIMUserManager implements UserManager {
                         } else {
                             boolean isUserNameMatches = false;
                             for(String userName : userDisplayNames) {
-                                String caseInsensitiveDomainWithUserName = convertDomainToUpperCase(userName);
+                                String caseInsensitiveDomainWithUserName = UserCoreUtil
+                                        .addDomainToName(UserCoreUtil.removeDomainFromName(userName),
+                                                UserCoreUtil.extractDomainFromName(userName));
                                 if(caseInsensitiveDomainWithUserName.equalsIgnoreCase(userNames[0])){
                                     isUserNameMatches = true;
                                     break;
@@ -1074,12 +1078,16 @@ public class SCIMUserManager implements UserManager {
                 List<String> deleteRequestMembersUpperCaseDomain = new ArrayList<>();
 
                 for (String addMember : addRequestedMembers){
-                    String addRequestMemberUpperCaseDomain = convertDomainToUpperCase(addMember);
+                    String addRequestMemberUpperCaseDomain = UserCoreUtil
+                            .addDomainToName(UserCoreUtil.removeDomainFromName(addMember),
+                                    UserCoreUtil.extractDomainFromName(addMember));
                     addRequestMembersUpperCaseDomain.add(addRequestMemberUpperCaseDomain);
                 }
 
                 for (String deleteMember : deleteRequestedMembers){
-                    String deleteRequestMemberUpperCaseDomain = convertDomainToUpperCase(deleteMember);
+                    String deleteRequestMemberUpperCaseDomain = UserCoreUtil
+                            .addDomainToName(UserCoreUtil.removeDomainFromName(deleteMember),
+                                    UserCoreUtil.extractDomainFromName(deleteMember));
                     deleteRequestMembersUpperCaseDomain.add(deleteRequestMemberUpperCaseDomain);
                 }
 
@@ -1516,12 +1524,5 @@ public class SCIMUserManager implements UserManager {
         } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Error retrieving Service Provider. ", e);
         }
-    }
-
-    private String convertDomainToUpperCase(String name){
-        String domainName = UserCoreUtil.extractDomainFromName(name);
-        domainName = domainName.toUpperCase();
-        String domainFreeName = UserCoreUtil.removeDomainFromName(name);
-        return UserCoreUtil.addDomainToName(domainFreeName, domainName);
     }
 }
