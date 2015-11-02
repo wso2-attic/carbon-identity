@@ -46,8 +46,10 @@
 	<script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 
 	<%
-		String spName = (String) request.getParameter("spName");
-		ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, spName);
+		String spName = request.getParameter("spName");
+		String oldSPName = request.getParameter("oldSPName");
+
+		ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, oldSPName);
 
 		if (spName != null && !"".equals(spName)) {
 

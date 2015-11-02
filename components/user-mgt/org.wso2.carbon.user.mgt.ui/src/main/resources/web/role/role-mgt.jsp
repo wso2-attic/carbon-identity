@@ -184,7 +184,7 @@
                     activeRoleList = new LinkedHashSet<FlaggedName>(preactiveRoleList);
 
                     String[] AddPendingRolesList = UserMgtClient.
-                            listAllEntityNames("ADD_ROLE", "PENDING", "ROLE");
+                            listAllEntityNames("ADD_ROLE", "PENDING", "ROLE", modifiedFilter);
 
                     workFlowAddPendingRolesList = new LinkedHashSet<String>(Arrays.asList(AddPendingRolesList));
 
@@ -196,7 +196,7 @@
                     }
 
                     String[] DeletePendingUsersList = UserMgtClient.
-                            listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE");
+                            listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE", modifiedFilter);
                     workFlowDeletePendingRoles = new LinkedHashSet<String>(Arrays.asList(DeletePendingUsersList));
 
                     for (Iterator<FlaggedName> iterator = activeRoleList.iterator(); iterator.hasNext(); ) {
@@ -279,7 +279,7 @@
 
         list.add(UserAdminUIConstants.ALL_DOMAINS);
         list.add(UserAdminUIConstants.INTERNAL_DOMAIN);
-        //list.add(UserAdminUIConstants.APPLICATION_DOMAIN);
+        list.add(UserAdminUIConstants.APPLICATION_DOMAIN);
         //list.add(UserAdminUIConstants.WORKFLOW_DOMAIN);
         domainNames = list.toArray(new String[list.size()]);
     }

@@ -172,7 +172,7 @@ public class WorkflowRequestAssociationDAO {
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, requestId);
             resultSet = prepStmt.executeQuery();
-            if (resultSet.next()) {
+            while (resultSet.next()) {
                 states.add(resultSet.getString(SQLConstants.REQUEST_STATUS_COLUMN));
             }
             connection.commit();
