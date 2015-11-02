@@ -64,10 +64,10 @@
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <includedFeatures>
                                 <includedFeatureDef>
-                                    org.wso2.carbon.identity:org.wso2.carbon.identity.sts.mgt.server.feature
+                                    org.wso2.carbon.identity:org.wso2.carbon.identity.sts.mgt.server
                                 </includedFeatureDef>
                                 <includedFeatureDef>
-                                    org.wso2.carbon.identity:org.wso2.carbon.identity.sts.mgt.ui.feature
+                                    org.wso2.carbon.identity:org.wso2.carbon.identity.sts.mgt.ui
                                 </includedFeatureDef>
                             </includedFeatures>
                         </configuration>
