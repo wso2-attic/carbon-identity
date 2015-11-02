@@ -62,6 +62,10 @@
             <groupId>net.sf.ehcache.wso2</groupId>
             <artifactId>ehcache</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -121,6 +125,7 @@
                                 <bundleDef>org.igniterealtime.smack.wso2:smack</bundleDef>
                                 <bundleDef>opensaml.wso2:opensaml2</bundleDef>
                                 <bundleDef>net.sf.ehcache.wso2:ehcache</bundleDef>
+                                <bundleDef>net.minidev:json-smart</bundleDef>
                             </bundles>
                             <importBundles>
                                 <importBundleDef>com.google.step2.wso2:step2</importBundleDef>

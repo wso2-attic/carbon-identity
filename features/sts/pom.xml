@@ -38,6 +38,9 @@
         <module>org.wso2.carbon.identity.sts.passive.feature</module>
         <module>org.wso2.carbon.identity.sts.passive.server.feature</module>
         <module>org.wso2.carbon.identity.sts.passive.ui.feature</module>
+        <module>org.wso2.carbon.identity.sts.mgt.server.feature</module>
+        <module>org.wso2.carbon.identity.sts.mgt.ui.feature</module>
+        <module>org.wso2.carbon.identity.sts.mgt.feature</module>
     </modules>
 
 </project>
