@@ -57,7 +57,7 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.sts.passive.ui</id>
+                            <id>org.wso2.carbon.identity.sts.mgt.ui</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
