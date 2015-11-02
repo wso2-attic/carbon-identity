@@ -252,12 +252,11 @@ public class TenantDataManager {
                 XPath xpath = xpf.newXPath();
 
                 InputSource inputSource = new InputSource(new StringReader(xmlString));
-                // Create a new DocumentBuilderFactory.
+
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 factory.setNamespaceAware(true);
-                // Use the factory to create a Documentbuilder.
+
                 DocumentBuilder builder = factory.newDocumentBuilder();
-                //Parse XML source and create a Document object.
                 Document doc = builder.parse(inputSource);
 
                 String xPathExpression = "/*[local-name() = '" + Constants.TenantConstants.RETRIEVE_TENANTS_RESPONSE
