@@ -54,7 +54,8 @@ import java.net.URISyntaxException;
 
 /**
  * @scr.component name="org.wso2.carbon.identity.workflow.impl" immediate="true"
- * @scr.reference name="org.wso2.carbon.user.core.service.realmservice" interface="org.wso2.carbon.user.core.service.RealmService"
+ * @scr.reference name="org.wso2.carbon.user.core.service.realmservice" interface="org.wso2.carbon.user.core.service
+ * .RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
  * @scr.reference name="org.wso2.carbon.identity.workflow.mgt.workflowservice"
@@ -81,7 +82,8 @@ public class WorkflowImplServiceComponent {
             String metaDataXML =
                     readWorkflowImplParamMetaDataXML(WFImplConstant.WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME);
 
-            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(BPELDeployer.class,RequestExecutor.class, metaDataXML), null);
+            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(BPELDeployer.class,
+                    RequestExecutor.class, metaDataXML), null);
             bundleContext.registerService(WorkflowListener.class, new WorkflowListenerImpl(), null);
 
             WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
@@ -143,14 +145,16 @@ public class WorkflowImplServiceComponent {
             BPSProfile currentBpsProfile = workflowImplService.getBPSProfile(WFConstant.DEFAULT_BPS_PROFILE,
                     MultitenantConstants.SUPER_TENANT_ID);
             String url = IdentityUtil.getServerURL("", true);
-            if (currentBpsProfile == null || !currentBpsProfile.getWorkerHostURL().equals(url)) {
+            String userName =
+                    WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
+                            .getAdminUserName();
+            String password =
+                    WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
+                            .getAdminPassword();
+            if (currentBpsProfile == null || currentBpsProfile.getProfileName().equals(null) || !currentBpsProfile
+                    .getWorkerHostURL().equals(url) || !currentBpsProfile.getUsername().endsWith(userName) ||
+                    !currentBpsProfile.getPassword().equals(password)) {
                 BPSProfile bpsProfileDTO = new BPSProfile();
-                String userName =
-                        WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
-                                .getAdminUserName();
-                String password =
-                        WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
-                                .getAdminPassword();
                 bpsProfileDTO.setManagerHostURL(url);
                 bpsProfileDTO.setWorkerHostURL(url);
                 bpsProfileDTO.setUsername(userName);
@@ -163,12 +167,12 @@ public class WorkflowImplServiceComponent {
                     if (log.isDebugEnabled()) {
                         log.info("Default BPS profile added to the DB");
                     }
-                } else if (!currentBpsProfile.getWorkerHostURL().equals(url)) {
+                } else {
                     workflowImplService.updateBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);
                 }
 
             }
-        }  catch (WorkflowException e) {
+        } catch (WorkflowException e) {
             //This is not thrown exception because this is not blocked to the other functionality. User can create
             // default profile by manually.
             String errorMsg = "Error occured while adding default bps profile, " + e.getMessage();
