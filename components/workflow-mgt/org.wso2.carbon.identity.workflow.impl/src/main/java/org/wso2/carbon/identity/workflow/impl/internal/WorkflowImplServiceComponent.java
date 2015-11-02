@@ -150,9 +150,8 @@ public class WorkflowImplServiceComponent {
             String password =
                     WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
                             .getAdminPassword();
-            if (currentBpsProfile == null || currentBpsProfile.getProfileName().equals(null) || !currentBpsProfile
-                    .getWorkerHostURL().equals(url) || !currentBpsProfile.getUsername().endsWith(userName) ||
-                    !currentBpsProfile.getPassword().equals(password)) {
+            if (currentBpsProfile == null || !currentBpsProfile.getWorkerHostURL().equals(url) || !currentBpsProfile
+                    .getUsername().equals(userName) || !currentBpsProfile.getPassword().equals(password)) {
                 BPSProfile bpsProfileDTO = new BPSProfile();
                 bpsProfileDTO.setManagerHostURL(url);
                 bpsProfileDTO.setWorkerHostURL(url);
@@ -163,11 +162,10 @@ public class WorkflowImplServiceComponent {
                 bpsProfileDTO.setProfileName(WFConstant.DEFAULT_BPS_PROFILE);
                 if (currentBpsProfile == null) {
                     workflowImplService.addBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);
-                    if (log.isDebugEnabled()) {
-                        log.info("Default BPS profile added to the DB");
-                    }
+                    log.info("Default BPS profile added to the DB.");
                 } else {
                     workflowImplService.updateBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);
+                    log.info("Default BPS profile updated.");
                 }
 
             }
