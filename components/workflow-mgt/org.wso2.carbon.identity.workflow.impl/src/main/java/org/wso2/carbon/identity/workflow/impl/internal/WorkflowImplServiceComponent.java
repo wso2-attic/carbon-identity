@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.workflow.impl.internal;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -144,12 +145,14 @@ public class WorkflowImplServiceComponent {
             BPSProfile currentBpsProfile = workflowImplService.getBPSProfile(WFConstant.DEFAULT_BPS_PROFILE,
                     MultitenantConstants.SUPER_TENANT_ID);
             String url = IdentityUtil.getServerURL("", true);
-            String userName =
-                    WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
-                            .getAdminUserName();
-            String password =
-                    WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
-                            .getAdminPassword();
+            String userName = WorkflowImplServiceDataHolder.getInstance().getRealmService()
+                    .getBootstrapRealmConfiguration().getAdminUserName();
+            String password = WorkflowImplServiceDataHolder.getInstance().getRealmService()
+                    .getBootstrapRealmConfiguration().getAdminPassword();
+            if (StringUtils.isBlank(password)) {
+                log.info("Insufficient data for adding embedded_bps profile, hence skipping.");
+                return;
+            }
             if (currentBpsProfile == null || !currentBpsProfile.getWorkerHostURL().equals(url) || !currentBpsProfile
                     .getUsername().equals(userName) || !currentBpsProfile.getPassword().equals(password)) {
                 BPSProfile bpsProfileDTO = new BPSProfile();
