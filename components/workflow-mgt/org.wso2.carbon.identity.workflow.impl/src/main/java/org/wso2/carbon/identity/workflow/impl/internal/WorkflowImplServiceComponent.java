@@ -54,8 +54,7 @@ import java.net.URISyntaxException;
 
 /**
  * @scr.component name="org.wso2.carbon.identity.workflow.impl" immediate="true"
- * @scr.reference name="org.wso2.carbon.user.core.service.realmservice" interface="org.wso2.carbon.user.core.service
- * .RealmService"
+ * @scr.reference name="org.wso2.carbon.user.core.service.realmservice" interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
  * @scr.reference name="org.wso2.carbon.identity.workflow.mgt.workflowservice"
