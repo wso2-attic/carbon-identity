@@ -162,8 +162,6 @@ public class KeyStoreAdminClient {
             if (offset < bytes.length) {
                 throw new IOException("Could not completely read file " + file.getName());
             }
-
-            is.close();
             return bytes;
         } catch (java.lang.Exception e) {
             log.error("Error in getting bytes from file.", e);
