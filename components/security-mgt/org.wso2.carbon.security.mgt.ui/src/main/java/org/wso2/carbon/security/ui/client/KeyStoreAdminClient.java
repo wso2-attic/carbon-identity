@@ -39,6 +39,7 @@ import org.wso2.carbon.security.mgt.stub.keystore.KeyStoreAdminServiceStub;
 import org.wso2.carbon.security.mgt.stub.keystore.RemoveCertFromStore;
 import org.wso2.carbon.security.mgt.stub.keystore.xsd.KeyStoreData;
 import org.wso2.carbon.security.mgt.stub.keystore.xsd.PaginatedKeyStoreData;
+import org.wso2.carbon.server.util.FileUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -137,9 +138,9 @@ public class KeyStoreAdminClient {
     }
 
     private byte[] getBytesFromFile(File file) throws java.lang.Exception {
-        try {
-            InputStream is = new FileInputStream(file);
 
+        InputStream is = new FileInputStream(file);
+        try {
             // Get the size of the file
             long length = file.length();
 
@@ -167,6 +168,8 @@ public class KeyStoreAdminClient {
         } catch (java.lang.Exception e) {
             log.error("Error in getting bytes from file.", e);
             throw e;
+        } finally {
+            FileUtils.closeQuietly(is);
         }
     }
 
