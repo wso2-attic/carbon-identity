@@ -1683,4 +1683,23 @@ public class IdPManagementUIUtil {
         return null;
     }
 
+    /**
+     * This is used in front end. Property is the type of stub generated property
+     *
+     * @param properties properties list to iterate
+     * @param startWith  the peoperty list startswith the given name
+     * @return
+     */
+    public static List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> getPropertySetStartsWith(
+            org.wso2.carbon.identity.application.common.model.idp.xsd.Property[] properties,
+            String startWith) {
+        List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> propertySet = new ArrayList<>();
+        for (org.wso2.carbon.identity.application.common.model.idp.xsd.Property property : properties) {
+            if (property.getName().startsWith(startWith)) {
+                propertySet.add(property);
+            }
+        }
+        return propertySet;
+    }
+
 }
