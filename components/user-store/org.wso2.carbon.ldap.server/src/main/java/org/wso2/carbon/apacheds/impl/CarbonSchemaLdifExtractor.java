@@ -164,8 +164,6 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
             throw new IOException(msg, e);
         } finally {
             org.wso2.carbon.server.util.FileUtils.closeQuietly(zipFileStream);
-            org.wso2.carbon.server.util.FileUtils.closeQuietly(schemaFileStream);
-            org.wso2.carbon.server.util.FileUtils.closeQuietly(extractedSchemaFile);
             org.wso2.carbon.server.util.FileUtils.closeQuietly(extractingBufferedStream);
         }
 
