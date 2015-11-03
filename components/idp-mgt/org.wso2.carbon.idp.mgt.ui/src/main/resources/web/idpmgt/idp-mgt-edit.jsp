@@ -18,31 +18,32 @@
 
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@page import="org.apache.commons.lang.StringUtils" %>
+<%@page import="org.owasp.encoder.Encode" %>
 <%@page import="org.wso2.carbon.CarbonConstants" %>
 <%@page import="org.wso2.carbon.identity.application.common.model.CertData" %>
 <%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Claim" %>
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimMapping" %>
 
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
+<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ClaimMapping" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.RoleMapping" %>
 <%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
 <%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil" %>
+<%@ page import="org.wso2.carbon.identity.core.util.IdentityUtil" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.List" %>
-<%@ page import="java.util.Map" %>
-<%@page import="java.util.Set"%>
-<%@ page import="org.wso2.carbon.identity.core.util.IdentityUtil" %>
+<%@page import="java.util.Map"%>
+<%@ page import="java.util.Set" %>
+<%@ page import="java.util.UUID" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 
 <carbon:breadcrumb label="identity.providers" resourceBundle="org.wso2.carbon.idp.mgt.ui.i18n.Resources"
@@ -202,12 +203,21 @@
 	Set<String> signatureAlgorithms = IdentityApplicationManagementUtil.getXMLSignatureAlgorithmNames();
 	Set<String> digestAlgorithms = IdentityApplicationManagementUtil.getXMLDigestAlgorithmNames();
     Set<String> authenticationContextClasses = IdentityApplicationManagementUtil.getSAMLAuthnContextClassNames();
-    List<String> authenticationContextComparisonLevels = IdentityApplicationManagementUtil.getSAMLAuthnContextComparisonLevels();
+    List<String> authenticationContextComparisonLevels = IdentityApplicationManagementUtil
+            .getSAMLAuthnContextComparisonLevels();
 
     String[] idpClaims = new String[]{"admin", "Internal/everyone"};//appBean.getSystemClaims();
 
-    IdentityProvider identityProvider = (IdentityProvider) session.getAttribute("identityProvider");
-    List<IdentityProvider> identityProvidersList = (List<IdentityProvider>) session.getAttribute("identityProviderList");
+    Map<String, UUID> idpUniqueIdMap = (Map<String, UUID>) session.getAttribute("idpUniqueIdMap");
+
+    IdentityProvider identityProvider = null;
+
+    if(idPName != null && idpUniqueIdMap.get(idPName) != null) {
+        identityProvider = (IdentityProvider) session.getAttribute(idpUniqueIdMap.get(idPName).toString());
+    }
+
+    List<IdentityProvider> identityProvidersList =
+            (List<IdentityProvider>) session.getAttribute("identityProviderList");
 
     Map<String, FederatedAuthenticatorConfig> allFedAuthConfigs = new HashMap<String, FederatedAuthenticatorConfig>();
 
@@ -215,7 +225,8 @@
     String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
     ConfigurationContext configContext =
             (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-    IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
+    IdentityProviderMgtServiceClient client =
+            new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
 
     allFedAuthConfigs = client.getAllFederatedAuthenticators();
     customProvisioningConnectors = client.getCustomProvisioningConnectors();
@@ -3131,8 +3142,11 @@ function doValidation() {
 <div id="workArea">
 <form id="idp-mgt-edit-form" name="idp-mgt-edit-form" method="post" action="idp-mgt-edit-finish.jsp"
       enctype="multipart/form-data">
-<div class="sectionSeperator togglebleTitle"><fmt:message key='identity.provider.info'/></div>
-<div class="sectionSub">
+    <% if(idPName != null && idpUniqueIdMap.get(idPName) != null) { %>
+        <input type="hidden" name="idpUUID" value="<%= Encode.forHtmlAttribute(idpUniqueIdMap.get(idPName).toString()) %>"/>
+    <% } %>
+    <div class="sectionSeperator togglebleTitle"><fmt:message key='identity.provider.info'/></div>
+    <div class="sectionSub">
     <table class="carbonFormTable">
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='name'/>:<span class="required">*</span></td>
@@ -3141,7 +3155,6 @@ function doValidation() {
                 <%if (identityProvider != null && identityProvider.getEnable()) { %>
                 <input id="enable" name="enable" type="hidden" value="1">
                 <%} %>
-
                 <div class="sectionHelp">
                     <fmt:message key='name.help'/>
                 </div>
