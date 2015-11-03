@@ -694,7 +694,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     *
      * @return the Signing Algorithm URI defined in configuration
      */
     public static String getSigningAlgoURIByConfig() {
@@ -707,7 +706,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     *
      * @return the Digest Algorithm URI defined in configuration
      */
     public static String getDigestAlgoURIByConfig() {
@@ -720,15 +718,16 @@ public class IdentityApplicationManagementUtil {
     }
 
 
-
     /**
      * This is used in back end. Property is the type of stub generated property
-     * @param authnConfigs authenticatorConfigs to iterate
-     * @param authenticatorName authenticator name of which the values are needed
+     *
+     * @param authnConfigs       authenticatorConfigs to iterate
+     * @param authenticatorName  authenticator name of which the values are needed
      * @param propNameStartsWith the prefix of the property name
      * @return the list of values which statrts with the propNameStartsWith.
      */
-    public static List<String> getPropertyValuesForNameStartsWith(FederatedAuthenticatorConfig[] authnConfigs, String authenticatorName, String propNameStartsWith){
+    public static List<String> getPropertyValuesForNameStartsWith(FederatedAuthenticatorConfig[] authnConfigs, String
+            authenticatorName, String propNameStartsWith) {
         List<String> propValueSet = new ArrayList<String>();
         for (FederatedAuthenticatorConfig config : authnConfigs) {
             if (authenticatorName.equals(config.getName())) {
