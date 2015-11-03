@@ -37,6 +37,10 @@
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.sts</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.sts.store</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -63,6 +67,7 @@
                             </adviceFile>
                             <bundles>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.sts</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.sts.store</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}

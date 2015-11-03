@@ -63,14 +63,6 @@
             <artifactId>ehcache</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.sts.mgt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.sts.store</artifactId>
-        </dependency>
-        <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
         </dependency>
@@ -133,8 +125,6 @@
                                 <bundleDef>org.igniterealtime.smack.wso2:smack</bundleDef>
                                 <bundleDef>opensaml.wso2:opensaml2</bundleDef>
                                 <bundleDef>net.sf.ehcache.wso2:ehcache</bundleDef>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.sts.mgt</bundleDef>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.sts.store</bundleDef>
                                 <bundleDef>net.minidev:json-smart</bundleDef>
                             </bundles>
                             <importBundles>
