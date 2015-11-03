@@ -132,24 +132,29 @@ public class PolicyEditorService {
         String fileList = "";
 
         StringBuilder fBuf = null;
+        BufferedReader dis = null;
         try {
             InputStream in = PolicyEditorService.class.getResourceAsStream(
                     ORG_WSO2_CARBON_POLICYEDITOR_XSD + "policies.xml");
 
-            BufferedReader dis =
-                    new BufferedReader(new InputStreamReader(in, Charsets.UTF_8));
+            dis = new BufferedReader(new InputStreamReader(in, Charsets.UTF_8));
             fBuf = new StringBuilder();
 
             String line = "";
             while ((line = dis.readLine()) != null) {
                 fBuf.append(line).append("\n");
             }
-            in.close();
-
             fileList = fBuf.toString();
-            dis.close();
         } catch (IOException e) {
             throw new AxisFault("Axis fault while getting schemas.", e);
+        } finally {
+            if(dis != null){
+                try{
+                    dis.close();
+                }catch (IOException ioe){
+                    log.error("Error occurred while closing BufferedReader");
+                }
+            }
         }
 
         return "<![CDATA[" + fileList + "]]>";
