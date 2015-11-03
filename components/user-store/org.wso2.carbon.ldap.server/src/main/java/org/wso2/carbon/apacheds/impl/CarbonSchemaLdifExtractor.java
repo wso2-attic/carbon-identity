@@ -122,9 +122,14 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
 
     protected void unzipSchemaFile()
             throws IOException {
+        FileInputStream schemaFileStream = null;
+        ZipInputStream zipFileStream = null;
+        FileOutputStream extractedSchemaFile = null;
+        BufferedOutputStream extractingBufferedStream = null;
+
         try {
-            FileInputStream schemaFileStream = new FileInputStream(this.zipSchemaStore);
-            ZipInputStream zipFileStream = new ZipInputStream(new BufferedInputStream(
+            schemaFileStream = new FileInputStream(this.zipSchemaStore);
+            zipFileStream = new ZipInputStream(new BufferedInputStream(
                     schemaFileStream));
             ZipEntry entry;
 
@@ -144,26 +149,24 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
                 int size;
                 byte[] buffer = new byte[2048];
 
-                FileOutputStream extractedSchemaFile = new FileOutputStream(
-                        new File(basePath, entry.getName()));
-                BufferedOutputStream extractingBufferedStream =
-                        new BufferedOutputStream(extractedSchemaFile, buffer.length);
+                extractedSchemaFile = new FileOutputStream(new File(basePath, entry.getName()));
+                extractingBufferedStream =new BufferedOutputStream(extractedSchemaFile, buffer.length);
 
                 while ((size = zipFileStream.read(buffer, 0, buffer.length)) != -1) {
                     extractingBufferedStream.write(buffer, 0, size);
                 }
-                extractingBufferedStream.flush();
-                extractingBufferedStream.close();
             }
-
-            zipFileStream.close();
-            schemaFileStream.close();
         } catch (IOException e) {
             String msg = "Unable to extract schema directory to location " +
                     this.schemaDirectory.getAbsolutePath() + " from " +
                     this.zipSchemaStore.getAbsolutePath();
             logger.error(msg, e);
             throw new IOException(msg, e);
+        } finally {
+            org.wso2.carbon.server.util.FileUtils.closeQuietly(zipFileStream);
+            org.wso2.carbon.server.util.FileUtils.closeQuietly(schemaFileStream);
+            org.wso2.carbon.server.util.FileUtils.closeQuietly(extractedSchemaFile);
+            org.wso2.carbon.server.util.FileUtils.closeQuietly(extractingBufferedStream);
         }
 
         if (logger.isDebugEnabled()) {
