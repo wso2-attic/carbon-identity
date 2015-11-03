@@ -30,6 +30,7 @@ import org.wso2.carbon.apacheds.PartitionInfo;
 import org.wso2.carbon.apacheds.PasswordAlgorithm;
 import org.wso2.carbon.ldap.server.exception.DirectoryServerException;
 import org.wso2.carbon.ldap.server.util.EmbeddingLDAPException;
+import org.wso2.carbon.server.util.FileUtils;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -553,6 +554,8 @@ public class LDAPConfigurationBuilder {
             }
         } catch (UserStoreException e) {
             logger.error("Error occured while reading user-mgt.xml", e);
+        } finally {
+            FileUtils.closeQuietly(inStream);
         }
 
         return config;
