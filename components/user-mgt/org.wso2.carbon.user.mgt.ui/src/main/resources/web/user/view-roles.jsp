@@ -142,7 +142,7 @@
                     UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
 
             if (filter.length() > 0 && userName != null) {
-                FlaggedName[] data = client.getRolesOfUser(Util.decodeHTMLCharacters(userName), filter, 0);
+                FlaggedName[] data = client.getRolesOfUser(userName, filter, 0);
                 if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
                     String[] DeletePendingRolesList = UserMgtClient.
                             listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE", filter);
@@ -193,7 +193,7 @@
             }
         } catch (Exception e) {
             String message = MessageFormat.format(resourceBundle.getString("error.while.loading.roles.of"),
-                    Util.decodeHTMLCharacters(userName), e.getMessage());
+                    userName, e.getMessage());
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {

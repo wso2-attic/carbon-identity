@@ -35,9 +35,7 @@
 
 	if (relayState!=null && !"null".equals(relayState)) {
     relayState = URLDecoder.decode(relayState, "UTF-8");
-    relayState = relayState.replaceAll("&", "&amp;").replaceAll("\"", "&quot;").replaceAll("'", "&apos;").
-            replaceAll("<", "&lt;").replaceAll(">", "&gt;").replace("\n", "");
-	}
+    }
     
 %>
 <p>You are now redirected back to <%=assertionConsumerURL%>. If the

@@ -141,7 +141,7 @@
             UserManagementWorkflowServiceClient UserMgtClient = new
                     UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
             if (filter.length() > 0 && userName != null) {
-                FlaggedName[] data = client.getRolesOfUser(Util.decodeHTMLCharacters(userName), filter, -1);
+                FlaggedName[] data = client.getRolesOfUser(userName, filter, -1);
                 if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
                     String[] DeletePendingRolesList = UserMgtClient.
                             listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE", filter);
