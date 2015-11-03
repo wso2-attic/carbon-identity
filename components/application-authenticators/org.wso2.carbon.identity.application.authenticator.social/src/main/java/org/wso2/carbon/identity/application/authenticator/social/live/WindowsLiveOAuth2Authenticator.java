@@ -217,6 +217,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         callbackUrl.setName(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
         callbackUrl.setRequired(true);
         callbackUrl.setDescription("Enter value corresponding to callback url.");
+        callbackUrl.setDisplayOrder(1);
         configProperties.add(callbackUrl);
 
         Property clientId = new Property();
@@ -224,6 +225,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientId.setDisplayName("Client Id");
         clientId.setRequired(true);
         clientId.setDescription("Enter Microsoft Live client identifier value");
+        clientId.setDisplayOrder(2);
         configProperties.add(clientId);
 
         Property clientSecret = new Property();
@@ -232,6 +234,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientSecret.setRequired(true);
         clientSecret.setConfidential(true);
         clientSecret.setDescription("Enter Microsoft Live client secret value");
+        clientSecret.setDisplayOrder(3);
         configProperties.add(clientSecret);
 
         return configProperties;
