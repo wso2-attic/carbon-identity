@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
@@ -17,31 +16,32 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
-        <artifactId>user-mgt-workflow-feature</artifactId>
-        <version>5.0.2-beta</version>
+        <artifactId>sts-feature</artifactId>
+        <version>5.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.user.mgt.workflow.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.sts.mgt.feature</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon- Workflow User Management Feature</name>
+    <name>STS management feature</name>
     <url>http://wso2.org</url>
-    <description>This feature contains the bundles required for Workflow User Management functionality</description>
+    <description>This feature contains the bundles required for STS management functionality
+    </description>
 
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.user.mgt.workflow.server.feature</artifactId>
+            <artifactId>org.wso2.carbon.identity.sts.mgt.server.feature</artifactId>
             <type>zip</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.user.mgt.workflow.ui.feature</artifactId>
+            <artifactId>org.wso2.carbon.identity.sts.mgt.ui.feature</artifactId>
             <type>zip</type>
         </dependency>
     </dependencies>
@@ -54,23 +54,20 @@
                 <version>${carbon.p2.plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>p2-feature-generation</id>
+                        <id>4-p2-feature-generation</id>
                         <phase>package</phase>
                         <goals>
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.user.mgt.workflow</id>
+                            <id>org.wso2.carbon.identity.sts.mgt</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
-                            <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>
-                            </importFeatures>
                             <includedFeatures>
                                 <includedFeatureDef>
-                                    org.wso2.carbon.identity:org.wso2.carbon.user.mgt.workflow.server.feature
+                                    org.wso2.carbon.identity:org.wso2.carbon.identity.sts.mgt.server.feature
                                 </includedFeatureDef>
                                 <includedFeatureDef>
-                                    org.wso2.carbon.identity:org.wso2.carbon.user.mgt.workflow.ui.feature
+                                    org.wso2.carbon.identity:org.wso2.carbon.identity.sts.mgt.ui.feature
                                 </includedFeatureDef>
                             </includedFeatures>
                         </configuration>
@@ -79,7 +76,5 @@
             </plugin>
         </plugins>
     </build>
-
-
 
 </project>

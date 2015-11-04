@@ -40,7 +40,7 @@ public class IdentityApplicationConstants {
 
     public static final String GOOGLE_OAUTH_URL = "https://accounts.google.com/o/oauth2/auth";
     public static final String GOOGLE_TOKEN_URL = "https://accounts.google.com/o/oauth2/token";
-    public static final String GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo?schema=openid";
+    public static final String GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
 
     public static final String WINDOWS_LIVE_OAUTH_URL = "https://login.live.com/oauth20_authorize.srf";
     public static final String WINDOWS_LIVE_TOKEN_URL = "https://login.live.com/oauth20_token.srf";

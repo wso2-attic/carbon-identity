@@ -724,45 +724,6 @@ public class TokenMgtDAO {
         return validationDataDO;
     }
 
-    public void cleanUpAccessToken(String accessToken) throws IdentityOAuth2Exception {
-        if (maxPoolSize > 0) {
-            accessContextTokenQueue.push(new AccessContextTokenDO(accessToken, null, null, null, null));
-        } else {
-            removeAccessToken(accessToken);
-        }
-    }
-
-    public void removeAccessToken(String accessToken) throws IdentityOAuth2Exception {
-        Connection connection = IdentityDatabaseUtil.getDBConnection();
-        PreparedStatement prepStmt = null;
-        String userStoreDomain = null;
-        String sql = null;
-
-        try {
-            connection = JDBCPersistenceManager.getInstance().getDBConnection();
-            if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
-                    OAuth2Util.checkUserNameAssertionEnabled()) {
-                userStoreDomain = OAuth2Util.getUserStoreDomainFromAccessToken(accessToken);
-            }
-
-            String accessTokenStoreTable = "IDN_OAUTH2_ACCESS_TOKEN";
-            if (StringUtils.isNotBlank(userStoreDomain)) {
-                accessTokenStoreTable = accessTokenStoreTable + "_" + userStoreDomain;
-            }
-            sql = SQLQueries.DELETE_ACCESS_TOKEN.replaceAll("\\$accessTokenStoreTable", accessTokenStoreTable);
-            prepStmt = connection.prepareStatement(sql);
-
-            prepStmt.setString(1, persistenceProcessor.getProcessedAccessTokenIdentifier(accessToken));
-            prepStmt.execute();
-            connection.commit();
-
-        } catch (SQLException e) {
-            throw new IdentityOAuth2Exception("Error when cleaning up an access token", e);
-        } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
-        }
-    }
-
     public AccessTokenDO retrieveAccessToken(String accessTokenIdentifier, boolean includeExpired)
             throws IdentityOAuth2Exception {
 
