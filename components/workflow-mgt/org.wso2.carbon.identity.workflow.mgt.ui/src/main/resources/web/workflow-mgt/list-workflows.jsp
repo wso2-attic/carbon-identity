@@ -32,6 +32,7 @@
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowWizard" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.util.WorkflowUIUtil" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -93,7 +94,7 @@
 %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 
@@ -155,24 +156,24 @@
                 %>
                 <tr>
                     <td>
-                        <a href="view-workflow.jsp?<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>=<%=workflow.getWorkflowId()%>">
-                        <%=workflow.getWorkflowName()%>
+                        <a href="view-workflow.jsp?<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>=<%=Encode.forHtmlAttribute(workflow.getWorkflowId())%>">
+                        <%=Encode.forHtmlContent(workflow.getWorkflowName())%>
                         </a>
                     </td>
-                    <td><%=workflow.getWorkflowDescription() == null ? "" : workflow.getWorkflowDescription()%>
+                    <td><%=workflow.getWorkflowDescription() == null ? "" : Encode.forHtmlContent(workflow.getWorkflowDescription())%>
                     </td>
-                    <td><%=workflow.getTemplate().getName()%>
+                    <td><%=Encode.forHtmlContent(workflow.getTemplate().getName())%>
                     </td>
-                    <td><%=workflow.getWorkflowImpl().getWorkflowImplName()%>
+                    <td><%=Encode.forHtmlContent(workflow.getWorkflowImpl().getWorkflowImplName())%>
                     </td>
                     <td>
                         <a title="<fmt:message key='workflow.service.workflow.edit.title'/>"
-                           onclick="editWorkflow('<%=workflow.getWorkflowId()%>');
+                           onclick="editWorkflow('<%=Encode.forJavaScriptAttribute(workflow.getWorkflowId())%>');
                                    return false;"
                            href="#" style="background-image: url(images/edit.gif);"
                            class="icon-link"><fmt:message key='edit'/></a>
                         <a title="<fmt:message key='workflow.service.workflow.delete.title'/>"
-                           onclick="removeWorkflow('<%=workflow.getWorkflowId()%>','<%=workflow.getWorkflowName()%>');
+                           onclick="removeWorkflow('<%=Encode.forJavaScriptAttribute(workflow.getWorkflowId())%>','<%=Encode.forJavaScriptAttribute(workflow.getWorkflowName())%>');
                                    return false;"
                            href="#" style="background-image: url(images/delete.gif);"
                            class="icon-link"><fmt:message key='delete'/></a>

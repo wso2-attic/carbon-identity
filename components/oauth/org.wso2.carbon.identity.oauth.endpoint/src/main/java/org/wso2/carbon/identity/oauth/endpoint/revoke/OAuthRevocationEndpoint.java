@@ -35,7 +35,6 @@ import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
 import org.wso2.carbon.identity.oauth2.ResponseHeader;
 import org.wso2.carbon.identity.oauth2.dto.OAuthRevocationRequestDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuthRevocationResponseDTO;
-import org.wso2.carbon.ui.util.CharacterEncoder;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -82,10 +81,10 @@ public class OAuthRevocationEndpoint {
                     .get("token_type_hint").isEmpty()) {
                 tokenType = paramMap.get("token_type_hint").get(0);
             }
-            String callback = CharacterEncoder.getSafeText(httpRequest.getParameter("callback"));
+            String callback = httpRequest.getParameter("callback");
             if (StringUtils.isBlank(callback) && paramMap.get("callback") != null && !paramMap.get
                     ("callback").isEmpty()) {
-                callback = CharacterEncoder.getSafeText(paramMap.get("callback").get(0));
+                callback = paramMap.get("callback").get(0);
             }
 
             // extract the basic auth credentials if present in the request and use for

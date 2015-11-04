@@ -23,17 +23,23 @@
         <!-- <SkipDBSchemaCreation>false</SkipDBSchemaCreation> -->
         <!--SessionDataPersist>
             <Enable>true</Enable>
-            <EnableCleanUp>true</EnableCleanUp>
-            <Temporary>false</Temporary-->
-        <!--/SessionDataPersist-->
+            <Temporary>false</Temporary>
+            <SessionDataCleanUp>
+                <Enable>true</Enable>
+                <CleanUpTimeout>20160</CleanUpTimeout>
+                <CleanUpPeriod>1140</CleanUpPeriod>
+            </SessionDataCleanUp>
+            <OperationDataCleanUp>
+                <Enable>true</Enable>
+                <CleanUpPeriod>720</CleanUpPeriod>
+            </OperationDataCleanUp>
+        </SessionDataPersist-->
     </JDBCPersistenceManager>
 
     <!-- Time configurations are in minutes -->
     <TimeConfig>
         <SessionIdleTimeout>15</SessionIdleTimeout>
         <RememberMeTimeout>20160</RememberMeTimeout>
-        <PersistanceCleanUpTimeout>20160</PersistanceCleanUpTimeout>
-        <PersistanceCleanUpPeriod>1140</PersistanceCleanUpPeriod>
     </TimeConfig>
 
     <!-- Security configurations -->
@@ -61,6 +67,7 @@
          -->
         <!--OpenIDServerUrl>https://localhost:9443/openidserver</OpenIDServerUrl-->
         <!--OpenIDUserPattern>https://localhost:9443/openid/</OpenIDUserPattern-->
+        <!--OpenIDLoginUrl>https://localhost:9443/authenticationendpoint/openid_login.do</OpenIDLoginUrl-->
 
         <!-- If the users must be prompted for approval -->
         <OpenIDSkipUserConsent>false</OpenIDSkipUserConsent>
@@ -130,6 +137,9 @@
         <!--OAuth2AuthzEPUrl>https://localhost:9443/oauth2/authorize</OAuth2AuthzEPUrl-->
         <!--OAuth2TokenEPUrl>https://localhost:9443/oauth2/token</OAuth2TokenEPUrl-->
         <!--OAuth2UserInfoEPUrl>https://localhost:9443/oauth2/userinfo</OAuth2UserInfoEPUrl-->
+        <!--OIDCConsentPage>https://localhost:9443/authenticationendpoint/oauth2_consent.do</OIDCConsentPage-->
+        <!--OAuth2ConsentPage>https://localhost:9443/authenticationendpoint/oauth2_authz.do</OAuth2ConsentPage-->
+        <!--OAuth2ErrorPage>https://localhost:9443/authenticationendpoint/oauth2_error.do</OAuth2ErrorPage-->
 
         <!-- Default validity period for Authorization Code in seconds -->
         <AuthorizationCodeDefaultValidityPeriod>300</AuthorizationCodeDefaultValidityPeriod>
@@ -266,6 +276,8 @@
             If that doesn't satisfy uncomment the following config and explicitly configure the value
         -->
         <!--IdentityProviderURL>https://localhost:9443/samlsso</IdentityProviderURL-->
+        <!--DefaultLogoutEndpoint>https://localhost:9443/authenticationendpoint/samlsso_logout.do</DefaultLogoutEndpoint-->
+        <!--NotificationEndpoint>https://localhost:9443/authenticationendpoint/samlsso_notification.do</NotificationEndpoint-->
         <SingleLogoutRetryCount>5</SingleLogoutRetryCount>
         <SingleLogoutRetryInterval>60000</SingleLogoutRetryInterval>
         <!-- in milli seconds -->
@@ -287,6 +299,7 @@
         <SAMLResponseValidityPeriod>5</SAMLResponseValidityPeriod>
         <UseAuthenticatedUserDomainCrypto>false</UseAuthenticatedUserDomainCrypto>
         <SAMLDefaultSigningAlgorithmURI>http://www.w3.org/2000/09/xmldsig#rsa-sha1</SAMLDefaultSigningAlgorithmURI>
+        <SAMLDefaultDigestAlgorithmURI>http://www.w3.org/2000/09/xmldsig#sha1</SAMLDefaultDigestAlgorithmURI>
     </SSOService>
 
     <SecurityTokenService>
@@ -305,19 +318,10 @@
             If that doesn't satisfy uncomment the following config and explicitly configure the value
         -->
         <!--IdentityProviderURL>https://localhost:9443/passivests</IdentityProviderURL-->
+        <!--RetryURL>https://localhost:9443/authenticationendpoint/retry.do</RetryURL-->
     </PassiveSTS>
 
     <EntitlementSettings>
-        <!-- Uncomment this to enable on-demand policy loading -->
-        <!--OnDemandPolicyLoading> <Enable>true</Enable> <MaxInMemoryPolicies>100</MaxInMemoryPolicies>
-            </OnDemandPolicyLoading -->
-        <DecisionCaching>
-            <Enable>true</Enable>
-            <CachingInterval>36000</CachingInterval>
-        </DecisionCaching>
-        <AttributeCaching>
-            <Enable>true</Enable>
-        </AttributeCaching>
         <ThirftBasedEntitlementConfig>
             <EnableThriftService>false</EnableThriftService>
             <ReceivePort>${Ports.ThriftEntitlementReceivePort}</ReceivePort>
@@ -368,13 +372,5 @@
                        orderId="60" enable="false"/>
         <EventListener type="org.wso2.carbon.user.core.listener.UserOperationEventListener" name="org.wso2.carbon.identity.provider.openid.listener.IdentityOpenIDUserEventListener"
                        orderId="70" enable="false"/>
-
-        <EventListener type="org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener" name="org.wso2.carbon.identity.provisioning.listener.ApplicationMgtProvisioningListener"
-                       orderId="10" enable="false"/>
-
-        <EventListener type="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener" name="org.wso2.carbon.identity.application.mgt.listener.IdentityProviderMgtApplicationListener"
-                       orderId="10" enable="false"/>
-        <EventListener type="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener" name="org.wso2.carbon.identity.provisioning.listener.IdentityProviderMgtProvisioningListener"
-                       orderId="20" enable="false"/>
     </EventListeners>
 </Server>

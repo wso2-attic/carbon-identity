@@ -25,11 +25,9 @@
 <%@ page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.user.core.UserCoreConstants"%>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.net.URLEncoder"%>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.owasp.encoder.Encode" %>
@@ -41,9 +39,9 @@
 <%
     String BUNDLE = "org.wso2.carbon.identity.user.profile.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-    String username = CharacterEncoder.getSafeText(request.getParameter("username"));
-	String profile = CharacterEncoder.getSafeText(request.getParameter("profile"));
-    String profileConfiguration = CharacterEncoder.getSafeText(request.getParameter("profileConfiguration"));
+    String username = request.getParameter("username");
+    String profile = request.getParameter("profile");
+    String profileConfiguration = request.getParameter("profileConfiguration");
     String fromUserMgt = request.getParameter("fromUserMgt");
 	UserFieldDTO[] fieldDTOs = null;
 	UserProfileDTO profileDTO = null;
@@ -74,10 +72,10 @@
             if (UserCoreConstants.DEFAULT_PROFILE.equals(profile)||profileDTO!=null && profileDTO.getProfileName()!=null) {
                 String message = resourceBundle.getString("user.profile.with.given.name.exists");
                 CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
-                forwardTo ="add.jsp?username="+URLEncoder.encode(username);
+                forwardTo ="add.jsp?username="+ Encode.forUriComponent(username);
 %>
                 <script type="text/javascript">
-                    location.href = "<%=forwardTo%>";
+                    location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
                 </script>
 <%			    return;
         	}
@@ -110,15 +108,17 @@
         }
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("error.while.updating.profile.user"),
-                username, e.getMessage());
-    	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "edit.jsp?username=" + username + "&profile=" + profile + "&fromUserMgt="+fromUserMgt;
-    }
+                                          username, e.getMessage());
+        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
+        forwardTo =
+            "edit.jsp?username=" + Encode.forUriComponent(username) + "&profile=" + Encode.forUriComponent(profile) +
+            "&fromUserMgt=" + Encode.forUriComponent(fromUserMgt);
+}
 %>
 
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 

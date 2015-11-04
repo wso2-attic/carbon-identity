@@ -168,6 +168,11 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             if (StringUtils.isNotBlank(userIdFromPattern)) {
                 userId = userIdFromPattern;
             }
+
+            if (StringUtils.isBlank(userId)) {
+                throw new IdentityProvisioningException("Cannot Find Username Attribute for Provisioning");
+            }
+            
             if (StringUtils.isNotBlank(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
                 userId = userId.replaceAll("@", ".").concat("@").concat(provisioningDomain);
             }

@@ -18,14 +18,13 @@
 
 package org.wso2.carbon.identity.workflow.impl.internal;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.impl.ApprovalWorkflow;
@@ -36,11 +35,11 @@ import org.wso2.carbon.identity.workflow.impl.WorkflowImplService;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplServiceImpl;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplTenantMgtListener;
-import org.wso2.carbon.identity.workflow.impl.listener.WorkflowRequestDeleteListenerImpl;
+import org.wso2.carbon.identity.workflow.impl.listener.WorkflowListenerImpl;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
-import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowRequestDeleteListener;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
@@ -49,11 +48,9 @@ import org.wso2.carbon.identity.workflow.mgt.workflow.WorkFlowExecutor;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
-import org.wso2.carbon.utils.NetworkUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.SocketException;
 import java.net.URISyntaxException;
 
 /**
@@ -85,10 +82,9 @@ public class WorkflowImplServiceComponent {
             String metaDataXML =
                     readWorkflowImplParamMetaDataXML(WFImplConstant.WORKFLOW_IMPL_PARAMETER_METADATA_FILE_NAME);
 
-            TemplateInitializer templateInitializer = new BPELDeployer();
-            WorkFlowExecutor workFlowExecutor = new RequestExecutor();
-            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(templateInitializer,workFlowExecutor, metaDataXML), null);
-            bundleContext.registerService(WorkflowRequestDeleteListener.class, new WorkflowRequestDeleteListenerImpl(), null);
+            bundleContext.registerService(AbstractWorkflow.class, new ApprovalWorkflow(BPELDeployer.class,
+                    RequestExecutor.class, metaDataXML), null);
+            bundleContext.registerService(WorkflowListener.class, new WorkflowListenerImpl(), null);
 
             WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
 
@@ -148,15 +144,18 @@ public class WorkflowImplServiceComponent {
                     WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
             BPSProfile currentBpsProfile = workflowImplService.getBPSProfile(WFConstant.DEFAULT_BPS_PROFILE,
                     MultitenantConstants.SUPER_TENANT_ID);
-            String url = IdentityUtil.getServerURL("");
-            if (currentBpsProfile == null || !currentBpsProfile.getWorkerHostURL().equals(url)) {
+            String url = IdentityUtil.getServerURL("", true);
+            String userName = WorkflowImplServiceDataHolder.getInstance().getRealmService()
+                    .getBootstrapRealmConfiguration().getAdminUserName();
+            String password = WorkflowImplServiceDataHolder.getInstance().getRealmService()
+                    .getBootstrapRealmConfiguration().getAdminPassword();
+            if (StringUtils.isBlank(password)) {
+                log.info("Insufficient data for adding embedded_bps profile, hence skipping.");
+                return;
+            }
+            if (currentBpsProfile == null || !currentBpsProfile.getWorkerHostURL().equals(url) || !currentBpsProfile
+                    .getUsername().equals(userName) || !currentBpsProfile.getPassword().equals(password)) {
                 BPSProfile bpsProfileDTO = new BPSProfile();
-                String userName =
-                        WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
-                                .getAdminUserName();
-                String password =
-                        WorkflowImplServiceDataHolder.getInstance().getRealmService().getBootstrapRealmConfiguration()
-                                .getAdminPassword();
                 bpsProfileDTO.setManagerHostURL(url);
                 bpsProfileDTO.setWorkerHostURL(url);
                 bpsProfileDTO.setUsername(userName);
@@ -166,15 +165,14 @@ public class WorkflowImplServiceComponent {
                 bpsProfileDTO.setProfileName(WFConstant.DEFAULT_BPS_PROFILE);
                 if (currentBpsProfile == null) {
                     workflowImplService.addBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);
-                    if (log.isDebugEnabled()) {
-                        log.info("Default BPS profile added to the DB");
-                    }
-                } else if (!currentBpsProfile.getWorkerHostURL().equals(url)) {
+                    log.info("Default BPS profile added to the DB.");
+                } else {
                     workflowImplService.updateBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);
+                    log.info("Default BPS profile updated.");
                 }
 
             }
-        }  catch (WorkflowException e) {
+        } catch (WorkflowException e) {
             //This is not thrown exception because this is not blocked to the other functionality. User can create
             // default profile by manually.
             String errorMsg = "Error occured while adding default bps profile, " + e.getMessage();

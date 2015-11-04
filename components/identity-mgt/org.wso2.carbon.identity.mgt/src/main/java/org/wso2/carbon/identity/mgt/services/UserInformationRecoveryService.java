@@ -70,21 +70,6 @@ import java.util.Map;
 public class UserInformationRecoveryService {
 
     Log log = LogFactory.getLog(UserInformationRecoveryService.class);
-    private static final String EXISTING_USER = "UserAlreadyExisting";
-    private static final String INVALID_CLAIM_URL = "InvalidClaimUrl";
-    private static final String INVALID_USER_NAME = "InvalidUserName";
-    private static final String EXISTING_ROLE = "RoleExisting";
-    private static final String READ_ONLY_STORE = "ReadOnlyUserStoreManager";
-    private static final String READ_ONLY_PRIMARY_STORE = "ReadOnlyPrimaryUserStoreManager";
-    private static final String INVALID_ROLE = "InvalidRole";
-    private static final String ANONYMOUS_USER = "AnonymousUser";
-    private static final String INVALID_OPERATION = "InvalidOperation";
-    private static final String NO_READ_WRITE_PERMISSIONS = "NoReadWritePermission";
-    private static final String PASSWORD_INVALID = "PasswordInvalid";
-    private static final String SHARED_USER_ROLES = "SharedUserRoles";
-    private static final String REMOVE_ADMIN_USER = "RemoveAdminUser";
-    private static final String LOGGED_IN_USER = "LoggedInUser";
-    private static final String ADMIN_USER = "AdminUser";
 
     public CaptchaInfoBean getCaptcha() throws IdentityMgtServiceException {
 
@@ -348,6 +333,7 @@ public class UserInformationRecoveryService {
                 Utils.updatePassword(userDTO.getUserId(), tenantId, newPassword);
                 log.info("Credential is updated for user : " + userDTO.getUserId()
                         + " and tenant domain : " + userDTO.getTenantDomain());
+                IdentityMgtConfig.getInstance().getRecoveryDataStore().invalidate(userDTO.getUserId(), tenantId);
                 bean = new VerificationBean(true);
             } else {
                 String msg = "Invalid user tried to update credential with user Id : "
@@ -851,14 +837,14 @@ public class UserInformationRecoveryService {
                 vBean.setVerified(true);
             }
         } catch (UserStoreException | IdentityException e) {
-            UserIdentityManagementUtil.getCustomErrorMessages(e, userName);
+            vBean = UserIdentityManagementUtil.getCustomErrorMessages(e, userName);
             //Rollback if user exists
             try {
                 if (userStoreManager.isExistingUser(userName)) {
                     userStoreManager.deleteUser(userName);
                 }
             } catch (org.wso2.carbon.user.core.UserStoreException e1) {
-                UserIdentityManagementUtil.getCustomErrorMessages(e1, userName);
+                vBean = UserIdentityManagementUtil.getCustomErrorMessages(e1, userName);
             }
 
             return vBean;

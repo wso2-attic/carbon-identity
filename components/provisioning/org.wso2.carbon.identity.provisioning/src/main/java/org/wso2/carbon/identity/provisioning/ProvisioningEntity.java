@@ -26,10 +26,8 @@ import java.util.Map;
 
 public class ProvisioningEntity implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -7300897205165960442L;
+
     private ProvisioningEntityType entityType;
     private ProvisioningOperation operation;
     private ProvisionedIdentifier identifier;
@@ -62,6 +60,18 @@ public class ProvisioningEntity implements Serializable {
     public ProvisioningEntity(ProvisioningEntityType entityTpe, ProvisioningOperation operation) {
         this.entityType = entityTpe;
         this.operation = operation;
+    }
+
+    /**
+     *
+     * @param entityTpe
+     * @param operation
+     */
+    public ProvisioningEntity(ProvisioningEntityType entityTpe, ProvisioningOperation operation,
+                              Map<ClaimMapping, List<String>> attributes) {
+        this.entityType = entityTpe;
+        this.operation = operation;
+        this.attributes = attributes;
     }
 
     /**
@@ -118,6 +128,10 @@ public class ProvisioningEntity implements Serializable {
      */
     public String getEntityName() {
         return entityName;
+    }
+
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
     }
 
     public boolean isJitProvisioning() {

@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 public class SAMLSSOSessionDTO implements Serializable {
 
-    private static final long serialVersionUID = 3806660562465698477L;
+    private static final long serialVersionUID = -412560012894923237L;
 
     private String httpQueryString;
     private String destination;
@@ -43,6 +43,7 @@ public class SAMLSSOSessionDTO implements Serializable {
     private boolean passiveAuth;
     private boolean forceAuth;
     private boolean isIdPInitSLO;
+    private int attributeConsumingServiceIndex = 0;
 
     public String getHttpQueryString() {
         return httpQueryString;
@@ -195,5 +196,13 @@ public class SAMLSSOSessionDTO implements Serializable {
 
     public void setIdPInitSLO(boolean isIdPInitSLO) {
         this.isIdPInitSLO = isIdPInitSLO;
+    }
+
+    public int getAttributeConsumingServiceIndex() {
+        return attributeConsumingServiceIndex;
+    }
+
+    public void setAttributeConsumingServiceIndex(int attributeConsumingServiceIndex) {
+        this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
     }
 }

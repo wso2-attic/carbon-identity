@@ -16,53 +16,56 @@
   ~ under the License.
   --%>
 
-<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder" %>
-<div id="loginTable1" class="identity-box">
-    <%
-        loginFailed = CharacterEncoder.getSafeText(request.getParameter("loginFailed"));
-        if (loginFailed != null) {
+<%@ page import="org.owasp.encoder.Encode" %>
 
-    %>
-    <div class="alert alert-error">
-        <fmt:message key='<%=CharacterEncoder.getSafeText(request.getParameter
-                ("errorMessage"))%>'/>
+<form action="../commonauth" method="post" id="loginForm">
+
+    <% if (Boolean.parseBoolean(loginFailed)) { %>
+    <div class="alert alert-danger" id="error-msg">Username or password is
+        invalid
     </div>
-    <% } %>
+    <%}else if((Boolean.TRUE.toString()).equals(request.getParameter("authzFailure"))){%>
+    <div class="alert alert-danger" id="error-msg">You are not authorized to login
+    </div>
+    <%}%>
 
-    <% if (CharacterEncoder.getSafeText(request.getParameter("username")) == null || "".equals
-            (CharacterEncoder.getSafeText(request.getParameter("username")).trim())) { %>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <input id="username" name="username" type="text" class="form-control" tabindex="0"
+               placeholder="Username">
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <input id="password" name="password" type="password" class="form-control"
+               placeholder="Password">
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <input type="hidden" name="sessionDataKey" value='<%=Encode.forHtmlAttribute
+            (request.getParameter("sessionDataKey"))%>'/>
+    </div>
 
-    <!-- Username -->
-    <div class="control-group">
-        <label class="control-label" for="username"><fmt:message key='username'/>:</label>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" id="chkRemember" name="chkRemember"> Remember me on this computer
+            </label>
+        </div>
+        <br>
 
-        <div class="controls">
-            <input class="input-xlarge" type="text" id='username' name="username" style="height:20px"/>
+        <div class="form-actions">
+            <button
+                    class="wr-btn grey-bg col-xs-12 col-md-12 col-lg-12 uppercase font-extra-large"
+                    type="submit">Sign in
+            </button>
         </div>
     </div>
 
-    <%} else { %>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
 
-    <input type="hidden" id='username' name='username' value='<%=CharacterEncoder.getSafeText
-        (request.getParameter("username"))%>'/>
-
-    <% } %>
-
-    <!--Password-->
-    <div class="control-group">
-        <label class="control-label" for="password"><fmt:message key='password'/>:</label>
-
-        <div class="controls">
-            <input type="password" id='password' name="password" class="input-xlarge" style="height:20px"/>
-            <input type="hidden" name="sessionDataKey" value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
-            <label class="checkbox" style="margin-top:10px"><input type="checkbox" id="chkRemember"
-                                                                   name="chkRemember"><fmt:message
-                    key='remember.me'/></label>
-        </div>
+        <%if(request.getParameter("relyingParty").equals("wso2.my.dashboard")) { %>
+        <a id="registerLink" href="create-account.jsp?sessionDataKey=<%=Encode.forHtmlAttribute
+            (request.getParameter("sessionDataKey"))%>" class="font-large">Create an
+            account</a>
+        <%} %>
     </div>
-
-    <div class="form-actions">
-        <input type="submit" value='<fmt:message key='login'/>' class="btn btn-primary">
-    </div>
-</div>
+    <div class="clearfix"></div>
+</form>
 

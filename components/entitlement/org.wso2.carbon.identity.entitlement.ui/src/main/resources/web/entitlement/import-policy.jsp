@@ -20,6 +20,7 @@
            prefix="carbon"%>
 
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:include page="../resources/resources-i18n-ajaxprocessor.jsp"/>
 <%
     String importFrom = (String)request.getParameter("importFrom");
@@ -56,7 +57,7 @@
 
                 function doSubmit(){
                     var policy;
-                    var importFrom = "<%=importFrom%>";
+                    var importFrom = "<%=Encode.forJavaScript(importFrom)%>";
 
                     if(importFrom == 'FileSystem') {
                         policy = document.importPolicy.policyFromFileSystem.value;
@@ -101,11 +102,11 @@
                                 for (String importingMethod : importingMethods) {
                                     if(importFrom.equals(importingMethod)) {
                             %>
-                            <option value="<%=importingMethod%>" selected="selected"><%=importingMethod%></option>
+                            <option value="<%=Encode.forHtmlAttribute(importingMethod)%>" selected="selected"><%=Encode.forHtmlContent(importingMethod)%></option>
                             <%
                             } else {
                             %>
-                            <option value="<%=importingMethod%>"><%=importingMethod%></option>
+                            <option value="<%=Encode.forHtmlAttribute(importingMethod)%>"><%=Encode.forHtmlContent(importingMethod)%></option>
                             <%
                                     }
                                 }

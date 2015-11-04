@@ -38,10 +38,12 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowEvent" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.Parameter" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowWizard" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+
 
 <%
     String wizard = request.getParameter("wizard");
@@ -137,10 +139,10 @@
                 for (WorkflowEvent event : eventCategory.getValue()) {
         %>
                     var eventObj = {};
-                    eventObj.displayName = "<%=event.getEventFriendlyName()%>";
-                    eventObj.value = "<%=event.getEventId()%>";
-                    eventObj.title = "<%=event.getEventDescription()!=null?event.getEventDescription():""%>";
-                    eventsObj["<%=eventCategory.getKey()%>"].push(eventObj);
+                    eventObj.displayName = "<%=Encode.forJavaScriptBlock(event.getEventFriendlyName())%>";
+                    eventObj.value = "<%=Encode.forJavaScriptBlock(event.getEventId())%>";
+                    eventObj.title = "<%=event.getEventDescription()!=null?Encode.forJavaScriptBlock(event.getEventDescription()):""%>";
+                    eventsObj["<%=Encode.forJavaScriptBlock(eventCategory.getKey())%>"].push(eventObj);
         <%
                 }
             }
@@ -380,7 +382,19 @@
             form_add_association.submit();
         }
 
+        window.onload = function () {
+            enableOnOperationSel();
+        }
 
+        function enableOnOperationSel() {
+            <%
+                if(association != null && StringUtils.isNotBlank(association.getEventName())){
+            %>
+            $(".enableOnOperationSel").prop('disabled', false);
+            <%
+                }
+            %>
+        }
     </script>
 
     <div id="middle">
@@ -410,7 +424,7 @@
                                 <%
                                     if(association != null && association.getAssociationName() != null && !association.getAssociationName().isEmpty()){
                                 %>
-                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" id="id_<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" style="min-width: 30%;" value="<%=association.getAssociationName()%>">
+                                        <input type="text" name="<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" id="id_<%=WorkflowUIConstants.PARAM_ASSOCIATION_NAME%>" style="min-width: 30%;" value="<%=Encode.forHtmlAttribute(association.getAssociationName())%>">
                                 <%
                                     }else{
                                 %>
@@ -430,12 +444,12 @@
                                         for (String key : events.keySet()) {
                                             if(key.equals(association.getEventCategory())){
                                     %>
-                                                <option selected value="<%=key%>"><%=key%>
+                                                <option selected value="<%=Encode.forHtmlAttribute(key)%>"><%=Encode.forHtmlContent(key)%>
                                                 </option>
                                     <%
                                             }else{
                                     %>
-                                                <option  value="<%=key%>"><%=key%>
+                                                <option  value="<%=Encode.forHtmlAttribute(key)%>"><%=Encode.forHtmlContent(key)%>
                                                 </option>
                                     <%
                                             }
@@ -458,11 +472,11 @@
                                                     for (WorkflowEvent event : eventCategory.getValue()) {
                                                         if(event.getEventId().equals(association.getEventName())){
                                     %>
-                                                            <option selected value="<%=event.getEventId()%>"><%=event.getEventId()%>
+                                                            <option selected value="<%=Encode.forHtmlAttribute(event.getEventId())%>"><%=Encode.forHtmlContent(event.getEventId())%>
                                     <%
                                                         }else{
                                     %>
-                                                            <option value="<%=event.getEventId()%>"><%=event.getEventId()%>
+                                                            <option value="<%=Encode.forHtmlAttribute(event.getEventId())%>"><%=Encode.forHtmlContent(event.getEventId())%>
                                     <%
                                                         }
                                                     }
@@ -509,9 +523,9 @@
                                                     select = true;
                                                 }
                                     %>
-                                    <option value="<%=workflowBean.getWorkflowId()%>" <%=select ? "selected" : ""%>
-                                            title="<%=workflowBean.getWorkflowDescription()%>">
-                                        <%=workflowBean.getWorkflowName()%>
+                                    <option value="<%=Encode.forHtmlAttribute(workflowBean.getWorkflowId())%>" <%=select ? "selected" : ""%>
+                                            title="<%=Encode.forHtmlAttribute(workflowBean.getWorkflowDescription())%>">
+                                        <%=Encode.forHtmlContent(workflowBean.getWorkflowName())%>
                                     </option>
                                     <%
                                             }
@@ -523,14 +537,14 @@
                         </tr>
                         <tr>
                             <td colspan="2">
-                                <input type="radio" name="conditionType" value="applyToAll"  checked="checked"
+                                <input type="radio" name="conditionType" value="applyToAll" disabled  checked="checked"
                                        onclick="handleRadioInput(this);" class="enableOnOperationSel">
                                 Apply to all Requests
                             </td>
                         </tr>
                         <tr>
                             <td colspan="2">
-                                <input type="radio" name="conditionType" value="applyIf"
+                                <input type="radio" name="conditionType" value="applyIf" disabled
                                        class="enableOnOperationSel" onclick="handleRadioInput(this);">
                                 Apply if,
                             </td>
@@ -543,10 +557,10 @@
                                             <select id="paramSelect" onchange="updateOperator()"></select>
                                         </td>
                                         <td>
-                                            <select id="operationSelect" disabled=""></select>
+                                            <select id="operationSelect" disabled="disabled"></select>
                                         </td>
                                         <td>
-                                            <input id="val1" type="text" disabled=""/>
+                                            <input id="val1" type="text" disabled="disabled"/>
                                         </td>
                                     </tr>
                                 </table>

@@ -22,9 +22,9 @@
 <%@page import="org.wso2.carbon.directory.server.manager.ui.DirectoryServerManagerClient" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@page import="java.text.MessageFormat" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String servicePrincipleName = request.getParameter("spnName");
@@ -71,7 +71,7 @@
         String message = MessageFormat.format(resourceBundle.getString(e.getMessage()),
                 new Object[]{servicePrincipleName});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "change-passwd.jsp?spnName=" + servicePrincipleName;
+        forwardTo = "change-passwd.jsp?spnName=" + Encode.forUriComponent(servicePrincipleName);
     }
 %>
 
@@ -85,14 +85,14 @@
     if (qpplicationComponentFound) {
         if (!isError) {
     %>
-    location.href = '../application/configure-service-provider.jsp?action=update&display=kerberos&spName=<%=spName%>&kerberos=<%=servicePrincipleName%>';
+    location.href = '../application/configure-service-provider.jsp?action=update&display=kerberos&spName=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&kerberos=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(servicePrincipleName))%>';
     <%  } else { %>
-    location.href = '../application/configure-service-provider.jsp?action=cancel&display=kerberos&spName=<%=spName%>';
+    location.href = '../application/configure-service-provider.jsp?action=cancel&display=kerberos&spName=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>';
     <%
         }
     }else {
     %>
-    location.href = '<%=forwardTo%>';
+    location.href = '<%=Encode.forJavaScriptBlock(forwardTo)%>';
     <% } %>
 </script>
 

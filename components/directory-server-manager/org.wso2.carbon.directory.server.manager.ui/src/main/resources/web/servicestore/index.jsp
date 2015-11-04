@@ -26,6 +26,7 @@
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
@@ -151,12 +152,12 @@
                             %>
 
                             <tr>
-                                <td><%=principle.getServerName()%></td>
-                                <td><%=principle.getServerDescription()%></td>
+                                <td><%=Encode.forHtml(principle.getServerName())%></td>
+                                <td><%=Encode.forHtml(principle.getServerDescription())%></td>
                                 <td>
-                                    <a href="#" onclick="changeSpnPassword('<%=principle.getServerName()%>')" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit"/></a>
+                                    <a href="#" onclick="changeSpnPassword('<%=Encode.forJavascriptAttribute(principle.getServerName())%>')" class="icon-link" style="background-image:url(images/edit.gif);"><fmt:message key="edit"/></a>
                                      &nbsp;
-                                    <a href="#" onclick="deleteServicePrinciple('<%=principle.getServerName()%>')" class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
+                                    <a href="#" onclick="deleteServicePrinciple('<%=Encode.forJavascriptAttribute(principle.getServerName())%>')" class="icon-link" style="background-image:url(images/delete.gif);"><fmt:message key="delete"/></a>
                                 </td>
                             </tr>
 

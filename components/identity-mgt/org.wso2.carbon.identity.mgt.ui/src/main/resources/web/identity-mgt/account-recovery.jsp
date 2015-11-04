@@ -34,15 +34,15 @@
 <jsp:include page="../dialog/display_messages.jsp" />
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.HashSet" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
-	String username = CharacterEncoder.getSafeText(request.getParameter("username"));
+    String username = request.getParameter("username");
     String forwardTo = null;
     IdentityManagementAdminClient client = null;
     UserInformationRecoveryClient infoClient = null;
@@ -139,7 +139,7 @@
         <%
         if(!client.isReadOnlyUserStore(username, null)) {
         %>
-        <form action="account-recovery-finish.jsp?userName=<%=username%>">
+        <form action="account-recovery-finish.jsp?userName=<%=Encode.forUriComponent(username)%>">
 
         <%
             if(challengesMap.size() > 0){
@@ -163,11 +163,11 @@
                                             if(currentUserChallenge != null &&
                                                     question.equals(currentUserChallenge.getQuestion())){
                                 %>
-                                        <option value="<%=question%>"  selected="selected"><%=question%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(question)%>"  selected="selected"><%=Encode.forHtmlContent(question)%></option>
                                 <%
                                             } else {
                                 %>
-                                        <option value="<%=question%>"><%=question%></option>
+                                        <option value="<%=Encode.forHtmlAttribute(question)%>"><%=Encode.forHtmlContent(question)%></option>
                                 <%
                                             }
                                         }
@@ -186,7 +186,7 @@
                                             currentUserChallenge.getAnswer().trim().length() > 0) {
                             %>
                                 <td><input class="leftCol-big" type="password" name="challengeAnswer_<%=challengeNumber%>"
-                                           id="challengeAnswer_<%=challengeNumber%>" value="<%=currentUserChallenge.getAnswer()%>"/></td>
+                                           id="challengeAnswer_<%=challengeNumber%>" value="<%=Encode.forHtmlAttribute(currentUserChallenge.getAnswer())%>"/></td>
                             <%
                                 } else {
                             %>
@@ -198,7 +198,7 @@
                      </tr>
                 </table>
              </div>
-             <input type="hidden" name="challengeId_<%=challengeNumber%>" id="challengeId_<%=challengeNumber%>" value="<%=entry.getKey()%>"/>
+             <input type="hidden" name="challengeId_<%=challengeNumber%>" id="challengeId_<%=challengeNumber%>" value="<%=Encode.forHtmlAttribute(entry.getKey())%>"/>
 
 
 

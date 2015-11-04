@@ -21,11 +21,13 @@ package org.wso2.carbon.identity.application.authenticator.openid.manager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openid4java.message.Parameter;
+import org.openid4java.message.ParameterList;
 import org.openid4java.message.ax.FetchResponse;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class is introduced to overcome a bug in Yahoo Fetch Response
@@ -34,10 +36,8 @@ public class YahooFetchResponse extends FetchResponse {
 
     private static Log log = LogFactory.getLog(YahooFetchResponse.class);
 
-    protected FetchResponse fetchResponse = null;
-
-    YahooFetchResponse(FetchResponse fetchResponse) {
-        this.fetchResponse = fetchResponse;
+    YahooFetchResponse(Map parameterMap) {
+        this._parameters = new ParameterList(parameterMap);
     }
 
     public List<String> getAttributeValues(String alias){

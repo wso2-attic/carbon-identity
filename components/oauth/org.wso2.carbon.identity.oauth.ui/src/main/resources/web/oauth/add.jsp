@@ -17,6 +17,7 @@
  -->
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.oauth.common.OAuthConstants" %>
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthAdminClient" %>
@@ -34,6 +35,7 @@
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 
 <%
     String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";
@@ -59,7 +61,25 @@
 
         <div id="workArea">
             <script type="text/javascript">
+                function onClickAdd() {
+                    if($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
+                        var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.not.https'/>",
+                                validate, null, null);
+                        if (isValidated) {
+                            validate();
+                        }
+                    } else {
+                        validate();
+                    }
+                }
                 function validate() {
+                    var callbackUrl = document.getElementById('callback').value;
+                    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+                    if (!regexp.test(callbackUrl) || callbackUrl.indexOf(",") > -1) {
+                        CARBON.showWarningDialog("<fmt:message key='callback.is.not.url'/>", null, null);
+                        return false;
+                    }
+
                     var value = document.getElementsByName("application")[0].value;
                     if (value == '') {
                         CARBON.showWarningDialog('<fmt:message key="application.is.required"/>');
@@ -132,7 +152,7 @@
                             <%if  (applicationSPName!= null) {%>
                              <tr style="display: none;">
 		                        <td colspan="2" style="display: none;"><input class="text-box-big" type="hidden" id="application" name="application"
-		                                   value="<%=applicationSPName%>" /></td>
+		                                   value="<%=Encode.forHtmlAttribute(applicationSPName)%>" /></td>
 		                    </tr>
                             <% } else { %>
 		                    <tr>
@@ -143,7 +163,8 @@
 		                    <% } %>
 		                    <tr id="callback_row">
 		                        <td class="leftCol-small"><fmt:message key='callback'/><span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="callback" name="callback" type="text" /></td>
+                                <td><input class="text-box-big" id="callback" name="callback" type="text"
+                                           white-list-patterns="https-url"/></td>
 		                    </tr>
 		                     <tr id="grant_row" name="grant_row">
 		                        <td class="leftCol-small"><fmt:message key='grantTypes'/></td>
@@ -208,7 +229,7 @@
 		    </tr>
                     <tr>
                         <td class="buttonRow" >
-                            <input name="addprofile" type="button" class="button" value="<fmt:message key='add'/>" onclick="validate();"/>
+                            <input name="addprofile" type="button" class="button" value="<fmt:message key='add'/>" onclick="onClickAdd();"/>
                             
                             <%
                             

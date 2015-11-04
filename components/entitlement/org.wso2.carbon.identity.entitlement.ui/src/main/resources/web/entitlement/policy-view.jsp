@@ -15,6 +15,7 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
+ <%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
@@ -66,7 +67,7 @@
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
-        CARBON.showErrorDialog('<%=message%>',  function () {
+        CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>',  function () {
             location.href = "index.jsp";
         });
     });
@@ -79,10 +80,10 @@
        <form name="frmPolicyData" action="../policyeditor/index.jsp" method="post">
         <input type="hidden" name="policy" id="policy">
         <input type="hidden" name="visited" id="visited">
-        <textarea id="txtPolicy" rows="50" cols="50"><%=policy%>
+        <textarea id="txtPolicy" rows="50" cols="50"><%=Encode.forHtmlContent(policy)%>
         </textarea>
         <input type="hidden" name="callbackURL"
-               value="../entitlement/update-policy-submit.jsp?forwardTo=<%=forwardTo%>&policyid=<%=policyId%>"/>
+               value="../entitlement/update-policy-submit.jsp?forwardTo=<%=Encode.forUriComponent(forwardTo)%>&policyid=<%=Encode.forUriComponent(policyId)%>"/>
        </form>
     </div> 
     
@@ -101,6 +102,6 @@
     }
     else
     {
-        location.href = '<%=request.getHeader("Referer")%>';
+        location.href = '<%=Encode.forJavaScriptBlock(request.getHeader("Referer"))%>';
     }
 </script>

@@ -82,8 +82,7 @@ public class SQLConstants {
 
 
     public static final String ADD_WORKFLOW_PARAMS_QUERY = "INSERT INTO WF_WORKFLOW_CONFIG_PARAM(WORKFLOW_ID, " +
-                                                           "PARAM_NAME, PARAM_VALUE, PARAM_QNAME, PARAM_HOLDER) " +
-                                                           "VALUES(?, ?, ?, ?, ?)";
+            "PARAM_NAME, PARAM_VALUE, PARAM_QNAME, PARAM_HOLDER, TENANT_ID) VALUES(?, ?, ?, ?, ?, ?)";
 
     public static final String UPDATE_WORKFLOW_PARAMS_QUERY = "UPDATE WF_WORKFLOW_CONFIG_PARAM SET " +
                                                               "PARAM_NAME=?, PARAM_VALUE=?, PARAM_QNAME=?, " +
@@ -93,7 +92,7 @@ public class SQLConstants {
             "DELETE FROM WF_WORKFLOW_CONFIG_PARAM WHERE WORKFLOW_ID = ?";
 
     public static final String GET_ASSOCIATIONS_FOR_EVENT_QUERY = "SELECT WF_WORKFLOW_ASSOCIATION.WORKFLOW_ID, " +
-                                                                  "WF_WORKFLOW.TEMPLATE_ID, WF_WORKFLOW.IMPL_ID, " +
+                                                                  "WF_WORKFLOW_ASSOCIATION.ID,WF_WORKFLOW_ASSOCIATION.ASSOC_NAME," +
                                                                   "WF_WORKFLOW_ASSOCIATION.ASSOC_CONDITION FROM " +
                                                                   "WF_WORKFLOW, " +
                                                                   "WF_WORKFLOW_ASSOCIATION WHERE " +
@@ -121,7 +120,7 @@ public class SQLConstants {
                                                             ".ASSOC_CONDITION , WF_WORKFLOW_ASSOCIATION.IS_ENABLED " +
                                                             "FROM WF_WORKFLOW,WF_WORKFLOW_ASSOCIATION WHERE " +
                                                             "WF_WORKFLOW.ID = WF_WORKFLOW_ASSOCIATION" +
-                                                            ".WORKFLOW_ID";
+                                                            ".WORKFLOW_ID AND WF_WORKFLOW.TENANT_ID = ? ";
 
     public static final String DELETE_ASSOCIATION_QUERY = "DELETE FROM WF_WORKFLOW_ASSOCIATION WHERE ID = ?";
 
@@ -226,14 +225,11 @@ public class SQLConstants {
                                                               ".ENTITY_NAME = ? AND TABLE2.ENTITY_TYPE = ? AND TABLE1" +
                                                               ".TENANT_ID = ? AND TABLE2.TENANT_ID = ?";
 
-    public static final String GET_REQUEST_ENTITY_NAMES = "SELECT WF_REQUEST_ENTITY_RELATIONSHIP.ENTITY_NAME FROM " +
-                                                          "WF_REQUEST,WF_REQUEST_ENTITY_RELATIONSHIP WHERE WF_REQUEST" +
-                                                          ".UUID = WF_REQUEST_ENTITY_RELATIONSHIP.REQUEST_ID"
-                                                          +
-                                                          " AND WF_REQUEST.OPERATION_TYPE = ? AND  WF_REQUEST.STATUS " +
-                                                          " = ? AND " +
-                                                          "WF_REQUEST_ENTITY_RELATIONSHIP.ENTITY_TYPE = ? AND " +
-                                                          "WF_REQUEST_ENTITY_RELATIONSHIP.TENANT_ID = ? ";
+    public static final String GET_REQUEST_ENTITY_NAMES = "SELECT WF_REQUEST_ENTITY_RELATIONSHIP.ENTITY_NAME FROM  " +
+            "WF_REQUEST,WF_REQUEST_ENTITY_RELATIONSHIP WHERE WF_REQUEST .UUID = WF_REQUEST_ENTITY_RELATIONSHIP" +
+            ".REQUEST_ID AND WF_REQUEST.OPERATION_TYPE = ? AND  WF_REQUEST.STATUS   = ? AND " +
+            "WF_REQUEST_ENTITY_RELATIONSHIP.ENTITY_TYPE = ?  AND WF_REQUEST_ENTITY_RELATIONSHIP.TENANT_ID = ? AND " +
+            "WF_REQUEST_ENTITY_RELATIONSHIP.ENTITY_NAME LIKE ?";
 
     public static final String GET_REQUESTS_OF_USER = "SELECT UUID, OPERATION_TYPE, CREATED_AT, UPDATED_AT, STATUS, " +
                                                       "REQUEST FROM WF_REQUEST WHERE CREATED_BY = ? AND TENANT_ID = ?";
@@ -305,8 +301,7 @@ public class SQLConstants {
                                                                                   " ?";
 
     public static final String ADD_WORKFLOW_REQUEST_RELATIONSHIP = "INSERT INTO WF_WORKFLOW_REQUEST_RELATION " +
-                                                                   "(RELATIONSHIP_ID, WORKFLOW_ID, REQUEST_ID, " +
-                                                                   "UPDATED_AT, STATUS) VALUES (?, ?, ?, ?, ?)";
+            "(RELATIONSHIP_ID, WORKFLOW_ID, REQUEST_ID, UPDATED_AT, STATUS, TENANT_ID) VALUES (?, ?, ?, ?, ?, ?)";
 
     public static final String GET_REQUEST_ID_OF_RELATIONSHIP = "SELECT REQUEST_ID FROM " +
                                                                 "WF_WORKFLOW_REQUEST_RELATION WHERE RELATIONSHIP_ID =" +

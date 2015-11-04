@@ -55,17 +55,17 @@
             userPassword = null;
         }
         userBean.addUserRoles((Map<String,Boolean>)session.getAttribute("checkedRolesMap"));
-        client.addUser(Util.decodeHTMLCharacters(username), userPassword, userBean.getUserRoles(), claims, null);
+        client.addUser(username, userPassword, userBean.getUserRoles(), claims, null);
 
 
-        String message = MessageFormat.format(resourceBundle.getString("user.add"), Util.decodeHTMLCharacters(username));
+        String message = MessageFormat.format(resourceBundle.getString("user.add"), username);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
         forwardTo = "user-mgt.jsp?ordinal=1";
     } catch(InstantiationException e){
         CarbonUIMessage.sendCarbonUIMessage("Your session has timed out. Please try again.", CarbonUIMessage.ERROR, request);
         forwardTo = "user-mgt.jsp?ordinal=1";
     } catch (Exception e) {
-        String message = MessageFormat.format(resourceBundle.getString("user.cannot.add"), new Object[]{Util.decodeHTMLCharacters(username), e.getMessage()});
+        String message = MessageFormat.format(resourceBundle.getString("user.cannot.add"), new Object[]{username, e.getMessage()});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         forwardTo = "user-mgt.jsp?ordinal=1";
     }

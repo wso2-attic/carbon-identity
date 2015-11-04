@@ -29,7 +29,8 @@ import java.util.Date;
  */
 public class IdentityCacheEntry implements Serializable {
 
-    private static final long serialVersionUID = 3746964700806693258L;
+    private static final long serialVersionUID = 7239122598310553180L;
+
     private String cacheEntry;
     private String[] cacheEntryArray;
     private int hashEntry;

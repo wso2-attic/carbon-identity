@@ -23,6 +23,7 @@
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript" src="global-params.js"></script>
 <script type="text/javascript" src="../carbon/admin/js/breadcrumbs.js"></script>
@@ -60,7 +61,7 @@ if (applicationComponentFound) {
 %>
 
 <script>
-    location.href = '../application/configure-service-provider.jsp?action=delete&samlIssuer=<%=request.getParameter("issuer")%>';
+    location.href = '../application/configure-service-provider.jsp?action=delete&samlIssuer=<%=Encode.forUriComponent(request.getParameter("issuer"))%>';
 </script>
 <%}%>
 

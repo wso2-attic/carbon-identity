@@ -28,10 +28,7 @@ import java.util.List;
 
 public class InboundAuthenticationConfig implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 8966626233502458748L;
+    private static final long serialVersionUID = 2768674144259414077L;
 
     private transient InboundAuthenticationRequestConfig[] inboundAuthenticationRequestConfigs = new
             InboundAuthenticationRequestConfig[0];

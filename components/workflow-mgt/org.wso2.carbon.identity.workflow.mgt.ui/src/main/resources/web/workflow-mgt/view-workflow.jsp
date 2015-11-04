@@ -35,6 +35,7 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Set" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
@@ -123,7 +124,7 @@
 %>
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 
@@ -153,7 +154,7 @@
 
         <div id="workArea">
             <a title="<fmt:message key='workflow.service.workflow.edit.title'/>"
-               onclick="editWorkflow('<%=workflowWizard.getWorkflowId()%>');return false;"
+               onclick="editWorkflow('<%=Encode.forJavaScriptAttribute(workflowWizard.getWorkflowId())%>');return false;"
                href="#" style="background-image: url(images/edit.gif);" class="icon-link">
                 <fmt:message key='workflow.service.workflow.edit.title'/></a>
 
@@ -168,11 +169,11 @@
                         <tbody>
                         <tr>
                             <td width="30%"><fmt:message key='workflow.name'/></td>
-                            <td><%= workflowWizard.getWorkflowName()%></td>
+                            <td><%= Encode.forHtmlContent(workflowWizard.getWorkflowName())%></td>
                         </tr>
                         <tr>
                             <td width="30%"><fmt:message key='workflow.description'/></td>
-                            <td><%= workflowWizard.getWorkflowDescription()%></td>
+                            <td><%= Encode.forHtmlContent(workflowWizard.getWorkflowDescription())%></td>
                         </tr>
                         </tbody>
                     </table>
@@ -185,11 +186,11 @@
                         <tbody>
                         <tr>
                             <td width="30%"><fmt:message key='workflow.template.name'/></td>
-                            <td><%=workflowWizard.getTemplate().getName()%></td>
+                            <td><%=Encode.forHtmlContent(workflowWizard.getTemplate().getName())%></td>
                         </tr>
                         <tr>
                             <td width="30%"><fmt:message key='workflow.template.desc'/></td>
-                            <td><%=workflowWizard.getTemplate().getDescription()%></td>
+                            <td><%=Encode.forHtmlContent(workflowWizard.getTemplate().getDescription())%></td>
                         </tr>
                         <tr>
                             <td colspan="2" width="100%">
@@ -216,7 +217,7 @@
                                         <table class="styledLeft noBorders" style="margin-top: 10px">
                                             <thead>
                                             <tr>
-                                                <th colspan="2"><%=key%></th>
+                                                <th colspan="2"><%=Encode.forHtmlContent(key)%></th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -229,8 +230,8 @@
 
                                     %>
                                                 <tr>
-                                                    <td width="30%"><%=parameter.getQName()%></td>
-                                                    <td><%=parameter.getParamValue()%></td>
+                                                    <td width="30%"><%=Encode.forHtmlContent(parameter.getQName())%></td>
+                                                    <td><%=Encode.forHtmlContent(parameter.getParamValue())%></td>
                                                 </tr>
                                     <%
 
@@ -269,7 +270,7 @@
                         <tbody>
                         <tr>
                             <td width="30%"><fmt:message key='workflow.impl.name'/></td>
-                            <td><%=workflowWizard.getWorkflowImpl().getWorkflowImplName()%></td>
+                            <td><%=Encode.forHtmlContent(workflowWizard.getWorkflowImpl().getWorkflowImplName())%></td>
                         </tr>
                         <tr>
                             <td colspan="2" width="100%">
@@ -296,7 +297,7 @@
                                             <table class="styledLeft noBorders" style="margin-top: 10px">
                                                 <thead>
                                                 <tr>
-                                                    <th colspan="2"><%=key%></th>
+                                                    <th colspan="2"><%=Encode.forHtmlContent(key)%></th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -309,8 +310,8 @@
 
                                                 %>
                                                 <tr>
-                                                    <td width="30%"><%=parameter.getQName()%></td>
-                                                    <td><%=parameter.getParamValue()%></td>
+                                                    <td width="30%"><%=Encode.forHtmlContent(parameter.getQName())%></td>
+                                                    <td><%=Encode.forHtmlContent(parameter.getParamValue())%></td>
                                                 </tr>
                                                 <%
 

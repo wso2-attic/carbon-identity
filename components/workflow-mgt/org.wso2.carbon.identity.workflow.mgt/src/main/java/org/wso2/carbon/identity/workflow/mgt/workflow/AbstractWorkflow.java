@@ -46,8 +46,8 @@ public abstract class AbstractWorkflow {
     private MetaData metaData = null;
     private ParametersMetaData parametersMetaData = null ;
 
-    private WorkFlowExecutor workFlowExecutor ;
-    private TemplateInitializer templateInitializer ;
+    private Class<? extends TemplateInitializer> templateInitializerClass ;
+    private Class<? extends WorkFlowExecutor> workFlowExecutorClass;
 
     /**
      *
@@ -55,11 +55,11 @@ public abstract class AbstractWorkflow {
      * @param metaDataXML Parameter Metadata XML string
      * @throws WorkflowRuntimeException
      */
-    public AbstractWorkflow(TemplateInitializer templateInitializer, WorkFlowExecutor workFlowExecutor, String metaDataXML) throws WorkflowRuntimeException {
+    public AbstractWorkflow(Class<? extends TemplateInitializer> templateInitializerClass, Class<? extends WorkFlowExecutor> workFlowExecutorClass, String metaDataXML) throws WorkflowRuntimeException {
         try {
 
-            this.workFlowExecutor = workFlowExecutor ;
-            this.templateInitializer = templateInitializer ;
+            this.templateInitializerClass = templateInitializerClass ;
+            this.workFlowExecutorClass = workFlowExecutorClass ;
 
             this.metaData = WorkflowManagementUtil.unmarshalXML(metaDataXML, MetaData.class);
             if(this.metaData == null || this.metaData.getWorkflowImpl() == null ){
@@ -86,29 +86,17 @@ public abstract class AbstractWorkflow {
         }
     }
 
-    /**
-     *
-     *
-     * @param parameterList
-     * @throws WorkflowException
-     */
-    public void initializeExecutor(List<Parameter> parameterList) throws WorkflowException {
-
-        WorkFlowExecutor executor = getWorkFlowExecutor();
-        if (executor != null) {
-            executor.initialize(parameterList);
-        }
-    }
 
     /**
      *
      * @param workFlowRequest
      * @throws WorkflowException
      */
-    public void execute(WorkflowRequest workFlowRequest) throws WorkflowException {
+    public void execute(WorkflowRequest workFlowRequest, List<Parameter> parameterList) throws WorkflowException {
 
         WorkFlowExecutor executor = getWorkFlowExecutor();
         if (executor != null) {
+            executor.initialize(parameterList);
             executor.execute(workFlowRequest);
         }
     }
@@ -165,20 +153,37 @@ public abstract class AbstractWorkflow {
     }
 
     public WorkFlowExecutor getWorkFlowExecutor() {
+        WorkFlowExecutor workFlowExecutor = null ;
+        try {
+            workFlowExecutor = workFlowExecutorClass.newInstance();
+        } catch (InstantiationException e) {
+            String errorMsg = "Error occurred while initializing WorkFlowExecutor : " + e.getMessage();
+            log.error(errorMsg);
+            throw new WorkflowRuntimeException(errorMsg, e);
+        } catch (IllegalAccessException e) {
+            String errorMsg = "Error occurred while initializing WorkFlowExecutor : " + e.getMessage();
+            log.error(errorMsg);
+            throw new WorkflowRuntimeException(errorMsg, e);
+        }
         return workFlowExecutor;
     }
 
-    public void setWorkFlowExecutor(WorkFlowExecutor workFlowExecutor) {
-        this.workFlowExecutor = workFlowExecutor;
-    }
 
-    public TemplateInitializer getTemplateInitializer() {
+
+    public TemplateInitializer getTemplateInitializer() throws WorkflowRuntimeException{
+        TemplateInitializer templateInitializer = null ;
+        try {
+            templateInitializer = templateInitializerClass.newInstance();
+        } catch (InstantiationException e) {
+            String errorMsg = "Error occurred while initializing TemplateInitializer : " + e.getMessage();
+            log.error(errorMsg);
+            throw new WorkflowRuntimeException(errorMsg, e);
+        } catch (IllegalAccessException e) {
+            String errorMsg = "Error occurred while initializing TemplateInitializer : " + e.getMessage();
+            log.error(errorMsg);
+            throw new WorkflowRuntimeException(errorMsg, e);
+        }
         return templateInitializer;
-    }
-
-    public void setTemplateInitializer(
-            TemplateInitializer templateInitializer) {
-        this.templateInitializer = templateInitializer;
     }
 
 

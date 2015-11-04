@@ -26,11 +26,13 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
+import org.wso2.carbon.idp.mgt.listener.IdPMgtValidationListener;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
@@ -41,6 +43,10 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,6 +65,11 @@ import java.util.Set;
  * @scr.reference name="identityCoreInitializedEventService"
  * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
  * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
+ * @scr.reference name="idp.mgt.event.listener.service"
+ * interface="org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener"
+ * cardinality="0..n" policy="dynamic"
+ * bind="setIdentityProviderMgtListenerService"
+ * unbind="unsetIdentityProviderMgtListenerService"
  */
 public class IdPManagementServiceComponent {
 
@@ -71,6 +82,8 @@ public class IdPManagementServiceComponent {
     private static Map<String, IdentityProvider> fileBasedIdPs = new HashMap<String, IdentityProvider>();
 
     private static Set<String> sharedIdps = new HashSet<String>();
+
+    private static volatile List<IdentityProviderMgtListener> idpMgtListeners = new ArrayList<>();
 
     /**
      * @return
@@ -127,6 +140,8 @@ public class IdPManagementServiceComponent {
             } else {
                 log.error("Identity Provider Management - UserOperationEventListener could not be registered");
             }
+
+            setIdentityProviderMgtListenerService(new IdPMgtValidationListener());
 
             buildFileBasedIdPList();
             cleanUpRemovedIdps();
@@ -258,5 +273,39 @@ public class IdPManagementServiceComponent {
         /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
          is started */
     }
+
+    protected void setIdentityProviderMgtListenerService(
+            IdentityProviderMgtListener identityProviderMgtListenerService) {
+
+        idpMgtListeners.add(identityProviderMgtListenerService);
+        Collections.sort(idpMgtListeners, idpMgtListenerComparator);
+    }
+
+    protected void unsetIdentityProviderMgtListenerService(
+            IdentityProviderMgtListener identityProviderMgtListenerService) {
+
+        idpMgtListeners.remove(identityProviderMgtListenerService);
+    }
+
+    public static Collection<IdentityProviderMgtListener> getIdpMgtListeners() {
+        return idpMgtListeners;
+    }
+
+    private static Comparator<IdentityProviderMgtListener> idpMgtListenerComparator =
+            new Comparator<IdentityProviderMgtListener>(){
+
+        @Override
+        public int compare(IdentityProviderMgtListener identityProviderMgtListener1,
+                           IdentityProviderMgtListener identityProviderMgtListener2) {
+
+            if (identityProviderMgtListener1.getExecutionOrderId() > identityProviderMgtListener1.getExecutionOrderId()) {
+                return 1;
+            } else if (identityProviderMgtListener1.getExecutionOrderId() < identityProviderMgtListener1.getExecutionOrderId()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
 
 }

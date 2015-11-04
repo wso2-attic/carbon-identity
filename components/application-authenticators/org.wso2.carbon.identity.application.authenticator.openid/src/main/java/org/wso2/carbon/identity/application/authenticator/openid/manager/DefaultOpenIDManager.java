@@ -79,7 +79,7 @@ public class DefaultOpenIDManager implements OpenIDManager {
             request.getSession().setAttribute("openid-disc", discovered);
 
 
-            String realm = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
+            String realm = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
             String returnToURL = realm + "?sessionDataKey=" + context.getContextIdentifier();
 
             AuthRequest authReq = consumerManager.authenticate(discovered, returnToURL);
@@ -133,7 +133,7 @@ public class DefaultOpenIDManager implements OpenIDManager {
             // Previously discovered information
             DiscoveryInformation discovered = (DiscoveryInformation) request.getSession().getAttribute("openid-disc");
 
-            String returnToURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH) + "?sessionDataKey=" +
+            String returnToURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true) + "?sessionDataKey=" +
                                  contextIdentifier;
 
             // Verify return-to, discoveries, nonce & signature
@@ -161,8 +161,13 @@ public class DefaultOpenIDManager implements OpenIDManager {
                     Map<ClaimMapping, String> externalIDPClaims = new HashMap<ClaimMapping, String>();
 
                     String[] attrArray = attributesRequestor.getRequestedAttributes(authSuccess.getIdentity());
-                    FetchResponse fetchResp = (FetchResponse) authSuccess.getExtension(AxMessage.OPENID_NS_AX);
-                    fetchResp = new YahooFetchResponse(fetchResp);
+                    FetchResponse fetchResp;
+                    try {
+                        fetchResp = (FetchResponse) authSuccess.getExtension(AxMessage.OPENID_NS_AX);
+                    } catch (MessageException e) {
+                        //this is done because of response validation fails for yahoo response.
+                        fetchResp = new YahooFetchResponse(authSuccess.getParameterMap());
+                    }
 
                     for (String attr : attrArray) {
                         String claimUri = attributesRequestor.getTypeURI(authSuccess.getIdentity(), attr);

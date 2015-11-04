@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.bpel.stub.upload.types.UploadedFileItem;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHolder;
 import org.wso2.carbon.identity.workflow.impl.util.WorkflowDeployerClient;
@@ -33,6 +34,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.workflow.TemplateInitializer;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -63,6 +65,7 @@ public class BPELDeployer implements TemplateInitializer {
     private String htName;
 
     private String role;
+    private String tenantContext = "" ;
 
     @Override
     public boolean initNeededAtStartUp() {
@@ -88,6 +91,10 @@ public class BPELDeployer implements TemplateInitializer {
         }
 
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        if(!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)){
+            tenantContext = "t/" + tenantDomain + "/";
+        }
 
         Parameter bpsProfileParameter = WorkflowManagementUtil
                 .getParameter(parameterList, WFImplConstant.ParameterName.BPS_PROFILE, WFConstant.ParameterHolder
@@ -174,9 +181,13 @@ public class BPELDeployer implements TemplateInitializer {
         Map<String, String> placeHolderValues = new HashMap<>();
         placeHolderValues.put(BPELDeployer.Constants.BPEL_PROCESS_NAME, processName);
         placeHolderValues.put(BPELDeployer.Constants.HT_SERVICE_NAME, htName);
-        placeHolderValues.put(BPELDeployer.Constants.BPS_HOST_NAME, (bpsProfile.getWorkerHostURL() != null ?
-                                                                     bpsProfile.getWorkerHostURL() : ""));
-        placeHolderValues.put(BPELDeployer.Constants.CARBON_HOST_NAME, BPELDeployer.Constants.CARBON_HOST_URL);
+        String url = bpsProfile.getWorkerHostURL() != null ? bpsProfile.getWorkerHostURL() : "" ;
+        if (url.endsWith("/")) {
+            url = url.substring(0,url.lastIndexOf("/"));
+        }
+        placeHolderValues.put(BPELDeployer.Constants.BPS_HOST_NAME, url);
+        placeHolderValues.put(Constants.URL_TENANT_CONTEXT, tenantContext);
+        placeHolderValues.put(BPELDeployer.Constants.CARBON_HOST_NAME, IdentityUtil.getServerURL("", true));
         placeHolderValues.put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_USER, (bpsProfile.getCallbackUser() != null ?
                                                                                  bpsProfile.getCallbackUser() : ""));
         placeHolderValues
@@ -372,7 +383,8 @@ public class BPELDeployer implements TemplateInitializer {
 
         private static final String BPEL_PROCESS_NAME = "${bpelProcessName}";
         private static final String HT_SERVICE_NAME = "${htServiceName}";
-        private static final String BPS_HOST_NAME = "${bpsHostName}";
+        private static final String BPS_HOST_NAME = "${bpsURL}";
+        private static final String URL_TENANT_CONTEXT = "${tenantContext}";
         private static final String CARBON_HOST_NAME = "${carbonHostName}";
         private static final String CARBON_CALLBACK_AUTH_USER = "${carbonUserName}";
         private static final String CARBON_CALLBACK_AUTH_PASSWORD = "${carbonUserPassword}";
@@ -417,17 +429,5 @@ public class BPELDeployer implements TemplateInitializer {
 
         private static final String TEMP_DIR_PROPERTY = "java.io.tmpdir";
         private static final String ZIP_TYPE = "zip";
-
-        private static final String CARBON_HOST_URL;
-
-        static {
-            String PORT_OFFSET = "Ports.Offset";
-            String HOST_NAME = "HostName";
-            int DEFAULT_HTTPS_PORT = 9443;
-            CARBON_HOST_URL = "https://" + ServerConfiguration.getInstance().getFirstProperty(HOST_NAME) + ":" +
-                              //adds the offset defined in the server configs to the default 9763 port
-                              (Integer.parseInt(ServerConfiguration.getInstance().getFirstProperty(PORT_OFFSET)) +
-                               DEFAULT_HTTPS_PORT);
-        }
     }
 }

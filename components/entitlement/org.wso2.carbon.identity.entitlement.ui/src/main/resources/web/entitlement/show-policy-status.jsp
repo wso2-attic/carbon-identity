@@ -15,6 +15,7 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
+ <%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
@@ -78,7 +79,7 @@
     } catch (Exception e) {
 %>
 <script type="text/javascript">
-    CARBON.showErrorDialog('<%=e.getMessage()%>', function () {
+    CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(e.getMessage()))%>', function () {
         location.href = "index.jsp";
     });
 </script>
@@ -98,7 +99,7 @@
     function getSelectedType() {
         var comboBox = document.getElementById("typeFilter");
         var typeFilter = comboBox[comboBox.selectedIndex].value;
-        location.href = 'show-policy-status.jsp?typeFilter=' + typeFilter + "&policyid=" +  "<%=policyId%>";
+        location.href = 'show-policy-status.jsp?typeFilter=' + typeFilter + "&policyid=" +  "<%=Encode.forJavaScriptBlock(Encode.forUriComponent(policyId))%>";
     }
 </script>
 
@@ -136,12 +137,12 @@
                                             for (String type : EntitlementConstants.StatusTypes.ALL_TYPES) {
                                                 if (typeFilter.equals(type)) {
                                         %>
-                                        <option value="<%= type%>" selected="selected"><%= type%>
+                                        <option value="<%= Encode.forHtmlAttribute(type)%>" selected="selected"><%= Encode.forHtmlContent(type)%>
                                         </option>
                                         <%
                                         } else {
                                         %>
-                                        <option value="<%= type%>"><%= type%>
+                                        <option value="<%= Encode.forHtmlAttribute(type)%>"><%= Encode.forHtmlContent(type)%>
                                         </option>
                                         <%
                                                 }
@@ -151,10 +152,10 @@
                                     &nbsp;&nbsp;&nbsp;
                                 <fmt:message key="search.status.by.user"/>
                                 <input type="text" name="statusSearchString"
-                                       value="<%= statusSearchString != null? statusSearchString :""%>"/>&nbsp;
+                                       value="<%= statusSearchString != null? Encode.forHtmlAttribute(statusSearchString) :""%>"/>&nbsp;
                                 </nobr>
                                 <input type="hidden" name="policyid"   id="policyid"
-                                       value="<%=policyId%>"/>
+                                       value="<%=Encode.forHtmlAttribute(policyId)%>"/>
                             </td>
                             <td style="border:0; !important">
                                 <a class="icon-link" href="#" style="background-image: url(images/search.gif);"
@@ -186,14 +187,14 @@
                 if(dto != null && dto.getTimeInstance() != null){
         %>
         <tr>
-            <td><%=(new Date(Long.parseLong(dto.getTimeInstance()))).toString()%></td>
-            <td><% if(dto.getType() != null){%> <%=dto.getType()%><%}%></td>
-            <td><% if(dto.getUser() != null){%> <%=dto.getUser()%><%}%></td>
-            <td><% if(dto.getTarget() != null){%> <%=dto.getTarget()%><%}%></td>
-            <td><% if(dto.getTargetAction() != null){%> <%=dto.getTargetAction()%><%}%></td>
+            <td><%=Encode.forHtml((new Date(Long.parseLong(dto.getTimeInstance()))).toString())%></td>
+            <td><% if(dto.getType() != null){%> <%=Encode.forHtml(dto.getType())%><%}%></td>
+            <td><% if(dto.getUser() != null){%> <%=Encode.forHtml(dto.getUser())%><%}%></td>
+            <td><% if(dto.getTarget() != null){%> <%=Encode.forHtml(dto.getTarget())%><%}%></td>
+            <td><% if(dto.getTargetAction() != null){%> <%=Encode.forHtml(dto.getTargetAction())%><%}%></td>
             <td><% if(dto.getSuccess()){%> <fmt:message key="status.success"/> <%}
                                             else {%> <fmt:message key="status.fail"/> <%} %></td>
-            <td><% if(dto.getMessage() != null){%> <%=dto.getMessage()%><%}%></td>
+            <td><% if(dto.getMessage() != null){%> <%=Encode.forHtml(dto.getMessage())%><%}%></td>
         </tr>
         <%
                 }
@@ -211,7 +212,7 @@
                       numberOfPages="<%=numberOfPages%>"
                       page="show-policy-status.jsp"
                       pageNumberParameterName="pageNumber"
-                      parameters="<%=paginationValue%>"
+                      parameters="<%=Encode.forHtmlAttribute(paginationValue)%>"
                       resourceBundle="org.wso2.carbon.identity.entitlement.ui.i18n.Resources"
                       prevKey="prev" nextKey="next"/>
 </div>

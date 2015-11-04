@@ -17,13 +17,13 @@
  -->
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.wso2.carbon.identity.oauth.common.OAuthConstants"%>
 <%@ page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO"%>
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthAdminClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 
 <%@ page import="java.util.ResourceBundle" %>
@@ -38,18 +38,18 @@
 <jsp:include page="../dialog/display_messages.jsp" />
 
 <%
-	String applicationName = CharacterEncoder.getSafeText(request.getParameter("application"));
-    String callback = CharacterEncoder.getSafeText(request.getParameter("callback"));
-    String oauthVersion = CharacterEncoder.getSafeText(request.getParameter("oauthVersion"));
+    String applicationName = request.getParameter("application");
+    String callback = request.getParameter("callback");
+    String oauthVersion = request.getParameter("oauthVersion");
     //-- start setting grants
-    String grantCode = CharacterEncoder.getSafeText(request.getParameter("grant_code"));
-    String grantImplicit = CharacterEncoder.getSafeText(request.getParameter("grant_implicit"));
-    String grantPassword = CharacterEncoder.getSafeText(request.getParameter("grant_password"));
-    String grantClient = CharacterEncoder.getSafeText(request.getParameter("grant_client"));
-    String grantRefresh = CharacterEncoder.getSafeText(request.getParameter("grant_refresh"));
-    String grantSAML1 = CharacterEncoder.getSafeText(request.getParameter("grant_saml1"));
-    String grantSAML2 = CharacterEncoder.getSafeText(request.getParameter("grant_saml2"));
-    String grantNTLM = CharacterEncoder.getSafeText(request.getParameter("grant_ntlm"));
+    String grantCode = request.getParameter("grant_code");
+    String grantImplicit = request.getParameter("grant_implicit");
+    String grantPassword = request.getParameter("grant_password");
+    String grantClient = request.getParameter("grant_client");
+    String grantRefresh = request.getParameter("grant_refresh");
+    String grantSAML1 = request.getParameter("grant_saml1");
+    String grantSAML2 = request.getParameter("grant_saml2");
+    String grantNTLM = request.getParameter("grant_ntlm");
     String grants = null;
    	StringBuffer buff = new StringBuffer();
 	if (grantCode != null) {
@@ -125,9 +125,9 @@ if (qpplicationComponentFound) {
 	if (!isError) {
 		session.setAttribute("oauth-consum-secret", consumerApp.getOauthConsumerSecret());
 %>
-    location.href = '../application/configure-service-provider.jsp?action=update&display=oauthapp&spName=<%=spName%>&oauthapp=<%=consumerApp.getOauthConsumerKey()%>';
+    location.href = '../application/configure-service-provider.jsp?action=update&display=oauthapp&spName=<%=Encode.forUriComponent(spName)%>&oauthapp=<%=Encode.forUriComponent(consumerApp.getOauthConsumerKey())%>';
 <% } else { %>
-    location.href = '../application/configure-service-provider.jsp?display=oauthapp&spName=<%=spName%>&action=cancel';
+    location.href = '../application/configure-service-provider.jsp?display=oauthapp&spName=<%=Encode.forUriComponent(spName)%>&action=cancel';
 <% } 
 } else {%>
     location.href = 'index.jsp';

@@ -15,13 +15,13 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   --%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
-<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
-    String stat = CharacterEncoder.getSafeText(request.getParameter("status"));
-    String statusMessage = CharacterEncoder.getSafeText(request.getParameter("statusMsg"));
+    String stat = request.getParameter("status");
+    String statusMessage = request.getParameter("statusMsg");
     if (stat == null || statusMessage == null) {
         stat = "Authentication Error !";
         statusMessage = "Something went wrong during the authentication process. Please try signing in again.";
@@ -43,12 +43,12 @@
 
     <div id="workArea">
         <div class="info-box">
-            <%=stat%>
+            <%=Encode.forHtml(stat)%>
         </div>
         <table class="styledLeft">
             <tbody>
             <tr>
-                <td><%=statusMessage%>
+                <td><%=Encode.forHtmlContent(statusMessage)%>
                 </td>
             </tr>
             </tbody>

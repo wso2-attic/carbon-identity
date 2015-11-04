@@ -16,14 +16,13 @@
 ~ under the License.
 -->
 
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <jsp:useBean id="entitlementPolicyBean" type="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean"
              class="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean" scope="session"/>
 <jsp:setProperty name="entitlementPolicyBean" property="*" />
 <%
     String forwardTo = null;
-    String ruleId = CharacterEncoder.getSafeText(request.getParameter("ruleId"));
-    String returnPage = CharacterEncoder.getSafeText(request.getParameter("returnPage"));
+    String ruleId = request.getParameter("ruleId");
+    String returnPage = request.getParameter("returnPage");
     if(returnPage != null && returnPage.trim().length() > 0){
         if(ruleId != null && ruleId.trim().length() > 0){
             entitlementPolicyBean.removeBasicRuleElement(ruleId);

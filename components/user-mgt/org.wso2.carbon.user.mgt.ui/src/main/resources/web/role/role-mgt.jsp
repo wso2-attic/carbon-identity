@@ -24,6 +24,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName" %>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
+<%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
@@ -183,7 +184,7 @@
                     activeRoleList = new LinkedHashSet<FlaggedName>(preactiveRoleList);
 
                     String[] AddPendingRolesList = UserMgtClient.
-                            listAllEntityNames("ADD_ROLE", "PENDING", "ROLE");
+                            listAllEntityNames("ADD_ROLE", "PENDING", "ROLE", modifiedFilter);
 
                     workFlowAddPendingRolesList = new LinkedHashSet<String>(Arrays.asList(AddPendingRolesList));
 
@@ -195,7 +196,7 @@
                     }
 
                     String[] DeletePendingUsersList = UserMgtClient.
-                            listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE");
+                            listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE", modifiedFilter);
                     workFlowDeletePendingRoles = new LinkedHashSet<String>(Arrays.asList(DeletePendingUsersList));
 
                     for (Iterator<FlaggedName> iterator = activeRoleList.iterator(); iterator.hasNext(); ) {
@@ -263,15 +264,24 @@
     }
 
     if (userRealmInfo != null) {
-        domainNames = userRealmInfo.getDomainNames();
-        if (domainNames != null) {
-            List<String> list = new ArrayList<String>(Arrays.asList(domainNames));
-            list.add(UserAdminUIConstants.ALL_DOMAINS);
-            list.add(UserAdminUIConstants.INTERNAL_DOMAIN);
-            //list.add(UserAdminUIConstants.APPLICATION_DOMAIN);
-            //list.add(UserAdminUIConstants.WORKFLOW_DOMAIN);
-            domainNames = list.toArray(new String[list.size()]);
+        List<String> list = new ArrayList<String>();
+
+        UserStoreInfo[]  allUserStoreInfo = userRealmInfo.getUserStoresInfo();
+        if (allUserStoreInfo != null && allUserStoreInfo.length > 0) {
+            for (int i = 0; i < allUserStoreInfo.length; i++) {
+                if (allUserStoreInfo[i] != null) {
+                    if (allUserStoreInfo[i].getDomainName() != null && allUserStoreInfo[i].getReadGroupsEnabled()) {
+                        list.add(allUserStoreInfo[i].getDomainName());
+                    }
+                }
+            }
         }
+
+        list.add(UserAdminUIConstants.ALL_DOMAINS);
+        list.add(UserAdminUIConstants.INTERNAL_DOMAIN);
+        list.add(UserAdminUIConstants.APPLICATION_DOMAIN);
+        //list.add(UserAdminUIConstants.WORKFLOW_DOMAIN);
+        domainNames = list.toArray(new String[list.size()]);
     }
 %>
 <fmt:bundle basename="org.wso2.carbon.userstore.ui.i18n.Resources">
@@ -394,7 +404,7 @@
                 <%
                     if (ArrayUtils.isNotEmpty(roles)) {
                         for (FlaggedName data : roles) {
-                            if (data != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug in Axis!!
+                            if (data != null) {
                                 if (CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(data.getItemName())) {
                                     continue;
                                 }
@@ -548,7 +558,7 @@
                                         arg += " and ";
                                     }
                                 }
-                                message = resourceBundle.getString("more.roles.others").replace("{0}", arg);
+                                message = MessageFormat.format(resourceBundle.getString("more.roles.others"), arg);
                             } else {
                                 message = resourceBundle.getString("more.roles.primary");
                             }
@@ -567,7 +577,7 @@
                         arg += " and ";
                     }
                 }
-                message = resourceBundle.getString("more.roles").replace("{0}", arg);
+                message = MessageFormat.format(resourceBundle.getString("more.roles"), arg);
             %>
             <strong><%=Encode.forHtml(message)%>
             </strong>

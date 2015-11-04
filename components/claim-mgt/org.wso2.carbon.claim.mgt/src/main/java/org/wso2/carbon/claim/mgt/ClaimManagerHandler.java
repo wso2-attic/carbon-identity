@@ -596,10 +596,10 @@ public enum ClaimManagerHandler {
 
     /*
      * validate input claims are belongs to wso2 default claim dialect. Check only the first attribute and assume other
-     * are also same as frist attribute
+     * are also same as first attribute
      */
     private Set<String> validateClaims(Set<String> attributeKeys) {
-        if (attributeKeys != null) {
+        if (attributeKeys != null && !attributeKeys.isEmpty()) {
             String claimURI = (String) new ArrayList(attributeKeys).get(0);
             if (!claimURI.startsWith(UserCoreConstants.DEFAULT_CARBON_DIALECT)) {
                 return new HashSet<String>();

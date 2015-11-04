@@ -647,6 +647,13 @@ public class UserRealmProxy {
             UserStoreInfo info = new UserStoreInfo();
 
             info.setReadOnly(manager.isReadOnly());
+
+            boolean readRolesEnabled = Boolean.parseBoolean(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
+            info.setReadGroupsEnabled(readRolesEnabled);
+            boolean writeRolesEnabled = Boolean.parseBoolean(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED));
+            info.setWriteGroupsEnabled(!manager.isReadOnly() && readRolesEnabled && writeRolesEnabled);
             info.setPasswordsExternallyManaged(realmConfig.isPasswordsExternallyManaged());
             info.setPasswordRegEx(realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JS_REG_EX));
@@ -676,7 +683,11 @@ public class UserRealmProxy {
             return info;
         } catch (UserStoreException e) {
             // previously logged so logging not needed
-            throw new UserAdminException(e.getMessage(), e);
+            String domainName = manager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                    .PROPERTY_DOMAIN_NAME);
+            String errorMsg = "Error while getting user realm information for domain '" + domainName + "' : " + e
+                    .getMessage();
+            throw new UserAdminException(errorMsg, e);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new UserAdminException(e.getMessage(), e);
@@ -882,7 +893,8 @@ public class UserRealmProxy {
                         Arrays.binarySearch(permissions, "/permission/protected") > -1 ||
                         Arrays.binarySearch(permissions, "/permission/protected/") > -1) {
                     log.warn("An attempt to create role with admin permission by user " + loggedInUserName);
-                    throw new UserStoreException("You have not privilege to create a role with Admin permission");
+                    throw new UserStoreException("You do not have the required privilege to create a role with Admin " +
+                            "permission");
                 }
             }
 
@@ -936,7 +948,8 @@ public class UserRealmProxy {
                         Arrays.binarySearch(permissions, "/permission/protected") > -1 ||
                         Arrays.binarySearch(permissions, "/permission/protected/") > -1) {
                     log.warn("An attempt to create role with admin permission by user " + loggedInUserName);
-                    throw new UserStoreException("You have not privilege to create a role with Admin permission");
+                    throw new UserStoreException("You do not have the required privilege to create a role with Admin " +
+                            "permission");
                 }
             }
 

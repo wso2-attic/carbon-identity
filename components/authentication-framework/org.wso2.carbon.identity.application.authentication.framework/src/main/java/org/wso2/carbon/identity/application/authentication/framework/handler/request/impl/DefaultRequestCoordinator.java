@@ -85,6 +85,12 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                 if (sessionDataKey != null) {
                     log.debug("retrieving authentication request from cache..");
                     authRequest = FrameworkUtils.getAuthenticationRequestFromCache(sessionDataKey);
+
+                    if (authRequest == null) {
+                        // authRequest cannot be retrieved from cache. Cache
+                        throw new FrameworkException("Invalid authentication request. Session data key : " + sessionDataKey);
+                    }
+
                 } else if (!Boolean.parseBoolean(request.getParameter(FrameworkConstants.LOGOUT))) {
 
                     // sessionDataKey is null and not a logout request

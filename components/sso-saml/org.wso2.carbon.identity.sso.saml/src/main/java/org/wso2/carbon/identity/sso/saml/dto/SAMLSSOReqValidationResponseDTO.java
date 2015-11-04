@@ -23,6 +23,8 @@ import java.io.Serializable;
 
 public class SAMLSSOReqValidationResponseDTO implements Serializable {
 
+    private static final long serialVersionUID = -2483397754723075495L;
+
     private boolean isLogOutReq;
     private boolean isValid;
     private boolean doSingleLogout;
@@ -44,15 +46,19 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
     private boolean logoutFromAuthFramework;
     private boolean isIdPInitSLO;
     private String returnToURL;
+    private boolean doSignResponse;
     private String signingAlgorithmUri;
     private String digestAlgorithmUri;
+    private int attributeConsumingServiceIndex = 0;
 
     public String getDigestAlgorithmUri() {
         return digestAlgorithmUri;
     }
 
     public void setDigestAlgorithmUri(String digestAlgorithmUri) {
-        this.digestAlgorithmUri = digestAlgorithmUri;
+        if (StringUtils.isNotBlank(digestAlgorithmUri)) {
+            this.digestAlgorithmUri = digestAlgorithmUri;
+        }
     }
 
     public String getSigningAlgorithmUri() {
@@ -262,5 +268,27 @@ public class SAMLSSOReqValidationResponseDTO implements Serializable {
 
     public void setReturnToURL(String returnToURL) {
         this.returnToURL = returnToURL;
+    }
+
+    /**
+     * @return the doSignResponse
+     */
+    public boolean isDoSignResponse() {
+        return doSignResponse;
+    }
+
+    /**
+     * @param doSignResponse the doSignResponse to set
+     */
+    public void setDoSignResponse(boolean doSignResponse) {
+        this.doSignResponse = doSignResponse;
+    }
+
+    public int getAttributeConsumingServiceIndex() {
+        return attributeConsumingServiceIndex;
+    }
+
+    public void setAttributeConsumingServiceIndex(int attributeConsumingServiceIndex) {
+        this.attributeConsumingServiceIndex = attributeConsumingServiceIndex;
     }
 }

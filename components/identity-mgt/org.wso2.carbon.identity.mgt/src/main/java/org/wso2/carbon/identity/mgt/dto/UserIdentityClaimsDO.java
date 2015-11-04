@@ -32,12 +32,11 @@ import java.util.Map;
  */
 public class UserIdentityClaimsDO implements Serializable {
 
+    private static final long serialVersionUID = -2450146518801449646L;
+
     public static final int TRUE = 1;
     public static final int FALSE = 2;
-    /**
-     *
-     */
-    private static final long serialVersionUID = -5135352332427377484L;
+
     private String userName;
     private int tenantId;
 
@@ -225,7 +224,7 @@ public class UserIdentityClaimsDO implements Serializable {
         } else if (UserIdentityDataStore.UNLOCKING_TIME.equalsIgnoreCase(claim)) {
             setUnlockTime(Long.parseLong(value));
         } else if (UserIdentityDataStore.ONE_TIME_PASSWORD.equalsIgnoreCase(claim)) {
-            setOneTimeLogin(Boolean.parseBoolean(claim));
+            setOneTimeLogin(Boolean.parseBoolean(value));
         } else if (UserIdentityDataStore.PASSWORD_CHANGE_REQUIRED.equalsIgnoreCase(claim)) {
             setPasswordChangeRequired(Boolean.parseBoolean(value));
         } else if (UserIdentityDataStore.LAST_LOGON_TIME.equalsIgnoreCase(claim)) {

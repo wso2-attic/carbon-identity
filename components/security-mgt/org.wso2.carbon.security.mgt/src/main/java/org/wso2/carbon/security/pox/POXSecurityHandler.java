@@ -147,6 +147,10 @@ public class POXSecurityHandler implements Handler {
             // we only need to execute this block in Unauthorized situations when basicAuth used
             // otherwise it should continue the message flow by throwing the incoming fault message since
             // this is already a fault response - ESBJAVA-2731
+            if(log.isDebugEnabled()){
+                log.debug("SOAP Fault occurred and message flow equals to out fault flow. SOAP fault :" + msgCtx
+                        .getEnvelope().toString());
+            }
             try {
                 String scenarioID = getScenarioId(msgCtx, service);
                 if (scenarioID != null && scenarioID.equals(SecurityConstants.USERNAME_TOKEN_SCENARIO_ID)) {

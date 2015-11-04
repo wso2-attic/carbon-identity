@@ -54,7 +54,6 @@
     boolean newFilter = false;
     boolean doUserList = true;
     boolean showFilterMessage = false;
-    boolean multipleUserStores = false;
     String forwardTo = "user-mgt.jsp";
 
     FlaggedName[] datas = null;
@@ -96,9 +95,6 @@
     // retrieve session attributes
     String currentUser = (String) session.getAttribute("logged-user");
     UserRealmInfo userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
-    if (userRealmInfo != null) {
-        multipleUserStores = userRealmInfo.getMultipleUserStore();
-    }
     java.lang.String errorAttribute = (java.lang.String) session.getAttribute(UserAdminUIConstants.DO_USER_LIST);
 
     String claimUri = request.getParameter("claimUri");
@@ -217,7 +213,7 @@
                     activeUserList = new LinkedHashSet<FlaggedName>(preactiveUserList);
 
                     String[] AddPendingUsersList = UserMgtClient.
-                            listAllEntityNames("ADD_USER", "PENDING", "USER");
+                            listAllEntityNames("ADD_USER", "PENDING", "USER", modifiedFilter);
                     workFlowAddPendingUsersList = new LinkedHashSet<String>(Arrays.asList(AddPendingUsersList));
 
                     for (String s : AddPendingUsersList) {
@@ -227,7 +223,7 @@
                         workFlowAddPendingUsers.add(flaggedName);
                     }
                     String[] DeletePendingUsersList = UserMgtClient.
-                            listAllEntityNames("DELETE_USER", "PENDING", "USER");
+                            listAllEntityNames("DELETE_USER", "PENDING", "USER", modifiedFilter);
                     workFlowDeletePendingUsers = new LinkedHashSet<String>(Arrays.asList(DeletePendingUsersList));
 
                     for (Iterator<FlaggedName> iterator = activeUserList.iterator(); iterator.hasNext(); ) {
@@ -491,11 +487,11 @@
                     </td>
                     <td>
                         <%
-                            if (!Util.getUserStoreInfoForUser(Util.decodeHTMLCharacters(userName), userRealmInfo).getPasswordsExternallyManaged() &&      // TODO
+                            if (!Util.getUserStoreInfoForUser(userName, userRealmInfo).getPasswordsExternallyManaged() &&
                                     CarbonUIUtil.isUserAuthorized(request,
                                             "/permission/admin/configure/security/usermgt/passwords") &&
                                     users[i].getEditable()) { //if passwords are managed externally do not allow to change passwords.
-                                if (Util.decodeHTMLCharacters(userName).equals(currentUser)) {
+                                if (userName.equals(currentUser)) {
                         %>
                         <a href="change-passwd.jsp?isUserChange=true&returnPath=user-mgt.jsp" class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
@@ -568,7 +564,7 @@
                     </td>
                     <td>
                         <%
-                            if (userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName)) &&
+                            if (userRealmInfo.getAdminUser().equals(userName) &&
                                     !userRealmInfo.getAdminUser().equals(currentUser)) {
                         %>
                         <a href="#" class="icon-link" title="Operation is Disabled"
@@ -595,11 +591,11 @@
                             }
                         %>
                         <%
-                            if (!Util.getUserStoreInfoForUser(Util.decodeHTMLCharacters(userName), userRealmInfo).getPasswordsExternallyManaged() &&      // TODO
+                            if (!Util.getUserStoreInfoForUser(userName, userRealmInfo).getPasswordsExternallyManaged() &&      // TODO
                                     CarbonUIUtil.isUserAuthorized(request,
                                             "/permission/admin/configure/security/usermgt/passwords") &&
                                     users[i].getEditable()) { //if passwords are managed externally do not allow to change passwords.
-                                if (Util.decodeHTMLCharacters(userName).equals(currentUser)) {
+                                if (userName.equals(currentUser)) {
                         %>
                         <a href="change-passwd.jsp?isUserChange=true&returnPath=user-mgt.jsp" class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
@@ -642,17 +638,16 @@
 
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request,
-                                    "/permission/admin/configure/security/usermgt/users") && !Util.decodeHTMLCharacters(userName).equals(currentUser)
-                                    && !Util.decodeHTMLCharacters(userName).equals(userRealmInfo.getAdminUser()) &&
+                                    "/permission/admin/configure/security/usermgt/users") && !userName.equals(currentUser)
+                                    && !userName.equals(userRealmInfo.getAdminUser()) &&
                                     users[i].getEditable()) {
                         %>
-                        <a href="#" onclick="deleteUser('<%=Encode.forJavaScriptAttribute(userName)%>')"
+                        <a href="#" onclick="deleteUser('<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(userName))%>')"
                            class="icon-link"
                            style="background-image:url(images/delete.gif);"><fmt:message
                                 key="delete"/></a>
                         <%
-                        } else if (Util.decodeHTMLCharacters(userName).equals(currentUser) ||
-                                Util.decodeHTMLCharacters(userName).equals(userRealmInfo.getAdminUser())) {
+                        } else if (userName.equals(currentUser) || userName.equals(userRealmInfo.getAdminUser())) {
                         %>
                         <a href="#" class="icon-link" title="Operation is Disabled"
                            style="background-image:url(images/delete.gif);color:#CCC;"><fmt:message
@@ -745,35 +740,6 @@
             <%
                         }
                     }
-                }
-            %>
-
-            <%
-                if ((multipleUserStores || !userRealmInfo.getPrimaryUserStoreInfo().getReadOnly())
-                        && userRealmInfo.getPrimaryUserStoreInfo().getExternalIdP() == null
-                        && CarbonUIUtil.isUserAuthorized(request,
-                        "/permission/admin/configure/security/usermgt/users")) {
-            %>
-            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-top:2px;">
-
-                <%
-                    if (!multipleUserStores && userRealmInfo.getBulkImportSupported()) {
-                %>
-                <tr>
-                    <td class="addNewSecurity">
-                        <a href="bulk-import.jsp" class="icon-link"
-                           style="background-image:url(images/bulk-import.gif);"><fmt:message
-                                key="bulk.import.user"/></a>
-                    </td>
-                </tr>
-
-                <%
-                    }
-                %>
-
-            </table>
-
-            <%
                 }
             %>
 

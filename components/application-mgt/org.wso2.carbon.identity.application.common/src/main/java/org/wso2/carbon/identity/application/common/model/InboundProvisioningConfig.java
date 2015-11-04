@@ -25,14 +25,19 @@ import java.util.Iterator;
 
 public class InboundProvisioningConfig implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -7268191162277514923L;
+    private static final long serialVersionUID = -7320364749026206151L;
 
     private String provisioningUserStore;
     private boolean provisioningEnabled;
+    private boolean isDumbMode = false;
 
+    public boolean isDumbMode() {
+        return isDumbMode;
+    }
+
+    public void setDumbMode(boolean isDumbMode) {
+        this.isDumbMode = isDumbMode;
+    }
     /*
      * <InboundProvisioningConfig> <ProvisioningUserStore></ProvisioningUserStore>
      * <IsProvisioningEnabled></IsProvisioningEnabled> </InboundProvisioningConfig>

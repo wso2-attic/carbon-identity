@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class SessionContext implements Serializable {
 
-    private static final long serialVersionUID = -5797408810833645408L;
+    private static final long serialVersionUID = -1217614650620644670L;
 
     private Map<String, SequenceConfig> authenticatedSequences = new HashMap<String, SequenceConfig>();
     private Map<String, AuthenticatedIdPData> authenticatedIdPs = new HashMap<String, AuthenticatedIdPData>();

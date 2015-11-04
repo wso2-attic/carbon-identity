@@ -28,6 +28,8 @@ import java.io.Serializable;
 
 public class AssociationClusterMessage extends ClusteringMessage implements Serializable {
 
+    private static final long serialVersionUID = 3421028095886637679L;
+
     private static Log log = org.apache.commons.logging.LogFactory.getLog(AssociationClusterMessage.class);
 
     private Association association;

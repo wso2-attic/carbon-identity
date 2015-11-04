@@ -15,33 +15,20 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
-
-
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd"
-                  xmlns:ns="http://workflow.mgt.user.carbon.wso2.org"
-                  xmlns:ax2627="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd"
-                  xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
-                  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
-                  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
-                  targetNamespace="http://workflow.mgt.user.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax2658="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://workflow.mgt.user.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://workflow.mgt.user.carbon.wso2.org">
     <wsdl:documentation>UserManagementWorkflowService</wsdl:documentation>
     <wsdl:types>
-        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified"
-                   targetNamespace="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd">
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd">
             <xs:complexType name="WorkflowException">
                 <xs:sequence/>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax2628="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd"
-                   attributeFormDefault="qualified" elementFormDefault="qualified"
-                   targetNamespace="http://workflow.mgt.user.carbon.wso2.org">
+        <xs:schema xmlns:ax2659="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://workflow.mgt.user.carbon.wso2.org">
             <xs:import namespace="http://exception.mgt.workflow.identity.carbon.wso2.org/xsd"/>
             <xs:element name="UserManagementWorkflowServiceWorkflowException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="WorkflowException" nillable="true"
-                                    type="ax2628:WorkflowException"/>
+                        <xs:element minOccurs="0" name="WorkflowException" nillable="true" type="ax2659:WorkflowException"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -51,6 +38,7 @@
                         <xs:element minOccurs="0" name="wfOperationType" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="wfStatus" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="entityType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="entityIdFilter" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -76,9 +64,7 @@
         <wsdl:operation name="listAllEntityNames">
             <wsdl:input message="ns:listAllEntityNamesRequest" wsaw:Action="urn:listAllEntityNames"/>
             <wsdl:output message="ns:listAllEntityNamesResponse" wsaw:Action="urn:listAllEntityNamesResponse"/>
-            <wsdl:fault message="ns:UserManagementWorkflowServiceWorkflowException"
-                        name="UserManagementWorkflowServiceWorkflowException"
-                        wsaw:Action="urn:listAllEntityNamesUserManagementWorkflowServiceWorkflowException"/>
+            <wsdl:fault message="ns:UserManagementWorkflowServiceWorkflowException" name="UserManagementWorkflowServiceWorkflowException" wsaw:Action="urn:listAllEntityNamesUserManagementWorkflowServiceWorkflowException"/>
         </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="UserManagementWorkflowServiceSoap11Binding" type="ns:UserManagementWorkflowServicePortType">
@@ -124,20 +110,14 @@
         </wsdl:operation>
     </wsdl:binding>
     <wsdl:service name="UserManagementWorkflowService">
-        <wsdl:port name="UserManagementWorkflowServiceHttpsSoap11Endpoint"
-                   binding="ns:UserManagementWorkflowServiceSoap11Binding">
-            <soap:address
-                    location="https://localhost:9443/services/UserManagementWorkflowService.UserManagementWorkflowServiceHttpsSoap11Endpoint/"/>
+        <wsdl:port name="UserManagementWorkflowServiceHttpsSoap11Endpoint" binding="ns:UserManagementWorkflowServiceSoap11Binding">
+            <soap:address location="https://localhost:9443/services/UserManagementWorkflowService.UserManagementWorkflowServiceHttpsSoap11Endpoint/"/>
         </wsdl:port>
-        <wsdl:port name="UserManagementWorkflowServiceHttpsSoap12Endpoint"
-                   binding="ns:UserManagementWorkflowServiceSoap12Binding">
-            <soap12:address
-                    location="https://localhost:9443/services/UserManagementWorkflowService.UserManagementWorkflowServiceHttpsSoap12Endpoint/"/>
+        <wsdl:port name="UserManagementWorkflowServiceHttpsSoap12Endpoint" binding="ns:UserManagementWorkflowServiceSoap12Binding">
+            <soap12:address location="https://localhost:9443/services/UserManagementWorkflowService.UserManagementWorkflowServiceHttpsSoap12Endpoint/"/>
         </wsdl:port>
-        <wsdl:port name="UserManagementWorkflowServiceHttpsEndpoint"
-                   binding="ns:UserManagementWorkflowServiceHttpBinding">
-            <http:address
-                    location="https://localhost:9443/services/UserManagementWorkflowService.UserManagementWorkflowServiceHttpsEndpoint/"/>
+        <wsdl:port name="UserManagementWorkflowServiceHttpsEndpoint" binding="ns:UserManagementWorkflowServiceHttpBinding">
+            <http:address location="https://localhost:9443/services/UserManagementWorkflowService.UserManagementWorkflowServiceHttpsEndpoint/"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

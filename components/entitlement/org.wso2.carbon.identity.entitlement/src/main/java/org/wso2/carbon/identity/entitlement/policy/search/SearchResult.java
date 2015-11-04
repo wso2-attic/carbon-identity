@@ -28,6 +28,7 @@ import java.io.Serializable;
 public class SearchResult implements Serializable {
 
     private static final long serialVersionUID = -6701359087661169326L;
+
     /**
      * Result
      */

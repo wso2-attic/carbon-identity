@@ -65,7 +65,7 @@ public interface WorkflowManagementService {
 
     List<Association> getAssociationsForWorkflow(String workflowId) throws WorkflowException;
 
-    List<Association> listAllAssociations() throws WorkflowException;
+    List<Association> listAllAssociations(int tenantId) throws WorkflowException;
 
     void changeAssociationState(String associationId, boolean isEnable) throws WorkflowException;
 
@@ -79,7 +79,7 @@ public interface WorkflowManagementService {
     boolean areTwoEntitiesRelated(Entity entity1, Entity entity2) throws
                                                                   InternalWorkflowException;
 
-    boolean eventEngagedWithWorkflows(String eventType) throws InternalWorkflowException;
+    boolean isEventAssociated(String eventType) throws InternalWorkflowException;
 
     WorkflowRequest[] getRequestsCreatedByUser(String user, int tenantId) throws WorkflowException;
 
@@ -96,6 +96,6 @@ public interface WorkflowManagementService {
     WorkflowRequest[] getRequestsFromFilter(String user, String beginDate, String endDate, String
             dateCategory, int tenantId, String status) throws WorkflowException;
 
-    List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID) throws
-                                                                                                           InternalWorkflowException;
+    List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID, String
+            idFilter) throws InternalWorkflowException;
 }

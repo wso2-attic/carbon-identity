@@ -19,6 +19,7 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PIPFinderDataHolder" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.stub.dto.PolicyFinderDataHolder" %>
@@ -90,7 +91,7 @@
     } catch (Exception e) {
 %>
 <script type="text/javascript">
-    CARBON.showErrorDialog('<%=e.getMessage()%>', function () {
+    CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(e.getMessage()))%>', function () {
         location.href = "index.jsp";
     });
 </script>
@@ -128,14 +129,14 @@
                  <%
                     if(policyFinderDataHolder != null){
                 %>
-                    <%=policyFinderDataHolder.getModuleName()%>
+                    <%=Encode.forHtml(policyFinderDataHolder.getModuleName())%>
                 <%
                     }
                 %>
                  <%
                     if(pipFinderDataHolder != null){
                 %>
-                    <%=pipFinderDataHolder.getModuleName()%>
+                    <%=Encode.forHtml(pipFinderDataHolder.getModuleName())%>
                 <%
                     }
                 %>
@@ -147,14 +148,14 @@
 
                     <table  class="styledLeft"  style="width: 100%">
                         <tr>
-                            <td>Name</td><td><%=policyFinderDataHolder.getModuleName()%></td>
+                            <td>Name</td><td><%=Encode.forHtml(policyFinderDataHolder.getModuleName())%></td>
                         </tr>
                         <tr>
-                            <td>Class Name</td><td><%=policyFinderDataHolder.getClassName()%></td>
+                            <td>Class Name</td><td><%=Encode.forHtml(policyFinderDataHolder.getClassName())%></td>
                         </tr>
                         <tr>
                             <td>Policy Ids </td>
-                            <td><%=policyString%></td>
+                            <td><%=Encode.forHtml(policyString)%></td>
                         </tr>
                     </table>
 
@@ -168,14 +169,14 @@
 
                     <table  class="styledLeft"  style="width: 100%">
                         <tr>
-                            <td>Name</td><td><%=pipFinderDataHolder.getModuleName()%></td>
+                            <td>Name</td><td><%=Encode.forHtml(pipFinderDataHolder.getModuleName())%></td>
                         </tr>
                         <tr>
-                            <td>Class Name</td><td><%=pipFinderDataHolder.getClassName()%></td>
+                            <td>Class Name</td><td><%=Encode.forHtml(pipFinderDataHolder.getClassName())%></td>
                         </tr>
                         <tr>
                             <td>Support Attribute Ids </td>
-                            <td><%=attributeString%></td>
+                            <td><%=Encode.forHtml(attributeString)%></td>
                         </tr>
                     </table>
 

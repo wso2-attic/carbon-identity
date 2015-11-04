@@ -23,7 +23,6 @@
 <%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
@@ -39,11 +38,11 @@
         IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
 
         IdentityProvider identityProvider = null;
-        String oldIdpName = null;
+        StringBuilder oldIdpName = new StringBuilder();
         
       	if (request.getParameter("idPName") != null	&& request.getParameter("idPName").length() != 0 && request.getParameter("enable") != null) {
 
-			identityProvider = client.getIdPByName(CharacterEncoder.getSafeText(request.getParameter("idPName")));
+			identityProvider = client.getIdPByName(request.getParameter("idPName"));
 
     		if (request.getParameter("enable").equals("1")) {
     			identityProvider.setEnable(true);
@@ -51,14 +50,12 @@
     			identityProvider.setEnable(false);
     		}
     		
-			oldIdpName = CharacterEncoder.getSafeText(request.getParameter("idPName"));
+			oldIdpName.append(request.getParameter("idPName"));
 		} else {
-	        identityProvider = IdPManagementUIUtil.buildeFederatedIdentityProvider(request);
-	        oldIdpName = ((IdentityProvider) session.getAttribute("identityProvider")).getIdentityProviderName();
+	        identityProvider = IdPManagementUIUtil.buildFederatedIdentityProvider(request, oldIdpName);
 		}
       		
-		client.updateIdP(oldIdpName, identityProvider);
-
+		client.updateIdP(oldIdpName.toString(), identityProvider);
       	
 		String message = MessageFormat.format(resourceBundle.getString("success.updating.idp"),	null);
 		CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
@@ -69,7 +66,7 @@
 		CarbonUIMessage.sendCarbonUIMessage(message,
 				CarbonUIMessage.ERROR, request);
 	} finally {
-		session.removeAttribute("identityProvider");
+		session.removeAttribute("idpUniqueIdMap");
 		session.removeAttribute("identityProviderList");
 	}
 %>

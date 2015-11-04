@@ -58,11 +58,6 @@ public class EntitlementServiceClient {
      */
     public String getDecision(String request) throws AxisFault {
         try {
-            if (request != null) {
-                request = request.trim().replaceAll("&lt;", "<"); //TODO should be properly fixed
-                request = request.trim().replaceAll("&gt;", ">");
-                request = request.trim().replaceAll("&quot;", "\"");
-            }
             return stub.getDecision(request);
         } catch (Exception e) {
             handleException("Error occurred while policy evaluation", e);

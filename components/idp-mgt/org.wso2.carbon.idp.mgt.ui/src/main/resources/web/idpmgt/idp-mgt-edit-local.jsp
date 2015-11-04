@@ -16,12 +16,17 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig"%>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProviderProperty" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
 
@@ -30,6 +35,7 @@
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 
 <%
     IdentityProvider residentIdentityProvider =
@@ -46,9 +52,11 @@
     String tokenUrl = null;
     String userInfoUrl = null;
     String passiveSTSUrl = null;
+    String passivestsIdPEntityId = null;
     String stsUrl = null;
     String sessionIdleTimeout = null;
     String rememberMeTimeout = null;
+    List<Property> destinationURLList = new ArrayList<Property>();
     FederatedAuthenticatorConfig[] federatedAuthenticators = residentIdentityProvider.getFederatedAuthenticatorConfigs();
     for(FederatedAuthenticatorConfig federatedAuthenticator : federatedAuthenticators){
         Property[] properties = federatedAuthenticator.getProperties();
@@ -62,6 +70,12 @@
                     IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL).getValue();
             samlSLOUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL).getValue();
+            destinationURLList = IdPManagementUIUtil.getPropertySetStartsWith(properties, IdentityApplicationConstants
+                    .Authenticator.SAML2SSO.DESTINATION_URL_PREFIX);
+            if (destinationURLList.size() == 0){
+                destinationURLList.add(IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL));
+            }
         } else if(IdentityApplicationConstants.OAuth10A.NAME.equals(federatedAuthenticator.getName())){
             oauth1RequestTokenUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.OAuth10A.OAUTH1_REQUEST_TOKEN_URL).getValue();
@@ -79,15 +93,11 @@
         } else if(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME.equals(federatedAuthenticator.getName())){
             passiveSTSUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL).getValue();
+            passivestsIdPEntityId = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID).getValue();
         } else if(IdentityApplicationConstants.Authenticator.WSTrust.NAME.equals(federatedAuthenticator.getName())){
             stsUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.WSTrust.IDENTITY_PROVIDER_URL).getValue();
-        } else if(IdentityApplicationConstants.Authenticator.IDPProperties.NAME.equals(federatedAuthenticator.getName())){
-            sessionIdleTimeout = IdPManagementUIUtil.getProperty(properties,
-                    IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT).getValue();
-            rememberMeTimeout = IdPManagementUIUtil.
-                    getProperty(properties,
-                            IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT).getValue();
         }
     }
     String scimUserEp = null;
@@ -108,6 +118,18 @@
             }
         }
     }
+
+    IdentityProviderProperty[] idpProperties = residentIdentityProvider.getIdpProperties();
+    if (idpProperties != null) {
+        for (IdentityProviderProperty property : idpProperties) {
+            if (property.getName().equals(IdentityApplicationConstants.SESSION_IDLE_TIME_OUT)) {
+                sessionIdleTimeout = property.getValue();
+            } else if (property.getName().equals(IdentityApplicationConstants.REMEMBER_ME_TIME_OUT)) {
+                rememberMeTimeout = property.getValue();
+            }
+        }
+    }
+
     session.setAttribute("returnToPath", "../idpmgt/idp-mgt-edit-local.jsp");
     session.setAttribute("cancelLink", "../idpmgt/idp-mgt-edit-local.jsp");
     session.setAttribute("backLink", "../idpmgt/idp-mgt-edit-local.jsp");
@@ -152,6 +174,107 @@ jQuery(document).ready(function(){
         }
         return true;
     }
+    function onClickAddDestinationUrl() {
+        var isValidated = doValidateInput(document.getElementById('destinationURLTxt'), "Please enter a valid destination");
+        if (isValidated) {
+            addDestinationURL();
+        }
+    }
+    function addDestinationURL() {
+
+        var destinationURL = $("#destinationURLTxt").val();
+        if (destinationURL == null || destinationURL.trim().length == 0) {
+            CARBON.showWarningDialog("Please enter a valid destination");
+            return false;
+        }
+
+        destinationURL = destinationURL.trim();
+
+        if (!$("#destinationURLTblRow").length) {
+            var row = '<tr id="destinationURLTblRow">' +
+                    '    <td></td>' +
+                    '    <td>' +
+                    '        <table id="destinationURLsTable" style="width: 40%; margin-bottom: 3px;" class="styledInner">' +
+                    '            <tbody id="destinationURLsTableBody">' +
+                    '            </tbody>' +
+                    '        </table>' +
+                    '        <input type="hidden" id="destinationURLs" name="destinationURLs" value="">' +
+                    '        <input type="hidden" id="currentColumnId" value="0">' +
+                    '    </td>' +
+                    '</tr>';
+            $('#destinationURLInputRow').after(row);
+        }
+
+        var destinationURLs = $("#destinationURLs").val();
+        var currentColumnId = $("#currentColumnId").val();
+        if (destinationURLs == null || destinationURLs.trim().length == 0) {
+            $("#destinationURLs").val(destinationURL);
+            var row =
+                    '<tr id="destinationUrl_' + parseInt(currentColumnId) + '">' +
+                    '</td><td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">' + destinationURL +
+                    '</td><td><a onclick="removeDestinationURL (\'' + destinationURL + '\', \'destinationUrl_' + parseInt(currentColumnId) + '\');return false;"' +
+                    'href="#" class="icon-link" style="background-image: url(../admin/images/delete.gif)"> Delete </a></td></tr>';
+
+            $('#destinationURLsTable tbody').append(row);
+        } else {
+            var isExist = false;
+            $.each(destinationURLs.split(","), function (index, value) {
+                if (value === destinationURL) {
+                    isExist = true;
+                    CARBON.showWarningDialog("Destination URL already exist");
+                    return false;
+                }
+            });
+            if (isExist) {
+                return false;
+            }
+
+            $("#destinationURLs").val(destinationURLs + "," + destinationURL);
+            var row =
+                    '<tr id="destinationUrl_' + parseInt(currentColumnId) + '">' +
+                    '</td><td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">' + destinationURL +
+                    '</td><td><a onclick="removeDestinationURL(\'' + destinationURL + '\', \'destinationUrl_' + parseInt(currentColumnId) + '\');return false;"' +
+                    'href="#" class="icon-link" style="background-image: url(../admin/images/delete.gif)"> Delete </a></td></tr>';
+
+            $('#destinationURLsTable tr:last').after(row);
+
+        }
+        $("#destinationURLTxt").val("");
+        $("#currentColumnId").val(parseInt(currentColumnId) + 1);
+    }
+
+    function removeDestinationURL(destinationURL, columnId) {
+
+        var destinationURLs = $("#destinationURLs").val();
+        var newDestinationURLs = "";
+        var isDeletingSelected = false;
+
+        if (destinationURLs.split(',').length <= 1) {
+            CARBON.showWarningDialog("You should have atleast one destination URL. Add another URL to remove the last URL", null, null);
+            return false;
+        }
+        if (destinationURLs != null && destinationURLs.trim().length > 0) {
+            $.each(destinationURLs.split(","), function (index, value) {
+                if (value === destinationURL) {
+                    return true;
+                }
+
+                if (newDestinationURLs.length > 0) {
+                    newDestinationURLs = newDestinationURLs + "," + value;
+                } else {
+                    newDestinationURLs = value;
+                }
+            });
+        }
+
+
+        $('#' + columnId).remove();
+        $("#destinationURLs").val(newDestinationURLs);
+
+        if (newDestinationURLs.length == 0) {
+            $('#destinationURLTblRow').remove();
+        }
+    }
 </script>
 
 <fmt:bundle basename="org.wso2.carbon.idp.mgt.ui.i18n.Resources">
@@ -167,7 +290,7 @@ jQuery(document).ready(function(){
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='home.realm.id'/>:</td>
                             <td>
-                                <input id="homeRealmId" name="homeRealmId" type="text" value="<%=homeRealmId%>" autofocus/>
+                                <input id="homeRealmId" name="homeRealmId" type="text" value="<%=Encode.forHtmlAttribute(homeRealmId)%>" autofocus/>
                                 <div class="sectionHelp">
                                     <fmt:message key='home.realm.id.resident.help'/>
                                 </div>
@@ -176,7 +299,7 @@ jQuery(document).ready(function(){
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='idle.session.timeout'/>:</td>
                             <td>
-                                <input id="sessionIdleTimeout" name="sessionIdleTimeout" type="text" value="<%=sessionIdleTimeout%>" autofocus/>
+                                <input id="sessionIdleTimeout" name="sessionIdleTimeout" type="text" value="<%=Encode.forHtmlAttribute(sessionIdleTimeout)%>" autofocus/>
                                 <div class="sectionHelp">
                                     <fmt:message key='idle.session.timeout.help'/>
                                 </div>
@@ -185,7 +308,7 @@ jQuery(document).ready(function(){
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='remember.me.timeout'/>:</td>
                             <td>
-                                <input id="rememberMeTimeout" name="rememberMeTimeout" type="text" value="<%=rememberMeTimeout%>" autofocus/>
+                                <input id="rememberMeTimeout" name="rememberMeTimeout" type="text" value="<%=Encode.forHtmlAttribute(rememberMeTimeout)%>" autofocus/>
                                 <div class="sectionHelp">
                                     <fmt:message key='remember.me.timeout.help'/>
                                 </div>
@@ -205,7 +328,7 @@ jQuery(document).ready(function(){
                     <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='openid.url'/>:</td>
-                            <td><%=openidUrl%></td>
+                            <td><%=Encode.forHtml(openidUrl)%></td>
                         </tr>
                     </table>
                     </div>
@@ -219,19 +342,74 @@ jQuery(document).ready(function(){
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='idp.entity.id'/>:</td>
                             <td>
-                                <input id="idPEntityId" name="idPEntityId" type="text" value="<%=idPEntityId%>"/>
+                                <input id="idPEntityId" name="idPEntityId" type="text" value="<%=Encode.forHtmlAttribute(idPEntityId)%>"/>
                                 <div class="sectionHelp">
                                     <fmt:message key='idp.entity.id.help'/>
                                 </div>
                             </td>
                         </tr>
+                        <tr id="destinationURLInputRow">
+                            <td class="leftCol-med labelField">
+                                <fmt:message key="idp.entity.destinations"/>
+                                <font color="red">*</font>
+                            </td>
+                            <td>
+                                <input type="text" id="destinationURLTxt" class="text-box-big" value="" white-list-patterns="http-url https-url"/>
+                                <input id="addDestinationURLBtn" type="button" value="<fmt:message key="idp.destination.add"/>"
+                                       onclick="onClickAddDestinationUrl()"/>
+                            </td>
+                        </tr>
+                        <!--Start destination url table conditrion check from here.-->
+                        <tr id="destinationURLTblRow">
+                            <td></td>
+                            <td>
+                                <table id="destinationURLsTable" style="width: 40%; margin-bottom: 3px;" class="styledInner">
+                                    <tbody id="destinationURLsTableBody">
+                                    <%
+                                        StringBuilder destinationURLsBuilder = new StringBuilder();
+                                        int destinationColumnId = 0;
+                                        if (destinationURLList != null) {
+                                            for (Property destinationURL : destinationURLList) {
+                                                if (destinationURLsBuilder.length() > 0) {
+                                                    destinationURLsBuilder.append(",").append(destinationURL.getValue());
+                                                } else {
+                                                    destinationURLsBuilder.append(destinationURL.getValue());
+                                                }
+
+                                    %>
+                                    <tr id="<%=destinationURL.getName()%>">
+                                        <td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">
+                                            <%=Encode.forHtml(destinationURL.getValue())%>
+                                        </td>
+                                        <td>
+                                            <a onclick="removeDestinationURL('<%=Encode.forJavaScriptAttribute(destinationURL.getValue())%>',
+                                                    '<%=destinationURL.getName()%>');return false;"
+                                               href="#" class="icon-link"
+                                               style="background-image: url(../admin/images/delete.gif)">
+                                                Delete
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <%
+                                                destinationColumnId++;
+                                            }
+                                        }
+                                    %>
+                                    </tbody>
+                                </table>
+                                <input type="hidden" id="destinationURLs" name="destinationURLs" value="<%=destinationURLsBuilder.length() > 0 ?
+         Encode.forHtmlAttribute(destinationURLsBuilder.toString()) : ""%>">
+                                <input type="hidden" id="currentColumnId" value="<%=destinationColumnId%>">
+                            </td>
+                        </tr>
+                        <!--End the if conditions from here. For the destination url table-->
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='sso.url'/>:</td>
-                            <td><%=samlSSOUrl%></td>
+                            <td><%=Encode.forHtmlContent(samlSSOUrl)%></td>
                         </tr>
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='logout.url'/>:</td>
-                            <td><%=samlSLOUrl%></td>
+                            <td><%=Encode.forHtmlContent(samlSLOUrl)%></td>
                         </tr>
                     </table>
                     </div>
@@ -244,15 +422,15 @@ jQuery(document).ready(function(){
                         <table class="carbonFormTable">
                             <tr>
                                 <td class="leftCol-med labelField"><fmt:message key='oauth1.request.endpoint'/>:</td>
-                                <td><%=oauth1RequestTokenUrl%></td>
+                                <td><%=Encode.forHtmlContent(oauth1RequestTokenUrl)%></td>
                             </tr>
                             <tr>
                                 <td class="leftCol-med labelField"><fmt:message key='oauth1.authz.endpoint'/>:</td>
-                                <td><%=oauth1AuthorizeUrl%></td>
+                                <td><%=Encode.forHtmlContent(oauth1AuthorizeUrl)%></td>
                             </tr>
                             <tr>
                                 <td class="leftCol-med labelField"><fmt:message key='oauth1.access.endpoint'/>:</td>
-                                <td><%=oauth1AccessTokenUrl%></td>
+                                <td><%=Encode.forHtmlContent(oauth1AccessTokenUrl)%></td>
                             </tr>
                         </table>
                     </div>
@@ -265,15 +443,15 @@ jQuery(document).ready(function(){
                     <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='authz.endpoint'/>:</td>
-                            <td><%=authzUrl%></td>
+                            <td><%=Encode.forHtmlContent(authzUrl)%></td>
                         </tr>
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='token.endpoint'/>:</td>
-                            <td><%=tokenUrl%></td>
+                            <td><%=Encode.forHtmlContent(tokenUrl)%></td>
                         </tr>
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='user.endpoint'/>:</td>
-                            <td><%=userInfoUrl%></td>
+                            <td><%=Encode.forHtmlContent(userInfoUrl)%></td>
                         </tr>
                     </table>
                     </div>
@@ -284,8 +462,18 @@ jQuery(document).ready(function(){
             		<div class="toggle_container sectionSub" style="margin-bottom:10px;display:none" id="passivestsconfig">
                     <table class="carbonFormTable">
                         <tr>
+                            <td class="leftCol-med labelField"><fmt:message key='idp.entity.id'/>:</td>
+                            <td>
+                                <input id="passiveSTSIdPEntityId" name="passiveSTSIdPEntityId" type="text" value="<%=Encode.forHtmlAttribute(passivestsIdPEntityId)%>"/>
+                                <div class="sectionHelp">
+                                    <fmt:message key='idp.entity.id.help'/>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
                             <td class="leftCol-med labelField"><fmt:message key='passive.sts.url'/>:</td>
-                            <td><%=passiveSTSUrl%></td>
+                            <td><%=Encode.forHtmlContent(passiveSTSUrl)%></td>
                         </tr>
                     </table>
                     </div>
@@ -298,9 +486,10 @@ jQuery(document).ready(function(){
                                 <tr>
                                     <td class="leftCol-med labelField" style="padding-top: 5px"><fmt:message key='sts.url'/>:</td>
                                     <td>
-                                        <a href="javascript:document.location.href='<%=stsUrl+"?wsdl"%>'"
+                                        <a href="javascript:document.location.href='<%=
+                                        Encode.forUriComponent(stsUrl)+"?wsdl"%>'"
                                            class="icon-link"
-                                           style="background-image:url(images/sts.gif);margin-left: 0"><%=stsUrl%>
+                                           style="background-image:url(images/sts.gif);margin-left: 0"><%=Encode.forHtmlContent(stsUrl)%>
                                         </a>
                                     </td>
                                     <td>
@@ -322,11 +511,11 @@ jQuery(document).ready(function(){
             		  <table class="carbonFormTable">
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='scim.user.endpoint'/>:</td>
-                            <td><%=scimUserEp%></td>
+                            <td><%=Encode.forHtmlContent(scimUserEp)%></td>
                         </tr>
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='scim.group.endpoint'/>:</td>
-                            <td><%=scimGroupEp%></td>
+                            <td><%=Encode.forHtmlContent(scimGroupEp)%></td>
                         </tr>
                     </table>
 

@@ -37,6 +37,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.base.CarbonEntityResolver;
+import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.internal.IdentityCoreServiceComponent;
@@ -61,7 +62,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.SocketException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -72,6 +75,13 @@ import java.util.Map;
 
 public class IdentityUtil {
 
+    public static final ThreadLocal<HashMap<String, Object>> threadLocalProperties = new
+            ThreadLocal<HashMap<String, Object>>() {
+        @Override
+        protected HashMap<String, Object> initialValue() {
+            return new HashMap<String, Object>();
+        }
+    };
     private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
     private final static char[] ppidDisplayCharMap = new char[]{'Q', 'L', '2', '3', '4', '5',
             '6', '7', '8', '9', 'A', 'B', 'C',
@@ -80,7 +90,8 @@ public class IdentityUtil {
             'V', 'W', 'X', 'Y', 'Z'};
     private static Log log = LogFactory.getLog(IdentityUtil.class);
     private static Map<String, Object> configuration = new HashMap<String, Object>();
-    private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new HashMap<>();
+    private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new
+            HashMap<>();
     private static Document importerDoc = null;
     private static ThreadLocal<IdentityErrorMsgContext> IdentityError = new ThreadLocal<IdentityErrorMsgContext>();
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
@@ -260,7 +271,7 @@ public class IdentityUtil {
         return CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity";
     }
 
-    public static String getServerURL(String endpoint) throws IdentityRuntimeException {
+    public static String getServerURL(String endpoint, boolean addWebContextRoot) throws IdentityRuntimeException {
         String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
 
         try {
@@ -284,23 +295,41 @@ public class IdentityUtil {
             serverUrl += ":" + mgtTransportPort;
         }
         // If ProxyContextPath is defined then append it
-        String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.PROXY_CONTEXT_PATH);
+        URL serverUri = null;
+        try {
+            serverUri = new URL(serverUrl);
+        } catch (MalformedURLException e) {
+            throw new IdentityRuntimeException("Error while getting server URL.", e);
+        }
+        String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
+                .PROXY_CONTEXT_PATH);
         if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()) {
-            if (proxyContextPath.charAt(0) == '/') {
-                serverUrl += proxyContextPath;
-            } else {
-                serverUrl += "/" + proxyContextPath;
+            try {
+                serverUri = new URL(serverUri, proxyContextPath);
+            } catch (MalformedURLException e) {
+                throw new IdentityRuntimeException("Error while appending proxy context path to server url.", e);
             }
         }
-
-        if(StringUtils.isNotBlank(endpoint)) {
-            if(!endpoint.startsWith("/")) {
-                serverUrl += "/";
+        // If webContextRoot is defined then append it
+        if (addWebContextRoot) {
+            String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
+                    .WEB_CONTEXT_ROOT);
+            if (StringUtils.isNotBlank(webContextRoot)) {
+                try {
+                    serverUri = new URL(serverUri, webContextRoot);
+                } catch (MalformedURLException e) {
+                    throw new IdentityRuntimeException("Error while appending web context root to server url.", e);
+                }
             }
-            serverUrl += endpoint;
         }
-
-        return serverUrl;
+        if (StringUtils.isNotBlank(endpoint)) {
+            try {
+                serverUri = new URL(serverUri, endpoint);
+            } catch (MalformedURLException e) {
+                throw new IdentityRuntimeException("Error while appending endpoint to server url.", e);
+            }
+        }
+        return serverUri.toString();
     }
 
     /**
@@ -329,14 +358,13 @@ public class IdentityUtil {
             UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
             Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
             return unmarshaller.unmarshall(element);
-        } catch (ParserConfigurationException|UnmarshallingException|SAXException|IOException e) {
+        } catch (ParserConfigurationException | UnmarshallingException | SAXException | IOException e) {
             String message = "Error in constructing XML Object from the encoded String";
             throw new IdentityException(message, e);
         }
     }
 
     /**
-     *
      * @param username Full qualified username
      * @return
      */
@@ -357,7 +385,6 @@ public class IdentityUtil {
     }
 
     /**
-     *
      * @param username user name with user store domain
      * @param tenantId tenant id of the user
      * @return
@@ -368,9 +395,8 @@ public class IdentityUtil {
     }
 
     /**
-     *
      * @param userStoreDomain user store domain
-     * @param tenantId tenant id of the user store
+     * @param tenantId        tenant id of the user store
      * @return
      */
     public static boolean isUserStoreCaseSensitive(String userStoreDomain, int tenantId) {
@@ -393,7 +419,6 @@ public class IdentityUtil {
     }
 
     /**
-     *
      * @param userStoreManager
      * @return
      */
@@ -401,26 +426,48 @@ public class IdentityUtil {
 
         String caseInsensitiveUsername = userStoreManager.getRealmConfiguration()
                 .getUserStoreProperty(IdentityCoreConstants.CASE_INSENSITIVE_USERNAME);
-        if (caseInsensitiveUsername == null && log.isDebugEnabled()){
+        if (caseInsensitiveUsername == null && log.isDebugEnabled()) {
             log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as case sensitive" +
                     ".");
         }
         return !Boolean.parseBoolean(caseInsensitiveUsername);
     }
 
-    public static boolean isNotBlank(String input){
-        if(StringUtils.isNotBlank(input) && !"null".equals(input.trim())){
+    public static boolean isNotBlank(String input) {
+        if (StringUtils.isNotBlank(input) && !"null".equals(input.trim())) {
             return true;
         } else {
             return false;
         }
     }
 
-    public static boolean isBlank(String input){
-        if(StringUtils.isBlank(input) || "null".equals(input.trim())){
+    public static boolean isBlank(String input) {
+        if (StringUtils.isBlank(input) || "null".equals(input.trim())) {
             return true;
         } else {
             return false;
         }
+    }
+
+    public static int getCleanUpTimeout() {
+
+        String cleanUpTimeout = IdentityUtil.getProperty(IdentityConstants.ServerConfig.CLEAN_UP_TIMEOUT);
+        if (StringUtils.isBlank(cleanUpTimeout)) {
+            cleanUpTimeout = IdentityConstants.ServerConfig.CLEAN_UP_TIMEOUT_DEFAULT;
+        } else if (!StringUtils.isNumeric(cleanUpTimeout)) {
+            cleanUpTimeout = IdentityConstants.ServerConfig.CLEAN_UP_TIMEOUT_DEFAULT;
+        }
+        return Integer.parseInt(cleanUpTimeout);
+    }
+
+    public static int getCleanUpPeriod(String tenantDomain) {
+
+        String cleanUpPeriod = IdentityUtil.getProperty(IdentityConstants.ServerConfig.CLEAN_UP_PERIOD);
+        if (StringUtils.isBlank(cleanUpPeriod)) {
+            cleanUpPeriod = IdentityConstants.ServerConfig.CLEAN_UP_PERIOD_DEFAULT;
+        } else if (!StringUtils.isNumeric(cleanUpPeriod)) {
+            cleanUpPeriod = IdentityConstants.ServerConfig.CLEAN_UP_PERIOD_DEFAULT;
+        }
+        return Integer.parseInt(cleanUpPeriod);
     }
 }
