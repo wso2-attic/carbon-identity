@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.common.UserAdminException;
 
 import java.io.BufferedReader;
@@ -64,9 +65,9 @@ public class CSVUserBulkImport {
                 index = userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
                 if (index > 0) {
                     String domainFreeName = userName.substring(index + 1);
-                    userName = domain + CarbonConstants.DOMAIN_SEPARATOR + domainFreeName;
+                    userName = UserCoreUtil.addDomainToName(domainFreeName, domain);
                 } else {
-                    userName = domain + CarbonConstants.DOMAIN_SEPARATOR + userName;
+                    userName = UserCoreUtil.addDomainToName(userName, domain);
                 }
 
                 if (userName != null && userName.trim().length() > 0) {

@@ -29,6 +29,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.common.UserAdminException;
 
 import java.io.InputStream;
@@ -68,9 +69,9 @@ public class ExcelUserBulkImport {
                 index = userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
                 if (index > 0) {
                     String domainFreeName = userName.substring(index + 1);
-                    userName = domain + CarbonConstants.DOMAIN_SEPARATOR + domainFreeName;
+                    userName = UserCoreUtil.addDomainToName(domainFreeName, domain);
                 } else {
-                    userName = domain + CarbonConstants.DOMAIN_SEPARATOR + userName;
+                    userName = UserCoreUtil.addDomainToName(userName, domain);
                 }
 
                 if (userName != null && userName.trim().length() > 0) {
