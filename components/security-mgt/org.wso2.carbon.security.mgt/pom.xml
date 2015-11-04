@@ -73,6 +73,10 @@
             <groupId>backport-util-concurrent.wso2</groupId>
             <artifactId>backport-util-concurrent</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.server</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
