@@ -605,19 +605,20 @@ public class UserAdmin {
     }
 
     /**
+     * @param userStoreDomain
      * @param fileName
      * @param handler
      * @param defaultPassword
      * @throws UserAdminException
      */
-    public void bulkImportUsers(String fileName, DataHandler handler, String defaultPassword)
+    public void bulkImportUsers(String userStoreDomain, String fileName, DataHandler handler, String defaultPassword)
             throws UserAdminException {
-        if (fileName == null || handler == null || defaultPassword == null) {
+        if (userStoreDomain == null || fileName == null || handler == null || defaultPassword == null) {
             throw new UserAdminException("Required data not provided");
         }
         try {
             InputStream inStream = handler.getInputStream();
-            getUserAdminProxy().bulkImportUsers(fileName, inStream, defaultPassword);
+            getUserAdminProxy().bulkImportUsers(userStoreDomain, fileName, inStream, defaultPassword);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             throw new UserAdminException(e.getMessage(), e);
