@@ -438,6 +438,7 @@ public class TokenMgtDAO {
         String userDomain = UserCoreUtil.extractDomainFromName(userName).toUpperCase();
 
         PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
         Map<String, AccessTokenDO> accessTokenDOMap = new HashMap<>();
         try {
             int tenantId = OAuth2Util.getTenantId(tenantDomain);
@@ -461,7 +462,7 @@ public class TokenMgtDAO {
             }
             prepStmt.setInt(3, tenantId);
             prepStmt.setString(4, userDomain);
-            ResultSet resultSet = prepStmt.executeQuery();
+            resultSet = prepStmt.executeQuery();
 
             while (resultSet.next()) {
                 String accessToken = persistenceProcessor.
@@ -504,7 +505,7 @@ public class TokenMgtDAO {
             }
             throw new IdentityOAuth2Exception(errorMsg, e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
 
         return new HashSet<>(accessTokenDOMap.values());
@@ -612,7 +613,7 @@ public class TokenMgtDAO {
         RefreshTokenValidationDataDO validationDataDO = new RefreshTokenValidationDataDO();
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
-        ResultSet resultSet;
+        ResultSet resultSet = null;
         String userStoreDomain = null;
         String sql = null;
         String mySqlQuery;
@@ -623,8 +624,6 @@ public class TokenMgtDAO {
         String informixQuery;
 
         try {
-
-            connection = IdentityDatabaseUtil.getDBConnection();
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
                     OAuth2Util.checkUserNameAssertionEnabled()) {
                 userStoreDomain = OAuth2Util.getUserStoreDomainFromAccessToken(refreshToken);
@@ -718,7 +717,7 @@ public class TokenMgtDAO {
         } catch (SQLException e) {
             throw new IdentityOAuth2Exception("Error when validating a refresh token", e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
 
         return validationDataDO;
@@ -769,7 +768,7 @@ public class TokenMgtDAO {
         AccessTokenDO dataDO = null;
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
-        ResultSet resultSet;
+        ResultSet resultSet = null;
         String userStoreDomain = null;
 
         try {
@@ -848,7 +847,7 @@ public class TokenMgtDAO {
         } catch (SQLException e) {
             throw new IdentityOAuth2Exception("Error when retrieving Access Token : " + accessTokenIdentifier, e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
 
         return dataDO;
@@ -1135,7 +1134,7 @@ public class TokenMgtDAO {
         }
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
-        PreparedStatement ps;
+        PreparedStatement ps = null;
 
         try {
             connection.setAutoCommit(false);
@@ -1152,7 +1151,7 @@ public class TokenMgtDAO {
             String errorMsg = "Error deleting OAuth consent of Application " + applicationName + " and User " + username;
             throw new IdentityOAuth2Exception(errorMsg, e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, null);
+            IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }
     }
 
@@ -1161,13 +1160,14 @@ public class TokenMgtDAO {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
 
         PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
         Map<String, AccessTokenDO> accessTokenDOMap = new HashMap<>();
         try {
             String sql = SQLQueries.LIST_ALL_TOKENS_IN_TENANT;
 
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantId);
-            ResultSet resultSet = prepStmt.executeQuery();
+            resultSet = prepStmt.executeQuery();
 
             while (resultSet.next()) {
                 String accessToken = persistenceProcessor.
@@ -1210,7 +1210,7 @@ public class TokenMgtDAO {
                     "user  tenant id : " + tenantId;
             throw new IdentityOAuth2Exception(errorMsg, e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
 
         return new HashSet<>(accessTokenDOMap.values());
@@ -1224,6 +1224,7 @@ public class TokenMgtDAO {
 
         userStoreDomain = userStoreDomain.toUpperCase();
         PreparedStatement prepStmt = null;
+        ResultSet resultSet =  null;
         Map<String, AccessTokenDO> accessTokenDOMap = new HashMap<>();
         try {
             String sql = SQLQueries.LIST_ALL_TOKENS_IN_USER_STORE;
@@ -1231,7 +1232,7 @@ public class TokenMgtDAO {
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setInt(1, tenantId);
             prepStmt.setString(2, userStoreDomain);
-            ResultSet resultSet = prepStmt.executeQuery();
+            resultSet = prepStmt.executeQuery();
 
             while (resultSet.next()) {
                 String accessToken = persistenceProcessor.getPreprocessedAccessTokenIdentifier(resultSet.getString(1));
@@ -1272,7 +1273,7 @@ public class TokenMgtDAO {
                     "user in store domain : " + userStoreDomain + " and tenant id : " + tenantId;
             throw new IdentityOAuth2Exception(errorMsg, e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
 
         return new HashSet<>(accessTokenDOMap.values());
@@ -1341,7 +1342,7 @@ public class TokenMgtDAO {
             throw new IdentityOAuth2Exception("Error occurred while retrieving latest authorization codes of tenant " +
                     ":" + tenantId, e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
+            IdentityDatabaseUtil.closeAllConnections(connection, rs, ps);
         }
         return latestAuthzCodes;
     }
@@ -1383,7 +1384,7 @@ public class TokenMgtDAO {
             throw new IdentityOAuth2Exception("Error occurred while retrieving latest authorization codes of user " +
                     "store : " + userStorDomain + " in tenant :" + tenantId, e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
+            IdentityDatabaseUtil.closeAllConnections(connection, rs, ps);
         }
         return latestAuthzCodes;
     }
