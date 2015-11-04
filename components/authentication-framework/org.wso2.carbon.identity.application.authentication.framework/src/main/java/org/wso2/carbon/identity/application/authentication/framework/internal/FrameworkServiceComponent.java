@@ -32,8 +32,8 @@ import org.wso2.carbon.identity.application.authentication.framework.RequestPath
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.inbound.CommonInboundAuthenticationServlet;
-import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticatorRequestProcessor;
-import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticatorResponseBuilder;
+import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationRequestProcessor;
+import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationResponseBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.listener.AuthenticationEndpointTenantActivityListener;
 import org.wso2.carbon.identity.application.authentication.framework.servlet.CommonAuthenticationServlet;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
@@ -48,6 +48,7 @@ import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import javax.servlet.Servlet;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -275,39 +276,39 @@ public class FrameworkServiceComponent {
 
     }
 
-    protected void setInboundRequestProcessor(InboundAuthenticatorRequestProcessor requestProcessor) {
+    protected void setInboundRequestProcessor(InboundAuthenticationRequestProcessor requestProcessor) {
 
         FrameworkServiceDataHolder.getInstance().getInboundRequestProcessors().add(requestProcessor);
 
         if (log.isDebugEnabled()) {
-            log.debug("Added application inbound request processor : " + requestProcessor.getType());
+            log.debug("Added application inbound request processor : " + requestProcessor.getName());
         }
     }
 
-    protected void unsetInboundRequestProcessor(InboundAuthenticatorRequestProcessor requestProcessor) {
+    protected void unsetInboundRequestProcessor(InboundAuthenticationRequestProcessor requestProcessor) {
 
         FrameworkServiceDataHolder.getInstance().getInboundRequestProcessors().remove(requestProcessor);
 
         if (log.isDebugEnabled()) {
-            log.debug("Removed application inbound request processor : " + requestProcessor.getType());
+            log.debug("Removed application inbound request processor : " + requestProcessor.getName());
         }
     }
 
-    protected void setInboundResponseBuilder(InboundAuthenticatorResponseBuilder responseBuilder) {
+    protected void setInboundResponseBuilder(InboundAuthenticationResponseBuilder responseBuilder) {
 
         FrameworkServiceDataHolder.getInstance().getInboundResponseBuilders().add(responseBuilder);
 
         if (log.isDebugEnabled()) {
-            log.debug("Added application inbound response builder : " + responseBuilder.getContentType());
+            log.debug("Added application inbound response builder : " + responseBuilder.getName());
         }
     }
 
-    protected void unsetInboundResponseBuilder(InboundAuthenticatorResponseBuilder responseBuilder) {
+    protected void unsetInboundResponseBuilder(InboundAuthenticationResponseBuilder responseBuilder) {
 
         FrameworkServiceDataHolder.getInstance().getInboundResponseBuilders().remove(responseBuilder);
 
         if (log.isDebugEnabled()) {
-            log.debug("Removed application inbound response builder : " + responseBuilder.getContentType());
+            log.debug("Removed application inbound response builder : " + responseBuilder.getName());
         }
 
     }

@@ -20,8 +20,8 @@ package org.wso2.carbon.identity.application.authentication.framework.internal;
 
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
-import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticatorRequestProcessor;
-import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticatorResponseBuilder;
+import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationRequestProcessor;
+import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationResponseBuilder;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 
@@ -35,8 +35,8 @@ public class FrameworkServiceDataHolder {
     private RealmService realmService = null;
     private RegistryService registryService = null;
     private List<ApplicationAuthenticator> authenticators = new ArrayList<>();
-    private List<InboundAuthenticatorRequestProcessor> inboundRequestProcessors = new ArrayList<>();
-    private List<InboundAuthenticatorResponseBuilder> inboundAuthenticationResponseBuilders = new ArrayList<>();
+    private List<InboundAuthenticationRequestProcessor> inboundRequestProcessors = new ArrayList<>();
+    private List<InboundAuthenticationResponseBuilder> inboundAuthenticationResponseBuilders = new ArrayList<>();
 
     public static FrameworkServiceDataHolder getInstance() {
         return instance;
@@ -70,11 +70,11 @@ public class FrameworkServiceDataHolder {
         return authenticators;
     }
 
-    public List<InboundAuthenticatorRequestProcessor> getInboundRequestProcessors() {
+    public List<InboundAuthenticationRequestProcessor> getInboundRequestProcessors() {
         return inboundRequestProcessors;
     }
 
-    public List<InboundAuthenticatorResponseBuilder> getInboundResponseBuilders() {
+    public List<InboundAuthenticationResponseBuilder> getInboundResponseBuilders() {
         return inboundAuthenticationResponseBuilders;
     }
 }
