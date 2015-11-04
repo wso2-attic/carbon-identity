@@ -81,19 +81,16 @@ public class IdPManagementUIUtil {
     }
 
     /**
-     * Build a federated identity provider.
-     * @param request HttpServletRequest
-     * @param oldIdpName This value will be populated if there is an old IDP.
-     * @return IdentityProvider
+     * @param request
+     * @return
      * @throws Exception
      */
-    public static IdentityProvider buildFederatedIdentityProvider(HttpServletRequest request, StringBuilder oldIdpName)
+    public static IdentityProvider buildeFederatedIdentityProvider(HttpServletRequest request)
             throws Exception {
 
         IdentityProvider fedIdp = new IdentityProvider();
 
         if (ServletFileUpload.isMultipartContent(request)) {
-
             ServletRequestContext servletContext = new ServletRequestContext(request);
             FileItemFactory factory = new DiskFileItemFactory();
             ServletFileUpload upload = new ServletFileUpload(factory);
@@ -107,101 +104,88 @@ public class IdPManagementUIUtil {
             Map<String, List<Property>> customAuthenticatorProperties = new HashMap<String, List<Property>>();
             Map<String, List<Property>> customProProperties = new HashMap<String, List<Property>>();
 
-            String idpUUID = StringUtils.EMPTY;
+            IdentityProvider oldIdentityProvider = (IdentityProvider) request.getSession()
+                    .getAttribute("identityProvider");
 
-            for (Object item : items) {
+            if (ServletFileUpload.isMultipartContent(request)) {
 
-                DiskFileItem diskFileItem = (DiskFileItem) item;
+                for (Object item : items) {
+                    DiskFileItem diskFileItem = (DiskFileItem) item;
+                    if (diskFileItem != null) {
+                        byte[] value = diskFileItem.get();
+                        String key = diskFileItem.getFieldName();
+                        if ("certFile".equals(key)) {
+                            paramMap.put(key, Base64.encode(value));
+                        } else if ("google_prov_private_key".equals(key)) {
+                            paramMap.put(key, Base64.encode(value));
+                        } else if (key.startsWith("claimrowname_")) {
+                            idpClaims.add(new String(value));
+                            paramMap.put(key, new String(value));
+                        } else if (key.startsWith("rolerowname_")) {
+                            idpRoles.add(new String(value));
+                            paramMap.put(key, new String(value));
+                        } else if (key.startsWith("custom_auth_name")) {
+                            customAuthenticatorNames.add(new String(value));
+                        } else if (key.startsWith("custom_pro_name")) {
+                            proConnectorNames.add(new String(value));
+                        } else if (key.startsWith("cust_auth_prop_")) {
+                            int length = "cust_auth_prop_".length();
+                            String authPropString = new String(key).substring(length);
+                            if (authPropString.indexOf("#") > 0) {
+                                String authName = authPropString.substring(0,
+                                        authPropString.indexOf("#"));
+                                String propName = authPropString.substring(authPropString
+                                        .indexOf("#") + 1);
+                                String propVal = new String(value);
+                                Property prop = new Property();
+                                prop.setName(propName);
+                                prop.setValue(propVal);
 
-                if (diskFileItem != null) {
+                                List<Property> propList = null;
 
-                    byte[] value = diskFileItem.get();
-                    String key = diskFileItem.getFieldName();
+                                if (customAuthenticatorProperties.get(authName) == null) {
+                                    customAuthenticatorProperties.put(authName,
+                                            new ArrayList<Property>());
+                                }
 
-                    if(StringUtils.equals(key, "idpUUID")) {
-                        idpUUID = diskFileItem.getString();
-                    }
-
-                    if ("certFile".equals(key)) {
-                        paramMap.put(key, Base64.encode(value));
-                    } else if ("google_prov_private_key".equals(key)) {
-                        paramMap.put(key, Base64.encode(value));
-                    } else if (key.startsWith("claimrowname_")) {
-                        idpClaims.add(new String(value));
-                        paramMap.put(key, new String(value));
-                    } else if (key.startsWith("rolerowname_")) {
-                        idpRoles.add(new String(value));
-                        paramMap.put(key, new String(value));
-                    } else if (key.startsWith("custom_auth_name")) {
-                        customAuthenticatorNames.add(new String(value));
-                    } else if (key.startsWith("custom_pro_name")) {
-                        proConnectorNames.add(new String(value));
-                    } else if (key.startsWith("cust_auth_prop_")) {
-                        int length = "cust_auth_prop_".length();
-                        String authPropString = new String(key).substring(length);
-                        if (authPropString.indexOf("#") > 0) {
-                            String authName = authPropString.substring(0,
-                                    authPropString.indexOf("#"));
-                            String propName = authPropString.substring(authPropString
-                                    .indexOf("#") + 1);
-                            String propVal = new String(value);
-                            Property prop = new Property();
-                            prop.setName(propName);
-                            prop.setValue(propVal);
-
-                            List<Property> propList = null;
-
-                            if (customAuthenticatorProperties.get(authName) == null) {
-                                customAuthenticatorProperties.put(authName,
-                                        new ArrayList<Property>());
+                                propList = customAuthenticatorProperties.get(authName);
+                                propList.add(prop);
+                                customAuthenticatorProperties.put(authName, propList);
                             }
+                        } else if (key.startsWith("cust_pro_prop_")) {
+                            int length = "cust_pro_prop_".length();
+                            String provPropString = new String(key).substring(length);
+                            if (provPropString.indexOf("#") > 0) {
+                                String proConName = provPropString.substring(0,
+                                        provPropString.indexOf("#"));
+                                String propName = provPropString.substring(provPropString
+                                        .indexOf("#") + 1);
+                                String propVal = new String(value);
+                                Property prop = new Property();
+                                prop.setName(propName);
+                                prop.setValue(propVal);
 
-                            propList = customAuthenticatorProperties.get(authName);
-                            propList.add(prop);
-                            customAuthenticatorProperties.put(authName, propList);
-                        }
-                    } else if (key.startsWith("cust_pro_prop_")) {
-                        int length = "cust_pro_prop_".length();
-                        String provPropString = new String(key).substring(length);
-                        if (provPropString.indexOf("#") > 0) {
-                            String proConName = provPropString.substring(0,
-                                    provPropString.indexOf("#"));
-                            String propName = provPropString.substring(provPropString
-                                    .indexOf("#") + 1);
-                            String propVal = new String(value);
-                            Property prop = new Property();
-                            prop.setName(propName);
-                            prop.setValue(propVal);
+                                List<Property> propList = null;
 
-                            List<Property> propList = null;
+                                if (customProProperties.get(proConName) == null) {
+                                    customProProperties.put(proConName, new ArrayList<Property>());
+                                }
 
-                            if (customProProperties.get(proConName) == null) {
-                                customProProperties.put(proConName, new ArrayList<Property>());
+                                propList = customProProperties.get(proConName);
+                                propList.add(prop);
+                                customProProperties.put(proConName, propList);
                             }
-
-                            propList = customProProperties.get(proConName);
-                            propList.add(prop);
-                            customProProperties.put(proConName, propList);
+                        } else {
+                            paramMap.put(key, new String(value));
                         }
-                    } else {
-                        paramMap.put(key, new String(value));
-                    }
 
-                    String updatedValue = paramMap.get(key);
+                        String updatedValue = paramMap.get(key);
 
-                    if (updatedValue != null && updatedValue.trim().length() == 0) {
-                        paramMap.put(key, null);
+                        if (updatedValue != null && updatedValue.trim().length() == 0) {
+                            paramMap.put(key, null);
+                        }
                     }
                 }
-            }
-
-            IdentityProvider oldIdentityProvider = (IdentityProvider) request.getSession().getAttribute(idpUUID);
-
-            if(oldIdentityProvider != null) {
-                if(oldIdpName == null) {
-                    oldIdpName = new StringBuilder();
-                }
-                oldIdpName.append(oldIdentityProvider.getIdentityProviderName());
             }
 
             if (oldIdentityProvider != null && oldIdentityProvider.getCertificate() != null) {
@@ -1697,25 +1681,6 @@ public class IdPManagementUIUtil {
             }
         }
         return null;
-    }
-
-    /**
-     * This is used in front end. Property is the type of stub generated property
-     *
-     * @param properties properties list to iterate
-     * @param startWith  the peoperty list startswith the given name
-     * @return
-     */
-    public static List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> getPropertySetStartsWith(
-            org.wso2.carbon.identity.application.common.model.idp.xsd.Property[] properties,
-            String startWith) {
-        List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> propertySet = new ArrayList<>();
-        for (org.wso2.carbon.identity.application.common.model.idp.xsd.Property property : properties) {
-            if (property.getName().startsWith(startWith)) {
-                propertySet.add(property);
-            }
-        }
-        return propertySet;
     }
 
 }

@@ -83,7 +83,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
-import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
@@ -565,20 +564,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
             authRequest.setProtocolBinding(SAMLConstants.SAML2_POST_BINDING_URI);
         }
 
-        String acsUrl = null;
-        AuthenticatorConfig authenticatorConfig =
-                FileBasedConfigurationBuilder.getInstance().getAuthenticatorConfigMap()
-                        .get(SSOConstants.AUTHENTICATOR_NAME);
-        if (authenticatorConfig != null){
-            String tmpAcsUrl = authenticatorConfig.getParameterMap().get(SSOConstants.ServerConfig.SAML_SSO_ACS_URL);
-            if(StringUtils.isBlank(tmpAcsUrl)){
-                acsUrl = tmpAcsUrl;
-            }
-        }
-
-        if(acsUrl == null) {
-            acsUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
-        }
+        String acsUrl =  IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
 
         authRequest.setAssertionConsumerServiceURL(acsUrl);
         authRequest.setIssuer(issuer);

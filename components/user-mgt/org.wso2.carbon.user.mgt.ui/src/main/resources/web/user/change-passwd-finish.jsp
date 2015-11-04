@@ -58,17 +58,17 @@
             forwardTo = trustedReturnPath;
             session.removeAttribute(ServerConstants.PASSWORD_EXPIRATION);
         } else {
-            client.changePassword(username, newPassword);
+            client.changePassword(Util.decodeHTMLCharacters(username), newPassword);
             forwardTo = "user-mgt.jsp?ordinal=1";
         }
 
         String message = MessageFormat.format(resourceBundle.getString("password.change.successful"),
-                                              new Object[] { username });
+                                              new Object[] { Util.decodeHTMLCharacters(username) });
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
 
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("password.change.error"),
-                                              username, e.getMessage());
+                                              Util.decodeHTMLCharacters(username), e.getMessage());
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         if (isUserChange != null) {
             forwardTo = "change-passwd.jsp?ordinal=2&returnPath=" + trustedReturnPath + "&isUserChange=true";

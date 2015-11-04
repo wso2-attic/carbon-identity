@@ -404,7 +404,7 @@
                 <%
                     if (ArrayUtils.isNotEmpty(roles)) {
                         for (FlaggedName data : roles) {
-                            if (data != null) {
+                            if (data != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug in Axis!!
                                 if (CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(data.getItemName())) {
                                     continue;
                                 }
@@ -558,7 +558,7 @@
                                         arg += " and ";
                                     }
                                 }
-                                message = MessageFormat.format(resourceBundle.getString("more.roles.others"), arg);
+                                message = resourceBundle.getString("more.roles.others").replace("{0}", arg);
                             } else {
                                 message = resourceBundle.getString("more.roles.primary");
                             }
@@ -577,7 +577,7 @@
                         arg += " and ";
                     }
                 }
-                message = MessageFormat.format(resourceBundle.getString("more.roles"), arg);
+                message = resourceBundle.getString("more.roles").replace("{0}", arg);
             %>
             <strong><%=Encode.forHtml(message)%>
             </strong>

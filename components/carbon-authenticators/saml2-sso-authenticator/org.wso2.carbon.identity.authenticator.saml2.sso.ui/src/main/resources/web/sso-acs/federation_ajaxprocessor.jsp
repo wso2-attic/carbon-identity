@@ -18,7 +18,6 @@
 <%@page import="org.wso2.carbon.identity.authenticator.saml2.sso.common.SAMLConstants"%>
 <%@page import="org.wso2.carbon.utils.multitenancy.MultitenantUtils"%>
 <%@page import="java.net.URLDecoder" %>
-<%@ page import="org.owasp.encoder.Encode" %>
 <html>
 <head></head>
 <body>
@@ -33,13 +32,19 @@
 	if(subject != null && MultitenantUtils.getTenantDomain(subject) != null){
     	   domain = MultitenantUtils.getTenantDomain(subject);
 	}
+
+	if (relayState!=null && !"null".equals(relayState)) {
+    relayState = URLDecoder.decode(relayState, "UTF-8");
+    relayState = relayState.replaceAll("&", "&amp;").replaceAll("\"", "&quot;").replaceAll("'", "&apos;").
+            replaceAll("<", "&lt;").replaceAll(">", "&gt;").replace("\n", "");
+	}
     
 %>
 <p>You are now redirected back to <%=assertionConsumerURL%>. If the
  redirection fails, please click the post button.</p>
 <form method="post" action="<%=assertionConsumerURL%>">
-    <p><input type="hidden" name="SAMLResponse" value="<%=Encode.forHtmlAttribute(assertion)%>"/>
-        <input type="hidden" name="RelayState" value="<%=Encode.forHtmlAttribute(relayState)%>"/>
+    <p><input type="hidden" name="SAMLResponse" value="<%=assertion%>"/>
+        <input type="hidden" name="RelayState" value="<%=relayState%>"/>
         <button type="submit">POST</button>
     </p>
 </form>

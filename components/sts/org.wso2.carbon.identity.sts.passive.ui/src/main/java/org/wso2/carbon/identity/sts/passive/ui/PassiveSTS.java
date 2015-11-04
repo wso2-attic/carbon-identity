@@ -21,7 +21,6 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.owasp.encoder.Encode;
@@ -130,7 +129,7 @@ public class PassiveSTS extends HttpServlet {
             }
         }
 
-        if (StringUtils.isBlank(fileContent)) {
+        if (fileContent == null || fileContent.trim().length() == 0) {
             fileContent = "<html>" +
                     "    <body>" +
                     "        <p>You are now redirected to $url ." +
@@ -154,9 +153,7 @@ public class PassiveSTS extends HttpServlet {
         String parameters = "<input type=\"hidden\" name=\"wa\" value=\"$action\">" +
                 "<input type=\"hidden\" name=\"wresult\" value=\"$result\">";
 
-        if (StringUtils.isNotBlank(parameters)) {
-            fileContent = fileContent.replace("<!--$params-->", parameters);
-        }
+        fileContent = fileContent.replace("<!--$params-->", parameters);
 
         return fileContent;
     }
@@ -177,7 +174,7 @@ public class PassiveSTS extends HttpServlet {
                           String authenticatedIdPs)
             throws ServletException, IOException {
 
-        if (StringUtils.isBlank(stsRedirectPage)) {
+        if (stsRedirectPage == null || stsRedirectPage.trim().length() == 0) {
             // Read the Passive STS Html Redirect Page File Content
             stsRedirectPage = readPassiveSTSHtmlRedirectPage();
         }

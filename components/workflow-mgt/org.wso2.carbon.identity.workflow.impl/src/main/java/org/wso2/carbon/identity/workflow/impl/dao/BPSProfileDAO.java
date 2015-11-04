@@ -54,14 +54,19 @@ public class BPSProfileDAO {
         String password = bpsProfileDTO.getPassword();
         String callbackPassword = bpsProfileDTO.getCallbackPassword();
         String profileName = bpsProfileDTO.getProfileName();
-        String encryptedPassword;
-        String encryptedCallBackPassword;
+        String encryptPassword;
+        String encryptCallBackPassword;
+
 
         try {
-            encryptedPassword = encryptPassword(password);
-            encryptedCallBackPassword = encryptPassword(callbackPassword);
+            CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
+            encryptPassword = cryptoUtil.
+                    encryptAndBase64Encode(password.getBytes(Charset.forName("UTF-8")));
+            encryptCallBackPassword = cryptoUtil.
+                    encryptAndBase64Encode(callbackPassword.getBytes(Charset.forName("UTF-8")));
         } catch (CryptoException e) {
-            throw new WorkflowImplException("Error while encrypting the passwords of BPS Profile: " + profileName, e);
+            throw new WorkflowImplException("Error while encrypting the passwords of BPS Profile" + " " +
+                                            profileName, e);
         }
 
         try {
@@ -70,9 +75,9 @@ public class BPSProfileDAO {
             prepStmt.setString(2, bpsProfileDTO.getManagerHostURL());
             prepStmt.setString(3, bpsProfileDTO.getWorkerHostURL());
             prepStmt.setString(4, bpsProfileDTO.getUsername());
-            prepStmt.setString(5, encryptedPassword);
+            prepStmt.setString(5, encryptPassword);
             prepStmt.setString(6, bpsProfileDTO.getCallbackUser());
-            prepStmt.setString(7, encryptedCallBackPassword);
+            prepStmt.setString(7, encryptCallBackPassword);
             prepStmt.setInt(8, tenantId);
             prepStmt.executeUpdate();
             connection.commit();
@@ -100,14 +105,18 @@ public class BPSProfileDAO {
         String password = bpsProfile.getPassword();
         String callbackPassword = bpsProfile.getCallbackPassword();
         String profileName = bpsProfile.getProfileName();
-        String encryptedPassword;
-        String encryptedCallBackPassword;
+        String encryptPassword;
+        String encryptCallBackPassword;
 
         try {
-            encryptedPassword = encryptPassword(password);
-            encryptedCallBackPassword = encryptPassword(callbackPassword);
+            CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
+            encryptPassword = cryptoUtil.
+                    encryptAndBase64Encode(password.getBytes(Charset.forName("UTF-8")));
+            encryptCallBackPassword = cryptoUtil.
+                    encryptAndBase64Encode(callbackPassword.getBytes(Charset.forName("UTF-8")));
         } catch (CryptoException e) {
-            throw new WorkflowImplException("Error while encrypting the passwords of BPS Profile: " + profileName, e);
+            throw new WorkflowImplException("Error while encrypting the passwords of BPS Profile" + " " +
+                                            profileName, e);
         }
 
         try {
@@ -115,9 +124,9 @@ public class BPSProfileDAO {
             prepStmt.setString(1, bpsProfile.getManagerHostURL());
             prepStmt.setString(2, bpsProfile.getWorkerHostURL());
             prepStmt.setString(3, bpsProfile.getUsername());
-            prepStmt.setString(4, encryptedPassword);
+            prepStmt.setString(4, encryptPassword);
             prepStmt.setString(5, bpsProfile.getCallbackUser());
-            prepStmt.setString(6, encryptedCallBackPassword);
+            prepStmt.setString(6, encryptCallBackPassword);
             prepStmt.setInt(7, tenantId);
             prepStmt.setString(8, bpsProfile.getProfileName());
 
@@ -150,8 +159,8 @@ public class BPSProfileDAO {
         ResultSet rs;
         Map<String, Object> profileParams = new HashMap<>();
         String query = SQLConstants.GET_BPS_PROFILE_FOR_TENANT_QUERY;
-        String decryptedPassword;
-        String decryptedCallBackPassword;
+        String decryptPassword;
+        String decryptCallBackPassword;
 
         try {
             prepStmt = connection.prepareStatement(query);
@@ -177,15 +186,18 @@ public class BPSProfileDAO {
                     String callbackPassword = rs.getString(SQLConstants.CALLBACK_PASSWORD_COLUMN);
 
                     try {
-                        decryptedPassword = decryptPassword(password);
-                        decryptedCallBackPassword = decryptPassword(callbackPassword);
+                        CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
+                        byte[] decryptedPasswordBytes = cryptoUtil.base64DecodeAndDecrypt(password);
+                        decryptPassword = new String(decryptedPasswordBytes, "UTF-8");
+                        byte[] decryptedCallBackPasswordBytes = cryptoUtil.base64DecodeAndDecrypt(callbackPassword);
+                        decryptCallBackPassword = new String(decryptedCallBackPasswordBytes, "UTF-8");
 
                     } catch (CryptoException | UnsupportedEncodingException e) {
                         throw new WorkflowImplException("Error while decrypting the password for BPEL Profile"
-                                + " " + profileName, e);
+                                                        + " " + profileName, e);
                     }
-                    bpsProfileDTO.setPassword(decryptedPassword);
-                    bpsProfileDTO.setCallbackPassword(decryptedCallBackPassword);
+                    bpsProfileDTO.setPassword(decryptPassword);
+                    bpsProfileDTO.setCallbackPassword(decryptCallBackPassword);
                 }
 
             }
@@ -286,19 +298,4 @@ public class BPSProfileDAO {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
         }
     }
-
-    private String encryptPassword(String passwordValue) throws CryptoException {
-
-        CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-        return cryptoUtil.encryptAndBase64Encode(passwordValue.getBytes(Charset.forName("UTF-8")));
-    }
-
-    private String decryptPassword(String passwordValue) throws UnsupportedEncodingException, CryptoException {
-
-        CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-        byte[] decryptedPasswordBytes = cryptoUtil.base64DecodeAndDecrypt(passwordValue);
-        return new String(decryptedPasswordBytes, "UTF-8");
-
-    }
-
 }
