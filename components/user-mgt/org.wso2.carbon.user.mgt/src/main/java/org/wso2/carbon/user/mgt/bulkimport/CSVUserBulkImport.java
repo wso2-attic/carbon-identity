@@ -21,8 +21,10 @@ package org.wso2.carbon.user.mgt.bulkimport;
 import au.com.bytecode.opencsv.CSVReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.common.UserAdminException;
 
 import java.io.BufferedReader;
@@ -47,6 +49,7 @@ public class CSVUserBulkImport {
         try {
             CSVReader csvReader = new CSVReader(reader, ',', '"', 1);
             String password = config.getDefaultPassword();
+            String domain = config.getUserStoreDomain();
             String[] line = csvReader.readNext();
             boolean isDuplicate = false;
             boolean fail = false;
@@ -57,6 +60,16 @@ public class CSVUserBulkImport {
             int duplicateCount = 0;
             while (line != null && line.length > 0) {
                 String userName = line[0];
+
+                int index;
+                index = userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+                if (index > 0) {
+                    String domainFreeName = userName.substring(index + 1);
+                    userName = UserCoreUtil.addDomainToName(domainFreeName, domain);
+                } else {
+                    userName = UserCoreUtil.addDomainToName(userName, domain);
+                }
+
                 if (userName != null && userName.trim().length() > 0) {
                     try {
                         if (!userStore.isExistingUser(userName)) {
