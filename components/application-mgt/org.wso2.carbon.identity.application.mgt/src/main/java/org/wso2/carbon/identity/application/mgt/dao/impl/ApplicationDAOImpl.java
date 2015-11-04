@@ -1585,7 +1585,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
                     if (isCustomAuthenticator) {
                         AbstractInboundAuthenticatorConfig customAuthenticator = ApplicationManagementServiceComponentHolder
-                                .getAuthenticator(authType);
+                                .getInboundAuthenticatorConfig(authType);
                         if (customAuthenticator != null) {
                             Property[] confProps = customAuthenticator.getConfigurationProperties();
                             for (Property confProp : confProps) {
@@ -1621,7 +1621,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
 
         Map<String, AbstractInboundAuthenticatorConfig> allCustomAuthenticators = ApplicationManagementServiceComponentHolder
-                .getAllAuthenticators();
+                .getAllInboundAuthenticatorConfig();
 
         Iterator<Entry<String, AbstractInboundAuthenticatorConfig>> it = allCustomAuthenticators.entrySet().iterator();
         while (it.hasNext()) {

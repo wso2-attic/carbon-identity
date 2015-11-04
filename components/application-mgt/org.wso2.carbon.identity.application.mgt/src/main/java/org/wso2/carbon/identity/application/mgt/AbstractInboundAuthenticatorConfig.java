@@ -55,40 +55,6 @@ public abstract class AbstractInboundAuthenticatorConfig {
 
     /**
      *
-     * @param spIssuer
-     * @return
-     * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
-     */
-    protected Map<String, String> getPropertyValues(String spIssuer) throws IdentityApplicationManagementException {
-        Property[] properties = getConfigurationProperties();
-
-        if (properties == null || properties.length == 0) {
-            return new HashMap<String, String>();
-        }
-
-        List<String> propertyNames = new ArrayList<String>();
-
-        for (Property prop : properties) {
-            propertyNames.add(prop.getName());
-        }
-
-        return getPropertyValues(DEFAULT_TENANT_NAME, spIssuer, propertyNames);
-    }
-
-    /**
-     *
-     * @param spIssuer
-     * @param propertyNames
-     * @return
-     * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
-     */
-    protected Map<String, String> getPropertyValues(String spIssuer, List<String> propertyNames)
-            throws IdentityApplicationManagementException {
-        return getPropertyValues(DEFAULT_TENANT_NAME, spIssuer, propertyNames);
-    }
-
-    /**
-     *
      * @param tenantDomain
      * @param spIssuer
      * @param propertyNames

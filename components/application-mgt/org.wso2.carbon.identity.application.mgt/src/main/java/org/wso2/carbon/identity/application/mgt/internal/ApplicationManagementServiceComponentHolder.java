@@ -29,7 +29,7 @@ public class ApplicationManagementServiceComponentHolder {
 
     private static ApplicationManagementServiceComponentHolder instance=new
             ApplicationManagementServiceComponentHolder();
-    private static Map<String, AbstractInboundAuthenticatorConfig> inboundAuthenticators = new HashMap<String, AbstractInboundAuthenticatorConfig>();
+    private static Map<String, AbstractInboundAuthenticatorConfig> inboundAuthenticatorConfigs = new HashMap<String, AbstractInboundAuthenticatorConfig>();
 
     private RegistryService registryService;
 
@@ -46,8 +46,8 @@ public class ApplicationManagementServiceComponentHolder {
      *
      * @param inboundAuthenticator
      */
-    public static void addInboundAuthenticators(AbstractInboundAuthenticatorConfig inboundAuthenticator) {
-        inboundAuthenticators.put(inboundAuthenticator.getName(), inboundAuthenticator);
+    public static void addInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig inboundAuthenticator) {
+        inboundAuthenticatorConfigs.put(inboundAuthenticator.getName(), inboundAuthenticator);
     }
 
     /**
@@ -55,24 +55,24 @@ public class ApplicationManagementServiceComponentHolder {
      * @param type
      * @return
      */
-    public static AbstractInboundAuthenticatorConfig getAuthenticator(String type) {
-        return inboundAuthenticators.get(type);
+    public static AbstractInboundAuthenticatorConfig getInboundAuthenticatorConfig(String type) {
+        return inboundAuthenticatorConfigs.get(type);
     }
 
     /**
      *
      * @return
      */
-    public static Map<String, AbstractInboundAuthenticatorConfig> getAllAuthenticators() {
-        return inboundAuthenticators;
+    public static Map<String, AbstractInboundAuthenticatorConfig> getAllInboundAuthenticatorConfig() {
+        return inboundAuthenticatorConfigs;
     }
 
     /**
      *
      * @param type
      */
-    public static void removeInboundAuthenticators(String type) {
-        inboundAuthenticators.remove(type);
+    public static void removeInboundAuthenticatorConfig(String type) {
+        inboundAuthenticatorConfigs.remove(type);
     }
 
 

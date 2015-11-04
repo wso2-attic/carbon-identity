@@ -61,8 +61,8 @@ import java.util.Map;
  * unbind="unsetConfigurationContextService"
  * @scr.reference name="application.mgt.authenticator"
  * interface="org.wso2.carbon.identity.application.mgt.AbstractInboundAuthenticatorConfig"
- * cardinality="0..n" policy="dynamic" bind="setAuthenticator"
- * unbind="unsetAuthenticator"
+ * cardinality="0..n" policy="dynamic" bind="setInboundAuthenticatorConfig"
+ * unbind="unsetInboundAuthenticatorConfig"
  */
 public class ApplicationManagementServiceComponent {
     private static Log log = LogFactory.getLog(ApplicationManagementServiceComponent.class);
@@ -140,12 +140,12 @@ public class ApplicationManagementServiceComponent {
         ApplicationManagementServiceComponentHolder.getInstance().setConfigContextService(null);
     }
 
-    protected void setAuthenticator(AbstractInboundAuthenticatorConfig authenticator) {
-        ApplicationManagementServiceComponentHolder.addInboundAuthenticators(authenticator);
+    protected void setInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig authenticator) {
+        ApplicationManagementServiceComponentHolder.addInboundAuthenticatorConfig(authenticator);
     }
 
-    protected void unsetAuthenticator(AbstractInboundAuthenticatorConfig authenticator) {
-        ApplicationManagementServiceComponentHolder.removeInboundAuthenticators(authenticator.getType());
+    protected void unsetInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig authenticator) {
+        ApplicationManagementServiceComponentHolder.removeInboundAuthenticatorConfig(authenticator.getType());
     }
 
     private void buildFileBasedSPList() {
