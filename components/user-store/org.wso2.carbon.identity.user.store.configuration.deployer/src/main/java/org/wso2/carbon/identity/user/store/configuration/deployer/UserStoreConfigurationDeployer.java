@@ -126,6 +126,7 @@ public class UserStoreConfigurationDeployer extends AbstractDeployer {
             String ext = FilenameUtils.getExtension(absolutePath);
 
             if (UserStoreConfigurationConstants.ENC_EXTENSION.equalsIgnoreCase(ext)) {
+                OutputStream outputStream = null;
                 try {
                     Cipher cipher = UserStoreUtil.getCipherOfSuperTenant();
                     OMElement secondaryStoreDocument = initializeOMElement(absolutePath);
@@ -134,7 +135,6 @@ public class UserStoreConfigurationDeployer extends AbstractDeployer {
                     int index = absolutePath.lastIndexOf(".");
                     if (index != 1) {
                         String encFileName = absolutePath.substring(0, index + 1) + UserStoreConfigurationConstants.XML_EXTENSION;
-                        OutputStream outputStream;
                         outputStream = new FileOutputStream(encFileName);
                         secondaryStoreDocument.serialize(outputStream);
 
@@ -157,6 +157,8 @@ public class UserStoreConfigurationDeployer extends AbstractDeployer {
                 } catch (UserStoreException e) {
                     String errMsg = "Error while initializing key store";
                     throw new DeploymentException(errMsg, e);
+                } finally {
+                    org.wso2.carbon.server.util.FileUtils.closeQuietly(outputStream);
                 }
             }
 
