@@ -257,16 +257,26 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     private String sendRequest(String url) throws IOException {
         if (url != null) {
-            URLConnection urlConnection = new URL(url).openConnection();
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(urlConnection.getInputStream(), Charset.forName("utf-8")));
+            BufferedReader in = null;
             StringBuilder b = new StringBuilder();
-            String inputLine = in.readLine();
-            while (inputLine != null) {
-                b.append(inputLine).append("\n");
-                inputLine = in.readLine();
+            try {
+                URLConnection urlConnection = new URL(url).openConnection();
+                in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), Charset.forName("utf-8")));
+
+                String inputLine = in.readLine();
+                while (inputLine != null) {
+                    b.append(inputLine).append("\n");
+                    inputLine = in.readLine();
+                }
+            }finally {
+                if(in != null){
+                    try{
+                        in.close();
+                    } catch (IOException e){
+                        log.error("Error occurred while closing BufferedReader", e);
+                    }
+                }
             }
-            in.close();
             return b.toString();
         } else {
             return StringUtils.EMPTY;
