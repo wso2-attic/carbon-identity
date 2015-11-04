@@ -31,6 +31,9 @@ import org.wso2.carbon.identity.application.authentication.framework.LocalApplic
 import org.wso2.carbon.identity.application.authentication.framework.RequestPathApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
+import org.wso2.carbon.identity.application.authentication.framework.inbound.CommonInboundAuthenticationServlet;
+import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticatorRequestProcessor;
+import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticatorResponseBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.listener.AuthenticationEndpointTenantActivityListener;
 import org.wso2.carbon.identity.application.authentication.framework.servlet.CommonAuthenticationServlet;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
@@ -69,10 +72,20 @@ import java.util.List;
  * @scr.reference name="identityCoreInitializedEventService"
  * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
  * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
+ * @scr.reference name="application.requestprocessor"
+ * interface="org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticatorRequestProcessor"
+ * cardinality="0..n" policy="dynamic" bind="setInboundRequestProcessor"
+ * unbind="unsetInboundRequestProcessor"
+ * @scr.reference name="application.responsebuilder"
+ * interface="org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticatorResponseBuilder"
+ * cardinality="0..n" policy="dynamic" bind="setInboundResponseBuilder"
+ * unbind="unsetInboundResponseBuilder"
  */
+
 public class FrameworkServiceComponent {
 
     public static final String COMMON_SERVLET_URL = "/commonauth";
+    private static final String COMMON_INBOUND_SERVLET_URL = "/authentication";
     private static final Log log = LogFactory.getLog(FrameworkServiceComponent.class);
 
     private HttpService httpService;
@@ -137,9 +150,15 @@ public class FrameworkServiceComponent {
         Servlet commonServlet = new ContextPathServletAdaptor(
                 new CommonAuthenticationServlet(),
                 COMMON_SERVLET_URL);
+
+        Servlet commonInboundServlet = new ContextPathServletAdaptor(
+                new CommonInboundAuthenticationServlet(),
+                COMMON_INBOUND_SERVLET_URL);
         try {
             httpService.registerServlet(COMMON_SERVLET_URL, commonServlet,
                                         null, null);
+            httpService.registerServlet(COMMON_INBOUND_SERVLET_URL, commonInboundServlet,
+                    null, null);
         } catch (Exception e) {
             String errMsg = "Error when registering Common Servlet via the HttpService.";
             log.error(errMsg, e);
@@ -252,6 +271,43 @@ public class FrameworkServiceComponent {
 
         if (log.isDebugEnabled()) {
             log.debug("Removed application authenticator : " + authenticator.getName());
+        }
+
+    }
+
+    protected void setInboundRequestProcessor(InboundAuthenticatorRequestProcessor requestProcessor) {
+
+        FrameworkServiceDataHolder.getInstance().getInboundRequestProcessors().add(requestProcessor);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Added application inbound request processor : " + requestProcessor.getType());
+        }
+    }
+
+    protected void unsetInboundRequestProcessor(InboundAuthenticatorRequestProcessor requestProcessor) {
+
+        FrameworkServiceDataHolder.getInstance().getInboundRequestProcessors().remove(requestProcessor);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Removed application inbound request processor : " + requestProcessor.getType());
+        }
+    }
+
+    protected void setInboundResponseBuilder(InboundAuthenticatorResponseBuilder responseBuilder) {
+
+        FrameworkServiceDataHolder.getInstance().getInboundResponseBuilders().add(responseBuilder);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Added application inbound response builder : " + responseBuilder.getContentType());
+        }
+    }
+
+    protected void unsetInboundResponseBuilder(InboundAuthenticatorResponseBuilder responseBuilder) {
+
+        FrameworkServiceDataHolder.getInstance().getInboundResponseBuilders().remove(responseBuilder);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Removed application inbound response builder : " + responseBuilder.getContentType());
         }
 
     }

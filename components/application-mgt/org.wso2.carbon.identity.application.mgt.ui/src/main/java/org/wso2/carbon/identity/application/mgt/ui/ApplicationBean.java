@@ -78,9 +78,16 @@ public class ApplicationBean {
     private String passiveSTSWReply;
     private String openid;
     private String[] claimUris;
+    private List<InboundAuthenticationRequestConfig> customInbountAuthenticatorConfigs;
+    private List<String> standardInboundAuthTypes;
 
     public ApplicationBean() {
-
+        standardInboundAuthTypes = new ArrayList<String>();
+        standardInboundAuthTypes.add("oauth2");
+        standardInboundAuthTypes.add("wstrust");
+        standardInboundAuthTypes.add("samlsso");
+        standardInboundAuthTypes.add("openid");
+        standardInboundAuthTypes.add("passivests");
     }
 
     public void reset() {
@@ -102,6 +109,7 @@ public class ApplicationBean {
         oauthConsumerSecret = null;
         attrConsumServiceIndex = null;
         enabledFederatedIdentityProviders = null;
+        customInbountAuthenticatorConfigs = null;
     }
 
     /**
@@ -828,6 +836,34 @@ public class ApplicationBean {
         this.claimUris = claimUris;
     }
 
+    private boolean isCustomInboundAuthType(String authType) {
+        return !standardInboundAuthTypes.contains(authType);
+    }
+
+    public List<InboundAuthenticationRequestConfig> getCustomInboundAuthenticators() {
+
+        if (customInbountAuthenticatorConfigs != null
+                && customInbountAuthenticatorConfigs.size() > 0) {
+            return customInbountAuthenticatorConfigs;
+        }
+
+        customInbountAuthenticatorConfigs = new ArrayList<InboundAuthenticationRequestConfig>();
+
+        InboundAuthenticationRequestConfig[] authRequests = serviceProvider
+                .getInboundAuthenticationConfig()
+                .getInboundAuthenticationRequestConfigs();
+
+        if (authRequests != null) {
+            for (InboundAuthenticationRequestConfig request : authRequests) {
+                if (isCustomInboundAuthType(request.getInboundAuthType())) {
+                    customInbountAuthenticatorConfigs.add(request);
+                }
+            }
+        }
+
+        return customInbountAuthenticatorConfigs;
+    }
+
     /**
      * @param request
      */
@@ -1139,6 +1175,23 @@ public class ApplicationBean {
             opicAuthenticationRequest.setInboundAuthKey(openidRealm);
             opicAuthenticationRequest.setInboundAuthType("openid");
             authRequestList.add(opicAuthenticationRequest);
+        }
+
+        if (customInbountAuthenticatorConfigs != null
+                && customInbountAuthenticatorConfigs.size() > 0) {
+            for (InboundAuthenticationRequestConfig customAuthConfig : customInbountAuthenticatorConfigs) {
+                String type = customAuthConfig.getInboundAuthType();
+                Property[] properties = customAuthConfig.getProperties();
+                if (properties != null && properties.length > 0) {
+                    for (Property prop : properties) {
+                        String propVal = CharacterEncoder.getSafeText(request
+                                .getParameter("custom_auth_prop_name_" + type
+                                        + "_" + prop.getName()));
+                        prop.setValue(propVal);
+                    }
+                }
+                authRequestList.add(customAuthConfig);
+            }
         }
 
         if (serviceProvider.getInboundAuthenticationConfig() == null) {

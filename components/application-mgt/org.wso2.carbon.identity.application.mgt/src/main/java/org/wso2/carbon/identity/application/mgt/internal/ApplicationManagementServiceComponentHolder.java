@@ -17,14 +17,19 @@
  */
 package org.wso2.carbon.identity.application.mgt.internal;
 
+import org.wso2.carbon.identity.application.mgt.AbstractInboundAuthenticatorConfig;
 import org.wso2.carbon.registry.api.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ApplicationManagementServiceComponentHolder {
 
     private static ApplicationManagementServiceComponentHolder instance=new
             ApplicationManagementServiceComponentHolder();
+    private static Map<String, AbstractInboundAuthenticatorConfig> inboundAuthenticators = new HashMap<String, AbstractInboundAuthenticatorConfig>();
 
     private RegistryService registryService;
 
@@ -36,6 +41,39 @@ public class ApplicationManagementServiceComponentHolder {
     }
 
     public static ApplicationManagementServiceComponentHolder getInstance(){return instance;}
+
+    /**
+     *
+     * @param inboundAuthenticator
+     */
+    public static void addInboundAuthenticators(AbstractInboundAuthenticatorConfig inboundAuthenticator) {
+        inboundAuthenticators.put(inboundAuthenticator.getName(), inboundAuthenticator);
+    }
+
+    /**
+     *
+     * @param type
+     * @return
+     */
+    public static AbstractInboundAuthenticatorConfig getAuthenticator(String type) {
+        return inboundAuthenticators.get(type);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public static Map<String, AbstractInboundAuthenticatorConfig> getAllAuthenticators() {
+        return inboundAuthenticators;
+    }
+
+    /**
+     *
+     * @param type
+     */
+    public static void removeInboundAuthenticators(String type) {
+        inboundAuthenticators.remove(type);
+    }
 
     public RegistryService getRegistryService() {
         return registryService;

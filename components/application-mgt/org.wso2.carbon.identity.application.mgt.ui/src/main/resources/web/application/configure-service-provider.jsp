@@ -35,6 +35,8 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.xsd.InboundAuthenticationRequestConfig" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.xsd.Property" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 <carbon:breadcrumb label="breadcrumb.service.provider" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
                     topPage="true" request="<%=request%>" />
@@ -1318,6 +1320,54 @@ var roleMappinRowID = -1;
 
 					   </table>
 				   </div>
+
+                            <%
+                                if(appBean.getCustomInboundAuthenticators() != null && appBean.getCustomInboundAuthenticators().size() > 0) {
+                                    List<InboundAuthenticationRequestConfig> customAuthenticators = appBean.getCustomInboundAuthenticators();
+                                    for (InboundAuthenticationRequestConfig customAuthenticator : customAuthenticators){
+                                        String type = customAuthenticator.getInboundAuthType();
+                            %>
+
+                            <h2 id="openid.config.head" class="sectionSeperator trigger active" style="background-color: beige;">
+                                <a href="#"><%=type%></a>
+                                <div class="enablelogo"><img src="images/ok.png"  width="16" height="16"></div>
+                            </h2>
+                            <div class="toggle_container sectionSub" style="margin-bottom:10px;display:none;" id="openid.config.div">
+                                <table class="carbonFormTable">
+                                    <%
+
+                                        Property[] properties = customAuthenticator.getProperties();
+                                        for (Property prop:properties){
+                                            String propName = "custom_auth_prop_name_" + type + "_"+prop.getName();
+
+                                    %>
+
+                                    <tr>
+                                        <td style="width:15%" class="leftCol-med labelField">
+                                            <%=prop.getDisplayName() + ":"%>
+                                        </td>
+                                        <td>
+                                            <%
+                                                if(prop.getValue() != null) {
+                                            %>
+                                            <input style="width:50%" id="<%=propName%>" name="<%=propName%>" type="text" value="<%=prop.getValue()%>" autofocus/>
+                                            <% } else { %>
+                                            <input style="width:50%" id="<%=propName%>" name="<%=propName%>" type="text"  autofocus/>
+                                            <% } %>
+
+                                        </td>
+
+                                    </tr>
+                                    <%
+                                        }
+                                    %>
+
+                                </table>
+                            </div>
+                            <%
+                                    }
+                                }
+                            %>
 
 			   </div>
             
