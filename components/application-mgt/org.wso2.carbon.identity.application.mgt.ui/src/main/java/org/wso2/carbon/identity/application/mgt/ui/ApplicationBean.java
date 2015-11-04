@@ -18,6 +18,7 @@
 package org.wso2.carbon.identity.application.mgt.ui;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.common.model.xsd.ApplicationPermission;
 import org.wso2.carbon.identity.application.common.model.xsd.AuthenticationStep;
@@ -44,6 +45,7 @@ import org.wso2.carbon.ui.util.CharacterEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +80,7 @@ public class ApplicationBean {
     private String passiveSTSWReply;
     private String openid;
     private String[] claimUris;
-    private List<InboundAuthenticationRequestConfig> customInbountAuthenticatorConfigs;
+    private List<InboundAuthenticationRequestConfig> customInboundAuthenticatorConfigs;
     private List<String> standardInboundAuthTypes;
 
     public ApplicationBean() {
@@ -110,7 +112,7 @@ public class ApplicationBean {
         oauthConsumerSecret = null;
         attrConsumServiceIndex = null;
         enabledFederatedIdentityProviders = null;
-        customInbountAuthenticatorConfigs = null;
+        customInboundAuthenticatorConfigs = Collections.EMPTY_LIST;
     }
 
     /**
@@ -852,12 +854,11 @@ public class ApplicationBean {
      */
     public List<InboundAuthenticationRequestConfig> getCustomInboundAuthenticators() {
 
-        if (customInbountAuthenticatorConfigs != null
-                && customInbountAuthenticatorConfigs.size() > 0) {
-            return customInbountAuthenticatorConfigs;
+        if (!CollectionUtils.isEmpty(customInboundAuthenticatorConfigs)) {
+            return customInboundAuthenticatorConfigs;
         }
 
-        customInbountAuthenticatorConfigs = new ArrayList<InboundAuthenticationRequestConfig>();
+        customInboundAuthenticatorConfigs = new ArrayList<InboundAuthenticationRequestConfig>();
 
         InboundAuthenticationRequestConfig[] authRequests = serviceProvider
                 .getInboundAuthenticationConfig()
@@ -866,11 +867,11 @@ public class ApplicationBean {
         if (authRequests != null) {
             for (InboundAuthenticationRequestConfig request : authRequests) {
                 if (isCustomInboundAuthType(request.getInboundAuthType())) {
-                    customInbountAuthenticatorConfigs.add(request);
+                    customInboundAuthenticatorConfigs.add(request);
                 }
             }
         }
-        return customInbountAuthenticatorConfigs;
+        return customInboundAuthenticatorConfigs;
     }
 
 
@@ -1187,16 +1188,14 @@ public class ApplicationBean {
             authRequestList.add(opicAuthenticationRequest);
         }
 
-        if (customInbountAuthenticatorConfigs != null
-                && customInbountAuthenticatorConfigs.size() > 0) {
-            for (InboundAuthenticationRequestConfig customAuthConfig : customInbountAuthenticatorConfigs) {
+        if (!CollectionUtils.isEmpty(customInboundAuthenticatorConfigs)) {
+            for (InboundAuthenticationRequestConfig customAuthConfig : customInboundAuthenticatorConfigs) {
                 String type = customAuthConfig.getInboundAuthType();
                 Property[] properties = customAuthConfig.getProperties();
-                if (properties != null && properties.length > 0) {
+                if (!ArrayUtils.isEmpty(properties)) {
                     for (Property prop : properties) {
-                        String propVal = CharacterEncoder.getSafeText(request
-                                .getParameter("custom_auth_prop_name_" + type
-                                        + "_" + prop.getName()));
+                        String propVal = CharacterEncoder.getSafeText(request.getParameter(
+                                "custom_auth_prop_name_" + type + "_" + prop.getName()));
                         prop.setValue(propVal);
                     }
                 }

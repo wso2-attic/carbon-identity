@@ -37,6 +37,7 @@
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.InboundAuthenticationRequestConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.Property" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
 
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 <carbon:breadcrumb label="breadcrumb.service.provider" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
@@ -1324,8 +1325,7 @@ var roleMappinRowID = -1;
 				   </div>
 
                         <%
-                            if (appBean.getCustomInboundAuthenticators() != null
-                                    && appBean.getCustomInboundAuthenticators().size() > 0) {
+                            if (!CollectionUtils.isEmpty(appBean.getCustomInboundAuthenticators())) {
                                 List<InboundAuthenticationRequestConfig> customAuthenticators = appBean
                                         .getCustomInboundAuthenticators();
                                 for (InboundAuthenticationRequestConfig customAuthenticator : customAuthenticators) {
