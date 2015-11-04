@@ -36,8 +36,6 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 
