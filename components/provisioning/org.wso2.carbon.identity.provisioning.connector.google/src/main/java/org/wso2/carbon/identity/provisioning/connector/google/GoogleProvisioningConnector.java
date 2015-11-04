@@ -441,6 +441,10 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
             userId = userIdFromPattern;
         }
 
+        if(StringUtils.isEmpty(userId)){
+            throw new IdentityProvisioningException("Could not find Provisioning User Identification");
+        }
+
         if (StringUtils.isNotBlank(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
             userId = userId.replaceAll("@", ".").concat("@").concat(provisioningDomain);
         }
