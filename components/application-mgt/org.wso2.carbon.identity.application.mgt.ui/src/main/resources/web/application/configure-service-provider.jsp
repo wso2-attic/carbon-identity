@@ -47,14 +47,13 @@
 
 <%
 ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, request.getParameter("spName"));
-if (appBean.getServiceProvider() == null || appBean.getServiceProvider().getApplicationName() == null) {
+if (appBean.getServiceProvider()==null || appBean.getServiceProvider().getApplicationName()==null){
 // if appbean is not set properly redirect the user to list-service-provider.jsp.
 %>
 <script>
-location.href = "list-service-providers.jsp";
+location.href = 'list-service-provider.jsp';
 </script>
-<%
-	return;
+<% 
 }
 	String spName = appBean.getServiceProvider().getApplicationName();
 	

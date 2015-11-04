@@ -95,6 +95,6 @@ public class ProvisioningApplicationMgtListener extends AbstractApplicationMgtLi
     }
 
     public int getDefaultOrderId(){
-        return 20;
+        return 10;
     }
 }

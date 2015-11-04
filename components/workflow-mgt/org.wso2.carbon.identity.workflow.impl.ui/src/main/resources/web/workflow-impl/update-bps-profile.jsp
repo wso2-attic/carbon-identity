@@ -131,9 +131,8 @@
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.auth.password'/></td>
                         <td>
-                            <input disabled type="password" id="id_<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>" placeholder="**********" autocomplete="off"/>
+                            <input disabled type="password" id="id_<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>" value=""/>
                             <input onclick="editBPSAuthPassword();" type="checkbox" id="chkbox_<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>" />
-                            <label class="control-label" for="chkbox_<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>">Edit Password</label>
                         </td>
                     </tr>
                     </tbody>
@@ -152,9 +151,8 @@
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.callback.auth.password'/></td>
                         <td>
-                            <input disabled type="password" id="id_<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>" placeholder="**********" autocomplete="off"/>
+                            <input disabled type="password" id="id_<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>" value=""/>
                             <input onclick="editCarbonAuthPassword();" type="checkbox" id="chkbox_<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>" />
-                            <label class="control-label" for="chkbox_<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>">Edit Password</label>
                         </td>
                     </tr>
                     </tbody>

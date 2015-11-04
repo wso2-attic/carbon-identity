@@ -42,23 +42,27 @@ public class TokenPersistenceTask implements Runnable {
 
         while (true) {
             AccessContextTokenDO accessContextTokenDO = null;
-            String accessToken = null;
             try {
                 accessContextTokenDO =  accessContextTokenQueue.take();
                 if (accessContextTokenDO != null) {
-                    accessToken = accessContextTokenDO.getAccessToken();
-                    log.debug("Access Token Data persisting Task is started to run");
-                    TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
-                    tokenMgtDAO.persistAccessToken(accessToken, accessContextTokenDO.getConsumerKey(),
-                                                   accessContextTokenDO.getNewAccessTokenDO(),
-                                                   accessContextTokenDO.getExistingAccessTokenDO(),
-                                                   accessContextTokenDO.getUserStoreDomain());
+                    if (accessContextTokenDO.getAccessToken() == null) {
+                        log.debug("Access Token Data removing Task is started to run");
+                        TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
+                        tokenMgtDAO.removeAccessToken(accessContextTokenDO.getAccessToken());
+                    } else {
+                        log.debug("Access Token Data persisting Task is started to run");
+                        TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
+                        tokenMgtDAO.persistAccessToken(accessContextTokenDO.getAccessToken()
+                                , accessContextTokenDO.getConsumerKey(), accessContextTokenDO.getNewAccessTokenDO()
+                                , accessContextTokenDO.getExistingAccessTokenDO(), accessContextTokenDO
+                                                               .getUserStoreDomain());
+                    }
                 }
-            } catch (InterruptedException e) {
-                log.error("Error occurred while getting AccessContextTokenDO instance from accessContextTokenQueue" , e);
-            }catch (IdentityException e){
-                log.error("Error occurred while persisting access token :" + accessToken, e);
+            } catch (InterruptedException | IdentityException e) {
+                log.error("Error occurred while persisting access token " +
+                        accessContextTokenDO.getAccessToken(), e);
             }
+
         }
     }
 }
