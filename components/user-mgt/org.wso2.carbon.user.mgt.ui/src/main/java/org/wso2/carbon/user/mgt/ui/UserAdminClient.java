@@ -140,6 +140,15 @@ public class UserAdminClient  {
         return new FlaggedName[0];
     }
 
+    public FlaggedName[] getAllPermittedRoleNames(String filter, String permission, int limit) throws AxisFault {
+        try {
+            return stub.getAllPermittedRoleNames(filter, permission, limit);
+        } catch (Exception e) {
+            handleException(e);
+        }
+        return new FlaggedName[0];
+    }
+
     public FlaggedName[] getRolesOfUser(String userName, String filter, int limit) throws AxisFault {
         try {
             return stub.getRolesOfUser(userName, filter, limit);
@@ -180,6 +189,15 @@ public class UserAdminClient  {
     public FlaggedName[] listAllUsers(String filter, int limit) throws AxisFault {
         try {
             return stub.listAllUsers(filter, limit);
+        } catch (Exception e) {
+            handleException(e);
+        }
+        return new FlaggedName[0];
+    }
+
+    public FlaggedName[] listAllUsersWithPermission(String filter, String permission, int limit) throws AxisFault {
+        try {
+            return stub.listAllUsersWithPermission(filter, permission, limit);
         } catch (Exception e) {
             handleException(e);
         }
@@ -259,6 +277,21 @@ public class UserAdminClient  {
             handleException(e);
         }
         
+        return new FlaggedName[0];
+    }
+
+    public FlaggedName[] listUserByClaimWithPermission(ClaimValue claimValue, String filter, String permission, int
+            limit) throws AxisFault {
+        try {
+            org.wso2.carbon.user.mgt.stub.types.carbon.ClaimValue abcdClaimValue = new
+                    org.wso2.carbon.user.mgt.stub.types.carbon.ClaimValue();
+            abcdClaimValue.setClaimURI(claimValue.getClaimURI());
+            abcdClaimValue.setValue(claimValue.getValue());
+            return stub.listUserByClaimWithPermission(abcdClaimValue, filter, permission, limit);
+        } catch (Exception e) {
+            handleException(e);
+        }
+
         return new FlaggedName[0];
     }
 
