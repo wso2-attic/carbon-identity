@@ -87,7 +87,7 @@ public class IdPManagementUtil {
         } catch (IdentityProviderManagementException e) {
             log.error("Error when accessing the IdentityProviderManager for tenant : " + tenantDomain, e);
         }
-        return timeout;
+        return timeout * 60;
     }
 
     public static int getRememberMeTimeout(String tenantDomain) {
@@ -105,6 +105,6 @@ public class IdPManagementUtil {
         } catch (IdentityProviderManagementException e) {
             log.error("Error when accessing the IdentityProviderManager for tenant : " + tenantDomain, e);
         }
-        return rememberMeTimeout;
+        return rememberMeTimeout * 60;
     }
 }

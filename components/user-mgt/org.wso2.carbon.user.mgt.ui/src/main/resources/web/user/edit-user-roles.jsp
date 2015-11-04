@@ -66,13 +66,16 @@
     int noOfPageLinksToDisplay = 5;
     int numberOfPages = 0;
     Set<String> workFlowDeletePendingRoles = null;
+    String pageNumberParameter = "pageNumber";
+    String checkedRolesMapParameter = "checkedRolesMap";
+    String pendingStatus = "[Pending Role for Delete]";
 
     Map<Integer, PaginatedNamesBean> flaggedNameMap = null;
-    if (request.getParameter("pageNumber") == null) {
-        session.removeAttribute("checkedRolesMap");
+    if (request.getParameter(pageNumberParameter) == null) {
+        session.removeAttribute(checkedRolesMapParameter);
     }
-    if (session.getAttribute("checkedRolesMap") == null) {
-        session.setAttribute("checkedRolesMap", new HashMap<String, Boolean>());
+    if (session.getAttribute(checkedRolesMapParameter) == null) {
+        session.setAttribute(checkedRolesMapParameter, new HashMap<String, Boolean>());
     }
 
     session.removeAttribute("prevString");
@@ -141,12 +144,11 @@
             UserManagementWorkflowServiceClient UserMgtClient = new
                     UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
             if (filter.length() > 0 && userName != null) {
-                FlaggedName[] data = client.getRolesOfUser(Util.decodeHTMLCharacters(userName), filter, -1);
+                FlaggedName[] data = client.getRolesOfUser(userName, filter, -1);
                 if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
                     String[] DeletePendingRolesList = UserMgtClient.
-                            listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE");
+                            listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE", filter);
                     workFlowDeletePendingRoles = new LinkedHashSet<String>(Arrays.asList(DeletePendingRolesList));
-                    String pendingStatus = "[Pending Role for Delete]";
 
                     if (data != null) {
                         for (int i = 0; i < data.length; i++) {
@@ -180,8 +182,7 @@
                             max++;
                             continue;
                         }
-                        PaginatedNamesBean bean = Util.
-                                retrievePaginatedFlaggedName(i, dataList);
+                        PaginatedNamesBean bean = Util.retrievePaginatedFlaggedName(i, dataList);
                         flaggedNameMap.put(i, bean);
                         if (bean.getNumberOfPages() == i + 1) {
                             break;
@@ -255,6 +256,7 @@
 
         function doPaginate(page, pageNumberParameterName, pageNumber) {
             var form = document.createElement("form");
+            form.id = "paginateForm";
             form.setAttribute("method", "POST");
             form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&username=" + '<%=Encode.forJavaScript(Encode.forUriComponent(userName))%>');
             var selectedRolesStr = "";
@@ -286,11 +288,12 @@
             unselectedRolesElem.setAttribute("value", unselectedRolesStr);
             form.appendChild(unselectedRolesElem);
             document.body.appendChild(form);
-            form.submit();
+            $("#paginateForm").submit();
         }
 
         function doSelectAllRetrieved() {
             var form = document.createElement("form");
+            form.id = "selectAllRetrievedForm";
             form.setAttribute("method", "POST");
             form.setAttribute("action", "edit-user-roles.jsp?pageNumber=" + <%=pageNumber%> +"&username=" + '<%=Encode.forJavaScript(Encode.forUriComponent(userName))%>');
             var selectedRolesElem = document.createElement("input");
@@ -299,12 +302,12 @@
             selectedRolesElem.setAttribute("value", "ALL");
             form.appendChild(selectedRolesElem);
             document.body.appendChild(form);
-            form.submit();
-
+            $("#selectAllRetrievedForm").submit();
         }
 
         function doUnSelectAllRetrieved() {
             var form = document.createElement("form");
+            form.id = "unSelectAllRetrievedForm";
             form.setAttribute("method", "POST");
             form.setAttribute("action", "edit-user-roles.jsp?pageNumber=" + <%=pageNumber%> +"&username=" + '<%=Encode.forJavaScript(Encode.forUriComponent(userName))%>');
             var unselectedRolesElem = document.createElement("input");
@@ -313,7 +316,7 @@
             unselectedRolesElem.setAttribute("value", "ALL");
             form.appendChild(unselectedRolesElem);
             document.body.appendChild(form);
-            form.submit();
+            $("#unSelectAllRetrievedForm").submit();
         }
 
         $(document).ready(function () {
@@ -509,7 +512,8 @@
                                                         arg += " and ";
                                                     }
                                                 }
-                                                message = resourceBundle.getString("more.roles.others").replace("{0}", arg);
+                                                message = MessageFormat.format
+                                                        (resourceBundle.getString("more.roles.others"), arg);
                                             } else {
                                                 message = resourceBundle.getString("more.roles.primary");
                                             }
@@ -528,7 +532,7 @@
                                         arg += " and ";
                                     }
                                 }
-                                message = resourceBundle.getString("more.roles").replace("{0}", arg);
+                                message = MessageFormat.format(resourceBundle.getString("more.roles"), arg);
                             %>
                             <strong><%=Encode.forHtml(message)%>
                             </strong>

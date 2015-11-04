@@ -34,13 +34,13 @@
         ConfigurationContext configContext =
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
-        client.deleteUser(Util.decodeHTMLCharacters(username));
+        client.deleteUser(username);
         session.removeAttribute(UserAdminUIConstants.USER_LIST_CACHE);
         session.removeAttribute(UserAdminUIConstants.USER_LIST_CACHE_EXCEEDED);        
         forwardTo = "user-mgt.jsp?ordinal=1";
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("user.cannot.delete"),
-                new Object[]{Util.decodeHTMLCharacters(username), e.getMessage()});
+                new Object[]{username, e.getMessage()});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         forwardTo = "user-mgt.jsp?ordinal=1";
     }

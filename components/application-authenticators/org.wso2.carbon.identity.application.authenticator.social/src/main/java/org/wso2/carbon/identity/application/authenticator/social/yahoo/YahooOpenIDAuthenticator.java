@@ -83,6 +83,11 @@ public class YahooOpenIDAuthenticator extends OpenIDAuthenticator {
     }
 
     @Override
+    public String getClaimDialectURI() {
+        return null;
+    }
+
+    @Override
     protected void processAuthenticationResponse(HttpServletRequest request,
                                                  HttpServletResponse response, AuthenticationContext context)
             throws AuthenticationFailedException {

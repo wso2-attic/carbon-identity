@@ -300,8 +300,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
      * @param resp Corresponding HttpServletResponse
      */
     private void handleSingleLogoutRequest(HttpServletRequest req, HttpServletResponse resp) {
-        String logoutReqStr = decodeHTMLCharacters(req.getParameter(
-                SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ));
+        String logoutReqStr = req.getParameter(SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ);
 
         XMLObject samlObject = null;
 
@@ -337,18 +336,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
             url = url.replace("/acs", "");
         }
         return url;
-    }
-
-    /**
-     * A utility method to decode an HTML encoded string
-     *
-     * @param encodedStr encoded String
-     * @return decoded String
-     */
-    private String decodeHTMLCharacters(String encodedStr) {
-        return encodedStr.replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">")
-                .replaceAll("&quot;", "\"").replaceAll("&apos;", "'");
-
     }
 
     private void handleFederatedSAMLRequest(HttpServletRequest req, HttpServletResponse resp,
