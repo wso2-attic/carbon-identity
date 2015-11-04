@@ -130,6 +130,10 @@ public class ApplicationIdentityProviderMgtListener extends AbstractIdentityProv
                     }
                 }
 
+                
+                /**
+                 * Updating Outbound Provisioning Connectors
+                 */
                 if (provisioningIdps != null && provisioningIdps.length != 0) {
 
                     ProvisioningConnectorConfig[] idpProvisioningConnectorConfigs = identityProvider.getProvisioningConnectorConfigs();
@@ -155,7 +159,7 @@ public class ApplicationIdentityProviderMgtListener extends AbstractIdentityProv
         return true;
     }
 
-    public int getDefaultOrderId(){
+    public int getDefaultOrderId() {
         return 10;
     }
 }
