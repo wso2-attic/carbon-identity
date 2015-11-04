@@ -222,6 +222,7 @@
             <xs:element name="bulkImportUsers">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="userStoreDomain" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="fileName" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="handler" nillable="true" type="xs:base64Binary"/>
                         <xs:element minOccurs="0" name="defaultPassword" nillable="true" type="xs:string"/>
