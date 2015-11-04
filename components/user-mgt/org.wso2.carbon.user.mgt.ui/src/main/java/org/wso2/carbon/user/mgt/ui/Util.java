@@ -138,9 +138,4 @@ public class Util {
         }
     }
 
-    public static String decodeHTMLCharacters(String encodedStr) {
-        return encodedStr.replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">")
-                .replaceAll("&quot;", "\"").replaceAll("&apos;", "'");
-    }
-
 }

@@ -50,23 +50,23 @@ public class BasicAuthRequestPathAuthenticatorServiceComponent {
             BasicAuthRequestPathAuthenticator auth = new BasicAuthRequestPathAuthenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), auth, null);
             if (log.isDebugEnabled()) {
-                log.info("BasicAuthRequestPathAuthenticator bundle is activated");
+                log.debug("BasicAuthRequestPathAuthenticator bundle is activated");
             }
         } catch (Throwable e) {
-            if (log.isDebugEnabled()) {
-                log.info("BasicAuthRequestPathAuthenticator bundle activation Failed");
-            }
+            log.error("BasicAuthRequestPathAuthenticator bundle activation Failed", e);
         }
     }
 
     protected void deactivate(ComponentContext context) {
         if (log.isDebugEnabled()) {
-            log.info("BasicAuthRequestPathAuthenticator bundle is deactivated");
+            log.debug("BasicAuthRequestPathAuthenticator bundle is deactivated");
         }
     }
 
     protected void unsetRealmService(RealmService realmService) {
-        log.debug("UnSetting the Realm Service");
+        if(log.isDebugEnabled()) {
+            log.debug("UnSetting the Realm Service");
+        }
         BasicAuthRequestPathAuthenticatorServiceComponent.realmService = null;
     }
 

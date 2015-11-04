@@ -55,21 +55,22 @@ import java.util.List;
  * @author sga
  */
 public class UserIdentityManagementUtil {
-    private static final String EXISTING_USER = "UserAlreadyExisting";
+    private static final String EXISTING_USER = "Username already exists in the system";
     private static final String INVALID_CLAIM_URL = "InvalidClaimUrl";
-    private static final String INVALID_USER_NAME = "InvalidUserName";
     private static final String EXISTING_ROLE = "RoleExisting";
-    private static final String READ_ONLY_STORE = "ReadOnlyUserStoreManager";
+    private static final String READ_ONLY_STORE = "User store is read only";
     private static final String READ_ONLY_PRIMARY_STORE = "ReadOnlyPrimaryUserStoreManager";
     private static final String INVALID_ROLE = "InvalidRole";
     private static final String ANONYMOUS_USER = "AnonymousUser";
     private static final String INVALID_OPERATION = "InvalidOperation";
     private static final String NO_READ_WRITE_PERMISSIONS = "NoReadWritePermission";
-    private static final String PASSWORD_INVALID = "PasswordInvalid";
+    private static final String PASSWORD_INVALID = "Credential must be a non null string";
     private static final String SHARED_USER_ROLES = "SharedUserRoles";
     private static final String REMOVE_ADMIN_USER = "RemoveAdminUser";
     private static final String LOGGED_IN_USER = "LoggedInUser";
     private static final String ADMIN_USER = "AdminUser";
+    private static final String NULL_CREDENTIALS = "NullCredetials";
+    private static final String NULL_USERNAME = "User name must be a non null string";;
 
     private static VerificationBean vBean = new VerificationBean();
     private static Log log = LogFactory.getLog(UserIdentityManagementUtil.class);
@@ -553,9 +554,18 @@ public class UserIdentityManagementUtil {
     public static VerificationBean getCustomErrorMessages(Exception e, String userName) {
         if (e.getMessage().contains(PASSWORD_INVALID)) {
             vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
-                    " Credential not valid. Credential must be a non null for the user : " + userName, e);
+                    " Old credential does not match with the existing credentials.", e);
             return vBean;
-        } else if (e.getMessage().contains(EXISTING_USER)) {
+        } else if (e.getMessage().contains(NULL_CREDENTIALS)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " Credential is not valid. Credential must be a non null for the user : " + userName, e);
+            return vBean;
+        }else if (e.getMessage().contains(NULL_USERNAME)) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                    " UserName is not valid. User Name must be a non null", e);
+            return vBean;
+        }
+        else if (e.getMessage().contains(EXISTING_USER)) {
             vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
                     " Username '" + userName
                     + "' already exists in the system. Please pick another username.", e);
@@ -563,10 +573,6 @@ public class UserIdentityManagementUtil {
         } else if (e.getMessage().contains(INVALID_CLAIM_URL)) {
             vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
                     " Invalid claim uri has been provided.", e);
-            return vBean;
-        } else if (e.getMessage().contains(INVALID_USER_NAME)) {
-            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
-                    " Username " + userName + " is not valid. User name must be a non null", e);
             return vBean;
         } else if (e.getMessage().contains(READ_ONLY_STORE)) {
             vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +

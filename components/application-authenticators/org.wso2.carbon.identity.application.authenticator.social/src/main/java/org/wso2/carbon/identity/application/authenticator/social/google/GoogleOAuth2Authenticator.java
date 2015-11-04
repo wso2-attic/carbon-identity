@@ -17,34 +17,14 @@
  */
 package org.wso2.carbon.identity.application.authenticator.social.google;
 
-import org.apache.oltu.oauth2.client.OAuthClient;
-import org.apache.oltu.oauth2.client.URLConnectionClient;
-import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
-import org.apache.oltu.oauth2.client.response.OAuthAuthzResponse;
-import org.apache.oltu.oauth2.client.response.OAuthClientResponse;
-import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
-import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
-import org.apache.oltu.oauth2.common.message.types.GrantType;
-import org.apache.oltu.oauth2.common.utils.JSONUtils;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.client.response.OAuthClientResponse;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
-import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
-import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,9 +34,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     private static final long serialVersionUID = -4154255583070524018L;
     private String tokenEndpoint;
     private String oAuthEndpoint;
-    private String userInfoEndpoint;
-
-    private static Log log = LogFactory.getLog(GoogleOAuth2Authenticator.class);
+    private String userInfoURL;
 
     /**
      * initiate tokenEndpoint
@@ -78,6 +56,33 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         if (StringUtils.isBlank(this.oAuthEndpoint)) {
             this.oAuthEndpoint = IdentityApplicationConstants.GOOGLE_OAUTH_URL;
         }
+    }
+
+    /**
+     * Initialize the Yahoo user info url.
+     */
+    private void initUserInfoURL() {
+
+        userInfoURL = getAuthenticatorConfig()
+                .getParameterMap()
+                .get(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT);
+
+        if (userInfoURL == null) {
+            userInfoURL = IdentityApplicationConstants.GOOGLE_USERINFO_URL;
+        }
+    }
+
+    /**
+     * Get the user info endpoint url.
+     * @return User info endpoint url.
+     */
+    private String getUserInfoURL() {
+
+        if(userInfoURL == null) {
+            initUserInfoURL();
+        }
+
+        return userInfoURL;
     }
 
     /**
@@ -118,7 +123,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     @Override
     protected String getScope(String scope,
                               Map<String, String> authenticatorProperties) {
-        return OIDCAuthenticatorConstants.OAUTH_OIDC_SCOPE;
+        return GoogleOAuth2AuthenticationConstant.GOOGLE_SCOPE;
     }
 
 
@@ -138,17 +143,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     @Override
     protected String getUserInfoEndpoint(OAuthClientResponse token, Map<String, String> authenticatorProperties) {
-        return token.getParam(GoogleOAuth2AuthenticationConstant.GOOGLE_USERINFO_ENDPOINT);
-    }
-
-    /**
-     * Get google callbackurl.
-     * @param authenticatorProperties
-     * @return callbackurl
-     */
-    @Override
-    protected String getCallBackURL(Map<String, String> authenticatorProperties) {
-        return authenticatorProperties.get(GoogleOAuth2AuthenticationConstant.CALLBACK_URL);
+        return getUserInfoURL();
     }
 
     @Override
@@ -183,15 +178,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         Property callbackUrl = new Property();
         callbackUrl.setDisplayName("Callback Url");
-        callbackUrl.setName(GoogleOAuth2AuthenticationConstant.CALLBACK_URL);
-        callbackUrl.setRequired(true);
+        callbackUrl.setName(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
         callbackUrl.setDescription("Enter value corresponding to callback url.");
         configProperties.add(callbackUrl);
 
         Property scope = new Property();
         scope.setDisplayName("Additional Query Parameters");
         scope.setName("AdditionalQueryParameters");
-        scope.setValue("");
+        scope.setValue("scope=openid email profile");
         scope.setDescription("Additional query parameters. e.g: paramName1=value1");
         configProperties.add(scope);
 

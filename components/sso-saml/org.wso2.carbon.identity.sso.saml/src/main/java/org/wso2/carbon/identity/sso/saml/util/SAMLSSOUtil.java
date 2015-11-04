@@ -57,8 +57,10 @@ import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.SAML2SSOFederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
@@ -377,9 +379,8 @@ public class SAMLSSOUtil {
                 byte[] xmlMessageBytes = new byte[5000];
                 int resultLength = inflater.inflate(xmlMessageBytes);
 
-                if (inflater.getRemaining() > 0) {
-                    throw new RuntimeException("didn't allocate enough space to hold "
-                            + "decompressed data");
+                if (!inflater.finished() ){
+                    throw new RuntimeException("End of the compressed data stream has NOT been reached");
                 }
 
                 inflater.end();
@@ -487,6 +488,40 @@ public class SAMLSSOUtil {
         issuer.setValue(idPEntityId);
         issuer.setFormat(SAMLSSOConstants.NAME_ID_POLICY_ENTITY);
         return issuer;
+    }
+
+    /**
+     *
+     * @param tenantDomain
+     * @return set of destination urls of resident identity provider
+     * @throws IdentityException
+     */
+
+    public static List<String> getDestinationFromTenantDomain(String tenantDomain) throws IdentityException {
+
+        List<String> destinationURLs = new ArrayList<String>();
+        IdentityProvider identityProvider;
+
+        try {
+            identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
+        } catch (IdentityProviderManagementException e) {
+            throw new IdentityException(
+                    "Error occurred while retrieving Resident Identity Provider information for tenant " +
+                            tenantDomain, e);
+        }
+        FederatedAuthenticatorConfig[] authnConfigs = identityProvider.getFederatedAuthenticatorConfigs();
+        destinationURLs.addAll(IdentityApplicationManagementUtil.getPropertyValuesForNameStartsWith(authnConfigs,
+                IdentityApplicationConstants.Authenticator.SAML2SSO.NAME, IdentityApplicationConstants.Authenticator
+                        .SAML2SSO.DESTINATION_URL_PREFIX));
+        if (destinationURLs.size() == 0) {
+            String configDestination = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
+            if (StringUtils.isBlank(configDestination)) {
+                configDestination = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL,true);
+            }
+            destinationURLs.add(configDestination);
+        }
+
+        return destinationURLs;
     }
 
     public static void doBootstrap() {
