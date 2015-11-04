@@ -276,18 +276,18 @@ public class UserAdminClient  {
         } catch (Exception e) {
             handleException(e);
         }
-        
+
         return new FlaggedName[0];
     }
 
     public FlaggedName[] listUserByClaimWithPermission(ClaimValue claimValue, String filter, String permission, int
             limit) throws AxisFault {
         try {
-            org.wso2.carbon.user.mgt.stub.types.carbon.ClaimValue abcdClaimValue = new
+            org.wso2.carbon.user.mgt.stub.types.carbon.ClaimValue newClaimValue = new
                     org.wso2.carbon.user.mgt.stub.types.carbon.ClaimValue();
-            abcdClaimValue.setClaimURI(claimValue.getClaimURI());
-            abcdClaimValue.setValue(claimValue.getValue());
-            return stub.listUserByClaimWithPermission(abcdClaimValue, filter, permission, limit);
+            newClaimValue.setClaimURI(newClaimValue.getClaimURI());
+            newClaimValue.setValue(newClaimValue.getValue());
+            return stub.listUserByClaimWithPermission(newClaimValue, filter, permission, limit);
         } catch (Exception e) {
             handleException(e);
         }
@@ -302,7 +302,7 @@ public class UserAdminClient  {
             handleException(e);
         }
 		return false;
-	}   
+	}
 
     protected String[] handleException(Exception e) throws AxisFault  {
 
@@ -319,9 +319,9 @@ public class UserAdminClient  {
 
         log.error(errorMessage, e);
         throw new AxisFault(errorMessage, e);
-    
+
     }
-    
+
 	public boolean isSharedRolesEnabled() throws AxisFault {
 		try {
 			return stub.isSharedRolesEnabled();
