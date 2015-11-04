@@ -186,7 +186,6 @@ public class TokenMgtDAO {
         }
 
         PreparedStatement prepStmt = null;
-        ResultSet results = null;
 
         String accessTokenStoreTable = "IDN_OAUTH2_ACCESS_TOKEN";
         if (StringUtils.isNotBlank(userStoreDomain)) {
@@ -516,7 +515,7 @@ public class TokenMgtDAO {
             throws IdentityOAuth2Exception {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
-        ResultSet resultSet;
+        ResultSet resultSet = null;
 
         try {
             prepStmt = connection.prepareStatement(SQLQueries.VALIDATE_AUTHZ_CODE);
@@ -557,7 +556,7 @@ public class TokenMgtDAO {
         } catch (SQLException e) {
             throw new IdentityOAuth2Exception("Error when validating an authorization code", e);
         } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }
 
         return null;
