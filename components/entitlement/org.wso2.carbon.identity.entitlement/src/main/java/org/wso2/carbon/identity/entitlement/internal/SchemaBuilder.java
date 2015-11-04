@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.entitlement.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
 import org.xml.sax.SAXException;
 
@@ -85,6 +86,7 @@ public class SchemaBuilder implements Runnable {
                     .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schema = schemaFactory.newSchema(new StreamSource(schemaFileStream));
             configHolder.getPolicySchemaMap().put(schemaNS, schema);
+            IdentityIOStreamUtils.closeInputStream(schemaFileStream);
         }
     }
 
