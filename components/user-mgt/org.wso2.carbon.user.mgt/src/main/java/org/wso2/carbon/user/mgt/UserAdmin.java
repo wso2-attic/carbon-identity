@@ -111,7 +111,6 @@ public class UserAdmin {
             FlaggedName[] users = getUserAdminProxy().listAllUsers(filter, limit);
 
             for (int i = 0; i < users.length - 1; i++) {
-                System.out.println(users[i].getItemName());
                 if (authorizationManager.isUserAuthorized(users[i].getItemName(),
                         permission, UserMgtConstants.EXECUTE_ACTION)) {
                     permittedUsers.add(users[i]);
