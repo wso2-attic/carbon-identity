@@ -43,7 +43,7 @@ public class ApplicationManagementServiceComponentHolder {
     public static ApplicationManagementServiceComponentHolder getInstance(){return instance;}
 
     /**
-     *
+     * Add inbound authenticator configuration
      * @param inboundAuthenticator
      */
     public static void addInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig inboundAuthenticator) {
@@ -51,7 +51,7 @@ public class ApplicationManagementServiceComponentHolder {
     }
 
     /**
-     *
+     * Get inbound authenticator configuration
      * @param type
      * @return
      */
@@ -60,15 +60,15 @@ public class ApplicationManagementServiceComponentHolder {
     }
 
     /**
-     *
-     * @return
+     * Get inbound authenticator configurations
+     * @return inbound authenticator configs
      */
     public static Map<String, AbstractInboundAuthenticatorConfig> getAllInboundAuthenticatorConfig() {
         return inboundAuthenticatorConfigs;
     }
 
     /**
-     *
+     * Remove inbound authenticator configuration
      * @param type
      */
     public static void removeInboundAuthenticatorConfig(String type) {

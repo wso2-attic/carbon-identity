@@ -26,20 +26,20 @@ import org.wso2.carbon.identity.application.common.model.Property;
 public abstract class AbstractInboundAuthenticatorConfig {
 
     /**
-     *
-     * @return
+     * Get Name
+     * @return name
      */
     public abstract String getName();
 
     /**
-     *
-     * @return
+     * Get Type
+     * @return type
      */
     public abstract String getType();
 
     /**
-     *
-     * @return
+     * Get configurations
+     * @return property array
      */
     public abstract Property[] getConfigurationProperties();
 

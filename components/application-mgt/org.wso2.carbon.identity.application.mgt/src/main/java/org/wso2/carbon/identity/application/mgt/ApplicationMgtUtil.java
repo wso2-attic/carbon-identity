@@ -481,6 +481,15 @@ public class ApplicationMgtUtil {
 
     }
 
+    /**
+     * Get Property values
+     *
+     * @param tenantDomain Tenant domain
+     * @param spIssuer SP Issuer
+     * @param propertyNames Property names
+     * @return Properties map
+     * @throws IdentityApplicationManagementException
+     */
     protected Map<String, String> getPropertyValues(String tenantDomain, String spIssuer, List<String> propertyNames)
             throws IdentityApplicationManagementException {
 
@@ -489,7 +498,7 @@ public class ApplicationMgtUtil {
 
         if (serviceProvider == null) {
             throw new IdentityApplicationManagementException(
-                    "No service provider exists in the provided tenant, with the given issuer id.");
+                    "No service provider exists in the provided tenant, with the given issuer id " + spIssuer);
         }
 
         Map<String, String> propKeyValueMap = new HashMap<String, String>();
