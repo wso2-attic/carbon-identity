@@ -152,12 +152,11 @@ public class IdPInitSSOAuthnRequestProcessor {
                 samlssoRespDTO.setSubject(authnReqDTO.getUser());
             }
 
-            if (log.isDebugEnabled()) {
-                if (samlssoRespDTO.getRespString() != null) {
+            if (samlssoRespDTO.getRespString() != null) {
+                if (log.isDebugEnabled()) {
                     log.debug(samlssoRespDTO.getRespString());
                 }
             }
-
             return samlssoRespDTO;
         } catch (Exception e) {
             log.error("Error processing the authentication request", e);
