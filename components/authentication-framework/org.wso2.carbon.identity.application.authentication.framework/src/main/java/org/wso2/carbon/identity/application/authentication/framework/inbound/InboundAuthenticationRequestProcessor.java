@@ -54,7 +54,7 @@ public abstract class InboundAuthenticationRequestProcessor {
 	 *
 	 * @return
 	 */
-	public abstract String getSelfPath();
+	public abstract String getCallbackPath();
 
 	/**
 	 *
@@ -80,62 +80,6 @@ public abstract class InboundAuthenticationRequestProcessor {
 	 */
     public abstract boolean isDirectResponseRequired();
 
-    /**
-     *
-     * @param req
-     * @param resp
-     * @param newParams
-     * @throws javax.servlet.ServletException
-     * @throws java.io.IOException
-     * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
-     */
-    protected void sendToFrameworkForAuthentication(HttpServletRequest req, HttpServletResponse resp,
-            Map<String, String[]> newParams) throws AuthenticationFrameworkRuntimeException {
 
-        try {
-            String sessionDataKey = UUIDGenerator.generateUUID();
-
-            AuthenticationRequest authenticationRequest = new AuthenticationRequest();
-
-            Map<String, String[]> OldParams = req.getParameterMap();
-            Iterator<Map.Entry<String, String[]>> iterator = OldParams.entrySet().iterator();
-
-            while (iterator.hasNext()) {
-                Map.Entry<String, String[]> pair = iterator.next();
-                newParams.put(pair.getKey(), pair.getValue());
-            }
-
-            newParams.put("sessionDataKey", new String[] { sessionDataKey });
-            newParams.put("type", new String[] { getName() });
-
-            authenticationRequest.appendRequestQueryParams(newParams);
-
-            for (@SuppressWarnings("rawtypes")
-                 Enumeration e = req.getHeaderNames(); e.hasMoreElements(); ) {
-                String headerName = e.nextElement().toString();
-                authenticationRequest.addHeader(headerName, req.getHeader(headerName));
-            }
-
-            authenticationRequest.setRelyingParty(getRelyingPartyId());
-            authenticationRequest.setType(getName());
-            authenticationRequest.setCommonAuthCallerPath(URLEncoder.encode(getSelfPath(), "UTF-8"));
-
-            AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry(authenticationRequest);
-            FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
-            String queryParams = "?sessionDataKey=" + sessionDataKey + "&" + "type" + "=" + URLEncoder.encode(getName(),
-                    "UTF-8");
-
-            String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
-
-            if (isDirectResponseRequired()) {
-                FrameworkUtils.getRequestCoordinator().handle(req, resp);
-            } else {
-                resp.sendRedirect(commonAuthURL + queryParams);
-            }
-        } catch (IOException ex) {
-            throw new AuthenticationFrameworkRuntimeException("Exception occurred while sending request to framework",
-                    ex);
-        }
-    }
 
 }

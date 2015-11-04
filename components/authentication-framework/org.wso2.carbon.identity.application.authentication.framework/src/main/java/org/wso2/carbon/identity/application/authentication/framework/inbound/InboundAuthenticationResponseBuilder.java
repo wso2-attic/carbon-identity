@@ -25,10 +25,11 @@ import javax.servlet.http.HttpServletResponse;
 public abstract class InboundAuthenticationResponseBuilder {
 
     public abstract InboundAuthenticationResponse buildResponse(HttpServletRequest req, HttpServletResponse resp,
-            String sessionIdentifier)
+            InboundAuthenticationContext context)
             throws FrameworkException;
 
-    public abstract boolean canHandle(HttpServletRequest req, HttpServletResponse resp) throws FrameworkException;
+    public abstract boolean canHandle(HttpServletRequest req, HttpServletResponse resp,
+            InboundAuthenticationContext context) throws FrameworkException;
 
     public abstract int getPriority();
 
