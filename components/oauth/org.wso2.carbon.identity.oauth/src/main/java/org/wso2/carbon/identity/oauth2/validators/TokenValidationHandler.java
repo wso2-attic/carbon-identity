@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -290,7 +291,7 @@ public class TokenValidationHandler {
 
         User user = accessTokenDO.getAuthzUser();
         String authzUser = UserCoreUtil.addDomainToName(user.getUserName(), user.getUserStoreDomain());
-        authzUser = UserCoreUtil.addTenantDomainToEntry(authzUser, user.getTenantDomain());
+        //authzUser = UserCoreUtil.addTenantDomainToEntry(authzUser, user.getTenantDomain());
         responseDTO.setAuthorizedUser(authzUser);
         responseDTO.setScope(accessTokenDO.getScope());
         responseDTO.setValid(true);
