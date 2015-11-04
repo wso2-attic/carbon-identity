@@ -25,6 +25,7 @@ import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
@@ -79,7 +80,7 @@ public class ProvisioningManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, provisioningConfigId);
             prepStmt.setString(2, provisioningEntity.getEntityType().toString());
-            prepStmt.setString(3, UserCoreUtil.extractDomainFromName(provisioningEntity.getEntityName()));
+            prepStmt.setString(3, IdentityUtil.extractDomainFromName(provisioningEntity.getEntityName(), tenantId));
             prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setString(5, provisioningEntity.getIdentifier().getIdentifier());
             prepStmt.setInt(6, tenantId);
@@ -126,7 +127,7 @@ public class ProvisioningManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, provisioningConfigId);
             prepStmt.setString(2, provisioningEntity.getEntityType().toString());
-            prepStmt.setString(3, UserCoreUtil.extractDomainFromName(provisioningEntity.getEntityName()));
+            prepStmt.setString(3, IdentityUtil.extractDomainFromName(provisioningEntity.getEntityName(),tenantId));
             prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setInt(5, tenantId);
 
@@ -172,7 +173,7 @@ public class ProvisioningManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, provisioningConfigId);
             prepStmt.setString(2, provisioningEntity.getEntityType().toString());
-            prepStmt.setString(3, UserCoreUtil.extractDomainFromName(provisioningEntity.getEntityName()));
+            prepStmt.setString(3, IdentityUtil.extractDomainFromName(provisioningEntity.getEntityName(), tenantId));
             prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setInt(5, tenantId);
 

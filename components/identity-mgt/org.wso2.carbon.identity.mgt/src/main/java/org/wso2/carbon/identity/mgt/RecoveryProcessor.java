@@ -22,6 +22,7 @@ package org.wso2.carbon.identity.mgt;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.beans.VerificationBean;
 import org.wso2.carbon.identity.mgt.config.Config;
 import org.wso2.carbon.identity.mgt.config.ConfigBuilder;
@@ -112,7 +113,7 @@ public class RecoveryProcessor {
         String userId = recoveryDTO.getUserId();
         String domainName = recoveryDTO.getTenantDomain();
         int tenantId = recoveryDTO.getTenantId();
-        String userStore = UserCoreUtil.extractDomainFromName(userId);
+        String userStore = IdentityUtil.extractDomainFromName(userId, tenantId);
         String userName = UserCoreUtil.removeDomainFromName(userId);
         TenantManager tenantManager = IdentityMgtServiceComponent.getRealmService().getTenantManager();
         try {
@@ -440,7 +441,7 @@ public class RecoveryProcessor {
         String domainName = notificationBean.getTenantDomain();
         int tenantId = notificationBean.getTenantId();
         confirmationKey = notificationBean.getConfirmationCode();
-        String userStore = UserCoreUtil.extractDomainFromName(userId);
+        String userStore = IdentityUtil.extractDomainFromName(userId, tenantId);
         String userName = UserCoreUtil.removeDomainFromName(userId);
 
         NotificationDataDTO notificationData = new NotificationDataDTO();

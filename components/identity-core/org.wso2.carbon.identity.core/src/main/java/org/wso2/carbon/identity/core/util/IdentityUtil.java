@@ -45,8 +45,13 @@ import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.identity.core.model.IdentityEventListener;
 import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.DefaultRealmService;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.NetworkUtils;
@@ -391,7 +396,7 @@ public class IdentityUtil {
      */
     public static boolean isUserStoreInUsernameCaseSensitive(String username, int tenantId) {
 
-        return isUserStoreCaseSensitive(UserCoreUtil.extractDomainFromName(username), tenantId);
+        return isUserStoreCaseSensitive(IdentityUtil.extractDomainFromName(username, tenantId), tenantId);
     }
 
     /**
@@ -469,5 +474,24 @@ public class IdentityUtil {
             cleanUpPeriod = IdentityConstants.ServerConfig.CLEAN_UP_PERIOD_DEFAULT;
         }
         return Integer.parseInt(cleanUpPeriod);
+    }
+
+    public static String extractDomainFromName(String nameWithDomain, int tenantId){
+        if(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)>0){
+            String domain = nameWithDomain.split(UserCoreConstants.DOMAIN_SEPARATOR)[1];
+            return domain.toUpperCase();
+        } else {
+            try {
+                RealmConfiguration realmConfiguration = (RealmConfiguration) UserStoreMgtDSComponent.getRealmService().getTenantUserRealm
+                        (tenantId);
+                if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)==null){
+                    return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                } else {
+                    return "PRIMARY";
+                }
+            } catch (UserStoreException e) {
+                return "PRIMARY";
+            }
+        }
     }
 }

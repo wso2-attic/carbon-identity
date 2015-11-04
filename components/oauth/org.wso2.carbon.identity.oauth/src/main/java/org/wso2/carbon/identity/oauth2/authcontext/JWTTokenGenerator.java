@@ -37,6 +37,7 @@ import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
@@ -529,7 +530,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
     private String getMultiAttributeSeparator(String authenticatedUser, int tenantId) {
         String claimSeparator = null;
-        String userDomain = UserCoreUtil.extractDomainFromName(authenticatedUser);
+        String userDomain = IdentityUtil.extractDomainFromName(authenticatedUser, tenantId);
 
         try {
             RealmConfiguration realmConfiguration = null;

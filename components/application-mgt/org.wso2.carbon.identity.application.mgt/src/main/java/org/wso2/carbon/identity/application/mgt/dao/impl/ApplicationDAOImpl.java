@@ -61,6 +61,7 @@ import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementSe
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponentHolder;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.DBUtils;
@@ -215,7 +216,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             qualifiedUsername = CarbonConstants.REGISTRY_SYSTEM_USERNAME;
         }
         String username = UserCoreUtil.removeDomainFromName(qualifiedUsername);
-        String userStoreDomain = UserCoreUtil.extractDomainFromName(qualifiedUsername);
+        String userStoreDomain = IdentityUtil.extractDomainFromName(qualifiedUsername, tenantID);
         String applicationName = serviceProvider.getApplicationName();
         String description = serviceProvider.getDescription();
 
