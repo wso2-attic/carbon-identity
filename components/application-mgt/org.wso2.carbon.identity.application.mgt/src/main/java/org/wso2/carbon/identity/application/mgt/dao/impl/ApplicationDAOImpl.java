@@ -62,6 +62,7 @@ import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementSe
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.DBUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -410,8 +411,12 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         // only if the application has been renamed
         if (!StringUtils.equals(applicationName, storedAppName)) {
+            String applicationNameforRole = ApplicationConstants.APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR
+                    + applicationName;
+            String storedAppNameforRole = ApplicationConstants.APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR
+                    + storedAppName;
             // rename the role
-            ApplicationMgtUtil.renameRole(storedAppName, applicationName);
+            ApplicationMgtUtil.renameRole(storedAppNameforRole, applicationNameforRole);
             if (log.isDebugEnabled()) {
                 log.debug("Renaming application role from " + storedAppName + " to "
                         + applicationName);
