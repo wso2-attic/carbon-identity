@@ -674,7 +674,7 @@ public class UserRealmProxy {
             info.setExternalIdP(realmConfig.
                     getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_EXTERNAL_IDP));
 
-            info.setBulkImportSupported(this.isBulkImportSupported());
+            info.setBulkImportSupported(this.isBulkImportSupported(realmConfig));
             info.setDomainName(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
 
             boolean caseSensitiveUsername = IdentityUtil.isUserStoreCaseSensitive(manager);
@@ -695,18 +695,12 @@ public class UserRealmProxy {
     }
 
 
-    private boolean isBulkImportSupported() throws UserAdminException {
-        try {
-            UserStoreManager userStoreManager = this.realm.getUserStoreManager();
-            if (userStoreManager != null) {
-                return userStoreManager.isBulkImportSupported();
+    private boolean isBulkImportSupported(RealmConfiguration realmConfig) throws UserAdminException {
+            if (realmConfig != null) {
+                return Boolean.valueOf(realmConfig.getUserStoreProperties().get("IsBulkImportSupported"));
             } else {
                 throw new UserAdminException("Unable to retrieve user store manager from realm.");
             }
-
-        } catch (UserStoreException e) {
-            throw new UserAdminException("An error occurred while retrieving user store from realm.", e);
-        }
     }
 
     /**
@@ -2092,14 +2086,20 @@ public class UserRealmProxy {
         }
     }
 
-    public void bulkImportUsers(String fileName, InputStream inStream, String defaultPassword)
+    public void bulkImportUsers(String userStoreDomain, String fileName, InputStream inStream, String defaultPassword)
             throws UserAdminException {
         try {
             BulkImportConfig config = new BulkImportConfig(inStream, fileName);
             if (defaultPassword != null && defaultPassword.trim().length() > 0) {
                 config.setDefaultPassword(defaultPassword.trim());
             }
+            if(StringUtils.isNotEmpty(userStoreDomain)){
+                config.setUserStoreDomain(userStoreDomain);
+            }
+
             UserStoreManager userStore = this.realm.getUserStoreManager();
+            userStore = userStore.getSecondaryUserStoreManager(userStoreDomain);
+
             if (fileName.endsWith("csv")) {
                 CSVUserBulkImport csvAdder = new CSVUserBulkImport(config);
                 csvAdder.addUserList(userStore);

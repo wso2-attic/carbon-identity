@@ -1242,7 +1242,7 @@ var roleMappinRowID = -1;
 											<td><%=Encode.forHtmlContent(appBean.getWstrustSP())%></td>
 											<td style="white-space: nowrap;">
 												<a title="Edit Audience" onclick="updateBeanAndRedirect('../generic-sts/sts.jsp?spName=<%=Encode.forUriComponent(spName)%>&&spAudience=<%=Encode.forUriComponent(appBean.getWstrustSP())%>&spAction=spEdit');"  class="icon-link" style="background-image: url(../admin/images/edit.gif)">Edit</a>
-												<a title="Delete Audience" onclick="updateBeanAndRedirect('../generic-sts/remove-trusted-service.jsp?action=delete&appName=<%=Encode.forUriComponent(spName)%>&endpointaddrs=<%=Encode.forUriComponent(appBean.getWstrustSP())%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
+												<a title="Delete Audience" onclick="updateBeanAndRedirect('../generic-sts/remove-trusted-service.jsp?action=delete&spName=<%=Encode.forUriComponent(spName)%>&endpointaddrs=<%=Encode.forUriComponent(appBean.getWstrustSP())%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
 											</td>
 										</tr>
 										</tbody>
