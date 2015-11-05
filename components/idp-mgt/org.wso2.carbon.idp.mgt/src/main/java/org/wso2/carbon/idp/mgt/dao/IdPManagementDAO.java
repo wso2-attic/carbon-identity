@@ -344,7 +344,8 @@ public class IdPManagementDAO {
                 if (oldFedAuthnConfigMap.containsKey(fedAuthenticator.getName())
                         && oldFedAuthnConfigMap.get(fedAuthenticator.getName()).isValid()) {
                     // we already have an openidconnect authenticator in the system - update it.
-                    updateFederatedAuthenticatorConfig(fedAuthenticator, oldFedAuthnConfigMap.get(fedAuthenticator.getName()), dbConnection, idpId,
+                    updateFederatedAuthenticatorConfig(fedAuthenticator, oldFedAuthnConfigMap.get(fedAuthenticator
+                                    .getName()), dbConnection, idpId,
                             tenantId);
                 } else {
                     addFederatedAuthenticatorConfig(fedAuthenticator, dbConnection, idpId, tenantId);
@@ -387,10 +388,9 @@ public class IdPManagementDAO {
             List<Property> multiValuedProperties = new ArrayList<>();
 
             for (Property property : federatedAuthenticatorConfig.getProperties()) {
-                if (property.getName().contains(IdPManagementConstants.MULTI_VALUED_PROPERTY_CHARACTER)){
+                if (property.getName().contains(IdPManagementConstants.MULTI_VALUED_PROPERTY_CHARACTER)) {
                     multiValuedProperties.add(property);
-                }
-                else{
+                } else {
                     singleValuedProperties.add(property);
                 }
             }
@@ -398,7 +398,8 @@ public class IdPManagementDAO {
                 updateSingleValuedFederatedConfigProperties(dbConnection, authnId, tenantId, singleValuedProperties);
             }
             if (multiValuedProperties.size() > 0) {
-                updateMultiValuedFederatedConfigProperties(dbConnection, oldFederatedAuthenticatorConfig, authnId, tenantId, singleValuedProperties);
+                updateMultiValuedFederatedConfigProperties(dbConnection, oldFederatedAuthenticatorConfig, authnId,
+                        tenantId, multiValuedProperties);
             }
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt1);
@@ -527,13 +528,15 @@ public class IdPManagementDAO {
         String sqlStmt;
         try {
             for (Property property : oldFederatedAuthenticatorConfig.getProperties()) {
-                sqlStmt = IdPManagementConstants.SQLQueries.DELETE_IDP_AUTH_PROP_WITH_KEY_SQL;
-                deleteOldValuePrepStmt = dbConnection.prepareStatement(sqlStmt);
-                deleteOldValuePrepStmt.setString(1,property.getName());
-                deleteOldValuePrepStmt.executeUpdate();
+                if (property.getName().contains(IdPManagementConstants.MULTI_VALUED_PROPERTY_CHARACTER)) {
+                    sqlStmt = IdPManagementConstants.SQLQueries.DELETE_IDP_AUTH_PROP_WITH_KEY_SQL;
+                    deleteOldValuePrepStmt = dbConnection.prepareStatement(sqlStmt);
+                    deleteOldValuePrepStmt.setString(1, property.getName());
+                    deleteOldValuePrepStmt.executeUpdate();
+                }
             }
 
-            for(Property property : multiValuedProperties){
+            for (Property property : multiValuedProperties) {
                 sqlStmt = IdPManagementConstants.SQLQueries.ADD_IDP_AUTH_PROP_SQL;
                 addNewPropsPrepStmt = dbConnection.prepareStatement(sqlStmt);
                 addNewPropsPrepStmt.setInt(1, authnId);
