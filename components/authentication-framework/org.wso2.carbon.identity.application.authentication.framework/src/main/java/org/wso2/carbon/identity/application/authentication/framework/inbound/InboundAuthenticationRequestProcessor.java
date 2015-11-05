@@ -54,7 +54,7 @@ public abstract class InboundAuthenticationRequestProcessor {
 	 *
 	 * @return
 	 */
-	public abstract String getCallbackPath();
+	public abstract String getCallbackPath() throws FrameworkException;
 
 	/**
 	 *

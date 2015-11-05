@@ -48,7 +48,10 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
             throws ServletException, IOException {
 
         try {
-            new InboundAuthenticationManager().process(request, response);
+            InboundAuthenticationResponse result = new InboundAuthenticationManager().process(request, response);
+            if(result.getRedirectURL() != null){
+
+            }
         } catch (FrameworkException ex) {
             throw new ServletException(ex);
         }

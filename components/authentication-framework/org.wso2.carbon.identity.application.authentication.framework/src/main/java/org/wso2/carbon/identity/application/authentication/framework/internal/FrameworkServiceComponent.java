@@ -49,6 +49,7 @@ import org.wso2.carbon.user.core.service.RealmService;
 
 import javax.servlet.Servlet;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -74,11 +75,11 @@ import java.util.List;
  * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
  * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
  * @scr.reference name="application.requestprocessor"
- * interface="org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticatorRequestProcessor"
+ * interface="org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationRequestProcessor"
  * cardinality="0..n" policy="dynamic" bind="setInboundRequestProcessor"
  * unbind="unsetInboundRequestProcessor"
  * @scr.reference name="application.responsebuilder"
- * interface="org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticatorResponseBuilder"
+ * interface="org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationResponseBuilder"
  * cardinality="0..n" policy="dynamic" bind="setInboundResponseBuilder"
  * unbind="unsetInboundResponseBuilder"
  */
@@ -279,6 +280,8 @@ public class FrameworkServiceComponent {
     protected void setInboundRequestProcessor(InboundAuthenticationRequestProcessor requestProcessor) {
 
         FrameworkServiceDataHolder.getInstance().getInboundRequestProcessors().add(requestProcessor);
+        Collections
+                .sort(FrameworkServiceDataHolder.getInstance().getInboundRequestProcessors(), inboundRequestProcessor);
 
         if (log.isDebugEnabled()) {
             log.debug("Added application inbound request processor : " + requestProcessor.getName());
@@ -289,6 +292,7 @@ public class FrameworkServiceComponent {
 
         FrameworkServiceDataHolder.getInstance().getInboundRequestProcessors().remove(requestProcessor);
 
+
         if (log.isDebugEnabled()) {
             log.debug("Removed application inbound request processor : " + requestProcessor.getName());
         }
@@ -297,6 +301,8 @@ public class FrameworkServiceComponent {
     protected void setInboundResponseBuilder(InboundAuthenticationResponseBuilder responseBuilder) {
 
         FrameworkServiceDataHolder.getInstance().getInboundResponseBuilders().add(responseBuilder);
+        Collections
+                .sort(FrameworkServiceDataHolder.getInstance().getInboundResponseBuilders(), inboundResponseBuilder);
 
         if (log.isDebugEnabled()) {
             log.debug("Added application inbound response builder : " + responseBuilder.getName());
@@ -322,4 +328,37 @@ public class FrameworkServiceComponent {
         /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
          is started */
     }
+
+    private static Comparator<InboundAuthenticationRequestProcessor> inboundRequestProcessor =
+            new Comparator<InboundAuthenticationRequestProcessor>() {
+
+                @Override
+                public int compare(InboundAuthenticationRequestProcessor inboundRequestProcessor1,
+                        InboundAuthenticationRequestProcessor inboundRequestProcessor2) {
+
+                    if (inboundRequestProcessor1.getPriority() > inboundRequestProcessor2.getPriority()) {
+                        return 1;
+                    } else if (inboundRequestProcessor1.getPriority() < inboundRequestProcessor2.getPriority()) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+            };
+    private static Comparator<InboundAuthenticationResponseBuilder> inboundResponseBuilder =
+            new Comparator<InboundAuthenticationResponseBuilder>() {
+
+                @Override
+                public int compare(InboundAuthenticationResponseBuilder inboundResponseBuilder1,
+                        InboundAuthenticationResponseBuilder inboundResponseBuilder2) {
+
+                    if (inboundResponseBuilder1.getPriority() > inboundResponseBuilder2.getPriority()) {
+                        return 1;
+                    } else if (inboundResponseBuilder1.getPriority() < inboundResponseBuilder2.getPriority()) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+            };
 }

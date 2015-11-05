@@ -43,7 +43,7 @@ public class InboundAuthenticationManager {
      * @return Inbound authentication request processor
      */
     private InboundAuthenticationRequestProcessor getInboundRequestProcessor(HttpServletRequest req,
-            HttpServletResponse resp) {
+            HttpServletResponse resp) throws FrameworkException{
         List<InboundAuthenticationRequestProcessor> requestProcessors = FrameworkServiceDataHolder.getInstance()
                 .getInboundRequestProcessors();
 
@@ -56,21 +56,21 @@ public class InboundAuthenticationManager {
     }
 
     private InboundAuthenticationResponseBuilder getInboundResponseBuilder(HttpServletRequest req,
-            HttpServletResponse resp) {
+            HttpServletResponse resp) throws FrameworkException{
         List<InboundAuthenticationResponseBuilder> responseBuilders = FrameworkServiceDataHolder.getInstance()
                 .getInboundResponseBuilders();
 
-        for (InboundAuthenticationResponseBuilder responseBuilder : responseBuilders) {
-            if (responseBuilder.canHandle(req, resp)) {
-                return responseBuilder;
-            }
-        }
+//        for (InboundAuthenticationResponseBuilder responseBuilder : responseBuilders) {
+//            if (responseBuilder.canHandle(req, resp)) {
+//                return responseBuilder;
+//            }
+//        }
         return null;
     }
 
     //buildAuthenticationRequest() new method InboundAutheticationRequest, need to have a different class with can handle, name, priotity to get builder
 
-    public void process(HttpServletRequest req, HttpServletResponse resp) throws FrameworkException {
+    public InboundAuthenticationResponse process(HttpServletRequest req, HttpServletResponse resp) throws FrameworkException {
 
         String sessionDataKey = req.getParameter(FrameworkConstants.SESSION_DATA_KEY);
         if (StringUtils.isEmpty(sessionDataKey)) {
@@ -79,7 +79,7 @@ public class InboundAuthenticationManager {
                 if (log.isDebugEnabled()) {
                     log.debug("Starting to process inbound authentication : " + requestProcessors.getName());
                 }
-                requestProcessors.process(req, resp);
+                return requestProcessors.process(req, resp);
             } else {
                 log.warn("No request processor available for process");
             }
@@ -90,12 +90,12 @@ public class InboundAuthenticationManager {
                 if (log.isDebugEnabled()) {
                     log.debug("Starting to process inbound authentication : " + responseBuilder.getName());
                 }
-                responseBuilder.buildResponse(req, resp, sessionDataKey);
+//                return responseBuilder.buildResponse(req, resp, sessionDataKey);
             } else {
                 log.warn("No response processor available for process");
             }
         }
-
+        return null;
     }
 
     /**
