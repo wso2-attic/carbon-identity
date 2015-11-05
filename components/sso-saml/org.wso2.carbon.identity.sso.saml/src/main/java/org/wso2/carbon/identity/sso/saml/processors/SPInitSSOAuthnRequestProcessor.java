@@ -171,8 +171,10 @@ public class SPInitSSOAuthnRequestProcessor {
                 samlssoRespDTO.setSubject(authnReqDTO.getUser());
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug(samlssoRespDTO.getRespString());
+            if (samlssoRespDTO.getRespString() != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug(samlssoRespDTO.getRespString());
+                }
             }
 
             return samlssoRespDTO;

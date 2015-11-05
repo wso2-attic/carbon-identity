@@ -16,7 +16,7 @@
 ~ under the License.
 -->
 
-<%@page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.apache.axis2.context.ConfigurationContext"%>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
@@ -37,7 +37,8 @@
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
 
-        IdentityProvider identityProvider = IdPManagementUIUtil.buildeFederatedIdentityProvider(request);
+        IdentityProvider identityProvider = IdPManagementUIUtil
+                .buildFederatedIdentityProvider(request, new StringBuilder());
         client.addIdP(identityProvider);
         String message = MessageFormat.format(resourceBundle.getString("success.adding.idp"),null);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
@@ -46,7 +47,7 @@
                 new Object[]{e.getMessage()});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
     } finally {
-        session.removeAttribute("identityProvider");
+        session.removeAttribute("idpUniqueIdMap");
         session.removeAttribute("identityProviderList");
     }
 %>

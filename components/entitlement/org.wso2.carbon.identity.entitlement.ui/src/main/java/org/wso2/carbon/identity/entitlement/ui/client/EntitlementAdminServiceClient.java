@@ -96,14 +96,6 @@ public class EntitlementAdminServiceClient {
      */
     public String getDecision(String request) throws AxisFault {
         try {
-            if (request != null) {
-                request = request.trim().replaceAll("&lt;", "<"); //TODO should be properly fixed
-                request = request.trim().replaceAll("&gt;", ">");
-                request = request.trim().replaceAll("&quot;", "\"");
-                request = request.trim().replaceAll("&#x27;", "'");
-                request = request.trim().replaceAll("&amp;", "&");
-                request = request.trim().replaceAll("&#x2F;", "/");
-            }
             return stub.doTestRequest(request);
         } catch (Exception e) {
             handleException("Error occurred while test policy evaluation", e);
@@ -121,14 +113,6 @@ public class EntitlementAdminServiceClient {
      */
     public String getDecision(String request, String[] policies) throws AxisFault {
         try {
-            if (request != null) {
-                request = request.trim().replaceAll("&lt;", "<"); //TODO should be properly fixed
-                request = request.trim().replaceAll("&gt;", ">");
-                request = request.trim().replaceAll("&quot;", "\"");
-                request = request.trim().replaceAll("&#x27;", "'");
-                request = request.trim().replaceAll("&amp;", "&");
-                request = request.trim().replaceAll("&#x2F;", "/");
-            }
             return stub.doTestRequestForGivenPolicies(request, policies);
         } catch (Exception e) {
             handleException("Error occurred while test policy evaluation", e);
