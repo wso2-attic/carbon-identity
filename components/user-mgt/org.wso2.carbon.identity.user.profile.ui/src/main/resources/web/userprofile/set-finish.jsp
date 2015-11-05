@@ -68,7 +68,7 @@
         UserProfileCient client = new UserProfileCient(cookie, backendServerURL, configContext);    
         
         try {
-        	profileDTO = client.getUserProfile(Util.decodeHTMLCharacters(username),profile);
+        	profileDTO = client.getUserProfile(username,profile);
             if (UserCoreConstants.DEFAULT_PROFILE.equals(profile)||profileDTO!=null && profileDTO.getProfileName()!=null) {
                 String message = resourceBundle.getString("user.profile.with.given.name.exists");
                 CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
@@ -97,7 +97,7 @@
         userprofile.setProfileName(profile);
         userprofile.setFieldValues(fieldDTOs); 
         userprofile.setProfileConifuration(profileConfiguration);
-        client.setUserProfile(Util.decodeHTMLCharacters(username), userprofile);
+        client.setUserProfile(username, userprofile);
         String message = resourceBundle.getString("user.profile.added.successfully");
         CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.INFO, request);
         if ("true".equals(fromUserMgt)) {
