@@ -63,7 +63,7 @@
                 .getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         UserProfileCient client = new UserProfileCient(cookie, backendServerURL,
                 configContext);
-        userProfile = client.getUserProfile(Util.decodeHTMLCharacters(username), profile);
+        userProfile = client.getUserProfile(username, profile);
         
         if ("readonly".equals(userProfile.getProfileConifuration())){
         	readOnlyUserStore = true;

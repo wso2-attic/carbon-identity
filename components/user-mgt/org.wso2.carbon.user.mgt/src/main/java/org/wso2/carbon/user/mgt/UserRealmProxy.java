@@ -893,7 +893,8 @@ public class UserRealmProxy {
                         Arrays.binarySearch(permissions, "/permission/protected") > -1 ||
                         Arrays.binarySearch(permissions, "/permission/protected/") > -1) {
                     log.warn("An attempt to create role with admin permission by user " + loggedInUserName);
-                    throw new UserStoreException("You have not privilege to create a role with Admin permission");
+                    throw new UserStoreException("You do not have the required privilege to create a role with Admin " +
+                            "permission");
                 }
             }
 
@@ -947,7 +948,8 @@ public class UserRealmProxy {
                         Arrays.binarySearch(permissions, "/permission/protected") > -1 ||
                         Arrays.binarySearch(permissions, "/permission/protected/") > -1) {
                     log.warn("An attempt to create role with admin permission by user " + loggedInUserName);
-                    throw new UserStoreException("You have not privilege to create a role with Admin permission");
+                    throw new UserStoreException("You do not have the required privilege to create a role with Admin " +
+                            "permission");
                 }
             }
 
