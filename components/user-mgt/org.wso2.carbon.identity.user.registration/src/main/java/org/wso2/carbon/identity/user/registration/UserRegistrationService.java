@@ -169,13 +169,6 @@ public class UserRegistrationService {
         Registry registry = IdentityTenantUtil.getRegistry(null, null);
         addUser(tenantAwareUserName, user.getPassword(), userClaims, null, realm);
 
-        // OpenId Sign-Up if necessary.
-        if (user.getOpenID() != null) {
-            IdentityPersistenceManager persistentManager = IdentityPersistenceManager
-                    .getPersistanceManager();
-            persistentManager.doOpenIdSignUp(registry, realm, user.getOpenID(), user.getUserName());
-        }
-
     }
 
     public boolean isAddUserEnabled() throws Exception {
