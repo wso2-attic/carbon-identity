@@ -73,14 +73,8 @@
         <OpenIDSkipUserConsent>false</OpenIDSkipUserConsent>
         <!-- Expiry time of the OpenID RememberMe token in minutes -->
         <OpenIDRememberMeExpiry>7200</OpenIDRememberMeExpiry>
-        <!-- Multifactor Authentication configuration -->
-        <UseMultifactorAuthentication>false</UseMultifactorAuthentication>
         <!-- To enable or disable openid dumb mode -->
         <DisableOpenIDDumbMode>false</DisableOpenIDDumbMode>
-        <!-- remember me session timeout in seconds -->
-        <SessionTimeout>36000</SessionTimeout>
-        <!-- skips authentication if valid SAML2 Web SSO browser session available -->
-        <AcceptSAMLSSOLogin>false</AcceptSAMLSSOLogin>
 
         <!--
                OpenID private association store is configurable from following configs.
