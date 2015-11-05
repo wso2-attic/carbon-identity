@@ -119,9 +119,9 @@
                 </thead>
                 <tbody>
 
-                <%
-                        for(String questionSetName :questionSetNames){
-                 %>
+                <% if (questionSetNames.size() > 0) {
+                    for (String questionSetName : questionSetNames) {
+                %>
                 <tr>
                     <td width="60%">
                         <a href="challenges-mgt.jsp?setName=<%=Encode.forUriComponent(questionSetName)%>" ><%=Encode.forHtmlContent(questionSetName)%></a>
@@ -133,7 +133,14 @@
                 </tr>
 
                 <%
-                        }
+                    }
+                } else {
+                %>
+                <tr>
+                    <td colspan="2"><i>No challenges questions set registered</i></td>
+                </tr>
+                <%
+                    }
                 %>
                 </tbody>
             </table>
