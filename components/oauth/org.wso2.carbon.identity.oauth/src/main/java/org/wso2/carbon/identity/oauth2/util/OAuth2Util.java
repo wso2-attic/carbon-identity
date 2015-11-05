@@ -486,12 +486,7 @@ public class OAuth2Util {
     }
 
     public static String hashScopes(String[] scope){
-        if (scope.length > 0){
-            return DigestUtils.md5Hex(OAuth2Util.buildScopeString(scope));
-        } else {
-            return null;
-        }
-
+        return DigestUtils.md5Hex(OAuth2Util.buildScopeString(scope));
     }
 
     public static String hashScopes(String scope){
