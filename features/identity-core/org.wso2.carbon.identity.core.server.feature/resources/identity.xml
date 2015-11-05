@@ -274,10 +274,7 @@
         <SingleLogoutRetryInterval>60000</SingleLogoutRetryInterval>
         <!-- in milli seconds -->
         <TenantPartitioningEnabled>false</TenantPartitioningEnabled>
-        <!-- remember me session timeout in seconds -->
-        <SessionTimeout>36000</SessionTimeout>
         <AttributesClaimDialect>http://wso2.org/claims</AttributesClaimDialect>
-        <AcceptOpenIDLogin>false</AcceptOpenIDLogin>
         <SAMLSSOAssertionBuilder>org.wso2.carbon.identity.sso.saml.builders.assertion.DefaultSAMLAssertionBuilder</SAMLSSOAssertionBuilder>
         <SAMLSSOEncrypter>org.wso2.carbon.identity.sso.saml.builders.encryption.DefaultSSOEncrypter</SAMLSSOEncrypter>
         <SAMLSSOSigner>org.wso2.carbon.identity.sso.saml.builders.signature.DefaultSSOSigner</SAMLSSOSigner>
