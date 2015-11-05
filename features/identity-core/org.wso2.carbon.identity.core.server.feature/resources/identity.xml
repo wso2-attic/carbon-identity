@@ -81,8 +81,6 @@
         <SessionTimeout>36000</SessionTimeout>
         <!-- skips authentication if valid SAML2 Web SSO browser session available -->
         <AcceptSAMLSSOLogin>false</AcceptSAMLSSOLogin>
-        <ClaimsRetrieverImplClass>org.wso2.carbon.identity.provider.openid.claims.DefaultClaimsRetriever
-        </ClaimsRetrieverImplClass>
 
         <!--
                OpenID private association store is configurable from following configs.
