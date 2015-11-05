@@ -569,6 +569,7 @@ public class IdentityMgtConfig {
             className = properties.getProperty(extensionType + "." + count);
             if (className == null) {
                 count++;
+                size--;
                 continue;
             }
             try {
