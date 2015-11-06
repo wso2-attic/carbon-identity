@@ -23,6 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.ldap.server.util.IdentityIOStreamUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -122,15 +123,11 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
 
     protected void unzipSchemaFile()
             throws IOException {
-        FileInputStream schemaFileStream = null;
         ZipInputStream zipFileStream = null;
-        FileOutputStream extractedSchemaFile = null;
-        BufferedOutputStream extractingBufferedStream = null;
 
         try {
-            schemaFileStream = new FileInputStream(this.zipSchemaStore);
-            zipFileStream = new ZipInputStream(new BufferedInputStream(
-                    schemaFileStream));
+            FileInputStream schemaFileStream = new FileInputStream(this.zipSchemaStore);
+            zipFileStream = new ZipInputStream(new BufferedInputStream(schemaFileStream));
             ZipEntry entry;
 
             String basePath = this.schemaDirectory.getAbsolutePath();
@@ -141,7 +138,7 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
                     File newDirectory = new File(basePath, entry.getName());
                     if (!newDirectory.mkdir()) {
                         throw new IOException("Unable to create directory - " +
-                                newDirectory.getAbsolutePath());
+                                              newDirectory.getAbsolutePath());
                     }
                     continue;
                 }
@@ -149,11 +146,16 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
                 int size;
                 byte[] buffer = new byte[2048];
 
-                extractedSchemaFile = new FileOutputStream(new File(basePath, entry.getName()));
-                extractingBufferedStream =new BufferedOutputStream(extractedSchemaFile, buffer.length);
-
-                while ((size = zipFileStream.read(buffer, 0, buffer.length)) != -1) {
-                    extractingBufferedStream.write(buffer, 0, size);
+                FileOutputStream extractedSchemaFile = new FileOutputStream(
+                        new File(basePath, entry.getName()));
+                BufferedOutputStream extractingBufferedStream =
+                        new BufferedOutputStream(extractedSchemaFile, buffer.length);
+                try {
+                    while ((size = zipFileStream.read(buffer, 0, buffer.length)) != -1) {
+                        extractingBufferedStream.write(buffer, 0, size);
+                    }
+                } finally {
+                    IdentityIOStreamUtils.closeOutputStream(extractingBufferedStream);
                 }
             }
         } catch (IOException e) {
@@ -162,9 +164,8 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
                     this.zipSchemaStore.getAbsolutePath();
             logger.error(msg, e);
             throw new IOException(msg, e);
-        } finally {
-            org.wso2.carbon.server.util.FileUtils.closeQuietly(zipFileStream);
-            org.wso2.carbon.server.util.FileUtils.closeQuietly(extractingBufferedStream);
+        }finally{
+            IdentityIOStreamUtils.closeInputStream(zipFileStream);
         }
 
         if (logger.isDebugEnabled()) {
