@@ -62,9 +62,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.SocketException;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -298,7 +296,7 @@ public class IdentityUtil {
 
         String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
                 .PROXY_CONTEXT_PATH);
-        if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()) {
+        if (StringUtils.isNotBlank(proxyContextPath)) {
             if (!serverUrl.toString().endsWith("/") && proxyContextPath.trim().charAt(0) != '/') {
                 serverUrl.append("/").append(proxyContextPath.trim());
             } else if (serverUrl.toString().endsWith("/") && proxyContextPath.trim().charAt(0) == '/') {
@@ -329,6 +327,9 @@ public class IdentityUtil {
             } else {
                 serverUrl.append(endpoint.trim());
             }
+        }
+        if (serverUrl.toString().endsWith("/")) {
+            serverUrl.deleteCharAt(serverUrl.length() - 1);
         }
         return serverUrl.toString();
     }
