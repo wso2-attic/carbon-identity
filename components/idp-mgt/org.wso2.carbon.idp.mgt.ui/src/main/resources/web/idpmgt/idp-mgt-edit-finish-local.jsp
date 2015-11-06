@@ -57,7 +57,7 @@
         if (destinationUrls != null && destinationUrls.length > 0) {
             for (int destinationCount = 1; destinationCount <= destinationUrls.length; destinationCount++) {
                 property = new Property();
-                property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.DESTINATION_URL_PREFIX + "_" + destinationCount);
+                property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.DESTINATION_URL_PREFIX + IdentityApplicationConstants.MULTIVALUED_PROPERTY_CHARACTER + destinationCount);
                 property.setValue(destinationUrls[destinationCount-1]);
                 properties[destinationCount] = property;
             }
