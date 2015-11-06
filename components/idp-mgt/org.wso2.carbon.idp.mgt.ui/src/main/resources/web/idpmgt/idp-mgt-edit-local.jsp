@@ -376,7 +376,7 @@ jQuery(document).ready(function(){
                                                 } else {
                                                     destinationURLsBuilder.append(destinationURL.getValue());
                                                 }
-                                        String id = StringUtils.replace(destinationURL.getName(),IdentityApplicationConstants.MULTIVALUED_PROPERTY_CHARACTER,"_");
+                                                String id = StringUtils.replace(destinationURL.getName(), IdentityApplicationConstants.MULTIVALUED_PROPERTY_CHARACTER, "_");
                                     %>
                                     <tr id="<%=Encode.forHtmlAttribute(id)%>">
                                         <td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">
