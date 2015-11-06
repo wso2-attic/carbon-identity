@@ -289,25 +289,22 @@ public class IdentityUtil {
         if (mgtTransportPort <= 0) {
             mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
         }
-        String serverUrl = mgtTransport + "://" + hostName.toLowerCase();
+        StringBuilder serverUrl = new StringBuilder(mgtTransport + "://" + hostName.toLowerCase());
         // If it's well known HTTPS port, skip adding port
         if (mgtTransportPort != IdentityCoreConstants.DEFAULT_HTTPS_PORT) {
-            serverUrl += ":" + mgtTransportPort;
+            serverUrl.append(":").append(mgtTransportPort);
         }
         // If ProxyContextPath is defined then append it
-        URL serverUri = null;
-        try {
-            serverUri = new URL(serverUrl);
-        } catch (MalformedURLException e) {
-            throw new IdentityRuntimeException("Error while getting server URL.", e);
-        }
+
         String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
                 .PROXY_CONTEXT_PATH);
         if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()) {
-            try {
-                serverUri = new URL(serverUri, proxyContextPath);
-            } catch (MalformedURLException e) {
-                throw new IdentityRuntimeException("Error while appending proxy context path to server url.", e);
+            if (!serverUrl.toString().endsWith("/") && proxyContextPath.trim().charAt(0) != '/') {
+                serverUrl.append("/").append(proxyContextPath.trim());
+            } else if (serverUrl.toString().endsWith("/") && proxyContextPath.trim().charAt(0) == '/') {
+                serverUrl.append(proxyContextPath.trim().substring(1));
+            } else {
+                serverUrl.append(proxyContextPath.trim());
             }
         }
         // If webContextRoot is defined then append it
@@ -315,21 +312,25 @@ public class IdentityUtil {
             String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
                     .WEB_CONTEXT_ROOT);
             if (StringUtils.isNotBlank(webContextRoot)) {
-                try {
-                    serverUri = new URL(serverUri, webContextRoot);
-                } catch (MalformedURLException e) {
-                    throw new IdentityRuntimeException("Error while appending web context root to server url.", e);
+                if (!serverUrl.toString().endsWith("/") && webContextRoot.trim().charAt(0) != '/') {
+                    serverUrl.append("/").append(webContextRoot.trim());
+                } else if (serverUrl.toString().endsWith("/") && webContextRoot.trim().charAt(0) == '/') {
+                    serverUrl.append(webContextRoot.trim().substring(1));
+                } else {
+                    serverUrl.append(webContextRoot.trim());
                 }
             }
         }
         if (StringUtils.isNotBlank(endpoint)) {
-            try {
-                serverUri = new URL(serverUri, endpoint);
-            } catch (MalformedURLException e) {
-                throw new IdentityRuntimeException("Error while appending endpoint to server url.", e);
+            if (!serverUrl.toString().endsWith("/") && endpoint.trim().charAt(0) != '/') {
+                serverUrl.append("/").append(endpoint.trim());
+            } else if (serverUrl.toString().endsWith("/") && endpoint.trim().charAt(0) == '/') {
+                serverUrl.append(endpoint.trim().substring(1));
+            } else {
+                serverUrl.append(endpoint.trim());
             }
         }
-        return serverUri.toString();
+        return serverUrl.toString();
     }
 
     /**
