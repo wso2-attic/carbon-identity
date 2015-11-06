@@ -124,7 +124,7 @@
                         <tr>
                             <td colspan="3"><i><fmt:message key='no.idp'/></i></td>
                         </tr>
-                    <% }%>
+                    <% } %>
                 </tbody>
             </table>
             </div>
