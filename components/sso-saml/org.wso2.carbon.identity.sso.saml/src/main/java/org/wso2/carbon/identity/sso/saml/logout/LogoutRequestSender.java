@@ -189,7 +189,9 @@ public class LogoutRequestSender {
                 HttpPost httpPost = new HttpPost(logoutReqDTO.getAssertionConsumerURL());
                 httpPost.setEntity(entity);
                 httpPost.addHeader("Cookie", "JSESSIONID=" + logoutReqDTO.getRpSessionId());
-                httpPost.addHeader("SOAPAction", soapAction);
+                if (isSAMLSOAPBindingEnabled) {
+                    httpPost.addHeader("SOAPAction", soapAction);
+                }
                 TrustManager easyTrustManager = new X509TrustManager() {
 
                     @Override
