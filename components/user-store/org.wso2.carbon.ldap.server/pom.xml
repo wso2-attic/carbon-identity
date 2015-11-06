@@ -119,11 +119,6 @@
             <groupId>org.apache.directory.server</groupId>
         </dependency>
 
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.server</artifactId>
-        </dependency>
-
     </dependencies>
 
 </project>

@@ -21,7 +21,6 @@ package org.wso2.carbon.security.util;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.server.util.FileUtils;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.WSO2Constants;
 
@@ -68,7 +67,7 @@ public class KeyStoreMgtUtil {
                 log.error(msg);
                 throw new SecurityException("msg", e);
             } finally {
-                FileUtils.closeQuietly(outStream);
+                IdentityIOStreamUtils.closeOutputStream(outStream);
             }
 
             Map fileResourcesMap = (Map) configurationContext.getProperty(WSO2Constants.FILE_RESOURCE_MAP);
