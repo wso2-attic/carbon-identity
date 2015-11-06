@@ -35,7 +35,6 @@ public class Property implements Serializable {
     private boolean required;
     private String description;
     private String type;
-    private int displayOrder;
 
     public Property() {
 
@@ -78,9 +77,8 @@ public class Property implements Serializable {
                 }
             } else if ("Description".equals(elementName)) {
                 property.setDescription(element.getText());
-            } else if ("DisplayOrder".equals(elementName)) {
-                property.setDisplayOrder(Integer.parseInt(element.getText()));
             }
+
         }
 
         return property;
@@ -196,14 +194,6 @@ public class Property implements Serializable {
      */
     public void setType(String type) {
         this.type = type;
-    }
-
-    public int getDisplayOrder() {
-        return displayOrder;
-    }
-
-    public void setDisplayOrder(int displayOrder) {
-        this.displayOrder = displayOrder;
     }
 
     @Override
