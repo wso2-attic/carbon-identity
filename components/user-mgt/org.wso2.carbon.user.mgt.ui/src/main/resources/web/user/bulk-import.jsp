@@ -28,6 +28,9 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
 
 <script type="text/javascript" src="extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -41,6 +44,7 @@
     <%
         UserRealmInfo userRealmInfo = null;
         UserStoreInfo userStoreInfo = null;
+        List<String> bulkImportSupportedUserStoreDomains = new ArrayList<String>();
         try {
 
             userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
@@ -55,6 +59,13 @@
             }
 
             userStoreInfo = userRealmInfo.getPrimaryUserStoreInfo(); // Bulk import enable when only one user store
+
+            UserStoreInfo[] userStoreInfos = userRealmInfo.getUserStoresInfo();
+            for(UserStoreInfo info : userStoreInfos) {
+                if(info.getBulkImportSupported()) {
+                    bulkImportSupportedUserStoreDomains.add(info.getDomainName());
+                }
+            }
 
         } catch (Exception e) {
             CarbonUIMessage uiMsg = new CarbonUIMessage(e.getMessage(), CarbonUIMessage.ERROR, e);
@@ -132,6 +143,34 @@
                     <tr>
                         <td class="formRaw">
                             <table class="normal">
+                                <tr>
+                                <%
+                                    if (CollectionUtils.isNotEmpty(bulkImportSupportedUserStoreDomains)) {
+                                %>
+                                <tr>
+                                    <td><fmt:message key="select.userStore"/></td>
+                                    <td colspan="2"><select id="userStore" name="userStore">
+                                        <%
+                                            for (String userStoreDomain : bulkImportSupportedUserStoreDomains) {
+
+                                        %>
+
+                                        <option value="<%=Encode.forHtmlAttribute(userStoreDomain)%>">
+                                            <%=Encode.forHtmlContent(userStoreDomain)%>
+                                        </option>
+                                        <%
+                                                }
+
+                                        %>
+                                    </select>
+                                    </td>
+                                </tr>
+                                <%
+                                    }
+                                %>
+
+
+                                </tr>
                                 <tr>
                                     <td><fmt:message key="users.file"/><font color="red">*</font>
                                     </td>

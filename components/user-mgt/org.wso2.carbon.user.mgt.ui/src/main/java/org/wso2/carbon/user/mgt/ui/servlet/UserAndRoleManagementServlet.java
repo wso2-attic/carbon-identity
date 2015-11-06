@@ -58,6 +58,7 @@ import java.util.ResourceBundle;
 public class UserAndRoleManagementServlet extends HttpServlet {
 
     private static final Log log = LogFactory.getLog(UserAndRoleManagementServlet.class);
+    private static final String PERMISSION_VIEWTASKS = "/permission/admin/manage/humantask/viewtasks";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -219,9 +220,11 @@ public class UserAndRoleManagementServlet extends HttpServlet {
                             ClaimValue claimValue = new ClaimValue();
                             claimValue.setClaimURI(claimUri);
                             claimValue.setValue(modifiedFilter);
-                            datas = client.listUserByClaim(claimValue, userDomainSelector, -1);
+                            datas = client.listUserByClaimWithPermission(claimValue, userDomainSelector,
+                                    PERMISSION_VIEWTASKS, -1);
                         } else {
-                            datas = client.listAllUsers(modifiedFilter, -1);
+                            datas = client.listAllUsersWithPermission(modifiedFilter,
+                                    PERMISSION_VIEWTASKS, -1);
                         }
                         List<FlaggedName> dataList = new ArrayList<>(Arrays.asList(datas));
                         exceededDomains = dataList.remove(dataList.size() - 1);
@@ -400,7 +403,8 @@ public class UserAndRoleManagementServlet extends HttpServlet {
                     session.setAttribute(UserAdminUIConstants.SHARED_ROLE_ENABLED, sharedRoleEnabled);
 
                     if (filter.length() > 0) {
-                        FlaggedName[] datas = client.getAllRolesNames(modifiedFilter, -1);
+                        FlaggedName[] datas = client.getAllPermittedRoleNames(modifiedFilter,
+                                PERMISSION_VIEWTASKS, -1);
                         datasList = new ArrayList<FlaggedName>(Arrays.asList(datas));
                         exceededDomains = datasList.remove(datasList.size() - 1);
                         session.setAttribute(UserAdminUIConstants.ROLE_LIST_CACHE_EXCEEDED, exceededDomains);

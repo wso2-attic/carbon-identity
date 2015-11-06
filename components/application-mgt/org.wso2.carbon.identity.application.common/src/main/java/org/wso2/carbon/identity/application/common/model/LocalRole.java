@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.Serializable;
@@ -48,7 +49,7 @@ public class LocalRole implements Serializable {
     }
 
     public LocalRole(String combinedRoleName) {
-        this.userStoreId = UserCoreUtil.extractDomainFromName(combinedRoleName);
+        this.userStoreId = IdentityUtil.extractDomainFromName(combinedRoleName);
         this.localRoleName = UserCoreUtil.removeDomainFromName(combinedRoleName);
     }
 

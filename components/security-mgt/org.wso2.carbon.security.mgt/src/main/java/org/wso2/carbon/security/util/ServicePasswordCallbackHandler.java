@@ -35,9 +35,11 @@ import org.wso2.carbon.security.SecurityConfigParams;
 import org.wso2.carbon.security.SecurityConstants;
 import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.security.UserCredentialRetriever;
+import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -121,7 +123,7 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                             // Additionally, secondary user stores needs to implement UserCredentialRetriever interface too
                             UserCredentialRetriever userCredentialRetriever;
                             String storedPassword = null;
-                            String domainName = UserCoreUtil.extractDomainFromName(username);
+                            String domainName = extractDomainFromName(username);
                             if (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domainName)) {
                                 if (realm.getUserStoreManager() instanceof UserCredentialRetriever) {
                                     userCredentialRetriever = (UserCredentialRetriever) realm.getUserStoreManager();
@@ -195,6 +197,25 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
         }
     }
 
+    private String extractDomainFromName(String nameWithDomain){
+        int tenantId = -1234;
+        if(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)>0){
+            String domain = nameWithDomain.split(UserCoreConstants.DOMAIN_SEPARATOR)[1];
+            return domain.toUpperCase();
+        } else {
+            try {
+                RealmConfiguration realmConfiguration = (RealmConfiguration) UserStoreMgtDSComponent.getRealmService().getTenantUserRealm
+                        (tenantId);
+                if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)==null){
+                    return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                } else {
+                    return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+            }
+        }
+    }
     private String getServicePrincipalPassword()
             throws SecurityConfigException {
 

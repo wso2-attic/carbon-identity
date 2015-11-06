@@ -27,6 +27,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil" %>
+<%@ page import="org.apache.tools.ant.util.StringUtils" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
 
@@ -70,7 +71,7 @@
                     IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL).getValue();
             samlSLOUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL).getValue();
-            destinationURLList = IdentityApplicationManagementUtil.getPropertySetStartsWith(properties, IdentityApplicationConstants
+            destinationURLList = IdPManagementUIUtil.getPropertySetStartsWith(properties, IdentityApplicationConstants
                     .Authenticator.SAML2SSO.DESTINATION_URL_PREFIX);
             if (destinationURLList.size() == 0){
                 destinationURLList.add(IdPManagementUIUtil.getProperty(properties,
@@ -375,15 +376,15 @@ jQuery(document).ready(function(){
                                                 } else {
                                                     destinationURLsBuilder.append(destinationURL.getValue());
                                                 }
-
+                                                String id = StringUtils.replace(destinationURL.getName(), IdentityApplicationConstants.MULTIVALUED_PROPERTY_CHARACTER, "_");
                                     %>
-                                    <tr id="<%=destinationURL.getName()%>">
+                                    <tr id="<%=Encode.forHtmlAttribute(id)%>">
                                         <td style="padding-left: 15px !important; color: rgb(119, 119, 119);font-style: italic;">
                                             <%=Encode.forHtml(destinationURL.getValue())%>
                                         </td>
                                         <td>
                                             <a onclick="removeDestinationURL('<%=Encode.forJavaScriptAttribute(destinationURL.getValue())%>',
-                                                    '<%=destinationURL.getName()%>');return false;"
+                                                    '<%=Encode.forJavaScriptAttribute(id)%>');return false;"
                                                href="#" class="icon-link"
                                                style="background-image: url(../admin/images/delete.gif)">
                                                 Delete

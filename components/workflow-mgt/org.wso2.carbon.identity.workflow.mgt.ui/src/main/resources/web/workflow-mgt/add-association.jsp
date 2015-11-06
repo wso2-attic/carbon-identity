@@ -44,6 +44,7 @@
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
+
 <%
     String wizard = request.getParameter("wizard");
     String forwardTo = null;
@@ -381,7 +382,19 @@
             form_add_association.submit();
         }
 
+        window.onload = function () {
+            enableOnOperationSel();
+        }
 
+        function enableOnOperationSel() {
+            <%
+                if(association != null && StringUtils.isNotBlank(association.getEventName())){
+            %>
+            $(".enableOnOperationSel").prop('disabled', false);
+            <%
+                }
+            %>
+        }
     </script>
 
     <div id="middle">
