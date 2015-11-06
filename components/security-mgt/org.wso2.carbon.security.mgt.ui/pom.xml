@@ -60,10 +60,6 @@
             <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
             <artifactId>encoder</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.server</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
