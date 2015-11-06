@@ -473,23 +473,39 @@ public class IdentityUtil {
         return Integer.parseInt(cleanUpPeriod);
     }
 
-    public static String extractDomainFromName(String nameWithDomain){
+    public static String extractDomainFromName(String nameWithDomain) {
         int tenantId = -1234;
-        if(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)>0){
+        if (nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > 0) {
             String domain = nameWithDomain.split(UserCoreConstants.DOMAIN_SEPARATOR)[1];
             return domain.toUpperCase();
         } else {
             try {
-                RealmConfiguration realmConfiguration = (RealmConfiguration) UserStoreMgtDSComponent.getRealmService().getTenantUserRealm
-                        (tenantId);
-                if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)==null){
-                    return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                RealmConfiguration realmConfiguration = (RealmConfiguration) UserStoreMgtDSComponent.getRealmService()
+                        .getTenantUserRealm(tenantId);
+                if (realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME) == null) {
+                    return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)
+                            .toUpperCase();
                 } else {
                     return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
                 }
             } catch (UserStoreException e) {
                 return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
+        }
+    }
+
+    public static String getPrimaryDomainName() {
+        try {
+            RealmConfiguration realmConfiguration = (RealmConfiguration) UserStoreMgtDSComponent.getRealmService()
+                    .getTenantUserRealm(-1234);
+            if (realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME) == null) {
+                return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)
+                        .toUpperCase();
+            } else {
+                return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+            }
+        } catch (UserStoreException e) {
+            return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
     }
 }

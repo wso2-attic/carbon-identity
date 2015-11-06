@@ -207,7 +207,8 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                 RealmConfiguration realmConfiguration = (RealmConfiguration) UserStoreMgtDSComponent.getRealmService().getTenantUserRealm
                         (tenantId);
                 if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)==null){
-                    return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                    return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)
+                            .toUpperCase();
                 } else {
                     return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
                 }
