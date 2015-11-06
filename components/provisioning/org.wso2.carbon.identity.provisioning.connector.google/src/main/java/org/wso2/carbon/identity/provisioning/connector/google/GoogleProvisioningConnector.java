@@ -204,9 +204,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
             User newUser = new User();
 
             newUser = buildGoogleUser(provisioningEntity);
-            if (isDebugEnabled) {
-                log.debug("New google user to be created : " + newUser.toPrettyString());
-            }
 
             Directory.Users.Insert request = getDirectoryService().users().insert(newUser);
             createdUser = request.execute();
@@ -482,7 +479,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         username.setFamilyName(familyNameValue);
 
         newUser.setName(username);
-        newUser.setPassword(generatePassword());
 
         //set primary email
         if (log.isDebugEnabled()) {
@@ -490,6 +486,16 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         }
         newUser.setPrimaryEmail(userId);
 
+
+        if (log.isDebugEnabled()) {
+            try {
+                log.debug("Building Google user : " + newUser.toPrettyString());
+            } catch (IOException e) {
+                log.debug("Building Google user : " + newUser.toString());
+            }
+        }
+
+        newUser.setPassword(generatePassword());
         return newUser;
     }
 
