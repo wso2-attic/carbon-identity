@@ -33,6 +33,7 @@ import org.apache.tools.ant.util.FileUtils;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.identity.user.store.configuration.deployer.exception.UserStoreConfigurationDeployerException;
 import org.wso2.carbon.identity.user.store.configuration.deployer.internal.UserStoreConfigComponent;
+import org.wso2.carbon.identity.user.store.configuration.deployer.util.IdentityIOStreamUtils;
 import org.wso2.carbon.identity.user.store.configuration.deployer.util.UserStoreConfigurationConstants;
 import org.wso2.carbon.identity.user.store.configuration.deployer.util.UserStoreUtil;
 import org.wso2.carbon.user.api.Property;
@@ -158,7 +159,7 @@ public class UserStoreConfigurationDeployer extends AbstractDeployer {
                     String errMsg = "Error while initializing key store";
                     throw new DeploymentException(errMsg, e);
                 } finally {
-                    org.wso2.carbon.server.util.FileUtils.closeQuietly(outputStream);
+                    IdentityIOStreamUtils.closeOutputStream(outputStream);
                 }
             }
 
