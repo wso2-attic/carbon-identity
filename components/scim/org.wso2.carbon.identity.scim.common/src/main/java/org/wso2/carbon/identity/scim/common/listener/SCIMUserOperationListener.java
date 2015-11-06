@@ -396,8 +396,8 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
             if (domainName == null) {
                 domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
-            String roleNameWithDomain = UserCoreUtil.addDomainToName(roleName, domainName.toUpperCase());
-            String newRoleNameWithDomain = UserCoreUtil.addDomainToName(newRoleName, domainName.toUpperCase());
+            String roleNameWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + roleName;
+            String newRoleNameWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + newRoleName;
             try {
                 scimGroupHandler.updateRoleName(roleNameWithDomain, newRoleNameWithDomain);
 
