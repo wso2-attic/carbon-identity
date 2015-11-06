@@ -137,7 +137,8 @@
             } else if (question == null || question == ""){
                 CARBON. showErrorDialog('Please enter a valid security question', null, null);
             } else {
-                location.href= 'challenges-mgt.jsp?addRowId=' + question + '&setName=' + setName;
+                location.href= 'challenges-mgt.jsp?addRowId=' + encodeURIComponent(question) + '&setName=' +
+                        encodeURIComponent(setName);
             }
             
         }
