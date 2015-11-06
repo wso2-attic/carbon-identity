@@ -32,6 +32,8 @@ import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioning
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import org.wso2.carbon.identity.provisioning.OutboundProvisioningManager;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
@@ -352,7 +354,7 @@ public class SCIMUserManager implements UserManager {
                     String userStoreDomainFromSP = getUserStoreDomainFromSP();
                     User oldUser = this.getUser(user.getId());
                     if (userStoreDomainFromSP != null && !userStoreDomainFromSP
-                            .equalsIgnoreCase(UserCoreUtil.extractDomainFromName(oldUser.getUserName()))) {
+                            .equalsIgnoreCase(IdentityUtil.extractDomainFromName(oldUser.getUserName()))) {
                         throw new CharonException("User :" + oldUser.getUserName() + "is not belong to user store " +
                                                   userStoreDomainFromSP + "Hence user updating fail");
                     }
@@ -430,26 +432,27 @@ public class SCIMUserManager implements UserManager {
         try {
             String userStoreDomainFromSP = getUserStoreDomainFromSP();
             if (userStoreDomainFromSP != null &&
-                !userStoreDomainFromSP.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(oldUser.getUserName()))) {
+                !userStoreDomainFromSP.equalsIgnoreCase(IdentityUtil.extractDomainFromName(oldUser.getUserName()))) {
                 throw new CharonException("User :" + oldUser.getUserName() + "is not belong to user store " +
                                           userStoreDomainFromSP + "Hence user updating fail");
             }
         } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Error retrieving User Store name. ", e);
         }
+
         try {
                 /*set thread local property to signal the downstream SCIMUserOperationListener
                 about the provisioning route.*/
                 SCIMCommonUtils.setThreadLocalIsManagedThroughSCIMEP(true);
                 //get user claim values
                 Map<String, String> claims = AttributeMapper.getClaimsMap(newUser);
-                if (UserCoreUtil.extractDomainFromName(newUser.getUserName())
+                if (IdentityUtil.extractDomainFromName(newUser.getUserName())
                                 .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) &&
-                    !(UserCoreUtil.extractDomainFromName(oldUser.getUserName())
+                    !(IdentityUtil.extractDomainFromName(oldUser.getUserName())
                                   .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
                     newUser.setUserName(
                             UserCoreUtil.addDomainToName(newUser.getUserName(),
-                                                         UserCoreUtil.extractDomainFromName(oldUser.getUserName())));
+                                                         IdentityUtil.extractDomainFromName(oldUser.getUserName())));
                 }
 
                 //check if username of the updating user existing in the userStore.
@@ -527,7 +530,7 @@ public class SCIMUserManager implements UserManager {
                     throw new NotFoundException();
                 } else if (userStoreDomainFromSP != null &&
                            !(userStoreDomainFromSP
-                                   .equalsIgnoreCase(UserCoreUtil.extractDomainFromName(userNames[0])))) {
+                                   .equalsIgnoreCase(IdentityUtil.extractDomainFromName(userNames[0])))) {
                     throw new CharonException("User :" + userNames[0] + "is not belong to user store " +
                                               userStoreDomainFromSP + "Hence user updating fail");
                 } else {
@@ -566,13 +569,10 @@ public class SCIMUserManager implements UserManager {
                         domainName = getUserStoreDomainFromSP();
                         roleNameWithDomain = UserCoreUtil
                                 .addDomainToName(UserCoreUtil.removeDomainFromName(originalName), domainName);
-                    } else if (originalName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
-                        roleNameWithDomain = originalName;
-                        domainName = originalName.split(UserCoreConstants.DOMAIN_SEPARATOR)[0];
                     } else {
-                        roleNameWithDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME +
-                                             CarbonConstants.DOMAIN_SEPARATOR + originalName;
-                        domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+                        domainName = IdentityUtil.extractDomainFromName(originalName);
+                        String nameWithoutDomain = UserCoreUtil.removeDomainFromName(originalName);
+                        roleNameWithDomain = UserCoreUtil.addDomainToName(nameWithoutDomain, domainName);
                     }
                 } catch (IdentityApplicationManagementException e) {
                     throw new CharonException("Error retrieving User Store name. ", e);
@@ -794,22 +794,22 @@ public class SCIMUserManager implements UserManager {
         try {
             String userStoreDomainFromSP = getUserStoreDomainFromSP();
             if(userStoreDomainFromSP != null && !userStoreDomainFromSP.equalsIgnoreCase(
-                    UserCoreUtil.extractDomainFromName(oldGroup.getDisplayName()))){
+                    IdentityUtil.extractDomainFromName(oldGroup.getDisplayName()))){
                 throw new CharonException("Group :" + oldGroup.getDisplayName() + "is not belong to user store " +
                                           userStoreDomainFromSP + "Hence group updating fail");
             }
         } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Error retrieving User Store name. ", e);
         }
-        oldGroup.setDisplayName(UserCoreUtil
-                                        .addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()),
-                                                         UserCoreUtil
-                                                                 .extractDomainFromName(oldGroup.getDisplayName())));
-        if (UserCoreUtil.extractDomainFromName(newGroup.getDisplayName())
-                        .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) &&
-            !(UserCoreUtil.extractDomainFromName(oldGroup.getDisplayName())
-                          .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
-            String userStoreDomain = UserCoreUtil.extractDomainFromName(oldGroup.getDisplayName());
+
+        oldGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()
+        ), IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
+
+        String primaryDomain = IdentityUtil.getPrimaryDomainName();
+        if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName()).equals(primaryDomain) && !(IdentityUtil
+                .extractDomainFromName(oldGroup.getDisplayName())
+                .equals(primaryDomain))) {
+            String userStoreDomain = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName());
             newGroup.setDisplayName(UserCoreUtil.addDomainToName(newGroup.getDisplayName(), userStoreDomain));
             if (newGroup.getMembers() != null && !(newGroup.getMembers().isEmpty())) {
                 newGroup = addDomainToUserMembers(newGroup, userStoreDomain);
@@ -841,15 +841,15 @@ public class SCIMUserManager implements UserManager {
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
 
                 String groupName = newGroup.getDisplayName();
-                String userStoreDomainForGroup = UserCoreUtil.extractDomainFromName(groupName);
+                String userStoreDomainForGroup = IdentityUtil.extractDomainFromName(groupName);
                 /* compare user store domain of group and user store domain of user name , if there is a mismatch do not
                  update the group */
                 if (userDisplayNames != null && userDisplayNames.size() > 0) {
                     for (String userDisplayName : userDisplayNames) {
                         String userStoreDomainForUser =
-                                UserCoreUtil.extractDomainFromName(userDisplayName);
-                        if (!(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForGroup)) &&
-                                (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForUser))) {
+                                IdentityUtil.extractDomainFromName(userDisplayName);
+                        if (!(primaryDomain.equals(userStoreDomainForGroup)) &&
+                                (primaryDomain.equals(userStoreDomainForUser))) {
                             throw new IdentitySCIMException(
                                     "User store domain is not indicated for user :" + userDisplayName);
                         }
@@ -964,22 +964,23 @@ public class SCIMUserManager implements UserManager {
             this.provision(ProvisioningOperation.PATCH, newGroup);
             return newGroup;
         }
+        String primaryDomain = IdentityUtil.getPrimaryDomainName();
         try {
             String userStoreDomainFromSP = getUserStoreDomainFromSP();
             if (userStoreDomainFromSP != null && !userStoreDomainFromSP
-                    .equalsIgnoreCase(UserCoreUtil.extractDomainFromName(oldGroup.getDisplayName()))) {
+                    .equalsIgnoreCase(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName()))) {
                 throw new CharonException("Group :" + oldGroup.getDisplayName() + "is not belong to user store " +
                                           userStoreDomainFromSP + "Hence group updating fail");
             }
         } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Error retrieving User Store name. ", e);
         }
-        oldGroup.setDisplayName(UserCoreUtil
-                                        .addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()),
-                                                         UserCoreUtil
-                                                                 .extractDomainFromName(oldGroup.getDisplayName())));
 
-            if (log.isDebugEnabled()) {
+        oldGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup
+                .getDisplayName()), IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
+
+
+        if (log.isDebugEnabled()) {
                 log.debug("Updating group: " + oldGroup.getDisplayName());//add from group new name
             }
 
@@ -1045,12 +1046,11 @@ public class SCIMUserManager implements UserManager {
                         }
                     }
                 }
-
-                if (UserCoreUtil.extractDomainFromName(newGroup.getDisplayName())
-                                .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) &&
-                    !(UserCoreUtil.extractDomainFromName(oldGroup.getDisplayName())
-                                  .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
-                    String userStoreDomain = UserCoreUtil.extractDomainFromName(oldGroup.getDisplayName());
+                if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName())
+                                .equals(primaryDomain) &&
+                    !(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())
+                                  .equals(primaryDomain))) {
+                    String userStoreDomain = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName());
                     newGroup.setDisplayName(
                             UserCoreUtil.addDomainToName(newGroup.getDisplayName(), userStoreDomain));
                     if (newGroup.getMembers() != null && !newGroup.getMembers().isEmpty()) {
@@ -1072,8 +1072,10 @@ public class SCIMUserManager implements UserManager {
 
                 //SCIM request does not have operation attribute for new members need be added hence parsing null
                 List<String> addRequestedMembers = newGroup.getMembersWithDisplayName(null);
+                //List<String> addRequestMembersUpperCaseDomain = new ArrayList<>();
                 List<String> deleteRequestedMembers =
                         newGroup.getMembersWithDisplayName(SCIMConstants.CommonSchemaConstants.OPERATION_DELETE);
+                //List<String> deleteRequestMembersUpperCaseDomain = new ArrayList<>();
 
                 int noOfAddedMembers = addRequestedMembers.size();
                 int noOfDeletedMembers = deleteRequestedMembers.size();
@@ -1199,7 +1201,7 @@ public class SCIMUserManager implements UserManager {
                         throw new CharonException("Error retrieving User Store name. ", e);
                     }
                     if (userStoreDomainFromSP != null &&
-                        !(userStoreDomainFromSP.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(groupName)))) {
+                        !(userStoreDomainFromSP.equalsIgnoreCase(IdentityUtil.extractDomainFromName(groupName)))) {
                         throw new CharonException("Group :" + groupName + "is not belong to user store " +
                                                   userStoreDomainFromSP + "Hence group updating fail");
                     }
