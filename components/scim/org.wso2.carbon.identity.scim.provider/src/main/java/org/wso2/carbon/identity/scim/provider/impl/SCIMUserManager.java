@@ -1078,14 +1078,14 @@ public class SCIMUserManager implements UserManager {
                 int noOfAddedMembers = addRequestedMembers.size();
                 int noOfDeletedMembers = deleteRequestedMembers.size();
 
-                for(int i=0; i< noOfAddedMembers; i++) {
+                for (int i = 0; i < noOfAddedMembers; i++) {
                     String addRequestMemberUpperCaseDomain = UserCoreUtil
                             .addDomainToName(UserCoreUtil.removeDomainFromName(addRequestedMembers.get(i)),
                                     UserCoreUtil.extractDomainFromName(addRequestedMembers.get(i)));
                     addRequestedMembers.add(addRequestMemberUpperCaseDomain);
                 }
 
-                for(int i=0; i< noOfDeletedMembers; i++) {
+                for (int i = 0; i < noOfDeletedMembers; i++) {
                     String deleteRequestMemberUpperCaseDomain = UserCoreUtil
                             .addDomainToName(UserCoreUtil.removeDomainFromName(deleteRequestedMembers.get(i)),
                                     UserCoreUtil.extractDomainFromName(deleteRequestedMembers.get(i)));
@@ -1130,14 +1130,14 @@ public class SCIMUserManager implements UserManager {
                     deletedMembers = Arrays.asList(users);
                 }
 
-                for (int i=noOfAddedMembers; i< addRequestedMembers.size(); i++) {
+                for (int i = noOfAddedMembers; i < addRequestedMembers.size(); i++) {
                     if ((!oldMembers.isEmpty()) && oldMembers.contains(addRequestedMembers.get(i))) {
                         continue;
                     }
                     addedMembers.add(addRequestedMembers.get(i));
                 }
 
-                for (int i = noOfDeletedMembers; i< deleteRequestedMembers.size(); i++) {
+                for (int i = noOfDeletedMembers; i < deleteRequestedMembers.size(); i++) {
                     if ((!oldMembers.isEmpty()) && oldMembers.contains(deleteRequestedMembers.get(i))) {
                         deletedMembers.add(deleteRequestedMembers.get(i));
                     } else {
