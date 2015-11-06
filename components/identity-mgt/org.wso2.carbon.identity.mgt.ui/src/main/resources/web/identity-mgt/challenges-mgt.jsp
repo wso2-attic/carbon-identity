@@ -118,7 +118,8 @@
         function removeRow(row){
         	function doDelete() {
 	            var setName = document.getElementsByName("setName")[0].value;
-	            location.href= 'challenges-mgt.jsp?deleteRowId=' + row + '&setName=' + setName;
+	            location.href= 'challenges-mgt.jsp?deleteRowId=' + encodeURIComponent(row) + '&setName=' +
+                        encodeURIComponent(setName);
         	}
         	
             CARBON.showConfirmationDialog("<fmt:message key="confirm.delete.challenge.question"/> ?", doDelete, null);
@@ -126,7 +127,8 @@
 
         function  editRow(row){
             var setName = document.getElementsByName("setName")[0].value;
-            location.href= 'challenges-mgt.jsp?editRowId=' + row + '&setName=' + setName;
+            location.href= 'challenges-mgt.jsp?editRowId=' + encodeURIComponent(row) + '&setName=' +
+                    encodeURIComponent(setName);
         }
 
         function addRow(){
