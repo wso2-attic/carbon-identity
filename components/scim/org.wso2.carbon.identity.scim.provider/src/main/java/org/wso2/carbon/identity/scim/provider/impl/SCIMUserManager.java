@@ -569,8 +569,8 @@ public class SCIMUserManager implements UserManager {
                         roleNameWithDomain = UserCoreUtil
                                 .addDomainToName(UserCoreUtil.removeDomainFromName(originalName), domainName);
                     } else if (originalName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
-                        domainName = originalName.split(UserCoreConstants.DOMAIN_SEPARATOR)[0];
-                        String nameWithoutDomain = originalName.split(UserCoreConstants.DOMAIN_SEPARATOR)[1];
+                        domainName = IdentityUtil.extractDomainFromName(originalName);
+                        String nameWithoutDomain = UserCoreUtil.removeDomainFromName(originalName);
                         roleNameWithDomain = UserCoreUtil.addDomainToName(nameWithoutDomain,domainName);
                     } else {
                         domainName = carbonUM.getRealmConfiguration().getUserStoreProperty(UserCoreConstants
@@ -808,10 +808,13 @@ public class SCIMUserManager implements UserManager {
         oldGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()
         ), IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
 
-
-        if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName()).equals(UserCoreConstants
-                .PRIMARY_DEFAULT_DOMAIN_NAME) && !(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())
-                .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
+        String primaryDomain = carbonUM.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
+        if (primaryDomain == null) {
+            primaryDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        }        if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName()).equals(primaryDomain) && !(IdentityUtil
+                .extractDomainFromName(oldGroup.getDisplayName())
+                .equals(primaryDomain))) {
             String userStoreDomain = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName());
             newGroup.setDisplayName(UserCoreUtil.addDomainToName(newGroup.getDisplayName(), userStoreDomain));
             if (newGroup.getMembers() != null && !(newGroup.getMembers().isEmpty())) {
@@ -851,8 +854,8 @@ public class SCIMUserManager implements UserManager {
                     for (String userDisplayName : userDisplayNames) {
                         String userStoreDomainForUser =
                                 IdentityUtil.extractDomainFromName(userDisplayName);
-                        if (!(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForGroup)) &&
-                                (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForUser))) {
+                        if (!(primaryDomain.equals(userStoreDomainForGroup)) &&
+                                (primaryDomain.equals(userStoreDomainForUser))) {
                             throw new IdentitySCIMException(
                                     "User store domain is not indicated for user :" + userDisplayName);
                         }
@@ -967,6 +970,11 @@ public class SCIMUserManager implements UserManager {
             this.provision(ProvisioningOperation.PATCH, newGroup);
             return newGroup;
         }
+        String primaryDomain = carbonUM.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                .PROPERTY_DOMAIN_NAME);
+        if (primaryDomain == null) {
+            primaryDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        }
         try {
             String userStoreDomainFromSP = getUserStoreDomainFromSP();
             if (userStoreDomainFromSP != null && !userStoreDomainFromSP
@@ -1033,9 +1041,9 @@ public class SCIMUserManager implements UserManager {
                     }
                 }
                 if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName())
-                                .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) &&
+                                .equals(primaryDomain) &&
                     !(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())
-                                  .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
+                                  .equals(primaryDomain))) {
                     String userStoreDomain = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName());
                     newGroup.setDisplayName(
                             UserCoreUtil.addDomainToName(newGroup.getDisplayName(), userStoreDomain));
