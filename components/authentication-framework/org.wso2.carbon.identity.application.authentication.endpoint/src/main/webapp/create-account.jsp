@@ -63,16 +63,16 @@
 
                     <div class="clearfix"></div>
                     <div class="boarder-all ">
-
                         <% if (request.getParameter("failedPrevious") != null &&
                                 Boolean.parseBoolean(request.getParameter("failedPrevious"))) { %>
                         <div class="alert alert-danger" id="error-msg">
                             <%if (request.getParameter("errorCode").equals("1")) {%>
-                            Passwords did not match. Please try again.
+                            The User is already existing.
+                            <%} else if (request.getParameter("errorCode").equals("2")) {%>
+                            Passwords did not match. Please try again
                             <%} else {%>
                             Something went wrong. Please try again.
                             <%}%>
-
                         </div>
                         <%}%>
 
