@@ -113,7 +113,7 @@ public class RecoveryProcessor {
         String userId = recoveryDTO.getUserId();
         String domainName = recoveryDTO.getTenantDomain();
         int tenantId = recoveryDTO.getTenantId();
-        String userStore = IdentityUtil.extractDomainFromName(userId, tenantId);
+        String userStore = IdentityUtil.extractDomainFromName(userId);
         String userName = UserCoreUtil.removeDomainFromName(userId);
         TenantManager tenantManager = IdentityMgtServiceComponent.getRealmService().getTenantManager();
         try {
@@ -441,7 +441,7 @@ public class RecoveryProcessor {
         String domainName = notificationBean.getTenantDomain();
         int tenantId = notificationBean.getTenantId();
         confirmationKey = notificationBean.getConfirmationCode();
-        String userStore = IdentityUtil.extractDomainFromName(userId, tenantId);
+        String userStore = IdentityUtil.extractDomainFromName(userId);
         String userName = UserCoreUtil.removeDomainFromName(userId);
 
         NotificationDataDTO notificationData = new NotificationDataDTO();
