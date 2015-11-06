@@ -40,6 +40,8 @@ public class IdentityCoreConstants {
     public static final String XML_DIGEST_ALGORITHM_SHA1 = "http://www.w3.org/2000/09/xmldsig#sha1";
 
     public static final String WEB_CONTEXT_ROOT = "WebContextRoot";
+
+    public static final String WORKFLOW_DOMAIN = "Workflow";
     
     private IdentityCoreConstants(){
     }
