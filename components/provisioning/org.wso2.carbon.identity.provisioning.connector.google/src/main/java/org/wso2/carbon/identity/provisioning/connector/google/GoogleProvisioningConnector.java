@@ -380,7 +380,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
     }
 
     /**
-     * Buld Google user object to provision
+     * Build Google user object to provision
      *
      * @param provisioningEntity
      * @return
@@ -489,9 +489,9 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
         if (log.isDebugEnabled()) {
             try {
-                log.debug("Building Google user : " + newUser.toPrettyString());
+                log.debug("Creating new Google user : " + newUser.toPrettyString());
             } catch (IOException e) {
-                log.debug("Building Google user : " + newUser.toString());
+                log.debug("Creating new Google user : " + newUser.toString());
             }
         }
 
@@ -553,8 +553,17 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         username.setFamilyName(familyNameValue);
 
         updateUser.setName(username);
-        updateUser.setPassword(generatePassword());
+        updateUser.setPrimaryEmail(provisioningEntity.getIdentifier().getIdentifier());
 
+        if (log.isDebugEnabled()) {
+            try {
+                log.debug("Updating Google user : " + updateUser.toPrettyString());
+            } catch (IOException e) {
+                log.debug("Updating Google user : " + updateUser.toString());
+            }
+        }
+
+        updateUser.setPassword(generatePassword());
         return updateUser;
     }
 
