@@ -31,8 +31,9 @@
 
 <%
     List<IdentityProvider> identityProvidersList = (List<IdentityProvider>)session.getAttribute("identityProviderList");
-    String identityProvider= "identityProvider";
-    if(identityProvidersList == null){
+    String identityProvider = "identityProvider";
+    session.removeAttribute(identityProvider);
+    if (identityProvidersList == null) {
 %>
         <script type="text/javascript">
             location.href = "idp-mgt-list-load.jsp?callback=idp-mgt-list.jsp";
@@ -124,9 +125,6 @@
                             <td colspan="3"><i><fmt:message key='no.idp'/></i></td>
                         </tr>
                     <% }
-                        if (session.getAttribute(identityProvider) != null) {
-                            session.removeAttribute(identityProvider);
-                        }
                     %>
                 </tbody>
             </table>
