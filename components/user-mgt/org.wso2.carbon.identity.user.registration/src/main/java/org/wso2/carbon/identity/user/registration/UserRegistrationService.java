@@ -325,7 +325,7 @@ public class UserRegistrationService {
 
         String domainName = UserCoreConstants.INTERNAL_DOMAIN;
         if (externalRole) {
-            domainName = UserCoreUtil.extractDomainFromName(userName);
+            domainName = IdentityUtil.extractDomainFromName(userName);
         }
 
         if (roleName == null || roleName.trim().length() == 0) {

@@ -530,7 +530,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
     private String getMultiAttributeSeparator(String authenticatedUser, int tenantId) {
         String claimSeparator = null;
-        String userDomain = IdentityUtil.extractDomainFromName(authenticatedUser, tenantId);
+        String userDomain = IdentityUtil.extractDomainFromName(authenticatedUser);
 
         try {
             RealmConfiguration realmConfiguration = null;

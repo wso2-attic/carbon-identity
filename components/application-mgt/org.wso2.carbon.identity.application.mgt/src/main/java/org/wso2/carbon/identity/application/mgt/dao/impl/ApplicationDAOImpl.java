@@ -216,7 +216,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             qualifiedUsername = CarbonConstants.REGISTRY_SYSTEM_USERNAME;
         }
         String username = UserCoreUtil.removeDomainFromName(qualifiedUsername);
-        String userStoreDomain = IdentityUtil.extractDomainFromName(qualifiedUsername, tenantID);
+        String userStoreDomain = IdentityUtil.extractDomainFromName(qualifiedUsername);
         String applicationName = serviceProvider.getApplicationName();
         String description = serviceProvider.getDescription();
 

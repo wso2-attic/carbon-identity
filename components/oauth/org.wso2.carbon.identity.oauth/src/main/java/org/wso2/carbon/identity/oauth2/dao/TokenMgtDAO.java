@@ -311,7 +311,7 @@ public class TokenMgtDAO {
         int tenantId = OAuth2Util.getTenantId(tenantDomain);
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
         String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
-        String userDomain = IdentityUtil.extractDomainFromName(userName, tenantId).toUpperCase();
+        String userDomain = IdentityUtil.extractDomainFromName(userName).toUpperCase();
 
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
@@ -435,12 +435,12 @@ public class TokenMgtDAO {
         String tenantDomain = MultitenantUtils.getTenantDomain(userName);
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
         String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
-        int tenantId = OAuth2Util.getTenantId(tenantDomain);
-        String userDomain = IdentityUtil.extractDomainFromName(userName, tenantId).toUpperCase();
+        String userDomain = IdentityUtil.extractDomainFromName(userName).toUpperCase();
 
         PreparedStatement prepStmt = null;
         Map<String, AccessTokenDO> accessTokenDOMap = new HashMap<>();
         try {
+            int tenantId = OAuth2Util.getTenantId(tenantDomain);
             String sql = SQLQueries.RETRIEVE_ACTIVE_ACCESS_TOKEN_BY_CLIENT_ID_USER;
             if (includeExpired) {
                 sql = SQLQueries.RETRIEVE_ACTIVE_EXPIRED_ACCESS_TOKEN_BY_CLIENT_ID_USER;
@@ -973,9 +973,9 @@ public class TokenMgtDAO {
         String tenantDomain = MultitenantUtils.getTenantDomain(authzUser);
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(authzUser);
         String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
-        int tenantId = OAuth2Util.getTenantId(tenantDomain);
-        String userDomain = IdentityUtil.extractDomainFromName(authzUser, tenantId).toUpperCase();
+        String userDomain = IdentityUtil.extractDomainFromName(authzUser).toUpperCase();
         try {
+            int tenantId = OAuth2Util.getTenantId(tenantDomain);
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
                     OAuth2Util.checkUserNameAssertionEnabled()) {
                 accessTokenStoreTable = OAuth2Util.getAccessTokenStoreTableFromUserId(authzUser);

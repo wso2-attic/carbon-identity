@@ -353,7 +353,7 @@ public class SCIMUserManager implements UserManager {
                     String userStoreDomainFromSP = getUserStoreDomainFromSP();
                     User oldUser = this.getUser(user.getId());
                     if (userStoreDomainFromSP != null && !userStoreDomainFromSP
-                            .equalsIgnoreCase(IdentityUtil.extractDomainFromName(oldUser.getUserName(),carbonUM.getTenantId()))) {
+                            .equalsIgnoreCase(IdentityUtil.extractDomainFromName(oldUser.getUserName()))) {
                         throw new CharonException("User :" + oldUser.getUserName() + "is not belong to user store " +
                                                   userStoreDomainFromSP + "Hence user updating fail");
                     }
@@ -431,16 +431,12 @@ public class SCIMUserManager implements UserManager {
         try {
             String userStoreDomainFromSP = getUserStoreDomainFromSP();
             if (userStoreDomainFromSP != null &&
-                !userStoreDomainFromSP.equalsIgnoreCase(IdentityUtil.extractDomainFromName(oldUser.getUserName(),
-                                carbonUM.getTenantId())
-                )) {
+                !userStoreDomainFromSP.equalsIgnoreCase(IdentityUtil.extractDomainFromName(oldUser.getUserName()))) {
                 throw new CharonException("User :" + oldUser.getUserName() + "is not belong to user store " +
                                           userStoreDomainFromSP + "Hence user updating fail");
             }
         } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Error retrieving User Store name. ", e);
-        } catch (org.wso2.carbon.user.core.UserStoreException e) {
-            throw new CharonException("Error while getting tenantID.", e);
         }
 
         try {
@@ -448,16 +444,14 @@ public class SCIMUserManager implements UserManager {
                 about the provisioning route.*/
                 SCIMCommonUtils.setThreadLocalIsManagedThroughSCIMEP(true);
                 //get user claim values
-                int tenantID = carbonUM.getTenantId();
                 Map<String, String> claims = AttributeMapper.getClaimsMap(newUser);
-                if (IdentityUtil.extractDomainFromName(newUser.getUserName(), tenantID)
+                if (IdentityUtil.extractDomainFromName(newUser.getUserName())
                                 .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) &&
-                    !(IdentityUtil.extractDomainFromName(oldUser.getUserName(), tenantID)
+                    !(IdentityUtil.extractDomainFromName(oldUser.getUserName())
                                   .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
                     newUser.setUserName(
                             UserCoreUtil.addDomainToName(newUser.getUserName(),
-                                                         IdentityUtil.extractDomainFromName(oldUser.getUserName(),
-                                                                 tenantID)));
+                                                         IdentityUtil.extractDomainFromName(oldUser.getUserName())));
                 }
 
                 //check if username of the updating user existing in the userStore.
@@ -535,8 +529,7 @@ public class SCIMUserManager implements UserManager {
                     throw new NotFoundException();
                 } else if (userStoreDomainFromSP != null &&
                            !(userStoreDomainFromSP
-                                   .equalsIgnoreCase(IdentityUtil.extractDomainFromName(userNames[0], carbonUM
-                                           .getTenantId())))) {
+                                   .equalsIgnoreCase(IdentityUtil.extractDomainFromName(userNames[0])))) {
                     throw new CharonException("User :" + userNames[0] + "is not belong to user store " +
                                               userStoreDomainFromSP + "Hence user updating fail");
                 } else {
@@ -803,37 +796,26 @@ public class SCIMUserManager implements UserManager {
         try {
             String userStoreDomainFromSP = getUserStoreDomainFromSP();
             if(userStoreDomainFromSP != null && !userStoreDomainFromSP.equalsIgnoreCase(
-                    IdentityUtil.extractDomainFromName(oldGroup.getDisplayName(),carbonUM.getTenantId()))){
+                    IdentityUtil.extractDomainFromName(oldGroup.getDisplayName()))){
                 throw new CharonException("Group :" + oldGroup.getDisplayName() + "is not belong to user store " +
                                           userStoreDomainFromSP + "Hence group updating fail");
             }
         } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Error retrieving User Store name. ", e);
-        } catch (org.wso2.carbon.user.core.UserStoreException e) {
-            throw new CharonException("Error while getting tenantID. ", e);
         }
-        try {
-            oldGroup.setDisplayName(UserCoreUtil
-                                            .addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()),
-                                                    IdentityUtil
-                                                            .extractDomainFromName(oldGroup.getDisplayName(),
-                                                                    carbonUM.getTenantId())));
-        } catch (org.wso2.carbon.user.core.UserStoreException e) {
-            throw new CharonException("Error while getting tenantID. ", e);
-        }
-        try {
-            if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName(),carbonUM.getTenantId())
-                            .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) &&
-                !(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName(),carbonUM.getTenantId())
-                              .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
-                String userStoreDomain = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName(),carbonUM.getTenantId());
-                newGroup.setDisplayName(UserCoreUtil.addDomainToName(newGroup.getDisplayName(), userStoreDomain));
-                if (newGroup.getMembers() != null && !(newGroup.getMembers().isEmpty())) {
-                    newGroup = addDomainToUserMembers(newGroup, userStoreDomain);
-                }
+
+        oldGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()
+        ), IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
+
+
+        if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName()).equals(UserCoreConstants
+                .PRIMARY_DEFAULT_DOMAIN_NAME) && !(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())
+                .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
+            String userStoreDomain = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName());
+            newGroup.setDisplayName(UserCoreUtil.addDomainToName(newGroup.getDisplayName(), userStoreDomain));
+            if (newGroup.getMembers() != null && !(newGroup.getMembers().isEmpty())) {
+                newGroup = addDomainToUserMembers(newGroup, userStoreDomain);
             }
-        } catch (org.wso2.carbon.user.core.UserStoreException e) {
-            throw new CharonException("Error when getting tenantId.",e);
         }
         newGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(newGroup.getDisplayName()));
         oldGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(oldGroup.getDisplayName()));
@@ -861,13 +843,13 @@ public class SCIMUserManager implements UserManager {
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
 
                 String groupName = newGroup.getDisplayName();
-                String userStoreDomainForGroup = IdentityUtil.extractDomainFromName(groupName, carbonUM.getTenantId());
+                String userStoreDomainForGroup = IdentityUtil.extractDomainFromName(groupName);
                 /* compare user store domain of group and user store domain of user name , if there is a mismatch do not
                  update the group */
                 if (userDisplayNames != null && userDisplayNames.size() > 0) {
                     for (String userDisplayName : userDisplayNames) {
                         String userStoreDomainForUser =
-                                IdentityUtil.extractDomainFromName(userDisplayName, carbonUM.getTenantId());
+                                IdentityUtil.extractDomainFromName(userDisplayName);
                         if (!(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForGroup)) &&
                                 (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForUser))) {
                             throw new IdentitySCIMException(
@@ -987,24 +969,17 @@ public class SCIMUserManager implements UserManager {
         try {
             String userStoreDomainFromSP = getUserStoreDomainFromSP();
             if (userStoreDomainFromSP != null && !userStoreDomainFromSP
-                    .equalsIgnoreCase(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName(),carbonUM.getTenantId()))) {
+                    .equalsIgnoreCase(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName()))) {
                 throw new CharonException("Group :" + oldGroup.getDisplayName() + "is not belong to user store " +
                                           userStoreDomainFromSP + "Hence group updating fail");
             }
         } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Error retrieving User Store name. ", e);
-        } catch (org.wso2.carbon.user.core.UserStoreException e) {
-            throw new CharonException("Error retrieving tenantId.", e);
         }
-        try {
-            oldGroup.setDisplayName(UserCoreUtil
-                                            .addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()),
-                                                    IdentityUtil
-                                                            .extractDomainFromName(oldGroup.getDisplayName(),
-                                                                    carbonUM.getTenantId())));
-        } catch (org.wso2.carbon.user.core.UserStoreException e) {
-            throw new CharonException("Error retrieving tenantId.", e);
-        }
+
+        oldGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup
+                .getDisplayName()), IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
+
 
         if (log.isDebugEnabled()) {
                 log.debug("Updating group: " + oldGroup.getDisplayName());//add from group new name
@@ -1056,12 +1031,11 @@ public class SCIMUserManager implements UserManager {
                         }
                     }
                 }
-                int tenantId = carbonUM.getTenantId();
-                if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName(), tenantId)
+                if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName())
                                 .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) &&
-                    !(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName(), tenantId)
+                    !(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())
                                   .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
-                    String userStoreDomain = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName(), tenantId);
+                    String userStoreDomain = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName());
                     newGroup.setDisplayName(
                             UserCoreUtil.addDomainToName(newGroup.getDisplayName(), userStoreDomain));
                     if (newGroup.getMembers() != null && !newGroup.getMembers().isEmpty()) {
@@ -1193,8 +1167,7 @@ public class SCIMUserManager implements UserManager {
                         throw new CharonException("Error retrieving User Store name. ", e);
                     }
                     if (userStoreDomainFromSP != null &&
-                        !(userStoreDomainFromSP.equalsIgnoreCase(IdentityUtil.extractDomainFromName(groupName,
-                                carbonUM.getTenantId())))) {
+                        !(userStoreDomainFromSP.equalsIgnoreCase(IdentityUtil.extractDomainFromName(groupName)))) {
                         throw new CharonException("Group :" + groupName + "is not belong to user store " +
                                                   userStoreDomainFromSP + "Hence group updating fail");
                     }

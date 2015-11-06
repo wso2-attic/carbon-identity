@@ -270,7 +270,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 }
             }
 
-            String domain = IdentityUtil.extractDomainFromName(username, userStoreManager.getTenantId());
+            String domain = IdentityUtil.extractDomainFromName(username);
             RealmConfiguration realmConfiguration = userStoreManager.getSecondaryUserStoreManager(domain)
                     .getRealmConfiguration();
 

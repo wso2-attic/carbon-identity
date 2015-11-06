@@ -495,7 +495,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
     }
 
     private boolean validateDomainsForDelete(String[] domains) {
-        String userDomain = UserCoreUtil.extractDomainFromName(PrivilegedCarbonContext.getThreadLocalCarbonContext()
+        String userDomain = IdentityUtil.extractDomainFromName(PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getUsername());
         for (String domain : domains) {
             if (domain.equalsIgnoreCase(userDomain)) {

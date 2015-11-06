@@ -80,7 +80,7 @@ public class ProvisioningManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, provisioningConfigId);
             prepStmt.setString(2, provisioningEntity.getEntityType().toString());
-            prepStmt.setString(3, IdentityUtil.extractDomainFromName(provisioningEntity.getEntityName(), tenantId));
+            prepStmt.setString(3, IdentityUtil.extractDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setString(5, provisioningEntity.getIdentifier().getIdentifier());
             prepStmt.setInt(6, tenantId);
@@ -127,7 +127,7 @@ public class ProvisioningManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, provisioningConfigId);
             prepStmt.setString(2, provisioningEntity.getEntityType().toString());
-            prepStmt.setString(3, IdentityUtil.extractDomainFromName(provisioningEntity.getEntityName(),tenantId));
+            prepStmt.setString(3, IdentityUtil.extractDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setInt(5, tenantId);
 
@@ -173,7 +173,7 @@ public class ProvisioningManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, provisioningConfigId);
             prepStmt.setString(2, provisioningEntity.getEntityType().toString());
-            prepStmt.setString(3, IdentityUtil.extractDomainFromName(provisioningEntity.getEntityName(), tenantId));
+            prepStmt.setString(3, IdentityUtil.extractDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setInt(5, tenantId);
 

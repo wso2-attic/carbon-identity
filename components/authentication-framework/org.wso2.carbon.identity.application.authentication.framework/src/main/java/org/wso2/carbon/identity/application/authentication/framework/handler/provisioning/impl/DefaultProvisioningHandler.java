@@ -271,7 +271,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
     private List<String> removeDomainFromNamesExcludeInternal(List<String> names, int tenantId) {
         List<String> nameList = new ArrayList<String>();
         for (String name : names) {
-            String userStoreDomain = IdentityUtil.extractDomainFromName(name, tenantId);
+            String userStoreDomain = IdentityUtil.extractDomainFromName(name);
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStoreDomain)) {
                 nameList.add(name);
             } else {
