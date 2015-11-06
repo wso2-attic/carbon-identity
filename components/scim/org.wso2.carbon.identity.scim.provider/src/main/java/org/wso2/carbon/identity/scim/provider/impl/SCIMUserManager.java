@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioning
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import org.wso2.carbon.identity.provisioning.OutboundProvisioningManager;
@@ -568,16 +569,10 @@ public class SCIMUserManager implements UserManager {
                         domainName = getUserStoreDomainFromSP();
                         roleNameWithDomain = UserCoreUtil
                                 .addDomainToName(UserCoreUtil.removeDomainFromName(originalName), domainName);
-                    } else if (originalName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
+                    } else {
                         domainName = IdentityUtil.extractDomainFromName(originalName);
                         String nameWithoutDomain = UserCoreUtil.removeDomainFromName(originalName);
-                        roleNameWithDomain = UserCoreUtil.addDomainToName(nameWithoutDomain,domainName);
-                    } else {
-                        // keep the domain name always in upper case to avoid duplication when case sensitive data store
-                        // is used.
-                        domainName = carbonUM.getRealmConfiguration().getUserStoreProperty(UserCoreConstants
-                                .RealmConfig.PROPERTY_DOMAIN_NAME).toUpperCase();
-                        roleNameWithDomain = UserCoreUtil.addDomainToName(originalName,domainName);
+                        roleNameWithDomain = UserCoreUtil.addDomainToName(nameWithoutDomain, domainName);
                     }
                 } catch (IdentityApplicationManagementException e) {
                     throw new CharonException("Error retrieving User Store name. ", e);
@@ -810,11 +805,8 @@ public class SCIMUserManager implements UserManager {
         oldGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()
         ), IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
 
-        String primaryDomain = carbonUM.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
-        if (primaryDomain == null) {
-            primaryDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
-        }        if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName()).equals(primaryDomain) && !(IdentityUtil
+        String primaryDomain = IdentityUtil.getPrimaryDomainName();
+        if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName()).equals(primaryDomain) && !(IdentityUtil
                 .extractDomainFromName(oldGroup.getDisplayName())
                 .equals(primaryDomain))) {
             String userStoreDomain = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName());
@@ -972,11 +964,7 @@ public class SCIMUserManager implements UserManager {
             this.provision(ProvisioningOperation.PATCH, newGroup);
             return newGroup;
         }
-        String primaryDomain = carbonUM.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
-        if (primaryDomain == null) {
-            primaryDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
-        }
+        String primaryDomain = IdentityUtil.getPrimaryDomainName();
         try {
             String userStoreDomainFromSP = getUserStoreDomainFromSP();
             if (userStoreDomainFromSP != null && !userStoreDomainFromSP
