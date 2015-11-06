@@ -132,10 +132,12 @@
         function addRow(){
             var setName = document.getElementsByName("setName")[0].value;
             var question = document.getElementsByName("question0")[0].value;
-            if(question != null && (question != "" && setName != "")){
-                location.href= 'challenges-mgt.jsp?addRowId=' + question + '&setName=' + setName;
+            if (setName == ""){
+                CARBON. showErrorDialog('Please enter a non empty Question Set Id', null, null);
+            } else if (question == null || question == ""){
+                CARBON. showErrorDialog('Please enter a valid security question', null, null);
             } else {
-                CARBON.CARBON.showInfoDialog('axaxaxa?dfcececec', null, null);
+                location.href= 'challenges-mgt.jsp?addRowId=' + question + '&setName=' + setName;
             }
             
         }
