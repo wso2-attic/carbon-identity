@@ -64,6 +64,7 @@ public class IdentityApplicationConstants {
     public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
     public static final String TIME_CONFIG = "TimeConfig";
     public static final String COMMONAUTH = "commonauth";
+    public static final String MULTIVALUED_PROPERTY_CHARACTER = ".";
 
     public static class ConfigElements {
         public static final String PROPERTIES = "Properties";
@@ -122,6 +123,7 @@ public class IdentityApplicationConstants {
             public static final String AUTHENTICATION_CONTEXT_COMPARISON_LEVEL = "AuthnContextComparisonLevel";
             public static final String ATTRIBUTE_CONSUMING_SERVICE_INDEX = "AttributeConsumingServiceIndex";
             public static final String DESTINATION_URL_PREFIX = "DestinationURI";
+
 
             private SAML2SSO() {
                 throw new AssertionError("Must not initiate an object of SAMLSSO class");

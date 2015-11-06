@@ -21,7 +21,9 @@ package org.wso2.carbon.idp.mgt.util;
 public class IdPManagementConstants {
 
     public static final String SHARED_IDP_PREFIX = "SHARED_";
-    public static final String MULTI_VALUED_PROPERTY_CHARACTER = "_";
+    public static final String MULTI_VALUED_PROPERTY_CHARACTER = ".";
+    public static final String MULTI_VALUED_PROPERT_IDENTIFIER_PATTERN = ".*\\" + MULTI_VALUED_PROPERTY_CHARACTER +
+            "[0-9]+";
     public static class SQLQueries {
 
         public static final String GET_IDPS_SQL = "SELECT NAME, IS_PRIMARY, HOME_REALM_ID, DESCRIPTION, " +
