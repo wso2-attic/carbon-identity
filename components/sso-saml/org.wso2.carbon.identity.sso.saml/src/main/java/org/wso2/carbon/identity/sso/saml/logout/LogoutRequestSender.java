@@ -30,15 +30,31 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.sso.saml.dto.SingleLogoutRequestDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -140,14 +156,28 @@ public class LogoutRequestSender {
         public void run() {
             List<NameValuePair> logoutReqParams = new ArrayList<NameValuePair>();
             // set the logout request
-            logoutReqParams.add(new BasicNameValuePair("SAMLRequest", logoutReqDTO.getLogoutResponse()));
+            String startSoapBinding = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+                    "<SOAP-ENV:Body>";
+            String endSoapBinding= "</SOAP-ENV:Body>" +
+                    "</SOAP-ENV:Envelope>";
+            String soapAction =  "http://www.oasis-open.org/committees/security";
+
+            StringBuffer logoutRequestWithSoapBinding = new StringBuffer();
+            String decodedSAMLRequest = null;
+            try{
+                decodedSAMLRequest = SAMLSSOUtil.decodeForPost(logoutReqDTO.getLogoutResponse());
+                decodedSAMLRequest = decodedSAMLRequest.replaceAll("\\<\\?xml(.+?)\\?\\>", "").trim();
+
+            } catch (IdentityException e) {
+                log.debug("Error in decoding logout request.", e);
+            }
+            logoutRequestWithSoapBinding.append(startSoapBinding + decodedSAMLRequest + endSoapBinding);
+
+            // set the logout request
+            logoutReqParams.add(new BasicNameValuePair("SAMLRequest", logoutRequestWithSoapBinding.toString()));
 
             if (log.isDebugEnabled()) {
-                try {
-                    log.debug("SAMLRequest : " + SAMLSSOUtil.decodeForPost(logoutReqDTO.getLogoutResponse()));
-                } catch (IdentityException e) {
-                    log.debug("Error in decoding logout request.", e);
-                }
+                log.debug("SAMLRequest : " + decodedSAMLRequest);
             }
 
             try {
@@ -156,6 +186,7 @@ public class LogoutRequestSender {
                 HttpPost httpPost = new HttpPost(logoutReqDTO.getAssertionConsumerURL());
                 httpPost.setEntity(entity);
                 httpPost.addHeader("Cookie", "JSESSIONID=" + logoutReqDTO.getRpSessionId());
+                httpPost.addHeader("SOAPAction", soapAction);
                 TrustManager easyTrustManager = new X509TrustManager() {
 
                     @Override
