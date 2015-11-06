@@ -503,7 +503,7 @@ public class OAuth2Util {
             String tenantDomain = MultitenantUtils.getTenantDomain(username);
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
             String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
-            String userStoreDomain = UserCoreUtil.extractDomainFromName(username).toUpperCase();
+            String userStoreDomain = IdentityUtil.extractDomainFromName(username).toUpperCase();
             User user = new User();
             user.setUserName(tenantAwareUsernameWithNoUserDomain);
             user.setTenantDomain(tenantDomain);
