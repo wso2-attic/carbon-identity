@@ -207,7 +207,7 @@ public class EntitlementServiceComponent {
                                 "Therefore using default policy location");
                     }
 
-                    if (policyPathFromConfig == null || !policyFolder.exists()) {
+                    if (policyPathFromConfig == null || (policyFolder != null && !policyFolder.exists())) {
                         policyFolder = new File(CarbonUtils.getCarbonHome() + File.separator
                                 + "repository" + File.separator + "resources" + File.separator
                                 + "identity" + File.separator + "policies" + File.separator + "xacml");

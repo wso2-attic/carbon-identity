@@ -58,8 +58,6 @@ import org.wso2.carbon.identity.application.authentication.framework.handler.req
 import org.wso2.carbon.identity.application.authentication.framework.handler.request.impl.DefaultAuthenticationRequestHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.request.impl.DefaultLogoutRequestHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.request.impl.DefaultRequestCoordinator;
-import org.wso2.carbon.identity.application.authentication.framework.handler.roles.RoleHandler;
-import org.wso2.carbon.identity.application.authentication.framework.handler.roles.impl.DefaultRoleHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.sequence.RequestPathBasedSequenceHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.sequence.StepBasedSequenceHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.sequence.impl.DefaultRequestPathBasedSequenceHandler;
@@ -396,25 +394,6 @@ public class FrameworkUtils {
         }
 
         return claimHandler;
-    }
-
-    /**
-     * @return
-     */
-    public static RoleHandler getRoleHandler() {
-
-        RoleHandler roleHandler = null;
-
-        Object obj = ConfigurationFacade.getInstance().getExtensions()
-                .get(FrameworkConstants.Config.QNAME_EXT_ROLE_HANDLER);
-
-        if (obj instanceof RoleHandler) {
-            roleHandler = (RoleHandler) obj;
-        } else {
-            roleHandler = DefaultRoleHandler.getInstance();
-        }
-
-        return roleHandler;
     }
 
     /**

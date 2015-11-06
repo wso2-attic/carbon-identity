@@ -74,11 +74,11 @@
         client = new UserProfileCient(cookie,
                 backendServerURL, configContext);
         readOnlyUserStore = client.isReadOnlyUserStore();
-     	profiles = client.getUserProfiles(Util.decodeHTMLCharacters(username));
+     	profiles = client.getUserProfiles(username);
 
 
         //read the domain of the user
-        String userDomain = UserProfileCient.extractDomainFromName(Util.decodeHTMLCharacters(username));
+        String userDomain = UserProfileCient.extractDomainFromName(username);
         if (StringUtils.isNotBlank(userDomain)) {
             multipleProfilesEnabled = client.isAddProfileEnabledForDomain(userDomain);
         } else {

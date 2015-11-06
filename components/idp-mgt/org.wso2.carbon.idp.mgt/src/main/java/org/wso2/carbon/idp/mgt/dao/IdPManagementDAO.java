@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.idp.mgt.dao;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,6 +59,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class IdPManagementDAO {
 
@@ -343,9 +345,8 @@ public class IdPManagementDAO {
             for (FederatedAuthenticatorConfig fedAuthenticator : newFederatedAuthenticatorConfigs) {
                 if (oldFedAuthnConfigMap.containsKey(fedAuthenticator.getName())
                         && oldFedAuthnConfigMap.get(fedAuthenticator.getName()).isValid()) {
-                    // we already have an openidconnect authenticator in the system - update it.
-                    updateFederatedAuthenticatorConfig(fedAuthenticator, dbConnection, idpId,
-                            tenantId);
+                    updateFederatedAuthenticatorConfig(fedAuthenticator, oldFedAuthnConfigMap.get(fedAuthenticator
+                            .getName()), dbConnection, idpId, tenantId);
                 } else {
                     addFederatedAuthenticatorConfig(fedAuthenticator, dbConnection, idpId, tenantId);
                 }
@@ -354,72 +355,55 @@ public class IdPManagementDAO {
     }
 
     /**
-     * @param federatedAuthenticatorConfig
+     * @param newFederatedAuthenticatorConfig
+     * @param oldFederatedAuthenticatorConfig
      * @param dbConnection
      * @param idpId
      * @throws IdentityProviderManagementException
      * @throws SQLException
      */
-    private void updateFederatedAuthenticatorConfig(
-            FederatedAuthenticatorConfig federatedAuthenticatorConfig, Connection dbConnection,
-            int idpId, int tenantId) throws IdentityProviderManagementException, SQLException {
+    private void updateFederatedAuthenticatorConfig(FederatedAuthenticatorConfig newFederatedAuthenticatorConfig,
+                                                    FederatedAuthenticatorConfig oldFederatedAuthenticatorConfig,
+                                                    Connection dbConnection, int idpId, int tenantId) throws
+            IdentityProviderManagementException, SQLException {
 
         PreparedStatement prepStmt1 = null;
-        PreparedStatement prepStmt2 = null;
-        PreparedStatement prepStmt3 = null;
 
         try {
             String sqlStmt = IdPManagementConstants.SQLQueries.UPDATE_IDP_AUTH_SQL;
             prepStmt1 = dbConnection.prepareStatement(sqlStmt);
 
-            if (federatedAuthenticatorConfig.isEnabled()) {
+            if (newFederatedAuthenticatorConfig.isEnabled()) {
                 prepStmt1.setString(1, "1");
             } else {
                 prepStmt1.setString(1, "0");
             }
             prepStmt1.setInt(2, idpId);
-            prepStmt1.setString(3, federatedAuthenticatorConfig.getName());
+            prepStmt1.setString(3, newFederatedAuthenticatorConfig.getName());
             prepStmt1.executeUpdate();
 
             int authnId = getAuthenticatorIdentifier(dbConnection, idpId,
-                    federatedAuthenticatorConfig.getName());
+                    newFederatedAuthenticatorConfig.getName());
 
-            for (Property property : federatedAuthenticatorConfig.getProperties()) {
+            List<Property> singleValuedProperties = new ArrayList<>();
+            List<Property> multiValuedProperties = new ArrayList<>();
 
-                sqlStmt = IdPManagementConstants.SQLQueries.UPDATE_IDP_AUTH_PROP_SQL;
-                prepStmt2 = dbConnection.prepareStatement(sqlStmt);
-                prepStmt2.setString(1, property.getValue());
-                if (property.isConfidential()) {
-                    prepStmt2.setString(2, "1");
+            for (Property property : newFederatedAuthenticatorConfig.getProperties()) {
+                if (Pattern.matches(IdPManagementConstants.MULTI_VALUED_PROPERT_IDENTIFIER_PATTERN, property.getName
+                        ())) {
+                    multiValuedProperties.add(property);
                 } else {
-                    prepStmt2.setString(2, "0");
+                    singleValuedProperties.add(property);
                 }
-                prepStmt2.setInt(3, authnId);
-                prepStmt2.setString(4, property.getName());
-                int rows = prepStmt2.executeUpdate();
-
-                if (rows == 0) {
-                    // this should be an insert.
-                    sqlStmt = IdPManagementConstants.SQLQueries.ADD_IDP_AUTH_PROP_SQL;
-                    prepStmt3 = dbConnection.prepareStatement(sqlStmt);
-                    prepStmt3.setInt(1, authnId);
-                    prepStmt3.setInt(2, tenantId);
-                    prepStmt3.setString(3, property.getName());
-                    prepStmt3.setString(4, property.getValue());
-                    if (property.isConfidential()) {
-                        prepStmt3.setString(5, "1");
-                    } else {
-                        prepStmt3.setString(5, "0");
-                    }
-
-                    prepStmt3.executeUpdate();
-                }
-
+            }
+            if (CollectionUtils.isNotEmpty(singleValuedProperties)) {
+                updateSingleValuedFederatedConfigProperties(dbConnection, authnId, tenantId, singleValuedProperties);
+            }
+            if (CollectionUtils.isNotEmpty(multiValuedProperties)) {
+                updateMultiValuedFederatedConfigProperties(dbConnection, oldFederatedAuthenticatorConfig
+                        .getProperties(), authnId, tenantId, multiValuedProperties);
             }
         } finally {
-
-            IdentityDatabaseUtil.closeStatement(prepStmt3);
-            IdentityDatabaseUtil.closeStatement(prepStmt2);
             IdentityDatabaseUtil.closeStatement(prepStmt1);
         }
     }
@@ -489,6 +473,94 @@ public class IdPManagementDAO {
         }
     }
 
+    private void updateSingleValuedFederatedConfigProperties(Connection dbConnection, int authnId, int tenantId,
+                                                             List<Property> singleValuedProperties) throws
+            SQLException {
+
+        PreparedStatement prepStmt2 = null;
+        PreparedStatement prepStmt3 = null;
+        String sqlStmt;
+
+        try {
+            for (Property property : singleValuedProperties) {
+
+                sqlStmt = IdPManagementConstants.SQLQueries.UPDATE_IDP_AUTH_PROP_SQL;
+                prepStmt2 = dbConnection.prepareStatement(sqlStmt);
+                prepStmt2.setString(1, property.getValue());
+                if (property.isConfidential()) {
+                    prepStmt2.setString(2, "1");
+                } else {
+                    prepStmt2.setString(2, "0");
+                }
+                prepStmt2.setInt(3, authnId);
+                prepStmt2.setString(4, property.getName());
+                int rows = prepStmt2.executeUpdate();
+
+                if (rows == 0) {
+                    // this should be an insert.
+                    sqlStmt = IdPManagementConstants.SQLQueries.ADD_IDP_AUTH_PROP_SQL;
+                    prepStmt3 = dbConnection.prepareStatement(sqlStmt);
+                    prepStmt3.setInt(1, authnId);
+                    prepStmt3.setInt(2, tenantId);
+                    prepStmt3.setString(3, property.getName());
+                    prepStmt3.setString(4, property.getValue());
+                    if (property.isConfidential()) {
+                        prepStmt3.setString(5, "1");
+                    } else {
+                        prepStmt3.setString(5, "0");
+                    }
+
+                    prepStmt3.executeUpdate();
+                }
+
+            }
+        } finally {
+            IdentityDatabaseUtil.closeStatement(prepStmt3);
+            IdentityDatabaseUtil.closeStatement(prepStmt2);
+        }
+    }
+
+
+    private void updateMultiValuedFederatedConfigProperties(Connection dbConnection, Property[]
+            oldFederatedAuthenticatorConfigProperties, int authnId, int tenantId, List<Property>
+            multiValuedProperties) throws SQLException {
+
+        PreparedStatement deleteOldValuePrepStmt = null;
+        PreparedStatement addNewPropsPrepStmt = null;
+        String sqlStmt;
+        try {
+            for (Property property : oldFederatedAuthenticatorConfigProperties) {
+                if (Pattern.matches(IdPManagementConstants.MULTI_VALUED_PROPERT_IDENTIFIER_PATTERN, property.getName
+                        ())) {
+                    sqlStmt = IdPManagementConstants.SQLQueries.DELETE_IDP_AUTH_PROP_WITH_KEY_SQL;
+                    deleteOldValuePrepStmt = dbConnection.prepareStatement(sqlStmt);
+                    deleteOldValuePrepStmt.setString(1, property.getName());
+                    deleteOldValuePrepStmt.executeUpdate();
+                }
+            }
+
+            for (Property property : multiValuedProperties) {
+                sqlStmt = IdPManagementConstants.SQLQueries.ADD_IDP_AUTH_PROP_SQL;
+                addNewPropsPrepStmt = dbConnection.prepareStatement(sqlStmt);
+                addNewPropsPrepStmt.setInt(1, authnId);
+                addNewPropsPrepStmt.setInt(2, tenantId);
+                addNewPropsPrepStmt.setString(3, property.getName());
+                addNewPropsPrepStmt.setString(4, property.getValue());
+                if (property.isConfidential()) {
+                    addNewPropsPrepStmt.setString(5, "1");
+                } else {
+                    addNewPropsPrepStmt.setString(5, "0");
+                }
+
+                addNewPropsPrepStmt.executeUpdate();
+            }
+
+        } finally {
+            IdentityDatabaseUtil.closeStatement(deleteOldValuePrepStmt);
+            IdentityDatabaseUtil.closeStatement(addNewPropsPrepStmt);
+        }
+
+    }
     /**
      * @param dbConnection
      * @param idPName

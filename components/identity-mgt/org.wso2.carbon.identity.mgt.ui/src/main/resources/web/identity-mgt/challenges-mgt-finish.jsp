@@ -82,7 +82,7 @@
                 .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         IdentityManagementAdminClient proxy =
                             new IdentityManagementAdminClient(cookie, backendServerURL, configContext);
-        if(challenges.size() > 0){
+        if(challenges.size() >= 0){
             proxy.setChallengeQuestions(challenges.toArray(new ChallengeQuestionDTO[challenges.size()]));
         }
 
