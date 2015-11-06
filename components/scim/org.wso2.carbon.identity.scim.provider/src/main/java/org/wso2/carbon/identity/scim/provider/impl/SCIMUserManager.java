@@ -573,8 +573,10 @@ public class SCIMUserManager implements UserManager {
                         String nameWithoutDomain = UserCoreUtil.removeDomainFromName(originalName);
                         roleNameWithDomain = UserCoreUtil.addDomainToName(nameWithoutDomain,domainName);
                     } else {
+                        // keep the domain name always in upper case to avoid duplication when case sensitive data store
+                        // is used.
                         domainName = carbonUM.getRealmConfiguration().getUserStoreProperty(UserCoreConstants
-                                .RealmConfig.PROPERTY_DOMAIN_NAME);
+                                .RealmConfig.PROPERTY_DOMAIN_NAME).toUpperCase();
                         roleNameWithDomain = UserCoreUtil.addDomainToName(originalName,domainName);
                     }
                 } catch (IdentityApplicationManagementException e) {
