@@ -1013,10 +1013,10 @@ public class SCIMUserManager implements UserManager {
                 List<String> userIds = newGroup.getMembers();
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
 
-                String groupDisplayNamesUpperCaseDomain = UserCoreUtil
+                String newGroupDisplayNameUpperCaseDomain = UserCoreUtil
                         .addDomainToName(UserCoreUtil.removeDomainFromName(newGroup.getDisplayName()),
-                                UserCoreUtil.extractDomainFromName(newGroup.getDisplayName()));
-                newGroup.setDisplayName(groupDisplayNamesUpperCaseDomain);
+                                UserCoreUtil.extractDomainFromName(newGroup.getDisplayName()).toUpperCase());
+                newGroup.setDisplayName(newGroupDisplayNameUpperCaseDomain);
 
                 String[] userNames = null;
                 if (userIds != null) {
@@ -1032,10 +1032,10 @@ public class SCIMUserManager implements UserManager {
                         } else {
                             boolean isUserNameMatches = false;
                             for(String userName : userDisplayNames) {
-                                String caseInsensitiveDomainWithUserName = UserCoreUtil
+                                String newUserDisplayNameUpperCaseDomain = UserCoreUtil
                                         .addDomainToName(UserCoreUtil.removeDomainFromName(userName),
-                                                UserCoreUtil.extractDomainFromName(userName));
-                                if(caseInsensitiveDomainWithUserName.equalsIgnoreCase(userNames[0])){
+                                                UserCoreUtil.extractDomainFromName(userName).toUpperCase());
+                                if(newUserDisplayNameUpperCaseDomain.equalsIgnoreCase(userNames[0])){
                                     isUserNameMatches = true;
                                     break;
                                 }
@@ -1081,14 +1081,14 @@ public class SCIMUserManager implements UserManager {
                 for (int i = 0; i < noOfAddedMembers; i++) {
                     String addRequestMemberUpperCaseDomain = UserCoreUtil
                             .addDomainToName(UserCoreUtil.removeDomainFromName(addRequestedMembers.get(i)),
-                                    UserCoreUtil.extractDomainFromName(addRequestedMembers.get(i)));
+                                    UserCoreUtil.extractDomainFromName(addRequestedMembers.get(i)).toUpperCase());
                     addRequestedMembers.add(addRequestMemberUpperCaseDomain);
                 }
 
                 for (int i = 0; i < noOfDeletedMembers; i++) {
                     String deleteRequestMemberUpperCaseDomain = UserCoreUtil
                             .addDomainToName(UserCoreUtil.removeDomainFromName(deleteRequestedMembers.get(i)),
-                                    UserCoreUtil.extractDomainFromName(deleteRequestedMembers.get(i)));
+                                    UserCoreUtil.extractDomainFromName(deleteRequestedMembers.get(i)).toUpperCase());
                     deleteRequestedMembers.add(deleteRequestMemberUpperCaseDomain);
                 }
 
