@@ -66,7 +66,6 @@ public class IdentityMgtConfig {
     private String challengeQuestionSeparator;
     private int authPolicyMaxLoginAttempts;
     private int temporaryPasswordExpireTime;
-    private String temporaryDefaultPassword;
     private boolean enableTemporaryPassword;
     private boolean enableAuthPolicy;
     private boolean authPolicyOneTimePasswordCheck;
@@ -192,12 +191,6 @@ public class IdentityMgtConfig {
                     getProperty(IdentityMgtConstants.PropertyConfig.TEMPORARY_PASSWORD_EXPIRE_TIME);
             if (temporaryPasswordExpireTimeProperty != null) {
                 this.temporaryPasswordExpireTime = Integer.parseInt(temporaryPasswordExpireTimeProperty.trim());
-            }
-
-            String defaultPasswordProperty = properties.
-                    getProperty(IdentityMgtConstants.PropertyConfig.TEMPORARY_PASSWORD_DEFAULT);
-            if (defaultPasswordProperty != null) {
-                this.temporaryDefaultPassword = defaultPasswordProperty.trim();
             }
 
             String temporaryPasswordOneTimeProperty = properties.
@@ -435,10 +428,6 @@ public class IdentityMgtConfig {
 
     public int getTemporaryPasswordExpireTime() {
         return temporaryPasswordExpireTime;
-    }
-
-    public String getTemporaryDefaultPassword() {
-        return temporaryDefaultPassword;
     }
 
     public boolean isEnableTemporaryPassword() {

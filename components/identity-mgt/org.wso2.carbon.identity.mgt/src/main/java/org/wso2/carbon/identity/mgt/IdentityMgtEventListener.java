@@ -481,12 +481,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             IdentityUtil.threadLocalProperties.get().put(EMPTY_PASSWORD_USED, true);
             // temporary passwords will be used
             char[] temporaryPassword = null;
-            if (IdentityMgtConfig.getInstance().getTemporaryDefaultPassword() != null) {
-                temporaryPassword = IdentityMgtConfig.getInstance().getTemporaryDefaultPassword()
-                        .toCharArray();
-            } else {
-                temporaryPassword = UserIdentityManagementUtil.generateTemporaryPassword();
-            }
+            temporaryPassword = UserIdentityManagementUtil.generateTemporaryPassword();
 
             // setting the password value
             ((StringBuffer) credential).replace(0, temporaryPassword.length, new String(temporaryPassword));
