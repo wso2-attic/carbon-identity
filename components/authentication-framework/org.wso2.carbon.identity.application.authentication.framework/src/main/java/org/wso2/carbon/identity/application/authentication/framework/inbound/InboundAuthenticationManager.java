@@ -70,33 +70,41 @@ public class InboundAuthenticationManager {
 
     //buildAuthenticationRequest() new method InboundAutheticationRequest, need to have a different class with can handle, name, priotity to get builder
 
-    public InboundAuthenticationResponse process(HttpServletRequest req, HttpServletResponse resp) throws FrameworkException {
-
-        String sessionDataKey = req.getParameter(FrameworkConstants.SESSION_DATA_KEY);
-        if (StringUtils.isEmpty(sessionDataKey)) {
-            InboundAuthenticationRequestProcessor requestProcessors = getInboundRequestProcessor(req, resp);
-            if (requestProcessors != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Starting to process inbound authentication : " + requestProcessors.getName());
-                }
-                return requestProcessors.process(req, resp);
-            } else {
-                log.warn("No request processor available for process");
-            }
-        } else {
-            //Response from common authentication framework.
-            InboundAuthenticationResponseBuilder responseBuilder = getInboundResponseBuilder(req, resp);
-            if (responseBuilder != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Starting to process inbound authentication : " + responseBuilder.getName());
-                }
+//    public InboundAuthenticationResponse process(HttpServletRequest req, HttpServletResponse resp) throws FrameworkException {
+//
+//        String sessionDataKey = req.getParameter(FrameworkConstants.SESSION_DATA_KEY);
+//        if (StringUtils.isEmpty(sessionDataKey)) {
+//            InboundAuthenticationRequestProcessor requestProcessors = getInboundRequestProcessor(req, resp);
+//            if (requestProcessors != null) {
+//                if (log.isDebugEnabled()) {
+//                    log.debug("Starting to process inbound authentication : " + requestProcessors.getName());
+//                }
+//                return requestProcessors.process(req, resp);
+//            } else {
+//                log.warn("No request processor available for process");
+//            }
+//        } else {
+//            //Response from common authentication framework.
+//            InboundAuthenticationResponseBuilder responseBuilder = getInboundResponseBuilder(req, resp);
+//            if (responseBuilder != null) {
+//                if (log.isDebugEnabled()) {
+//                    log.debug("Starting to process inbound authentication : " + responseBuilder.getName());
+//                }
 //                return responseBuilder.buildResponse(req, resp, sessionDataKey);
-            } else {
-                log.warn("No response processor available for process");
-            }
-        }
+//            } else {
+//                log.warn("No response processor available for process");
+//            }
+//        }
+//
+//
+//        return null;
+//    }
+
+    public InboundAuthenticationResponse process(InboundAuthenticationRequest authenticationRequest) throws FrameworkException {
+
         return null;
     }
+
 
     /**
      *

@@ -17,25 +17,30 @@
  */
 package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
-import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
-import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceDataHolder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
 public class CommonInboundAuthenticationServlet extends HttpServlet {
+
+    private InboundAuthenticationRequestBuilder getInboundRequestBuilder(HttpServletRequest req,
+            HttpServletResponse resp) throws FrameworkException {
+        List<InboundAuthenticationRequestBuilder> requestBuilders = FrameworkServiceDataHolder.getInstance()
+                .getInboundAuthenticationRequestBuilders();
+
+        for (InboundAuthenticationRequestBuilder requestBuilder : requestBuilders) {
+            if (requestBuilder.canHandle(req, resp)) {
+                return requestBuilder;
+            }
+        }
+        return null;
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -48,6 +53,10 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
             throws ServletException, IOException {
 
         try {
+
+            InboundAuthenticationRequestBuilder requestBuilder = getInboundRequestBuilder(request, response);
+            InboundAuthenticationRequest authenticationRequest = requestBuilder.buildRequest(request, response);
+
             InboundAuthenticationResponse result = new InboundAuthenticationManager().process(request, response);
             if(result.getRedirectURL() != null){
 

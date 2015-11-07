@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.application.authentication.framework.RequestPath
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.inbound.CommonInboundAuthenticationServlet;
+import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationRequestBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationRequestProcessor;
 import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationResponseBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.listener.AuthenticationEndpointTenantActivityListener;
@@ -82,7 +83,13 @@ import java.util.List;
  * interface="org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationResponseBuilder"
  * cardinality="0..n" policy="dynamic" bind="setInboundResponseBuilder"
  * unbind="unsetInboundResponseBuilder"
+ * @scr.reference name="application.requestbuilder"
+ * interface="org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationRequestBuilder"
+ * cardinality="0..n" policy="dynamic" bind="setInboundRequestBuilder"
+ * unbind="unsetInboundRequestBuilder"
  */
+
+
 
 public class FrameworkServiceComponent {
 
@@ -319,6 +326,29 @@ public class FrameworkServiceComponent {
 
     }
 
+    protected void setInboundRequestBuilder(InboundAuthenticationRequestBuilder requestBuilder) {
+
+        FrameworkServiceDataHolder.getInstance().getInboundAuthenticationRequestBuilders().add(requestBuilder);
+        Collections
+                .sort(FrameworkServiceDataHolder.getInstance().getInboundAuthenticationRequestBuilders(), inboundRequestBuilder);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Added application inbound request builder : " + requestBuilder.getName());
+        }
+    }
+
+    protected void unsetInboundRequestBuilder(InboundAuthenticationRequestBuilder requestBuilder) {
+
+        FrameworkServiceDataHolder.getInstance().getInboundAuthenticationRequestBuilders().remove(requestBuilder);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Removed application inbound request builder : " + requestBuilder.getName());
+        }
+
+    }
+
+
+
     protected void unsetIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
         /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
          is started */
@@ -355,6 +385,23 @@ public class FrameworkServiceComponent {
                     if (inboundResponseBuilder1.getPriority() > inboundResponseBuilder2.getPriority()) {
                         return 1;
                     } else if (inboundResponseBuilder1.getPriority() < inboundResponseBuilder2.getPriority()) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+            };
+
+    private static Comparator<InboundAuthenticationRequestBuilder> inboundRequestBuilder =
+            new Comparator<InboundAuthenticationRequestBuilder>() {
+
+                @Override
+                public int compare(InboundAuthenticationRequestBuilder inboundRequestBuilder1,
+                        InboundAuthenticationRequestBuilder inboundRequestBuilder2) {
+
+                    if (inboundRequestBuilder1.getPriority() > inboundRequestBuilder2.getPriority()) {
+                        return 1;
+                    } else if (inboundRequestBuilder1.getPriority() < inboundRequestBuilder2.getPriority()) {
                         return -1;
                     } else {
                         return 0;

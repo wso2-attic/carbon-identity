@@ -37,8 +37,8 @@ public abstract class InboundAuthenticationRequestProcessor {
 
     /**
 	 *
-     * @param req  HTTP Request
-     * @param resp HTTP Response
+     * @param req  Http Request
+     * @param resp Http Response
      * @throws org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException
 	 */
     public abstract InboundAuthenticationResponse process(HttpServletRequest req, HttpServletResponse resp)
@@ -54,7 +54,7 @@ public abstract class InboundAuthenticationRequestProcessor {
 	 *
 	 * @return
 	 */
-	public abstract String getCallbackPath() throws FrameworkException;
+	public abstract String getCallbackPath(InboundAuthenticationContext context) throws FrameworkException;
 
 	/**
 	 *
