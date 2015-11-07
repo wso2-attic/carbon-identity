@@ -17,6 +17,7 @@
  -->
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@page import="java.util.ResourceBundle"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <jsp:useBean id="samlSsoServuceProviderConfigBean"
 	type="org.wso2.carbon.identity.sso.saml.ui.SAMLSSOProviderConfigBean"
@@ -71,5 +72,5 @@
 %>
 
 <script type="text/javascript">
-        location.href = "../application/configure-service-provider.jsp";
+        location.href = "../application/configure-service-provider.jsp?spName=<%=Encode.forUriComponent(request.getParameter("spName"))%>";
 </script>
