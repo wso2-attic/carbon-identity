@@ -24,6 +24,7 @@ import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticator
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -204,7 +205,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
                     inputLine = reader.readLine();
                 }
             }finally {
-                reader.close();
+                IdentityIOStreamUtils.closeReader(reader);
             }
             return builder.toString();
         } else {
