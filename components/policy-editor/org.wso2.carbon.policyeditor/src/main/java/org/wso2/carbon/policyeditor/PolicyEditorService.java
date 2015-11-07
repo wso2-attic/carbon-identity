@@ -19,6 +19,7 @@
 
 package org.wso2.carbon.policyeditor;
 
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 import org.wso2.carbon.policyeditor.util.CarbonEntityResolver;
 import org.apache.axis2.AxisFault;
 import org.apache.commons.io.Charsets;
@@ -148,13 +149,7 @@ public class PolicyEditorService {
         } catch (IOException e) {
             throw new AxisFault("Axis fault while getting schemas.", e);
         } finally {
-            if(dis != null){
-                try{
-                    dis.close();
-                }catch (IOException ioe){
-                    log.error("Error occurred while closing BufferedReader");
-                }
-            }
+            IdentityIOStreamUtils.closeReader(dis);
         }
 
         return "<![CDATA[" + fileList + "]]>";

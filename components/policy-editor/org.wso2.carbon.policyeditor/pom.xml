@@ -40,6 +40,10 @@
             <groupId>xerces.wso2</groupId>
             <artifactId>xercesImpl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
