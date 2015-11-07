@@ -389,7 +389,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
                 b.append(inputLine).append("\n");
                 inputLine = in.readLine();
             }
-        }finally {
+        } finally {
             IdentityIOStreamUtils.closeReader(in);
         }
 
