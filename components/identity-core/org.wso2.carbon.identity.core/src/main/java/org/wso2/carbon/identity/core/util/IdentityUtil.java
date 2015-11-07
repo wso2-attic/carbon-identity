@@ -482,8 +482,7 @@ public class IdentityUtil {
         } else {
             try {
                 RealmConfiguration realmConfiguration = (RealmConfiguration) IdentityTenantUtil.getRealmService()
-                        .getTenantUserRealm
-                                (tenantId);
+                        .getTenantUserRealm(tenantId);
                 if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)==null){
                     return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
                 } else {
