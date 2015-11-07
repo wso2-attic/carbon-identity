@@ -125,7 +125,7 @@ public class ExcelUserBulkImport {
         } catch (Exception e) {
             log.error("Bulk import failed" + e.getMessage(), e);
             throw new UserAdminException("Bulk import failed" + e.getMessage(), e);
-        }finally {
+        } finally {
             IdentityIOStreamUtils.closeInputStream(ins);
         }
         return wb;

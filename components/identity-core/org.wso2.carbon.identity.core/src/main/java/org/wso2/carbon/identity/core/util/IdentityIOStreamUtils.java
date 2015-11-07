@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 
 public class IdentityIOStreamUtils {
 
@@ -51,6 +52,26 @@ public class IdentityIOStreamUtils {
             }
         } catch (IOException ioe) {
             log.error("Error occurred while closing Output stream");
+        }
+    }
+
+    public static void flushOutputStream(OutputStream output) {
+        try {
+            if (output != null) {
+                output.flush();
+            }
+        } catch (IOException ioe) {
+            log.error("Error occurred while flushing Output stream");
+        }
+    }
+
+    public static void closeReader(Reader reader) {
+        try {
+            if (reader != null) {
+                reader.close();
+            }
+        } catch (IOException ioe) {
+            log.error("Error occurred while closing Reader");
         }
     }
 }

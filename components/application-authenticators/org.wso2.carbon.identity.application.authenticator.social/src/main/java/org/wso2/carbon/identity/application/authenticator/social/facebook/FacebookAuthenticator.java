@@ -37,6 +37,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -389,13 +390,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
                 inputLine = in.readLine();
             }
         }finally {
-            if(in != null){
-                try{
-                    in.close();
-                }catch (IOException e){
-                    log.error("Error occurred while closing BufferedReader");
-                }
-            }
+            IdentityIOStreamUtils.closeReader(in);
         }
 
         return b.toString();

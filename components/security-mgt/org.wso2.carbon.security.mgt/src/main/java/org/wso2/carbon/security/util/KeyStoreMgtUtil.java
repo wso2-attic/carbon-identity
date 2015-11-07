@@ -67,6 +67,7 @@ public class KeyStoreMgtUtil {
                 log.error(msg);
                 throw new SecurityException("msg", e);
             } finally {
+                IdentityIOStreamUtils.flushOutputStream(outStream);
                 IdentityIOStreamUtils.closeOutputStream(outStream);
             }
 

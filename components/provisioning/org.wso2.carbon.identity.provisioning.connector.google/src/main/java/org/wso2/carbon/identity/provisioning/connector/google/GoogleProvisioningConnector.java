@@ -86,6 +86,7 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
                     } catch (IOException e) {
                         log.error("Error while generating private key file object", e);
                     }finally {
+                        IdentityIOStreamUtils.flushOutputStream(fos);
                         IdentityIOStreamUtils.closeOutputStream(fos);
                     }
                 }

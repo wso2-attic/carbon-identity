@@ -155,6 +155,7 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
                         extractingBufferedStream.write(buffer, 0, size);
                     }
                 } finally {
+                    IdentityIOStreamUtils.flushOutputStream(extractingBufferedStream);
                     IdentityIOStreamUtils.closeOutputStream(extractingBufferedStream);
                 }
             }
@@ -164,7 +165,7 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
                     this.zipSchemaStore.getAbsolutePath();
             logger.error(msg, e);
             throw new IOException(msg, e);
-        }finally{
+        } finally{
             IdentityIOStreamUtils.closeInputStream(zipFileStream);
         }
 
