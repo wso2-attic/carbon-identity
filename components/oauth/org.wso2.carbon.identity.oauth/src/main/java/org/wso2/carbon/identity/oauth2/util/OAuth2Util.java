@@ -486,12 +486,7 @@ public class OAuth2Util {
     }
 
     public static String hashScopes(String[] scope){
-        if (scope.length > 0){
-            return DigestUtils.md5Hex(OAuth2Util.buildScopeString(scope));
-        } else {
-            return null;
-        }
-
+        return DigestUtils.md5Hex(OAuth2Util.buildScopeString(scope));
     }
 
     public static String hashScopes(String scope){
@@ -508,7 +503,7 @@ public class OAuth2Util {
             String tenantDomain = MultitenantUtils.getTenantDomain(username);
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
             String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
-            String userStoreDomain = UserCoreUtil.extractDomainFromName(username).toUpperCase();
+            String userStoreDomain = IdentityUtil.extractDomainFromName(username).toUpperCase();
             User user = new User();
             user.setUserName(tenantAwareUsernameWithNoUserDomain);
             user.setTenantDomain(tenantDomain);

@@ -45,9 +45,10 @@ import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.identity.core.model.IdentityEventListener;
 import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -62,9 +63,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.SocketException;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -289,25 +288,22 @@ public class IdentityUtil {
         if (mgtTransportPort <= 0) {
             mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
         }
-        String serverUrl = mgtTransport + "://" + hostName.toLowerCase();
+        StringBuilder serverUrl = new StringBuilder(mgtTransport + "://" + hostName.toLowerCase());
         // If it's well known HTTPS port, skip adding port
         if (mgtTransportPort != IdentityCoreConstants.DEFAULT_HTTPS_PORT) {
-            serverUrl += ":" + mgtTransportPort;
+            serverUrl.append(":").append(mgtTransportPort);
         }
         // If ProxyContextPath is defined then append it
-        URL serverUri = null;
-        try {
-            serverUri = new URL(serverUrl);
-        } catch (MalformedURLException e) {
-            throw new IdentityRuntimeException("Error while getting server URL.", e);
-        }
+
         String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
                 .PROXY_CONTEXT_PATH);
-        if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()) {
-            try {
-                serverUri = new URL(serverUri, proxyContextPath);
-            } catch (MalformedURLException e) {
-                throw new IdentityRuntimeException("Error while appending proxy context path to server url.", e);
+        if (StringUtils.isNotBlank(proxyContextPath)) {
+            if (!serverUrl.toString().endsWith("/") && proxyContextPath.trim().charAt(0) != '/') {
+                serverUrl.append("/").append(proxyContextPath.trim());
+            } else if (serverUrl.toString().endsWith("/") && proxyContextPath.trim().charAt(0) == '/') {
+                serverUrl.append(proxyContextPath.trim().substring(1));
+            } else {
+                serverUrl.append(proxyContextPath.trim());
             }
         }
         // If webContextRoot is defined then append it
@@ -315,21 +311,28 @@ public class IdentityUtil {
             String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
                     .WEB_CONTEXT_ROOT);
             if (StringUtils.isNotBlank(webContextRoot)) {
-                try {
-                    serverUri = new URL(serverUri, webContextRoot);
-                } catch (MalformedURLException e) {
-                    throw new IdentityRuntimeException("Error while appending web context root to server url.", e);
+                if (!serverUrl.toString().endsWith("/") && webContextRoot.trim().charAt(0) != '/') {
+                    serverUrl.append("/").append(webContextRoot.trim());
+                } else if (serverUrl.toString().endsWith("/") && webContextRoot.trim().charAt(0) == '/') {
+                    serverUrl.append(webContextRoot.trim().substring(1));
+                } else {
+                    serverUrl.append(webContextRoot.trim());
                 }
             }
         }
         if (StringUtils.isNotBlank(endpoint)) {
-            try {
-                serverUri = new URL(serverUri, endpoint);
-            } catch (MalformedURLException e) {
-                throw new IdentityRuntimeException("Error while appending endpoint to server url.", e);
+            if (!serverUrl.toString().endsWith("/") && endpoint.trim().charAt(0) != '/') {
+                serverUrl.append("/").append(endpoint.trim());
+            } else if (serverUrl.toString().endsWith("/") && endpoint.trim().charAt(0) == '/') {
+                serverUrl.append(endpoint.trim().substring(1));
+            } else {
+                serverUrl.append(endpoint.trim());
             }
         }
-        return serverUri.toString();
+        if (serverUrl.toString().endsWith("/")) {
+            serverUrl.deleteCharAt(serverUrl.length() - 1);
+        }
+        return serverUrl.toString();
     }
 
     /**
@@ -391,7 +394,7 @@ public class IdentityUtil {
      */
     public static boolean isUserStoreInUsernameCaseSensitive(String username, int tenantId) {
 
-        return isUserStoreCaseSensitive(UserCoreUtil.extractDomainFromName(username), tenantId);
+        return isUserStoreCaseSensitive(IdentityUtil.extractDomainFromName(username), tenantId);
     }
 
     /**
@@ -469,5 +472,25 @@ public class IdentityUtil {
             cleanUpPeriod = IdentityConstants.ServerConfig.CLEAN_UP_PERIOD_DEFAULT;
         }
         return Integer.parseInt(cleanUpPeriod);
+    }
+
+    public static String extractDomainFromName(String nameWithDomain){
+        int tenantId = -1234;
+        if(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)>0){
+            String domain = nameWithDomain.split(UserCoreConstants.DOMAIN_SEPARATOR)[1];
+            return domain.toUpperCase();
+        } else {
+            try {
+                RealmConfiguration realmConfiguration = (RealmConfiguration) IdentityTenantUtil.getRealmService()
+                        .getTenantUserRealm(tenantId);
+                if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)==null){
+                    return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                } else {
+                    return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+                }
+            } catch (UserStoreException e) {
+                return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+            }
+        }
     }
 }
