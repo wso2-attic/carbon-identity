@@ -49,7 +49,6 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -482,8 +481,9 @@ public class IdentityUtil {
             return domain.toUpperCase();
         } else {
             try {
-                RealmConfiguration realmConfiguration = (RealmConfiguration) UserStoreMgtDSComponent.getRealmService().getTenantUserRealm
-                        (tenantId);
+                RealmConfiguration realmConfiguration = (RealmConfiguration) IdentityTenantUtil.getRealmService()
+                        .getTenantUserRealm
+                                (tenantId);
                 if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)==null){
                     return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
                 } else {

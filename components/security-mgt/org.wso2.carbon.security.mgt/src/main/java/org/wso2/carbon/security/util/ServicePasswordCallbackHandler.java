@@ -35,11 +35,11 @@ import org.wso2.carbon.security.SecurityConfigParams;
 import org.wso2.carbon.security.SecurityConstants;
 import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.security.UserCredentialRetriever;
+import org.wso2.carbon.security.internal.SecurityMgtServiceComponent;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -204,14 +204,15 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
             return domain.toUpperCase();
         } else {
             try {
-                RealmConfiguration realmConfiguration = (RealmConfiguration) UserStoreMgtDSComponent.getRealmService().getTenantUserRealm
+                RealmConfiguration realmConfiguration = (RealmConfiguration) SecurityServiceHolder.getRealmService()
+                        .getTenantUserRealm
                         (tenantId);
                 if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)==null){
                     return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
                 } else {
                     return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
                 }
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            } catch (Exception e) {
                 return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
         }
