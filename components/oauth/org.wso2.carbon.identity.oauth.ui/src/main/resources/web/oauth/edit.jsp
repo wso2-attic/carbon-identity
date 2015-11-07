@@ -329,7 +329,7 @@
                             if (applicationComponentFound) {                            
                             %>
                             <input type="button" class="button"
-                                       onclick="javascript:location.href='../application/configure-service-provider.jsp'"
+                                       onclick="javascript:location.href='../application/configure-service-provider.jsp?spName=<%=Encode.forUriComponent(applicationSPName)%>'"
                                    value="<fmt:message key='cancel'/>"/>
                             <% } else { %>
                                    
