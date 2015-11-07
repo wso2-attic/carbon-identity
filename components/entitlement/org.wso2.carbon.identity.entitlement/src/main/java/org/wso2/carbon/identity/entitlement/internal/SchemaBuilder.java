@@ -80,13 +80,14 @@ public class SchemaBuilder implements Runnable {
                 schemaFile = PDPConstants.XACML_3_POLICY_SCHEMA_FILE;
             }
 
-            InputStream schemaFileStream = EntitlementExtensionBuilder.class
-                    .getResourceAsStream("/" + schemaFile);
-            SchemaFactory schemaFactory = SchemaFactory
-                    .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = schemaFactory.newSchema(new StreamSource(schemaFileStream));
-            configHolder.getPolicySchemaMap().put(schemaNS, schema);
-            IdentityIOStreamUtils.closeInputStream(schemaFileStream);
+            InputStream schemaFileStream = EntitlementExtensionBuilder.class.getResourceAsStream("/" + schemaFile);
+            try{
+                SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                Schema schema = schemaFactory.newSchema(new StreamSource(schemaFileStream));
+                configHolder.getPolicySchemaMap().put(schemaNS, schema);
+            } finally {
+                IdentityIOStreamUtils.closeInputStream(schemaFileStream);
+            }
         }
     }
 
