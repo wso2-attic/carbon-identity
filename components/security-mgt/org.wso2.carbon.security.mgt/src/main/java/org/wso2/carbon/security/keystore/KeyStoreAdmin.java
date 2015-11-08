@@ -20,6 +20,7 @@ package org.wso2.carbon.security.keystore;
 
 import org.apache.axiom.om.util.Base64;
 import org.apache.axis2.context.MessageContext;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
@@ -528,7 +529,10 @@ public class KeyStoreAdmin {
                 if (keyStore.isKeyEntry(alias)) {
                     X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
                     keyStoreData.setKey(fillCertData(cert, alias, formatter));
-
+                    if (StringUtils.isBlank(privateKeyPassowrd)) {
+                        throw new SecurityConfigException(
+                                "Cannot Read Private Key Password from Server Configurations");
+                    }
                     PrivateKey key = (PrivateKey) keyStore.getKey(alias, privateKeyPassowrd
                             .toCharArray());
                     String pemKey;
@@ -748,7 +752,10 @@ public class KeyStoreAdmin {
                 if (keyStore.isKeyEntry(alias)) {
                     X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
                     keyStoreData.setKey(fillCertData(cert, alias, formatter));
-
+                    if (StringUtils.isBlank(privateKeyPassowrd)) {
+                        throw new SecurityConfigException(
+                                "Cannot Read Private Key Password from Server Configurations");
+                    }
                     PrivateKey key = (PrivateKey) keyStore.getKey(alias, privateKeyPassowrd
                             .toCharArray());
                     String pemKey;

@@ -24,15 +24,11 @@
 <%@ page
 	import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="java.util.ResourceBundle"%>
-
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
-
-<jsp:useBean id="appBean"
-	class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"
-	scope="session" />
-
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -50,7 +46,10 @@
 	<script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 
 	<%
-		String spName = (String) request.getParameter("spName");
+		String spName = request.getParameter("spName");
+		String oldSPName = request.getParameter("oldSPName");
+
+		ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, oldSPName);
 
 		if (spName != null && !"".equals(spName)) {
 
@@ -81,7 +80,7 @@
 			}
 		} 
 		
-		session.removeAttribute("appBean");
+		session.removeAttribute(spName);
 
 	%>
 

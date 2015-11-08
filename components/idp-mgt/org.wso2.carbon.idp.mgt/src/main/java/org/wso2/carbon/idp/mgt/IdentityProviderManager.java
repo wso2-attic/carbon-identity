@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
 import org.wso2.carbon.identity.application.common.model.ClaimConfig;
@@ -101,8 +102,6 @@ public class IdentityProviderManager {
         if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equalsIgnoreCase(tenantDomain)) {
             tenantContext = MultitenantConstants.TENANT_AWARE_URL_PREFIX + "/" + tenantDomain + "/";
         }
-
-        String serverUrl = IdentityUtil.getServerURL("") + "/";
 
         String openIdUrl = null;
         String samlSSOUrl = null;
@@ -181,43 +180,43 @@ public class IdentityProviderManager {
         }
 
         if(StringUtils.isBlank(openIdUrl)){
-            openIdUrl = serverUrl + "openid";
+            openIdUrl = IdentityUtil.getServerURL("openid", true);
         }
         if(StringUtils.isBlank(samlSSOUrl)){
-            samlSSOUrl = serverUrl + "samlsso";
+            samlSSOUrl = IdentityUtil.getServerURL("samlsso", true);
         }
         if(StringUtils.isBlank(samlLogoutUrl)){
-            samlLogoutUrl = serverUrl + "samlsso";
+            samlLogoutUrl = IdentityUtil.getServerURL("samlsso", true);
         }
         if(StringUtils.isBlank(oauth1RequestTokenUrl)){
-            oauth1RequestTokenUrl = serverUrl + "oauth/request-token";
+            oauth1RequestTokenUrl = IdentityUtil.getServerURL("oauth/request-token", true);
         }
         if(StringUtils.isBlank(oauth1AuthorizeUrl)){
-            oauth1AuthorizeUrl = serverUrl + "oauth/authorize-url";
+            oauth1AuthorizeUrl = IdentityUtil.getServerURL("oauth/authorize-url", true);
         }
         if(StringUtils.isBlank(oauth1AccessTokenUrl)){
-            oauth1AccessTokenUrl = serverUrl + "oauth/access-token";
+            oauth1AccessTokenUrl = IdentityUtil.getServerURL("oauth/access-token", true);
         }
         if(StringUtils.isBlank(oauth2AuthzEPUrl)){
-            oauth2AuthzEPUrl = serverUrl + "oauth2/authorize";
+            oauth2AuthzEPUrl = IdentityUtil.getServerURL("oauth2/authorize", false);
         }
         if(StringUtils.isBlank(oauth2TokenEPUrl)){
-            oauth2TokenEPUrl = serverUrl + "oauth2/token";
+            oauth2TokenEPUrl = IdentityUtil.getServerURL("oauth2/token", false);
         }
         if(StringUtils.isBlank(oauth2UserInfoEPUrl)){
-            oauth2UserInfoEPUrl = serverUrl + "oauth2/userinfo";
+            oauth2UserInfoEPUrl = IdentityUtil.getServerURL("oauth2/userinfo", false);
         }
         if(StringUtils.isBlank(passiveStsUrl)){
-            passiveStsUrl = serverUrl + "passivests";
+            passiveStsUrl = IdentityUtil.getServerURL("passivests", true);
         }
         if(StringUtils.isBlank(stsUrl)){
-            stsUrl = serverUrl + "services/" + tenantContext + "wso2carbon-sts";
+            stsUrl = IdentityUtil.getServerURL("services/" + tenantContext + "wso2carbon-sts", true);
         }
         if(StringUtils.isBlank(scimUserEndpoint)){
-            scimUserEndpoint = serverUrl + "wso2/scim/Users";
+            scimUserEndpoint = IdentityUtil.getServerURL("wso2/scim/Users", false);
         }
         if(StringUtils.isBlank(scimGroupsEndpoint)){
-            scimGroupsEndpoint = serverUrl + "wso2/scim/Groups";
+            scimGroupsEndpoint = IdentityUtil.getServerURL("wso2/scim/Groups", false);
         }
 
         IdentityProvider identityProvider = dao.getIdPByName(null,
@@ -238,6 +237,9 @@ public class IdentityProviderManager {
         X509Certificate cert = null;
         try {
             IdentityTenantUtil.initializeRegistry(tenantId, tenantDomain);
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setTenantDomain(tenantDomain, true);
             KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
             if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
                 // derive key store name
@@ -252,7 +254,10 @@ public class IdentityProviderManager {
         } catch (Exception e) {
             String msg = "Error retrieving primary certificate for tenant : " + tenantDomain;
             throw new IdentityProviderManagementException(msg, e);
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
+
         if (cert == null) {
             throw new IdentityProviderManagementException(
                     "Cannot find the primary certificate for tenant " + tenantDomain);
@@ -559,7 +564,19 @@ public class IdentityProviderManager {
         }
         idpPropertiesResidentAuthenticatorConfig.setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
 
-        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = {saml2SSOResidentAuthenticatorConfig, idpPropertiesResidentAuthenticatorConfig};
+
+
+        Property passiveStsProperty = new Property();
+        passiveStsProperty.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID);
+        passiveStsProperty.setValue(IdPManagementUtil.getResidentIdPEntityId());
+
+        FederatedAuthenticatorConfig passiveStsAuthenticationConfig = new FederatedAuthenticatorConfig();
+        passiveStsAuthenticationConfig.setProperties(new Property[] { passiveStsProperty });
+        passiveStsAuthenticationConfig.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME);
+
+
+        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = { saml2SSOResidentAuthenticatorConfig,
+                idpPropertiesResidentAuthenticatorConfig, passiveStsAuthenticationConfig };
         identityProvider.setFederatedAuthenticatorConfigs(IdentityApplicationManagementUtil
                 .concatArrays(identityProvider.getFederatedAuthenticatorConfigs(), federatedAuthenticatorConfigs));
 
@@ -1347,7 +1364,9 @@ public class IdentityProviderManager {
                         for (Property property : properties) {
                             if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(
                                     property.getName())) {
-                                if (dao.isSimilarIdPEntityIdsAvailble(property.getValue(), tenantId)) {
+                                if (dao.isIdPAvailableForAuthenticatorProperty(authConfig.getName(),
+                                        IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID,
+                                        property.getValue(), tenantId)) {
                                     String msg = "An Identity Provider Entity Id has already been registered with the " +
                                             "name '" + property.getValue() + "' for tenant '" + tenantDomain + "'";
                                     throw new IdentityProviderManagementException(msg);
@@ -1399,7 +1418,9 @@ public class IdentityProviderManager {
                                         (property.getValue())) {
                                     return true;
                                 } else {
-                                    if (dao.isSimilarIdPEntityIdsAvailble(property.getValue(), tenantId)) {
+                                    if (dao.isIdPAvailableForAuthenticatorProperty(fedAuthnConfig.getName(),
+                                            IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID,
+                                            property.getValue(), tenantId)) {
                                         String msg = "An Identity Provider Entity Id has already been registered " +
                                                 "with the name '" +
                                                 property.getValue() + "' for tenant '" + tenantDomain + "'";

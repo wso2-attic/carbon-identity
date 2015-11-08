@@ -97,7 +97,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                 String idpName = stepConfig.getAuthenticatedIdP();
                 //TODO: Need to fix occurrences where idPName becomes "null"
                 if ((idpName == null || "null".equalsIgnoreCase(idpName) || idpName.isEmpty()) &&
-                    sequenceConfig.getAuthenticatedReqPathAuthenticator() != null) {
+                        sequenceConfig.getAuthenticatedReqPathAuthenticator() != null) {
                     idpName = FrameworkConstants.LOCAL_IDP_NAME;
                 }
                 try {
@@ -126,23 +126,27 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                     log.error("Exception while getting IdP by name", e);
                 }
             }
+            if (sequenceConfig != null && sequenceConfig.getAuthenticatedUser() != null) {
+                String auditData = "\"" + "ContextIdentifier" + "\" : \"" + context.getContextIdentifier()
+                        + "\",\"" + "LoggedOutUser" + "\" : \"" + sequenceConfig.getAuthenticatedUser().
+                        getAuthenticatedSubjectIdentifier()
+                        + "\",\"" + "LoggedOutUserTenantDomain" + "\" : \"" + sequenceConfig.
+                        getAuthenticatedUser().getTenantDomain()
+                        + "\",\"" + "ServiceProviderName" + "\" : \"" + context.getServiceProviderName()
+                        + "\",\"" + "RequestType" + "\" : \"" + context.getRequestType()
+                        + "\",\"" + "RelyingParty" + "\" : \"" + context.getRelyingParty()
+                        + "\",\"" + "AuthenticatedIdPs" + "\" : \"" + sequenceConfig.getAuthenticatedIdPs()
+                        + "\"";
 
-            String auditData = "\"" + "ContextIdentifier" + "\" : \"" + context.getContextIdentifier()
-                    + "\",\"" + "LoggedOutUser" + "\" : \"" + sequenceConfig.getAuthenticatedUser().
-                    getAuthenticatedSubjectIdentifier()
-                    + "\",\"" + "LoggedOutUserTenantDomain" + "\" : \"" + sequenceConfig.
-                    getAuthenticatedUser().getTenantDomain()
-                    + "\",\"" + "ServiceProviderName" + "\" : \"" + context.getServiceProviderName()
-                    + "\",\"" + "RequestType" + "\" : \"" + context.getRequestType()
-                    + "\",\"" + "RelyingParty" + "\" : \"" + context.getRelyingParty()
-                    + "\",\"" + "AuthenticatedIdPs" + "\" : \"" + sequenceConfig.getAuthenticatedIdPs()
-                    + "\"";
-
-            AUDIT_LOG.info(String.format(
-                    FrameworkConstants.AUDIT_MESSAGE,
-                    sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier(),
-                    "Logout",
-                    externalIdPConfig.getIdPName(), auditData, FrameworkConstants.AUDIT_SUCCESS));
+                String idpName = null;
+                if (externalIdPConfig != null) {
+                    idpName = externalIdPConfig.getName();
+                }
+                AUDIT_LOG.info(String.format(
+                        FrameworkConstants.AUDIT_MESSAGE,
+                        sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier(),
+                        "Logout", idpName, auditData, FrameworkConstants.AUDIT_SUCCESS));
+            }
         }
 
         // remove the SessionContext from the cache

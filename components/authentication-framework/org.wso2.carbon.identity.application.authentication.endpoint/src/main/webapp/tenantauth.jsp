@@ -21,86 +21,72 @@
 <%@ page import="java.util.List" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 
-<style type="text/css">
-    select.input-xlarge {
-        width: 280px;
-    }
-
-    input.input-xlarge {
-        width: 270px;
-    }
-</style>
-
-<div id="loginTable1" class="identity-box">
-    <%
-        loginFailed = request.getParameter("loginFailed");
-        if (loginFailed != null) {
-    %>
-    <div class="alert alert-error">
-        <fmt:message key='<%=Encode.forHtml(request.getParameter("errorMessage"))%>'/>
+<form action="../commonauth" method="post" id="loginForm">
+    <% if (Boolean.parseBoolean(loginFailed)) { %>
+    <div class="alert alert-danger" id="error-msg">Username or password is
+        invalid
     </div>
-    <% } %>
+    <%}%>
 
-    <% if (StringUtils.isEmpty(request.getParameter("username"))) { %>
 
-    <!--tenant list dropdown-->
-    <div class="control-group">
-        <label class="control-label" for="tenantList"><fmt:message key='tenantListLabel'/>:</label>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <select class="form-control" id='tenantList' name="tenantList" size='1'>
+            <option value="<fmt:message key='select.tenant.dropdown.display.name'/>">
+                <fmt:message key='select.tenant.dropdown.display.name'/>
+            </option>
+            <option value="<fmt:message key='super.tenant'/>"><fmt:message key='super.tenant.display.name'/>
+            </option>
 
-        <div class="controls">
-            <select class="input-xlarge" id='tenantList' name="tenantList" size='1'>
-                <option value="<fmt:message key='select.tenant.dropdown.display.name'/>">
-                    <fmt:message key='select.tenant.dropdown.display.name'/>
-                </option>
-                <option value="<fmt:message key='super.tenant'/>"><fmt:message key='super.tenant.display.name'/>
-                </option>
-
-                <%
-                    List<String> tenantDomainsList = TenantDataManager.getAllActiveTenantDomains();
-                    if (!tenantDomainsList.isEmpty()) {
-                        for (String tenant : tenantDomainsList) {
-                %>
-                <option value="<%=Encode.forHtmlAttribute(tenant)%>"><%=Encode.forHtmlContent(tenant)%>
-                </option>
-                <%
-                        }
+            <%
+                List<String> tenantDomainsList = TenantDataManager.getAllActiveTenantDomains();
+                if (!tenantDomainsList.isEmpty()) {
+                    for (String tenant : tenantDomainsList) {
+            %>
+            <option value="<%=Encode.forHtmlAttribute(tenant)%>"><%=Encode.forHtmlContent(tenant)%>
+            </option>
+            <%
                     }
-                %>
-            </select>
-        </div>
+                }
+            %>
+        </select>
     </div>
 
-    <!-- Username -->
     <input type="hidden" id='username' name='username'/>
 
-    <div class="control-group">
-        <label class="control-label" for="username_tmp"><fmt:message key='username'/>:</label>
-
-        <div class="controls">
-            <input class="input-xlarge" type="text" id='username_tmp' name="username_tmp" size='30'/>
-        </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <input id='username_tmp' name="username_tmp" type="text" class="form-control" tabindex="0"
+               placeholder="Username">
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <input id="password" name="password" type="password" class="form-control"
+               placeholder="Password">
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <input type="hidden" name="sessionDataKey" value='<%=Encode.forHtmlAttribute
+            (request.getParameter("sessionDataKey"))%>'/>
     </div>
 
-
-    <%} else { %>
-
-    <input type="hidden" id='username' name='username'
-           value='<%=Encode.forHtmlAttribute(request.getParameter("username"))%>'/>
-
-    <% } %>
-
-    <!--Password-->
-    <div class="control-group">
-        <label class="control-label" for="password"><fmt:message key='password'/>:</label>
-
-        <div class="controls">
-            <input type="password" id='password' name="password" class="input-xlarge" size='30'/>
-            <input type="hidden" name="sessionDataKey" value='<%=Encode.forHtmlAttribute(request.getParameter("sessionDataKey"))%>'/>
-            <label class="checkbox" style="margin-top:10px">
-                <input type="checkbox" id="chkRemember" name="chkRemember"><fmt:message key='remember.me'/>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" id="chkRemember" name="chkRemember"> Remember me on this computer
             </label>
         </div>
+        <br>
+
+        <div class="form-actions">
+            <button
+                    class="wr-btn grey-bg col-xs-12 col-md-12 col-lg-12 uppercase font-extra-large"
+                    type="submit" onclick="appendTenantDomain();">Sign in
+            </button>
+        </div>
     </div>
+
+    <%if(request.getParameter("relyingParty").equals("wso2.my.dashboard")) { %>
+    <a id="registerLink" href="create-account.jsp?sessionDataKey=<%=Encode.forHtmlAttribute
+            (request.getParameter("sessionDataKey"))%>" class="font-large">Create an
+        account</a>
+    <%} %>
 
     <script>
 
@@ -129,7 +115,7 @@
             var date = new Date();
             date.setTime(date.getTime() + (exdays * 24 * 60 * 60 * 1000));
             var expires = "expires=" + date.toUTCString();
-            document.cookie = "selectedTenantDomain=" + cvalue + "; " + expires;
+            document.cookie = "selectedTenantDomain=" + cvalue + "; " + expires + "; secure; HttpOnly";
         }
 
         /**
@@ -178,11 +164,5 @@
             }
         }
     </script>
-
-    <div class="form-actions">
-        <input type="submit" value="<fmt:message key='login'/>" class="btn btn-primary"
-               onclick="appendTenantDomain();">
-    </div>
-
-</div>
-
+    <div class="clearfix"></div>
+</form>

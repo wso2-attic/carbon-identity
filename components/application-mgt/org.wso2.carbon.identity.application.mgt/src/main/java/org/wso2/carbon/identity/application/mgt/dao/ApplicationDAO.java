@@ -52,7 +52,8 @@ public interface ApplicationDAO {
      * @param applicationDTO
      * @throws IdentityApplicationManagementException
      */
-    void updateApplication(ServiceProvider applicationDTO) throws IdentityApplicationManagementException;
+    void updateApplication(ServiceProvider applicationDTO, String tenantDomain) throws
+            IdentityApplicationManagementException;
 
     /**
      * @param applicationName

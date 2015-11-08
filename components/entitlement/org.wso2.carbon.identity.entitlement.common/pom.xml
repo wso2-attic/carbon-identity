@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>entitlement</artifactId>
-        <version>4.6.0-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -87,7 +87,7 @@
                             ${project.artifactId}
                         </Bundle-SymbolicName>
                         <Import-Package>
-                            javax.xml.parsers,
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
                             org.w3c.dom,
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
                             org.wso2.balana.utils.Constants; version="${balana.imp.pkg.version.range}",

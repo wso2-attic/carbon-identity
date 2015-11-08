@@ -23,7 +23,6 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.text.MessageFormat" %>
@@ -88,16 +87,16 @@
         addDeletedRoleLists(deletedList, (Map<String, Boolean>) session.getAttribute("checkedRolesMap"));
 
         if (viewUsers) {
-            client.addRemoveRolesOfUser(Util.decodeHTMLCharacters(username), null,
+            client.addRemoveRolesOfUser(username, null,
                                         deletedList.toArray(new String[deletedList.size()]));
         } else {
-            client.addRemoveRolesOfUser(Util.decodeHTMLCharacters(username), selectedRoles, null);
+            client.addRemoveRolesOfUser(username, selectedRoles, null);
             session.removeAttribute(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_CACHE);
             session.removeAttribute(UserAdminUIConstants.USER_LIST_UNASSIGNED_ROLE_CACHE_EXCEEDED);
         }
 
         String message =
-                MessageFormat.format(resourceBundle.getString("user.update"), Util.decodeHTMLCharacters(username));
+                MessageFormat.format(resourceBundle.getString("user.update"), username);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
 
         if (logout) {
@@ -132,7 +131,7 @@
     String encodedUserName = "";
 
     if (username != null) {
-        decodedUserName = Util.decodeHTMLCharacters(username);
+        decodedUserName = username;
         encodedUserName = URLEncoder.encode(username);
     }
 

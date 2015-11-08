@@ -47,7 +47,7 @@ import java.util.UUID;
 
 public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHandler {
 
-    private static final String FRIENDLY_NAME = "Update User Roles";
+    private static final String FRIENDLY_NAME = "Update Roles of User";
     private static final String FRIENDLY_DESCRIPTION = "Triggered when roles are assigned to/removed from a user";
 
     private static final String USERNAME = "Username";

@@ -192,18 +192,21 @@ public class RequestEntityRelationshipDAO {
      * @param wfOperationType Operation Type of the Work-flow.
      * @param wfStatus        Current Status of the Work-flow.
      * @param entityType      Entity Type of the Work-flow.
+     * @param idFilter        Entity ID filter to search
      * @param tenantID        Tenant ID of the currently Logged user.
      * @return
      * @throws InternalWorkflowException
      */
-    public List<String> getEntityNamesOfRequest(String wfOperationType, String wfStatus, String entityType, int tenantID)
-            throws InternalWorkflowException {
+    public List<String> getEntityNamesOfRequest(String wfOperationType, String wfStatus, String entityType, String
+            idFilter, int tenantID) throws InternalWorkflowException {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
         String query = SQLConstants.GET_REQUEST_ENTITY_NAMES;
         List<String> entityNames = new ArrayList<String>();
+        idFilter = idFilter.replaceAll("\\*","%");
+        idFilter = idFilter.replaceAll("\\\\%", "*");
 
         try {
             prepStmt = connection.prepareStatement(query);
@@ -211,6 +214,7 @@ public class RequestEntityRelationshipDAO {
             prepStmt.setString(2, wfStatus);
             prepStmt.setString(3, entityType);
             prepStmt.setInt(4, tenantID);
+            prepStmt.setString(5, idFilter);
             resultSet = prepStmt.executeQuery();
             while (resultSet.next()) {
                 String entityName = resultSet.getString(SQLConstants.ENTITY_NAME_COLUMN);

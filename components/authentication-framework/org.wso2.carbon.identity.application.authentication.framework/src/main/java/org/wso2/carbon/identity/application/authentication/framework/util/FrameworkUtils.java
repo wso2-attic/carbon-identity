@@ -58,8 +58,6 @@ import org.wso2.carbon.identity.application.authentication.framework.handler.req
 import org.wso2.carbon.identity.application.authentication.framework.handler.request.impl.DefaultAuthenticationRequestHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.request.impl.DefaultLogoutRequestHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.request.impl.DefaultRequestCoordinator;
-import org.wso2.carbon.identity.application.authentication.framework.handler.roles.RoleHandler;
-import org.wso2.carbon.identity.application.authentication.framework.handler.roles.impl.DefaultRoleHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.sequence.RequestPathBasedSequenceHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.sequence.StepBasedSequenceHandler;
 import org.wso2.carbon.identity.application.authentication.framework.handler.sequence.impl.DefaultRequestPathBasedSequenceHandler;
@@ -401,25 +399,6 @@ public class FrameworkUtils {
     /**
      * @return
      */
-    public static RoleHandler getRoleHandler() {
-
-        RoleHandler roleHandler = null;
-
-        Object obj = ConfigurationFacade.getInstance().getExtensions()
-                .get(FrameworkConstants.Config.QNAME_EXT_ROLE_HANDLER);
-
-        if (obj instanceof RoleHandler) {
-            roleHandler = (RoleHandler) obj;
-        } else {
-            roleHandler = DefaultRoleHandler.getInstance();
-        }
-
-        return roleHandler;
-    }
-
-    /**
-     * @return
-     */
     public static ProvisioningHandler getProvisioningHandler() {
 
         ProvisioningHandler provisioningHandler = null;
@@ -443,7 +422,8 @@ public class FrameworkUtils {
     public static void sendToRetryPage(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         // TODO read the URL from framework config file rather than carbon.xml
-        response.sendRedirect(IdentityUtil.getServerURL("/authenticationendpoint/retry.do"));
+        response.sendRedirect(IdentityUtil.getServerURL(ConfigurationFacade.getInstance()
+                .getAuthenticationEndpointRetryURL(), false));
     }
 
     /**

@@ -48,8 +48,8 @@ public class WorkflowRequestAssociationDAO {
      * @param status
      * @throws InternalWorkflowException
      */
-    public void addNewRelationship(String relationshipId, String workflowId, String requestId, String status) throws
-                                                                                                              InternalWorkflowException {
+    public void addNewRelationship(String relationshipId, String workflowId, String requestId, String status,
+                                   int tenantId) throws InternalWorkflowException {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_WORKFLOW_REQUEST_RELATIONSHIP;
@@ -61,6 +61,7 @@ public class WorkflowRequestAssociationDAO {
             prepStmt.setString(3, requestId);
             prepStmt.setTimestamp(4, createdDateStamp);
             prepStmt.setString(5, status);
+            prepStmt.setInt(6, tenantId);
             prepStmt.execute();
             connection.commit();
         } catch (SQLException e) {
@@ -171,7 +172,7 @@ public class WorkflowRequestAssociationDAO {
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, requestId);
             resultSet = prepStmt.executeQuery();
-            if (resultSet.next()) {
+            while (resultSet.next()) {
                 states.add(resultSet.getString(SQLConstants.REQUEST_STATUS_COLUMN));
             }
             connection.commit();

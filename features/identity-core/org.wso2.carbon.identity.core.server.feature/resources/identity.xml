@@ -23,17 +23,23 @@
         <!-- <SkipDBSchemaCreation>false</SkipDBSchemaCreation> -->
         <!--SessionDataPersist>
             <Enable>true</Enable>
-            <EnableCleanUp>true</EnableCleanUp>
-            <Temporary>false</Temporary-->
-        <!--/SessionDataPersist-->
+            <Temporary>false</Temporary>
+            <SessionDataCleanUp>
+                <Enable>true</Enable>
+                <CleanUpTimeout>20160</CleanUpTimeout>
+                <CleanUpPeriod>1140</CleanUpPeriod>
+            </SessionDataCleanUp>
+            <OperationDataCleanUp>
+                <Enable>true</Enable>
+                <CleanUpPeriod>720</CleanUpPeriod>
+            </OperationDataCleanUp>
+        </SessionDataPersist-->
     </JDBCPersistenceManager>
 
     <!-- Time configurations are in minutes -->
     <TimeConfig>
         <SessionIdleTimeout>15</SessionIdleTimeout>
         <RememberMeTimeout>20160</RememberMeTimeout>
-        <PersistanceCleanUpTimeout>20160</PersistanceCleanUpTimeout>
-        <PersistanceCleanUpPeriod>1140</PersistanceCleanUpPeriod>
     </TimeConfig>
 
     <!-- Security configurations -->
@@ -61,21 +67,14 @@
          -->
         <!--OpenIDServerUrl>https://localhost:9443/openidserver</OpenIDServerUrl-->
         <!--OpenIDUserPattern>https://localhost:9443/openid/</OpenIDUserPattern-->
+        <!--OpenIDLoginUrl>https://localhost:9443/authenticationendpoint/openid_login.do</OpenIDLoginUrl-->
 
         <!-- If the users must be prompted for approval -->
         <OpenIDSkipUserConsent>false</OpenIDSkipUserConsent>
         <!-- Expiry time of the OpenID RememberMe token in minutes -->
         <OpenIDRememberMeExpiry>7200</OpenIDRememberMeExpiry>
-        <!-- Multifactor Authentication configuration -->
-        <UseMultifactorAuthentication>false</UseMultifactorAuthentication>
         <!-- To enable or disable openid dumb mode -->
         <DisableOpenIDDumbMode>false</DisableOpenIDDumbMode>
-        <!-- remember me session timeout in seconds -->
-        <SessionTimeout>36000</SessionTimeout>
-        <!-- skips authentication if valid SAML2 Web SSO browser session available -->
-        <AcceptSAMLSSOLogin>false</AcceptSAMLSSOLogin>
-        <ClaimsRetrieverImplClass>org.wso2.carbon.identity.provider.openid.claims.DefaultClaimsRetriever
-        </ClaimsRetrieverImplClass>
 
         <!--
                OpenID private association store is configurable from following configs.
@@ -132,6 +131,7 @@
         <!--OAuth2UserInfoEPUrl>https://localhost:9443/oauth2/userinfo</OAuth2UserInfoEPUrl-->
         <!--OIDCConsentPage>https://localhost:9443/authenticationendpoint/oauth2_consent.do</OIDCConsentPage-->
         <!--OAuth2ConsentPage>https://localhost:9443/authenticationendpoint/oauth2_authz.do</OAuth2ConsentPage-->
+        <!--OAuth2ErrorPage>https://localhost:9443/authenticationendpoint/oauth2_error.do</OAuth2ErrorPage-->
 
         <!-- Default validity period for Authorization Code in seconds -->
         <AuthorizationCodeDefaultValidityPeriod>300</AuthorizationCodeDefaultValidityPeriod>
@@ -268,17 +268,13 @@
             If that doesn't satisfy uncomment the following config and explicitly configure the value
         -->
         <!--IdentityProviderURL>https://localhost:9443/samlsso</IdentityProviderURL-->
+        <!--DefaultLogoutEndpoint>https://localhost:9443/authenticationendpoint/samlsso_logout.do</DefaultLogoutEndpoint-->
+        <!--NotificationEndpoint>https://localhost:9443/authenticationendpoint/samlsso_notification.do</NotificationEndpoint-->
         <SingleLogoutRetryCount>5</SingleLogoutRetryCount>
         <SingleLogoutRetryInterval>60000</SingleLogoutRetryInterval>
         <!-- in milli seconds -->
         <TenantPartitioningEnabled>false</TenantPartitioningEnabled>
-        <SessionTimeout>36000</SessionTimeout>
-        <!-- remember me session timeout in seconds -->
-        <!-- skips authentication if valid SAML2 Web SSO browser session available -->
-        <AttributeStatementBuilder>org.wso2.carbon.identity.sso.saml.attributes.UserAttributeStatementBuilder</AttributeStatementBuilder>
         <AttributesClaimDialect>http://wso2.org/claims</AttributesClaimDialect>
-        <AcceptOpenIDLogin>false</AcceptOpenIDLogin>
-        <ClaimsRetrieverImplClass>org.wso2.carbon.identity.sso.saml.builders.claims.DefaultClaimsRetriever</ClaimsRetrieverImplClass>
         <SAMLSSOAssertionBuilder>org.wso2.carbon.identity.sso.saml.builders.assertion.DefaultSAMLAssertionBuilder</SAMLSSOAssertionBuilder>
         <SAMLSSOEncrypter>org.wso2.carbon.identity.sso.saml.builders.encryption.DefaultSSOEncrypter</SAMLSSOEncrypter>
         <SAMLSSOSigner>org.wso2.carbon.identity.sso.saml.builders.signature.DefaultSSOSigner</SAMLSSOSigner>
@@ -308,6 +304,7 @@
             If that doesn't satisfy uncomment the following config and explicitly configure the value
         -->
         <!--IdentityProviderURL>https://localhost:9443/passivests</IdentityProviderURL-->
+        <!--RetryURL>https://localhost:9443/authenticationendpoint/retry.do</RetryURL-->
     </PassiveSTS>
 
     <EntitlementSettings>

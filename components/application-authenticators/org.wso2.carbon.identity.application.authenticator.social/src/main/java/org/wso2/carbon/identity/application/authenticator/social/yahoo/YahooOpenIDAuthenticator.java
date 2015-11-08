@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public class YahooOpenIDAuthenticator extends OpenIDAuthenticator {
 
     private static final long serialVersionUID = -782801773114711699L;
@@ -76,9 +77,15 @@ public class YahooOpenIDAuthenticator extends OpenIDAuthenticator {
         oauthEndpoint.setName(YahooOpenIDAuthenticatorConstants.YAHOO_AUTHZ_URL);
         oauthEndpoint.setValue(IdentityApplicationConstants.YAHOO_AUTHZ_URL);
         oauthEndpoint.setDescription("Enter value corresponding to yahoo oauth endpoint.");
+        oauthEndpoint.setDisplayOrder(1);
         configProperties.add(oauthEndpoint);
 
         return configProperties;
+    }
+
+    @Override
+    public String getClaimDialectURI() {
+        return null;
     }
 
     @Override

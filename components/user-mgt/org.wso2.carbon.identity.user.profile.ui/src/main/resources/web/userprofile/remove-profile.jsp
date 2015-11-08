@@ -51,7 +51,7 @@
         ConfigurationContext configContext =
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         UserProfileCient client = new UserProfileCient(cookie, backendServerURL, configContext);
-        client.deleteUserProfile(Util.decodeHTMLCharacters(username), profile);
+        client.deleteUserProfile(username, profile);
         String message = resourceBundle.getString("user.profile.deleted.successfully");
         CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.INFO, request);
         if ("true".equals(fromUserMgt)) {

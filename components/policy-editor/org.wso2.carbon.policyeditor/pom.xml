@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>policy-editor</artifactId>
-        <version>4.6.0-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -40,6 +40,10 @@
             <groupId>xerces.wso2</groupId>
             <artifactId>xercesImpl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -56,12 +60,14 @@
                         <Import-Package>
                             org.w3c.dom,
                             org.xml.sax,
-                            javax.xml.parsers; version="[0.0.0,0.1.0)",
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
                             org.apache.xml.serialize; resolution:=optional,
                             org.apache.xerces.util; resolution:=optional,
                             org.apache.axis2; version="${axis2.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
                             org.apache.commons.io; version="${commons.io.wso2.osgi.version.range}",
+                            org.wso2.carbon.identity.core.*;
+                            version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.policyeditor.*; version="${carbon.identity.package.export.version}"

@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>saml2-sso-authenticator</artifactId>
-        <version>4.6.0-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -84,7 +84,7 @@
                         </Private-Package>
                         <Import-Package>
                             javax.crypto,
-                            javax.xml.parsers,
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
                             javax.xml.namespace,
                             javax.xml.stream,
                             org.w3c.dom.*,

@@ -21,7 +21,9 @@ package org.wso2.carbon.idp.mgt.util;
 public class IdPManagementConstants {
 
     public static final String SHARED_IDP_PREFIX = "SHARED_";
-
+    public static final String MULTI_VALUED_PROPERTY_CHARACTER = ".";
+    public static final String MULTI_VALUED_PROPERT_IDENTIFIER_PATTERN = ".*\\" + MULTI_VALUED_PROPERTY_CHARACTER +
+            "[0-9]+";
     public static class SQLQueries {
 
         public static final String GET_IDPS_SQL = "SELECT NAME, IS_PRIMARY, HOME_REALM_ID, DESCRIPTION, " +
@@ -84,6 +86,9 @@ public class IdPManagementConstants {
 
         public static final String UPDATE_IDP_AUTH_PROP_SQL = "UPDATE IDP_AUTHENTICATOR_PROPERTY SET " +
                 "PROPERTY_VALUE = ?, IS_SECRET = ? WHERE AUTHENTICATOR_ID = ? AND PROPERTY_KEY = ?";
+
+        public static final String DELETE_IDP_AUTH_PROP_WITH_KEY_SQL = "DELETE FROM IDP_AUTHENTICATOR_PROPERTY "
+                + "WHERE PROPERTY_KEY = ?";
 
         public static final String ADD_IDP_CLAIMS_SQL = "INSERT INTO IDP_CLAIM (IDP_ID, TENANT_ID, CLAIM) "
                 + "VALUES (?, ?, ?)";
@@ -199,13 +204,15 @@ public class IdPManagementConstants {
                 "IDP_AUTHENTICATOR_PROPERTY idp_auth_pro ON idp_auth.ID = idp_auth_pro.AUTHENTICATOR_ID " +
                 "WHERE  idp_auth_pro.PROPERTY_KEY =?  AND idp_auth_pro.PROPERTY_VALUE = ? AND idp_auth_pro.TENANT_ID =?";
 
-        public static final String GET_SIMILAR_IDP_ENTITIY_IDS = "SELECT COUNT(*) FROM IDP_AUTHENTICATOR_PROPERTY " +
-                "WHERE PROPERTY_KEY=? " +
-                "AND PROPERTY_VALUE=? AND TENANT_ID=?";
+        public static final String GET_SIMILAR_IDP_ENTITIY_IDS =
+                "SELECT COUNT(prop.ID) FROM IDP_AUTHENTICATOR_PROPERTY prop INNER JOIN IDP_AUTHENTICATOR auth " +
+                        "ON auth.ID = prop.AUTHENTICATOR_ID WHERE prop.PROPERTY_KEY=? " +
+                        "AND prop.PROPERTY_VALUE=? AND prop.TENANT_ID=? AND auth.NAME = ?";
+
         public static final String GET_IDP_METADATA_BY_IDP_ID = "SELECT ID, NAME, VALUE, DISPLAY_NAME FROM " +
                 "IDP_METADATA WHERE IDP_ID = ?";
-        public static final String ADD_IDP_METADATA = "INSERT INTO IDP_METADATA (IDP_ID, NAME, VALUE, DISPLAY_NAME) "
-                + "VALUES (?, ?, ?, ?)";
+        public static final String ADD_IDP_METADATA = "INSERT INTO IDP_METADATA (IDP_ID, NAME, VALUE, DISPLAY_NAME, " +
+                "TENANT_ID) VALUES (?, ?, ?, ?, ?)";
         public static final String DELETE_IDP_METADATA = "DELETE FROM IDP_METADATA WHERE IDP_ID = ?";
     }
 }

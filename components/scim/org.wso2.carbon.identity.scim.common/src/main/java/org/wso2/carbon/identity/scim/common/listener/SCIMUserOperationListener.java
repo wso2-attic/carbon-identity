@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.scim.common.group.SCIMGroupHandler;
 import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
+import org.wso2.carbon.identity.scim.common.utils.SCIMCommonUtils;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -310,7 +311,9 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
             if (domainName == null) {
                 domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
-            String roleNameWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + roleName;
+            String roleNameWithDomain = UserCoreUtil.addDomainToName(roleName, domainName);
+            // UserCore Util functionality does not append primary
+            roleNameWithDomain = SCIMCommonUtils.getGroupNameWithDomain(roleNameWithDomain);
 
             //query role name from identity table
             try {

@@ -29,7 +29,8 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" scope="session"/>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil"%>
 <carbon:breadcrumb label="breadcrumb.service.provider" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
                     topPage="true" request="<%=request%>" />
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -40,6 +41,7 @@
 
 
 <%
+    ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, request.getParameter("spName"));
 	String spName = appBean.getServiceProvider().getApplicationName();
 	      
 	StringBuffer localAuthTypes = new StringBuffer();
@@ -135,6 +137,10 @@
 
 <script>
 
+    function disable() {
+        document.getElementById("scim-inbound-userstore").disabled =!document.getElementById("scim-inbound-userstore").disabled;
+        document.getElementById("dumb").value = document.getElementById("scim-inbound-userstore").disabled;
+    }
 
 
 	function createAppOnclick() {
@@ -215,7 +221,7 @@
             <form id="configure-sp-form" method="post" name="configure-sp-form" method="post" action="configure-service-provider-finish.jsp" >
             <input type="hidden" value="wso2carbon-local-sp" name="spName">
             <input type="hidden" value="<%=Encode.forHtmlAttribute(appBean.getServiceProvider().getDescription())%>" name="sp-description">
-            
+            <input type="hidden" name="oldSPName" value="<%=Encode.forHtmlAttribute(spName)%>"/>
             
             <h2 id="inbound_provisioning_head" class="sectionSeperator trigger active">
                 <a href="#"><fmt:message key="inbound.provisioning.head"/></a>
@@ -231,7 +237,7 @@
                   </td></tr>
                    <tr>
                         <td >
-                           <select style="min-width: 250px;" id="scim-inbound-userstore" name="scim-inbound-userstore">
+                           <select style="min-width: 250px;" id="scim-inbound-userstore" name="scim-inbound-userstore" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getDumbMode() ? "disabled" : "" %>>
                           		<option value="">---Select---</option>
                                 <%
                                     if(userStoreDomains != null && userStoreDomains.length > 0){
@@ -256,6 +262,11 @@
                           <div class="sectionHelp">
                                 <fmt:message key='help.inbound.scim'/>
                             </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="dumb" id="dumb" value="false" onclick ="disable()" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getDumbMode() ? "checked" : "" %>>Enable Dumb Mode for SCIM<br>
                         </td>
                     </tr>
                     </table>

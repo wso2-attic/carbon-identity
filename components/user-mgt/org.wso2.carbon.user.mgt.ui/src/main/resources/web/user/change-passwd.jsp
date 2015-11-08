@@ -146,14 +146,21 @@
             }
         }
 
-
         function doValidation() {
             var reason = "";
 
             if (!skipPasswordValidation) {
+
+                if(isEmpty("currentPassword")) {
+                    CARBON.showWarningDialog("<fmt:message key="empty.current.password"/>");
+                    return false;
+                }
+
                 var pwdRegEX = document.getElementById("pwd_regex").value;
                 reason = validatePasswordOnCreation("newPassword", "checkPassword", pwdRegEX);
+
                 if (reason != "") {
+
                     if (reason == "Empty Password") {
                         CARBON.showWarningDialog("<fmt:message key="enter.the.same.password.twice"/>");
                     } else if (reason == "Min Length") {
@@ -173,9 +180,11 @@
 
                         CARBON.showWarningDialog("<%=Encode.forJavaScriptBlock(Encode.forHtml(passwordErrorMessage))%>");
                     }
+
                     return false;
                 }
             }
+
             return true;
         }
 

@@ -21,6 +21,7 @@ package org.wso2.carbon.security.util;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.WSO2Constants;
 
@@ -58,16 +59,17 @@ public class KeyStoreMgtUtil {
             }
 
             String filePath = workDir + File.separator + "pub_certs" + File.separator + fileName;
-
+            OutputStream outStream = null;
             try {
-                OutputStream outStream = new FileOutputStream(filePath);
+                outStream = new FileOutputStream(filePath);
                 outStream.write(cert);
-                outStream.flush();
-                outStream.close();
             } catch (Exception e) {
                 String msg = "Error when writing the public certificate to a file";
                 log.error(msg);
                 throw new SecurityException("msg", e);
+            } finally {
+                IdentityIOStreamUtils.flushOutputStream(outStream);
+                IdentityIOStreamUtils.closeOutputStream(outStream);
             }
 
             Map fileResourcesMap = (Map) configurationContext.getProperty(WSO2Constants.FILE_RESOURCE_MAP);

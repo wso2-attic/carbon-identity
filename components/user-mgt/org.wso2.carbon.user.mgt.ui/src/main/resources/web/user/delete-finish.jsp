@@ -34,23 +34,22 @@
         ConfigurationContext configContext =
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
-        client.deleteUser(Util.decodeHTMLCharacters(username));
+        client.deleteUser(username);
         session.removeAttribute(UserAdminUIConstants.USER_LIST_CACHE);
         session.removeAttribute(UserAdminUIConstants.USER_LIST_CACHE_EXCEEDED);        
         forwardTo = "user-mgt.jsp?ordinal=1";
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("user.cannot.delete"),
-                new Object[]{Util.decodeHTMLCharacters(username), e.getMessage()});
+                new Object[]{username, e.getMessage()});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         forwardTo = "user-mgt.jsp?ordinal=1";
     }
 %>
 
-<%@page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.text.MessageFormat" %>
+<%@page import="java.text.MessageFormat" %>
+<%@ page import="java.util.ResourceBundle" %>
 
-<%@page import="java.util.ResourceBundle" %>
 <script type="text/javascript">
     function forward() {
         location.href = "<%=forwardTo%>";

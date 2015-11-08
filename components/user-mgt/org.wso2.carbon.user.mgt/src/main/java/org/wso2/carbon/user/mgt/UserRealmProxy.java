@@ -647,6 +647,13 @@ public class UserRealmProxy {
             UserStoreInfo info = new UserStoreInfo();
 
             info.setReadOnly(manager.isReadOnly());
+
+            boolean readRolesEnabled = Boolean.parseBoolean(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
+            info.setReadGroupsEnabled(readRolesEnabled);
+            boolean writeRolesEnabled = Boolean.parseBoolean(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED));
+            info.setWriteGroupsEnabled(!manager.isReadOnly() && readRolesEnabled && writeRolesEnabled);
             info.setPasswordsExternallyManaged(realmConfig.isPasswordsExternallyManaged());
             info.setPasswordRegEx(realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JS_REG_EX));
@@ -667,7 +674,7 @@ public class UserRealmProxy {
             info.setExternalIdP(realmConfig.
                     getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_EXTERNAL_IDP));
 
-            info.setBulkImportSupported(this.isBulkImportSupported());
+            info.setBulkImportSupported(this.isBulkImportSupported(realmConfig));
             info.setDomainName(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
 
             boolean caseSensitiveUsername = IdentityUtil.isUserStoreCaseSensitive(manager);
@@ -676,7 +683,11 @@ public class UserRealmProxy {
             return info;
         } catch (UserStoreException e) {
             // previously logged so logging not needed
-            throw new UserAdminException(e.getMessage(), e);
+            String domainName = manager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                    .PROPERTY_DOMAIN_NAME);
+            String errorMsg = "Error while getting user realm information for domain '" + domainName + "' : " + e
+                    .getMessage();
+            throw new UserAdminException(errorMsg, e);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new UserAdminException(e.getMessage(), e);
@@ -684,18 +695,12 @@ public class UserRealmProxy {
     }
 
 
-    private boolean isBulkImportSupported() throws UserAdminException {
-        try {
-            UserStoreManager userStoreManager = this.realm.getUserStoreManager();
-            if (userStoreManager != null) {
-                return userStoreManager.isBulkImportSupported();
+    private boolean isBulkImportSupported(RealmConfiguration realmConfig) throws UserAdminException {
+            if (realmConfig != null) {
+                return Boolean.valueOf(realmConfig.getUserStoreProperties().get("IsBulkImportSupported"));
             } else {
                 throw new UserAdminException("Unable to retrieve user store manager from realm.");
             }
-
-        } catch (UserStoreException e) {
-            throw new UserAdminException("An error occurred while retrieving user store from realm.", e);
-        }
     }
 
     /**
@@ -882,7 +887,8 @@ public class UserRealmProxy {
                         Arrays.binarySearch(permissions, "/permission/protected") > -1 ||
                         Arrays.binarySearch(permissions, "/permission/protected/") > -1) {
                     log.warn("An attempt to create role with admin permission by user " + loggedInUserName);
-                    throw new UserStoreException("You have not privilege to create a role with Admin permission");
+                    throw new UserStoreException("You do not have the required privilege to create a role with Admin " +
+                            "permission");
                 }
             }
 
@@ -936,7 +942,8 @@ public class UserRealmProxy {
                         Arrays.binarySearch(permissions, "/permission/protected") > -1 ||
                         Arrays.binarySearch(permissions, "/permission/protected/") > -1) {
                     log.warn("An attempt to create role with admin permission by user " + loggedInUserName);
-                    throw new UserStoreException("You have not privilege to create a role with Admin permission");
+                    throw new UserStoreException("You do not have the required privilege to create a role with Admin " +
+                            "permission");
                 }
             }
 
@@ -2079,14 +2086,20 @@ public class UserRealmProxy {
         }
     }
 
-    public void bulkImportUsers(String fileName, InputStream inStream, String defaultPassword)
+    public void bulkImportUsers(String userStoreDomain, String fileName, InputStream inStream, String defaultPassword)
             throws UserAdminException {
         try {
             BulkImportConfig config = new BulkImportConfig(inStream, fileName);
             if (defaultPassword != null && defaultPassword.trim().length() > 0) {
                 config.setDefaultPassword(defaultPassword.trim());
             }
+            if(StringUtils.isNotEmpty(userStoreDomain)){
+                config.setUserStoreDomain(userStoreDomain);
+            }
+
             UserStoreManager userStore = this.realm.getUserStoreManager();
+            userStore = userStore.getSecondaryUserStoreManager(userStoreDomain);
+
             if (fileName.endsWith("csv")) {
                 CSVUserBulkImport csvAdder = new CSVUserBulkImport(config);
                 csvAdder.addUserList(userStore);

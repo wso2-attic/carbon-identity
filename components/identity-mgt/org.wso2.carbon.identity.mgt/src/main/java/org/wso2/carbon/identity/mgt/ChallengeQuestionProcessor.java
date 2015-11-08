@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.mgt;
 
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -322,7 +323,9 @@ public class ChallengeQuestionProcessor {
             }
 
             for (String challengesUri : challengesUris) {
-                challenges.add(challengesUri.trim());
+                if (StringUtils.isNotBlank(challengesUri)) {
+                    challenges.add(challengesUri.trim());
+                }
             }
         }
 

@@ -68,6 +68,7 @@
                     <xs:element minOccurs="0" name="defaultValue" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="displayOrder" type="xs:int"/>
                     <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="required" type="xs:boolean"></xs:element>
                     <xs:element minOccurs="0" name="type" nillable="true" type="xs:string"></xs:element>
@@ -92,6 +93,7 @@
             </xs:complexType>
             <xs:complexType name="InboundProvisioningConfig">
                 <xs:sequence>
+                    <xs:element minOccurs="0" name="dumbMode" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="provisioningEnabled" type="xs:boolean"></xs:element>
                     <xs:element minOccurs="0" name="provisioningUserStore" nillable="true" type="xs:string"></xs:element>
                 </xs:sequence>

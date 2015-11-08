@@ -25,6 +25,7 @@
 <%@ page
 	import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
 <%@ page import="org.wso2.carbon.identity.application.mgt.ui.client.ApplicationManagementServiceClient"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
@@ -35,7 +36,6 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
-<jsp:useBean id="appBean" class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean" scope="session"/>
 <carbon:breadcrumb label="breadcrumb.service.provider" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
                     topPage="true" request="<%=request%>" />
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -46,13 +46,15 @@
 
 
 <%
-if (appBean.getServiceProvider()==null || appBean.getServiceProvider().getApplicationName()==null){
+ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, request.getParameter("spName"));
+if (appBean.getServiceProvider() == null || appBean.getServiceProvider().getApplicationName() == null) {
 // if appbean is not set properly redirect the user to list-service-provider.jsp.
 %>
 <script>
-location.href = 'list-service-provider.jsp';
+location.href = "list-service-providers.jsp";
 </script>
-<% 
+<%
+	return;
 }
 	String spName = appBean.getServiceProvider().getApplicationName();
 	
@@ -147,6 +149,10 @@ location.href = 'list-service-provider.jsp';
     
     if(idPName != null && idPName.equals("")){
         idPName = null;
+    }
+
+    if(ApplicationBean.AUTH_TYPE_FLOW.equals(authTypeReq) && "update".equals(action)) {
+        isNeedToUpdate = true;
     }
     
     String authType = appBean.getAuthenticationType();
@@ -357,7 +363,7 @@ var roleMappinRowID = -1;
 		
 		$.ajax({
 		    type: "POST",
-			url: "update-application-bean.jsp",
+			url: 'update-application-bean.jsp?spName=<%=Encode.forUriComponent(spName)%>',
 		    data: $("#configure-sp-form").serialize(),
 		    success: function(){
 		    	location.href=redirectURL;
@@ -414,7 +420,7 @@ var roleMappinRowID = -1;
     }
 	
 	function onAdvanceAuthClick() {
-		location.href="configure-authentication-flow.jsp"
+		location.href='configure-authentication-flow.jsp?spName=<%=Encode.forUriComponent(spName)%>';
 	}
     
     jQuery(document).ready(function(){
@@ -541,7 +547,7 @@ var roleMappinRowID = -1;
     		
     		$.ajax({
     		    type: "POST",
-    			url: "configure-service-provider-update.jsp",
+    			url: 'configure-service-provider-update.jsp?spName=<%=Encode.forUriComponent(spName)%>',
     		    data: $("#configure-sp-form").serialize()
     		});
         }
@@ -689,6 +695,10 @@ var roleMappinRowID = -1;
 		}
 	}
     
+    function disable() {
+        document.getElementById("scim-inbound-userstore").disabled =!document.getElementById("scim-inbound-userstore").disabled;
+        document.getElementById("dumb").value = document.getElementById("scim-inbound-userstore").disabled;
+    }
 </script>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources">
@@ -698,7 +708,8 @@ var roleMappinRowID = -1;
         </h2>
         <div id="workArea">
             <form id="configure-sp-form" method="post" name="configure-sp-form" method="post" action="configure-service-provider-finish.jsp" >
-            <input type="hidden" id="isNeedToUpdate" value="<%=isNeedToUpdate%>">
+            <input type="hidden" name="oldSPName" value="<%=Encode.forHtmlAttribute(spName)%>"/>
+            <input type="hidden" id="isNeedToUpdate" value="<%=isNeedToUpdate%>"/>
             <div class="sectionSeperator togglebleTitle"><fmt:message key='title.config.app.basic.config'/></div>
             <div class="sectionSub">
                 <table class="carbonFormTable">
@@ -1231,7 +1242,7 @@ var roleMappinRowID = -1;
 											<td><%=Encode.forHtmlContent(appBean.getWstrustSP())%></td>
 											<td style="white-space: nowrap;">
 												<a title="Edit Audience" onclick="updateBeanAndRedirect('../generic-sts/sts.jsp?spName=<%=Encode.forUriComponent(spName)%>&&spAudience=<%=Encode.forUriComponent(appBean.getWstrustSP())%>&spAction=spEdit');"  class="icon-link" style="background-image: url(../admin/images/edit.gif)">Edit</a>
-												<a title="Delete Audience" onclick="updateBeanAndRedirect('../generic-sts/remove-trusted-service.jsp?action=delete&appName=<%=Encode.forUriComponent(spName)%>&endpointaddrs=<%=Encode.forUriComponent(appBean.getWstrustSP())%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
+												<a title="Delete Audience" onclick="updateBeanAndRedirect('../generic-sts/remove-trusted-service.jsp?action=delete&spName=<%=Encode.forUriComponent(spName)%>&endpointaddrs=<%=Encode.forUriComponent(appBean.getWstrustSP())%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
 											</td>
 										</tr>
 										</tbody>
@@ -1415,9 +1426,9 @@ var roleMappinRowID = -1;
                     		<td class="leftCol-med labelField"/>
                         	<td>
                         	<% if(ApplicationBean.AUTH_TYPE_FLOW.equals(appBean.getAuthenticationType())) { %>
-                        		<input type="radio" id="advanced" name="auth_type" value="flow" onclick="updateBeanAndRedirect('configure-authentication-flow.jsp');" checked><label style="cursor: pointer; color: #2F7ABD;" for="advanced"><fmt:message key="config.authentication.type.flow"/></label>
+                        		<input type="radio" id="advanced" name="auth_type" value="flow" onclick="updateBeanAndRedirect('configure-authentication-flow.jsp?spName=<%=Encode.forUriComponent(spName)%>');" checked><label style="cursor: pointer; color: #2F7ABD;" for="advanced"><fmt:message key="config.authentication.type.flow"/></label>
                         	<% } else { %>
-                        		<input type="radio" id="advanced" name="auth_type" value="flow" onclick="updateBeanAndRedirect('configure-authentication-flow.jsp')"><label style="cursor: pointer; color: #2F7ABD;" for="advanced"><fmt:message key="config.authentication.type.flow"/></label>
+                        		<input type="radio" id="advanced" name="auth_type" value="flow" onclick="updateBeanAndRedirect('configure-authentication-flow.jsp?spName=<%=Encode.forUriComponent(spName)%>')"><label style="cursor: pointer; color: #2F7ABD;" for="advanced"><fmt:message key="config.authentication.type.flow"/></label>
                         		<% } %>
                         	</td>
                     	</tr>               
@@ -1514,7 +1525,7 @@ var roleMappinRowID = -1;
                   </td></tr>
                    <tr>
                         <td >
-                          <select style="min-width: 250px;" id="scim-inbound-userstore" name="scim-inbound-userstore">
+                          <select style="min-width: 250px;" id="scim-inbound-userstore" name="scim-inbound-userstore" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getDumbMode() ? "disabled" : "" %>>
                           		<option value="">---Select---</option>
                                 <%
                                     if(userStoreDomains != null && userStoreDomains.length > 0){
@@ -1539,6 +1550,11 @@ var roleMappinRowID = -1;
                           <div class="sectionHelp">
                                 <fmt:message key='help.inbound.scim'/>
                             </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="dumb" id="dumb" value="false" onclick ="disable()" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getDumbMode() ? "checked" : "" %>>Enable Dumb Mode<br>
                         </td>
                     </tr>
                     </table>

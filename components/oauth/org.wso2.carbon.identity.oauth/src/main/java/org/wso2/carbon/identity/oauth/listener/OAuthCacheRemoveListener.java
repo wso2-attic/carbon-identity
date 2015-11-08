@@ -41,6 +41,10 @@ public class OAuthCacheRemoveListener extends AbstractCacheListener<String, Cach
     public void entryRemoved(CacheEntryEvent<? extends String, ? extends CacheEntry> cacheEntryEvent)
             throws CacheEntryListenerException {
 
+        CacheEntry cacheEntry = cacheEntryEvent.getValue();
+        if(cacheEntry == null || !(cacheEntry instanceof AccessTokenDO)){
+            return;
+        }
         AccessTokenDO accessTokenDO = (AccessTokenDO) cacheEntryEvent.getValue();
 
         if (accessTokenDO != null) {

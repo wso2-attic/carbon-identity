@@ -262,7 +262,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
             workflowDAO.removeWorkflowParams(workflow.getWorkflowId());
             workflowDAO.updateWorkflow(workflow);
         }
-        workflowDAO.addWorkflowParams(parameterList, workflow.getWorkflowId());
+        workflowDAO.addWorkflowParams(parameterList, workflow.getWorkflowId(), tenantId);
 
 
     }
@@ -585,13 +585,15 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      * @param wfStatus        Current Status of the Work-flow.
      * @param entityType      Entity Type of the Work-flow.
      * @param tenantID        Tenant ID of the currently Logged user.
+     * @param idFilter        Entity ID filter to search
      * @return
      * @throws InternalWorkflowException
      */
     @Override
-    public List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID) throws
-                                                                                                                  InternalWorkflowException {
-        return requestEntityRelationshipDAO.getEntityNamesOfRequest(wfOperationType, wfStatus, entityType, tenantID);
+    public List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID,
+                                        String idFilter) throws InternalWorkflowException {
+        return requestEntityRelationshipDAO.getEntityNamesOfRequest(wfOperationType, wfStatus, entityType, idFilter,
+                tenantID);
     }
 
 
