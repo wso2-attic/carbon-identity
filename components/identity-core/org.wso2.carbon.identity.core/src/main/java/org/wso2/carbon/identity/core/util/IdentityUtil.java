@@ -477,7 +477,7 @@ public class IdentityUtil {
     public static String extractDomainFromName(String nameWithDomain){
 
         if(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > 0){
-            String domain = nameWithDomain.substring(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) + 1);
+            String domain = nameWithDomain.substring(0, nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR));
             return domain.toUpperCase();
         } else {
             RealmConfiguration realmConfiguration = IdentityTenantUtil.getRealmService().getBootstrapRealmConfiguration();
