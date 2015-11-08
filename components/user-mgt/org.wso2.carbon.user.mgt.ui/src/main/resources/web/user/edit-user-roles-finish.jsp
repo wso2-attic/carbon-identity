@@ -23,7 +23,6 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.text.MessageFormat" %>

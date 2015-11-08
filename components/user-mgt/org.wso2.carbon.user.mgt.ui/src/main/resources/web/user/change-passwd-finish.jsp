@@ -24,7 +24,6 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
