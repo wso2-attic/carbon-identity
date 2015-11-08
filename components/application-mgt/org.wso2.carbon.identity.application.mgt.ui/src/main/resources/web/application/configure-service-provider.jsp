@@ -38,6 +38,7 @@
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.InboundAuthenticationRequestConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.Property" %>
 <%@ page import="org.apache.commons.collections.CollectionUtils" %>
+<%@ page import="java.util.ArrayList" %>
 
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 <carbon:breadcrumb label="breadcrumb.service.provider" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
@@ -73,7 +74,7 @@ location.href = "list-service-providers.jsp";
     String action = request.getParameter("action");
     String[] userStoreDomains = null;
     boolean isNeedToUpdate = false;
-    
+
     String authTypeReq =  request.getParameter("authType");
     if (authTypeReq!=null && authTypeReq.trim().length()>0){
     	appBean.setAuthenticationType(authTypeReq);
@@ -1325,16 +1326,26 @@ var roleMappinRowID = -1;
 				   </div>
 
                         <%
+                            List<String> standardInboundAuthTypes = new ArrayList<String>();
+                            standardInboundAuthTypes = new ArrayList<String>();
+                            standardInboundAuthTypes.add("oauth2");
+                            standardInboundAuthTypes.add("wstrust");
+                            standardInboundAuthTypes.add("samlsso");
+                            standardInboundAuthTypes.add("openid");
+                            standardInboundAuthTypes.add("passivests");
+
                             if (!CollectionUtils.isEmpty(appBean.getCustomInboundAuthenticators())) {
                                 List<InboundAuthenticationRequestConfig> customAuthenticators = appBean
                                         .getCustomInboundAuthenticators();
                                 for (InboundAuthenticationRequestConfig customAuthenticator : customAuthenticators) {
+                                    if(!standardInboundAuthTypes.contains(customAuthenticator.getInboundAuthType())){
                                     String type = customAuthenticator.getInboundAuthType();
+                                    String friendlyName = customAuthenticator.getFriendlyName();
                         %>
 
                         <h2 id="openid.config.head" class="sectionSeperator trigger active"
                             style="background-color: beige;">
-                            <a href="#"><%=type%>
+                            <a href="#"><%=friendlyName%>
                             </a>
 
                             <div class="enablelogo"><img src="images/ok.png" width="16" height="16"></div>
@@ -1375,6 +1386,7 @@ var roleMappinRowID = -1;
                             </table>
                         </div>
                         <%
+                                    }
                                 }
                             }
                         %>

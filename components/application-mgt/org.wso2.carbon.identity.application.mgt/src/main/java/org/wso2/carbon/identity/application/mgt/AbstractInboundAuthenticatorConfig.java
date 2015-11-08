@@ -29,13 +29,19 @@ public abstract class AbstractInboundAuthenticatorConfig {
      * Get Name
      * @return name
      */
-    public abstract String getName();
+    public abstract String getAuthKey();
 
     /**
      * Get Type
      * @return type
      */
-    public abstract String getType();
+    public abstract String getName();
+
+    /**
+     * Get friendly name
+     * @return friendly name
+     */
+    public abstract String getFriendlyName();
 
     /**
      * Get configurations

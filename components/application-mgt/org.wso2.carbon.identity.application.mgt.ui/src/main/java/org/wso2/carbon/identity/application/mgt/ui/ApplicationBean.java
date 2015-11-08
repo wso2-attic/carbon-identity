@@ -81,16 +81,9 @@ public class ApplicationBean {
     private String openid;
     private String[] claimUris;
     private List<InboundAuthenticationRequestConfig> customInboundAuthenticatorConfigs;
-    private List<String> standardInboundAuthTypes;
 
     public ApplicationBean() {
 
-        standardInboundAuthTypes = new ArrayList<String>();
-        standardInboundAuthTypes.add("oauth2");
-        standardInboundAuthTypes.add("wstrust");
-        standardInboundAuthTypes.add("samlsso");
-        standardInboundAuthTypes.add("openid");
-        standardInboundAuthTypes.add("passivests");
     }
 
     public void reset() {
@@ -839,14 +832,6 @@ public class ApplicationBean {
         this.claimUris = claimUris;
     }
 
-    /**
-     * Check for custom authenticator
-     * @param authType authentication type
-     * @return boolean is custom authenticator
-     */
-    private boolean isCustomInboundAuthType(String authType) {
-        return !standardInboundAuthTypes.contains(authType);
-    }
 
     /**
      * Get all custom authenticators
@@ -866,9 +851,7 @@ public class ApplicationBean {
 
         if (authRequests != null) {
             for (InboundAuthenticationRequestConfig request : authRequests) {
-                if (isCustomInboundAuthType(request.getInboundAuthType())) {
-                    customInboundAuthenticatorConfigs.add(request);
-                }
+                customInboundAuthenticatorConfigs.add(request);
             }
         }
         return customInboundAuthenticatorConfigs;

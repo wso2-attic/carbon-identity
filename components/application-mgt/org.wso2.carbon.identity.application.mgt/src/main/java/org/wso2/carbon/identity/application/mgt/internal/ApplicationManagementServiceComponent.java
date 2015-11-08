@@ -145,7 +145,7 @@ public class ApplicationManagementServiceComponent {
     }
 
     protected void unsetInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig authenticator) {
-        ApplicationManagementServiceComponentHolder.removeInboundAuthenticatorConfig(authenticator.getType());
+        ApplicationManagementServiceComponentHolder.removeInboundAuthenticatorConfig(authenticator.getName());
     }
 
     private void buildFileBasedSPList() {

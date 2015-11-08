@@ -1629,13 +1629,14 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             if (!customAuthenticatorsAlreadyIn.containsKey(entry.getKey())) {
                 InboundAuthenticationRequestConfig inbountAuthRequest = new InboundAuthenticationRequestConfig();
-                inbountAuthRequest.setInboundAuthKey(entry.getValue().getName());
-                inbountAuthRequest.setInboundAuthType(entry.getValue().getType());
+                inbountAuthRequest.setInboundAuthKey(entry.getValue().getAuthKey());
+                inbountAuthRequest.setInboundAuthType(entry.getValue().getName());
+                inbountAuthRequest.setFriendlyName(entry.getValue().getFriendlyName());
                 inbountAuthRequest.setProperties(entry.getValue().getConfigurationProperties());
-                authRequestMap.put(entry.getValue().getType() + ":" + entry.getValue().getName(), inbountAuthRequest);
+                authRequestMap.put(entry.getValue().getName() + ":" + entry.getValue().getAuthKey(), inbountAuthRequest);
             } else {
-                InboundAuthenticationRequestConfig inbountAuthRequest = authRequestMap.get(entry.getValue().getType()
-                        + ":" + entry.getValue().getName());
+                InboundAuthenticationRequestConfig inbountAuthRequest = authRequestMap.get(entry.getValue().getName()
+                        + ":" + entry.getValue().getAuthKey());
                 List<String> propsAlreadyIn = customAuthenticatorsAlreadyIn.get(entry.getKey());
                 for (Property prop : entry.getValue().getConfigurationProperties()) {
                     if (!propsAlreadyIn.contains(prop.getName())) {
