@@ -136,7 +136,7 @@ public class InboundAuthenticationRequestConfig implements Serializable {
         return friendlyName;
     }
 
-    public void setFriendlyName(String friendlyName1) {
-        this.friendlyName = friendlyName1;
+    public void setFriendlyName(String friendlyName) {
+        this.friendlyName = friendlyName;
     }
 }
