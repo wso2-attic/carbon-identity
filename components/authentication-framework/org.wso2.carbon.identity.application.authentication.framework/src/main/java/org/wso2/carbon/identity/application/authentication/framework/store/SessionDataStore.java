@@ -66,8 +66,18 @@ public class SessionDataStore {
     private static final String SQL_INSERT_DELETE_OPERATION =
             "INSERT INTO IDN_AUTH_SESSION_STORE(SESSION_ID, SESSION_TYPE,OPERATION, TIME_CREATED) VALUES (?,?,?,?)";
     private static final String SQL_DELETE_STORE_OPERATIONS_TASK =
+<<<<<<< HEAD
             "DELETE FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '" + OPERATION_STORE + "' AND SESSION_ID in (" +
                     "SELECT SESSION_ID  FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '" + OPERATION_DELETE + "' AND TIME_CREATED < ?)";
+=======
+            "DELETE FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '"+OPERATION_STORE+"' AND SESSION_ID in (" +
+            "SELECT SESSION_ID  FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '"+OPERATION_DELETE+"' AND TIME_CREATED < ?)";
+    private static final String SQL_DELETE_STORE_OPERATIONS_TASK_MYSQL =
+            "DELETE IDN_AUTH_SESSION_STORE_DELETE FROM IDN_AUTH_SESSION_STORE IDN_AUTH_SESSION_STORE_DELETE WHERE " +
+                    "OPERATION = '"+OPERATION_STORE+"' AND SESSION_ID IN (SELECT SESSION_ID FROM (SELECT SESSION_ID " +
+                    "FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '"+OPERATION_DELETE+"' AND TIME_CREATED < ?) " +
+                    "IDN_AUTH_SESSION_STORE_SELECT)";
+>>>>>>> a11cda242bd160b06c1d79c1e7866fe30d2bb868
     private static final String SQL_DELETE_DELETE_OPERATIONS_TASK =
             "DELETE FROM IDN_AUTH_SESSION_STORE WHERE OPERATION = '" + OPERATION_DELETE + "' AND  TIME_CREATED < ?";
 
@@ -159,9 +169,8 @@ public class SessionDataStore {
         }
         if (!StringUtils.isBlank(deleteSTORETaskSQL)) {
             sqlDeleteSTORETask = deleteSTORETaskSQL;
-        } else {
-            sqlDeleteSTORETask = SQL_DELETE_STORE_OPERATIONS_TASK;
         }
+
         if (!StringUtils.isBlank(deleteDELETETaskSQL)) {
             sqlDeleteDELETETask = deleteDELETETaskSQL;
         } else {
@@ -454,6 +463,13 @@ public class SessionDataStore {
             return;
         }
         try {
+            if (StringUtils.isBlank(sqlDeleteSTORETask)) {
+                if (connection.getMetaData().getDriverName().contains("MySQL")) {
+                    sqlDeleteSTORETask = SQL_DELETE_STORE_OPERATIONS_TASK_MYSQL;
+                } else {
+                    sqlDeleteSTORETask = SQL_DELETE_STORE_OPERATIONS_TASK;
+                }
+            }
             statement = connection.prepareStatement(sqlDeleteSTORETask);
             statement.setLong(1, timestamp.getTime());
             statement.execute();

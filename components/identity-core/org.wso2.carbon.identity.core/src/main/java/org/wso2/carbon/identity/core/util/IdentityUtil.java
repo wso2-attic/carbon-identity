@@ -45,9 +45,10 @@ import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.identity.core.model.IdentityEventListener;
 import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -63,7 +64,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketException;
-import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -74,7 +74,8 @@ import java.util.Map;
 
 public class IdentityUtil {
 
-    public static final ThreadLocal<HashMap<String, Object>> threadLocalProperties = new ThreadLocal<HashMap<String, Object>>() {
+    public static final ThreadLocal<HashMap<String, Object>> threadLocalProperties = new
+            ThreadLocal<HashMap<String, Object>>() {
         @Override
         protected HashMap<String, Object> initialValue() {
             return new HashMap<String, Object>();
@@ -287,30 +288,51 @@ public class IdentityUtil {
         if (mgtTransportPort <= 0) {
             mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
         }
-        String serverUrl = mgtTransport + "://" + hostName.toLowerCase();
+        StringBuilder serverUrl = new StringBuilder(mgtTransport + "://" + hostName.toLowerCase());
         // If it's well known HTTPS port, skip adding port
         if (mgtTransportPort != IdentityCoreConstants.DEFAULT_HTTPS_PORT) {
-            serverUrl += ":" + mgtTransportPort;
+            serverUrl.append(":").append(mgtTransportPort);
         }
         // If ProxyContextPath is defined then append it
-        URI serverUri = URI.create(serverUrl);
+
         String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
                 .PROXY_CONTEXT_PATH);
-        if (proxyContextPath != null && !proxyContextPath.trim().isEmpty()) {
-            serverUri = serverUri.resolve(proxyContextPath);
+        if (StringUtils.isNotBlank(proxyContextPath)) {
+            if (!serverUrl.toString().endsWith("/") && proxyContextPath.trim().charAt(0) != '/') {
+                serverUrl.append("/").append(proxyContextPath.trim());
+            } else if (serverUrl.toString().endsWith("/") && proxyContextPath.trim().charAt(0) == '/') {
+                serverUrl.append(proxyContextPath.trim().substring(1));
+            } else {
+                serverUrl.append(proxyContextPath.trim());
+            }
         }
         // If webContextRoot is defined then append it
         if (addWebContextRoot) {
             String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
                     .WEB_CONTEXT_ROOT);
             if (StringUtils.isNotBlank(webContextRoot)) {
-                serverUri = serverUri.resolve(webContextRoot);
+                if (!serverUrl.toString().endsWith("/") && webContextRoot.trim().charAt(0) != '/') {
+                    serverUrl.append("/").append(webContextRoot.trim());
+                } else if (serverUrl.toString().endsWith("/") && webContextRoot.trim().charAt(0) == '/') {
+                    serverUrl.append(webContextRoot.trim().substring(1));
+                } else {
+                    serverUrl.append(webContextRoot.trim());
+                }
             }
         }
         if (StringUtils.isNotBlank(endpoint)) {
-            serverUri = serverUri.resolve(endpoint);
+            if (!serverUrl.toString().endsWith("/") && endpoint.trim().charAt(0) != '/') {
+                serverUrl.append("/").append(endpoint.trim());
+            } else if (serverUrl.toString().endsWith("/") && endpoint.trim().charAt(0) == '/') {
+                serverUrl.append(endpoint.trim().substring(1));
+            } else {
+                serverUrl.append(endpoint.trim());
+            }
         }
-        return serverUri.toString();
+        if (serverUrl.toString().endsWith("/")) {
+            serverUrl.deleteCharAt(serverUrl.length() - 1);
+        }
+        return serverUrl.toString();
     }
 
     /**
@@ -372,7 +394,7 @@ public class IdentityUtil {
      */
     public static boolean isUserStoreInUsernameCaseSensitive(String username, int tenantId) {
 
-        return isUserStoreCaseSensitive(UserCoreUtil.extractDomainFromName(username), tenantId);
+        return isUserStoreCaseSensitive(IdentityUtil.extractDomainFromName(username), tenantId);
     }
 
     /**
@@ -450,5 +472,25 @@ public class IdentityUtil {
             cleanUpPeriod = IdentityConstants.ServerConfig.CLEAN_UP_PERIOD_DEFAULT;
         }
         return Integer.parseInt(cleanUpPeriod);
+    }
+
+    public static String extractDomainFromName(String nameWithDomain){
+        int tenantId = -1234;
+        if(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)>0){
+            String domain = nameWithDomain.split(UserCoreConstants.DOMAIN_SEPARATOR)[1];
+            return domain.toUpperCase();
+        } else {
+            try {
+                RealmConfiguration realmConfiguration = (RealmConfiguration) IdentityTenantUtil.getRealmService()
+                        .getTenantUserRealm(tenantId);
+                if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)==null){
+                    return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                } else {
+                    return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+                }
+            } catch (UserStoreException e) {
+                return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+            }
+        }
     }
 }

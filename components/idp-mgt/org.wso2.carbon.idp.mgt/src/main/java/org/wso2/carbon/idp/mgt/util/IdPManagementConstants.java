@@ -21,7 +21,9 @@ package org.wso2.carbon.idp.mgt.util;
 public class IdPManagementConstants {
 
     public static final String SHARED_IDP_PREFIX = "SHARED_";
-
+    public static final String MULTI_VALUED_PROPERTY_CHARACTER = ".";
+    public static final String MULTI_VALUED_PROPERT_IDENTIFIER_PATTERN = ".*\\" + MULTI_VALUED_PROPERTY_CHARACTER +
+            "[0-9]+";
     public static class SQLQueries {
 
         public static final String GET_IDPS_SQL = "SELECT NAME, IS_PRIMARY, HOME_REALM_ID, DESCRIPTION, " +
@@ -84,6 +86,9 @@ public class IdPManagementConstants {
 
         public static final String UPDATE_IDP_AUTH_PROP_SQL = "UPDATE IDP_AUTHENTICATOR_PROPERTY SET " +
                 "PROPERTY_VALUE = ?, IS_SECRET = ? WHERE AUTHENTICATOR_ID = ? AND PROPERTY_KEY = ?";
+
+        public static final String DELETE_IDP_AUTH_PROP_WITH_KEY_SQL = "DELETE FROM IDP_AUTHENTICATOR_PROPERTY "
+                + "WHERE PROPERTY_KEY = ?";
 
         public static final String ADD_IDP_CLAIMS_SQL = "INSERT INTO IDP_CLAIM (IDP_ID, TENANT_ID, CLAIM) "
                 + "VALUES (?, ?, ?)";
@@ -201,8 +206,8 @@ public class IdPManagementConstants {
 
         public static final String GET_SIMILAR_IDP_ENTITIY_IDS =
                 "SELECT COUNT(prop.ID) FROM IDP_AUTHENTICATOR_PROPERTY prop INNER JOIN IDP_AUTHENTICATOR auth " +
-                        "WHERE prop.PROPERTY_KEY=? " +
-                        "AND prop.PROPERTY_VALUE=? AND prop.TENANT_ID=? AND auth.NAME = ? AND auth.ID = prop.AUTHENTICATOR_ID";
+                        "ON auth.ID = prop.AUTHENTICATOR_ID WHERE prop.PROPERTY_KEY=? " +
+                        "AND prop.PROPERTY_VALUE=? AND prop.TENANT_ID=? AND auth.NAME = ?";
 
         public static final String GET_IDP_METADATA_BY_IDP_ID = "SELECT ID, NAME, VALUE, DISPLAY_NAME FROM " +
                 "IDP_METADATA WHERE IDP_ID = ?";

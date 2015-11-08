@@ -24,6 +24,9 @@
     <div class="alert alert-danger" id="error-msg">Username or password is
         invalid
     </div>
+    <%}else if((Boolean.TRUE.toString()).equals(request.getParameter("authzFailure"))){%>
+    <div class="alert alert-danger" id="error-msg">You are not authorized to login
+    </div>
     <%}%>
 
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">

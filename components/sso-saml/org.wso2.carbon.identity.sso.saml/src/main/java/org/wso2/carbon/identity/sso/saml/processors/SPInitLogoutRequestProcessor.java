@@ -125,21 +125,33 @@ public class SPInitLogoutRequestProcessor {
                 issuer = logoutRequest.getIssuer().getValue();
 
                 if (issuer.contains("@")) {
-                    String[] splitIssuer = issuer.split("@");
-                    if (StringUtils.isNotEmpty(splitIssuer[0]) && StringUtils.isNotEmpty(splitIssuer[1])) {
-                        issuer = splitIssuer[0];
-                        SAMLSSOUtil.setTenantDomainInThreadLocal(splitIssuer[1]);
+                    String tenantDomain = issuer.substring(issuer.lastIndexOf('@') + 1);
+                    issuer = issuer.substring(0, issuer.lastIndexOf('@'));
+                    if (StringUtils.isNotEmpty(tenantDomain) && StringUtils.isNotEmpty(issuer)) {
+                        SAMLSSOUtil.setTenantDomainInThreadLocal(tenantDomain);
                         if (log.isDebugEnabled()) {
-                            log.debug("Tenant Domain :" + " " + splitIssuer[1] + " " + "&" + " " +
-                                    "Issuer name :" + splitIssuer[0] + " " + "has being spilt");
+                            log.debug("Tenant Domain :" + " " + tenantDomain + " " + "&" + " " +
+                                    "Issuer name :" + issuer + " " + "has being spilt");
                         }
                     } else {
-                        SAMLSSOUtil.setTenantDomainInThreadLocal(
-                                sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
+                        SAMLSSOServiceProviderDO serviceProvider = sessionInfoData.getServiceProviderList().get(issuer);
+                        if (serviceProvider != null) {
+                            SAMLSSOUtil.setTenantDomainInThreadLocal(
+                                    sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
+                        } else {
+                            throw new IdentityException("Service provider :" + issuer + " does not exist in session " +
+                                    "info data.");
+                        }
                     }
                 } else {
-                    SAMLSSOUtil.setTenantDomainInThreadLocal(
-                            sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
+                    SAMLSSOServiceProviderDO serviceProvider = sessionInfoData.getServiceProviderList().get(issuer);
+                    if (serviceProvider != null) {
+                        SAMLSSOUtil.setTenantDomainInThreadLocal(
+                                sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
+                    } else {
+                        throw new IdentityException("Service provider :" + issuer + " does not exist in session info " +
+                                "data.");
+                    }
                 }
                 subject = sessionInfoData.getSubject(issuer);
 

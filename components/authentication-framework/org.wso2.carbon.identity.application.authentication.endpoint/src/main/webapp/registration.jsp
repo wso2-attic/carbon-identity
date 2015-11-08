@@ -20,13 +20,21 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.context.CarbonContext" %>
+
 <%
     String forwardTo;
     int errorCode = 0;
     try {
         UserRegistrationAdminServiceClient registrationClient = new UserRegistrationAdminServiceClient();
-        if (!request.getParameter("reg-password").equals(request.getParameter("reg-password2"))) {
+        boolean isExistingUser = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+                getUserStoreManager().isExistingUser(request.getParameter("reg-username"));
+        if (isExistingUser){
             errorCode = 1;
+            throw new Exception();
+        }
+        if (!request.getParameter("reg-password").equals(request.getParameter("reg-password2"))) {
+            errorCode = 2;
             throw new Exception();
         }
         Map<String, String> registrationParameters = new HashMap<String, String>();
@@ -40,7 +48,7 @@
 
     } catch (Exception e) {
         if (errorCode == 0) {
-            errorCode = 2;
+            errorCode = 3;
         }
         forwardTo = "create-account.jsp?sessionDataKey=" + request.getParameter("sessionDataKey") +
                 "&failedPrevious=true&errorCode=" + errorCode;

@@ -24,6 +24,7 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page 	import="java.util.ResourceBundle"%>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon"%>
@@ -56,11 +57,13 @@
 				String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
 				String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
 				ConfigurationContext configContext =
-				                                     (ConfigurationContext) config.getServletContext()
-				                                                                  .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+						(ConfigurationContext) config.getServletContext()
+								.getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 				
-				ApplicationManagementServiceClient serviceClient = new ApplicationManagementServiceClient(cookie, backendServerURL, configContext);
+				ApplicationManagementServiceClient serviceClient =
+						new ApplicationManagementServiceClient(cookie, backendServerURL, configContext);
 				serviceClient.deleteApplication(appid);
+				ApplicationMgtUIUtil.removeApplicationBeanFromSession(session, appid);
 
 			} catch (Exception e) {
 				String message = resourceBundle.getString("application.list.error.while.removing.app") + " : " + e.getMessage();

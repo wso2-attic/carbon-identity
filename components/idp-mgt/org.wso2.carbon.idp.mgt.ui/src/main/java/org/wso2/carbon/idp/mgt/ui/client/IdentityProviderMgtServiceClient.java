@@ -179,7 +179,7 @@ public class IdentityProviderMgtServiceClient {
             idPMgtStub.addIdP(identityProvider);
         } catch (Exception e) {
             log.error("Error in adding a Identity Provider for a given tenant", e);
-            throw new Exception("Error in adding the Identity Provider");
+            throw new Exception(e.getMessage());
         }
     }
 
