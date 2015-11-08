@@ -475,20 +475,15 @@ public class IdentityUtil {
     }
 
     public static String extractDomainFromName(String nameWithDomain){
-        int tenantId = -1234;
-        if(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)>0){
-            String domain = nameWithDomain.split(UserCoreConstants.DOMAIN_SEPARATOR)[1];
+
+        if(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > 0){
+            String domain = nameWithDomain.substring(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) + 1);
             return domain.toUpperCase();
         } else {
-            try {
-                RealmConfiguration realmConfiguration = (RealmConfiguration) IdentityTenantUtil.getRealmService()
-                        .getTenantUserRealm(tenantId);
-                if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)==null){
-                    return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-                } else {
-                    return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
-                }
-            } catch (UserStoreException e) {
+            RealmConfiguration realmConfiguration = IdentityTenantUtil.getRealmService().getBootstrapRealmConfiguration();
+            if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME) == null){
+                return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+            } else {
                 return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
         }
