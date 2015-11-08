@@ -80,7 +80,7 @@ public class ApplicationBean {
     private String passiveSTSWReply;
     private String openid;
     private String[] claimUris;
-    private List<InboundAuthenticationRequestConfig> customInboundAuthenticatorConfigs;
+    private List<InboundAuthenticationRequestConfig> inboundAuthenticationRequestConfigs;
 
     public ApplicationBean() {
 
@@ -105,7 +105,7 @@ public class ApplicationBean {
         oauthConsumerSecret = null;
         attrConsumServiceIndex = null;
         enabledFederatedIdentityProviders = null;
-        customInboundAuthenticatorConfigs = Collections.EMPTY_LIST;
+        inboundAuthenticationRequestConfigs = Collections.EMPTY_LIST;
     }
 
     /**
@@ -837,13 +837,13 @@ public class ApplicationBean {
      * Get all custom authenticators
      * @return Custom authenticators
      */
-    public List<InboundAuthenticationRequestConfig> getCustomInboundAuthenticators() {
+    public List<InboundAuthenticationRequestConfig> getInboundAuthenticators() {
 
-        if (!CollectionUtils.isEmpty(customInboundAuthenticatorConfigs)) {
-            return customInboundAuthenticatorConfigs;
+        if (!CollectionUtils.isEmpty(inboundAuthenticationRequestConfigs)) {
+            return inboundAuthenticationRequestConfigs;
         }
 
-        customInboundAuthenticatorConfigs = new ArrayList<InboundAuthenticationRequestConfig>();
+        inboundAuthenticationRequestConfigs = new ArrayList<InboundAuthenticationRequestConfig>();
 
         InboundAuthenticationRequestConfig[] authRequests = serviceProvider
                 .getInboundAuthenticationConfig()
@@ -851,10 +851,10 @@ public class ApplicationBean {
 
         if (authRequests != null) {
             for (InboundAuthenticationRequestConfig request : authRequests) {
-                customInboundAuthenticatorConfigs.add(request);
+                inboundAuthenticationRequestConfigs.add(request);
             }
         }
-        return customInboundAuthenticatorConfigs;
+        return inboundAuthenticationRequestConfigs;
     }
 
 
@@ -1171,8 +1171,8 @@ public class ApplicationBean {
             authRequestList.add(opicAuthenticationRequest);
         }
 
-        if (!CollectionUtils.isEmpty(customInboundAuthenticatorConfigs)) {
-            for (InboundAuthenticationRequestConfig customAuthConfig : customInboundAuthenticatorConfigs) {
+        if (!CollectionUtils.isEmpty(inboundAuthenticationRequestConfigs)) {
+            for (InboundAuthenticationRequestConfig customAuthConfig : inboundAuthenticationRequestConfigs) {
                 String type = customAuthConfig.getInboundAuthType();
                 Property[] properties = customAuthConfig.getProperties();
                 if (!ArrayUtils.isEmpty(properties)) {

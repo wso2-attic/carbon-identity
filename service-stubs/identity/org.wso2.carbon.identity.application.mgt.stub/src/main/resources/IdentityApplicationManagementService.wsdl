@@ -1,5 +1,4 @@
 <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd"
-                  xmlns:ax2126="http://common.application.identity.carbon.wso2.org/xsd"
                   xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
                   xmlns:ax2128="http://model.common.application.identity.carbon.wso2.org/xsd"
                   xmlns:tns="http://mgt.application.identity.carbon.wso2.org"
@@ -17,11 +16,11 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ns="http://org.apache.axis2/xsd"
-                   xmlns:ax2127="http://common.application.identity.carbon.wso2.org/xsd"
-                   xmlns:ax2129="http://model.common.application.identity.carbon.wso2.org/xsd"
-                   attributeFormDefault="qualified" elementFormDefault="qualified"
-                   targetNamespace="http://org.apache.axis2/xsd">
+        <xs:schema
+                xmlns:ax2127="http://common.application.identity.carbon.wso2.org/xsd"
+                xmlns:ax2129="http://model.common.application.identity.carbon.wso2.org/xsd"
+                attributeFormDefault="qualified" elementFormDefault="qualified"
+                targetNamespace="http://org.apache.axis2/xsd">
             <xs:import namespace="http://common.application.identity.carbon.wso2.org/xsd"/>
             <xs:import namespace="http://model.common.application.identity.carbon.wso2.org/xsd"/>
             <xs:element name="IdentityApplicationManagementServiceIdentityApplicationManagementException">

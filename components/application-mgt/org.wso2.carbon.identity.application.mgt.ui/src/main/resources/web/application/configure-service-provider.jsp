@@ -1334,9 +1334,9 @@ var roleMappinRowID = -1;
                             standardInboundAuthTypes.add("openid");
                             standardInboundAuthTypes.add("passivests");
 
-                            if (!CollectionUtils.isEmpty(appBean.getCustomInboundAuthenticators())) {
+                            if (!CollectionUtils.isEmpty(appBean.getInboundAuthenticators())) {
                                 List<InboundAuthenticationRequestConfig> customAuthenticators = appBean
-                                        .getCustomInboundAuthenticators();
+                                        .getInboundAuthenticators();
                                 for (InboundAuthenticationRequestConfig customAuthenticator : customAuthenticators) {
                                     if(!standardInboundAuthTypes.contains(customAuthenticator.getInboundAuthType())){
                                     String type = customAuthenticator.getInboundAuthType();
