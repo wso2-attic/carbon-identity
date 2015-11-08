@@ -25,6 +25,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpService;
 import org.wso2.carbon.identity.authenticator.saml2.sso.common.Util;
 import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
@@ -91,6 +92,7 @@ public class IdentitySAMLSSOServiceComponent {
         ctxt.getBundleContext().registerService(SSOServiceProviderConfigManager.class.getName(),
                 SSOServiceProviderConfigManager.getInstance(), null);
         String redirectHtmlPath = null;
+        FileInputStream fis = null;
         try {
             IdentityUtil.populateProperties();
             SAMLSSOUtil.setSingleLogoutRetryCount(Integer.parseInt(
@@ -107,7 +109,7 @@ public class IdentitySAMLSSOServiceComponent {
 
             redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
                     + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File.separator + "samlsso_response.html";
-            FileInputStream fis = new FileInputStream(new File(redirectHtmlPath));
+            fis = new FileInputStream(new File(redirectHtmlPath));
             ssoRedirectPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
             log.debug("samlsso_response.html " + ssoRedirectPage);
 
@@ -129,6 +131,8 @@ public class IdentitySAMLSSOServiceComponent {
                         " Default values for retry count: " + defaultSingleLogoutRetryCount +
                         " and interval: " + defaultSingleLogoutRetryInterval + " will be used.", e);
             }
+        } finally {
+            IdentityIOStreamUtils.closeInputStream(fis);
         }
 
     }
