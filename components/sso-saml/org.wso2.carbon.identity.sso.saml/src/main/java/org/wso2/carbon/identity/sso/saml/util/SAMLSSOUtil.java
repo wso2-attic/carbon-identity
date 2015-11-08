@@ -1337,7 +1337,7 @@ public class SAMLSSOUtil {
                     (RegistryType.SYSTEM_CONFIGURATION);
             return persistenceManager.isServiceProviderExists(registry, issuerName);
         } catch (IdentityException e) {
-            throw new IdentitySAML2SSOException("Error occurred while validating existences of SAML service provider " +
+            throw new IdentitySAML2SSOException("Error occurred while validating existence of SAML service provider " +
                                                 "'" + issuerName + "' in the tenant domain '" + tenantDomain + "'");
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
