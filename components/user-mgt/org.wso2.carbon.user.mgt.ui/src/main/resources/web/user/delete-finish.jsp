@@ -46,11 +46,10 @@
     }
 %>
 
-<%@page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.text.MessageFormat" %>
+<%@page import="java.text.MessageFormat" %>
+<%@ page import="java.util.ResourceBundle" %>
 
-<%@page import="java.util.ResourceBundle" %>
 <script type="text/javascript">
     function forward() {
         location.href = "<%=forwardTo%>";
