@@ -73,6 +73,10 @@
             <groupId>backport-util-concurrent.wso2</groupId>
             <artifactId>backport-util-concurrent</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -128,7 +132,8 @@
                             org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
                             org.wso2.carbon.registry.core.*;version="${carbon.kernel.registry.imp.pkg.version}",
-                            org.wso2.carbon.registry.api;version="${carbon.kernel.registry.imp.pkg.version}"
+                            org.wso2.carbon.registry.api;version="${carbon.kernel.registry.imp.pkg.version}",
+                            org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.security.internal,
