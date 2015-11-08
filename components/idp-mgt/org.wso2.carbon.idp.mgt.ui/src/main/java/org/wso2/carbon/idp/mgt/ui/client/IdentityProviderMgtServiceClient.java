@@ -229,12 +229,7 @@ public class IdentityProviderMgtServiceClient {
 
             if (fedAuthConfigs != null && fedAuthConfigs.length > 0) {
                 for (FederatedAuthenticatorConfig config : fedAuthConfigs) {
-                    if (!(("facebook").equals(config.getDisplayName())
-                            || ("openid").equals(config.getDisplayName())
-                            || ("openidconnect").equals(config.getDisplayName())
-                            || ("samlsso").equals(config.getDisplayName()) || ("passivests").
-                            equals(config.getDisplayName())))
-                        configMap.put(config.getName(), config);
+                    configMap.put(config.getName(), config);
                 }
             }
         } catch (Exception e) {

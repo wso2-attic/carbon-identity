@@ -28,7 +28,6 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.UUID" %>
-<%@ page import="java.util.HashMap" %>
 
 <%
     String BUNDLE = "org.wso2.carbon.idp.mgt.ui.i18n.Resources";

@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.application.authenticator.passive.sts.util;
 public class PassiveSTSConstants {
 
     public static final String AUTHENTICATOR_NAME = "PassiveSTSAuthenticator";
+    public static final String AUTHENTICATOR_FRIENDLY_NAME = "Passive STS";
     public static final String HTTP_PARAM_PASSIVE_STS_RESULT = "wresult";
     public static final String REALM_ID = "RealmId";
     public static final String ERROR_WHILE_INSTANTIATING_SSOAGENT_CREDENTIAL_IMPL_CLASS = "Error while instantiating SSOAgentCredentialImplClass: ";
