@@ -42,13 +42,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Enumeration;
 
 /**
  * encapsulates recovery config data
@@ -65,7 +66,6 @@ public class IdentityMgtConfig {
     private String challengeQuestionSeparator;
     private int authPolicyMaxLoginAttempts;
     private int temporaryPasswordExpireTime;
-    private String temporaryDefaultPassword;
     private boolean enableTemporaryPassword;
     private boolean enableAuthPolicy;
     private boolean authPolicyOneTimePasswordCheck;
@@ -191,12 +191,6 @@ public class IdentityMgtConfig {
                     getProperty(IdentityMgtConstants.PropertyConfig.TEMPORARY_PASSWORD_EXPIRE_TIME);
             if (temporaryPasswordExpireTimeProperty != null) {
                 this.temporaryPasswordExpireTime = Integer.parseInt(temporaryPasswordExpireTimeProperty.trim());
-            }
-
-            String defaultPasswordProperty = properties.
-                    getProperty(IdentityMgtConstants.PropertyConfig.TEMPORARY_PASSWORD_DEFAULT);
-            if (defaultPasswordProperty != null) {
-                this.temporaryDefaultPassword = defaultPasswordProperty.trim();
             }
 
             String temporaryPasswordOneTimeProperty = properties.
@@ -436,10 +430,6 @@ public class IdentityMgtConfig {
         return temporaryPasswordExpireTime;
     }
 
-    public String getTemporaryDefaultPassword() {
-        return temporaryDefaultPassword;
-    }
-
     public boolean isEnableTemporaryPassword() {
         return enableTemporaryPassword;
     }
@@ -552,34 +542,33 @@ public class IdentityMgtConfig {
      */
     private void loadPolicyExtensions(Properties properties, String extensionType) {
 
-        // First property must start with 1.
-        int count = 1;
-        String className = null;
-        int size = 0;
-        Enumeration<String> keyValues = (Enumeration<String>) properties.propertyNames();
-        while (keyValues.hasMoreElements()) {
-            String currentProp = keyValues.nextElement();
-            if (currentProp.contains(extensionType)) {
-                size++;
+        Set<Integer> count = new HashSet();
+        Iterator<String> keyValues = properties.stringPropertyNames().iterator();
+        while (keyValues.hasNext()) {
+            String currentProp = keyValues.next();
+            if (currentProp.startsWith(extensionType)) {
+                String extensionNumber = currentProp.replaceFirst(extensionType + ".", "");
+                if (StringUtils.isNumeric(extensionNumber)) {
+                    count.add(Integer.parseInt(extensionNumber));
+                }
             }
         }
         //setting the number of extensionTypes as the upper bound as there can be many extension policy numbers,
         //eg: Password.policy.extensions.1, Password.policy.extensions.4, Password.policy.extensions.15
-        while (size > 0) {
-            className = properties.getProperty(extensionType + "." + count);
+        Iterator<Integer> countIterator = count.iterator();
+        while (countIterator.hasNext()) {
+            Integer extensionIndex = countIterator.next();
+            String className = properties.getProperty(extensionType + "." + extensionIndex);
             if (className == null) {
-                count++;
                 continue;
             }
             try {
                 Class clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
 
                 PolicyEnforcer policy = (PolicyEnforcer) clazz.newInstance();
-                policy.init(getParameters(properties, extensionType, count));
+                policy.init(getParameters(properties, extensionType, extensionIndex));
 
-                this.policyRegistry.addPolicy((PolicyEnforcer) policy);
-                count++;
-                size--;
+                this.policyRegistry.addPolicy(policy);
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | SecurityException e) {
                 log.error("Error while loading password policies " + className, e);
             }
