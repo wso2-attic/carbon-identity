@@ -636,6 +636,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder = null;
         try {
+            documentFactory.setFeature(UserStoreConfigurationConstant.EXTERNAL_GENERAL_ENTITIES_URI, false);
             documentBuilder = documentFactory.newDocumentBuilder();
             Document doc = documentBuilder.parse(userStoreConfigFile);
 
@@ -802,6 +803,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             DOMSource source = new DOMSource(doc);
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
+
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
