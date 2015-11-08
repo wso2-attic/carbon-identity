@@ -89,6 +89,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -1303,4 +1304,44 @@ public class SAMLSSOUtil {
         }
         return defaultLogoutLocation;
     }
+
+    public static boolean isSAMLIssuerExists(String issuerName, String tenantDomain) throws IdentitySAML2SSOException {
+
+        SSOServiceProviderConfigManager stratosIdpConfigManager = SSOServiceProviderConfigManager.getInstance();
+        SAMLSSOServiceProviderDO serviceProvider = stratosIdpConfigManager.getServiceProvider(issuerName);
+        if (serviceProvider != null) {
+            return true;
+        }
+
+        int tenantId;
+        if (StringUtils.isBlank(tenantDomain)) {
+            tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+            tenantId = MultitenantConstants.SUPER_TENANT_ID;
+        } else {
+            try {
+                tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+            } catch (UserStoreException e) {
+                throw new IdentitySAML2SSOException("Error occurred while retrieving tenant id for the domain : " +
+                                                    tenantDomain, e);
+            }
+        }
+
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            privilegedCarbonContext.setTenantId(tenantId);
+            privilegedCarbonContext.setTenantDomain(tenantDomain);
+
+            IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
+            Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry
+                    (RegistryType.SYSTEM_CONFIGURATION);
+            return persistenceManager.isServiceProviderExists(registry, issuerName);
+        } catch (IdentityException e) {
+            throw new IdentitySAML2SSOException("Error occurred while validating existences of SAML service provider " +
+                                                "'" + issuerName + "' in the tenant domain '" + tenantDomain + "'");
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
 }
