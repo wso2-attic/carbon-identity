@@ -412,10 +412,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         // only if the application has been renamed
         if (!StringUtils.equals(applicationName, storedAppName)) {
-            String applicationNameforRole = ApplicationConstants.APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR
-                    + applicationName;
-            String storedAppNameforRole = ApplicationConstants.APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR
-                    + storedAppName;
+            String applicationNameforRole = IdentityUtil.addDomainToName(applicationName, ApplicationConstants.
+                    APPLICATION_DOMAIN);
+            String storedAppNameforRole = IdentityUtil.addDomainToName(storedAppName, ApplicationConstants.
+                    APPLICATION_DOMAIN);
             // rename the role
             ApplicationMgtUtil.renameRole(storedAppNameforRole, applicationNameforRole);
             if (log.isDebugEnabled()) {
