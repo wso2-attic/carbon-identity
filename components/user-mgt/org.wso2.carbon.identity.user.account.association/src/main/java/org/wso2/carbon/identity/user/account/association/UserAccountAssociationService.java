@@ -30,8 +30,6 @@ import org.wso2.carbon.identity.user.account.association.internal.IdentityAccoun
 import org.wso2.carbon.identity.user.account.association.util.UserAccountAssociationConstants;
 import org.wso2.carbon.user.api.UserRealmService;
 import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.mgt.common.UserAdminException;
-import org.wso2.carbon.user.mgt.internal.UserMgtDSComponent;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 public class UserAccountAssociationService extends AbstractAdmin {
