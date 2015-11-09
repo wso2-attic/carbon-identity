@@ -765,8 +765,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @throws org.apache.axis2.AxisFault
      * @throws org.wso2.carbon.registry.api.RegistryException
      */
-    private void setSTSParameter(SAMLTokenIssuerConfig samlConfig) throws AxisFault,
-                                                                          RegistryException {
+    private void setSTSParameter(SAMLTokenIssuerConfig samlConfig) throws AxisFault, RegistryException {
         new SecurityServiceAdmin(getAxisConfig(), getConfigSystemRegistry()).
                 setServiceParameterElement(ServerConstants.STS_NAME, samlConfig.getParameter());
     }
@@ -777,29 +776,22 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
      * @param groupName      Group name
      * @param serviceName    Service name
      * @param trustedService Trusted service name
-     * @throws org.wso2.carbon.security.SecurityConfigException
+     * @throws org.wso2.carbon.registry.api.RegistryException
      */
-    private void removeTrustedService(String groupName, String serviceName, String trustedService)
-            throws SecurityConfigException {
-        Registry registry;
-        String resourcePath;
-        Resource resource;
-        try {
-            resourcePath = RegistryResources.SERVICE_GROUPS + groupName +
+    private void removeTrustedService(String groupName, String serviceName,
+                                      String trustedService) throws RegistryException {
+
+        String resourcePath = RegistryResources.SERVICE_GROUPS + groupName +
                     RegistryResources.SERVICES + serviceName + "/trustedServices";
-            registry = getConfigSystemRegistry();
-            if (registry != null) {
-                if (registry.resourceExists(resourcePath)) {
-                    resource = registry.get(resourcePath);
-                    if (resource.getProperty(trustedService) != null) {
-                        resource.removeProperty(trustedService);
-                    }
-                    registry.put(resourcePath, resource);
+        Registry registry = getConfigSystemRegistry();
+        if (registry != null) {
+            if (registry.resourceExists(resourcePath)) {
+                Resource resource = registry.get(resourcePath);
+                if (resource.getProperty(trustedService) != null) {
+                    resource.removeProperty(trustedService);
                 }
+                registry.put(resourcePath, resource);
             }
-        } catch (Exception e) {
-            String error = "Error occurred while removing trusted service for STS";
-            throw new SecurityConfigException(error, e);
         }
     }
 

@@ -23,12 +23,21 @@ import java.io.InputStream;
 public class BulkImportConfig {
 
     private InputStream inStream;
+    private String userStoreDomain;
     private String fileName;
     private String defaultPassword;
 
     public BulkImportConfig(InputStream inStream, String fileName) {
         this.inStream = inStream;
         this.fileName = fileName;
+    }
+
+    public String getUserStoreDomain() {
+        return userStoreDomain;
+    }
+
+    public void setUserStoreDomain(String userStoreDomain) {
+        this.userStoreDomain = userStoreDomain;
     }
 
     public String getFileName() {

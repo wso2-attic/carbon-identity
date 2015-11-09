@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.application.authenticator.passive.sts;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
@@ -37,7 +38,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Map;
 
-public class PassiveSTSAuthenticator extends AbstractApplicationAuthenticator {
+public class PassiveSTSAuthenticator extends AbstractApplicationAuthenticator implements FederatedApplicationAuthenticator {
 
     private static final long serialVersionUID = -8097512332218044090L;
 
@@ -152,7 +153,7 @@ public class PassiveSTSAuthenticator extends AbstractApplicationAuthenticator {
 
     @Override
     public String getFriendlyName() {
-        return "passivests";
+        return PassiveSTSConstants.AUTHENTICATOR_FRIENDLY_NAME;
     }
 
     @Override

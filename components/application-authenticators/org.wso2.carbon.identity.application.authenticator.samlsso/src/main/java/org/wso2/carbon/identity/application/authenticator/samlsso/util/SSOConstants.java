@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.application.authenticator.samlsso.util;
 public class SSOConstants {
 
     public static final String AUTHENTICATOR_NAME = "SAMLSSOAuthenticator";
-    public static final String AUTHENTICATOR_FRIENDLY_NAME = "samlsso";
+    public static final String AUTHENTICATOR_FRIENDLY_NAME = "SAML2 Web SSO";
 
     public static final String HTTP_POST_PARAM_SAML2_AUTH_REQ = "SAMLRequest";
     public static final String HTTP_POST_PARAM_SAML2_RESP = "SAMLResponse";
@@ -55,5 +55,6 @@ public class SSOConstants {
         public static final String KEY_ALIAS = "Security.KeyStore.KeyAlias";
         public static final String KEY_PASSWORD = "Security.KeyStore.KeyPassword";
         public static final String SAML2_SSO_MANAGER = "SAML2SSOManager";
+        public static final String SAML_SSO_ACS_URL = "SAMLSSOAssertionConsumerUrl";
     }
 }

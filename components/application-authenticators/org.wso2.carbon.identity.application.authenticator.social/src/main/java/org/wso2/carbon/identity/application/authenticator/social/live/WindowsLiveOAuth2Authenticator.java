@@ -18,16 +18,13 @@
 package org.wso2.carbon.identity.application.authenticator.social.live;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.client.response.OAuthClientResponse;
-import org.apache.oltu.oauth2.common.utils.JSONUtils;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
-import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,31 +33,15 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     private static final long serialVersionUID = -4154255583070524018L;
-    public static final String ACCOUNT = "account";
     private String tokenEndpoint;
     private String oAuthEndpoint;
     private String userInfoEndpoint;
-
-    private static Map<String, String> claimMap;
-
-    static {
-
-        claimMap = new HashMap<String, String>();
-        claimMap.put("first_name", WindowsLiveOAuth2AuthenticatorConstants.GIVEN_NAME_CLAIM_URI);
-        claimMap.put("last_name", WindowsLiveOAuth2AuthenticatorConstants.LAST_NAME_CLAIM_URI);
-        claimMap.put("gender", WindowsLiveOAuth2AuthenticatorConstants.GENDER_CLAIM_URI);
-        claimMap.put("emails", WindowsLiveOAuth2AuthenticatorConstants.EMAIL_ADD_CLAIM_URI);
-        claimMap.put("locale", WindowsLiveOAuth2AuthenticatorConstants.LOCALITY_CLAIM_URI);
-    }
-
-    private static Log log = LogFactory.getLog(WindowsLiveOAuth2Authenticator.class);
 
     /**
      * initiate tokenEndpoint reading from application-authentication.xml
@@ -99,10 +80,13 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
      *
      * @return userInfoEndpoint
      */
-    private String getUserInfoEndpoint(Map<String, String> authenticatorProperties) {
+    @Override
+    protected String getUserInfoEndpoint(OAuthClientResponse token, Map<String, String> authenticatorProperties) {
+
         if (StringUtils.isBlank(this.userInfoEndpoint)) {
             initUserInfoEndPoint();
         }
+
         return this.userInfoEndpoint;
     }
 
@@ -163,50 +147,6 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         return token.getParam(WindowsLiveOAuth2AuthenticatorConstants.USER_ID);
     }
 
-    /**
-     * @param token
-     * @return
-     */
-    @Override
-    protected Map<ClaimMapping, String> getSubjectAttributes(OAuthClientResponse token,
-                                                             Map<String, String> authenticatorProperties) {
-
-        Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
-
-        try {
-            String json = sendRequest(getUserInfoEndpoint(null) + token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN));
-            if (StringUtils.isNotBlank(json)) {
-                Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
-
-                if (jsonObject != null) {
-                    for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-                        String key = getClaimUri(entry.getKey());
-                        String value = entry.getValue().toString();
-
-                        if (value != null && value.startsWith("{") && value.endsWith("}")) {
-                            Map<String, Object> children = JSONUtils.parseJSON(value);
-                            if (WindowsLiveOAuth2AuthenticatorConstants.EMAIL_ADD_CLAIM_URI.equals(key)) {
-                                value = (String) children.get(ACCOUNT);
-                            }
-                        }
-
-                        if (key != null && StringUtils.isNotBlank(value)) {
-                            claims.put(ClaimMapping.build(key, key, null, false), value);
-                        }
-                        if (log.isDebugEnabled()) {
-                            log.debug("Adding claim mapping : " + key + " <> " + key + " : " + value);
-                        }
-                    }
-                }
-            }
-
-        } catch (Exception e) {
-            log.error(e);
-        }
-
-        return claims;
-    }
-
     @Override
     public List<Property> getConfigurationProperties() {
 
@@ -215,8 +155,8 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         Property callbackUrl = new Property();
         callbackUrl.setDisplayName("Callback Url");
         callbackUrl.setName(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
-        callbackUrl.setRequired(true);
         callbackUrl.setDescription("Enter value corresponding to callback url.");
+        callbackUrl.setDisplayOrder(3);
         configProperties.add(callbackUrl);
 
         Property clientId = new Property();
@@ -224,6 +164,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientId.setDisplayName("Client Id");
         clientId.setRequired(true);
         clientId.setDescription("Enter Microsoft Live client identifier value");
+        clientId.setDisplayOrder(1);
         configProperties.add(clientId);
 
         Property clientSecret = new Property();
@@ -232,6 +173,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientSecret.setRequired(true);
         clientSecret.setConfidential(true);
         clientSecret.setDescription("Enter Microsoft Live client secret value");
+        clientSecret.setDisplayOrder(2);
         configProperties.add(clientSecret);
 
         return configProperties;
@@ -247,27 +189,28 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         return WindowsLiveOAuth2AuthenticatorConstants.AUTHENTICATOR_NAME;
     }
 
-    /**
-     * @param fbKey
-     * @return
-     */
-    protected String getClaimUri(String fbKey) {
-        return claimMap.get(fbKey);
-    }
+    @Override
+    protected String sendRequest(String url, String accessToken) throws IOException {
 
-    private String sendRequest(String url) throws IOException {
-        if (url != null) {
-            URLConnection urlConnection = new URL(url).openConnection();
-            BufferedReader in = new BufferedReader(
+        if (!StringUtils.isBlank(url) && !StringUtils.isBlank(accessToken)) {
+
+            String finalUrl = url + accessToken;
+            URLConnection urlConnection = new URL(finalUrl).openConnection();
+            BufferedReader reader = new BufferedReader(
                     new InputStreamReader(urlConnection.getInputStream(), Charset.forName("utf-8")));
-            StringBuilder b = new StringBuilder();
-            String inputLine = in.readLine();
-            while (inputLine != null) {
-                b.append(inputLine).append("\n");
-                inputLine = in.readLine();
+
+            StringBuilder builder = new StringBuilder();
+            try {
+                String inputLine = reader.readLine();
+
+                while (inputLine != null) {
+                    builder.append(inputLine).append("\n");
+                    inputLine = reader.readLine();
+                }
+            }finally {
+                IdentityIOStreamUtils.closeReader(reader);
             }
-            in.close();
-            return b.toString();
+            return builder.toString();
         } else {
             return StringUtils.EMPTY;
         }

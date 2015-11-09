@@ -22,14 +22,14 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>user-mgt-workflow-feature</artifactId>
-        <version>5.0.2-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.user.mgt.workflow.feature</artifactId>
     <packaging>pom</packaging>
-    <name>Workflow User Management Feature</name>
+    <name>WSO2 Carbon- Workflow User Management Feature</name>
     <url>http://wso2.org</url>
     <description>This feature contains the bundles required for Workflow User Management functionality</description>
 

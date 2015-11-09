@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tools.ant.util.FileUtils;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 import org.wso2.carbon.identity.user.store.configuration.deployer.exception.UserStoreConfigurationDeployerException;
 import org.wso2.carbon.identity.user.store.configuration.deployer.internal.UserStoreConfigComponent;
 import org.wso2.carbon.identity.user.store.configuration.deployer.util.UserStoreConfigurationConstants;
@@ -126,6 +127,7 @@ public class UserStoreConfigurationDeployer extends AbstractDeployer {
             String ext = FilenameUtils.getExtension(absolutePath);
 
             if (UserStoreConfigurationConstants.ENC_EXTENSION.equalsIgnoreCase(ext)) {
+                OutputStream outputStream = null;
                 try {
                     Cipher cipher = UserStoreUtil.getCipherOfSuperTenant();
                     OMElement secondaryStoreDocument = initializeOMElement(absolutePath);
@@ -134,7 +136,6 @@ public class UserStoreConfigurationDeployer extends AbstractDeployer {
                     int index = absolutePath.lastIndexOf(".");
                     if (index != 1) {
                         String encFileName = absolutePath.substring(0, index + 1) + UserStoreConfigurationConstants.XML_EXTENSION;
-                        OutputStream outputStream;
                         outputStream = new FileOutputStream(encFileName);
                         secondaryStoreDocument.serialize(outputStream);
 
@@ -157,6 +158,8 @@ public class UserStoreConfigurationDeployer extends AbstractDeployer {
                 } catch (UserStoreException e) {
                     String errMsg = "Error while initializing key store";
                     throw new DeploymentException(errMsg, e);
+                } finally {
+                    IdentityIOStreamUtils.closeOutputStream(outputStream);
                 }
             }
 

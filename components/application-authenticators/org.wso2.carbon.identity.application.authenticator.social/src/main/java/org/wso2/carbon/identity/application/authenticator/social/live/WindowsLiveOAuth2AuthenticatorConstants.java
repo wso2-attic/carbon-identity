@@ -20,8 +20,8 @@ package org.wso2.carbon.identity.application.authenticator.social.live;
 
 public class WindowsLiveOAuth2AuthenticatorConstants {
 
-    public static final String AUTHENTICATOR_NAME = "MicrosoftWindowsLive";
-    public static final String AUTHENTICATOR_FRIENDLY_NAME = "microsoft(hotmail, msn, live)";
+    public static final String AUTHENTICATOR_NAME = "MicrosoftWindowsLiveAuthenticator";
+    public static final String AUTHENTICATOR_FRIENDLY_NAME = "Microsoft (Hotmail, MSN, Live)";
 
     public static final String CALLBACK_URL = "windows-live-callback-url";
     public static final String WINDOWS_LIVE_AUTHZ_URL = "AuthnEndpoint";

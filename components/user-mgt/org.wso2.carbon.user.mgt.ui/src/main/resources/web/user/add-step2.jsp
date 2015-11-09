@@ -54,6 +54,7 @@
     boolean showFilterMessage = false;
     boolean newFilter = false;
     boolean doUserList = true;
+    String currentUser = (String) session.getAttribute("logged-user");
     List<FlaggedName> dataList = null;
     FlaggedName exceededDomains = null;
     FlaggedName[] roles = null;
@@ -121,7 +122,7 @@
                                                  .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
             UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
             if (filter.length() > 0) {
-                FlaggedName[] data = client.getRolesOfUser(Util.decodeHTMLCharacters(userName), filter, -1);
+                FlaggedName[] data = client.getRolesOfUser(userName, filter, -1);
                 dataList = new ArrayList<FlaggedName>(Arrays.asList(data));
                 exceededDomains = dataList.remove(dataList.size() - 1);
                 session.setAttribute(UserAdminUIConstants.USER_LIST_ADD_USER_ROLE_CACHE_EXCEEDED, exceededDomains);
@@ -321,7 +322,9 @@
                                                         String doCheck = "";
                                                         String doEdit = "";
                                                         if (name.getItemName()
-                                                                .equals(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME)) {
+                                                                .equals(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME) ||
+                                                                (!currentUser.equals(userRealmInfo.getAdminUser()) && name
+                                                                        .getItemName().equals(userRealmInfo.getAdminRole()))) {
                                                             continue;
                                                         } else if (userRealmInfo.getEveryOneRole()
                                                                                 .equals(name.getItemName())) {

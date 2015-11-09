@@ -26,6 +26,7 @@ import org.w3c.dom.NodeList;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.user.store.configuration.beans.RandomPassword;
 import org.wso2.carbon.identity.user.store.configuration.beans.RandomPasswordContainer;
 import org.wso2.carbon.identity.user.store.configuration.cache.RandomPasswordContainerCache;
@@ -495,7 +496,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
     }
 
     private boolean validateDomainsForDelete(String[] domains) {
-        String userDomain = UserCoreUtil.extractDomainFromName(PrivilegedCarbonContext.getThreadLocalCarbonContext()
+        String userDomain = IdentityUtil.extractDomainFromName(PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getUsername());
         for (String domain : domains) {
             if (domain.equalsIgnoreCase(userDomain)) {
@@ -610,7 +611,19 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @param domain:   Name of the domain to be updated
      * @param isDisable : Whether to disable/enable domain(true/false)
      */
-    public void changeUserStoreState(String domain, Boolean isDisable) throws IdentityUserStoreMgtException{
+    public void changeUserStoreState(String domain, Boolean isDisable) throws IdentityUserStoreMgtException {
+
+        String currentAuthorizedUserName = CarbonContext.getThreadLocalCarbonContext().getUsername();
+        int index = currentAuthorizedUserName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR);
+        String currentUserDomain = null;
+        if (index > 0) {
+            currentUserDomain = currentAuthorizedUserName.substring(0, index);
+        }
+
+        if (currentUserDomain != null && currentUserDomain.equalsIgnoreCase(domain) && isDisable) {
+            log.error("Error while disabling user store from a user who is in the same user store.");
+            throw new IdentityUserStoreMgtException("Error while updating user store state.");
+        }
 
         File userStoreConfigFile = createConfigurationFile(domain);
         StreamResult result = new StreamResult(userStoreConfigFile);

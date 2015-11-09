@@ -47,13 +47,14 @@
 
 <%
 ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, request.getParameter("spName"));
-if (appBean.getServiceProvider()==null || appBean.getServiceProvider().getApplicationName()==null){
+if (appBean.getServiceProvider() == null || appBean.getServiceProvider().getApplicationName() == null) {
 // if appbean is not set properly redirect the user to list-service-provider.jsp.
 %>
 <script>
-location.href = 'list-service-provider.jsp';
+location.href = "list-service-providers.jsp";
 </script>
-<% 
+<%
+	return;
 }
 	String spName = appBean.getServiceProvider().getApplicationName();
 	
@@ -1241,7 +1242,7 @@ var roleMappinRowID = -1;
 											<td><%=Encode.forHtmlContent(appBean.getWstrustSP())%></td>
 											<td style="white-space: nowrap;">
 												<a title="Edit Audience" onclick="updateBeanAndRedirect('../generic-sts/sts.jsp?spName=<%=Encode.forUriComponent(spName)%>&&spAudience=<%=Encode.forUriComponent(appBean.getWstrustSP())%>&spAction=spEdit');"  class="icon-link" style="background-image: url(../admin/images/edit.gif)">Edit</a>
-												<a title="Delete Audience" onclick="updateBeanAndRedirect('../generic-sts/remove-trusted-service.jsp?action=delete&appName=<%=Encode.forUriComponent(spName)%>&endpointaddrs=<%=Encode.forUriComponent(appBean.getWstrustSP())%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
+												<a title="Delete Audience" onclick="updateBeanAndRedirect('../generic-sts/remove-trusted-service.jsp?action=delete&spName=<%=Encode.forUriComponent(spName)%>&endpointaddrs=<%=Encode.forUriComponent(appBean.getWstrustSP())%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
 											</td>
 										</tr>
 										</tbody>

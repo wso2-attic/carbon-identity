@@ -716,14 +716,14 @@ public class OutboundProvisioningManager {
                 // in-bound claim dialect is service provider specific.
                 // we have read the claim mapping from service provider claim
                 // configuration.
-                return IdentityApplicationManagementUtil.getMappedClaims(outboundClaimDialect,
+                return ProvisioningUtil.getMappedClaims(outboundClaimDialect,
                         inboundAttributes, spClaimMappings, provisioningEntity.getAttributes(),
                         tenantDomainName);
             } else {
                 // in-bound claim dialect is not service provider specific.
                 // its been supplied by the corresponding in-bound provisioning servlet
                 // or listener.
-                return IdentityApplicationManagementUtil.getMappedClaims(outboundClaimDialect,
+                return ProvisioningUtil.getMappedClaims(outboundClaimDialect,
                         inboundAttributes, inboundClaimDialect, provisioningEntity.getAttributes(),
                         tenantDomainName);
             }
@@ -736,13 +736,13 @@ public class OutboundProvisioningManager {
                 // in-bound claim dialect is service provider specific.
                 // we have read the claim mapping from service provider claim
                 // configuration.
-                return IdentityApplicationManagementUtil.getMappedClaims(idpClaimMappings,
+                return ProvisioningUtil.getMappedClaims(idpClaimMappings,
                         inboundAttributes, spClaimMappings, provisioningEntity.getAttributes());
             } else {
                 // in-bound claim dialect is not service provider specific.
                 // its been supplied by the corresponding in-bound provisioning servlet
                 // or listener.
-                return IdentityApplicationManagementUtil.getMappedClaims(idpClaimMappings,
+                return ProvisioningUtil.getMappedClaims(idpClaimMappings,
                         inboundAttributes, inboundClaimDialect, provisioningEntity.getAttributes(),
                         tenantDomainName);
             }
