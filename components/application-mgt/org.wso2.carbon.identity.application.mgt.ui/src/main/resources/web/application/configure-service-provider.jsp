@@ -1151,7 +1151,7 @@ var roleMappinRowID = -1;
 								%>
 								<input style="width:50%" id="openidRealm" name="openidRealm" type="text" value="<%=Encode.forHtmlAttribute(appBean.getOpenIDRealm())%>" autofocus/>
 								<% } else { %>
-								<input style="width:50%" id="openidRealm" name="openidRealm" type="text" value="<%=Encode.forHtmlAttribute(appBean.getServiceProvider().getApplicationName())%>" autofocus/>
+								<input style="width:50%" id="openidRealm" name="openidRealm" type="text" value="" autofocus/>
 								<% } %>
 								<div class="sectionHelp">
 									<fmt:message key='help.openid'/>
