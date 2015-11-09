@@ -894,44 +894,13 @@ public class ApplicationBean {
                                                                             "_fed_authenticator");
                             if (StringUtils.isNotBlank(authenticatorName)) {
                                 String authenticatorDisplayName = null;
-                                boolean found = false;
 
                                 for (FederatedAuthenticatorConfig config : referringIdP
                                         .getFederatedAuthenticatorConfigs()) {
                                     if (authenticatorName.equals(config.getName())) {
-                                        found = true;
                                         authenticatorDisplayName = config.getDisplayName();
                                         break;
                                     }
-                                }
-
-                                // User is trying to save disabled authenticator of an IdP
-                                if (!found) {
-                                    AuthenticationStep[] authenticationSteps = serviceProvider
-                                            .getLocalAndOutBoundAuthenticationConfig().getAuthenticationSteps();
-                                    if (authenticationSteps != null) {
-                                        OUTERMOST: for (AuthenticationStep authenticationStep : authenticationSteps) {
-                                            IdentityProvider[] identityProviders = authenticationStep
-                                                    .getFederatedIdentityProviders();
-                                            if (identityProviders != null) {
-                                                for (IdentityProvider identityProvider : identityProviders) {
-                                                    FederatedAuthenticatorConfig defaultConfig = identityProvider
-                                                            .getDefaultAuthenticatorConfig();
-                                                    if (defaultConfig != null && authenticatorName.equals
-                                                            (identityProvider.getDefaultAuthenticatorConfig().getName())) {
-                                                        found = true;
-                                                        authenticatorDisplayName = identityProvider
-                                                                .getDefaultAuthenticatorConfig().getDisplayName();
-                                                        break OUTERMOST;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if(!found) {
-                                    continue;
                                 }
 
                                 FederatedAuthenticatorConfig authenticator = new FederatedAuthenticatorConfig();
