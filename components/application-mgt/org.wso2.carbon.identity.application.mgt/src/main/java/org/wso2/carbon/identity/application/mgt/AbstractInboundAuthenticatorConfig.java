@@ -17,114 +17,36 @@
  */
 package org.wso2.carbon.identity.application.mgt;
 
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
 import org.wso2.carbon.identity.application.common.model.Property;
-import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
- * 
+ *
  *
  */
 public abstract class AbstractInboundAuthenticatorConfig {
 
-	private final static String DEFAULT_TENANT_NAME = "carbon.super";
+    /**
+     * Get Name
+     * @return name
+     */
+    public abstract String getAuthKey();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public abstract String getName();
+    /**
+     * Get Type
+     * @return type
+     */
+    public abstract String getName();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public abstract String getType();
+    /**
+     * Get friendly name
+     * @return friendly name
+     */
+    public abstract String getFriendlyName();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public abstract Property[] getConfigurationProperties();
+    /**
+     * Get configurations
+     * @return property array
+     */
+    public abstract Property[] getConfigurationProperties();
 
-	/**
-	 * 
-	 * @param spIssuer
-	 * @return
-	 * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
-	 */
-	protected Map<String, String> getPropertyValues(String spIssuer) throws IdentityApplicationManagementException {
-		Property[] properties = getConfigurationProperties();
-
-		if (properties == null || properties.length == 0) {
-			return new HashMap<String, String>();
-		}
-
-		List<String> propertyNames = new ArrayList<String>();
-
-		for (Property prop : properties) {
-			propertyNames.add(prop.getName());
-		}
-
-		return getPropertyValues(DEFAULT_TENANT_NAME, spIssuer, propertyNames);
-	}
-
-	/**
-	 *
-	 * @param spIssuer
-	 * @param propertyNames
-	 * @return
-	 * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
-	 */
-	protected Map<String, String> getPropertyValues(String spIssuer, List<String> propertyNames)
-			throws IdentityApplicationManagementException {
-		return getPropertyValues(DEFAULT_TENANT_NAME, spIssuer, propertyNames);
-	}
-
-	/**
-	 *
-	 * @param tenantDomain
-	 * @param spIssuer
-	 * @param propertyNames
-	 * @return
-	 * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
-	 */
-	protected Map<String, String> getPropertyValues(String tenantDomain, String spIssuer, List<String> propertyNames)
-			throws IdentityApplicationManagementException {
-
-		ServiceProvider serviceProvider = ApplicationMgtSystemConfig.getInstance().getApplicationDAO()
-				.getApplication(spIssuer, tenantDomain);
-
-		if (serviceProvider == null) {
-			throw new IdentityApplicationManagementException(
-					"No service provider exists in the provided tenant, with the given issuer id.");
-		}
-
-		Map<String, String> propKeyValueMap = new HashMap<String, String>();
-
-		InboundAuthenticationRequestConfig[] inboundAuthReqConfigs = serviceProvider.getInboundAuthenticationConfig()
-				.getInboundAuthenticationRequestConfigs();
-
-		if (inboundAuthReqConfigs != null && inboundAuthReqConfigs.length > 0) {
-			for (InboundAuthenticationRequestConfig authConfig : inboundAuthReqConfigs) {
-				if (authConfig.getInboundAuthType().equals(getType())
-						&& authConfig.getInboundAuthKey().equals(getName())) {
-					Property[] properties = authConfig.getProperties();
-					for (Property prop : properties) {
-						if (propertyNames.contains(prop.getName())) {
-							propKeyValueMap.put(prop.getName(), prop.getValue());
-						}
-					}
-				}
-			}
-		}
-
-		return propKeyValueMap;
-	}
 }

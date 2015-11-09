@@ -63,7 +63,7 @@
 	</menus>
     <ManagementPermissions>
         <ManagementPermission>
-            <DisplayName>applications</DisplayName>
+            <DisplayName>Applications</DisplayName>
             <ResourceId>/permission/applications</ResourceId>
         </ManagementPermission>
     </ManagementPermissions>

@@ -62,7 +62,9 @@ import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementSe
 import org.wso2.carbon.identity.application.mgt.internal.ApplicationManagementServiceComponentHolder;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.DBUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -232,7 +234,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             qualifiedUsername = CarbonConstants.REGISTRY_SYSTEM_USERNAME;
         }
         String username = UserCoreUtil.removeDomainFromName(qualifiedUsername);
-        String userStoreDomain = UserCoreUtil.extractDomainFromName(qualifiedUsername);
+        String userStoreDomain = IdentityUtil.extractDomainFromName(qualifiedUsername);
         String applicationName = serviceProvider.getApplicationName();
         String description = serviceProvider.getDescription();
 
@@ -427,8 +429,12 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         // only if the application has been renamed
         if (!StringUtils.equals(applicationName, storedAppName)) {
+            String applicationNameforRole = IdentityUtil.addDomainToName(applicationName, ApplicationConstants.
+                    APPLICATION_DOMAIN);
+            String storedAppNameforRole = IdentityUtil.addDomainToName(storedAppName, ApplicationConstants.
+                    APPLICATION_DOMAIN);
             // rename the role
-            ApplicationMgtUtil.renameRole(storedAppName, applicationName);
+            ApplicationMgtUtil.renameRole(storedAppNameforRole, applicationNameforRole);
             if (log.isDebugEnabled()) {
                 log.debug("Renaming application role from " + storedAppName + " to "
                         + applicationName);
@@ -1564,7 +1570,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 String authKey = resultSet.getString(1);
                 String authType = resultSet.getString(2);
                 String mapKey = authType + ":" + authKey;
-
                 boolean isCustomAuthenticator = isCustomInboundAuthType(authType);
 
                 if (!authRequestMap.containsKey(mapKey)) {
@@ -1586,7 +1591,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
                     if (isCustomAuthenticator) {
                         AbstractInboundAuthenticatorConfig customAuthenticator = ApplicationManagementServiceComponentHolder
-                                .getAuthenticator(authType);
+                                .getInboundAuthenticatorConfig(authType);
                         if (customAuthenticator != null) {
                             Property[] confProps = customAuthenticator.getConfigurationProperties();
                             for (Property confProp : confProps) {
@@ -1622,7 +1627,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
 
         Map<String, AbstractInboundAuthenticatorConfig> allCustomAuthenticators = ApplicationManagementServiceComponentHolder
-                .getAllAuthenticators();
+                .getAllInboundAuthenticatorConfig();
 
         Iterator<Entry<String, AbstractInboundAuthenticatorConfig>> it = allCustomAuthenticators.entrySet().iterator();
         while (it.hasNext()) {
@@ -1630,13 +1635,14 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             if (!customAuthenticatorsAlreadyIn.containsKey(entry.getKey())) {
                 InboundAuthenticationRequestConfig inbountAuthRequest = new InboundAuthenticationRequestConfig();
-                inbountAuthRequest.setInboundAuthKey(entry.getValue().getName());
-                inbountAuthRequest.setInboundAuthType(entry.getValue().getType());
+                inbountAuthRequest.setInboundAuthKey(entry.getValue().getAuthKey());
+                inbountAuthRequest.setInboundAuthType(entry.getValue().getName());
+                inbountAuthRequest.setFriendlyName(entry.getValue().getFriendlyName());
                 inbountAuthRequest.setProperties(entry.getValue().getConfigurationProperties());
-                authRequestMap.put(entry.getValue().getType() + ":" + entry.getValue().getName(), inbountAuthRequest);
+                authRequestMap.put(entry.getValue().getName() + ":" + entry.getValue().getAuthKey(), inbountAuthRequest);
             } else {
-                InboundAuthenticationRequestConfig inbountAuthRequest = authRequestMap.get(entry.getValue().getType()
-                        + ":" + entry.getValue().getName());
+                InboundAuthenticationRequestConfig inbountAuthRequest = authRequestMap.get(entry.getValue().getName()
+                        + ":" + entry.getValue().getAuthKey());
                 List<String> propsAlreadyIn = customAuthenticatorsAlreadyIn.get(entry.getKey());
                 for (Property prop : entry.getValue().getConfigurationProperties()) {
                     if (!propsAlreadyIn.contains(prop.getName())) {

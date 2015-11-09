@@ -37,6 +37,9 @@
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.InboundAuthenticationRequestConfig" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.xsd.Property" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
+<%@ page import="java.util.ArrayList" %>
+
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
 <carbon:breadcrumb label="breadcrumb.service.provider" resourceBundle="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources"
                     topPage="true" request="<%=request%>" />
@@ -49,13 +52,14 @@
 
 <%
 ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, request.getParameter("spName"));
-if (appBean.getServiceProvider()==null || appBean.getServiceProvider().getApplicationName()==null){
+if (appBean.getServiceProvider() == null || appBean.getServiceProvider().getApplicationName() == null) {
 // if appbean is not set properly redirect the user to list-service-provider.jsp.
 %>
 <script>
-location.href = 'list-service-provider.jsp';
+location.href = "list-service-providers.jsp";
 </script>
-<% 
+<%
+	return;
 }
 	String spName = appBean.getServiceProvider().getApplicationName();
 	
@@ -70,7 +74,7 @@ location.href = 'list-service-provider.jsp';
     String action = request.getParameter("action");
     String[] userStoreDomains = null;
     boolean isNeedToUpdate = false;
-    
+
     String authTypeReq =  request.getParameter("authType");
     if (authTypeReq!=null && authTypeReq.trim().length()>0){
     	appBean.setAuthenticationType(authTypeReq);
@@ -161,8 +165,7 @@ location.href = 'list-service-provider.jsp';
 	StringBuffer localAuthTypes = new StringBuffer();
 	String startOption = "<option value=\"";
 	String middleOption = "\">";
-	String endOPtion = "</option>";	
-	String disbleText = " (Disabled)";
+	String endOPtion = "</option>";
     
 	StringBuffer requestPathAuthTypes = new StringBuffer();
 	RequestPathAuthenticatorConfig[] requestPathAuthenticators = appBean.getRequestPathAuthenticators();
@@ -227,16 +230,13 @@ location.href = 'list-service-provider.jsp';
 				String options = proIdpConnector.get(idp.getIdentityProviderName());
 				if (proIdp!=null && options != null) {
 					String oldOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + middleOption + Encode.forHtmlContent(proIdp.getName()) + endOPtion;
-					String newOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName())+ (IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) != null && IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) ? "" : disbleText) + endOPtion;
+					String newOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName()) + endOPtion;
 					if(options.contains(oldOption)) {
 						options = options.replace(oldOption, newOption);
 					} else {
 						options = options + newOption;
 					}
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), options);
-				} else if(proIdp!=null && options == null) {
-					String disabledOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName()) + disbleText + endOPtion;
-					selectedProIdpConnectors.put(idp.getIdentityProviderName(), disabledOption);
 				} else {
 					options = enabledProIdpConnector.get(idp.getIdentityProviderName());
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), options);
@@ -1057,7 +1057,7 @@ var roleMappinRowID = -1;
                                 	</td>
                                 		<td style="white-space: nowrap;">
                                 			<a title="Edit Service Providers" onclick="updateBeanAndRedirect('../sso-saml/add_service_provider.jsp?SPAction=editServiceProvider&issuer=<%=Encode.forUriComponent(appBean.getSAMLIssuer())%>&spName=<%=Encode.forUriComponent(spName)%>');"  class="icon-link" style="background-image: url(../admin/images/edit.gif)">Edit</a>
-                                			<a title="Delete Service Providers" onclick="updateBeanAndRedirect('../sso-saml/remove_service_providers.jsp?issuer=<%=Encode.forUriComponent(appBean.getSAMLIssuer())%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
+                                			<a title="Delete Service Providers" onclick="updateBeanAndRedirect('../sso-saml/remove_service_providers.jsp?issuer=<%=Encode.forUriComponent(appBean.getSAMLIssuer())%>&spName=<%=Encode.forUriComponent(spName)%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
                                 		</td>
                                 	</tr>
                                 </tbody>
@@ -1152,7 +1152,7 @@ var roleMappinRowID = -1;
 								%>
 								<input style="width:50%" id="openidRealm" name="openidRealm" type="text" value="<%=Encode.forHtmlAttribute(appBean.getOpenIDRealm())%>" autofocus/>
 								<% } else { %>
-								<input style="width:50%" id="openidRealm" name="openidRealm" type="text" value="<%=Encode.forHtmlAttribute(appBean.getServiceProvider().getApplicationName())%>" autofocus/>
+								<input style="width:50%" id="openidRealm" name="openidRealm" type="text" value="" autofocus/>
 								<% } %>
 								<div class="sectionHelp">
 									<fmt:message key='help.openid'/>
@@ -1182,7 +1182,7 @@ var roleMappinRowID = -1;
 	                    	%>	                    
                             <input style="width:50%" id="passiveSTSRealm" name="passiveSTSRealm" type="text" value="<%=Encode.forHtmlAttribute(appBean.getPassiveSTSRealm())%>" autofocus/>
                             <% } else { %>
-                            <input style="width:50%" id="passiveSTSRealm" name="passiveSTSRealm" type="text" value="<%=Encode.forHtmlAttribute(spName)%>" autofocus/>
+                            <input style="width:50%" id="passiveSTSRealm" name="passiveSTSRealm" type="text" value="" autofocus/>
                             <% } %>
                           <div class="sectionHelp">
                                 <fmt:message key='help.passive.sts'/>
@@ -1243,7 +1243,7 @@ var roleMappinRowID = -1;
 											<td><%=Encode.forHtmlContent(appBean.getWstrustSP())%></td>
 											<td style="white-space: nowrap;">
 												<a title="Edit Audience" onclick="updateBeanAndRedirect('../generic-sts/sts.jsp?spName=<%=Encode.forUriComponent(spName)%>&&spAudience=<%=Encode.forUriComponent(appBean.getWstrustSP())%>&spAction=spEdit');"  class="icon-link" style="background-image: url(../admin/images/edit.gif)">Edit</a>
-												<a title="Delete Audience" onclick="updateBeanAndRedirect('../generic-sts/remove-trusted-service.jsp?action=delete&appName=<%=Encode.forUriComponent(spName)%>&endpointaddrs=<%=Encode.forUriComponent(appBean.getWstrustSP())%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
+												<a title="Delete Audience" onclick="updateBeanAndRedirect('../generic-sts/remove-trusted-service.jsp?action=delete&spName=<%=Encode.forUriComponent(spName)%>&endpointaddrs=<%=Encode.forUriComponent(appBean.getWstrustSP())%>');" class="icon-link" style="background-image: url(images/delete.gif)"> Delete </a>
 											</td>
 										</tr>
 										</tbody>
@@ -1321,53 +1321,71 @@ var roleMappinRowID = -1;
 					   </table>
 				   </div>
 
-                            <%
-                                if(appBean.getCustomInboundAuthenticators() != null && appBean.getCustomInboundAuthenticators().size() > 0) {
-                                    List<InboundAuthenticationRequestConfig> customAuthenticators = appBean.getCustomInboundAuthenticators();
-                                    for (InboundAuthenticationRequestConfig customAuthenticator : customAuthenticators){
-                                        String type = customAuthenticator.getInboundAuthType();
-                            %>
+                        <%
+                            List<String> standardInboundAuthTypes = new ArrayList<String>();
+                            standardInboundAuthTypes = new ArrayList<String>();
+                            standardInboundAuthTypes.add("oauth2");
+                            standardInboundAuthTypes.add("wstrust");
+                            standardInboundAuthTypes.add("samlsso");
+                            standardInboundAuthTypes.add("openid");
+                            standardInboundAuthTypes.add("passivests");
 
-                            <h2 id="openid.config.head" class="sectionSeperator trigger active" style="background-color: beige;">
-                                <a href="#"><%=type%></a>
-                                <div class="enablelogo"><img src="images/ok.png"  width="16" height="16"></div>
-                            </h2>
-                            <div class="toggle_container sectionSub" style="margin-bottom:10px;display:none;" id="openid.config.div">
-                                <table class="carbonFormTable">
-                                    <%
+                            if (!CollectionUtils.isEmpty(appBean.getInboundAuthenticators())) {
+                                List<InboundAuthenticationRequestConfig> customAuthenticators = appBean
+                                        .getInboundAuthenticators();
+                                for (InboundAuthenticationRequestConfig customAuthenticator : customAuthenticators) {
+                                    if(!standardInboundAuthTypes.contains(customAuthenticator.getInboundAuthType())){
+                                    String type = customAuthenticator.getInboundAuthType();
+                                    String friendlyName = customAuthenticator.getFriendlyName();
+                        %>
 
-                                        Property[] properties = customAuthenticator.getProperties();
-                                        for (Property prop:properties){
-                                            String propName = "custom_auth_prop_name_" + type + "_"+prop.getName();
+                        <h2 id="openid.config.head" class="sectionSeperator trigger active"
+                            style="background-color: beige;">
+                            <a href="#"><%=friendlyName%>
+                            </a>
 
-                                    %>
+                            <div class="enablelogo"><img src="images/ok.png" width="16" height="16"></div>
+                        </h2>
+                        <div class="toggle_container sectionSub" style="margin-bottom:10px;display:none;"
+                             id="openid.config.div">
+                            <table class="carbonFormTable">
+                                <%
 
-                                    <tr>
-                                        <td style="width:15%" class="leftCol-med labelField">
-                                            <%=prop.getDisplayName() + ":"%>
-                                        </td>
-                                        <td>
-                                            <%
-                                                if(prop.getValue() != null) {
-                                            %>
-                                            <input style="width:50%" id="<%=propName%>" name="<%=propName%>" type="text" value="<%=prop.getValue()%>" autofocus/>
-                                            <% } else { %>
-                                            <input style="width:50%" id="<%=propName%>" name="<%=propName%>" type="text"  autofocus/>
-                                            <% } %>
+                                    Property[] properties = customAuthenticator.getProperties();
+                                    for (Property prop : properties) {
+                                        String propName = "custom_auth_prop_name_" + type + "_" + prop.getName();
 
-                                        </td>
+                                %>
 
-                                    </tr>
-                                    <%
-                                        }
-                                    %>
+                                <tr>
+                                    <td style="width:15%" class="leftCol-med labelField">
+                                        <%=prop.getDisplayName() + ":"%>
+                                    </td>
+                                    <td>
+                                        <%
+                                            if (prop.getValue() != null) {
+                                        %>
+                                        <input style="width:50%" id="<%=propName%>" name="<%=propName%>" type="text"
+                                               value="<%=prop.getValue()%>" autofocus/>
+                                        <% } else { %>
+                                        <input style="width:50%" id="<%=propName%>" name="<%=propName%>" type="text"
+                                               autofocus/>
+                                        <% } %>
 
-                                </table>
-                            </div>
-                            <%
+                                    </td>
+
+                                </tr>
+                                <%
+                                    }
+                                %>
+
+                            </table>
+                        </div>
+                        <%
                                     }
                                 }
-                            %>
+                            }
+                        %>
 
 			   </div>
             
@@ -1444,24 +1462,9 @@ var roleMappinRowID = -1;
 											<option value="<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>"><%=Encode.forHtmlContent(idp.getIdentityProviderName())%></option>
 										<%  } %>
 									<%  } %>
-									<% if( !isSelectedIdPUsed && selectedIdP != null && !selectedIdP.isEmpty()) {%>
-										<option value="<%=Encode.forHtmlAttribute(selectedIdP)%>" selected><%=Encode.forHtmlContent(selectedIdP)%> (Disabled)</option>
-									<% } %>
 									</select>
                         	</td>
                     	</tr> 
-                    	<% } else if(ApplicationBean.AUTH_TYPE_FEDERATED.equals(appBean.getAuthenticationType()) && appBean.getStepZeroAuthenticatorName(ApplicationBean.AUTH_TYPE_FEDERATED) != null) { %>
-                    	<tr>
-                    		<td class="leftCol-med labelField"/>
-                        	<td>
-                        		<input type="radio" id="federated" name="auth_type" value="federated" checked><label for="federated" style="cursor: pointer;"><fmt:message key="config.authentication.type.federated"/></label>
-							</td>
-							<td>
-                        		<select name="fed_idp" id="fed_idp">
-                        			<option value="<%=Encode.forHtmlAttribute(appBean.getStepZeroAuthenticatorName(ApplicationBean.AUTH_TYPE_FEDERATED))%>" selected><%=Encode.forHtmlContent(appBean.getStepZeroAuthenticatorName(ApplicationBean.AUTH_TYPE_FEDERATED))%> (Disabled)</option>
-                        		</select>
-                        	</td>
-                        </tr>
                     	<% } else {%>
                     	<tr>
                     		<td class="leftCol-med labelField"/>
@@ -1660,7 +1663,7 @@ var roleMappinRowID = -1;
 							      	       <tr>
 							      	      	   <td>
 							      	      		<input name="provisioning_idp" id="" type="hidden" value="<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" />
-                                                    <%=Encode.forHtmlContent(idp.getIdentityProviderName()) + (idpStatus.get(idp.getIdentityProviderName()) != null && idpStatus.get(idp.getIdentityProviderName()) ? "" : disbleText) %>
+                                                    <%=Encode.forHtmlContent(idp.getIdentityProviderName()) %>
 							      	      		</td>
 							      	      		<td> 
 							      	      			<% if(selectedProIdpConnectors.get(idp.getIdentityProviderName()) != null) { %>

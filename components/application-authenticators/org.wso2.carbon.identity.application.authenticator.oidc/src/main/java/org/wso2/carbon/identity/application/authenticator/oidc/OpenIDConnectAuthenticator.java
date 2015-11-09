@@ -32,9 +32,6 @@ import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.common.utils.JSONUtils;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
@@ -51,8 +48,6 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -177,7 +172,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     protected Map<ClaimMapping, String> getSubjectAttributes(OAuthClientResponse token,
                                                              Map<String, String> authenticatorProperties) {
 
-        Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
+        Map<ClaimMapping, String> claims = new HashMap<>();
 
         try {
 
@@ -186,31 +181,24 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
             String json = sendRequest(url, accessToken);
 
-            if (!StringUtils.isNotBlank(json)) {
-                log.info("Unable to fetch user claims. Proceeding without user claims");
+            if (StringUtils.isBlank(json)) {
+                if(log.isDebugEnabled()) {
+                    log.debug("Unable to fetch user claims. Proceeding without user claims");
+                }
                 return claims;
             }
 
             Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
 
-            // Extract the inside profile JSON object.
-            Map<String, Object> profile = JSONUtils.parseJSON(
-                    jsonObject.entrySet().iterator().next().getValue().toString());
-
-            if (profile == null) {
-                log.info("Invalid user profile object. Proceeding without user claims");
-                return claims;
-            }
-
-            for (Map.Entry<String, Object> data : profile.entrySet()) {
+            for (Map.Entry<String, Object> data : jsonObject.entrySet()) {
 
                 String key = data.getKey();
 
-                claims.put(ClaimMapping.build(key, key, null, false), profile.get(key).toString());
+                claims.put(ClaimMapping.build(key, key, null, false), jsonObject.get(key).toString());
 
                 if (log.isDebugEnabled()) {
                     log.debug("Adding claims from end-point data mapping : " + key + " - " +
-                            profile.get(key).toString());
+                            jsonObject.get(key).toString());
                 }
             }
 
@@ -239,7 +227,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
                 String callbackurl = getCallbackUrl(authenticatorProperties);
 
-                if (callbackurl == null) {
+                if (StringUtils.isBlank(callbackurl)) {
                     callbackurl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
                 }
 
@@ -251,9 +239,9 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 OAuthClientRequest authzRequest;
 
                 String queryString = getQueryString(authenticatorProperties);
-                Map<String, String> paramValueMap = new HashMap<String, String>();
+                Map<String, String> paramValueMap = new HashMap<>();
 
-                if (queryString != null) {
+                if (StringUtils.isNotBlank(queryString)) {
                     String[] params = queryString.split("&");
                     if (params != null && params.length > 0) {
                         for (String param : params) {
@@ -332,152 +320,168 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
     @Override
     protected void processAuthenticationResponse(HttpServletRequest request,
-                                                 HttpServletResponse response, AuthenticationContext context)
+                                                 HttpServletResponse response,
+                                                 AuthenticationContext context)
             throws AuthenticationFailedException {
 
         try {
+
             Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
+
             String clientId = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_ID);
-            String clientSecret = authenticatorProperties
-                    .get(OIDCAuthenticatorConstants.CLIENT_SECRET);
+            String clientSecret = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_SECRET);
             String tokenEndPoint = getTokenEndpoint(authenticatorProperties);
 
             if (tokenEndPoint == null) {
-                tokenEndPoint = authenticatorProperties
-                        .get(OIDCAuthenticatorConstants.OAUTH2_TOKEN_URL);
+                tokenEndPoint = authenticatorProperties.get(OIDCAuthenticatorConstants.OAUTH2_TOKEN_URL);
             }
 
-            String callbackurl = getCallbackUrl(authenticatorProperties);
+            String callbackUrl = getCallbackUrl(authenticatorProperties);
 
-            if (callbackurl == null) {
-                callbackurl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+            if (StringUtils.isBlank(callbackUrl)) {
+                callbackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
             }
 
             @SuppressWarnings({"unchecked"})
-            Map<String, String> paramValueMap = (Map<String, String>) context
-                    .getProperty("oidc:param.map");
+            Map<String, String> paramValueMap = (Map<String, String>) context.getProperty("oidc:param.map");
 
             if (paramValueMap != null && paramValueMap.containsKey("redirect_uri")) {
-                callbackurl = paramValueMap.get("redirect_uri");
+                callbackUrl = paramValueMap.get("redirect_uri");
             }
 
             OAuthAuthzResponse authzResponse = OAuthAuthzResponse.oauthCodeAuthzResponse(request);
             String code = authzResponse.getCode();
 
-            OAuthClientRequest accessRequest = null;
-            accessRequest = getaccessRequest(tokenEndPoint, clientId, code, clientSecret, callbackurl);
+            OAuthClientRequest accessRequest =
+                    getaccessRequest(tokenEndPoint, clientId, code, clientSecret, callbackUrl);
 
-            // create OAuth client that uses custom http client under the hood
+            // Create OAuth client that uses custom http client under the hood
             OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
-            OAuthClientResponse oAuthResponse = null;
-            oAuthResponse = getOauthResponse(oAuthClient, accessRequest);
+            OAuthClientResponse oAuthResponse = getOauthResponse(oAuthClient, accessRequest);
 
             // TODO : return access token and id token to framework
             String accessToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
-            String idToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ID_TOKEN);
-            if (log.isDebugEnabled()) {
-                log.debug("Retrieved the Access Token:" + accessToken + " Id Token:" + idToken);
+
+            if (StringUtils.isBlank(accessToken)) {
+                throw new AuthenticationFailedException("Access token is empty or null");
             }
 
-            if (accessToken != null
-                    && (idToken != null || !requiredIDToken(authenticatorProperties))) {
+            String idToken = oAuthResponse.getParam(OIDCAuthenticatorConstants.ID_TOKEN);
 
-                context.setProperty(OIDCAuthenticatorConstants.ACCESS_TOKEN, accessToken);
-                Map<String, Object> jsonObject = new HashMap<>();
-                if (idToken != null) {
-                    context.setProperty(OIDCAuthenticatorConstants.ID_TOKEN, idToken);
+            if (StringUtils.isBlank(idToken) && requiredIDToken(authenticatorProperties)) {
+                throw new AuthenticationFailedException("Id token is required and is missing");
+            }
 
-                    String base64Body = idToken.split("\\.")[1];
-                    byte[] decoded = Base64.decodeBase64(base64Body.getBytes());
-                    String json = new String(decoded);
+            if (log.isDebugEnabled()) {
+                log.debug("Retrieved the Access Token: " + accessToken + " and Id Token: " + idToken);
+            }
 
-                    jsonObject = JSONUtils.parseJSON(json);
+            context.setProperty(OIDCAuthenticatorConstants.ACCESS_TOKEN, accessToken);
+
+            AuthenticatedUser authenticatedUserObj;
+            Map<ClaimMapping, String> claims = new HashMap<>();
+            Map<String, Object> jsonObject = new HashMap<>();
+
+            if (StringUtils.isNotBlank(idToken)) {
+
+                context.setProperty(OIDCAuthenticatorConstants.ID_TOKEN, idToken);
+
+                String base64Body = idToken.split("\\.")[1];
+                byte[] decoded = Base64.decodeBase64(base64Body.getBytes());
+                String json = new String(decoded);
+
+                jsonObject = JSONUtils.parseJSON(json);
+
+                if (jsonObject == null) {
+
                     if (log.isDebugEnabled()) {
-                        log.debug("Retrieved the User Information:" + jsonObject);
+                        log.debug("Decoded json object is null");
                     }
 
-                    if (jsonObject != null) {
-                        Map<ClaimMapping, String> claims = new HashMap<ClaimMapping, String>();
-
-                        String authenticatedUser = null;
-                        String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
-                                IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
-
-                        if ("true".equalsIgnoreCase(isSubjectInClaimsProp)) {
-                            authenticatedUser = getSubjectFromUserIDClaimURI(context);
-                            if (authenticatedUser == null) {
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Subject claim could not be found amongst subject attributes. " +
-                                            "Defaulting to sub attribute in IDToken.");
-                                }
-                            }
-                        }
-                        if (authenticatedUser == null) {
-                            authenticatedUser = getAuthenticateUser(context,jsonObject,oAuthResponse);
-                        }
-                        if (authenticatedUser == null) {
-                            throw new AuthenticationFailedException("Cannot find federated User Identifier");
-                        }
-
-                        String attributeSeparator = null;
-                        try {
-                            String tenantDomain = context.getTenantDomain();
-                            if (StringUtils.isBlank(tenantDomain)) {
-                                tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-                            }
-                            int tenantId = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
-                                    .getTenantManager().getTenantId(tenantDomain);
-                            UserRealm userRealm = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
-                                    .getTenantUserRealm(tenantId);
-                            if (userRealm != null) {
-                                UserStoreManager userStore = (UserStoreManager) userRealm.getUserStoreManager();
-                                attributeSeparator = userStore.getRealmConfiguration()
-                                        .getUserStoreProperty(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
-                                if (log.isDebugEnabled()) {
-                                    log.debug("For the claim mapping: " + attributeSeparator +
-                                            " is used as the attributeSeparator in tenant: " + tenantDomain);
-                                }
-                            }
-
-
-                        } catch (UserStoreException e) {
-                            throw new AuthenticationFailedException("Error while retrieving multi attribute " +
-                                    "separator", e);
-                        }
-
-                        for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-                            buildClaimMappings(claims, entry, attributeSeparator);
-                        }
-
-                        AuthenticatedUser authenticatedUserObj = AuthenticatedUser
-                                .createFederateAuthenticatedUserFromSubjectIdentifier(authenticatedUser);
-                        authenticatedUserObj.setUserAttributes(claims);
-                        context.setSubject(authenticatedUserObj);
-
-                    } else {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Decoded json object is null");
-                        }
-                        throw new AuthenticationFailedException("Decoded json object is null");
-                    }
-                } else {
-                    if (log.isDebugEnabled()) {
-                        log.debug("The IdToken is null");
-                    }
-                    AuthenticatedUser authenticatedUserObj = AuthenticatedUser
-                            .createFederateAuthenticatedUserFromSubjectIdentifier(getAuthenticateUser(context,
-                                    jsonObject, oAuthResponse));
-                    authenticatedUserObj.setUserAttributes(getSubjectAttributes(oAuthResponse,
-                            authenticatorProperties));
-                    context.setSubject(authenticatedUserObj);
+                    throw new AuthenticationFailedException("Decoded json object is null");
                 }
 
+                if (log.isDebugEnabled()) {
+                    log.debug("Retrieved the User Information:" + jsonObject);
+                }
+
+                String authenticatedUser = null;
+                String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
+                        IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
+
+                if (StringUtils.equalsIgnoreCase("true", isSubjectInClaimsProp)) {
+
+                    authenticatedUser = getSubjectFromUserIDClaimURI(context);
+
+                    if (authenticatedUser == null && log.isDebugEnabled()) {
+                        log.debug("Subject claim could not be found amongst subject attributes. " +
+                                "Defaulting to the sub attribute in IDToken.");
+                    }
+                }
+
+                if (authenticatedUser == null) {
+
+                    authenticatedUser = getAuthenticateUser(context, jsonObject, oAuthResponse);
+
+                    if (authenticatedUser == null) {
+                        throw new AuthenticationFailedException("Cannot find federated User Identifier");
+                    }
+                }
+
+                String attributeSeparator = null;
+
+                try {
+
+                    String tenantDomain = context.getTenantDomain();
+
+                    if (StringUtils.isBlank(tenantDomain)) {
+                        tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+                    }
+
+                    int tenantId = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
+                            .getTenantManager().getTenantId(tenantDomain);
+                    UserRealm userRealm = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
+                            .getTenantUserRealm(tenantId);
+
+                    if (userRealm != null) {
+                        UserStoreManager userStore = (UserStoreManager) userRealm.getUserStoreManager();
+                        attributeSeparator = userStore.getRealmConfiguration()
+                                .getUserStoreProperty(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+                        if (log.isDebugEnabled()) {
+                            log.debug("For the claim mapping: " + attributeSeparator +
+                                    " is used as the attributeSeparator in tenant: " + tenantDomain);
+                        }
+                    }
+
+                } catch (UserStoreException e) {
+                    throw new AuthenticationFailedException("Error while retrieving multi attribute " +
+                            "separator", e);
+                }
+
+                for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+                    buildClaimMappings(claims, entry, attributeSeparator);
+                }
+
+                authenticatedUserObj = AuthenticatedUser
+                        .createFederateAuthenticatedUserFromSubjectIdentifier(authenticatedUser);
             } else {
-                throw new AuthenticationFailedException("Authentication Failed");
+
+                if (log.isDebugEnabled()) {
+                    log.debug("The IdToken is null");
+                }
+
+                authenticatedUserObj = AuthenticatedUser
+                        .createFederateAuthenticatedUserFromSubjectIdentifier(
+                                getAuthenticateUser(context, jsonObject, oAuthResponse));
             }
+
+            claims.putAll(getSubjectAttributes(oAuthResponse, authenticatorProperties));
+            authenticatedUserObj.setUserAttributes(claims);
+
+            context.setSubject(authenticatedUserObj);
+
         } catch (OAuthProblemException e) {
-            log.error(e.getMessage(), e);
-            throw new AuthenticationFailedException(e.getMessage(), e);
+            throw new AuthenticationFailedException("Authentication process failed", e);
         }
     }
 
@@ -578,7 +582,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
     @Override
     public String getFriendlyName() {
-        return "openidconnect";
+        return OIDCAuthenticatorConstants.AUTHENTICATOR_FRIENDLY_NAME;
     }
 
     @Override
@@ -614,7 +618,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
      * @return Response string.
      * @throws IOException
      */
-    private String sendRequest(String url, String accessToken)
+    protected String sendRequest(String url, String accessToken)
             throws IOException {
 
         if (log.isDebugEnabled()) {

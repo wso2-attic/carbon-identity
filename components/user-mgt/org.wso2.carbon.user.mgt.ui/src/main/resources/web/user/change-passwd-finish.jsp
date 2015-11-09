@@ -24,7 +24,6 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
@@ -58,17 +57,17 @@
             forwardTo = trustedReturnPath;
             session.removeAttribute(ServerConstants.PASSWORD_EXPIRATION);
         } else {
-            client.changePassword(Util.decodeHTMLCharacters(username), newPassword);
+            client.changePassword(username, newPassword);
             forwardTo = "user-mgt.jsp?ordinal=1";
         }
 
         String message = MessageFormat.format(resourceBundle.getString("password.change.successful"),
-                                              new Object[] { Util.decodeHTMLCharacters(username) });
+                                              new Object[] { username });
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
 
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("password.change.error"),
-                                              Util.decodeHTMLCharacters(username), e.getMessage());
+                                              username, e.getMessage());
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         if (isUserChange != null) {
             forwardTo = "change-passwd.jsp?ordinal=2&returnPath=" + trustedReturnPath + "&isUserChange=true";

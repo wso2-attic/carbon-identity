@@ -85,7 +85,7 @@
         userprofile.setProfileName(profile);
         userprofile.setFieldValues(fieldDTOs);      
         userprofile.setProfileConifuration(profileConfiguration);
-        client.setUserProfile(Util.decodeHTMLCharacters(username), userprofile);
+        client.setUserProfile(username, userprofile);
         String message = resourceBundle.getString("user.profile.updated.successfully");
         CarbonUIMessage.sendCarbonUIMessage(message,CarbonUIMessage.INFO, request);
         if ("true".equals(fromUserMgt)) {
@@ -102,7 +102,7 @@
 
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("error.while.updating.profile.user"),
-                Util.decodeHTMLCharacters(username), e.getMessage());
+                username, e.getMessage());
     	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         forwardTo = "edit.jsp?username=" + Encode.forUriComponent(username) + "&profile=" +
                 Encode.forUriComponent(profile) + "&fromUserMgt=true&noOfProfiles=" + Encode.forUriComponent(noOfProfiles);

@@ -17,12 +17,13 @@
   --%>
 
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
-<%@page import="org.wso2.carbon.CarbonConstants" %>
+<%@page import="org.owasp.encoder.Encode" %>
+<%@page import="org.wso2.carbon.CarbonConstants"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
-<%@page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
@@ -30,7 +31,6 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
-<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     boolean logout = false;

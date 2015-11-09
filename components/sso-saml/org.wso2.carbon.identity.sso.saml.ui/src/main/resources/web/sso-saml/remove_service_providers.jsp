@@ -61,7 +61,7 @@ if (applicationComponentFound) {
 %>
 
 <script>
-    location.href = '../application/configure-service-provider.jsp?action=delete&samlIssuer=<%=Encode.forUriComponent(request.getParameter("issuer"))%>';
+    location.href = '../application/configure-service-provider.jsp?action=delete&samlIssuer=<%=Encode.forUriComponent(request.getParameter("issuer"))%>&spName=<%=Encode.forUriComponent(request.getParameter("spName"))%>';
 </script>
 <%}%>
 

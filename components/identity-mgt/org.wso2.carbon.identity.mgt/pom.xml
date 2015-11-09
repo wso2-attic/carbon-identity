@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity-mgt</artifactId>
-        <version>5.0.2-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -125,7 +125,7 @@
                             org.wso2.carbon.registry.core.*;version="${carbon.kernel.registry.imp.pkg.version}",
 
                             org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.base.*; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.captcha.mgt.*; version="${carbon.captcha.mgt.imp.pkg.version.range}",
                             org.wso2.carbon.identity.notification.mgt.*; version="${carbon.identity.package.import.version.range}"
                         </Import-Package>

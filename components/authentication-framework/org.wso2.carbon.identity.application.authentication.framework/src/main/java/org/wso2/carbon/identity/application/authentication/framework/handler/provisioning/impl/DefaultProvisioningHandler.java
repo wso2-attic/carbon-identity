@@ -27,6 +27,7 @@ import org.wso2.carbon.core.util.PermissionUpdateUtil;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.handler.provisioning.ProvisioningHandler;
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceComponent;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
@@ -89,7 +90,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
             String[] newRoles = new String[]{};
 
             if (roles != null) {
-                roles = removeDomainFromNamesExcludeInternal(roles);
+                roles = removeDomainFromNamesExcludeInternal(roles, userStoreManager.getTenantId());
                 newRoles = roles.toArray(new String[roles.size()]);
             }
 
@@ -212,7 +213,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
         Collection<String> addingRoles = new ArrayList<>();
         Collections.addAll(addingRoles, newRoles);
         Collection<String> allExistingRoles = removeDomainFromNamesExcludeInternal(
-                Arrays.asList(userStoreManager.getRoleNames()));
+                Arrays.asList(userStoreManager.getRoleNames()), userStoreManager.getTenantId());
         addingRoles.retainAll(allExistingRoles);
         return addingRoles;
     }
@@ -267,10 +268,10 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
      * @param names
      * @return
      */
-    private List<String> removeDomainFromNamesExcludeInternal(List<String> names) {
+    private List<String> removeDomainFromNamesExcludeInternal(List<String> names, int tenantId) {
         List<String> nameList = new ArrayList<String>();
         for (String name : names) {
-            String userStoreDomain = UserCoreUtil.extractDomainFromName(name);
+            String userStoreDomain = IdentityUtil.extractDomainFromName(name);
             if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStoreDomain)) {
                 nameList.add(name);
             } else {

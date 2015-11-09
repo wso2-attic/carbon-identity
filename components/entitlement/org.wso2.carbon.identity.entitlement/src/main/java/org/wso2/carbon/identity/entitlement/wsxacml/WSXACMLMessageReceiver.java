@@ -72,15 +72,9 @@ import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.wso2.carbon.identity.entitlement.util.CarbonEntityResolver;
-import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.security.SecurityConfigException;
-import org.wso2.carbon.security.keystore.KeyStoreAdmin;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -205,33 +199,14 @@ public class WSXACMLMessageReceiver extends RPCMessageReceiver {
      */
     private static BasicX509Credential createBasicCredentials() {
 
-        String keyAlias;
-        KeyStoreAdmin keyAdmin = null;
-        KeyStoreManager keyMan;
         Certificate certificate = null;
         PrivateKey issuerPK = null;
 
-        keyAlias = ServerConfiguration.getInstance().getFirstProperty("Security.KeyStore.KeyAlias");
-
-//        try {
-        keyAdmin = new KeyStoreAdmin(-1234, (Registry) CarbonContext.getThreadLocalCarbonContext().
-                getRegistry((RegistryType.SYSTEM_GOVERNANCE)));
-//        } catch (RegistryException e) {
-//            log.error("Error occurred while creating KeyStoreAdmin.", e);
-//        }
-        keyMan = KeyStoreManager.getInstance(-1234);
-
-        if (keyAdmin != null) {
-            try {
-                issuerPK = (PrivateKey) keyAdmin.getPrivateKey(keyAlias, true);
-            } catch (SecurityConfigException e) {
-                log.error("Error while getting the private key KeyAdmin.", e);
-            }
-        }
+        KeyStoreManager keyMan = KeyStoreManager.getInstance(-1234);
 
         try {
-            //issuerPK = keyMan.getDefaultPrivateKey();
-            certificate = keyMan.getPrimaryKeyStore().getCertificate(keyAlias);
+            certificate = keyMan.getDefaultPrimaryCertificate();
+            issuerPK = keyMan.getDefaultPrivateKey();
         } catch (Exception e) {
             log.error("Error occurred while getting the KeyStore from KeyManger.", e);
         }

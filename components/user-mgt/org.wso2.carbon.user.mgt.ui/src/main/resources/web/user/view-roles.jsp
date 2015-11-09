@@ -20,6 +20,9 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ page session="true" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
+<%@ page import="org.apache.commons.lang.ArrayUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
@@ -28,21 +31,18 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.LinkedHashSet" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="java.util.LinkedHashSet" %>
 <%@ page import="java.util.Set" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="org.apache.commons.lang.ArrayUtils" %>
-<%@ page import="org.apache.commons.collections.CollectionUtils" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
@@ -142,7 +142,7 @@
                     UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
 
             if (filter.length() > 0 && userName != null) {
-                FlaggedName[] data = client.getRolesOfUser(Util.decodeHTMLCharacters(userName), filter, 0);
+                FlaggedName[] data = client.getRolesOfUser(userName, filter, 0);
                 if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
                     String[] DeletePendingRolesList = UserMgtClient.
                             listAllEntityNames("DELETE_ROLE", "PENDING", "ROLE", filter);
@@ -193,7 +193,7 @@
             }
         } catch (Exception e) {
             String message = MessageFormat.format(resourceBundle.getString("error.while.loading.roles.of"),
-                    Util.decodeHTMLCharacters(userName), e.getMessage());
+                    userName, e.getMessage());
 %>
 <script type="text/javascript">
     jQuery(document).ready(function () {
