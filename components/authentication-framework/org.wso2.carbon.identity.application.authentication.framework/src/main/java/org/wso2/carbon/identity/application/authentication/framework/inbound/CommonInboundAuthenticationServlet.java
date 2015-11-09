@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
@@ -97,30 +98,29 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
 
         InboundAuthenticationResponse result = inboundAuthenticationManager.processRequest(authenticationRequest);
         InboundAuthenticationContext context = new InboundAuthenticationContext();
-        sendToFrameworkForAuthentication(request, response, null, context, authenticationRequest, result);
+        context.setAuthenticationRequest(authenticationRequest);
+        sendToFrameworkForAuthentication(request, response, context, result);
         return result;
     }
 
     protected InboundAuthenticationResponse doProcessResponse(InboundAuthenticationRequest authenticationRequest)
             throws ServletException, IOException, IdentityApplicationManagementException, FrameworkException {
 
-        String sessionDataKey = authenticationRequest.getParameters().get(FrameworkConstants.SESSION_DATA_KEY);
-        if(!StringUtils.isEmpty(sessionDataKey)){
+        String []sessionDataKey = authenticationRequest.getParameters().get(FrameworkConstants.SESSION_DATA_KEY);
+        if(!ArrayUtils.isEmpty(sessionDataKey) && !StringUtils.isEmpty(sessionDataKey[0])){
             InboundAuthenticationContextCacheEntry cacheEntry = InboundAuthenticationUtil
-                    .getInboundAuthenticationContextToCache(sessionDataKey);
+                    .getInboundAuthenticationContextToCache(sessionDataKey[0]);
 
-            InboundAuthenticationResponse result = inboundAuthenticationManager
-                    .processResponse(cacheEntry.getInboundAuthenticationContext(), authenticationRequest);
+            InboundAuthenticationResponse result = inboundAuthenticationManager.processResponse(
+                    cacheEntry.getInboundAuthenticationContext(), authenticationRequest);
             return result;
         }
         throw new FrameworkException("No session found to process the response.");
     }
 
     protected void sendToFrameworkForAuthentication(HttpServletRequest req, HttpServletResponse resp,
-            Map<String, String[]> newParams, InboundAuthenticationContext context,
-            InboundAuthenticationRequest inboundAuthenticationRequest,
-            InboundAuthenticationResponse inboundAuthenticationResponse) throws ServletException,
-            IOException, IdentityApplicationManagementException, FrameworkException {
+            InboundAuthenticationContext context, InboundAuthenticationResponse inboundAuthenticationResponse)
+            throws ServletException, IOException, IdentityApplicationManagementException, FrameworkException {
 
         String sessionDataKey = UUIDGenerator.generateUUID();
         String authName = inboundAuthenticationResponse.getInboundAuthenticationRequestProcessor().getName();
@@ -129,24 +129,17 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
 
 
         AuthenticationRequest authenticationRequest = new AuthenticationRequest();
+        InboundAuthenticationRequest inboundAuthenticationRequest = context.getAuthenticationRequest();
 
-        Map<String, String[]> OldParams = req.getParameterMap();
-        Iterator<Map.Entry<String, String[]>> iterator = OldParams.entrySet().iterator();
+        Map<String, String[]> parameterMap = inboundAuthenticationRequest.getParameters();
 
-        while (iterator.hasNext()) {
-            Map.Entry<String, String[]> pair = iterator.next();
-            newParams.put(pair.getKey(), pair.getValue());
-        }
+        parameterMap.put(FrameworkConstants.SESSION_DATA_KEY, new String[] { sessionDataKey });
+        parameterMap.put("type", new String[] { authName });
 
-        newParams.put(FrameworkConstants.SESSION_DATA_KEY, new String[] { sessionDataKey });
-        newParams.put("type", new String[] { authName });
+        authenticationRequest.appendRequestQueryParams(parameterMap);
 
-        authenticationRequest.appendRequestQueryParams(newParams);
-
-        for (@SuppressWarnings("rawtypes")
-            Enumeration e = req.getHeaderNames(); e.hasMoreElements();) {
-            String headerName = e.nextElement().toString();
-            authenticationRequest.addHeader(headerName, req.getHeader(headerName));
+        for (Map.Entry<String, String> entry : inboundAuthenticationRequest.getHeaders().entrySet()) {
+            authenticationRequest.addHeader(entry.getKey(), entry.getValue());
         }
 
         authenticationRequest.setRelyingParty(relyingParty);

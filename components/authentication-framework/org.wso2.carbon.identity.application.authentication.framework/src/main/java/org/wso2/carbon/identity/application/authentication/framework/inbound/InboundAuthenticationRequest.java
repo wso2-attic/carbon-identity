@@ -26,7 +26,7 @@ public class InboundAuthenticationRequest implements Serializable{
 
     private Map<String, String> headers = new HashMap<String, String>();
     private Map<String, Cookie> cookies = new HashMap<String, Cookie>();
-    private Map<String, String> parameters = new HashMap<String, String>();
+    private Map<String, String[]> parameters = new HashMap<String, String[]>();
     private String tenantDomain;
 
 
@@ -54,11 +54,11 @@ public class InboundAuthenticationRequest implements Serializable{
         cookies.put(key, values);
     }
 
-    public Map<String, String> getParameters() {
+    public Map<String, String[]> getParameters() {
         return parameters;
     }
 
-    public void setParameters(Map<String, String> parameters) {
+    public void setParameters(Map<String, String[]> parameters) {
         this.parameters = parameters;
     }
 

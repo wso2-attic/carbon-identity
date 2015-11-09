@@ -78,8 +78,7 @@ public class InboundAuthenticationManager {
     }
 
     public InboundAuthenticationResponse processResponse(InboundAuthenticationContext context,
-            InboundAuthenticationRequest authenticationRequest)
-    throws FrameworkException {
+            InboundAuthenticationRequest authenticationRequest) throws FrameworkException {
 
         InboundAuthenticationResponseBuilder responseBuilder = getInboundResponseBuilder(context,
                 authenticationRequest);
