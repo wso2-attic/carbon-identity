@@ -27,8 +27,6 @@ import org.wso2.carbon.identity.application.authentication.framework.internal.Fr
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 public class InboundAuthenticationManager {
@@ -52,62 +50,47 @@ public class InboundAuthenticationManager {
         return null;
     }
 
-    private InboundAuthenticationResponseBuilder getInboundResponseBuilder(HttpServletRequest req,
-            HttpServletResponse resp) throws FrameworkException{
+    private InboundAuthenticationResponseBuilder getInboundResponseBuilder(InboundAuthenticationContext context,
+            InboundAuthenticationRequest authenticationRequest) throws FrameworkException {
         List<InboundAuthenticationResponseBuilder> responseBuilders = FrameworkServiceDataHolder.getInstance()
                 .getInboundResponseBuilders();
 
-//        for (InboundAuthenticationResponseBuilder responseBuilder : responseBuilders) {
-//            if (responseBuilder.canHandle(req, resp)) {
-//                return responseBuilder;
-//            }
-//        }
+        for (InboundAuthenticationResponseBuilder responseBuilder : responseBuilders) {
+            if (responseBuilder.canHandle(context, authenticationRequest)) {
+                return responseBuilder;
+            }
+        }
         return null;
     }
-
-    //buildAuthenticationRequest() new method InboundAutheticationRequest, need to have a different class with can handle, name, priotity to get builder
-
-//    public InboundAuthenticationResponse process(HttpServletRequest req, HttpServletResponse resp) throws FrameworkException {
-//
-//        String sessionDataKey = req.getParameter(FrameworkConstants.SESSION_DATA_KEY);
-//        if (StringUtils.isEmpty(sessionDataKey)) {
-//            InboundAuthenticationRequestProcessor requestProcessors = getInboundRequestProcessor(req, resp);
-//            if (requestProcessors != null) {
-//                if (log.isDebugEnabled()) {
-//                    log.debug("Starting to process inbound authentication : " + requestProcessors.getName());
-//                }
-//                return requestProcessors.process(req, resp);
-//            } else {
-//                log.warn("No request processor available for process");
-//            }
-//        } else {
-//            //Response from common authentication framework.
-//            InboundAuthenticationResponseBuilder responseBuilder = getInboundResponseBuilder(req, resp);
-//            if (responseBuilder != null) {
-//                if (log.isDebugEnabled()) {
-//                    log.debug("Starting to process inbound authentication : " + responseBuilder.getName());
-//                }
-//                return responseBuilder.buildResponse(req, resp, sessionDataKey);
-//            } else {
-//                log.warn("No response processor available for process");
-//            }
-//        }
-//
-//
-//        return null;
-//    }
 
     public InboundAuthenticationResponse processRequest(InboundAuthenticationRequest authenticationRequest)
             throws FrameworkException {
 
         InboundAuthenticationRequestProcessor requestProcessor = getInboundRequestProcessor(authenticationRequest);
-        return requestProcessor.process(authenticationRequest);
+        if (requestProcessor != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Starting to process inbound authentication request : " + requestProcessor.getName());
+            }
+            return requestProcessor.process(authenticationRequest);
+        } else {
+            throw new FrameworkException("No inbound request processor found to process the request");
+        }
     }
 
-    public InboundAuthenticationResponse processResponse(InboundAuthenticationRequest authenticationRequest)
-            throws FrameworkException {
+    public InboundAuthenticationResponse processResponse(InboundAuthenticationContext context,
+            InboundAuthenticationRequest authenticationRequest)
+    throws FrameworkException {
 
-        return null;
+        InboundAuthenticationResponseBuilder responseBuilder = getInboundResponseBuilder(context,
+                authenticationRequest);
+        if (responseBuilder != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Starting to process inbound authentication response : " + responseBuilder.getName());
+            }
+            return responseBuilder.buildResponse(context);
+        } else {
+            throw new FrameworkException("No response builder found to process the response");
+        }
     }
 
 

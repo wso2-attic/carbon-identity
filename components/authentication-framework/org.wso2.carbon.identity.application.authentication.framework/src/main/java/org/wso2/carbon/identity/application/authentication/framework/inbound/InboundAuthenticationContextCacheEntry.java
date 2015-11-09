@@ -17,23 +17,21 @@
  */
 package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
-import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
+import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+public class InboundAuthenticationContextCacheEntry extends CacheEntry {
 
-public abstract class InboundAuthenticationResponseBuilder {
+    private InboundAuthenticationContext inboundAuthenticationContext;
 
-    public abstract InboundAuthenticationResponse buildResponse(InboundAuthenticationContext context)
-            throws FrameworkException;
+    public InboundAuthenticationContextCacheEntry(InboundAuthenticationContext inboundAuthenticationRequest) {
+        this.setInboundAuthenticationContext(inboundAuthenticationRequest);
+    }
 
-    public abstract boolean canHandle(InboundAuthenticationContext context, InboundAuthenticationRequest request)
-            throws FrameworkException;
+    public InboundAuthenticationContext getInboundAuthenticationContext() {
+        return inboundAuthenticationContext;
+    }
 
-    public abstract int getPriority();
-
-    public abstract boolean isDirectResponseRequired();
-
-    public abstract String getName();
-
+    public void setInboundAuthenticationContext(InboundAuthenticationContext inboundAuthenticationContext) {
+        this.inboundAuthenticationContext = inboundAuthenticationContext;
+    }
 }
