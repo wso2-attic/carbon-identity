@@ -71,6 +71,8 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class IdentityUtil {
 
@@ -487,5 +489,13 @@ public class IdentityUtil {
                 return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
         }
+    }
+
+    public static boolean isValidFileName(String fileName){
+        Pattern pattern = Pattern.compile("^(?!(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\\.[^.]*)?$)[^<>:\"/\\\\|?*" +
+                                          "\\x00-\\x1F]*[^<>:\"/\\\\|?*\\x00-\\x1F\\ .]$", Pattern.CASE_INSENSITIVE
+                                          | Pattern.UNICODE_CASE | Pattern.COMMENTS);
+        Matcher matcher = pattern.matcher(fileName);
+        return matcher.matches();
     }
 }
