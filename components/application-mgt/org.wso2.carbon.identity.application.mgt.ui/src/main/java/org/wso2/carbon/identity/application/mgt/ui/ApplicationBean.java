@@ -1177,8 +1177,7 @@ public class ApplicationBean {
                 Property[] properties = customAuthConfig.getProperties();
                 if (!ArrayUtils.isEmpty(properties)) {
                     for (Property prop : properties) {
-                        String propVal = CharacterEncoder.getSafeText(request.getParameter(
-                                "custom_auth_prop_name_" + type + "_" + prop.getName()));
+                        String propVal = request.getParameter("custom_auth_prop_name_" + type + "_" + prop.getName());
                         prop.setValue(propVal);
                     }
                 }
