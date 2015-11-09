@@ -127,12 +127,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
         if (!isEnable()) {
             return true;
         }
-
-        try {
-            claims = this.getSCIMAttributes(userName, claims);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(e);
-        }
+        claims = this.getSCIMAttributes(userName, claims);
         return true;
     }
 
