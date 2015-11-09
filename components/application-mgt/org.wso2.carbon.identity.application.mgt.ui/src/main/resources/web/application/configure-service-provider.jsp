@@ -1181,7 +1181,7 @@ var roleMappinRowID = -1;
 	                    	%>	                    
                             <input style="width:50%" id="passiveSTSRealm" name="passiveSTSRealm" type="text" value="<%=Encode.forHtmlAttribute(appBean.getPassiveSTSRealm())%>" autofocus/>
                             <% } else { %>
-                            <input style="width:50%" id="passiveSTSRealm" name="passiveSTSRealm" type="text" value="<%=Encode.forHtmlAttribute(spName)%>" autofocus/>
+                            <input style="width:50%" id="passiveSTSRealm" name="passiveSTSRealm" type="text" value="" autofocus/>
                             <% } %>
                           <div class="sectionHelp">
                                 <fmt:message key='help.passive.sts'/>
