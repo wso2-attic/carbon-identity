@@ -20,6 +20,11 @@ package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
 public class InboundAuthenticationUtil {
 
+    /**
+     * Add to inbound authentication context cache
+     * @param key Key
+     * @param authReqEntry cache entry
+     */
     public static void addInboundAuthenticationContextToCache(String key,
             InboundAuthenticationContextCacheEntry authReqEntry) {
 
@@ -27,6 +32,11 @@ public class InboundAuthenticationUtil {
         InboundAuthenticationContextCache.getInstance().addToCache(cacheKey, authReqEntry);
     }
 
+    /**
+     * Get inbound authentication context cache
+     * @param key Key
+     * @return Cache entry
+     */
     public static InboundAuthenticationContextCacheEntry getInboundAuthenticationContextToCache(String key) {
 
         InboundAuthenticationContextCacheKey cacheKey = new InboundAuthenticationContextCacheKey(key);

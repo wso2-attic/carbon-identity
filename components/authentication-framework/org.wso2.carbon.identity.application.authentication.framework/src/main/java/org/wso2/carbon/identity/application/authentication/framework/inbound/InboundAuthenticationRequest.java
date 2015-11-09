@@ -17,56 +17,50 @@
  */
 package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
-import javax.servlet.http.Cookie;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class InboundAuthenticationRequest implements Serializable{
+import javax.servlet.http.Cookie;
 
-    private Map<String, String> headers = new HashMap<String, String>();
-    private Map<String, Cookie> cookies = new HashMap<String, Cookie>();
-    private Map<String, String[]> parameters = new HashMap<String, String[]>();
-    private String tenantDomain;
+public class InboundAuthenticationRequest implements Serializable {
 
+	private static final long serialVersionUID = 2657271459288945966L;
 
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
+	private Map<String, String> headers = new HashMap<String, String>();
+	private Map<String, Cookie> cookies = new HashMap<String, Cookie>();
+	private Map<String, String[]> parameters = new HashMap<String, String[]>();
 
-    public void setHeaders(Map<String, String> headers) {
-        this.headers = headers;
-    }
+	public Map<String, String> getHeaders() {
+		return headers;
+	}
 
-    public void addResponseHeader(String key, String values) {
-        headers.put(key, values);
-    }
+	public void setHeaders(Map<String, String> headers) {
+		this.headers = headers;
+	}
 
-    public Map<String, Cookie> getCookies() {
-        return cookies;
-    }
+	public void addResponseHeader(String key, String values) {
+		headers.put(key, values);
+	}
 
-    public void setCookies(Map<String, Cookie> cookies) {
-        this.cookies = cookies;
-    }
+	public Map<String, Cookie> getCookies() {
+		return cookies;
+	}
 
-    public void addCookie(String key, Cookie values) {
-        cookies.put(key, values);
-    }
+	public void setCookies(Map<String, Cookie> cookies) {
+		this.cookies = cookies;
+	}
 
-    public Map<String, String[]> getParameters() {
-        return parameters;
-    }
+	public void addCookie(String key, Cookie values) {
+		cookies.put(key, values);
+	}
 
-    public void setParameters(Map<String, String[]> parameters) {
-        this.parameters = parameters;
-    }
+	public Map<String, String[]> getParameters() {
+		return parameters;
+	}
 
-    public String getTenantDomain() {
-        return tenantDomain;
-    }
+	public void setParameters(Map<String, String[]> parameters) {
+		this.parameters = parameters;
+	}
 
-    public void setTenantDomain(String tenantDomain) {
-        this.tenantDomain = tenantDomain;
-    }
 }

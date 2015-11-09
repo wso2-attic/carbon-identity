@@ -286,9 +286,9 @@ public class FrameworkServiceComponent {
 
     protected void setInboundRequestProcessor(InboundAuthenticationRequestProcessor requestProcessor) {
 
-        FrameworkServiceDataHolder.getInstance().getInboundRequestProcessors().add(requestProcessor);
-        Collections
-                .sort(FrameworkServiceDataHolder.getInstance().getInboundRequestProcessors(), inboundRequestProcessor);
+        FrameworkServiceDataHolder.getInstance().getInboundAuthenticationRequestProcessors().add(requestProcessor);
+        Collections.sort(FrameworkServiceDataHolder.getInstance().getInboundAuthenticationRequestProcessors(),
+                inboundRequestProcessor);
 
         if (log.isDebugEnabled()) {
             log.debug("Added application inbound request processor : " + requestProcessor.getName());
@@ -297,7 +297,7 @@ public class FrameworkServiceComponent {
 
     protected void unsetInboundRequestProcessor(InboundAuthenticationRequestProcessor requestProcessor) {
 
-        FrameworkServiceDataHolder.getInstance().getInboundRequestProcessors().remove(requestProcessor);
+        FrameworkServiceDataHolder.getInstance().getInboundAuthenticationRequestProcessors().remove(requestProcessor);
 
 
         if (log.isDebugEnabled()) {
@@ -307,9 +307,10 @@ public class FrameworkServiceComponent {
 
     protected void setInboundResponseBuilder(InboundAuthenticationResponseBuilder responseBuilder) {
 
-        FrameworkServiceDataHolder.getInstance().getInboundResponseBuilders().add(responseBuilder);
+        FrameworkServiceDataHolder.getInstance().getInboundAuthenticationResponseBuilders().add(responseBuilder);
         Collections
-                .sort(FrameworkServiceDataHolder.getInstance().getInboundResponseBuilders(), inboundResponseBuilder);
+                .sort(FrameworkServiceDataHolder.getInstance().getInboundAuthenticationResponseBuilders(),
+                        inboundResponseBuilder);
 
         if (log.isDebugEnabled()) {
             log.debug("Added application inbound response builder : " + responseBuilder.getName());
@@ -318,7 +319,7 @@ public class FrameworkServiceComponent {
 
     protected void unsetInboundResponseBuilder(InboundAuthenticationResponseBuilder responseBuilder) {
 
-        FrameworkServiceDataHolder.getInstance().getInboundResponseBuilders().remove(responseBuilder);
+        FrameworkServiceDataHolder.getInstance().getInboundAuthenticationResponseBuilders().remove(responseBuilder);
 
         if (log.isDebugEnabled()) {
             log.debug("Removed application inbound response builder : " + responseBuilder.getName());

@@ -20,11 +20,7 @@ package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
 
-/**
- * Cache key for AuthenticationRequestCache. This cache key is constructed
- * from the session data key which used as a session identifier from other components which
- * send request to authentication framework.
- */
+
 public class InboundAuthenticationContextCacheKey extends CacheKey {
 
     private static final long serialVersionUID = 717492345264523421L;

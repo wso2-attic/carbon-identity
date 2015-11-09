@@ -34,13 +34,16 @@ public class InboundAuthenticationManager {
     private static final Log log = LogFactory.getLog(InboundAuthenticationManager.class);
 
     /**
-     * Get
+     * Get inbound request processor
+     *
+     * @param authenticationRequest Authentication request
      * @return Inbound authentication request processor
+     * @throws FrameworkException
      */
     private InboundAuthenticationRequestProcessor getInboundRequestProcessor(
             InboundAuthenticationRequest authenticationRequest) throws FrameworkException {
         List<InboundAuthenticationRequestProcessor> requestProcessors = FrameworkServiceDataHolder.getInstance()
-                .getInboundRequestProcessors();
+                .getInboundAuthenticationRequestProcessors();
 
         for (InboundAuthenticationRequestProcessor requestProcessor : requestProcessors) {
             if (requestProcessor.canHandle(authenticationRequest)) {
@@ -50,10 +53,18 @@ public class InboundAuthenticationManager {
         return null;
     }
 
+    /**
+     * Get inbound response builder
+     *
+     * @param context  Inbound authentication context
+     * @param authenticationRequest Inbound authentication request
+     * @return Inbound authentication response builder
+     * @throws FrameworkException
+     */
     private InboundAuthenticationResponseBuilder getInboundResponseBuilder(InboundAuthenticationContext context,
             InboundAuthenticationRequest authenticationRequest) throws FrameworkException {
         List<InboundAuthenticationResponseBuilder> responseBuilders = FrameworkServiceDataHolder.getInstance()
-                .getInboundResponseBuilders();
+                .getInboundAuthenticationResponseBuilders();
 
         for (InboundAuthenticationResponseBuilder responseBuilder : responseBuilders) {
             if (responseBuilder.canHandle(context, authenticationRequest)) {
@@ -63,6 +74,13 @@ public class InboundAuthenticationManager {
         return null;
     }
 
+    /**
+     * Process authentication request
+     *
+     * @param authenticationRequest Authentication request
+     * @return Inbound authentication response
+     * @throws FrameworkException
+     */
     public InboundAuthenticationResponse processRequest(InboundAuthenticationRequest authenticationRequest)
             throws FrameworkException {
 
@@ -77,6 +95,14 @@ public class InboundAuthenticationManager {
         }
     }
 
+    /**
+     * Process response
+     *
+     * @param context Inbound authentication context
+     * @param authenticationRequest Inbound authentication request
+     * @return Inbound authentication response
+     * @throws FrameworkException
+     */
     public InboundAuthenticationResponse processResponse(InboundAuthenticationContext context,
             InboundAuthenticationRequest authenticationRequest) throws FrameworkException {
 
@@ -92,11 +118,11 @@ public class InboundAuthenticationManager {
         }
     }
 
-
     /**
+     * Get Authentication result from cache
      *
-     * @param sessionDataKey
-     * @return
+     * @param sessionDataKey Session data key
+     * @return Authentication result
      */
     protected AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
 

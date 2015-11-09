@@ -6,22 +6,33 @@ import java.util.Map;
 
 public class InboundAuthenticationContext implements Serializable {
 
-    private InboundAuthenticationRequest authenticationRequest;
-    private Map<String, Object> properties = new HashMap<String, Object>();
+	private static final long serialVersionUID = -3113147804821962230L;
 
-    public InboundAuthenticationRequest getAuthenticationRequest() {
-        return authenticationRequest;
-    }
+	private InboundAuthenticationRequest authenticationRequest;
+	private String tenantDomain;
+	private Map<String, Object> properties = new HashMap<String, Object>();
 
-    public void setAuthenticationRequest(InboundAuthenticationRequest authenticationRequest) {
-        this.authenticationRequest = authenticationRequest;
-    }
+	public InboundAuthenticationRequest getAuthenticationRequest() {
+		return authenticationRequest;
+	}
 
-    public Map<String, Object> getProperties() {
-        return properties;
-    }
+	public void setAuthenticationRequest(InboundAuthenticationRequest authenticationRequest) {
+		this.authenticationRequest = authenticationRequest;
+	}
 
-    public void setProperties(Map<String, Object> properties) {
-        this.properties = properties;
-    }
+	public Map<String, Object> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Map<String, Object> properties) {
+		this.properties = properties;
+	}
+
+	public String getTenantDomain() {
+		return tenantDomain;
+	}
+
+	public void setTenantDomain(String tenantDomain) {
+		this.tenantDomain = tenantDomain;
+	}
 }

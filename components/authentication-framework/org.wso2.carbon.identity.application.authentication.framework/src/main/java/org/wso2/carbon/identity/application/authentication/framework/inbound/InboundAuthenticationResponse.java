@@ -18,84 +18,87 @@
  */
 package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
-import javax.servlet.http.Cookie;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
+
 public class InboundAuthenticationResponse implements Serializable {
 
-    private Map<String, String> responseHeaders = new HashMap<String, String>();
-    private Map<String, Cookie> cookies = new HashMap<String, Cookie>();
-    private Map<String, String> parameters = new HashMap<String, String>();
-    private int statusCode;
-    private String redirectURL;
-    private InboundAuthenticationRequestProcessor inboundAuthenticationRequestProcessor;
-    private InboundAuthenticationResponseBuilder inboundAuthenticationResponseBuilder;
+	private static final long serialVersionUID = 1755628572273143238L;
 
-    public Map<String, String> getResponseHeaders() {
-        return responseHeaders;
-    }
+	private Map<String, String> responseHeaders = new HashMap<String, String>();
+	private Map<String, Cookie> cookies = new HashMap<String, Cookie>();
+	private Map<String, String> parameters = new HashMap<String, String>();
+	private int statusCode;
+	private String redirectURL;
+	private InboundAuthenticationRequestProcessor inboundAuthenticationRequestProcessor;
+	private InboundAuthenticationResponseBuilder inboundAuthenticationResponseBuilder;
 
-    public void setResponseHeaders(Map<String, String> responseHeaders) {
-        this.responseHeaders = responseHeaders;
-    }
+	public Map<String, String> getResponseHeaders() {
+		return responseHeaders;
+	}
 
-    public void addResponseHeader(String key, String values) {
-        responseHeaders.put(key, values);
-    }
+	public void setResponseHeaders(Map<String, String> responseHeaders) {
+		this.responseHeaders = responseHeaders;
+	}
 
-    public Map<String, Cookie> getCookies() {
-        return cookies;
-    }
+	public void addResponseHeader(String key, String values) {
+		responseHeaders.put(key, values);
+	}
 
-    public void setCookies(Map<String, Cookie> cookies) {
-        this.cookies = cookies;
-    }
+	public Map<String, Cookie> getCookies() {
+		return cookies;
+	}
 
-    public void addCookie(String key, Cookie values) {
-        cookies.put(key, values);
-    }
+	public void setCookies(Map<String, Cookie> cookies) {
+		this.cookies = cookies;
+	}
 
-    public Map<String, String> getParameters() {
-        return parameters;
-    }
+	public void addCookie(String key, Cookie values) {
+		cookies.put(key, values);
+	}
 
-    public void setParameters(Map<String, String> parameters) {
-        this.parameters = parameters;
-    }
+	public Map<String, String> getParameters() {
+		return parameters;
+	}
 
-    public int getStatusCode() {
-        return statusCode;
-    }
+	public void setParameters(Map<String, String> parameters) {
+		this.parameters = parameters;
+	}
 
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
-    }
+	public int getStatusCode() {
+		return statusCode;
+	}
 
-    public String getRedirectURL() {
-        return redirectURL;
-    }
+	public void setStatusCode(int statusCode) {
+		this.statusCode = statusCode;
+	}
 
-    public void setRedirectURL(String redirectURL) {
-        this.redirectURL = redirectURL;
-    }
+	public String getRedirectURL() {
+		return redirectURL;
+	}
 
-    public InboundAuthenticationRequestProcessor getInboundAuthenticationRequestProcessor() {
-        return inboundAuthenticationRequestProcessor;
-    }
+	public void setRedirectURL(String redirectURL) {
+		this.redirectURL = redirectURL;
+	}
 
-    public void setInboundAuthenticationRequestProcessor(
-            InboundAuthenticationRequestProcessor inboundAuthenticationRequestProcessor) {
-        this.inboundAuthenticationRequestProcessor = inboundAuthenticationRequestProcessor;
-    }
+	public InboundAuthenticationRequestProcessor getInboundAuthenticationRequestProcessor() {
+		return inboundAuthenticationRequestProcessor;
+	}
 
-    public InboundAuthenticationResponseBuilder getInboundAuthenticationResponseBuilder() {
-        return inboundAuthenticationResponseBuilder;
-    }
+	public void setInboundAuthenticationRequestProcessor(
+			InboundAuthenticationRequestProcessor inboundAuthenticationRequestProcessor) {
+		this.inboundAuthenticationRequestProcessor = inboundAuthenticationRequestProcessor;
+	}
 
-    public void setInboundAuthenticationResponseBuilder(
-            InboundAuthenticationResponseBuilder inboundAuthenticationResponseBuilder) {
-        this.inboundAuthenticationResponseBuilder = inboundAuthenticationResponseBuilder;
-    }
+	public InboundAuthenticationResponseBuilder getInboundAuthenticationResponseBuilder() {
+		return inboundAuthenticationResponseBuilder;
+	}
+
+	public void setInboundAuthenticationResponseBuilder(
+			InboundAuthenticationResponseBuilder inboundAuthenticationResponseBuilder) {
+		this.inboundAuthenticationResponseBuilder = inboundAuthenticationResponseBuilder;
+	}
 }

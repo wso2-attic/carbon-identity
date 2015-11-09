@@ -17,19 +17,18 @@
  */
 package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
-
-import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public abstract class InboundAuthenticationRequestBuilder {
 
-    public abstract String getName();
+	public abstract String getName();
 
-    public abstract int getPriority();
+	public abstract int getPriority();
 
-    public abstract boolean canHandle(HttpServletRequest request, HttpServletResponse response) throws FrameworkException;
+	public abstract boolean canHandle(HttpServletRequest request, HttpServletResponse response)
+			throws AuthenticationFrameworkRuntimeException;
 
-    public abstract InboundAuthenticationRequest buildRequest(HttpServletRequest request, HttpServletResponse response)
-            throws FrameworkException;
+	public abstract InboundAuthenticationRequest buildRequest(HttpServletRequest request, HttpServletResponse response)
+			throws AuthenticationFrameworkRuntimeException;
 }

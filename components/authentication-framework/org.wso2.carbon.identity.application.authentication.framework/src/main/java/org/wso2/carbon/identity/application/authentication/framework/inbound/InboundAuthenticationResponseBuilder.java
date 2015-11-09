@@ -19,21 +19,43 @@ package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 public abstract class InboundAuthenticationResponseBuilder {
 
-    public abstract InboundAuthenticationResponse buildResponse(InboundAuthenticationContext context)
-            throws FrameworkException;
+    /**
+     * Build response
+     * @param context Inbound authentication context
+     * @return Inbound authentication response
+     * @throws FrameworkException
+     */
+	public abstract InboundAuthenticationResponse buildResponse(InboundAuthenticationContext context)
+			throws FrameworkException;
 
-    public abstract boolean canHandle(InboundAuthenticationContext context, InboundAuthenticationRequest request)
-            throws FrameworkException;
+    /**
+     * Can handle
+     * @param context Inbound authentication context
+     * @param request Inbound authentication request
+     * @return boolean
+     * @throws FrameworkException
+     */
+	public abstract boolean canHandle(InboundAuthenticationContext context, InboundAuthenticationRequest request)
+			throws FrameworkException;
 
-    public abstract int getPriority();
+    /**
+     * Get priority
+     * @return priority
+     */
+	public abstract int getPriority();
 
-    public abstract boolean isDirectResponseRequired();
+    /**
+     * Check direct response require
+     * @return boolean
+     */
+	public abstract boolean isDirectResponseRequired();
 
-    public abstract String getName();
+    /**
+     * Get Name
+     * @return name
+     */
+	public abstract String getName();
 
 }

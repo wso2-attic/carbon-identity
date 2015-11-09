@@ -22,47 +22,53 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.F
 public abstract class InboundAuthenticationRequestProcessor {
 
     /**
+     * Process inbound authentication request
      *
-     * @param authenticationRequest
-     * @return
+     * @param authenticationRequest Inbound authentication request
+     * @return Inbound authentication response
      * @throws FrameworkException
      */
     public abstract InboundAuthenticationResponse process(InboundAuthenticationRequest authenticationRequest)
     throws FrameworkException;
 
     /**
-     *
-     * @return
+     * Get Name
+     * @return Name
      */
     public abstract String getName();
 
     /**
+     * Get callback path
      *
-     * @return
+     * @param context Inbound authentication context
+     * @return Callback path
+     * @throws FrameworkException
      */
     public abstract String getCallbackPath(InboundAuthenticationContext context) throws FrameworkException;
 
     /**
-     *
-     * @return
+     * Get relying party id
+     * @return Relying party id
      */
     public abstract String getRelyingPartyId();
 
     /**
-     *
-     * @return
+     * Get Priority
+     * @return Priority
      */
     public abstract int getPriority();
 
     /**
-     *
-     * @return
+     * Can handle
+     * @param authenticationRequest Inbound authentication request
+     * @return boolean
+     * @throws FrameworkException
      */
     public abstract boolean canHandle(InboundAuthenticationRequest authenticationRequest) throws FrameworkException;
 
     /**
-     *
-     * @return
+     * Is direct response required
+     * @return boolean
      */
     public abstract boolean isDirectResponseRequired();
 

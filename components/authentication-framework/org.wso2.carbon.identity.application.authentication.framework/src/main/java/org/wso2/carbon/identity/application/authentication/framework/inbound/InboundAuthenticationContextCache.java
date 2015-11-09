@@ -18,71 +18,65 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheKey;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
+public class InboundAuthenticationContextCache
+		extends BaseCache<InboundAuthenticationContextCacheKey, InboundAuthenticationContextCacheEntry> {
 
-public class InboundAuthenticationContextCache extends
-        BaseCache<InboundAuthenticationContextCacheKey, InboundAuthenticationContextCacheEntry> {
+	private static final String INBOUND_AUTHENTICATION_CONTEXT_CACHE_NAME = "InboundAuthenticationContextCache";
+	private static volatile InboundAuthenticationContextCache instance;
+	private boolean enableRequestScopeCache = false;
 
-    private static Log log = LogFactory.getLog(InboundAuthenticationContextCache.class);
-    private static final String INBOUND_AUTHENTICATION_CONTEXT_CACHE_NAME = "InboundAuthenticationContextCache";
-    private static volatile InboundAuthenticationContextCache instance;
-    private boolean enableRequestScopeCache = false;
+	private InboundAuthenticationContextCache(String cacheName) {
+		super(cacheName);
+		if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
+			enableRequestScopeCache = Boolean
+					.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
+		}
+	}
 
-    private InboundAuthenticationContextCache(String cacheName) {
-        super(cacheName);
-        if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
-            enableRequestScopeCache = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
-        }
-    }
+	public static InboundAuthenticationContextCache getInstance() {
+		if (instance == null) {
+			synchronized (InboundAuthenticationContextCache.class) {
+				if (instance == null) {
+					instance = new InboundAuthenticationContextCache(INBOUND_AUTHENTICATION_CONTEXT_CACHE_NAME);
+				}
+			}
+		}
+		return instance;
+	}
 
-    public static InboundAuthenticationContextCache getInstance() {
-        if (instance == null) {
-            synchronized (InboundAuthenticationContextCache.class) {
-                if (instance == null) {
-                    instance = new InboundAuthenticationContextCache(INBOUND_AUTHENTICATION_CONTEXT_CACHE_NAME);
-                }
-            }
-        }
-        return instance;
-    }
+	public void addToCache(InboundAuthenticationContextCacheKey key, InboundAuthenticationContextCacheEntry entry) {
+		super.addToCache(key, entry);
+		if (enableRequestScopeCache) {
+			int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+			String tenantDomain = entry.getInboundAuthenticationContext().getTenantDomain();
+			if (tenantDomain != null) {
+				tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+			}
+			SessionDataStore.getInstance().storeSessionData(key.getResultId(),
+					INBOUND_AUTHENTICATION_CONTEXT_CACHE_NAME, entry, tenantId);
+		}
+	}
 
-    public void addToCache(InboundAuthenticationContextCacheKey key, InboundAuthenticationContextCacheEntry entry){
-        super.addToCache(key,entry);
-        if(enableRequestScopeCache){
-            int tenantId = MultitenantConstants.INVALID_TENANT_ID;
-            String tenantDomain = entry.getInboundAuthenticationRequest().getTenantDomain(); //TODO
-            if (tenantDomain != null) {
-                tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
-            }
-            SessionDataStore.getInstance().storeSessionData(key.getResultId(),
-                    INBOUND_AUTHENTICATION_CONTEXT_CACHE_NAME,
-                    entry, tenantId);
-        }
-    }
+	public InboundAuthenticationContextCacheEntry getValueFromCache(InboundAuthenticationContextCacheKey key) {
+		InboundAuthenticationContextCacheEntry entry = super.getValueFromCache(key);
+		if (entry == null && enableRequestScopeCache) {
+			entry = (InboundAuthenticationContextCacheEntry) SessionDataStore.getInstance()
+					.getSessionData(key.getResultId(), INBOUND_AUTHENTICATION_CONTEXT_CACHE_NAME);
+		}
+		return entry;
+	}
 
-    public InboundAuthenticationContextCacheEntry getValueFromCache(InboundAuthenticationContextCacheKey key){
-        InboundAuthenticationContextCacheEntry entry = super.getValueFromCache(key);
-        if(entry == null && enableRequestScopeCache){
-            entry = (InboundAuthenticationContextCacheEntry) SessionDataStore.getInstance().
-                    getSessionData(key.getResultId(), INBOUND_AUTHENTICATION_CONTEXT_CACHE_NAME);
-        }
-        return entry;
-    }
-
-    public void clearCacheEntry(InboundAuthenticationContextCacheKey key){
-        super.clearCacheEntry(key);
-        if (enableRequestScopeCache) {
-            SessionDataStore.getInstance().clearSessionData(key.getResultId(),
-                    INBOUND_AUTHENTICATION_CONTEXT_CACHE_NAME);
-        }
-    }
+	public void clearCacheEntry(InboundAuthenticationContextCacheKey key) {
+		super.clearCacheEntry(key);
+		if (enableRequestScopeCache) {
+			SessionDataStore.getInstance().clearSessionData(key.getResultId(),
+					INBOUND_AUTHENTICATION_CONTEXT_CACHE_NAME);
+		}
+	}
 }

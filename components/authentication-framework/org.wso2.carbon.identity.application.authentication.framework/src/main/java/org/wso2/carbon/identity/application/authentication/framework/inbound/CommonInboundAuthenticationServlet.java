@@ -35,8 +35,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -44,8 +42,16 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
 
     private InboundAuthenticationManager inboundAuthenticationManager = new InboundAuthenticationManager();
 
+    /**
+     * Get Inbound authentication request builder
+     *
+     * @param req   Http request
+     * @param resp  Http response
+     * @return Inbound authentication request builder
+     * @throws AuthenticationFrameworkRuntimeException
+     */
     private InboundAuthenticationRequestBuilder getInboundRequestBuilder(HttpServletRequest req,
-            HttpServletResponse resp) throws FrameworkException {
+            HttpServletResponse resp) throws AuthenticationFrameworkRuntimeException {
         List<InboundAuthenticationRequestBuilder> requestBuilders = FrameworkServiceDataHolder.getInstance()
                 .getInboundAuthenticationRequestBuilders();
 
@@ -71,15 +77,27 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
 
             doProcess(request, response);
 
-        } catch (IOException | ServletException | FrameworkException | IdentityApplicationManagementException ex) {
+        } catch (AuthenticationFrameworkRuntimeException ex) {
             throw new ServletException(ex);
         }
     }
 
+    /**
+     * Process authentication request/response
+     *
+     * @param request   Http request
+     * @param response  Http response
+     * @throws AuthenticationFrameworkRuntimeException
+     */
     private void doProcess(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, IdentityApplicationManagementException, FrameworkException {
+            throws AuthenticationFrameworkRuntimeException {
 
         InboundAuthenticationRequestBuilder requestBuilder = getInboundRequestBuilder(request, response);
+        if(requestBuilder == null){
+            throw new AuthenticationFrameworkRuntimeException(
+                    "No authentication request builder found to build the request");
+        }
+
         InboundAuthenticationRequest authenticationRequest = requestBuilder.buildRequest(request, response);
 
         if (request.getPathInfo().contains(InboundAuthenticationConstants.HTTP_PATH_PARAM_REQUEST)) {
@@ -87,37 +105,81 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
         } else if (request.getPathInfo().contains(InboundAuthenticationConstants.HTTP_PATH_PARAM_RESPONSE)) {
             InboundAuthenticationResponse result = doProcessResponse(authenticationRequest);
             if (result.getRedirectURL() != null) {
-                response.sendRedirect(result.getRedirectURL());
+                try {
+                    response.sendRedirect(result.getRedirectURL());
+                } catch (IOException ex) {
+                    throw new AuthenticationFrameworkRuntimeException(
+                            "Error occurred while redirecting response " + result.getRedirectURL(), ex);
+                }
             }
         }
+
     }
 
+    /**
+     * Process inbound request
+     *
+     * @param request   Http request
+     * @param response  Http response
+     * @param authenticationRequest Authentication request
+     * @return Inbound authentication response
+     * @throws AuthenticationFrameworkRuntimeException
+     */
     protected InboundAuthenticationResponse doProcessRequest(HttpServletRequest request, HttpServletResponse response,
             InboundAuthenticationRequest authenticationRequest)
-            throws ServletException, IOException, IdentityApplicationManagementException, FrameworkException {
+            throws AuthenticationFrameworkRuntimeException {
 
-        InboundAuthenticationResponse result = inboundAuthenticationManager.processRequest(authenticationRequest);
-        InboundAuthenticationContext context = new InboundAuthenticationContext();
-        context.setAuthenticationRequest(authenticationRequest);
-        sendToFrameworkForAuthentication(request, response, context, result);
-        return result;
-    }
-
-    protected InboundAuthenticationResponse doProcessResponse(InboundAuthenticationRequest authenticationRequest)
-            throws ServletException, IOException, IdentityApplicationManagementException, FrameworkException {
-
-        String []sessionDataKey = authenticationRequest.getParameters().get(FrameworkConstants.SESSION_DATA_KEY);
-        if(!ArrayUtils.isEmpty(sessionDataKey) && !StringUtils.isEmpty(sessionDataKey[0])){
-            InboundAuthenticationContextCacheEntry cacheEntry = InboundAuthenticationUtil
-                    .getInboundAuthenticationContextToCache(sessionDataKey[0]);
-
-            InboundAuthenticationResponse result = inboundAuthenticationManager.processResponse(
-                    cacheEntry.getInboundAuthenticationContext(), authenticationRequest);
+        try {
+            InboundAuthenticationResponse result = inboundAuthenticationManager.processRequest(authenticationRequest);
+            InboundAuthenticationContext context = new InboundAuthenticationContext();
+            context.setAuthenticationRequest(authenticationRequest);
+            sendToFrameworkForAuthentication(request, response, context, result);
             return result;
+        } catch (ServletException | IOException | IdentityApplicationManagementException | FrameworkException ex) {
+            throw new AuthenticationFrameworkRuntimeException("Error occurred while processing authentication request",
+                    ex);
         }
-        throw new FrameworkException("No session found to process the response.");
     }
 
+    /**
+     * Process inbound authentication response
+     *
+     * @param authenticationRequest Authentication request
+     * @return Inbound authentication response
+     * @throws AuthenticationFrameworkRuntimeException
+     */
+    protected InboundAuthenticationResponse doProcessResponse(InboundAuthenticationRequest authenticationRequest)
+            throws AuthenticationFrameworkRuntimeException {
+
+        try {
+            String[] sessionDataKey = authenticationRequest.getParameters().get(FrameworkConstants.SESSION_DATA_KEY);
+            if (!ArrayUtils.isEmpty(sessionDataKey) && !StringUtils.isEmpty(sessionDataKey[0])) {
+                InboundAuthenticationContextCacheEntry cacheEntry = InboundAuthenticationUtil
+                        .getInboundAuthenticationContextToCache(sessionDataKey[0]);
+
+                InboundAuthenticationResponse result = inboundAuthenticationManager.processResponse(
+                        cacheEntry.getInboundAuthenticationContext(), authenticationRequest);
+                return result;
+            }
+        } catch (FrameworkException ex) {
+            throw new AuthenticationFrameworkRuntimeException("Error occurred while processing authentication response",
+                    ex);
+        }
+        throw new AuthenticationFrameworkRuntimeException("No session found to process the response.");
+    }
+
+    /**
+     * Send to framework for authentication
+     *
+     * @param req   Http request
+     * @param resp  Http response
+     * @param context   Inbound authentication context
+     * @param inboundAuthenticationResponse Inbound authentication response
+     * @throws ServletException
+     * @throws IOException
+     * @throws IdentityApplicationManagementException
+     * @throws FrameworkException
+     */
     protected void sendToFrameworkForAuthentication(HttpServletRequest req, HttpServletResponse resp,
             InboundAuthenticationContext context, InboundAuthenticationResponse inboundAuthenticationResponse)
             throws ServletException, IOException, IdentityApplicationManagementException, FrameworkException {
