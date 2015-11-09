@@ -46,7 +46,15 @@ public interface UserAccountConnector {
      * @return
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException
      */
-    UserAccountAssociationDTO[] getAccountAssociationsOfUser() throws UserAccountAssociationException;
+
+    /**
+     * Get all associated accounts of the logged in user
+     *
+     * @param userName userName to get account list of
+     * @return
+     * @throws UserAccountAssociationException
+     */
+    UserAccountAssociationDTO[] getAccountAssociationsOfUser(String userName) throws UserAccountAssociationException;
 
     /**
      * Switch logged in user account to the required associated user account

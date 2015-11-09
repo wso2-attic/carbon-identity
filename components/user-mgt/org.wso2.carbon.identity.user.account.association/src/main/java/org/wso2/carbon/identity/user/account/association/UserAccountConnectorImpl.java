@@ -274,12 +274,13 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException
      */
     @Override
-    public UserAccountAssociationDTO[] getAccountAssociationsOfUser() throws UserAccountAssociationException {
+    public UserAccountAssociationDTO[] getAccountAssociationsOfUser(String userName) throws
+            UserAccountAssociationException {
 
         List<UserAccountAssociationDTO> userAccountAssociations = UserAccountAssociationDAO.getInstance().getAssociationsOfUser(
-                UserAccountAssociationUtil.getDomainName(CarbonContext.getThreadLocalCarbonContext().getUsername()),
+                UserAccountAssociationUtil.getDomainName(userName),
                 CarbonContext.getThreadLocalCarbonContext().getTenantId(), UserAccountAssociationUtil
-                        .getUsernameWithoutDomain(CarbonContext.getThreadLocalCarbonContext().getUsername()));
+                        .getUsernameWithoutDomain(userName));
 
         if (!userAccountAssociations.isEmpty()) {
             return userAccountAssociations.toArray(new UserAccountAssociationDTO[userAccountAssociations.size()]);
