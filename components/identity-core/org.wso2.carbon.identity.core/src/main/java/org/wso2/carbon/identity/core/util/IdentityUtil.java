@@ -488,4 +488,20 @@ public class IdentityUtil {
             }
         }
     }
+
+    /**
+     * Appends domain name to the application name without making the domain name into uppercase
+     *
+     * @param name application name
+     * @param domainName domain name
+     * @return application name with domain name
+     */
+    public static String addDomainToName(String name, String domainName) {
+        if (name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) < 0 && !"PRIMARY".equalsIgnoreCase(domainName) && domainName != null) {
+            domainName = domainName + UserCoreConstants.DOMAIN_SEPARATOR;
+            name = domainName + name;
+        }
+
+        return name;
+    }
 }
