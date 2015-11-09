@@ -1013,6 +1013,11 @@ public class SCIMUserManager implements UserManager {
 
                 List<String> userIds = newGroup.getMembers();
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
+                List<String> formattedDisplayNames = new ArrayList<>();
+                for (String displayName : userDisplayNames) {
+                    formattedDisplayNames.add(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName
+                            (displayName), IdentityUtil.extractDomainFromName(displayName)));
+                }
                 String[] userNames = null;
                 if (userIds != null) {
                     for (String userId : userIds) {
@@ -1025,7 +1030,7 @@ public class SCIMUserManager implements UserManager {
                                     "Hence, can not update the group: " + oldGroup.getDisplayName();
                             throw new CharonException(error);
                         } else {
-                            if (!userDisplayNames.contains(userNames[0])) {
+                            if (!formattedDisplayNames.contains(userNames[0])) {
                                 throw new CharonException("Given SCIM user Id and name not matching..");
                             }
                         }
