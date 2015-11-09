@@ -129,9 +129,6 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
         }
 
         try {
-            if (!userStoreManager.isSCIMEnabled()) {
-                return true;
-            }
             claims = this.getSCIMAttributes(userName, claims);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException(e);
@@ -178,12 +175,10 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
 
         //update last-modified-date
         try {
-            if (userStoreManager.isSCIMEnabled()) {
-                Date date = new Date();
-                String lastModifiedDate = AttributeUtil.formatDateTime(date);
-                userStoreManager.setUserClaimValue(
-                        userName, SCIMConstants.META_LAST_MODIFIED_URI, lastModifiedDate, null);
-            }
+            Date date = new Date();
+            String lastModifiedDate = AttributeUtil.formatDateTime(date);
+            userStoreManager.setUserClaimValue(
+                    userName, SCIMConstants.META_LAST_MODIFIED_URI, lastModifiedDate, null);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             if (e.getMessage().contains("UserNotFound")) {
                 if (log.isDebugEnabled()) {
@@ -247,12 +242,10 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
         }
         //update last-modified-date and proceed if scim enabled.
         try {
-            if (userStoreManager.isSCIMEnabled()) {
-                Date date = new Date();
-                String lastModifiedDate = AttributeUtil.formatDateTime(date);
-                userStoreManager.setUserClaimValue(
-                        userName, SCIMConstants.META_LAST_MODIFIED_URI, lastModifiedDate, null);
-            }
+            Date date = new Date();
+            String lastModifiedDate = AttributeUtil.formatDateTime(date);
+            userStoreManager.setUserClaimValue(
+                    userName, SCIMConstants.META_LAST_MODIFIED_URI, lastModifiedDate, null);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             throw new UserStoreException("Error in retrieving claim values while provisioning " +
                     "'update user' operation.", e);
