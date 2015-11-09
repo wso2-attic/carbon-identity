@@ -141,4 +141,11 @@
             <Class>org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyUploadExecutor</Class>
         </Mapping>
     </FileUploadConfig>
+
+    <ManagementPermissions>
+        <ManagementPermission>
+            <DisplayName>PEP</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/pep</ResourceId>
+        </ManagementPermission>
+    </ManagementPermissions>
 </component>
