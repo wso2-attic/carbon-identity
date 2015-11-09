@@ -19,6 +19,6 @@ package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
 public final class InboundAuthenticationConstants {
 
-    private final static String HTTP_PATH_PARAM_REQUEST = "/request";
-    private final static String HTTP_PATH_PARAM_RESPONSE = "/response";
+    public final static String HTTP_PATH_PARAM_REQUEST = "/request";
+    public final static String HTTP_PATH_PARAM_RESPONSE = "/response";
 }

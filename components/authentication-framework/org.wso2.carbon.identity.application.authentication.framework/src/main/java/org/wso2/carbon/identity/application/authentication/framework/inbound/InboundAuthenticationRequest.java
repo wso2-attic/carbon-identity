@@ -28,6 +28,7 @@ public class InboundAuthenticationRequest implements Serializable{
     private Map<String, Cookie> cookies = new HashMap<String, Cookie>();
     private Map<String, String> parameters = new HashMap<String, String>();
 
+
     public Map<String, String> getHeaders() {
         return headers;
     }
@@ -59,5 +60,6 @@ public class InboundAuthenticationRequest implements Serializable{
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
     }
+
 
 }

@@ -25,10 +25,7 @@ import org.wso2.carbon.identity.application.authentication.framework.cache.Authe
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceDataHolder;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
-import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
-
-import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,13 +39,13 @@ public class InboundAuthenticationManager {
      * Get
      * @return Inbound authentication request processor
      */
-    private InboundAuthenticationRequestProcessor getInboundRequestProcessor(HttpServletRequest req,
-            HttpServletResponse resp) throws FrameworkException{
+    private InboundAuthenticationRequestProcessor getInboundRequestProcessor(
+            InboundAuthenticationRequest authenticationRequest) throws FrameworkException {
         List<InboundAuthenticationRequestProcessor> requestProcessors = FrameworkServiceDataHolder.getInstance()
                 .getInboundRequestProcessors();
 
         for (InboundAuthenticationRequestProcessor requestProcessor : requestProcessors) {
-            if (requestProcessor.canHandle(req, resp)) {
+            if (requestProcessor.canHandle(authenticationRequest)) {
                 return requestProcessor;
             }
         }
@@ -100,7 +97,15 @@ public class InboundAuthenticationManager {
 //        return null;
 //    }
 
-    public InboundAuthenticationResponse process(InboundAuthenticationRequest authenticationRequest) throws FrameworkException {
+    public InboundAuthenticationResponse processRequest(InboundAuthenticationRequest authenticationRequest)
+            throws FrameworkException {
+
+        InboundAuthenticationRequestProcessor requestProcessor = getInboundRequestProcessor(authenticationRequest);
+        return requestProcessor.process(authenticationRequest);
+    }
+
+    public InboundAuthenticationResponse processResponse(InboundAuthenticationRequest authenticationRequest)
+            throws FrameworkException {
 
         return null;
     }

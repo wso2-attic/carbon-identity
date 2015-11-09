@@ -17,32 +17,18 @@
  */
 package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
-import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
-import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.registry.core.utils.UUIDGenerator;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map;
 
 public abstract class InboundAuthenticationRequestProcessor {
 
     /**
-	 *
-     * @param req  Http Request
-     * @param resp Http Response
-     * @throws org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException
-	 */
-    public abstract InboundAuthenticationResponse process(HttpServletRequest req, HttpServletResponse resp)
-            throws FrameworkException;
+     *
+     * @param authenticationRequest
+     * @return
+     * @throws FrameworkException
+     */
+    public abstract InboundAuthenticationResponse process(InboundAuthenticationRequest authenticationRequest)
+    throws FrameworkException;
 
     /**
      *
@@ -51,15 +37,15 @@ public abstract class InboundAuthenticationRequestProcessor {
     public abstract String getName();
 
     /**
-	 *
-	 * @return
-	 */
-	public abstract String getCallbackPath(InboundAuthenticationContext context) throws FrameworkException;
+     *
+     * @return
+     */
+    public abstract String getCallbackPath(InboundAuthenticationContext context) throws FrameworkException;
 
-	/**
-	 *
-	 * @return
-	 */
+    /**
+     *
+     * @return
+     */
     public abstract String getRelyingPartyId();
 
     /**
@@ -72,14 +58,12 @@ public abstract class InboundAuthenticationRequestProcessor {
      *
      * @return
      */
-    public abstract boolean canHandle(HttpServletRequest req, HttpServletResponse resp) throws FrameworkException;
+    public abstract boolean canHandle(InboundAuthenticationRequest authenticationRequest) throws FrameworkException;
 
-	/**
-	 *
-	 * @return
-	 */
+    /**
+     *
+     * @return
+     */
     public abstract boolean isDirectResponseRequired();
-
-
 
 }

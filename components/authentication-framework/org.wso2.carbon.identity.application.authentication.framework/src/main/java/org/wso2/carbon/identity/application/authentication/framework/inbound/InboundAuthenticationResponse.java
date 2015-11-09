@@ -30,6 +30,8 @@ public class InboundAuthenticationResponse implements Serializable {
     private Map<String, String> parameters = new HashMap<String, String>();
     private int statusCode;
     private String redirectURL;
+    private InboundAuthenticationRequestProcessor inboundAuthenticationRequestProcessor;
+    private InboundAuthenticationResponseBuilder inboundAuthenticationResponseBuilder;
 
     public Map<String, String> getResponseHeaders() {
         return responseHeaders;
@@ -77,5 +79,23 @@ public class InboundAuthenticationResponse implements Serializable {
 
     public void setRedirectURL(String redirectURL) {
         this.redirectURL = redirectURL;
+    }
+
+    public InboundAuthenticationRequestProcessor getInboundAuthenticationRequestProcessor() {
+        return inboundAuthenticationRequestProcessor;
+    }
+
+    public void setInboundAuthenticationRequestProcessor(
+            InboundAuthenticationRequestProcessor inboundAuthenticationRequestProcessor) {
+        this.inboundAuthenticationRequestProcessor = inboundAuthenticationRequestProcessor;
+    }
+
+    public InboundAuthenticationResponseBuilder getInboundAuthenticationResponseBuilder() {
+        return inboundAuthenticationResponseBuilder;
+    }
+
+    public void setInboundAuthenticationResponseBuilder(
+            InboundAuthenticationResponseBuilder inboundAuthenticationResponseBuilder) {
+        this.inboundAuthenticationResponseBuilder = inboundAuthenticationResponseBuilder;
     }
 }
