@@ -16,7 +16,9 @@
 * specific language governing permissions and limitations
 * under the License.
 -->
-
+<%
+    String errorCode = request.getParameter("errorCode");
+%>
 <fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
     <html>
     <head>
@@ -63,16 +65,16 @@
 
                     <div class="clearfix"></div>
                     <div class="boarder-all ">
-
                         <% if (request.getParameter("failedPrevious") != null &&
                                 Boolean.parseBoolean(request.getParameter("failedPrevious"))) { %>
                         <div class="alert alert-danger" id="error-msg">
-                            <%if (request.getParameter("errorCode").equals("1")) {%>
+                            <%if (("1").equals(errorCode)) {%>
+                            The User is already existing.
+                            <%} else if (("2").equals(errorCode)) {%>
                             Passwords did not match. Please try again.
                             <%} else {%>
                             Something went wrong. Please try again.
                             <%}%>
-
                         </div>
                         <%}%>
 

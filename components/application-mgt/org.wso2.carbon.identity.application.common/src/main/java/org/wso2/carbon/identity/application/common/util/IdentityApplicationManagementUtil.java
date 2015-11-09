@@ -23,7 +23,6 @@ import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.CertData;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProviderProperty;
@@ -694,7 +693,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     *
      * @return the Signing Algorithm URI defined in configuration
      */
     public static String getSigningAlgoURIByConfig() {
@@ -707,7 +705,6 @@ public class IdentityApplicationManagementUtil {
     }
 
     /**
-     *
      * @return the Digest Algorithm URI defined in configuration
      */
     public static String getDigestAlgoURIByConfig() {
@@ -719,33 +716,17 @@ public class IdentityApplicationManagementUtil {
         }
     }
 
-    /**
-     * This is used in front end. Property is the type of stub generated property
-     * @param properties properties list to iterate
-     * @param startWith the peoperty list startswith the given name
-     * @return
-     */
-    public static List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> getPropertySetStartsWith(
-            org.wso2.carbon.identity.application.common.model.idp.xsd.Property[] properties,
-            String startWith) {
-        List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> propertySet = new ArrayList<org
-                .wso2.carbon.identity.application.common.model.idp.xsd.Property>();
-        for (org.wso2.carbon.identity.application.common.model.idp.xsd.Property property : properties) {
-            if (property.getName().startsWith(startWith)) {
-                propertySet.add(property);
-            }
-        }
-        return propertySet;
-    }
 
     /**
      * This is used in back end. Property is the type of stub generated property
-     * @param authnConfigs authenticatorConfigs to iterate
-     * @param authenticatorName authenticator name of which the values are needed
+     *
+     * @param authnConfigs       authenticatorConfigs to iterate
+     * @param authenticatorName  authenticator name of which the values are needed
      * @param propNameStartsWith the prefix of the property name
      * @return the list of values which statrts with the propNameStartsWith.
      */
-    public static List<String> getPropertyValuesForNameStartsWith(FederatedAuthenticatorConfig[] authnConfigs, String authenticatorName, String propNameStartsWith){
+    public static List<String> getPropertyValuesForNameStartsWith(FederatedAuthenticatorConfig[] authnConfigs, String
+            authenticatorName, String propNameStartsWith) {
         List<String> propValueSet = new ArrayList<String>();
         for (FederatedAuthenticatorConfig config : authnConfigs) {
             if (authenticatorName.equals(config.getName())) {

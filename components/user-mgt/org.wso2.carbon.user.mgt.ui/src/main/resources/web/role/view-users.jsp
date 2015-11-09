@@ -20,6 +20,9 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ page session="true" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
+<%@ page import="org.apache.commons.lang.ArrayUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
@@ -27,21 +30,18 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.LinkedHashSet" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
-<%@ page import="java.util.LinkedHashSet" %>
-<%@ page import="org.apache.commons.lang.ArrayUtils" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="org.apache.commons.collections.CollectionUtils" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
@@ -174,20 +174,14 @@
     }
     if (doUserList || newFilter) {
         try {
-            String cookie =
-                    (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
-            String backendServerURL =
-                    CarbonUIUtil.getServerURL(config.getServletContext(),
-                            session);
-            ConfigurationContext configContext =
-                    (ConfigurationContext) config.getServletContext()
-                            .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-            UserAdminClient client =
-                    new UserAdminClient(cookie, backendServerURL,
-                            configContext);
+            String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
+            String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
+            ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
+                    .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+            UserAdminClient client = new UserAdminClient(cookie, backendServerURL, configContext);
             UserManagementWorkflowServiceClient UserMgtClient = new
                     UserManagementWorkflowServiceClient(cookie, backendServerURL, configContext);
-            if (filter.length() > 0) {
+            if (StringUtils.isNotEmpty(filter)) {
                 FlaggedName[] data = client.getUsersOfRole(roleName, filter, 0);
                 if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
                     String[] DeletePendingRolesList = UserMgtClient.
@@ -207,8 +201,7 @@
                 }
                 dataList = new ArrayList<FlaggedName>(Arrays.asList(data));
                 exceededDomains = dataList.remove(dataList.size() - 1);
-                session.setAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE_EXCEEDED,
-                        exceededDomains);
+                session.setAttribute(UserAdminUIConstants.ROLE_LIST_ASSIGNED_USER_CACHE_EXCEEDED, exceededDomains);
                 if (CollectionUtils.isNotEmpty(dataList)) {
                     flaggedNameMap = new HashMap<Integer, PaginatedNamesBean>();
                     int max = pageNumber + cachePages;
@@ -217,9 +210,7 @@
                             max++;
                             continue;
                         }
-                        PaginatedNamesBean bean =
-                                Util.retrievePaginatedFlaggedName(i,
-                                        dataList);
+                        PaginatedNamesBean bean = Util.retrievePaginatedFlaggedName(i, dataList);
                         flaggedNameMap.put(i, bean);
                         if (bean.getNumberOfPages() == i + 1) {
                             break;
@@ -450,7 +441,7 @@
 
                                             String userName = user.getItemName();
                                             String displayName = user.getItemDisplayName();
-                                            if (displayName == null || displayName.trim().length() == 0) {
+                                            if (StringUtils.isBlank(displayName)) {
                                                 displayName = userName;
                                             }
                             %>
@@ -505,7 +496,7 @@
                                             arg += " and ";
                                         }
                                     }
-                                    message = resourceBundle.getString("more.users.others").replace("{0}", arg);
+                                    message = MessageFormat.format(resourceBundle.getString("more.users.others"), arg);
                                 } else {
                                     message = resourceBundle.getString("more.users.primary");
                                 }
@@ -524,7 +515,7 @@
                             arg += " and ";
                         }
                     }
-                    message = resourceBundle.getString("more.users").replace("{0}", arg);
+                    message = MessageFormat.format(resourceBundle.getString("more.users"), arg);
                 %>
                 <strong><%=Encode.forHtml(message)%>
                 </strong>

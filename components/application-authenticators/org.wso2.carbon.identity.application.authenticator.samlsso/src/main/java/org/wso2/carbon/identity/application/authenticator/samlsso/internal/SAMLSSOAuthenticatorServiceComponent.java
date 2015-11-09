@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.samlsso.SAMLSSOAuthenticator;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
 
@@ -62,13 +63,14 @@ public class SAMLSSOAuthenticatorServiceComponent {
 
     protected void activate(ComponentContext ctxt) {
         String postPagePath = null;
+        FileInputStream fis = null;
         try {
             SAMLSSOAuthenticator samlSSOAuthenticator = new SAMLSSOAuthenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), samlSSOAuthenticator, null);
             postPagePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
                     + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File
                     .separator + "samlsso_federate.html";
-            FileInputStream fis = new FileInputStream(new File(postPagePath));
+            fis = new FileInputStream(new File(postPagePath));
             postPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
             if (log.isDebugEnabled()) {
                 log.info("SAML2 SSO Authenticator bundle is activated");
@@ -81,6 +83,8 @@ public class SAMLSSOAuthenticatorServiceComponent {
             if (log.isDebugEnabled()) {
                 log.debug("Failed SAMLSSO authentication" + e);
             }
+        } finally {
+            IdentityIOStreamUtils.closeInputStream(fis);
         }
 
 
