@@ -160,8 +160,7 @@ location.href = "list-service-providers.jsp";
 	StringBuffer localAuthTypes = new StringBuffer();
 	String startOption = "<option value=\"";
 	String middleOption = "\">";
-	String endOPtion = "</option>";	
-	String disbleText = " (Disabled)";
+	String endOPtion = "</option>";
     
 	StringBuffer requestPathAuthTypes = new StringBuffer();
 	RequestPathAuthenticatorConfig[] requestPathAuthenticators = appBean.getRequestPathAuthenticators();
@@ -226,16 +225,13 @@ location.href = "list-service-providers.jsp";
 				String options = proIdpConnector.get(idp.getIdentityProviderName());
 				if (proIdp!=null && options != null) {
 					String oldOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + middleOption + Encode.forHtmlContent(proIdp.getName()) + endOPtion;
-					String newOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName())+ (IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) != null && IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) ? "" : disbleText) + endOPtion;
+					String newOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName()) + endOPtion;
 					if(options.contains(oldOption)) {
 						options = options.replace(oldOption, newOption);
 					} else {
 						options = options + newOption;
 					}
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), options);
-				} else if(proIdp!=null && options == null) {
-					String disabledOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName()) + disbleText + endOPtion;
-					selectedProIdpConnectors.put(idp.getIdentityProviderName(), disabledOption);
 				} else {
 					options = enabledProIdpConnector.get(idp.getIdentityProviderName());
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), options);
@@ -1395,24 +1391,9 @@ var roleMappinRowID = -1;
 											<option value="<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>"><%=Encode.forHtmlContent(idp.getIdentityProviderName())%></option>
 										<%  } %>
 									<%  } %>
-									<% if( !isSelectedIdPUsed && selectedIdP != null && !selectedIdP.isEmpty()) {%>
-										<option value="<%=Encode.forHtmlAttribute(selectedIdP)%>" selected><%=Encode.forHtmlContent(selectedIdP)%> (Disabled)</option>
-									<% } %>
 									</select>
                         	</td>
                     	</tr> 
-                    	<% } else if(ApplicationBean.AUTH_TYPE_FEDERATED.equals(appBean.getAuthenticationType()) && appBean.getStepZeroAuthenticatorName(ApplicationBean.AUTH_TYPE_FEDERATED) != null) { %>
-                    	<tr>
-                    		<td class="leftCol-med labelField"/>
-                        	<td>
-                        		<input type="radio" id="federated" name="auth_type" value="federated" checked><label for="federated" style="cursor: pointer;"><fmt:message key="config.authentication.type.federated"/></label>
-							</td>
-							<td>
-                        		<select name="fed_idp" id="fed_idp">
-                        			<option value="<%=Encode.forHtmlAttribute(appBean.getStepZeroAuthenticatorName(ApplicationBean.AUTH_TYPE_FEDERATED))%>" selected><%=Encode.forHtmlContent(appBean.getStepZeroAuthenticatorName(ApplicationBean.AUTH_TYPE_FEDERATED))%> (Disabled)</option>
-                        		</select>
-                        	</td>
-                        </tr>
                     	<% } else {%>
                     	<tr>
                     		<td class="leftCol-med labelField"/>
@@ -1611,7 +1592,7 @@ var roleMappinRowID = -1;
 							      	       <tr>
 							      	      	   <td>
 							      	      		<input name="provisioning_idp" id="" type="hidden" value="<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" />
-                                                    <%=Encode.forHtmlContent(idp.getIdentityProviderName()) + (idpStatus.get(idp.getIdentityProviderName()) != null && idpStatus.get(idp.getIdentityProviderName()) ? "" : disbleText) %>
+                                                    <%=Encode.forHtmlContent(idp.getIdentityProviderName()) %>
 							      	      		</td>
 							      	      		<td> 
 							      	      			<% if(selectedProIdpConnectors.get(idp.getIdentityProviderName()) != null) { %>
