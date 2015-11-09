@@ -1013,6 +1013,12 @@ public class SCIMUserManager implements UserManager {
 
                 List<String> userIds = newGroup.getMembers();
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
+
+                String newGroupDisplayNameUpperCaseDomain = UserCoreUtil
+                        .addDomainToName(UserCoreUtil.removeDomainFromName(newGroup.getDisplayName()),
+                                UserCoreUtil.extractDomainFromName(newGroup.getDisplayName()).toUpperCase());
+                newGroup.setDisplayName(newGroupDisplayNameUpperCaseDomain);
+
                 String[] userNames = null;
                 if (userIds != null) {
                     for (String userId : userIds) {
@@ -1025,7 +1031,17 @@ public class SCIMUserManager implements UserManager {
                                     "Hence, can not update the group: " + oldGroup.getDisplayName();
                             throw new CharonException(error);
                         } else {
-                            if (!userDisplayNames.contains(userNames[0])) {
+                            boolean isUserNameMatches = false;
+                            for(String userName : userDisplayNames) {
+                                String newUserDisplayNameUpperCaseDomain = UserCoreUtil
+                                        .addDomainToName(UserCoreUtil.removeDomainFromName(userName),
+                                                UserCoreUtil.extractDomainFromName(userName).toUpperCase());
+                                if(newUserDisplayNameUpperCaseDomain.equalsIgnoreCase(userNames[0])){
+                                    isUserNameMatches = true;
+                                    break;
+                                }
+                            }
+                            if (!isUserNameMatches) {
                                 throw new CharonException("Given SCIM user Id and name not matching..");
                             }
                         }
@@ -1059,6 +1075,23 @@ public class SCIMUserManager implements UserManager {
                 List<String> addRequestedMembers = newGroup.getMembersWithDisplayName(null);
                 List<String> deleteRequestedMembers =
                         newGroup.getMembersWithDisplayName(SCIMConstants.CommonSchemaConstants.OPERATION_DELETE);
+
+                int noOfAddedMembers = addRequestedMembers.size();
+                int noOfDeletedMembers = deleteRequestedMembers.size();
+
+                for (int i = 0; i < noOfAddedMembers; i++) {
+                    String addRequestMemberUpperCaseDomain = UserCoreUtil
+                            .addDomainToName(UserCoreUtil.removeDomainFromName(addRequestedMembers.get(i)),
+                                    UserCoreUtil.extractDomainFromName(addRequestedMembers.get(i)).toUpperCase());
+                    addRequestedMembers.add(i, addRequestMemberUpperCaseDomain);
+                }
+
+                for (int i = 0; i < noOfDeletedMembers; i++) {
+                    String deleteRequestMemberUpperCaseDomain = UserCoreUtil
+                            .addDomainToName(UserCoreUtil.removeDomainFromName(deleteRequestedMembers.get(i)),
+                                    UserCoreUtil.extractDomainFromName(deleteRequestedMembers.get(i)).toUpperCase());
+                    deleteRequestedMembers.add(i, deleteRequestMemberUpperCaseDomain);
+                }
 
                 //Handling meta data attributes coming from SCIM request. Through meta attributes all existing members
                 // can be replaced with new set of members
@@ -1098,16 +1131,16 @@ public class SCIMUserManager implements UserManager {
                     deletedMembers = Arrays.asList(users);
                 }
 
-                for (String addRequestedMember : addRequestedMembers) {
-                    if ((!oldMembers.isEmpty()) && oldMembers.contains(addRequestedMember)) {
+                for (int i = 0; i < noOfAddedMembers; i++) {
+                    if ((!oldMembers.isEmpty()) && oldMembers.contains(addRequestedMembers.get(i))) {
                         continue;
                     }
-                    addedMembers.add(addRequestedMember);
+                    addedMembers.add(addRequestedMembers.get(i));
                 }
 
-                for (String deleteRequestedMember : deleteRequestedMembers) {
-                    if ((!oldMembers.isEmpty()) && oldMembers.contains(deleteRequestedMember)) {
-                        deletedMembers.add(deleteRequestedMember);
+                for (int i = 0; i < noOfDeletedMembers; i++) {
+                    if ((!oldMembers.isEmpty()) && oldMembers.contains(deleteRequestedMembers.get(i))) {
+                        deletedMembers.add(deleteRequestedMembers.get(i));
                     } else {
                         continue;
                     }
