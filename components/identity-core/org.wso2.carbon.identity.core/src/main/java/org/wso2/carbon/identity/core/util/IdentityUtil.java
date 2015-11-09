@@ -497,8 +497,8 @@ public class IdentityUtil {
      * @return application name with domain name
      */
     public static String addDomainToName(String name, String domainName) {
-        if (name.indexOf("/") < 0 && !"PRIMARY".equalsIgnoreCase(domainName) && domainName != null) {
-            domainName = domainName + "/";
+        if (name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) < 0 && !"PRIMARY".equalsIgnoreCase(domainName) && domainName != null) {
+            domainName = domainName + UserCoreConstants.DOMAIN_SEPARATOR;
             name = domainName + name;
         }
 
