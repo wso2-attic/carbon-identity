@@ -963,7 +963,7 @@ public class IdPManagementUIUtil {
 
         FederatedAuthenticatorConfig openIdAuthnConfig = new FederatedAuthenticatorConfig();
         openIdAuthnConfig.setName("OpenIDAuthenticator");
-        openIdAuthnConfig.setDisplayName("openid");
+        openIdAuthnConfig.setDisplayName("OpenID");
 
         if ("on".equals(paramMap.get("openIdEnabled"))) {
             openIdAuthnConfig.setEnabled(true);
@@ -1028,7 +1028,7 @@ public class IdPManagementUIUtil {
 
         FederatedAuthenticatorConfig facebookAuthnConfig = new FederatedAuthenticatorConfig();
         facebookAuthnConfig.setName("FacebookAuthenticator");
-        facebookAuthnConfig.setDisplayName("facebook");
+        facebookAuthnConfig.setDisplayName("Facebook");
 
         if ("on".equals(paramMap.get("fbAuthEnabled"))) {
             facebookAuthnConfig.setEnabled(true);
@@ -1106,7 +1106,7 @@ public class IdPManagementUIUtil {
 
         FederatedAuthenticatorConfig oidcAuthnConfig = new FederatedAuthenticatorConfig();
         oidcAuthnConfig.setName("OpenIDConnectAuthenticator");
-        oidcAuthnConfig.setDisplayName("openidconnect");
+        oidcAuthnConfig.setDisplayName("OAuth2/OpenIDConnect");
 
         if ("on".equals(paramMap.get("oidcEnabled"))) {
             oidcAuthnConfig.setEnabled(true);
@@ -1188,7 +1188,7 @@ public class IdPManagementUIUtil {
 
         FederatedAuthenticatorConfig passiveSTSAuthnConfig = new FederatedAuthenticatorConfig();
         passiveSTSAuthnConfig.setName("PassiveSTSAuthenticator");
-        passiveSTSAuthnConfig.setDisplayName("passivests");
+        passiveSTSAuthnConfig.setDisplayName("PassiveSTS");
 
         if ("on".equals(paramMap.get("passiveSTSEnabled"))) {
             passiveSTSAuthnConfig.setEnabled(true);
@@ -1349,7 +1349,7 @@ public class IdPManagementUIUtil {
 
         FederatedAuthenticatorConfig saml2SSOAuthnConfig = new FederatedAuthenticatorConfig();
         saml2SSOAuthnConfig.setName("SAMLSSOAuthenticator");
-        saml2SSOAuthnConfig.setDisplayName("samlsso");
+        saml2SSOAuthnConfig.setDisplayName("SAML2 Web SSO");
 
         if ("on".equals(paramMap.get("saml2SSOEnabled"))) {
             saml2SSOAuthnConfig.setEnabled(true);
