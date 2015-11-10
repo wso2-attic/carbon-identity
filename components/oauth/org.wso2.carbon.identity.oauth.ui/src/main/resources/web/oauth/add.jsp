@@ -72,14 +72,10 @@
                         validate();
                     }
                 }
+
                 function validate() {
                     var callbackUrl = document.getElementById('callback').value;
                     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-                    if (!regexp.test(callbackUrl) || callbackUrl.indexOf(",") > -1) {
-                        CARBON.showWarningDialog("<fmt:message key='callback.is.not.url'/>", null, null);
-                        return false;
-                    }
-
                     var value = document.getElementsByName("application")[0].value;
                     if (value == '') {
                         CARBON.showWarningDialog('<fmt:message key="application.is.required"/>');
@@ -87,20 +83,30 @@
                     }
                     value = document.getElementsByName("callback")[0].value;
                     var version2Checked = document.getElementById("oauthVersion20").checked;
-                    if(version2Checked){
+                    if (version2Checked) {
                         if (value == '') {
-                            if($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked){
+                            if ($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
                                 CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
                                 return false;
                             }
                         } else {
-                            if(!$(jQuery("#grant_code"))[0].checked && !$(jQuery("#grant_implicit"))[0].checked){
+                            if (!$(jQuery("#grant_code"))[0].checked && !$(jQuery("#grant_implicit"))[0].checked) {
                                 document.getElementsByName("callback")[0].value = '';
+                            }
+                            else {
+                                if (!regexp.test(callbackUrl) || callbackUrl.indexOf(",") > -1) {
+                                    CARBON.showWarningDialog("<fmt:message key='callback.is.not.url'/>", null, null);
+                                    return false;
+                                }
                             }
                         }
                     } else {
-                        if(value == ''){
+                        if (value == '') {
                             CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
+                            return false;
+                        }
+                        else if (!regexp.test(callbackUrl) || callbackUrl.indexOf(",") > -1) {
+                            CARBON.showWarningDialog("<fmt:message key='callback.is.not.url'/>", null, null);
                             return false;
                         }
                     }

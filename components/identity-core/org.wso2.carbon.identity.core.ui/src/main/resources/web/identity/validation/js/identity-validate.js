@@ -155,6 +155,9 @@ function isValidConfirmationDialog(validationObj, msg, handleYes, handleNo, clos
     if (validationObj['isValid'] === true) {
         return true;
     }
+    else if (validationObj['isValid'] === "empty") {
+        return true;
+    }
 
     var label = validationObj['label'];
     var whiteListPatterns = validationObj['whiteListPatterns'];
@@ -265,6 +268,11 @@ function validateInput(inputElement) {
                 blackListPatterns: blackListPatternString
             };
         }
+    }
+    else{
+        return {
+            isValid: "empty"
+        };
     }
 }
 
