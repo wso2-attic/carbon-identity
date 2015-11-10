@@ -145,14 +145,13 @@
                     if($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
                         var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.not.https'/>",
                                 validate, null, null);
-                        if (isValidated===true) {
-                            validate(false);
+                        if (isValidated) {
+                            validate();
                         }
                     } else {
-                        validate(false);
+                        validate();
                     }
                 }
-
                 function validate() {
                     var callbackUrl = document.getElementById('callback').value;
                     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
