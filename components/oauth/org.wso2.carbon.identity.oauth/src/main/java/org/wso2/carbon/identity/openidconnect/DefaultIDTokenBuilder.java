@@ -32,7 +32,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
@@ -107,8 +106,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             throws IdentityOAuth2Exception {
 
         String issuer = OAuth2Util.getIDTokenIssuer();
-        long lifetime = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration());
-        long curTime = Calendar.getInstance().getTimeInMillis() / 1000;
+        long lifetimeInMillis = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration()) * 1000;
+        long curTimeInMillis = Calendar.getInstance().getTimeInMillis();
         // setting subject
         String subject = request.getAuthorizedUser().toString();
 
@@ -203,8 +202,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             StringBuilder stringBuilder = (new StringBuilder())
                     .append("Using issuer ").append(issuer).append("\n")
                     .append("Subject ").append(subject).append("\n")
-                    .append("ID Token life time ").append(lifetime).append("\n")
-                    .append("Current time ").append(curTime).append("\n")
+                    .append("ID Token life time ").append(lifetimeInMillis/1000).append("\n")
+                    .append("Current time ").append(curTimeInMillis/1000).append("\n")
                     .append("Nonce Value ").append(nonceValue).append("\n")
                     .append("Signature Algorithm ").append(signatureAlgorithm).append("\n");
             if (log.isDebugEnabled()) {
@@ -217,8 +216,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         jwtClaimsSet.setSubject(subject);
         jwtClaimsSet.setAudience(Arrays.asList(request.getOauth2AccessTokenReqDTO().getClientId()));
         jwtClaimsSet.setClaim("azp", request.getOauth2AccessTokenReqDTO().getClientId());
-        jwtClaimsSet.setExpirationTime(new Date(curTime + lifetime));
-        jwtClaimsSet.setIssueTime(new Date(curTime));
+        jwtClaimsSet.setExpirationTime(new Date(curTimeInMillis + lifetimeInMillis));
+        jwtClaimsSet.setIssueTime(new Date(curTimeInMillis));
         jwtClaimsSet.setClaim("auth_time", accessTokenIssuedTime);
         if(atHash != null){
             jwtClaimsSet.setClaim("at_hash", atHash);
