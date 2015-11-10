@@ -807,28 +807,33 @@ public class SCIMUserManager implements UserManager {
         oldGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()
         ), IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
 
-
-        if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName()).equals(UserCoreConstants
-                .PRIMARY_DEFAULT_DOMAIN_NAME) && !(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())
-                .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
-            String userStoreDomain = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName());
-            newGroup.setDisplayName(UserCoreUtil.addDomainToName(newGroup.getDisplayName(), userStoreDomain));
-            if (newGroup.getMembers() != null && !(newGroup.getMembers().isEmpty())) {
-                newGroup = addDomainToUserMembers(newGroup, userStoreDomain);
-            }
-        }
-        newGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(newGroup.getDisplayName()));
-        oldGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(oldGroup.getDisplayName()));
-
-            if (log.isDebugEnabled()) {
-                log.debug("Updating group: " + oldGroup.getDisplayName());
-            }
-            
-            /*we need to set the domain name for the newGroup if it doesn't have it */
-            // we should be able get the domain name like bellow, cause we set it by force at create group
-
-
             try {
+                if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName()).equals(UserCoreConstants
+                        .PRIMARY_DEFAULT_DOMAIN_NAME) && !(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())
+                        .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
+                    String userStoreDomain = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName());
+                    newGroup.setDisplayName(UserCoreUtil.addDomainToName(newGroup.getDisplayName(), userStoreDomain));
+
+                } else if (!IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())
+                        .equals(IdentityUtil.extractDomainFromName(newGroup.getDisplayName()))) {
+                    throw new IdentitySCIMException(
+                            "User store domain of the group is not matching with the given SCIM group Id.");
+                }
+
+                newGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(newGroup.getDisplayName()));
+                oldGroup.setDisplayName(SCIMCommonUtils.getGroupNameWithDomain(oldGroup.getDisplayName()));
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Updating group: " + oldGroup.getDisplayName());
+                }
+
+                String groupName = newGroup.getDisplayName();
+                String userStoreDomainForGroup = IdentityUtil.extractDomainFromName(groupName);
+
+                if (newGroup.getMembers() != null && !(newGroup.getMembers().isEmpty())) {
+                    newGroup = addDomainToUserMembers(newGroup, userStoreDomainForGroup);
+                }
+
                 /*set thread local property to signal the downstream SCIMUserOperationListener
                 about the provisioning route.*/
                 SCIMCommonUtils.setThreadLocalIsManagedThroughSCIMEP(true);
@@ -842,8 +847,6 @@ public class SCIMUserManager implements UserManager {
                 List<String> userIds = newGroup.getMembers();
                 List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
 
-                String groupName = newGroup.getDisplayName();
-                String userStoreDomainForGroup = IdentityUtil.extractDomainFromName(groupName);
                 /* compare user store domain of group and user store domain of user name , if there is a mismatch do not
                  update the group */
                 if (userDisplayNames != null && userDisplayNames.size() > 0) {
@@ -1098,9 +1101,8 @@ public class SCIMUserManager implements UserManager {
                 if (newGroup.getAttributesOfMeta() != null &&
                         SCIMConstants.GroupSchemaConstants.MEMBERS.equals(newGroup.getAttributesOfMeta().get(0))) {
                     if (!deleteRequestedMembers.isEmpty()) {
-                        log.warn(
-                                "All Existing members will be deleted through SCIM meta attributes Hence operation " +
-                                        "delete is Invalid");
+                        log.warn("All Existing members will be deleted through SCIM meta attributes Hence operation " +
+                                "delete is Invalid");
                         deleteRequestedMembers = new ArrayList<>();
                         metaDeleteAllMembers = true;
                     }
