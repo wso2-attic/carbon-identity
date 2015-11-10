@@ -1011,9 +1011,6 @@ public class SCIMUserManager implements UserManager {
                 // store and the associated user name
                 // also a matching one.
 
-                List<String> userIds = newGroup.getMembers();
-                List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
-
                  /* compare user store domain of old group and new group, if there is a mismatch do not allow to
                  patch the group */
                 if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName())
@@ -1031,6 +1028,13 @@ public class SCIMUserManager implements UserManager {
 
                 String groupName = newGroup.getDisplayName();
                 String userStoreDomainForGroup = IdentityUtil.extractDomainFromName(groupName);
+
+                if (newGroup.getMembers() != null && !newGroup.getMembers().isEmpty()) {
+                    newGroup = addDomainToUserMembers(newGroup, userStoreDomainForGroup);
+                }
+
+                List<String> userIds = newGroup.getMembers();
+                List<String> userDisplayNames = newGroup.getMembersWithDisplayName();
 
                 /* compare user store domain of group and user store domain of user name , if there is a mismatch do not
                  allow to patch the group */
@@ -1063,9 +1067,8 @@ public class SCIMUserManager implements UserManager {
                                     "Hence, can not update the group: " + oldGroup.getDisplayName();
                             throw new CharonException(error);
                         } else {
-                            if (!UserCoreUtil.isContain(UserCoreUtil.removeDomainFromName(userNames[0]),
-                                    UserCoreUtil.removeDomainFromNames(userDisplayNames.toArray(
-                                            new String[userDisplayNames.size()])))) {
+                            if (!UserCoreUtil.isContain(userNames[0],
+                                    userDisplayNames.toArray(new String[userDisplayNames.size()]))) {
                                 throw new IdentitySCIMException("Given SCIM user Id and name not matching..");
                             }
                         }
@@ -1088,13 +1091,6 @@ public class SCIMUserManager implements UserManager {
                 List<String> addRequestedMembers = newGroup.getMembersWithDisplayName(null);
                 List<String> deleteRequestedMembers =
                         newGroup.getMembersWithDisplayName(SCIMConstants.CommonSchemaConstants.OPERATION_DELETE);
-
-                addRequestedMembers = Arrays.asList(UserCoreUtil.addDomainToNames(
-                        UserCoreUtil.removeDomainFromNames(
-                                addRequestedMembers.toArray(new String[addRequestedMembers.size()])), userStoreDomainForGroup));
-                deleteRequestedMembers = Arrays.asList(UserCoreUtil.addDomainToNames(
-                        UserCoreUtil.removeDomainFromNames(
-                                deleteRequestedMembers.toArray(new String[deleteRequestedMembers.size()])), userStoreDomainForGroup));
 
                 //Handling meta data attributes coming from SCIM request. Through meta attributes all existing members
                 // can be replaced with new set of members
@@ -1483,7 +1479,7 @@ public class SCIMUserManager implements UserManager {
 
         //add user members with user store domain
         for (Map.Entry<String, String> entry : userMembers.entrySet()) {
-            group.setMember(entry.getKey(), UserCoreUtil.addDomainToName(entry.getValue(), userStoreDomain));
+            group.setMember(entry.getKey(), UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(entry.getValue()), userStoreDomain));
         }
 
         return group;
