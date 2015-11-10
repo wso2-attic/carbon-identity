@@ -558,15 +558,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         updateUser.setName(username);
         updateUser.setPassword(generatePassword());
 
-        if (log.isDebugEnabled()) {
-            try {
-                log.debug("Updating Google user : " + updateUser.toPrettyString());
-            } catch (IOException e) {
-                log.debug("Updating Google user : " + updateUser.toString());
-            }
-        }
-
-        updateUser.setPassword(generatePassword());
         return updateUser;
     }
 
