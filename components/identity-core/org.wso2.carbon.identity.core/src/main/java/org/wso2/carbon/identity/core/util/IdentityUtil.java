@@ -63,7 +63,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.SocketException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -130,11 +132,19 @@ public class IdentityUtil {
      * @return Element text value, "text" for the above element.
      */
     public static String getProperty(String key) {
+
         Object value = configuration.get(key);
+        String strValue;
+
         if (value instanceof ArrayList) {
-            return (String) ((ArrayList) value).get(0);
+            strValue = (String) ((ArrayList) value).get(0);
+        } else {
+            strValue = (String) value;
         }
-        return (String) value;
+
+        strValue = fillURLPlaceholders(strValue);
+
+        return strValue;
     }
 
     public static IdentityEventListener readEventListenerProperty(String type, String name) {
@@ -503,5 +513,73 @@ public class IdentityUtil {
         }
 
         return name;
+    }
+
+    /**
+     * Replace the placeholders with the related values in the URL.
+     * @param urlWithPlaceholders URL with the placeholders.
+     * @return URL filled with the placeholder values.
+     */
+    public static String fillURLPlaceholders(String urlWithPlaceholders) {
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_HOST)) {
+
+            String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
+
+            if (hostName == null) {
+                try {
+                    hostName = NetworkUtils.getLocalHostname();
+                } catch (SocketException e) {
+                    throw new IdentityRuntimeException("Error while trying to read hostname.", e);
+                }
+            }
+
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_HOST,
+                    hostName);
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PORT)) {
+
+            String mgtTransport = CarbonUtils.getManagementTransport();
+            AxisConfiguration axisConfiguration = IdentityCoreServiceComponent.getConfigurationContextService().
+                    getServerConfigContext().getAxisConfiguration();
+            int mgtTransportPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
+            if (mgtTransportPort <= 0) {
+                mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
+            }
+
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_PORT,
+                    Integer.toString(mgtTransportPort));
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PROTOCOL)) {
+
+            String mgtTransport = CarbonUtils.getManagementTransport();
+            StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_PROTOCOL,
+                    mgtTransport);
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PROXY_CONTEXT_PATH)) {
+
+            String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
+                    .PROXY_CONTEXT_PATH);
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_PROXY_CONTEXT_PATH,
+                    proxyContextPath);
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_WEB_CONTEXT_ROOT)) {
+
+            String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
+                    .WEB_CONTEXT_ROOT);
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_WEB_CONTEXT_ROOT,
+                    webContextRoot);
+        }
+
+        return urlWithPlaceholders;
     }
 }

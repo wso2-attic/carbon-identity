@@ -308,4 +308,14 @@ public class IdentityConstants {
             public final static String FETCH_RESPONSE = "fetch_response";
         }
     }
+
+    public static class CarbonPlaceholders {
+
+       public static final String CARBON_HOST = "${carbon.host}";
+       public static final String CARBON_PORT = "${carbon.management.port}";
+       public static final String CARBON_PROXY_CONTEXT_PATH = "${carbon.proxycontextpath}";
+       public static final String CARBON_WEB_CONTEXT_ROOT = "${carbon.webcontextroot}";
+       public static final String CARBON_PROTOCOL = "${carbon.protocol}";
+
+    }
 }
