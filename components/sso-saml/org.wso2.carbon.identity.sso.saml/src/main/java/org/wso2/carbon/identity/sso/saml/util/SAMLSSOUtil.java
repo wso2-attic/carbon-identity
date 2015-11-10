@@ -25,13 +25,7 @@ import org.apache.xerces.util.SecurityManager;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.EncryptedAssertion;
-import org.opensaml.saml2.core.Issuer;
-import org.opensaml.saml2.core.LogoutRequest;
-import org.opensaml.saml2.core.LogoutResponse;
-import org.opensaml.saml2.core.RequestAbstractType;
-import org.opensaml.saml2.core.Response;
+import org.opensaml.saml2.core.*;
 import org.opensaml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
@@ -76,10 +70,14 @@ import org.wso2.carbon.identity.sso.saml.builders.X509CredentialImpl;
 import org.wso2.carbon.identity.sso.saml.builders.assertion.SAMLAssertionBuilder;
 import org.wso2.carbon.identity.sso.saml.builders.encryption.SSOEncrypter;
 import org.wso2.carbon.identity.sso.saml.builders.signature.SSOSigner;
+import org.wso2.carbon.identity.sso.saml.dto.QueryParamDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
+import org.wso2.carbon.identity.sso.saml.validators.IdPInitSSOAuthnRequestValidator;
 import org.wso2.carbon.identity.sso.saml.validators.SAML2HTTPRedirectSignatureValidator;
+import org.wso2.carbon.identity.sso.saml.validators.SPInitSSOAuthnRequestValidator;
+import org.wso2.carbon.identity.sso.saml.validators.SSOAuthnRequestValidator;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.registry.core.Registry;
@@ -164,6 +162,8 @@ public class SAMLSSOUtil {
     private static SSOEncrypter ssoEncrypter = null;
     private static SSOSigner ssoSigner = null;
     private static SAML2HTTPRedirectSignatureValidator samlHTTPRedirectSignatureValidator = null;
+    private static String sPInitSSOAuthnRequestValidatorClassName = null;
+    private static String iDPInitSSOAuthnRequestValidatorClassName = null;
     private static ThreadLocal tenantDomainInThreadLocal = new ThreadLocal();
 
     private SAMLSSOUtil() {
@@ -1342,6 +1342,61 @@ public class SAMLSSOUtil {
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
+    }
+
+    public static SSOAuthnRequestValidator getSPInitSSOAuthnRequestValidator(AuthnRequest authnRequest)  {
+        if (sPInitSSOAuthnRequestValidatorClassName == null || "".equals(sPInitSSOAuthnRequestValidatorClassName)) {
+            try {
+                return new SPInitSSOAuthnRequestValidator(authnRequest);
+            } catch (IdentityException e) {
+                log.error("Error while instantiating the SPInitSSOAuthnRequestValidator ", e);
+            }
+        } else {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Thread.currentThread().getContextClassLoader()
+                        .loadClass(sPInitSSOAuthnRequestValidatorClassName);
+                return (SSOAuthnRequestValidator) clazz.newInstance();
+
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                log.error("Error while instantiating the SPInitSSOAuthnRequestValidator ", e);
+            }
+        }
+        return null;
+    }
+
+    public static void setSPInitSSOAuthnRequestValidator(String sPInitSSOAuthnRequestValidator) {
+        sPInitSSOAuthnRequestValidatorClassName = sPInitSSOAuthnRequestValidator;
+    }
+
+
+    public static SSOAuthnRequestValidator getIdPInitSSOAuthnRequestValidator(QueryParamDTO[] queryParamDTOs, String relayState) {
+        if (iDPInitSSOAuthnRequestValidatorClassName == null || "".equals(iDPInitSSOAuthnRequestValidatorClassName)) {
+            try {
+                return new IdPInitSSOAuthnRequestValidator(queryParamDTOs,relayState);
+            } catch (IdentityException e) {
+                log.error("Error while instantiating the IdPInitSSOAuthnRequestValidator ", e);
+            }
+        } else {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Thread.currentThread().getContextClassLoader()
+                        .loadClass(iDPInitSSOAuthnRequestValidatorClassName);
+                return (SSOAuthnRequestValidator) clazz.newInstance();
+
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                log.error("Error while instantiating the IdPInitSSOAuthnRequestValidator ", e);
+            }
+        }
+        return null;
+    }
+
+    public static void setIdPInitSSOAuthnRequestValidator(String iDPInitSSOAuthnRequestValidator) {
+        iDPInitSSOAuthnRequestValidatorClassName = iDPInitSSOAuthnRequestValidator;
     }
 
 }

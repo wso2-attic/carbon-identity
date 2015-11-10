@@ -84,8 +84,7 @@ public class SAMLSSOService {
 
         if (request instanceof AuthnRequest) {
             SPInitSSOAuthnRequestValidator authnRequestValidator =
-                    new SPInitSSOAuthnRequestValidator(
-                            (AuthnRequest) request);
+                    (SPInitSSOAuthnRequestValidator) SAMLSSOUtil.getSPInitSSOAuthnRequestValidator((AuthnRequest) request);
             SAMLSSOReqValidationResponseDTO validationResp = authnRequestValidator.validate();
             validationResp.setRequestMessageString(samlReq);
             validationResp.setQueryString(queryString);
@@ -129,8 +128,8 @@ public class SAMLSSOService {
 
         SAMLSSOReqValidationResponseDTO validationResponseDTO = null;
         if(!isLogout) {
-            IdPInitSSOAuthnRequestValidator authnRequestValidator = new IdPInitSSOAuthnRequestValidator(queryParamDTOs,
-                                                                                                        relayState);
+            IdPInitSSOAuthnRequestValidator authnRequestValidator = (IdPInitSSOAuthnRequestValidator)
+                    SAMLSSOUtil.getIdPInitSSOAuthnRequestValidator(queryParamDTOs, relayState);
             validationResponseDTO = authnRequestValidator.validate();
             validationResponseDTO.setIdPInitSSO(true);
         } else {

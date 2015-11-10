@@ -101,6 +101,8 @@ public class IdentitySAMLSSOServiceComponent {
                     IdentityConstants.ServerConfig.SINGLE_LOGOUT_RETRY_INTERVAL)));
 
             SAMLSSOUtil.setResponseBuilder(IdentityUtil.getProperty("SSOService.SAMLSSOResponseBuilder"));
+            SAMLSSOUtil.setIdPInitSSOAuthnRequestValidator(IdentityUtil.getProperty("SSOService.IdPInitSSOAuthnRequestValidator"));
+            SAMLSSOUtil.setSPInitSSOAuthnRequestValidator(IdentityUtil.getProperty("SSOService.SPInitSSOAuthnRequestValidator"));
 
             log.debug("Single logout retry count is set to " + SAMLSSOUtil.getSingleLogoutRetryCount());
             log.debug("Single logout retry interval is set to " +
