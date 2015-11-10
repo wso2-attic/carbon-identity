@@ -482,12 +482,33 @@ public class IdentityUtil {
             String domain = nameWithDomain.substring(0, nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR));
             return domain.toUpperCase();
         } else {
-            RealmConfiguration realmConfiguration = IdentityTenantUtil.getRealmService().getBootstrapRealmConfiguration();
-            if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME) == null){
-                return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-            } else {
-                return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
-            }
+            return getPrimaryDomainName();
+        }
+    }
+
+    /**
+     * Appends domain name to the application name without making the domain name into uppercase
+     *
+     * @param name application name
+     * @param domainName domain name
+     * @return application name with domain name
+     */
+    public static String addDomainToName(String name, String domainName) {
+        if (name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) < 0 && !"PRIMARY".equalsIgnoreCase(domainName) && domainName != null) {
+            domainName = domainName + UserCoreConstants.DOMAIN_SEPARATOR;
+            name = domainName + name;
+        }
+
+        return name;
+    }
+
+    public static String getPrimaryDomainName() {
+        RealmConfiguration realmConfiguration = IdentityTenantUtil.getRealmService().getBootstrapRealmConfiguration();
+        if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME) != null){
+            return realmConfiguration.getUserStoreProperty(
+                    UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME).toUpperCase();
+        } else {
+            return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
     }
 

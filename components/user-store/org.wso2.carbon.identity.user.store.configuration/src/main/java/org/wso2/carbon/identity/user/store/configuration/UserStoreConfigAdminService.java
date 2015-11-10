@@ -59,6 +59,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -656,6 +657,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder = null;
         try {
+            documentFactory.setFeature(UserStoreConfigurationConstant.EXTERNAL_GENERAL_ENTITIES_URI, false);
             documentBuilder = documentFactory.newDocumentBuilder();
             Document doc = documentBuilder.parse(userStoreConfigFile);
 
@@ -671,6 +673,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             DOMSource source = new DOMSource(doc);
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
@@ -816,6 +819,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             DOMSource source = new DOMSource(doc);
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
+
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");

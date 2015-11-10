@@ -31,6 +31,7 @@ public class UserStoreConfigurationConstant {
     public static final String SECONDARY_STORAGE_CACHE_MANAGER = "secondaryStorageCacheManager";
     //random password container cache
     public static final String RANDOM_PASSWORD_CONTAINER_CACHE = "randomPasswordContainerCache";
+    public static final String EXTERNAL_GENERAL_ENTITIES_URI = "http://xml.org/sax/features/external-general-entities";
 
     private UserStoreConfigurationConstant() {
 

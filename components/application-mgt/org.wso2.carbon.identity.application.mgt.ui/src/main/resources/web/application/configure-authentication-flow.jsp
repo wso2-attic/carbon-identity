@@ -48,12 +48,11 @@
 	StringBuffer localAuthTypes = new StringBuffer();
 	String startOption = "<option value=\"";
 	String middleOption = "\">";
-	String endOPtion = "</option>";	
-	String disbleText = " (Disabled)";
+	String endOption = "</option>";
 	
 	if (localAuthenticatorConfigs!=null && localAuthenticatorConfigs.length>0) {
 		for(LocalAuthenticatorConfig auth : localAuthenticatorConfigs) {
-			localAuthTypes.append(startOption + Encode.forHtmlAttribute(auth.getName()) + middleOption + Encode.forHtmlContent(auth.getDisplayName()) + endOPtion);
+			localAuthTypes.append(startOption + Encode.forHtmlAttribute(auth.getName()) + middleOption + Encode.forHtmlContent(auth.getDisplayName()) + endOption);
 		}
 	}
 
@@ -86,13 +85,13 @@ var authMap = {};
 						fedAuthenticatorDisplayType.append(fedAuth.getDisplayName());
 						fedAuthenticatorType.append(fedAuth.getName());
 					}else{
-						fedAuthenticatorDisplayType.append(fedAuth.getDisplayName() + ",");
-						fedAuthenticatorType.append(fedAuth.getName() + ",");
+						fedAuthenticatorDisplayType.append(fedAuth.getDisplayName() + "%fed_auth_sep_%");
+						fedAuthenticatorType.append(fedAuth.getName() + "%fed_auth_sep_%");
 					}
 					
-					fedAuthType.append(startOption + Encode.forHtmlAttribute(fedAuth.getName()) + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOPtion);
+					fedAuthType.append(startOption + Encode.forHtmlAttribute(fedAuth.getName()) + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOption);
 					if(fedAuth.getEnabled()){
-						enabledfedAuthType.append(startOption + Encode.forHtmlAttribute(fedAuth.getName()) + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOPtion);
+						enabledfedAuthType.append(startOption + Encode.forHtmlAttribute(fedAuth.getName()) + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOption);
 					}
 					idpAuthenticatorsStatus.put(idp.getIdentityProviderName()+"_"+fedAuth.getName(), fedAuth.getEnabled());
 					i++;
@@ -101,9 +100,9 @@ var authMap = {};
 				idpAuthenticators.put(idp.getIdentityProviderName(), fedAuthType.toString());
 				enabledIdpAuthenticators.put(idp.getIdentityProviderName(), enabledfedAuthType.toString());
 				
-				idpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+ Encode.forHtmlAttribute(fedAuthenticatorDisplayType.toString()) + "\""+ " data-values=\""+ Encode.forHtmlAttribute(fedAuthenticatorType.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOPtion);
+				idpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+ Encode.forHtmlAttribute(fedAuthenticatorDisplayType.toString()) + "\""+ " data-values=\""+ Encode.forHtmlAttribute(fedAuthenticatorType.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOption);
 				if(idp.getEnable() && enabledfedAuthType.length() > 0){
-					enabledIdpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+ Encode.forHtmlAttribute(fedAuthenticatorDisplayType.toString()) + "\""+ " data-values=\""+ Encode.forHtmlAttribute(fedAuthenticatorType.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOPtion);
+					enabledIdpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+ Encode.forHtmlAttribute(fedAuthenticatorDisplayType.toString()) + "\""+ " data-values=\""+ Encode.forHtmlAttribute(fedAuthenticatorType.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOption);
 				}
 			} 
 		}
@@ -122,18 +121,14 @@ var authMap = {};
 					FederatedAuthenticatorConfig fedAuth = idp.getDefaultAuthenticatorConfig();
 					String options = idpAuthenticators.get(idp.getIdentityProviderName());
 					if (fedAuth != null && options != null) {
-						String oldOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOPtion;
-						String newOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName())+ ((idpAuthenticatorsStatus.get(idp.getIdentityProviderName()+"_"+fedAuth.getName()) != null && idpAuthenticatorsStatus.get(idp.getIdentityProviderName()+"_"+fedAuth.getName()))  ? "" : disbleText) + endOPtion;
+						String oldOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOption;
+						String newOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName()) + endOption;
 						if(options.contains(oldOption)){
 							options = options.replace(oldOption, newOption);
 						} else {
 							options = options + newOption;
 						}
 						stepIdpAuthenticators.put(step.getStepOrder()+"_"+idp.getIdentityProviderName(), options);
-					} else if (fedAuth != null && options == null) {
-						// All Federated Authenticators are disabled. But saved one is available
-						String disabledOption = startOption + Encode.forHtmlAttribute(fedAuth.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(fedAuth.getDisplayName())+ disbleText + endOPtion;
-						stepIdpAuthenticators.put(step.getStepOrder()+"_"+idp.getIdentityProviderName(), disabledOption);
 					} else {
 						// No saved Federated Authenticators
 						options = enabledIdpAuthenticators.get(idp.getIdentityProviderName());
@@ -332,8 +327,8 @@ var img = "";
 		}
 		
 		//var stepID = jQuery(obj).parent().children()[1].value;
-		var dataArray =  selectedObj.attr('data').split(',');
-		var valuesArray = selectedObj.attr('data-values').split(',');
+		var dataArray =  selectedObj.attr('data').split('%fed_auth_sep_%');
+		var valuesArray = selectedObj.attr('data-values').split('%fed_auth_sep_%');
 		var newRow = '<tr><td><input name="step_'+ stepID +'_fed_auth" id="" type="hidden" value="' + selectedIDPName + '" />' + selectedIDPName + ' </td><td> <select name="step_'+ stepID +'_idp_'+selectedIDPName+'_fed_authenticator" style="float: left; min-width: 150px;font-size:13px;">';
 		for(var i=0;i<dataArray.length;i++){
 			newRow+='<option value="'+valuesArray[i]+'">'+dataArray[i]+'</option>';	
@@ -493,7 +488,7 @@ var img = "";
 							      	       <tr>
 							      	      	   <td>
 							      	      		<input name="step_<%=step.getStepOrder()%>_fed_auth" id="" type="hidden" value="<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" />
-							      	      			<%=Encode.forHtmlContent(idp.getIdentityProviderName()) + (idpEnableStatus.get(idp.getIdentityProviderName()) != null && idpEnableStatus.get(idp.getIdentityProviderName()) ? "" : disbleText) %>
+							      	      			<%=Encode.forHtmlContent(idp.getIdentityProviderName()) %>
 							      	      		</td>
 							      	      		<td>
                                                     <select name="step_<%=step.getStepOrder()%>_idp_<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>_fed_authenticator" style="float: left; min-width: 150px;font-size:13px;"><%=stepIdpAuthenticators.get(step.getStepOrder() +"_"+ idp.getIdentityProviderName())%></select>
