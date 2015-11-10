@@ -40,9 +40,48 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="asssociateTwoAccounts">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="userName2" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="associateMyAccounts">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName1" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="password1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="userName2" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="password2" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="deleteUserAccountAssociation">
                 <xs:complexType>
                     <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="deleteMyAssociations">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="deleteAssociationsOfUser">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="deleteMyAssociationsWithoutLogin">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="initiateUser" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="password" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
@@ -59,29 +98,29 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getAccountAssociationsOfUserAsAdmin">
+            <xs:element name="getAccountAssociations">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="username" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getAccountAssociationsOfUserAsAdminResponse">
+            <xs:element name="getAccountAssociationsResponse">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2375:UserAccountAssociationDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getAccountAssociationsOfUserWithoutLogin">
+            <xs:element name="getMyAccountAssociationsWithoutLogin">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
-                        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="password" nillable="true" type="xs:string"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="getAccountAssociationsOfUserWithoutLoginResponse">
+            <xs:element name="getMyAccountAssociationsWithoutLoginResponse">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2375:UserAccountAssociationDTO"/>
@@ -104,20 +143,20 @@
             </xs:element>
         </xs:schema>
     </wsdl:types>
+    <wsdl:message name="getAccountAssociationsRequest">
+        <wsdl:part name="parameters" element="ns:getAccountAssociations"/>
+    </wsdl:message>
+    <wsdl:message name="getAccountAssociationsResponse">
+        <wsdl:part name="parameters" element="ns:getAccountAssociationsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="UserAccountAssociationServiceUserAccountAssociationClientException">
+        <wsdl:part name="parameters" element="ns:UserAccountAssociationServiceUserAccountAssociationClientException"/>
+    </wsdl:message>
     <wsdl:message name="switchLoggedInUserRequest">
         <wsdl:part name="parameters" element="ns:switchLoggedInUser"/>
     </wsdl:message>
     <wsdl:message name="switchLoggedInUserResponse">
         <wsdl:part name="parameters" element="ns:switchLoggedInUserResponse"/>
-    </wsdl:message>
-    <wsdl:message name="UserAccountAssociationServiceUserAccountAssociationClientException">
-        <wsdl:part name="parameters" element="ns:UserAccountAssociationServiceUserAccountAssociationClientException"/>
-    </wsdl:message>
-    <wsdl:message name="getAccountAssociationsOfUserWithoutLoginRequest">
-        <wsdl:part name="parameters" element="ns:getAccountAssociationsOfUserWithoutLogin"/>
-    </wsdl:message>
-    <wsdl:message name="getAccountAssociationsOfUserWithoutLoginResponse">
-        <wsdl:part name="parameters" element="ns:getAccountAssociationsOfUserWithoutLoginResponse"/>
     </wsdl:message>
     <wsdl:message name="deleteUserAccountAssociationRequest">
         <wsdl:part name="parameters" element="ns:deleteUserAccountAssociation"/>
@@ -127,28 +166,47 @@
         <wsdl:part name="parameters" element="ns:createUserAccountAssociation"/>
     </wsdl:message>
     <wsdl:message name="createUserAccountAssociationResponse"/>
+    <wsdl:message name="asssociateTwoAccountsRequest">
+        <wsdl:part name="parameters" element="ns:asssociateTwoAccounts"/>
+    </wsdl:message>
+    <wsdl:message name="deleteMyAssociationsRequest">
+        <wsdl:part name="parameters" element="ns:deleteMyAssociations"/>
+    </wsdl:message>
+    <wsdl:message name="deleteMyAssociationsResponse"/>
     <wsdl:message name="getAccountAssociationsOfUserRequest">
         <wsdl:part name="parameters" element="ns:getAccountAssociationsOfUser"/>
     </wsdl:message>
     <wsdl:message name="getAccountAssociationsOfUserResponse">
         <wsdl:part name="parameters" element="ns:getAccountAssociationsOfUserResponse"/>
     </wsdl:message>
-    <wsdl:message name="getAccountAssociationsOfUserAsAdminRequest">
-        <wsdl:part name="parameters" element="ns:getAccountAssociationsOfUserAsAdmin"/>
+    <wsdl:message name="deleteMyAssociationsWithoutLoginRequest">
+        <wsdl:part name="parameters" element="ns:deleteMyAssociationsWithoutLogin"/>
     </wsdl:message>
-    <wsdl:message name="getAccountAssociationsOfUserAsAdminResponse">
-        <wsdl:part name="parameters" element="ns:getAccountAssociationsOfUserAsAdminResponse"/>
+    <wsdl:message name="deleteMyAssociationsWithoutLoginResponse"/>
+    <wsdl:message name="deleteAssociationsOfUserRequest">
+        <wsdl:part name="parameters" element="ns:deleteAssociationsOfUser"/>
     </wsdl:message>
+    <wsdl:message name="deleteAssociationsOfUserResponse"/>
+    <wsdl:message name="getMyAccountAssociationsWithoutLoginRequest">
+        <wsdl:part name="parameters" element="ns:getMyAccountAssociationsWithoutLogin"/>
+    </wsdl:message>
+    <wsdl:message name="getMyAccountAssociationsWithoutLoginResponse">
+        <wsdl:part name="parameters" element="ns:getMyAccountAssociationsWithoutLoginResponse"/>
+    </wsdl:message>
+    <wsdl:message name="associateMyAccountsRequest">
+        <wsdl:part name="parameters" element="ns:associateMyAccounts"/>
+    </wsdl:message>
+    <wsdl:message name="associateMyAccountsResponse"/>
     <wsdl:portType name="UserAccountAssociationServicePortType">
+        <wsdl:operation name="getAccountAssociations">
+            <wsdl:input message="ns:getAccountAssociationsRequest" wsaw:Action="urn:getAccountAssociations"/>
+            <wsdl:output message="ns:getAccountAssociationsResponse" wsaw:Action="urn:getAccountAssociationsResponse"/>
+            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:getAccountAssociationsUserAccountAssociationServiceUserAccountAssociationClientException"/>
+        </wsdl:operation>
         <wsdl:operation name="switchLoggedInUser">
             <wsdl:input message="ns:switchLoggedInUserRequest" wsaw:Action="urn:switchLoggedInUser"/>
             <wsdl:output message="ns:switchLoggedInUserResponse" wsaw:Action="urn:switchLoggedInUserResponse"/>
             <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:switchLoggedInUserUserAccountAssociationServiceUserAccountAssociationClientException"/>
-        </wsdl:operation>
-        <wsdl:operation name="getAccountAssociationsOfUserWithoutLogin">
-            <wsdl:input message="ns:getAccountAssociationsOfUserWithoutLoginRequest" wsaw:Action="urn:getAccountAssociationsOfUserWithoutLogin"/>
-            <wsdl:output message="ns:getAccountAssociationsOfUserWithoutLoginResponse" wsaw:Action="urn:getAccountAssociationsOfUserWithoutLoginResponse"/>
-            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:getAccountAssociationsOfUserWithoutLoginUserAccountAssociationServiceUserAccountAssociationClientException"/>
         </wsdl:operation>
         <wsdl:operation name="deleteUserAccountAssociation">
             <wsdl:input message="ns:deleteUserAccountAssociationRequest" wsaw:Action="urn:deleteUserAccountAssociation"/>
@@ -160,21 +218,45 @@
             <wsdl:output message="ns:createUserAccountAssociationResponse" wsaw:Action="urn:createUserAccountAssociationResponse"/>
             <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:createUserAccountAssociationUserAccountAssociationServiceUserAccountAssociationClientException"/>
         </wsdl:operation>
+        <wsdl:operation name="asssociateTwoAccounts">
+            <wsdl:input message="ns:asssociateTwoAccountsRequest" wsaw:Action="urn:asssociateTwoAccounts"/>
+            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:asssociateTwoAccountsUserAccountAssociationServiceUserAccountAssociationClientException"/>
+        </wsdl:operation>
+        <wsdl:operation name="deleteMyAssociations">
+            <wsdl:input message="ns:deleteMyAssociationsRequest" wsaw:Action="urn:deleteMyAssociations"/>
+            <wsdl:output message="ns:deleteMyAssociationsResponse" wsaw:Action="urn:deleteMyAssociationsResponse"/>
+            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:deleteMyAssociationsUserAccountAssociationServiceUserAccountAssociationClientException"/>
+        </wsdl:operation>
         <wsdl:operation name="getAccountAssociationsOfUser">
             <wsdl:input message="ns:getAccountAssociationsOfUserRequest" wsaw:Action="urn:getAccountAssociationsOfUser"/>
             <wsdl:output message="ns:getAccountAssociationsOfUserResponse" wsaw:Action="urn:getAccountAssociationsOfUserResponse"/>
             <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:getAccountAssociationsOfUserUserAccountAssociationServiceUserAccountAssociationClientException"/>
         </wsdl:operation>
-        <wsdl:operation name="getAccountAssociationsOfUserAsAdmin">
-            <wsdl:input message="ns:getAccountAssociationsOfUserAsAdminRequest" wsaw:Action="urn:getAccountAssociationsOfUserAsAdmin"/>
-            <wsdl:output message="ns:getAccountAssociationsOfUserAsAdminResponse" wsaw:Action="urn:getAccountAssociationsOfUserAsAdminResponse"/>
-            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:getAccountAssociationsOfUserAsAdminUserAccountAssociationServiceUserAccountAssociationClientException"/>
+        <wsdl:operation name="deleteMyAssociationsWithoutLogin">
+            <wsdl:input message="ns:deleteMyAssociationsWithoutLoginRequest" wsaw:Action="urn:deleteMyAssociationsWithoutLogin"/>
+            <wsdl:output message="ns:deleteMyAssociationsWithoutLoginResponse" wsaw:Action="urn:deleteMyAssociationsWithoutLoginResponse"/>
+            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:deleteMyAssociationsWithoutLoginUserAccountAssociationServiceUserAccountAssociationClientException"/>
+        </wsdl:operation>
+        <wsdl:operation name="deleteAssociationsOfUser">
+            <wsdl:input message="ns:deleteAssociationsOfUserRequest" wsaw:Action="urn:deleteAssociationsOfUser"/>
+            <wsdl:output message="ns:deleteAssociationsOfUserResponse" wsaw:Action="urn:deleteAssociationsOfUserResponse"/>
+            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:deleteAssociationsOfUserUserAccountAssociationServiceUserAccountAssociationClientException"/>
+        </wsdl:operation>
+        <wsdl:operation name="getMyAccountAssociationsWithoutLogin">
+            <wsdl:input message="ns:getMyAccountAssociationsWithoutLoginRequest" wsaw:Action="urn:getMyAccountAssociationsWithoutLogin"/>
+            <wsdl:output message="ns:getMyAccountAssociationsWithoutLoginResponse" wsaw:Action="urn:getMyAccountAssociationsWithoutLoginResponse"/>
+            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:getMyAccountAssociationsWithoutLoginUserAccountAssociationServiceUserAccountAssociationClientException"/>
+        </wsdl:operation>
+        <wsdl:operation name="associateMyAccounts">
+            <wsdl:input message="ns:associateMyAccountsRequest" wsaw:Action="urn:associateMyAccounts"/>
+            <wsdl:output message="ns:associateMyAccountsResponse" wsaw:Action="urn:associateMyAccountsResponse"/>
+            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:associateMyAccountsUserAccountAssociationServiceUserAccountAssociationClientException"/>
         </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="UserAccountAssociationServiceSoap11Binding" type="ns:UserAccountAssociationServicePortType">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <wsdl:operation name="switchLoggedInUser">
-            <soap:operation soapAction="urn:switchLoggedInUser" style="document"/>
+        <wsdl:operation name="getAccountAssociations">
+            <soap:operation soapAction="urn:getAccountAssociations" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -185,8 +267,8 @@
                 <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getAccountAssociationsOfUserWithoutLogin">
-            <soap:operation soapAction="urn:getAccountAssociationsOfUserWithoutLogin" style="document"/>
+        <wsdl:operation name="switchLoggedInUser">
+            <soap:operation soapAction="urn:switchLoggedInUser" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -221,6 +303,27 @@
                 <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
             </wsdl:fault>
         </wsdl:operation>
+        <wsdl:operation name="asssociateTwoAccounts">
+            <soap:operation soapAction="urn:asssociateTwoAccounts" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteMyAssociations">
+            <soap:operation soapAction="urn:deleteMyAssociations" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="getAccountAssociationsOfUser">
             <soap:operation soapAction="urn:getAccountAssociationsOfUser" style="document"/>
             <wsdl:input>
@@ -233,8 +336,44 @@
                 <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getAccountAssociationsOfUserAsAdmin">
-            <soap:operation soapAction="urn:getAccountAssociationsOfUserAsAdmin" style="document"/>
+        <wsdl:operation name="deleteMyAssociationsWithoutLogin">
+            <soap:operation soapAction="urn:deleteMyAssociationsWithoutLogin" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteAssociationsOfUser">
+            <soap:operation soapAction="urn:deleteAssociationsOfUser" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getMyAccountAssociationsWithoutLogin">
+            <soap:operation soapAction="urn:getMyAccountAssociationsWithoutLogin" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="associateMyAccounts">
+            <soap:operation soapAction="urn:associateMyAccounts" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -248,8 +387,8 @@
     </wsdl:binding>
     <wsdl:binding name="UserAccountAssociationServiceSoap12Binding" type="ns:UserAccountAssociationServicePortType">
         <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <wsdl:operation name="switchLoggedInUser">
-            <soap12:operation soapAction="urn:switchLoggedInUser" style="document"/>
+        <wsdl:operation name="getAccountAssociations">
+            <soap12:operation soapAction="urn:getAccountAssociations" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -260,8 +399,8 @@
                 <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getAccountAssociationsOfUserWithoutLogin">
-            <soap12:operation soapAction="urn:getAccountAssociationsOfUserWithoutLogin" style="document"/>
+        <wsdl:operation name="switchLoggedInUser">
+            <soap12:operation soapAction="urn:switchLoggedInUser" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -296,6 +435,27 @@
                 <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
             </wsdl:fault>
         </wsdl:operation>
+        <wsdl:operation name="asssociateTwoAccounts">
+            <soap12:operation soapAction="urn:asssociateTwoAccounts" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteMyAssociations">
+            <soap12:operation soapAction="urn:deleteMyAssociations" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="getAccountAssociationsOfUser">
             <soap12:operation soapAction="urn:getAccountAssociationsOfUser" style="document"/>
             <wsdl:input>
@@ -308,8 +468,44 @@
                 <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="getAccountAssociationsOfUserAsAdmin">
-            <soap12:operation soapAction="urn:getAccountAssociationsOfUserAsAdmin" style="document"/>
+        <wsdl:operation name="deleteMyAssociationsWithoutLogin">
+            <soap12:operation soapAction="urn:deleteMyAssociationsWithoutLogin" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="deleteAssociationsOfUser">
+            <soap12:operation soapAction="urn:deleteAssociationsOfUser" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getMyAccountAssociationsWithoutLogin">
+            <soap12:operation soapAction="urn:getMyAccountAssociationsWithoutLogin" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="associateMyAccounts">
+            <soap12:operation soapAction="urn:associateMyAccounts" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -323,8 +519,8 @@
     </wsdl:binding>
     <wsdl:binding name="UserAccountAssociationServiceHttpBinding" type="ns:UserAccountAssociationServicePortType">
         <http:binding verb="POST"/>
-        <wsdl:operation name="switchLoggedInUser">
-            <http:operation location="switchLoggedInUser"/>
+        <wsdl:operation name="getAccountAssociations">
+            <http:operation location="getAccountAssociations"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -332,8 +528,8 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getAccountAssociationsOfUserWithoutLogin">
-            <http:operation location="getAccountAssociationsOfUserWithoutLogin"/>
+        <wsdl:operation name="switchLoggedInUser">
+            <http:operation location="switchLoggedInUser"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>
@@ -359,6 +555,21 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="asssociateTwoAccounts">
+            <http:operation location="asssociateTwoAccounts"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="deleteMyAssociations">
+            <http:operation location="deleteMyAssociations"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getAccountAssociationsOfUser">
             <http:operation location="getAccountAssociationsOfUser"/>
             <wsdl:input>
@@ -368,8 +579,35 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getAccountAssociationsOfUserAsAdmin">
-            <http:operation location="getAccountAssociationsOfUserAsAdmin"/>
+        <wsdl:operation name="deleteMyAssociationsWithoutLogin">
+            <http:operation location="deleteMyAssociationsWithoutLogin"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="deleteAssociationsOfUser">
+            <http:operation location="deleteAssociationsOfUser"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMyAccountAssociationsWithoutLogin">
+            <http:operation location="getMyAccountAssociationsWithoutLogin"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="associateMyAccounts">
+            <http:operation location="associateMyAccounts"/>
             <wsdl:input>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:input>

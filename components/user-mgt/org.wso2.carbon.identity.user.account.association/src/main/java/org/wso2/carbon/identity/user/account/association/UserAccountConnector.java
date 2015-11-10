@@ -26,11 +26,11 @@ public interface UserAccountConnector {
     /**
      * Create new user account association
      *
-     * @param userName
-     * @param password
+     * @param userName1
+     * @param userName2
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException
      */
-    void createUserAccountAssociation(String userName, char [] password) throws UserAccountAssociationException;
+    void createUserAccountAssociation(String userName1, String userName2) throws UserAccountAssociationException;
 
     /**
      * Delete an existing user account association
@@ -39,13 +39,6 @@ public interface UserAccountConnector {
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException
      */
     void deleteUserAccountAssociation(String userName) throws UserAccountAssociationException;
-
-    /**
-     * Get all associated accounts of the logged in user
-     *
-     * @return
-     * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException
-     */
 
     /**
      * Get all associated accounts of the logged in user

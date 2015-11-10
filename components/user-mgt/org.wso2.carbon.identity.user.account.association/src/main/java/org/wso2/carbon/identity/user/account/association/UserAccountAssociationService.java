@@ -22,14 +22,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.identity.user.account.association.dao.UserAccountAssociationDAO;
 import org.wso2.carbon.identity.user.account.association.dto.UserAccountAssociationDTO;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationServerException;
 import org.wso2.carbon.identity.user.account.association.internal.IdentityAccountAssociationServiceComponent;
 import org.wso2.carbon.identity.user.account.association.util.UserAccountAssociationConstants;
+import org.wso2.carbon.identity.user.account.association.util.UserAccountAssociationUtil;
 import org.wso2.carbon.user.api.UserRealmService;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 public class UserAccountAssociationService extends AbstractAdmin {
@@ -43,14 +48,191 @@ public class UserAccountAssociationService extends AbstractAdmin {
      * @param password
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
      */
-    public void createUserAccountAssociation(String userName, char [] password) throws
-                                                                     UserAccountAssociationClientException {
+    public void createUserAccountAssociation(String userName, char[] password) throws
+            UserAccountAssociationClientException {
+
+        String loggedInUser = UserCoreUtil.addTenantDomainToEntry(CarbonContext.getThreadLocalCarbonContext()
+                .getUsername(), CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
+
+        org.wso2.carbon.user.api.UserRealm userRealm = null;
+        RealmService realmService = null;
+        String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
+        int tenantId = -1;
         try {
-            UserAccountConnectorImpl.getInstance().createUserAccountAssociation(userName, password);
+            realmService = IdentityAccountAssociationServiceComponent.getRealmService();
+            tenantId = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(userName));
+        } catch (UserStoreException e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_GETTING_TENANT_ID
+                    .getDescription(), e);
+        } catch (Exception e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_LOADING_REALM_SERVICE
+                    .getDescription(), e);
+        }
+
+        if (MultitenantConstants.INVALID_TENANT_ID == tenantId) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format(UserAccountAssociationConstants.ErrorMessages.DEBUG_INVALID_TENANT_DOMAIN
+                        .getDescription(), MultitenantUtils.getTenantDomain(userName)));
+            }
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .INVALID_TENANT_DOMAIN.toString());
+        }
+        boolean authentic = false;
+        try {
+            userRealm = realmService.getTenantUserRealm(tenantId);
+            authentic = userRealm.getUserStoreManager().authenticate(tenantAwareUsername, String.valueOf(password));
+        } catch (UserStoreException e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_AUTHENTICATING_USER
+                    .getDescription(), e);
+        }
+
+        if (!authentic) {
+            if (log.isDebugEnabled()) {
+                log.debug(UserAccountAssociationConstants.ErrorMessages.USER_NOT_AUTHENTIC.getDescription());
+
+            }
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .USER_NOT_AUTHENTIC.toString());
+        }
+        try {
+            UserAccountConnectorImpl.getInstance().createUserAccountAssociation(loggedInUser, userName);
         } catch (UserAccountAssociationServerException e) {
             log.error(UserAccountAssociationConstants.ErrorMessages.ACCOUNT_CONNECTING_ERROR.getDescription(), e);
             throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
-                                                                    .ACCOUNT_CONNECTING_ERROR.toString());
+                    .ACCOUNT_CONNECTING_ERROR.toString());
+        } catch (UserAccountAssociationException e) {
+            throw (UserAccountAssociationClientException) e;
+        }
+    }
+
+    /**
+     * Create new user account association as admin
+     *
+     * @param userName1
+     * @param userName2
+     * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
+     */
+    public void asssociateTwoAccounts(String userName1, String userName2) throws UserAccountAssociationClientException {
+
+        org.wso2.carbon.user.api.UserRealm userRealm = null;
+        RealmService realmService = null;
+        String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName2);
+        int tenantId = -1;
+        try {
+            realmService = IdentityAccountAssociationServiceComponent.getRealmService();
+            tenantId = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(userName2));
+        } catch (UserStoreException e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_GETTING_TENANT_ID
+                    .getDescription(), e);
+        } catch (Exception e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_LOADING_REALM_SERVICE
+                    .getDescription(), e);
+        }
+
+        if (MultitenantConstants.INVALID_TENANT_ID == tenantId) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format(UserAccountAssociationConstants.ErrorMessages.DEBUG_INVALID_TENANT_DOMAIN
+                        .getDescription(), MultitenantUtils.getTenantDomain(userName2)));
+            }
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .INVALID_TENANT_DOMAIN.toString());
+        }
+        try {
+            UserAccountConnectorImpl.getInstance().createUserAccountAssociation(userName1, userName2);
+        } catch (UserAccountAssociationServerException e) {
+            log.error(UserAccountAssociationConstants.ErrorMessages.ACCOUNT_CONNECTING_ERROR.getDescription(), e);
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ACCOUNT_CONNECTING_ERROR.toString());
+        } catch (UserAccountAssociationException e) {
+            throw (UserAccountAssociationClientException) e;
+        }
+    }
+
+    /**
+     * Create new user account association without login
+     *
+     * @param userName1
+     * @param password1
+     * @param userName2
+     * @param password2
+     * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
+     */
+    public void associateMyAccounts(String userName1, char[] password1, String userName2, char[] password2) throws
+            UserAccountAssociationClientException {
+
+        org.wso2.carbon.user.api.UserRealm userRealm = null;
+        RealmService realmService = null;
+        String tenantAwareUsername1 = MultitenantUtils.getTenantAwareUsername(userName1);
+        String tenantAwareUsername2 = MultitenantUtils.getTenantAwareUsername(userName2);
+        int tenantId1 = -1;
+        int tenantId2 = -1;
+        try {
+            realmService = IdentityAccountAssociationServiceComponent.getRealmService();
+            tenantId1 = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(userName1));
+            tenantId2 = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(userName2));
+        } catch (UserStoreException e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_GETTING_TENANT_ID
+                    .getDescription(), e);
+        } catch (Exception e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_LOADING_REALM_SERVICE
+                    .getDescription(), e);
+        }
+        if (MultitenantConstants.INVALID_TENANT_ID == tenantId1) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format(UserAccountAssociationConstants.ErrorMessages.DEBUG_INVALID_TENANT_DOMAIN
+                        .getDescription(), MultitenantUtils.getTenantDomain(userName1)));
+            }
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .INVALID_TENANT_DOMAIN.toString());
+        }
+        if (MultitenantConstants.INVALID_TENANT_ID == tenantId2) {
+            if (log.isDebugEnabled()) {
+                log.debug(String.format(UserAccountAssociationConstants.ErrorMessages.DEBUG_INVALID_TENANT_DOMAIN
+                        .getDescription(), MultitenantUtils.getTenantDomain(userName2)));
+            }
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .INVALID_TENANT_DOMAIN.toString());
+        }
+        boolean authentic1 = false;
+        try {
+            userRealm = realmService.getTenantUserRealm(tenantId1);
+            authentic1 = userRealm.getUserStoreManager().authenticate(tenantAwareUsername1, String.valueOf(password1));
+        } catch (UserStoreException e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_AUTHENTICATING_USER
+                    .getDescription(), e);
+        }
+        boolean authentic2 = false;
+        try {
+            userRealm = realmService.getTenantUserRealm(tenantId2);
+            authentic2 = userRealm.getUserStoreManager().authenticate(tenantAwareUsername2, String.valueOf(password2));
+        } catch (UserStoreException e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_AUTHENTICATING_USER
+                    .getDescription(), e);
+        }
+
+        if (!authentic1 || !authentic2) {
+            if (log.isDebugEnabled()) {
+                log.debug(UserAccountAssociationConstants.ErrorMessages.USER_NOT_AUTHENTIC.getDescription());
+
+            }
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .USER_NOT_AUTHENTIC.toString());
+        }
+        try {
+            UserAccountConnectorImpl.getInstance().createUserAccountAssociation(userName1, userName2);
+        } catch (UserAccountAssociationServerException e) {
+            log.error(UserAccountAssociationConstants.ErrorMessages.ACCOUNT_CONNECTING_ERROR.getDescription(), e);
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ACCOUNT_CONNECTING_ERROR.toString());
         } catch (UserAccountAssociationException e) {
             throw (UserAccountAssociationClientException) e;
         }
@@ -63,12 +245,153 @@ public class UserAccountAssociationService extends AbstractAdmin {
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
      */
     public void deleteUserAccountAssociation(String userName) throws UserAccountAssociationClientException {
+
+        String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
+        int tenantId = -1;
+        RealmService realmService = null;
+
+        try {
+            realmService = IdentityAccountAssociationServiceComponent.getRealmService();
+            tenantId = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(userName));
+        } catch (UserStoreException e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_GETTING_TENANT_ID
+                    .getDescription(), e);
+        } catch (Exception e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_LOADING_REALM_SERVICE
+                    .getDescription(), e);
+        }
+        String domainName = UserAccountAssociationUtil.getDomainName(tenantAwareUsername);
+        tenantAwareUsername = UserAccountAssociationUtil.getUsernameWithoutDomain(tenantAwareUsername);
+        try {
+            if (!UserAccountAssociationDAO.getInstance().isValidUserAssociation(domainName, tenantId,
+                    tenantAwareUsername)) {
+                if (log.isDebugEnabled()) {
+                    log.debug(UserAccountAssociationConstants.ErrorMessages.INVALID_ASSOCIATION.getDescription());
+
+                }
+                throw new UserAccountAssociationClientException(UserAccountAssociationConstants
+                        .ErrorMessages.INVALID_ASSOCIATION.toString());
+            }
+            UserAccountConnectorImpl.getInstance().deleteUserAccountAssociation(userName);
+        } catch (UserAccountAssociationServerException e) {
+            log.error(UserAccountAssociationConstants.ErrorMessages.CONN_DELETE_ERROR.getDescription(), e);
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .CONN_DELETE_ERROR.toString());
+        } catch (UserAccountAssociationException e) {
+            throw (UserAccountAssociationClientException) e;
+        }
+    }
+
+    /**
+     * Delete account association of logged in user
+     *
+     * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
+     */
+    public void deleteMyAssociations() throws UserAccountAssociationClientException {
+
+        String userName = UserCoreUtil.addTenantDomainToEntry(CarbonContext.getThreadLocalCarbonContext()
+                .getUsername(), CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
         try {
             UserAccountConnectorImpl.getInstance().deleteUserAccountAssociation(userName);
         } catch (UserAccountAssociationServerException e) {
             log.error(UserAccountAssociationConstants.ErrorMessages.CONN_DELETE_ERROR.getDescription(), e);
             throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
-                                                                    .CONN_DELETE_ERROR.toString());
+                    .CONN_DELETE_ERROR.toString());
+        } catch (UserAccountAssociationException e) {
+            throw (UserAccountAssociationClientException) e;
+        }
+    }
+
+    /**
+     * Delete an existing user account association as admin
+     *
+     * @param userName
+     * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
+     */
+    public void deleteAssociationsOfUser(String userName) throws UserAccountAssociationClientException {
+
+        try {
+            UserAccountConnectorImpl.getInstance().deleteUserAccountAssociation(userName);
+        } catch (UserAccountAssociationServerException e) {
+            log.error(UserAccountAssociationConstants.ErrorMessages.CONN_DELETE_ERROR.getDescription(), e);
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .CONN_DELETE_ERROR.toString());
+        } catch (UserAccountAssociationException e) {
+            throw (UserAccountAssociationClientException) e;
+        }
+    }
+
+    /**
+     * Delete an existing user account association of user without login
+     *
+     * @param initiateUser
+     * @param password
+     * @param userName
+     * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
+     */
+    public void deleteMyAssociationsWithoutLogin(String initiateUser, char[] password, String userName) throws
+            UserAccountAssociationClientException {
+
+        String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
+        String initiator = MultitenantUtils.getTenantAwareUsername(initiateUser);
+        int tenantId = -1;
+        int tenantIdOfInitiateUser = -1;
+        RealmService realmService = null;
+
+        try {
+            realmService = IdentityAccountAssociationServiceComponent.getRealmService();
+            tenantId = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(userName));
+            tenantIdOfInitiateUser = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain
+                    (initiateUser));
+        } catch (UserStoreException e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_GETTING_TENANT_ID
+                    .getDescription(), e);
+        } catch (Exception e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_LOADING_REALM_SERVICE
+                    .getDescription(), e);
+        }
+        String domainName = UserAccountAssociationUtil.getDomainName(tenantAwareUsername);
+        tenantAwareUsername = UserAccountAssociationUtil.getUsernameWithoutDomain(tenantAwareUsername);
+        String domainNameOfInitiator = UserAccountAssociationUtil.getDomainName(initiator);
+        initiator = UserAccountAssociationUtil.getUsernameWithoutDomain(initiator);
+        boolean authentic = false;
+        org.wso2.carbon.user.api.UserRealm userRealm = null;
+        try {
+            userRealm = realmService.getTenantUserRealm(tenantIdOfInitiateUser);
+            authentic = userRealm.getUserStoreManager().authenticate(initiator, String.valueOf(password));
+        } catch (UserStoreException e) {
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .ERROR_WHILE_AUTHENTICATING_USER
+                    .getDescription(), e);
+        }
+        if (!authentic) {
+            if (log.isDebugEnabled()) {
+                log.debug(UserAccountAssociationConstants.ErrorMessages.USER_NOT_AUTHENTIC.getDescription());
+
+            }
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .USER_NOT_AUTHENTIC.toString());
+        }
+        try {
+            if (!UserAccountAssociationDAO.getInstance().isValidUserAssociation(domainNameOfInitiator,
+                    tenantIdOfInitiateUser, initiator, domainName, tenantId, tenantAwareUsername) && initiateUser !=
+                    userName) {
+                if (log.isDebugEnabled()) {
+                    log.debug(UserAccountAssociationConstants.ErrorMessages.INVALID_ASSOCIATION.getDescription());
+
+                }
+                throw new UserAccountAssociationClientException(UserAccountAssociationConstants
+                        .ErrorMessages.INVALID_ASSOCIATION.toString());
+            }
+            UserAccountConnectorImpl.getInstance().deleteUserAccountAssociation(userName);
+        } catch (UserAccountAssociationServerException e) {
+            log.error(UserAccountAssociationConstants.ErrorMessages.CONN_DELETE_ERROR.getDescription(), e);
+            throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
+                    .CONN_DELETE_ERROR.toString());
         } catch (UserAccountAssociationException e) {
             throw (UserAccountAssociationClientException) e;
         }
@@ -81,12 +404,14 @@ public class UserAccountAssociationService extends AbstractAdmin {
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
      */
     public UserAccountAssociationDTO[] getAccountAssociationsOfUser() throws UserAccountAssociationClientException {
+        String loggedInUser = UserCoreUtil.addTenantDomainToEntry(CarbonContext.getThreadLocalCarbonContext()
+                .getUsername(), CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
         try {
-            return UserAccountConnectorImpl.getInstance().getAccountAssociationsOfUser(CarbonContext.getThreadLocalCarbonContext().getUsername());
+            return UserAccountConnectorImpl.getInstance().getAccountAssociationsOfUser(loggedInUser);
         } catch (UserAccountAssociationServerException e) {
             log.error(UserAccountAssociationConstants.ErrorMessages.CONN_LIST_ERROR.getDescription(), e);
             throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
-                                                                    .CONN_LIST_ERROR.toString());
+                    .CONN_LIST_ERROR.toString());
         } catch (UserAccountAssociationException e) {
             throw (UserAccountAssociationClientException) e;
         }
@@ -99,7 +424,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
      * @return
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
      */
-    public UserAccountAssociationDTO[] getAccountAssociationsOfUserAsAdmin(String username) throws
+    public UserAccountAssociationDTO[] getAccountAssociations(String username) throws
             UserAccountAssociationClientException {
         try {
             return UserAccountConnectorImpl.getInstance().getAccountAssociationsOfUser(username);
@@ -112,7 +437,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
         }
     }
 
-   /**
+    /**
      * Get all associated accounts for a not logged in user
      *
      * @param userName username of user
@@ -120,7 +445,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
      * @return
      * @throws UserAccountAssociationClientException
      */
-    public UserAccountAssociationDTO[] getAccountAssociationsOfUserWithoutLogin(String userName, String password) throws
+    public UserAccountAssociationDTO[] getMyAccountAssociationsWithoutLogin(String userName, char[] password) throws
             UserAccountAssociationClientException {
         try {
 
@@ -129,8 +454,9 @@ public class UserAccountAssociationService extends AbstractAdmin {
             int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
             org.wso2.carbon.user.api.UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
-            boolean isAuthenticated = userRealm.getUserStoreManager().authenticate(tenantAwareUsername, password);
-            if(!isAuthenticated){
+            boolean isAuthenticated = userRealm.getUserStoreManager().authenticate(tenantAwareUsername, String
+                    .valueOf(password));
+            if (!isAuthenticated) {
                 throw new UserAccountAssociationClientException("Invalid credential provided ");
             }
             return UserAccountConnectorImpl.getInstance().getAccountAssociationsOfUser(userName);
@@ -158,7 +484,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
         } catch (UserAccountAssociationServerException e) {
             log.error(UserAccountAssociationConstants.ErrorMessages.ACCOUNT_SWITCHING_ERROR.getDescription(), e);
             throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
-                                                                    .ACCOUNT_SWITCHING_ERROR.toString());
+                    .ACCOUNT_SWITCHING_ERROR.toString());
         } catch (UserAccountAssociationException e) {
             throw (UserAccountAssociationClientException) e;
         }

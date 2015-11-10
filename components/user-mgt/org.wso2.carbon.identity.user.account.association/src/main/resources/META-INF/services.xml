@@ -31,19 +31,37 @@
             <parameter name="AuthorizationAction" locked="true">/permission/admin/login
             </parameter>
         </operation>
+        <operation name="createUserAccountAssociation">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/accountmgt/create
+            </parameter>
+        </operation>
+        <operation name="associateMyAccounts">
+            <parameter name="DoAuthentication" locked="true">false</parameter>
+        </operation>
         <operation name="deleteUserAccountAssociation">
             <parameter name="AuthorizationAction" locked="true">/permission/admin/login
             </parameter>
+        </operation>
+        <operation name="deleteMyAssociations">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/login
+            </parameter>
+        </operation>
+        <operation name="deleteAssociationsOfUser">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/accountmgt/delete
+            </parameter>
+        </operation>
+        <operation name="deleteMyAssociationsWithoutLogin">
+            <parameter name="DoAuthentication" locked="true">false</parameter>
         </operation>
         <operation name="getAccountAssociationsOfUser">
             <parameter name="AuthorizationAction" locked="true">/permission/admin/login
             </parameter>
         </operation>
-        <operation name="getAccountAssociationsOfUserAsAdmin">
+        <operation name="getAccountAssociations">
             <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/accountmgt/view
             </parameter>
         </operation>
-        <operation name="getAccountAssociationsOfUserWithoutLogin">
+        <operation name="getMyAccountAssociationsWithoutLogin">
             <parameter name="DoAuthentication" locked="true">false</parameter>
         </operation>
         <operation name="switchLoggedInUser">
