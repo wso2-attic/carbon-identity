@@ -474,7 +474,7 @@ public class IdentityUtil {
         return Integer.parseInt(cleanUpPeriod);
     }
 
-    public static String extractDomainFromName(String nameWithDomain){
+    public static String extractDomainFromName(String nameWithDomain) {
 
         if(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > 0){
             String domain = nameWithDomain.substring(0, nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR));
