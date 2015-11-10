@@ -167,16 +167,22 @@
                     <td><%=Encode.forHtmlContent(workflow.getWorkflowImpl().getWorkflowImplName())%>
                     </td>
                     <td>
+                        <%if(CarbonUIUtil.isUserAuthorized(request,
+                                "/permission/admin/manage/identity/workflow/definition/update")) {%>
                         <a title="<fmt:message key='workflow.service.workflow.edit.title'/>"
                            onclick="editWorkflow('<%=Encode.forJavaScriptAttribute(workflow.getWorkflowId())%>');
                                    return false;"
                            href="#" style="background-image: url(images/edit.gif);"
                            class="icon-link"><fmt:message key='edit'/></a>
+                        <%}
+                        if (CarbonUIUtil.isUserAuthorized(request,
+                                "/permission/admin/manage/identity/workflow/definition/delete")) {%>
                         <a title="<fmt:message key='workflow.service.workflow.delete.title'/>"
                            onclick="removeWorkflow('<%=Encode.forJavaScriptAttribute(workflow.getWorkflowId())%>','<%=Encode.forJavaScriptAttribute(workflow.getWorkflowName())%>');
                                    return false;"
                            href="#" style="background-image: url(images/delete.gif);"
                            class="icon-link"><fmt:message key='delete'/></a>
+                        <%}%>
                     </td>
                 </tr>
                 <%
