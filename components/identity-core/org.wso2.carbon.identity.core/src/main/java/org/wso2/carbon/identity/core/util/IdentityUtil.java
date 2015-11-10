@@ -49,7 +49,6 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -72,6 +71,8 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class IdentityUtil {
 
@@ -88,6 +89,8 @@ public class IdentityUtil {
             'D', 'E', 'F', 'G', 'H', 'J', 'K',
             'M', 'N', 'P', 'R', 'S', 'T', 'U',
             'V', 'W', 'X', 'Y', 'Z'};
+    public static final String DEFAULT_FILE_NAME_REGEX = "^(?!(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\\.[^.]*)?$)" +
+                                                         "[^<>:\"/\\\\|?*\\x00-\\x1F]*[^<>:\"/\\\\|?*\\x00-\\x1F\\ .]$";
     private static Log log = LogFactory.getLog(IdentityUtil.class);
     private static Map<String, Object> configuration = new HashMap<String, Object>();
     private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new
@@ -475,23 +478,52 @@ public class IdentityUtil {
         return Integer.parseInt(cleanUpPeriod);
     }
 
-    public static String extractDomainFromName(String nameWithDomain){
-        int tenantId = -1234;
-        if(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)>0){
-            String domain = nameWithDomain.split(UserCoreConstants.DOMAIN_SEPARATOR)[1];
+    public static String extractDomainFromName(String nameWithDomain) {
+
+        if(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > 0){
+            String domain = nameWithDomain.substring(0, nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR));
             return domain.toUpperCase();
         } else {
-            try {
-                RealmConfiguration realmConfiguration = (RealmConfiguration) UserStoreMgtDSComponent.getRealmService().getTenantUserRealm
-                        (tenantId);
-                if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME)==null){
-                    return realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-                } else {
-                    return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
-                }
-            } catch (UserStoreException e) {
-                return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
-            }
+            return getPrimaryDomainName();
         }
+    }
+
+    /**
+     * Appends domain name to the application name without making the domain name into uppercase
+     *
+     * @param name application name
+     * @param domainName domain name
+     * @return application name with domain name
+     */
+    public static String addDomainToName(String name, String domainName) {
+        if (name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) < 0 && !"PRIMARY".equalsIgnoreCase(domainName) && domainName != null) {
+            domainName = domainName + UserCoreConstants.DOMAIN_SEPARATOR;
+            name = domainName + name;
+        }
+
+        return name;
+    }
+
+    public static String getPrimaryDomainName() {
+        RealmConfiguration realmConfiguration = IdentityTenantUtil.getRealmService().getBootstrapRealmConfiguration();
+        if(realmConfiguration.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME) != null){
+            return realmConfiguration.getUserStoreProperty(
+                    UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME).toUpperCase();
+        } else {
+            return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        }
+    }
+
+    public static boolean isValidFileName(String fileName){
+        String fileNameRegEx = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.FILE_NAME_REGEX);
+
+        if(isBlank(fileNameRegEx)){
+            fileNameRegEx = DEFAULT_FILE_NAME_REGEX;
+        }
+
+        Pattern pattern = Pattern.compile(fileNameRegEx, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE |
+                                                                   Pattern.COMMENTS);
+        Matcher matcher = pattern.matcher(fileName);
+        return matcher.matches();
     }
 }

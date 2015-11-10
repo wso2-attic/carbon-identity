@@ -33,6 +33,7 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationManag
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import org.wso2.carbon.identity.provisioning.OutboundProvisioningManager;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
@@ -568,13 +569,10 @@ public class SCIMUserManager implements UserManager {
                         domainName = getUserStoreDomainFromSP();
                         roleNameWithDomain = UserCoreUtil
                                 .addDomainToName(UserCoreUtil.removeDomainFromName(originalName), domainName);
-                    } else if (originalName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
-                        roleNameWithDomain = originalName;
-                        domainName = originalName.split(UserCoreConstants.DOMAIN_SEPARATOR)[0];
                     } else {
-                        roleNameWithDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME +
-                                             CarbonConstants.DOMAIN_SEPARATOR + originalName;
-                        domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+                        domainName = IdentityUtil.extractDomainFromName(originalName);
+                        String nameWithoutDomain = UserCoreUtil.removeDomainFromName(originalName);
+                        roleNameWithDomain = UserCoreUtil.addDomainToName(nameWithoutDomain, domainName);
                     }
                 } catch (IdentityApplicationManagementException e) {
                     throw new CharonException("Error retrieving User Store name. ", e);
@@ -808,9 +806,10 @@ public class SCIMUserManager implements UserManager {
         ), IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
 
 
-        if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName()).equals(UserCoreConstants
-                .PRIMARY_DEFAULT_DOMAIN_NAME) && !(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())
-                .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
+        String primaryDomain = IdentityUtil.getPrimaryDomainName();
+        if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName()).equals(primaryDomain) && !(IdentityUtil
+                .extractDomainFromName(oldGroup.getDisplayName())
+                .equals(primaryDomain))) {
             String userStoreDomain = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName());
             newGroup.setDisplayName(UserCoreUtil.addDomainToName(newGroup.getDisplayName(), userStoreDomain));
             if (newGroup.getMembers() != null && !(newGroup.getMembers().isEmpty())) {
@@ -850,8 +849,8 @@ public class SCIMUserManager implements UserManager {
                     for (String userDisplayName : userDisplayNames) {
                         String userStoreDomainForUser =
                                 IdentityUtil.extractDomainFromName(userDisplayName);
-                        if (!(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForGroup)) &&
-                                (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(userStoreDomainForUser))) {
+                        if (!(primaryDomain.equals(userStoreDomainForGroup)) &&
+                                (primaryDomain.equals(userStoreDomainForUser))) {
                             throw new IdentitySCIMException(
                                     "User store domain is not indicated for user :" + userDisplayName);
                         }
@@ -966,6 +965,9 @@ public class SCIMUserManager implements UserManager {
             this.provision(ProvisioningOperation.PATCH, newGroup);
             return newGroup;
         }
+
+        String primaryDomain = IdentityUtil.getPrimaryDomainName();
+
         try {
             String userStoreDomainFromSP = getUserStoreDomainFromSP();
             if (userStoreDomainFromSP != null && !userStoreDomainFromSP
@@ -1032,9 +1034,9 @@ public class SCIMUserManager implements UserManager {
                     }
                 }
                 if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName())
-                                .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME) &&
+                        .equals(primaryDomain) &&
                     !(IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())
-                                  .equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME))) {
+                            .equals(primaryDomain))) {
                     String userStoreDomain = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName());
                     newGroup.setDisplayName(
                             UserCoreUtil.addDomainToName(newGroup.getDisplayName(), userStoreDomain));

@@ -55,10 +55,22 @@ public class IdPInitSSOAuthnRequestValidator {
             if (StringUtils.isNotBlank(spEntityID)) {
                 validationResponse.setIssuer(spEntityID);
             } else {
-                validationResponse.setValid(false);
                 String errorResp = SAMLSSOUtil.buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
                         "spEntityID parameter not found in request", null);
-                log.debug("spEntityID parameter not found in request");
+                if(log.isDebugEnabled()) {
+                    log.debug("spEntityID parameter not found in request");
+                }
+                validationResponse.setResponse(errorResp);
+                validationResponse.setValid(false);
+                return validationResponse;
+            }
+
+            if (!SAMLSSOUtil.isSAMLIssuerExists(spEntityID, SAMLSSOUtil.getTenantDomainFromThreadLocal())) {
+                String message = "A Service Provider with the Issuer '" + spEntityID + "' is not registered. Service " +
+                                 "Provider should be registered in advance";
+                log.error(message);
+                String errorResp = SAMLSSOUtil.buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
+                                                                  message, null);
                 validationResponse.setResponse(errorResp);
                 validationResponse.setValid(false);
                 return validationResponse;

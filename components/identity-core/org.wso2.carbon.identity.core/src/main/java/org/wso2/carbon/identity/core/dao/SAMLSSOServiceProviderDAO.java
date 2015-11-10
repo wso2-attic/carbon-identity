@@ -397,6 +397,16 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         return serviceProviderDO;
     }
 
+    public  boolean isServiceProviderExists(String issuer) throws IdentityException {
+        String path = IdentityRegistryResources.SAML_SSO_SERVICE_PROVIDERS + encodePath(issuer);
+        try {
+            return registry.resourceExists(path);
+        } catch (RegistryException e) {
+            throw new IdentityException("Error occurred while checking if resource path \'" + path + "\' exists in " +
+                                        "registry");
+        }
+    }
+
     private String encodePath(String path) {
         String encodedStr = new String(Base64.encodeBase64(path.getBytes()));
         return encodedStr.replace("=", "");

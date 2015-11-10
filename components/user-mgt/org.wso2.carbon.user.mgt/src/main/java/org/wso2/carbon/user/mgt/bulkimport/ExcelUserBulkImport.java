@@ -27,6 +27,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -124,6 +125,8 @@ public class ExcelUserBulkImport {
         } catch (Exception e) {
             log.error("Bulk import failed" + e.getMessage(), e);
             throw new UserAdminException("Bulk import failed" + e.getMessage(), e);
+        } finally {
+            IdentityIOStreamUtils.closeInputStream(ins);
         }
         return wb;
     }

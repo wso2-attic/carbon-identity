@@ -47,8 +47,7 @@
 	StringBuffer localAuthTypes = new StringBuffer();
 	String startOption = "<option value=\"";
 	String middleOption = "\">";
-	String endOPtion = "</option>";
-	String disbleText = " (Disabled)";
+	String endOption = "</option>";
     
 	IdentityProvider[] federatedIdPs = appBean.getFederatedIdentityProviders();
 	Map<String, String> proIdpConnector = new HashMap<String, String>();
@@ -80,9 +79,9 @@
 					} else {
 						provisioningConnectors.append(proConnector.getEnabled() ? proConnector.getName() + "," : "");
 					}
-					connType.append(startOption + Encode.forHtmlAttribute(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOPtion);
+					connType.append(startOption + Encode.forHtmlAttribute(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOption);
 					if(proConnector.getEnabled()){
-						enabledConnType.append(startOption + Encode.forHtmlAttribute(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOPtion);
+						enabledConnType.append(startOption + Encode.forHtmlAttribute(proConnector.getName()) + middleOption + Encode.forHtmlContent(proConnector.getName()) + endOption);
 					}
 					IdpProConnectorsStatus.put(idp.getIdentityProviderName()+"_"+proConnector.getName(), proConnector.getEnabled());
 					i++;
@@ -90,7 +89,7 @@
 				proIdpConnector.put(idp.getIdentityProviderName(), connType.toString());
 				if(idp.getEnable()){
 					enabledProIdpConnector.put(idp.getIdentityProviderName(), enabledConnType.toString());
-					idpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+Encode.forHtmlAttribute(provisioningConnectors.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOPtion);
+					idpType.append(startOption + Encode.forHtmlAttribute(idp.getIdentityProviderName()) + "\" data=\""+Encode.forHtmlAttribute(provisioningConnectors.toString()) + "\" >" + Encode.forHtmlContent(idp.getIdentityProviderName()) + endOption);
 				}
 			} 
 		}
@@ -104,17 +103,15 @@
 				ProvisioningConnectorConfig proIdp = idp.getDefaultProvisioningConnectorConfig();
 				String options = proIdpConnector.get(idp.getIdentityProviderName());
 				if (proIdp!=null && options != null) {
-					String oldOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + middleOption + Encode.forHtmlContent(proIdp.getName()) + endOPtion;
-					String newOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName())+ (IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) != null && IdpProConnectorsStatus.get(idp.getIdentityProviderName()+"_"+proIdp.getName()) ? "" : disbleText) + endOPtion;
+					String oldOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + middleOption + Encode.forHtmlContent(proIdp.getName()) + endOption;
+					String newOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) +
+                                       "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName()) + endOption;
 					if(options.contains(oldOption)) {
 						options = options.replace(oldOption, newOption);
 					} else {
 						options = options + newOption;
 					}
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), options);
-				} else if(proIdp!=null && options == null) {
-					String disabledOption = startOption + Encode.forHtmlAttribute(proIdp.getName()) + "\" selected=\"selected" + middleOption + Encode.forHtmlContent(proIdp.getName()) + disbleText + endOPtion;
-					selectedProIdpConnectors.put(idp.getIdentityProviderName(), disabledOption);
 				} else {
 					options = enabledProIdpConnector.get(idp.getIdentityProviderName());
 					selectedProIdpConnectors.put(idp.getIdentityProviderName(), options);
@@ -323,7 +320,7 @@
 							      	       <tr>
 							      	      	   <td>
 							      	      		<input name="provisioning_idp" id="" type="hidden" value="<%=Encode.forHtmlAttribute(idp.getIdentityProviderName())%>" />
-                                                   <%=Encode.forHtmlContent(idp.getIdentityProviderName()) + (idpStatus.get(idp.getIdentityProviderName()) != null && idpStatus.get(idp.getIdentityProviderName()) ? "" : disbleText)%>
+                                                   <%=Encode.forHtmlContent(idp.getIdentityProviderName())%>
 							      	      		</td>
 							      	      		<td> 
 							      	      			<% if(selectedProIdpConnectors.get(idp.getIdentityProviderName()) != null) { %>

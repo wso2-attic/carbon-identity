@@ -97,40 +97,6 @@ public class IdentityProviderUtil {
 
     }
 
-    public static String dumpInfoCard(ConfigurationContext configurationContext, Element content)
-            throws IdentityProviderException {
-        Map fileResourcesMap = null;
-        String workdir = null;
-        String uuid = null;
-        String filePath = null;
-
-        workdir = (String) configurationContext.getProperty(ServerConstants.WORK_DIR);
-        uuid = String.valueOf(System.currentTimeMillis() + Math.random()) + ".crd";
-
-        filePath = workdir + File.separator + "dump_cards" + File.separator + uuid;
-
-        try (OutputStream outStream = new FileOutputStream(filePath);) {
-            try {
-                TransformerFactory.newInstance().newTransformer().transform(new DOMSource(content),
-                                                                            new StreamResult(outStream));
-            } catch (TransformerException e) {
-                throw new IdentityProviderException("Failed to transform XML content.", e);
-            }
-        } catch (FileNotFoundException e) {
-            throw new IdentityProviderException("Invalid file path.", e);
-        } catch (IOException e) {
-            throw new IdentityProviderException("Failed to write to the file path.", e);
-        }
-
-        fileResourcesMap = (Map) configurationContext.getProperty(WSO2Constants.FILE_RESOURCE_MAP);
-        if (fileResourcesMap == null) {
-            fileResourcesMap = new Hashtable();
-            configurationContext.setProperty(WSO2Constants.FILE_RESOURCE_MAP, fileResourcesMap);
-        }
-        fileResourcesMap.put(uuid, filePath);
-        return WSO2Constants.ContextPaths.DOWNLOAD_PATH + "?id=" + uuid;
-    }
-
     /**
      * Obtain the applies to host name from the WS-Trust request.
      *

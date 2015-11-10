@@ -19,6 +19,7 @@
 
 package org.wso2.carbon.policyeditor;
 
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 import org.wso2.carbon.policyeditor.util.CarbonEntityResolver;
 import org.apache.axis2.AxisFault;
 import org.apache.commons.io.Charsets;
@@ -132,24 +133,23 @@ public class PolicyEditorService {
         String fileList = "";
 
         StringBuilder fBuf = null;
+        BufferedReader dis = null;
         try {
             InputStream in = PolicyEditorService.class.getResourceAsStream(
                     ORG_WSO2_CARBON_POLICYEDITOR_XSD + "policies.xml");
 
-            BufferedReader dis =
-                    new BufferedReader(new InputStreamReader(in, Charsets.UTF_8));
+            dis = new BufferedReader(new InputStreamReader(in, Charsets.UTF_8));
             fBuf = new StringBuilder();
 
             String line = "";
             while ((line = dis.readLine()) != null) {
                 fBuf.append(line).append("\n");
             }
-            in.close();
-
             fileList = fBuf.toString();
-            dis.close();
         } catch (IOException e) {
             throw new AxisFault("Axis fault while getting schemas.", e);
+        } finally {
+            IdentityIOStreamUtils.closeReader(dis);
         }
 
         return "<![CDATA[" + fileList + "]]>";

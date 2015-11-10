@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.mgt.AbstractInboundAuthenticatorConfig;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementServiceImpl;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
@@ -58,6 +59,10 @@ import java.util.Map;
  * cardinality="1..1" policy="dynamic"
  * bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
+ * @scr.reference name="application.mgt.authenticator"
+ * interface="org.wso2.carbon.identity.application.mgt.AbstractInboundAuthenticatorConfig"
+ * cardinality="0..n" policy="dynamic" bind="setInboundAuthenticatorConfig"
+ * unbind="unsetInboundAuthenticatorConfig"
  */
 public class ApplicationManagementServiceComponent {
     private static Log log = LogFactory.getLog(ApplicationManagementServiceComponent.class);
@@ -133,6 +138,14 @@ public class ApplicationManagementServiceComponent {
             log.debug("Unsetting the Configuration Context Service");
         }
         ApplicationManagementServiceComponentHolder.getInstance().setConfigContextService(null);
+    }
+
+    protected void setInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig authenticator) {
+        ApplicationManagementServiceComponentHolder.addInboundAuthenticatorConfig(authenticator);
+    }
+
+    protected void unsetInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig authenticator) {
+        ApplicationManagementServiceComponentHolder.removeInboundAuthenticatorConfig(authenticator.getName());
     }
 
     private void buildFileBasedSPList() {

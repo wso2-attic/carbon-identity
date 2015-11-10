@@ -33,6 +33,13 @@ public class FrameworkServiceDataHolder {
     private RealmService realmService = null;
     private RegistryService registryService = null;
     private List<ApplicationAuthenticator> authenticators = new ArrayList<>();
+    private long nanoTimeReference = 0;
+    private long unixTimeReference = 0;
+
+    private FrameworkServiceDataHolder() {
+        setNanoTimeReference(System.nanoTime());
+        setUnixTimeReference(System.currentTimeMillis());
+    }
 
     public static FrameworkServiceDataHolder getInstance() {
         return instance;
@@ -64,5 +71,21 @@ public class FrameworkServiceDataHolder {
 
     public List<ApplicationAuthenticator> getAuthenticators() {
         return authenticators;
+    }
+
+    public long getNanoTimeReference() {
+        return nanoTimeReference;
+    }
+
+    private void setNanoTimeReference(long nanoTimeReference) {
+        this.nanoTimeReference = nanoTimeReference;
+    }
+
+    public long getUnixTimeReference() {
+        return unixTimeReference;
+    }
+
+    private void setUnixTimeReference(long unixTimeReference) {
+        this.unixTimeReference = unixTimeReference;
     }
 }
