@@ -236,6 +236,7 @@ public class PassiveSTSManager {
         String samlStr = samlString;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setFeature(PassiveSTSConstants.EXTERNAL_GENERAL_ENTITIES_URI, false);
             documentBuilderFactory.setNamespaceAware(true);
 
             documentBuilderFactory.setExpandEntityReferences(false);

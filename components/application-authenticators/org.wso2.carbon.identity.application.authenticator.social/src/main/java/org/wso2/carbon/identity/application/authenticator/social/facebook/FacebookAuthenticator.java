@@ -37,6 +37,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -375,17 +376,23 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
     }
 
     private String sendRequest(String url) throws IOException {
-        URLConnection urlConnection = new URL(url).openConnection();
-        BufferedReader in =
-                new BufferedReader(
-                        new InputStreamReader(urlConnection.getInputStream(), Charset.forName("utf-8")));
+
+        BufferedReader in = null;
         StringBuilder b = new StringBuilder();
-        String inputLine = in.readLine();
-        while (inputLine != null) {
-            b.append(inputLine).append("\n");
-            inputLine = in.readLine();
+
+        try{
+            URLConnection urlConnection = new URL(url).openConnection();
+            in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), Charset.forName("utf-8")));
+
+            String inputLine = in.readLine();
+            while (inputLine != null) {
+                b.append(inputLine).append("\n");
+                inputLine = in.readLine();
+            }
+        } finally {
+            IdentityIOStreamUtils.closeReader(in);
         }
-        in.close();
+
         return b.toString();
     }
 
@@ -400,7 +407,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
 
     @Override
     public String getFriendlyName() {
-        return "facebook";
+        return FacebookAuthenticatorConstants.AUTHENTICATOR_FRIENDLY_NAME;
     }
 
     @Override

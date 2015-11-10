@@ -38,6 +38,7 @@ import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
@@ -269,7 +270,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 }
             }
 
-            String domain = UserCoreUtil.extractDomainFromName(username);
+            String domain = IdentityUtil.extractDomainFromName(username);
             RealmConfiguration realmConfiguration = userStoreManager.getSecondaryUserStoreManager(domain)
                     .getRealmConfiguration();
 

@@ -18,6 +18,7 @@
 package org.wso2.carbon.identity.application.mgt.ui;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.common.model.xsd.ApplicationPermission;
 import org.wso2.carbon.identity.application.common.model.xsd.AuthenticationStep;
@@ -44,6 +45,7 @@ import org.wso2.carbon.ui.util.CharacterEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +80,7 @@ public class ApplicationBean {
     private String passiveSTSWReply;
     private String openid;
     private String[] claimUris;
+    private List<InboundAuthenticationRequestConfig> inboundAuthenticationRequestConfigs;
 
     public ApplicationBean() {
 
@@ -102,6 +105,7 @@ public class ApplicationBean {
         oauthConsumerSecret = null;
         attrConsumServiceIndex = null;
         enabledFederatedIdentityProviders = null;
+        inboundAuthenticationRequestConfigs = Collections.EMPTY_LIST;
     }
 
     /**
@@ -828,6 +832,32 @@ public class ApplicationBean {
         this.claimUris = claimUris;
     }
 
+
+    /**
+     * Get all custom authenticators
+     * @return Custom authenticators
+     */
+    public List<InboundAuthenticationRequestConfig> getInboundAuthenticators() {
+
+        if (!CollectionUtils.isEmpty(inboundAuthenticationRequestConfigs)) {
+            return inboundAuthenticationRequestConfigs;
+        }
+
+        inboundAuthenticationRequestConfigs = new ArrayList<InboundAuthenticationRequestConfig>();
+
+        InboundAuthenticationRequestConfig[] authRequests = serviceProvider
+                .getInboundAuthenticationConfig()
+                .getInboundAuthenticationRequestConfigs();
+
+        if (authRequests != null) {
+            for (InboundAuthenticationRequestConfig request : authRequests) {
+                inboundAuthenticationRequestConfigs.add(request);
+            }
+        }
+        return inboundAuthenticationRequestConfigs;
+    }
+
+
     /**
      * @param request
      */
@@ -894,44 +924,13 @@ public class ApplicationBean {
                                                                             "_fed_authenticator");
                             if (StringUtils.isNotBlank(authenticatorName)) {
                                 String authenticatorDisplayName = null;
-                                boolean found = false;
 
                                 for (FederatedAuthenticatorConfig config : referringIdP
                                         .getFederatedAuthenticatorConfigs()) {
                                     if (authenticatorName.equals(config.getName())) {
-                                        found = true;
                                         authenticatorDisplayName = config.getDisplayName();
                                         break;
                                     }
-                                }
-
-                                // User is trying to save disabled authenticator of an IdP
-                                if (!found) {
-                                    AuthenticationStep[] authenticationSteps = serviceProvider
-                                            .getLocalAndOutBoundAuthenticationConfig().getAuthenticationSteps();
-                                    if (authenticationSteps != null) {
-                                        OUTERMOST: for (AuthenticationStep authenticationStep : authenticationSteps) {
-                                            IdentityProvider[] identityProviders = authenticationStep
-                                                    .getFederatedIdentityProviders();
-                                            if (identityProviders != null) {
-                                                for (IdentityProvider identityProvider : identityProviders) {
-                                                    FederatedAuthenticatorConfig defaultConfig = identityProvider
-                                                            .getDefaultAuthenticatorConfig();
-                                                    if (defaultConfig != null && authenticatorName.equals
-                                                            (identityProvider.getDefaultAuthenticatorConfig().getName())) {
-                                                        found = true;
-                                                        authenticatorDisplayName = identityProvider
-                                                                .getDefaultAuthenticatorConfig().getDisplayName();
-                                                        break OUTERMOST;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if(!found) {
-                                    continue;
                                 }
 
                                 FederatedAuthenticatorConfig authenticator = new FederatedAuthenticatorConfig();
@@ -1139,6 +1138,20 @@ public class ApplicationBean {
             opicAuthenticationRequest.setInboundAuthKey(openidRealm);
             opicAuthenticationRequest.setInboundAuthType("openid");
             authRequestList.add(opicAuthenticationRequest);
+        }
+
+        if (!CollectionUtils.isEmpty(inboundAuthenticationRequestConfigs)) {
+            for (InboundAuthenticationRequestConfig customAuthConfig : inboundAuthenticationRequestConfigs) {
+                String type = customAuthConfig.getInboundAuthType();
+                Property[] properties = customAuthConfig.getProperties();
+                if (!ArrayUtils.isEmpty(properties)) {
+                    for (Property prop : properties) {
+                        String propVal = request.getParameter("custom_auth_prop_name_" + type + "_" + prop.getName());
+                        prop.setValue(propVal);
+                    }
+                }
+                authRequestList.add(customAuthConfig);
+            }
         }
 
         if (serviceProvider.getInboundAuthenticationConfig() == null) {

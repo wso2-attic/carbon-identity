@@ -60,6 +60,10 @@
             <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
             <artifactId>encoder</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -86,6 +90,8 @@
                             org.wso2.carbon.security.mgt.stub.*;
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.user.mgt.stub.types.carbon; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.core.*;
+                            version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.security.ui.*; version="${carbon.identity.package.export.version}"

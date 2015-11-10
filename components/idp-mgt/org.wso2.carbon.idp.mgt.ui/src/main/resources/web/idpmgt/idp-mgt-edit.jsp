@@ -39,9 +39,12 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Arrays" %>
+<%@ page import="java.util.Comparator" %>
+<%@page import="java.util.HashMap"%>
+<%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.List" %>
-<%@page import="java.util.Map"%>
+<%@ page import="java.util.Map" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="java.util.UUID" %>
 <link href="css/idpmgt.css" rel="stylesheet" type="text/css" media="all"/>
@@ -275,7 +278,7 @@
                 if (fedAuthnConfig.getProperties() == null) {
                     fedAuthnConfig.setProperties(new Property[0]);
                 }
-                if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.OpenID.NAME)) {
+                if (fedAuthnConfig.getName().equals(IdentityApplicationConstants.Authenticator.OpenID.NAME)) {
                     isOpenidAuthenticatorActive = true;
                     allFedAuthConfigs.remove(fedAuthnConfig.getName());
                     isOpenIdEnabled = fedAuthnConfig.getEnabled();
@@ -296,7 +299,7 @@
                     if (isOpenIdUserIdInClaimsProp != null) {
                         isOpenIdUserIdInClaims = Boolean.parseBoolean(isOpenIdUserIdInClaimsProp.getValue());
                     }
-                } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.Facebook.NAME)) {
+                } else if (fedAuthnConfig.getName().equals(IdentityApplicationConstants.Authenticator.Facebook.NAME)) {
                     isFacebookAuthenticatorActive = true;
                     allFedAuthConfigs.remove(fedAuthnConfig.getName());
                     isFBAuthEnabled = fedAuthnConfig.getEnabled();
@@ -339,7 +342,7 @@
                     if (fbUserInfoEndpointProp != null) {
                         fbUserInfoEndpoint = fbUserInfoEndpointProp.getValue();
                     }
-                } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME)) {
+                } else if (fedAuthnConfig.getName().equals(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME)) {
                     isPassivestsAuthenticatorActive = true;
                     allFedAuthConfigs.remove(fedAuthnConfig.getName());
                     isPassiveSTSEnabled = fedAuthnConfig.getEnabled();
@@ -364,7 +367,7 @@
                         passiveSTSQueryParam = queryParamProp.getValue();
                     }
 
-                } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.OIDC.NAME)) {
+                } else if (fedAuthnConfig.getName().equals(IdentityApplicationConstants.Authenticator.OIDC.NAME)) {
                     isOpenidconnectAuthenticatorActive = true;
                     allFedAuthConfigs.remove(fedAuthnConfig.getName());
                     isOIDCEnabled = fedAuthnConfig.getEnabled();
@@ -406,7 +409,7 @@
                         oidcQueryParam = queryParamProp.getValue();
                     }
 
-                } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME)) {
+                } else if (fedAuthnConfig.getName().equals(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME)) {
                     isSamlssoAuthenticatorActive = true;
                     allFedAuthConfigs.remove(fedAuthnConfig.getName());
                     isSAML2SSOEnabled = fedAuthnConfig.getEnabled();
@@ -868,6 +871,27 @@
     userStoreDomains = client.getUserStoreDomains();
 
     claimUris = client.getAllLocalClaimUris();
+
+    Iterator<FederatedAuthenticatorConfig> fedAuthConfigIterator = allFedAuthConfigs.values().iterator();
+    while(fedAuthConfigIterator.hasNext()){
+        FederatedAuthenticatorConfig fedAuthConfig = fedAuthConfigIterator.next();
+        if(fedAuthConfig.getName().equals(IdentityApplicationConstants.Authenticator.OpenID.NAME)){
+            isOpenidAuthenticatorActive = true;
+            fedAuthConfigIterator.remove();
+        } else if (fedAuthConfig.getName().equals(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME)) {
+            isSamlssoAuthenticatorActive = true;
+            fedAuthConfigIterator.remove();
+        } else if (fedAuthConfig.getName().equals(IdentityApplicationConstants.Authenticator.OIDC.NAME)) {
+            isOpenidconnectAuthenticatorActive = true;
+            fedAuthConfigIterator.remove();
+        } else if (fedAuthConfig.getName().equals(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME)) {
+            isPassivestsAuthenticatorActive = true;
+            fedAuthConfigIterator.remove();
+        } else if (fedAuthConfig.getName().equals(IdentityApplicationConstants.Authenticator.Facebook.NAME)) {
+            isFacebookAuthenticatorActive = true;
+            fedAuthConfigIterator.remove();
+        }
+    }
 
     String openIdEnabledChecked = "";
     String openIdDefaultDisabled = "";
@@ -4225,26 +4249,6 @@ function doValidation() {
             </td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField"><fmt:message key='authz.endpoint'/>:<span class="required">*</span></td>
-            <td>
-                <input id="authzUrl" name="authzUrl" type="text" value=<%=Encode.forHtmlAttribute(authzUrl)%>>
-
-                <div class="sectionHelp">
-                    <fmt:message key='authz.endpoint.help'/>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="leftCol-med labelField"><fmt:message key='token.endpoint'/>:<span class="required">*</span></td>
-            <td>
-                <input id="tokenUrl" name="tokenUrl" type="text" value=<%=Encode.forHtmlAttribute(tokenUrl)%>>
-
-                <div class="sectionHelp">
-                    <fmt:message key='token.endpoint.help'/>
-                </div>
-            </td>
-        </tr>
-        <tr>
             <td class="leftCol-med labelField"><fmt:message key='client.id'/>:<span class="required">*</span></td>
             <td>
                 <input id="clientId" name="clientId" type="text" value=<%=Encode.forHtmlAttribute(clientId)%>>
@@ -4270,7 +4274,26 @@ function doValidation() {
                 </div>
             </td>
         </tr>
+        <tr>
+            <td class="leftCol-med labelField"><fmt:message key='authz.endpoint'/>:<span class="required">*</span></td>
+            <td>
+                <input id="authzUrl" name="authzUrl" type="text" value=<%=Encode.forHtmlAttribute(authzUrl)%>>
 
+                <div class="sectionHelp">
+                    <fmt:message key='authz.endpoint.help'/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="leftCol-med labelField"><fmt:message key='token.endpoint'/>:<span class="required">*</span></td>
+            <td>
+                <input id="tokenUrl" name="tokenUrl" type="text" value=<%=Encode.forHtmlAttribute(tokenUrl)%>>
+
+                <div class="sectionHelp">
+                    <fmt:message key='token.endpoint.help'/>
+                </div>
+            </td>
+        </tr>
         <tr>
             <td class="leftCol-med labelField"><fmt:message key='callbackurl'/>
             <td>
@@ -4609,7 +4632,20 @@ function doValidation() {
         </tr>
 
         <% Property[] properties = fedConfig.getProperties();
+
             if (properties != null && properties.length > 0) {
+                Arrays.sort(properties, new Comparator<Property>() {
+                    public int compare(Property obj1, Property obj2) {
+                        Property property1 = (Property) obj1;
+                        Property property2 = (Property) obj2;
+                        if (property1.getDisplayOrder() == property2.getDisplayOrder())
+                            return 0;
+                        else if (property1.getDisplayOrder() > property2.getDisplayOrder())
+                            return 1;
+                        else
+                            return -1;
+                    }
+                });
                 for (Property prop : properties) {
                     if (prop != null && prop.getDisplayName() != null) {
         %>

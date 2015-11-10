@@ -19,12 +19,14 @@
 package org.wso2.carbon.user.mgt;
 
 import org.apache.axis2.AxisFault;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.api.AuthorizationManager;
 import org.wso2.carbon.user.api.UserRealmService;
 import org.wso2.carbon.user.core.UserRealm;
@@ -613,8 +615,11 @@ public class UserAdmin {
      */
     public void bulkImportUsers(String userStoreDomain, String fileName, DataHandler handler, String defaultPassword)
             throws UserAdminException {
-        if (userStoreDomain == null || fileName == null || handler == null || defaultPassword == null) {
+        if (fileName == null || handler == null || defaultPassword == null) {
             throw new UserAdminException("Required data not provided");
+        }
+        if(StringUtils.isEmpty(userStoreDomain)){
+            userStoreDomain = IdentityUtil.getPrimaryDomainName();
         }
         try {
             InputStream inStream = handler.getInputStream();

@@ -24,6 +24,7 @@ import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticator
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -155,6 +156,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         callbackUrl.setDisplayName("Callback Url");
         callbackUrl.setName(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
         callbackUrl.setDescription("Enter value corresponding to callback url.");
+        callbackUrl.setDisplayOrder(3);
         configProperties.add(callbackUrl);
 
         Property clientId = new Property();
@@ -162,6 +164,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientId.setDisplayName("Client Id");
         clientId.setRequired(true);
         clientId.setDescription("Enter Microsoft Live client identifier value");
+        clientId.setDisplayOrder(1);
         configProperties.add(clientId);
 
         Property clientSecret = new Property();
@@ -170,6 +173,7 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientSecret.setRequired(true);
         clientSecret.setConfidential(true);
         clientSecret.setDescription("Enter Microsoft Live client secret value");
+        clientSecret.setDisplayOrder(2);
         configProperties.add(clientSecret);
 
         return configProperties;
@@ -196,16 +200,17 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
                     new InputStreamReader(urlConnection.getInputStream(), Charset.forName("utf-8")));
 
             StringBuilder builder = new StringBuilder();
-            String inputLine = reader.readLine();
+            try {
+                String inputLine = reader.readLine();
 
-            while (inputLine != null) {
-                builder.append(inputLine).append("\n");
-                inputLine = reader.readLine();
+                while (inputLine != null) {
+                    builder.append(inputLine).append("\n");
+                    inputLine = reader.readLine();
+                }
+            }finally {
+                IdentityIOStreamUtils.closeReader(reader);
             }
-
-            reader.close();
             return builder.toString();
-
         } else {
             return StringUtils.EMPTY;
         }

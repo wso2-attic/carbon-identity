@@ -310,7 +310,7 @@ public class TokenMgtDAO {
         int tenantId = OAuth2Util.getTenantId(tenantDomain);
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
         String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
-        String userDomain = UserCoreUtil.extractDomainFromName(userName).toUpperCase();
+        String userDomain = IdentityUtil.extractDomainFromName(userName).toUpperCase();
 
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
@@ -434,7 +434,7 @@ public class TokenMgtDAO {
         String tenantDomain = MultitenantUtils.getTenantDomain(userName);
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
         String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
-        String userDomain = UserCoreUtil.extractDomainFromName(userName).toUpperCase();
+        String userDomain = IdentityUtil.extractDomainFromName(userName).toUpperCase();
 
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
@@ -971,7 +971,7 @@ public class TokenMgtDAO {
         String tenantDomain = MultitenantUtils.getTenantDomain(authzUser);
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(authzUser);
         String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
-        String userDomain = UserCoreUtil.extractDomainFromName(authzUser).toUpperCase();
+        String userDomain = IdentityUtil.extractDomainFromName(authzUser).toUpperCase();
         try {
             int tenantId = OAuth2Util.getTenantId(tenantDomain);
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&

@@ -582,7 +582,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
     @Override
     public String getFriendlyName() {
-        return "openidconnect";
+        return OIDCAuthenticatorConstants.AUTHENTICATOR_FRIENDLY_NAME;
     }
 
     @Override

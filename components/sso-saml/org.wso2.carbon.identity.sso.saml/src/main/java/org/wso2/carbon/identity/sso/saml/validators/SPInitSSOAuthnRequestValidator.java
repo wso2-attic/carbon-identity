@@ -86,6 +86,18 @@ public class SPInitSSOAuthnRequestValidator {
                 return validationResponse;
             }
 
+            if (!SAMLSSOUtil.isSAMLIssuerExists(validationResponse.getIssuer(),
+                                                SAMLSSOUtil.getTenantDomainFromThreadLocal())) {
+                String message = "A Service Provider with the Issuer '" + validationResponse.getIssuer()
+                                 + "' is not registered. Service Provider should be registered in advance";
+                log.error(message);
+                String errorResp = SAMLSSOUtil.buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
+                                                                  message, null);
+                validationResponse.setResponse(errorResp);
+                validationResponse.setValid(false);
+                return validationResponse;
+            }
+
             // Issuer Format attribute
             if ((StringUtils.isNotBlank(issuer.getFormat())) &&
                     !(issuer.getFormat().equals(SAMLSSOConstants.Attribute.ISSUER_FORMAT))) {

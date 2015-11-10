@@ -333,7 +333,9 @@ public class OAuth2AuthzEndpoint {
         if (!skipConsent) {
             boolean approvedAlways =
                     OAuthConstants.Consent.APPROVE_ALWAYS.equals(consent) ? true : false;
-            OpenIDConnectUserRPStore.getInstance().putUserRPToStore(loggedInUser, applicationName, approvedAlways);
+            if (approvedAlways) {
+                OpenIDConnectUserRPStore.getInstance().putUserRPToStore(loggedInUser, applicationName, approvedAlways);
+            }
         }
 
         OAuthResponse oauthResponse = null;
