@@ -19,11 +19,15 @@
 package org.wso2.carbon.user.mgt;
 
 import org.apache.axis2.AxisFault;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.user.api.AuthorizationManager;
 import org.wso2.carbon.user.api.UserRealmService;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -38,7 +42,9 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import javax.activation.DataHandler;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class UserAdmin {
 
@@ -78,9 +84,47 @@ public class UserAdmin {
      * @throws UserAdminException
      */
     public FlaggedName[] listAllUsers(String filter, int limit) throws UserAdminException {
+
         FlaggedName[] names;
         names = getUserAdminProxy().listAllUsers(filter, limit);
         return names;
+
+    }
+
+    /**
+     * Get list of users which have given permission
+     *
+     * @param filter     filter to check
+     * @param permission permission to check
+     * @param limit
+     * @return
+     * @throws UserAdminException
+     */
+    public FlaggedName[] listAllUsersWithPermission(String filter, String permission, int limit) throws
+            UserAdminException {
+
+        List<FlaggedName> permittedUsers = new ArrayList<>();
+        try {
+            org.wso2.carbon.user.api.UserRealm realm = UserMgtDSComponent.getRealmService().getTenantUserRealm
+                    (PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
+            AuthorizationManager authorizationManager = realm.getAuthorizationManager();
+
+
+            FlaggedName[] users = getUserAdminProxy().listAllUsers(filter, limit);
+
+            for (int i = 0; i < users.length - 1; i++) {
+                if (authorizationManager.isUserAuthorized(users[i].getItemName(),
+                        permission, UserMgtConstants.EXECUTE_ACTION)) {
+                    permittedUsers.add(users[i]);
+                }
+            }
+            permittedUsers.add(users[users.length - 1]);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserAdminException("Error while filtering authorized users.", e);
+        }
+        FlaggedName[] permittedUsersArray = new FlaggedName[permittedUsers.size()];
+        return permittedUsers.toArray(permittedUsersArray);
+
     }
 
     /*
@@ -95,6 +139,38 @@ public class UserAdmin {
      */
     public FlaggedName[] getAllRolesNames(String filter, int limit) throws UserAdminException {
         return getUserAdminProxy().getAllRolesNames(filter, limit);
+    }
+
+    /**
+     * Get list of roles which have given permission
+     *
+     * @param filter     filter to check
+     * @param permission permission to check
+     * @param limit
+     * @return
+     * @throws UserAdminException
+     */
+    public FlaggedName[] getAllPermittedRoleNames(String filter, String permission, int limit) throws
+            UserAdminException {
+
+        FlaggedName[] roles = getUserAdminProxy().getAllRolesNames(filter, limit);
+        List<FlaggedName> permittedRoles = new ArrayList<>();
+        try {
+            org.wso2.carbon.user.api.UserRealm realm = UserMgtDSComponent.getRealmService().getTenantUserRealm
+                    (PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
+            AuthorizationManager authorizationManager = realm.getAuthorizationManager();
+            for (int i = 0; i < roles.length - 1; i++) {
+                if (authorizationManager.isRoleAuthorized(roles[i].getItemName(), permission, UserMgtConstants
+                        .EXECUTE_ACTION)) {
+                    permittedRoles.add(roles[i]);
+                }
+            }
+            permittedRoles.add(roles[roles.length - 1]);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserAdminException("Error while filtering authorized roles.", e);
+        }
+        FlaggedName[] permittedRolesArray = new FlaggedName[permittedRoles.size()];
+        return permittedRoles.toArray(permittedRolesArray);
     }
 
 
@@ -531,19 +607,23 @@ public class UserAdmin {
     }
 
     /**
+     * @param userStoreDomain
      * @param fileName
      * @param handler
      * @param defaultPassword
      * @throws UserAdminException
      */
-    public void bulkImportUsers(String fileName, DataHandler handler, String defaultPassword)
+    public void bulkImportUsers(String userStoreDomain, String fileName, DataHandler handler, String defaultPassword)
             throws UserAdminException {
         if (fileName == null || handler == null || defaultPassword == null) {
             throw new UserAdminException("Required data not provided");
         }
+        if(StringUtils.isEmpty(userStoreDomain)){
+            userStoreDomain = IdentityUtil.getPrimaryDomainName();
+        }
         try {
             InputStream inStream = handler.getInputStream();
-            getUserAdminProxy().bulkImportUsers(fileName, inStream, defaultPassword);
+            getUserAdminProxy().bulkImportUsers(userStoreDomain, fileName, inStream, defaultPassword);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             throw new UserAdminException(e.getMessage(), e);
@@ -683,6 +763,42 @@ public class UserAdmin {
     public FlaggedName[] listUserByClaim(ClaimValue claimValue, String filter, int maxLimit)
             throws UserAdminException {
         return getUserAdminProxy().listUsers(claimValue, filter, maxLimit);
+    }
+
+    /**
+     * List users with given claim value and permission
+     *
+     * @param claimValue claim to check
+     * @param filter     filter to check
+     * @param permission permission to check
+     * @param maxLimit
+     * @return
+     * @throws UserAdminException
+     */
+    public FlaggedName[] listUserByClaimWithPermission(ClaimValue claimValue, String filter, String permission, int
+            maxLimit)
+            throws UserAdminException {
+
+        List<FlaggedName> permittedUsers = new ArrayList<>();
+        try {
+            org.wso2.carbon.user.api.UserRealm realm = UserMgtDSComponent.getRealmService().getTenantUserRealm
+                    (PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
+            AuthorizationManager authorizationManager = realm.getAuthorizationManager();
+
+
+            FlaggedName[] users = getUserAdminProxy().listUsers(claimValue, filter, maxLimit);
+
+            for (int i = 0; i < users.length - 1; i++) {
+                if (authorizationManager.isUserAuthorized(users[i].getItemName(),
+                        permission, UserMgtConstants.EXECUTE_ACTION)) {
+                    permittedUsers.add(users[i]);
+                }
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserAdminException("Error while filtering authorized users.", e);
+        }
+        FlaggedName[] permittedUsersArray = new FlaggedName[permittedUsers.size()];
+        return permittedUsers.toArray(permittedUsersArray);
     }
 
     /**

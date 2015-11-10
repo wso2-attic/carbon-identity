@@ -35,6 +35,7 @@ public class InboundAuthenticationRequestConfig implements Serializable {
 
     private String inboundAuthKey;
     private String inboundAuthType;
+    private String friendlyName;
     private Property[] properties = new Property[0];
 
     /*
@@ -57,11 +58,12 @@ public class InboundAuthenticationRequestConfig implements Serializable {
         while (members.hasNext()) {
             OMElement member = (OMElement) members.next();
 
-
             if ("InboundAuthKey".equalsIgnoreCase(member.getLocalName())) {
                 inboundAuthenticationRequestConfig.setInboundAuthKey(member.getText());
             } else if ("InboundAuthType".equalsIgnoreCase(member.getLocalName())) {
                 inboundAuthenticationRequestConfig.setInboundAuthType(member.getText());
+            } else if ("friendlyName".equalsIgnoreCase(member.getLocalName())) {
+                inboundAuthenticationRequestConfig.setFriendlyName(member.getText());
             } else if ("Properties".equalsIgnoreCase(member.getLocalName())) {
                 Iterator<?> propertiesIter = member.getChildElements();
                 List<Property> propertiesArrList = new ArrayList<Property>();
@@ -130,4 +132,11 @@ public class InboundAuthenticationRequestConfig implements Serializable {
         this.properties = propertySet.toArray(new Property[propertySet.size()]);
     }
 
+    public String getFriendlyName() {
+        return friendlyName;
+    }
+
+    public void setFriendlyName(String friendlyName) {
+        this.friendlyName = friendlyName;
+    }
 }

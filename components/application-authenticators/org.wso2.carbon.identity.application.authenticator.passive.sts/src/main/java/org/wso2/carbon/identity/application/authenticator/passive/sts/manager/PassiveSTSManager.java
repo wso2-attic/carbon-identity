@@ -233,9 +233,10 @@ public class PassiveSTSManager {
      */
     private XMLObject unmarshall(String samlString) throws PassiveSTSException {
 
-        String samlStr = decodeHTMLCharacters(samlString);
+        String samlStr = samlString;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setFeature(PassiveSTSConstants.EXTERNAL_GENERAL_ENTITIES_URI, false);
             documentBuilderFactory.setNamespaceAware(true);
 
             documentBuilderFactory.setExpandEntityReferences(false);
@@ -273,17 +274,6 @@ public class PassiveSTSManager {
         } catch (IOException e) {
             throw new PassiveSTSException(PassiveSTSConstants.ERROR_IN_UNMARSHALLING_SAML_REQUEST_FROM_THE_ENCODED_STRING, e);
         }
-
-    }
-
-    /**
-     * @param encodedStr
-     * @return
-     */
-    private String decodeHTMLCharacters(String encodedStr) {
-
-        return encodedStr.replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">")
-                .replaceAll("&quot;", "\"").replaceAll("&apos;", "'");
 
     }
 

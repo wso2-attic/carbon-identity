@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>sts-feature</artifactId>
-        <version>5.0.2-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -40,14 +40,6 @@
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.sts.stub</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.sts.mgt.ui</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.sts.mgt.stub</artifactId>
         </dependency>
     </dependencies>
 
@@ -76,8 +68,6 @@
                             <bundles>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.sts.stub</bundleDef>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.sts.ui</bundleDef>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.sts.mgt.ui</bundleDef>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.sts.mgt.stub</bundleDef>
                             </bundles>
                             <importFeatures>
                                 <importFeatureDef>org.wso2.carbon.core:${carbon.kernel.version}</importFeatureDef>

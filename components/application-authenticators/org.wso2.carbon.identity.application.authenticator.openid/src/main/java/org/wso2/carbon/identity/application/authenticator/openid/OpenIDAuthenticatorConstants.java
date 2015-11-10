@@ -20,7 +20,7 @@ package org.wso2.carbon.identity.application.authenticator.openid;
 
 public class OpenIDAuthenticatorConstants {
     public static final String AUTHENTICATOR_NAME = "OpenIDAuthenticator";
-    public static final String AUTHENTICATOR_FRIENDLY_NAME = "openid";
+    public static final String AUTHENTICATOR_FRIENDLY_NAME = "OpenID";
     public static final String MODE = "openid.mode";
     public static final String SESSION_DATA_KEY = "sessionDataKey";
     public static final String CLAIM_DIALECT_URI = "http://axschema.org";

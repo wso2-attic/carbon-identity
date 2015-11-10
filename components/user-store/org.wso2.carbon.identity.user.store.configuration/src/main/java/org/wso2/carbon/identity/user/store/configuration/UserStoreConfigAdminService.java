@@ -26,6 +26,7 @@ import org.w3c.dom.NodeList;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.user.store.configuration.beans.RandomPassword;
 import org.wso2.carbon.identity.user.store.configuration.beans.RandomPasswordContainer;
 import org.wso2.carbon.identity.user.store.configuration.cache.RandomPasswordContainerCache;
@@ -58,6 +59,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -495,7 +497,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
     }
 
     private boolean validateDomainsForDelete(String[] domains) {
-        String userDomain = UserCoreUtil.extractDomainFromName(PrivilegedCarbonContext.getThreadLocalCarbonContext()
+        String userDomain = IdentityUtil.extractDomainFromName(PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getUsername());
         for (String domain : domains) {
             if (domain.equalsIgnoreCase(userDomain)) {
@@ -634,6 +636,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder = null;
         try {
+            documentFactory.setFeature(UserStoreConfigurationConstant.EXTERNAL_GENERAL_ENTITIES_URI, false);
             documentBuilder = documentFactory.newDocumentBuilder();
             Document doc = documentBuilder.parse(userStoreConfigFile);
 
@@ -649,6 +652,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             DOMSource source = new DOMSource(doc);
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
@@ -799,6 +803,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             DOMSource source = new DOMSource(doc);
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
+
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");

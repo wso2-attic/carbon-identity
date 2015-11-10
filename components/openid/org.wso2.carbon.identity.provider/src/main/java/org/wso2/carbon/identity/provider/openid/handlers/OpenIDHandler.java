@@ -26,6 +26,7 @@ import org.wso2.carbon.identity.application.authentication.framework.cache.Authe
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
@@ -681,12 +682,18 @@ public class OpenIDHandler {
         out.println("<p>");
 
         AuthenticationResult authnResult = null;
+        AuthenticatedUser authenticatedUser = null;
 
         if (req.getParameter("sessionDataKey") != null) {
             authnResult = getAuthenticationResultFromCache(req.getParameter("sessionDataKey"));
         }
 
-        Map<ClaimMapping, String> userAttributes = authnResult.getSubject().getUserAttributes();
+        if(authnResult != null){
+            authenticatedUser = authnResult.getSubject();
+        }
+
+        Map<ClaimMapping, String> userAttributes =
+                authenticatedUser != null ? authenticatedUser.getUserAttributes() : null;
 
         out.println("<input type='hidden' name='openid.identity' value='" +
                 Encode.forHtmlAttribute((String) session.getAttribute

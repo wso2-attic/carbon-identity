@@ -28,16 +28,11 @@ import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
-import org.wso2.carbon.security.config.SecurityConfigAdmin;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
  * @scr.component name="identity.core.component" immediate="true"
- * @scr.reference name="security.config.service"
- * interface="org.wso2.carbon.security.config.SecurityConfigAdmin" cardinality="1..1"
- * policy="dynamic" bind="setSecurityConfigAdminService"
- * unbind="unsetSecurityConfigAdminService"
  * @scr.reference name="config.context.service"
  * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
  * policy="dynamic" bind="setConfigurationContextService"
@@ -142,24 +137,6 @@ public class IdentityCoreServiceComponent {
      */
     protected void unsetRealmService(RealmService realmService) {
         IdentityTenantUtil.setRealmService(null);
-    }
-
-    /**
-     * @param securityConfig
-     */
-    protected void setSecurityConfigAdminService(SecurityConfigAdmin securityConfig) {
-        if (log.isDebugEnabled()) {
-            log.debug("SecurityConfigAdmin set in Identity Core bundle");
-        }
-    }
-
-    /**
-     * @param securityConfig
-     */
-    protected void unsetSecurityConfigAdminService(SecurityConfigAdmin securityConfig) {
-        if (log.isDebugEnabled()) {
-            log.debug("SecurityConfigAdmin unset in Identity Core bundle");
-        }
     }
 
     protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {

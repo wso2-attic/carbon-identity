@@ -18,6 +18,11 @@
 
 package org.wso2.carbon.user.mgt.ui;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName;
 import org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo;
 import org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo;
@@ -25,13 +30,65 @@ import org.wso2.carbon.utils.DataPaginator;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public class Util {
 
     public static final String ALL = "ALL";
+    private static final Log log = LogFactory.getLog(Util.class);
+    private static boolean isAskPasswordEnabled = true;
+
+    static {
+        InputStream is = null;
+        try {
+            boolean identityMgtListenerEnabled = true;
+            IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty(
+                    UserOperationEventListener.class.getName(), "org.wso2.carbon.identity.mgt.IdentityMgtEventListener");
+            if (identityEventListener != null) {
+                identityMgtListenerEnabled = Boolean.parseBoolean(identityEventListener.getEnable());
+            }
+            if(identityMgtListenerEnabled){
+                File file = new File(IdentityUtil.getIdentityConfigDirPath() + "/identity-mgt.properties");
+                if(file.exists() && file.isFile()) {
+                    is = new FileInputStream(file);
+                    Properties identityMgtProperties = new Properties();
+                    identityMgtProperties.load(is);
+                    boolean tempPasswordEnabled = Boolean.parseBoolean(identityMgtProperties.getProperty("Temporary" +
+                            ".Password.Enable"));
+                    if(!tempPasswordEnabled){
+                        isAskPasswordEnabled = false;
+                    }
+                } else {
+                    isAskPasswordEnabled = false;
+                }
+            } else {
+                isAskPasswordEnabled = false;
+            }
+        } catch (FileNotFoundException e) {
+            if(log.isDebugEnabled()){
+                log.debug("identity-mgt.properties file not found in " + IdentityUtil.getIdentityConfigDirPath());
+            }
+            isAskPasswordEnabled = false;
+        } catch (IOException e) {
+            log.error("Error while reading identity-mgt.properties file");
+        } finally {
+            if(is != null){
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    log.error("Error occurred while closing the FileInputStream for identity-mgt.properties");
+                }
+            }
+        }
+    }
 
     private Util() {
 
@@ -138,9 +195,8 @@ public class Util {
         }
     }
 
-    public static String decodeHTMLCharacters(String encodedStr) {
-        return encodedStr.replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">")
-                .replaceAll("&quot;", "\"").replaceAll("&apos;", "'");
+    public static boolean isAskPasswordEnabled(){
+        return isAskPasswordEnabled;
     }
 
 }

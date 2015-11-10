@@ -19,6 +19,8 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.apache.commons.lang.ArrayUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
@@ -28,6 +30,7 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
@@ -40,9 +43,6 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
-<%@ page import="org.apache.commons.lang.ArrayUtils" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
@@ -404,7 +404,7 @@
                 <%
                     if (ArrayUtils.isNotEmpty(roles)) {
                         for (FlaggedName data : roles) {
-                            if (data != null) { //Confusing!!. Sometimes a null object comes. Maybe a bug in Axis!!
+                            if (data != null) {
                                 if (CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME.equals(data.getItemName())) {
                                     continue;
                                 }
@@ -558,7 +558,7 @@
                                         arg += " and ";
                                     }
                                 }
-                                message = resourceBundle.getString("more.roles.others").replace("{0}", arg);
+                                message = MessageFormat.format(resourceBundle.getString("more.roles.others"), arg);
                             } else {
                                 message = resourceBundle.getString("more.roles.primary");
                             }
@@ -577,7 +577,7 @@
                         arg += " and ";
                     }
                 }
-                message = resourceBundle.getString("more.roles").replace("{0}", arg);
+                message = MessageFormat.format(resourceBundle.getString("more.roles"), arg);
             %>
             <strong><%=Encode.forHtml(message)%>
             </strong>

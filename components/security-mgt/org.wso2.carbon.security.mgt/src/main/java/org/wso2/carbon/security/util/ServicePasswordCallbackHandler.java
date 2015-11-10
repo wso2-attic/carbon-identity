@@ -25,6 +25,7 @@ import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.core.util.KeyStoreManager;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
@@ -121,7 +122,7 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                             // Additionally, secondary user stores needs to implement UserCredentialRetriever interface too
                             UserCredentialRetriever userCredentialRetriever;
                             String storedPassword = null;
-                            String domainName = UserCoreUtil.extractDomainFromName(username);
+                            String domainName = IdentityUtil.extractDomainFromName(username);
                             if (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domainName)) {
                                 if (realm.getUserStoreManager() instanceof UserCredentialRetriever) {
                                     userCredentialRetriever = (UserCredentialRetriever) realm.getUserStoreManager();

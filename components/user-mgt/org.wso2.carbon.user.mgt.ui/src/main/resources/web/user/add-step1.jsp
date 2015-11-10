@@ -27,6 +27,7 @@
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserStoreInfo" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
@@ -377,7 +378,7 @@
                                                style="width:150px"/></td>
                                 </tr>
                                 <%
-                                    if (CarbonUIUtil.isContextRegistered(config, "/identity-mgt/")) {
+                                    if (Util.isAskPasswordEnabled()) {
                                 %>
 
                                 <tr>

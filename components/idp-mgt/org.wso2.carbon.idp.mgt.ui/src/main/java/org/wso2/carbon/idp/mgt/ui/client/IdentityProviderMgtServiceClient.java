@@ -179,7 +179,7 @@ public class IdentityProviderMgtServiceClient {
             idPMgtStub.addIdP(identityProvider);
         } catch (Exception e) {
             log.error("Error in adding a Identity Provider for a given tenant", e);
-            throw new Exception("Error in adding the Identity Provider");
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -229,12 +229,7 @@ public class IdentityProviderMgtServiceClient {
 
             if (fedAuthConfigs != null && fedAuthConfigs.length > 0) {
                 for (FederatedAuthenticatorConfig config : fedAuthConfigs) {
-                    if (!(("facebook").equals(config.getDisplayName())
-                            || ("openid").equals(config.getDisplayName())
-                            || ("openidconnect").equals(config.getDisplayName())
-                            || ("samlsso").equals(config.getDisplayName()) || ("passivests").
-                            equals(config.getDisplayName())))
-                        configMap.put(config.getName(), config);
+                    configMap.put(config.getName(), config);
                 }
             }
         } catch (Exception e) {
