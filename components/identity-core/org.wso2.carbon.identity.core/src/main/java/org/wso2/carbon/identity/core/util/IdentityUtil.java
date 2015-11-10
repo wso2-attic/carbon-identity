@@ -89,6 +89,8 @@ public class IdentityUtil {
             'D', 'E', 'F', 'G', 'H', 'J', 'K',
             'M', 'N', 'P', 'R', 'S', 'T', 'U',
             'V', 'W', 'X', 'Y', 'Z'};
+    public static final String DEFAULT_FILE_NAME_REGEX = "^(?!(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\\.[^.]*)?$)" +
+                                                         "[^<>:\"/\\\\|?*\\x00-\\x1F]*[^<>:\"/\\\\|?*\\x00-\\x1F\\ .]$";
     private static Log log = LogFactory.getLog(IdentityUtil.class);
     private static Map<String, Object> configuration = new HashMap<String, Object>();
     private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new
@@ -513,9 +515,14 @@ public class IdentityUtil {
     }
 
     public static boolean isValidFileName(String fileName){
-        Pattern pattern = Pattern.compile("^(?!(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\\.[^.]*)?$)[^<>:\"/\\\\|?*" +
-                                          "\\x00-\\x1F]*[^<>:\"/\\\\|?*\\x00-\\x1F\\ .]$", Pattern.CASE_INSENSITIVE
-                                          | Pattern.UNICODE_CASE | Pattern.COMMENTS);
+        String fileNameRegEx = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.FILE_NAME_REGEX);
+
+        if(isBlank(fileNameRegEx)){
+            fileNameRegEx = DEFAULT_FILE_NAME_REGEX;
+        }
+
+        Pattern pattern = Pattern.compile(fileNameRegEx, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE |
+                                                                   Pattern.COMMENTS);
         Matcher matcher = pattern.matcher(fileName);
         return matcher.matches();
     }
