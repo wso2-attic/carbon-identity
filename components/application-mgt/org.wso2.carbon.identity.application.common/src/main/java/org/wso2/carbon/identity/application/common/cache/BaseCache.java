@@ -114,6 +114,9 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
 
             } else {
                 cache = cacheManager.getCache(cacheName);
+                if (capacity != 0) {
+                    ((CacheImpl) cache).setCapacity(capacity);
+                }
 
             }
         } finally {
