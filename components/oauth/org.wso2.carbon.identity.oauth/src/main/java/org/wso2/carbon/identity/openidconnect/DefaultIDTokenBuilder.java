@@ -202,8 +202,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             StringBuilder stringBuilder = (new StringBuilder())
                     .append("Using issuer ").append(issuer).append("\n")
                     .append("Subject ").append(subject).append("\n")
-                    .append("ID Token life time ").append(lifetimeInMillis/1000).append("\n")
-                    .append("Current time ").append(curTimeInMillis/1000).append("\n")
+                    .append("ID Token life time ").append(lifetimeInMillis / 1000).append("\n")
+                    .append("Current time ").append(curTimeInMillis / 1000).append("\n")
                     .append("Nonce Value ").append(nonceValue).append("\n")
                     .append("Signature Algorithm ").append(signatureAlgorithm).append("\n");
             if (log.isDebugEnabled()) {
