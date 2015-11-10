@@ -27,8 +27,10 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
+import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
 import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
 import org.wso2.carbon.registry.api.Collection;
 import org.wso2.carbon.registry.api.Registry;
@@ -44,7 +46,9 @@ import org.wso2.carbon.user.mgt.UserMgtConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ApplicationMgtUtil {
 
@@ -475,5 +479,44 @@ public class ApplicationMgtUtil {
 
         return CarbonConstants.UI_PERMISSION_NAME + RegistryConstants.PATH_SEPARATOR + APPLICATION_ROOT_PERMISSION;
 
+    }
+
+    /**
+     * Get Property values
+     *
+     * @param tenantDomain Tenant domain
+     * @param spIssuer SP Issuer
+     * @param propertyNames Property names
+     * @return Properties map
+     * @throws IdentityApplicationManagementException
+     */
+    protected Map<String, String> getPropertyValues(String tenantDomain, String spIssuer, List<String> propertyNames)
+            throws IdentityApplicationManagementException {
+
+        ServiceProvider serviceProvider = ApplicationMgtSystemConfig.getInstance().getApplicationDAO()
+                .getApplication(spIssuer, tenantDomain);
+
+        if (serviceProvider == null) {
+            throw new IdentityApplicationManagementException(
+                    "No service provider exists in the provided tenant, with the given issuer id " + spIssuer);
+        }
+
+        Map<String, String> propKeyValueMap = new HashMap<String, String>();
+
+        InboundAuthenticationRequestConfig[] inboundAuthReqConfigs = serviceProvider.getInboundAuthenticationConfig()
+                .getInboundAuthenticationRequestConfigs();
+
+        if (inboundAuthReqConfigs != null && inboundAuthReqConfigs.length > 0) {
+            for (InboundAuthenticationRequestConfig authConfig : inboundAuthReqConfigs) {
+                Property[] properties = authConfig.getProperties();
+                for (Property prop : properties) {
+                    if (propertyNames.contains(prop.getName())) {
+                        propKeyValueMap.put(prop.getName(), prop.getValue());
+                    }
+                }
+            }
+        }
+
+        return propKeyValueMap;
     }
 }

@@ -814,7 +814,9 @@ public class SecurityConfigAdmin {
             resource = registryToLoad.get(resourceUri);
             InputStream in = resource.getContentStream();
             XMLStreamReader parser = null;
-            parser = XMLInputFactory.newInstance().createXMLStreamReader(in);
+            XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+            parser = xmlInputFactory.createXMLStreamReader(in);
             StAXOMBuilder builder = new StAXOMBuilder(parser);
             OMElement policyElement = builder.getDocumentElement();
 
@@ -1341,7 +1343,9 @@ public class SecurityConfigAdmin {
             XMLStreamException {
 
         InputStream in = resource.getContentStream();
-        XMLStreamReader parser = XMLInputFactory.newInstance().createXMLStreamReader(in);
+        XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+        xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        XMLStreamReader parser = xmlInputFactory.createXMLStreamReader(in);
         StAXOMBuilder builder = new StAXOMBuilder(parser);
 
         OMElement policyElement = builder.getDocumentElement();
