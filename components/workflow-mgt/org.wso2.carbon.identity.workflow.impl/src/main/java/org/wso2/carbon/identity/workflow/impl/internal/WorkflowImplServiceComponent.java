@@ -60,7 +60,7 @@ import java.net.URISyntaxException;
  * unbind="unsetRealmService"
  * @scr.reference name="org.wso2.carbon.identity.workflow.mgt.workflowservice"
  * interface="org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService"
- * cardinality="0..n" policy="dynamic" bind="setWorkflowManagementService"
+ * cardinality="1..1" policy="dynamic" bind="setWorkflowManagementService"
  * unbind="unsetWorkflowManagementService"
  * @scr.reference name="identityCoreInitializedEventService"
  * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"

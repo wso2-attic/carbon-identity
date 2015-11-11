@@ -29,7 +29,9 @@
             <order>1</order>
             <style-class>manage</style-class>
             <!--<icon>../tools-saml/images/lock_blue.png</icon>-->
-            <require-permission>/permission/admin/configure/security</require-permission>
+
+            <at-least>/permission/admin/manage/identity/workflow/association/create</at-least>
+            <at-least>/permission/admin/manage/identity/workflow/association/view</at-least>
         </menu>
         <menu>
             <id>association_add_menu</id>
@@ -43,7 +45,7 @@
             <style-class>manage</style-class>
             <!--TODO change icon-->
             <!--<icon>../workflow-mgt/images/claimmgt.gif</icon>-->
-            <require-permission>/permission/admin/configure/security</require-permission>
+            <require-permission>/permission/admin/manage/identity/workflow/association/create</require-permission>
         </menu>
         <menu>
             <id>association_list_menu</id>
@@ -57,7 +59,7 @@
             <style-class>manage</style-class>
             <!--TODO change icon-->
             <!--<icon>../workflow-mgt/images/claimmgt.gif</icon>-->
-            <require-permission>/permission/admin/configure/security</require-permission>
+            <require-permission>/permission/admin/manage/identity/workflow/association/view</require-permission>
         </menu>
 
         <!--Workflow management menu-->
@@ -72,7 +74,9 @@
             <order>2</order>
             <style-class>manage</style-class>
             <!--<icon>../tools-saml/images/lock_blue.png</icon>-->
-            <require-permission>/permission/admin/configure/security</require-permission>
+
+            <at-least>/permission/admin/manage/identity/workflow/definition/create</at-least>
+            <at-least>/permission/admin/manage/identity/workflow/definition/view</at-least>
         </menu>
 
         <menu>
@@ -87,7 +91,7 @@
             <style-class>manage</style-class>
             <!--TODO change icon-->
             <!--<icon>../workflow-mgt/images/claimmgt.gif</icon>-->
-            <require-permission>/permission/admin/configure/security</require-permission>
+            <require-permission>/permission/admin/manage/identity/workflow/definition/create</require-permission>
         </menu>
         <menu>
             <id>workflow_services_list_menu</id>
@@ -101,7 +105,7 @@
             <style-class>manage</style-class>
             <!--TODO change icon-->
             <!--<icon>../workflow-mgt/images/claimmgt.gif</icon>-->
-            <require-permission>/permission/admin/configure/security</require-permission>
+            <require-permission>/permission/admin/manage/identity/workflow/definition/view</require-permission>
         </menu>
 
         <menu>
@@ -114,7 +118,7 @@
             <region>region4</region>
             <order>78</order>
             <style-class>manage</style-class>
-            <require-permission>/permission/admin/configure/security</require-permission>
+            <require-permission>/permission/admin/manage/identity/workflow/monitor/view</require-permission>
         </menu>
     </menus>
 </component>
