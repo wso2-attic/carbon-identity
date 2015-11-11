@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.application.authenticator.social.facebook;
 public class FacebookAuthenticatorConstants {
 
     public static final String AUTHENTICATOR_NAME = "FacebookAuthenticator";
-    public static final String AUTHENTICATOR_FRIENDLY_NAME = "Facebook";
     public static final String FACEBOOK_LOGIN_TYPE = "facebook";
 
     public static final String OAUTH2_GRANT_TYPE_CODE = "code";
