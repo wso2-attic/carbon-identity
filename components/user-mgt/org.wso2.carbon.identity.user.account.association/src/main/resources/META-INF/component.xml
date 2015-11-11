@@ -31,19 +31,19 @@
         </ManagementPermission>
         <ManagementPermission>
             <DisplayName>Create</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/user/associations/create</ResourceId>
+            <ResourceId>/permission/admin/manage/identity/user/association/create</ResourceId>
         </ManagementPermission>
         <ManagementPermission>
             <DisplayName>View</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/user/associations/view</ResourceId>
+            <ResourceId>/permission/admin/manage/identity/user/association/view</ResourceId>
         </ManagementPermission>
         <ManagementPermission>
             <DisplayName>Update</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/user/associations/update</ResourceId>
+            <ResourceId>/permission/admin/manage/identity/user/association/update</ResourceId>
         </ManagementPermission>
         <ManagementPermission>
             <DisplayName>Delete</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/user/associations/delete</ResourceId>
+            <ResourceId>/permission/admin/manage/identity/user/association/delete</ResourceId>
         </ManagementPermission>
     </ManagementPermissions>
 
