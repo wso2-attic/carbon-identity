@@ -556,12 +556,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         PreparedStatement inboundProConfigPrepStmt = null;
 
         try {
-            if (inBoundProvisioningConfig == null
-                    || inBoundProvisioningConfig.getProvisioningUserStore() == null) {
-                // no in-bound authentication requests defined.
-                return;
-            }
-
             inboundProConfigPrepStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.UPDATE_BASIC_APPINFO_WITH_PRO_PROPERTIES);
 
