@@ -155,9 +155,6 @@ function isValidConfirmationDialog(validationObj, msg, handleYes, handleNo, clos
     if (validationObj['isValid'] === true) {
         return true;
     }
-    else if (validationObj['isValid'] === "empty") {
-        return true;
-    }
 
     var label = validationObj['label'];
     var whiteListPatterns = validationObj['whiteListPatterns'];
@@ -207,7 +204,7 @@ function validateInput(inputElement) {
     var blackListPatternString = "";
     var labelString = "";
 
-    if (value != null && value != 'null' && value != "") {
+    if (value != null && value != 'null') {
         var whiteListPatterns = inputElement.getAttribute('white-list-patterns');
         var blackListPatterns = inputElement.getAttribute('black-list-patterns');
 
@@ -268,11 +265,6 @@ function validateInput(inputElement) {
                 blackListPatterns: blackListPatternString
             };
         }
-    }
-    else{
-        return {
-            isValid: "empty"
-        };
     }
 }
 

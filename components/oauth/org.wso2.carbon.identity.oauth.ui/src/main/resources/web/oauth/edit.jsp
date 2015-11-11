@@ -154,8 +154,16 @@
                 }
                 function validate() {
                     var callbackUrl = document.getElementById('callback').value;
-                    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-                    var value = document.getElementsByName("application")[0].value;
+                    if ($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
+                        if (callbackUrl == '') {
+                            CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
+                            return false;
+                        } else if (!isWhiteListed(callbackUrl, "url")) {
+                            CARBON.showWarningDialog('<fmt:message key="callback.is.not.url"/>');
+                            return false;
+                        }
+                    }
+                     value = document.getElementsByName("application")[0].value;
                     if (value == '') {
                         CARBON.showWarningDialog('<fmt:message key="application.is.required"/>');
                         return false;
@@ -163,30 +171,23 @@
                     var value = document.getElementsByName("callback")[0].value;
                     var versionValue = document.getElementsByName("oauthVersion")[0].value;
                     if (versionValue == '<%=OAuthConstants.OAuthVersions.VERSION_2%>') {
-                        if (value == '') {
-                            if ($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
-                                CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
+                        if (!$(jQuery("#grant_code"))[0].checked && !$(jQuery("#grant_implicit"))[0].checked) {
+                            document.getElementsByName("callback")[0].value = '';
+                        }
+                        else {
+                            if (!regexp.test(callbackUrl) || callbackUrl.indexOf(",") > -1) {
+                                CARBON.showWarningDialog("<fmt:message key='callback.is.not.url'/>", null, null);
                                 return false;
-                            }
-                        } else {
-                            if (!$(jQuery("#grant_code"))[0].checked && !$(jQuery("#grant_implicit"))[0].checked) {
-                                document.getElementsByName("callback")[0].value = '';
-                            }
-                            else {
-                                if (!regexp.test(callbackUrl) || callbackUrl.indexOf(",") > -1) {
-                                    CARBON.showWarningDialog("<fmt:message key='callback.is.not.url'/>", null, null);
-                                    return false;
-                                }
                             }
                         }
                     } else {
                         if (value == '') {
                             CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
                             return false;
-                        }
-                        else if (!regexp.test(callbackUrl) || callbackUrl.indexOf(",") > -1) {
-                            CARBON.showWarningDialog("<fmt:message key='callback.is.not.url'/>", null, null);
+                        } else if (!isWhiteListed(callbackUrl, "url")) {
+                            CARBON.showWarningDialog('<fmt:message key="callback.is.not.url"/>');
                             return false;
+
                         }
                     }
                     document.editAppform.submit();
