@@ -32,7 +32,7 @@
             </parameter>
         </operation>
         <operation name="createUserAccountAssociation">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/accountmgt/create
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user/association/create
             </parameter>
         </operation>
         <operation name="associateMyAccounts">
@@ -47,7 +47,7 @@
             </parameter>
         </operation>
         <operation name="deleteAssociationsOfUser">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/accountmgt/delete
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user/association/delete
             </parameter>
         </operation>
         <operation name="deleteMyAssociationsWithoutLogin">
@@ -58,7 +58,7 @@
             </parameter>
         </operation>
         <operation name="getAccountAssociations">
-            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/accountmgt/view
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user/association/view
             </parameter>
         </operation>
         <operation name="getMyAccountAssociationsWithoutLogin">
