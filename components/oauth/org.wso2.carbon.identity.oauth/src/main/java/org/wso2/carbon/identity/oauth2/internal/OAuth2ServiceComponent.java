@@ -39,7 +39,7 @@ import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
  * cardinality="1..1" policy="dynamic"
  * bind="setApplicationMgtService"
  * unbind="unsetApplicationMgtService"
- * * @scr.reference name="identityCoreInitializedEventService"
+ * @scr.reference name="identityCoreInitializedEventService"
  * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
  * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
  */
