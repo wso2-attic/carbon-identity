@@ -32,6 +32,17 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <filter>
+        <filter-name>CSRFPreventionFilter</filter-name>
+        <filter-class>org.wso2.carbon.ui.filters.CSRFPreventionFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>CSRFPreventionFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+
 
     <servlet>
         <servlet-name>OAuth2Endpoints</servlet-name>
