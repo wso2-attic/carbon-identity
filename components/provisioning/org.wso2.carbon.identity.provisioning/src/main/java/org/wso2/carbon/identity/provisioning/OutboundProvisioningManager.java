@@ -472,6 +472,12 @@ public class OutboundProvisioningManager {
 
                 ProvisioningOperation provisioningOp = provisioningEntity.getOperation();
 
+                if (ProvisioningOperation.DELETE.equals(provisioningOp) &&
+                        (provisionedIdentifier == null || provisionedIdentifier.getIdentifier() == null)) {
+                    //No provisioning identifier found. User has not outbound provisioned to this idp. So no need to
+                    // send outbound delete request. Skip the flow
+                    return;
+                }
                 if (provisionedIdentifier == null || provisionedIdentifier.getIdentifier() == null) {
                     provisioningOp = ProvisioningOperation.POST;
                 }
