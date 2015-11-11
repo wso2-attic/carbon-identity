@@ -808,7 +808,7 @@ public class SCIMUserManager implements UserManager {
         oldGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()),
                 IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
         newGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(newGroup.getDisplayName()),
-                IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
+                IdentityUtil.extractDomainFromName(newGroup.getDisplayName())));
 
             try {
                 String primaryDomain = IdentityUtil.getPrimaryDomainName();
