@@ -26,8 +26,8 @@
             <ResourceId>/permission/admin/manage/identity/user</ResourceId>
         </ManagementPermission>
         <ManagementPermission>
-            <DisplayName>Associations</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/user/associations</ResourceId>
+            <DisplayName>Association</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/user/association</ResourceId>
         </ManagementPermission>
         <ManagementPermission>
             <DisplayName>Create</DisplayName>
