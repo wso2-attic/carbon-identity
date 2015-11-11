@@ -22,24 +22,28 @@
 
     <ManagementPermissions>
         <ManagementPermission>
-            <DisplayName>Account Management</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/accountmgt</ResourceId>
+            <DisplayName>User</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/user</ResourceId>
+        </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>Associations</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/user/associations</ResourceId>
         </ManagementPermission>
         <ManagementPermission>
             <DisplayName>Create</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/accountmgt/create</ResourceId>
+            <ResourceId>/permission/admin/manage/identity/user/associations/create</ResourceId>
         </ManagementPermission>
         <ManagementPermission>
             <DisplayName>View</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/accountmgt/view</ResourceId>
+            <ResourceId>/permission/admin/manage/identity/user/associations/view</ResourceId>
         </ManagementPermission>
         <ManagementPermission>
             <DisplayName>Update</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/accountmgt/update</ResourceId>
+            <ResourceId>/permission/admin/manage/identity/user/associations/update</ResourceId>
         </ManagementPermission>
         <ManagementPermission>
             <DisplayName>Delete</DisplayName>
-            <ResourceId>/permission/admin/manage/identity/accountmgt/delete</ResourceId>
+            <ResourceId>/permission/admin/manage/identity/user/associations/delete</ResourceId>
         </ManagementPermission>
     </ManagementPermissions>
 
