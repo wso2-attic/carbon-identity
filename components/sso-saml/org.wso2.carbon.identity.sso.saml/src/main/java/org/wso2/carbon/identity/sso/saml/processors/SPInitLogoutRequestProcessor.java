@@ -228,7 +228,7 @@ public class SPInitLogoutRequestProcessor {
                                 , sessionIndex, SAMLSSOConstants.SingleLogoutCodes.LOGOUT_USER, logoutReqDTO
                                 .getAssertionConsumerURL(), value.getNameIDFormat(), value.getTenantDomain(), value
                                 .getSigningAlgorithmUri(), value.getDigestAlgorithmUri());
-                        String logoutReqString = SAMLSSOUtil.encode(SAMLSSOUtil.marshall(logoutReq));
+                        String logoutReqString = SAMLSSOUtil.marshall(logoutReq);
                         logoutReqDTO.setLogoutResponse(logoutReqString);
                         logoutReqDTO.setRpSessionId(rpSessionsList.get(key));
                         singleLogoutReqDTOs.add(logoutReqDTO);
