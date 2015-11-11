@@ -54,10 +54,10 @@ public class UserAccountAssociationService extends AbstractAdmin {
         String loggedInUser = UserCoreUtil.addTenantDomainToEntry(CarbonContext.getThreadLocalCarbonContext()
                 .getUsername(), CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
 
-        org.wso2.carbon.user.api.UserRealm userRealm = null;
-        RealmService realmService = null;
+        org.wso2.carbon.user.api.UserRealm userRealm;
+        RealmService realmService;
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
-        int tenantId = -1;
+        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
         try {
             realmService = IdentityAccountAssociationServiceComponent.getRealmService();
             tenantId = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(userName));
@@ -79,7 +79,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
             throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
                     .INVALID_TENANT_DOMAIN.toString());
         }
-        boolean authentic = false;
+        boolean authentic;
         try {
             userRealm = realmService.getTenantUserRealm(tenantId);
             authentic = userRealm.getUserStoreManager().authenticate(tenantAwareUsername, String.valueOf(password));
@@ -117,10 +117,8 @@ public class UserAccountAssociationService extends AbstractAdmin {
      */
     public void asssociateTwoAccounts(String userName1, String userName2) throws UserAccountAssociationClientException {
 
-        org.wso2.carbon.user.api.UserRealm userRealm = null;
-        RealmService realmService = null;
-        String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName2);
-        int tenantId = -1;
+        RealmService realmService;
+        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
         try {
             realmService = IdentityAccountAssociationServiceComponent.getRealmService();
             tenantId = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(userName2));
@@ -165,12 +163,12 @@ public class UserAccountAssociationService extends AbstractAdmin {
     public void associateMyAccounts(String userName1, char[] password1, String userName2, char[] password2) throws
             UserAccountAssociationClientException {
 
-        org.wso2.carbon.user.api.UserRealm userRealm = null;
-        RealmService realmService = null;
+        org.wso2.carbon.user.api.UserRealm userRealm;
+        RealmService realmService;
         String tenantAwareUsername1 = MultitenantUtils.getTenantAwareUsername(userName1);
         String tenantAwareUsername2 = MultitenantUtils.getTenantAwareUsername(userName2);
-        int tenantId1 = -1;
-        int tenantId2 = -1;
+        int tenantId1 = MultitenantConstants.INVALID_TENANT_ID;
+        int tenantId2 = MultitenantConstants.INVALID_TENANT_ID;
         try {
             realmService = IdentityAccountAssociationServiceComponent.getRealmService();
             tenantId1 = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(userName1));
@@ -200,7 +198,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
             throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
                     .INVALID_TENANT_DOMAIN.toString());
         }
-        boolean authentic1 = false;
+        boolean authentic1;
         try {
             userRealm = realmService.getTenantUserRealm(tenantId1);
             authentic1 = userRealm.getUserStoreManager().authenticate(tenantAwareUsername1, String.valueOf(password1));
@@ -209,7 +207,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
                     .ERROR_WHILE_AUTHENTICATING_USER
                     .getDescription(), e);
         }
-        boolean authentic2 = false;
+        boolean authentic2;
         try {
             userRealm = realmService.getTenantUserRealm(tenantId2);
             authentic2 = userRealm.getUserStoreManager().authenticate(tenantAwareUsername2, String.valueOf(password2));
@@ -247,8 +245,8 @@ public class UserAccountAssociationService extends AbstractAdmin {
     public void deleteUserAccountAssociation(String userName) throws UserAccountAssociationClientException {
 
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
-        int tenantId = -1;
-        RealmService realmService = null;
+        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+        RealmService realmService;
 
         try {
             realmService = IdentityAccountAssociationServiceComponent.getRealmService();
@@ -336,9 +334,9 @@ public class UserAccountAssociationService extends AbstractAdmin {
 
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
         String initiator = MultitenantUtils.getTenantAwareUsername(initiateUser);
-        int tenantId = -1;
-        int tenantIdOfInitiateUser = -1;
-        RealmService realmService = null;
+        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+        int tenantIdOfInitiateUser = MultitenantConstants.INVALID_TENANT_ID;
+        RealmService realmService;
 
         try {
             realmService = IdentityAccountAssociationServiceComponent.getRealmService();
@@ -358,8 +356,8 @@ public class UserAccountAssociationService extends AbstractAdmin {
         tenantAwareUsername = UserAccountAssociationUtil.getUsernameWithoutDomain(tenantAwareUsername);
         String domainNameOfInitiator = UserAccountAssociationUtil.getDomainName(initiator);
         initiator = UserAccountAssociationUtil.getUsernameWithoutDomain(initiator);
-        boolean authentic = false;
-        org.wso2.carbon.user.api.UserRealm userRealm = null;
+        boolean authentic;
+        org.wso2.carbon.user.api.UserRealm userRealm;
         try {
             userRealm = realmService.getTenantUserRealm(tenantIdOfInitiateUser);
             authentic = userRealm.getUserStoreManager().authenticate(initiator, String.valueOf(password));

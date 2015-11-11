@@ -82,7 +82,7 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
             UserAccountAssociationException {
 
         if (StringUtils.isNotBlank(userName1) && StringUtils.isNotBlank(userName2)) {
-            RealmService realmService = null;
+            RealmService realmService;
             String tenantAwareUsername1 = MultitenantUtils.getTenantAwareUsername(userName1);
             String tenantAwareUsername2 = MultitenantUtils.getTenantAwareUsername(userName2);
 
@@ -90,8 +90,8 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
             String user2Domain = UserAccountAssociationUtil.getDomainName(tenantAwareUsername2);
             String username1WithoutDomain = UserAccountAssociationUtil.getUsernameWithoutDomain(tenantAwareUsername1);
             String username2WithoutDomain = UserAccountAssociationUtil.getUsernameWithoutDomain(tenantAwareUsername2);
-            int user1Tenant = -1;
-            int user2Tenant = -1;
+            int user1Tenant = MultitenantConstants.INVALID_TENANT_ID;
+            int user2Tenant = MultitenantConstants.INVALID_TENANT_ID;
             try {
                 realmService = IdentityAccountAssociationServiceComponent.getRealmService();
                 user1Tenant = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(userName1));
@@ -188,8 +188,8 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
         if (!StringUtils.isBlank(userName)) {
 
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
-            int tenantId = -1;
-            RealmService realmService = null;
+            int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+            RealmService realmService;
 
             try {
                 realmService = IdentityAccountAssociationServiceComponent.getRealmService();
@@ -240,8 +240,8 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
 
         String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(userName);
         String tenantDomain = MultitenantUtils.getTenantDomain(userName);
-        RealmService realmService = null;
-        int tenantId = -1;
+        RealmService realmService;
+        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
 
         try {
             realmService = IdentityAccountAssociationServiceComponent.getRealmService();
@@ -282,8 +282,8 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
             String tenantDomain = MultitenantUtils.getTenantDomain(userName);
             String domainName = UserAccountAssociationUtil.getDomainName(tenantAwareUsername);
             tenantAwareUsername = UserAccountAssociationUtil.getUsernameWithoutDomain(tenantAwareUsername);
-            RealmService realmService = null;
-            int tenantId = -1;
+            RealmService realmService;
+            int tenantId = MultitenantConstants.INVALID_TENANT_ID;
 
             try {
                 realmService = IdentityAccountAssociationServiceComponent.getRealmService();
