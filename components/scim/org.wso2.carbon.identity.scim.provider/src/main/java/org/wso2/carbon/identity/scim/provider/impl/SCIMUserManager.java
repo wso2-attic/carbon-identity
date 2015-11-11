@@ -574,9 +574,8 @@ public class SCIMUserManager implements UserManager {
                         roleNameWithDomain = UserCoreUtil
                                 .addDomainToName(UserCoreUtil.removeDomainFromName(originalName), domainName);
                     } else {
-                        domainName = IdentityUtil.extractDomainFromName(originalName);
-                        String nameWithoutDomain = UserCoreUtil.removeDomainFromName(originalName);
-                        roleNameWithDomain = UserCoreUtil.addDomainToName(nameWithoutDomain, domainName);
+                        domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+                        roleNameWithDomain = UserCoreUtil.addDomainToName(originalName, domainName);
                     }
                 } catch (IdentityApplicationManagementException e) {
                     throw new CharonException("Error retrieving User Store name. ", e);
