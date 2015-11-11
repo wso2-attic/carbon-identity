@@ -22,9 +22,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
 import org.wso2.carbon.identity.scim.common.utils.SCIMCommonUtils;
 import org.wso2.carbon.identity.scim.common.utils.SQLQueries;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.charon.core.schema.SCIMConstants;
 
 import java.sql.Connection;
@@ -86,7 +88,8 @@ public class GroupDAO {
         try {
             prepStmt = connection.prepareStatement(SQLQueries.CHECK_EXISTING_GROUP_SQL);
             prepStmt.setInt(1, tenantId);
-            prepStmt.setString(2, SCIMCommonUtils.getGroupNameWithDomain(groupName));
+            prepStmt.setString(2, UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(groupName),
+                    IdentityUtil.extractDomainFromName(groupName)));
 
             rSet = prepStmt.executeQuery();
             if (rSet.next()) {

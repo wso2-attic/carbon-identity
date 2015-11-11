@@ -569,8 +569,9 @@ public class SCIMUserManager implements UserManager {
                         roleNameWithDomain = UserCoreUtil
                                 .addDomainToName(UserCoreUtil.removeDomainFromName(originalName), domainName);
                     } else if (originalName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
-                        roleNameWithDomain = originalName;
-                        domainName = originalName.split(UserCoreConstants.DOMAIN_SEPARATOR)[0];
+                        domainName = IdentityUtil.extractDomainFromName(originalName);
+                        roleNameWithDomain = UserCoreUtil
+                                .addDomainToName(UserCoreUtil.removeDomainFromName(originalName), domainName);
                     } else {
                         roleNameWithDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME +
                                              CarbonConstants.DOMAIN_SEPARATOR + originalName;
@@ -806,6 +807,8 @@ public class SCIMUserManager implements UserManager {
 
         oldGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()
         ), IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
+        newGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()
+        ), IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
 
             try {
                 if (IdentityUtil.extractDomainFromName(newGroup.getDisplayName()).equals(UserCoreConstants
@@ -890,8 +893,8 @@ public class SCIMUserManager implements UserManager {
                 //update name if it is changed
                 if (!(oldGroup.getDisplayName().equalsIgnoreCase(newGroup.getDisplayName()))) {
                     //update group name in carbon UM
-                    carbonUM.updateRoleName(oldGroup.getDisplayName().toLowerCase(),
-                                            newGroup.getDisplayName().toLowerCase());
+                    carbonUM.updateRoleName(oldGroup.getDisplayName(),
+                                            newGroup.getDisplayName());
 
                     updated = true;
                 }
@@ -980,8 +983,10 @@ public class SCIMUserManager implements UserManager {
             throw new CharonException("Error retrieving User Store name. ", e);
         }
 
-        oldGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup
-                .getDisplayName()), IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
+        oldGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()
+        ), IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
+        newGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(newGroup.getDisplayName()
+        ), IdentityUtil.extractDomainFromName(newGroup.getDisplayName())));
 
 
         if (log.isDebugEnabled()) {
@@ -1084,8 +1089,8 @@ public class SCIMUserManager implements UserManager {
                 // update name if it is changed
                 if (!(oldGroup.getDisplayName().equalsIgnoreCase(newGroup.getDisplayName()))) {
                     // update group name in carbon UM
-                    carbonUM.updateRoleName(oldGroup.getDisplayName().toLowerCase(),
-                                            newGroup.getDisplayName().toLowerCase());
+                    carbonUM.updateRoleName(oldGroup.getDisplayName(),
+                                            newGroup.getDisplayName());
 
                     updated = true;
                 }
