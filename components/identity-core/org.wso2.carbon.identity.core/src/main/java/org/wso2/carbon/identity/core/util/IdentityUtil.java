@@ -579,7 +579,7 @@ public class IdentityUtil {
         if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PROTOCOL)) {
 
             String mgtTransport = CarbonUtils.getManagementTransport();
-            StringUtils.replace(urlWithPlaceholders,
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
                     IdentityConstants.CarbonPlaceholders.CARBON_PROTOCOL,
                     mgtTransport);
         }
