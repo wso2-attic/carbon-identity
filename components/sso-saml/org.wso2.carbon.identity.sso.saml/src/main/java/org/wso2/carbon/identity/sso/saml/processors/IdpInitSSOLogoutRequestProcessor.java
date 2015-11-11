@@ -15,24 +15,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.sso.saml.validators;
+package org.wso2.carbon.identity.sso.saml.processors;
 
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.sso.saml.dto.QueryParamDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 
 /**
- * Interface to implement in order to validate a received SAML SSO request
+ * Interface to implement in order to process a received IDP initiated SAML SSO logout request.
  * Implementation class should be defined in <>identity.xml</> under <>SSOService</> element as
- * <IdPInitSSOAuthnRequestValidator></IdPInitSSOAuthnRequestValidator> for IDP initiated authentication request flow,
- * <SPInitSSOAuthnRequestValidator></SPInitSSOAuthnRequestValidator> for SP initiated authentication request flow.
+ * <IdpInitSSOLogoutRequestProcessor></IdpInitSSOLogoutRequestProcessor>
  */
-public interface SSOAuthnRequestValidator {
+public interface IdpInitSSOLogoutRequestProcessor {
 
     /**
-     * Validates the authentication request according to SAML SSO Web Browser Specification
+     * Processes the logout request according to SAML SSO Web Browser Specification
      *
-     * @return SAMLSSOSignInResponseDTO : includes validation outputs
+     * @return SAMLSSOSignInResponseDTO : includes processing outputs
      * @throws IdentityException
      */
-    SAMLSSOReqValidationResponseDTO validate() throws IdentityException;
+    SAMLSSOReqValidationResponseDTO process(String sessionId, QueryParamDTO[] queryParamDTOs,
+                                            String serverURL) throws IdentityException;
 }
