@@ -1144,13 +1144,19 @@ public class ApplicationBean {
             for (InboundAuthenticationRequestConfig customAuthConfig : inboundAuthenticationRequestConfigs) {
                 String type = customAuthConfig.getInboundAuthType();
                 Property[] properties = customAuthConfig.getProperties();
+                boolean isCustomAuthConfig = false;
                 if (!ArrayUtils.isEmpty(properties)) {
                     for (Property prop : properties) {
                         String propVal = request.getParameter("custom_auth_prop_name_" + type + "_" + prop.getName());
                         prop.setValue(propVal);
+                        if (propVal != null) {
+                            isCustomAuthConfig = true;
+                        }
                     }
                 }
-                authRequestList.add(customAuthConfig);
+                if (isCustomAuthConfig) {
+                    authRequestList.add(customAuthConfig);
+                }
             }
         }
 
