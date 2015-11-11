@@ -153,7 +153,7 @@ public class PassiveSTSAuthenticator extends AbstractApplicationAuthenticator im
 
     @Override
     public String getFriendlyName() {
-        return PassiveSTSConstants.AUTHENTICATOR_FRIENDLY_NAME;
+        return "passivests";
     }
 
     @Override

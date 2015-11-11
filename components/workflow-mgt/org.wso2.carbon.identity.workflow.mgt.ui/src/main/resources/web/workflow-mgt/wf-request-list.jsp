@@ -445,8 +445,9 @@
                            onclick="listWorkflows('<%=workflowReq.getRequestId()%>');return false;"
                            href="#" style="background-image: url(images/list.png);"
                            class="icon-link"><fmt:message key='workflows'/></a>
-                        <% if (workflowReq.getCreatedBy() != null && workflowReq.getStatus().equals("PENDING") &&
-                                workflowReq.getCreatedBy().equals(loggedUser)) { %>
+                        <% if ( workflowReq.getStatus().equals("PENDING") && CarbonUIUtil.isUserAuthorized(request,
+                                "/permission/admin/manage/identity/workflow/monitor/delete"))
+                        { %>
                         <a title="<fmt:message key='workflow.request.delete.title'/>"
                            onclick="removeRequest('<%=workflowReq.getRequestId()%>');return false;"
                            href="#" style="background-image: url(images/delete.gif);"

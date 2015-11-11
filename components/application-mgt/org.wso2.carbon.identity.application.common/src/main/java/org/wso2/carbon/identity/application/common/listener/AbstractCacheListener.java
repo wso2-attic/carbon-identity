@@ -34,7 +34,7 @@ public abstract class AbstractCacheListener<K, V> implements CacheEntryListener<
      */
     public boolean isEnable() {
         IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
-                (UserOperationEventListener.class.getName(), this.getClass().getName());
+                (AbstractCacheListener.class.getName(), this.getClass().getName());
 
         if (identityEventListener == null) {
             return true;
@@ -45,18 +45,5 @@ public abstract class AbstractCacheListener<K, V> implements CacheEntryListener<
         } else {
             return true;
         }
-    }
-
-    /**
-     * Return order of the listener
-     * @return order id
-     */
-    public int getOrderId() {
-        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
-                (UserOperationEventListener.class.getName(), this.getClass().getName());
-        if (identityEventListener == null) {
-            return IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
-        }
-        return identityEventListener.getOrder();
     }
 }

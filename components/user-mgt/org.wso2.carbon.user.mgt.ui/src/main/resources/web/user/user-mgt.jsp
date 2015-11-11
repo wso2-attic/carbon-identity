@@ -313,7 +313,6 @@
         }
 
         $(document).ready(function () {
-            debugger;
             $('form[name=filterForm]').submit(function(){
                 return doValidateForm(this, '<fmt:message key="error.input.validation.msg"/>');
             })

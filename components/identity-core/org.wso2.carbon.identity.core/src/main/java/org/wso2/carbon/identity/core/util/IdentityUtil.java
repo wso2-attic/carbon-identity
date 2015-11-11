@@ -71,6 +71,8 @@ import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class IdentityUtil {
 
@@ -87,6 +89,8 @@ public class IdentityUtil {
             'D', 'E', 'F', 'G', 'H', 'J', 'K',
             'M', 'N', 'P', 'R', 'S', 'T', 'U',
             'V', 'W', 'X', 'Y', 'Z'};
+    public static final String DEFAULT_FILE_NAME_REGEX = "^(?!(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\\.[^.]*)?$)" +
+                                                         "[^<>:\"/\\\\|?*\\x00-\\x1F]*[^<>:\"/\\\\|?*\\x00-\\x1F\\ .]$";
     private static Log log = LogFactory.getLog(IdentityUtil.class);
     private static Map<String, Object> configuration = new HashMap<String, Object>();
     private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new
@@ -474,7 +478,7 @@ public class IdentityUtil {
         return Integer.parseInt(cleanUpPeriod);
     }
 
-    public static String extractDomainFromName(String nameWithDomain){
+    public static String extractDomainFromName(String nameWithDomain) {
 
         if(nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) > 0){
             String domain = nameWithDomain.substring(0, nameWithDomain.indexOf(UserCoreConstants.DOMAIN_SEPARATOR));
@@ -508,5 +512,18 @@ public class IdentityUtil {
         } else {
             return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
+    }
+
+    public static boolean isValidFileName(String fileName){
+        String fileNameRegEx = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.FILE_NAME_REGEX);
+
+        if(isBlank(fileNameRegEx)){
+            fileNameRegEx = DEFAULT_FILE_NAME_REGEX;
+        }
+
+        Pattern pattern = Pattern.compile(fileNameRegEx, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE |
+                                                                   Pattern.COMMENTS);
+        Matcher matcher = pattern.matcher(fileName);
+        return matcher.matches();
     }
 }
