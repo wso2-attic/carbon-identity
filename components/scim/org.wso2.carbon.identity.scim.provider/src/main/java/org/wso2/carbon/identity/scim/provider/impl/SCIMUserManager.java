@@ -575,7 +575,7 @@ public class SCIMUserManager implements UserManager {
                                 .addDomainToName(UserCoreUtil.removeDomainFromName(originalName), domainName);
                     } else {
                         domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
-                        roleNameWithDomain = UserCoreUtil.addDomainToName(originalName, domainName);
+                        roleNameWithDomain = SCIMCommonUtils.getGroupNameWithDomain(originalName);
                     }
                 } catch (IdentityApplicationManagementException e) {
                     throw new CharonException("Error retrieving User Store name. ", e);
@@ -807,8 +807,8 @@ public class SCIMUserManager implements UserManager {
 
         oldGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()),
                 IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
-        newGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(oldGroup.getDisplayName()),
-                IdentityUtil.extractDomainFromName(oldGroup.getDisplayName())));
+        newGroup.setDisplayName(UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(newGroup.getDisplayName()),
+                IdentityUtil.extractDomainFromName(newGroup.getDisplayName())));
 
             try {
                 String primaryDomain = IdentityUtil.getPrimaryDomainName();

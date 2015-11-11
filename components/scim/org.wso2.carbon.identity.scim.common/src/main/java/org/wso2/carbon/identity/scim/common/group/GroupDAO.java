@@ -88,8 +88,7 @@ public class GroupDAO {
         try {
             prepStmt = connection.prepareStatement(SQLQueries.CHECK_EXISTING_GROUP_SQL);
             prepStmt.setInt(1, tenantId);
-            prepStmt.setString(2, UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(groupName),
-                    IdentityUtil.extractDomainFromName(groupName)));
+            prepStmt.setString(2, SCIMCommonUtils.getGroupNameWithDomain(groupName));
 
             rSet = prepStmt.executeQuery();
             if (rSet.next()) {
