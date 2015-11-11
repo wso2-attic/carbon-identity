@@ -835,13 +835,12 @@ public class SAMLSSOUtil {
     /**
      * Validates the signature of the LogoutRequest message.
      * TODO : for stratos deployment, super tenant key should be used
-     *
      * @param logoutRequest
      * @param alias
      * @param subject
-     * @param httpRequest
-     * @param isHTTPRedirectBinding
+     * @param queryString
      * @return
+     * @throws IdentityException
      */
     public static boolean validateLogoutRequestSignature(LogoutRequest logoutRequest, String alias,
                                                          String subject, String queryString) throws IdentityException {
@@ -856,12 +855,12 @@ public class SAMLSSOUtil {
 
     /**
      * Signature validation for HTTP Redirect Binding
-     *
-     * @param authnReqDTO
-     * @param samlRequest
+     * @param queryString
+     * @param issuer
      * @param alias
      * @param domainName
      * @return
+     * @throws IdentityException
      */
     public static boolean validateDeflateSignature(String queryString, String issuer,
                                                    String alias, String domainName) throws IdentityException {
