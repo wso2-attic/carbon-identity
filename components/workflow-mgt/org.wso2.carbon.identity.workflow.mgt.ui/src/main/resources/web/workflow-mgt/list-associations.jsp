@@ -168,7 +168,9 @@
                 <td><%=Encode.forHtmlContent(association.getWorkflowName())%>
                 </td>
                 <td>
-                    <% if (association.getEnabled()) { %>
+                    <% if(CarbonUIUtil.isUserAuthorized(request,
+                            "/permission/admin/manage/identity/workflow/association/update")) {
+                        if (association.getEnabled()) { %>
 
                     <a title="<fmt:message key='workflow.service.association.state.disable'/>"
                        onclick="changeState('<%=Encode.forJavaScriptAttribute(association.getAssociationId())%>',
@@ -186,12 +188,16 @@
 
                     <%
                         }
+                        }
+                        if (CarbonUIUtil.isUserAuthorized(request,
+                                "/permission/admin/manage/identity/workflow/association/delete")) {
                     %>
                     <a title="<fmt:message key='workflow.service.association.delete.title'/>"
                        onclick="removeAssociation('<%=Encode.forJavaScriptAttribute(association.getAssociationId())%>',
                                '<%=Encode.forJavaScriptAttribute(association.getAssociationName())%>');return false;"
                        href="#" style="background-image: url(images/delete.gif);"
                        class="icon-link"><fmt:message key='delete'/></a>
+                    <%}%>
                 </td>
                 </tr>
                 <%
