@@ -79,6 +79,10 @@ import org.wso2.carbon.identity.sso.saml.builders.signature.SSOSigner;
 import org.wso2.carbon.identity.sso.saml.dto.QueryParamDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException;
+import org.wso2.carbon.identity.sso.saml.processors.IdPInitLogoutRequestProcessor;
+import org.wso2.carbon.identity.sso.saml.processors.IdPInitSSOAuthnRequestProcessor;
+import org.wso2.carbon.identity.sso.saml.processors.SPInitLogoutRequestProcessor;
+import org.wso2.carbon.identity.sso.saml.processors.SPInitSSOAuthnRequestProcessor;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.validators.IdPInitSSOAuthnRequestValidator;
 import org.wso2.carbon.identity.sso.saml.validators.SAML2HTTPRedirectSignatureValidator;
@@ -171,6 +175,10 @@ public class SAMLSSOUtil {
     private static String sPInitSSOAuthnRequestValidatorClassName = null;
     private static String iDPInitSSOAuthnRequestValidatorClassName = null;
     private static ThreadLocal tenantDomainInThreadLocal = new ThreadLocal();
+    private static String idPInitLogoutRequestProcessorClassName = null;
+    private static String idPInitSSOAuthnRequestProcessorClassName = null;
+    private static String sPInitSSOAuthnRequestProcessorClassName = null;
+    private static String sPInitLogoutRequestProcessorClassName = null;
 
     private SAMLSSOUtil() {
     }
@@ -1413,6 +1421,98 @@ public class SAMLSSOUtil {
 
     public static void setIdPInitSSOAuthnRequestValidator(String iDPInitSSOAuthnRequestValidator) {
         iDPInitSSOAuthnRequestValidatorClassName = iDPInitSSOAuthnRequestValidator;
+    }
+
+    public static void setIdPInitSSOAuthnRequestProcessor(String idPInitSSOAuthnRequestProcessor) {
+        SAMLSSOUtil.idPInitSSOAuthnRequestProcessorClassName = idPInitSSOAuthnRequestProcessor;
+    }
+
+    public static IdPInitSSOAuthnRequestProcessor getIdPInitSSOAuthnRequestProcessor() {
+        if (iDPInitSSOAuthnRequestValidatorClassName == null || "".equals(iDPInitSSOAuthnRequestValidatorClassName)) {
+                return new IdPInitSSOAuthnRequestProcessor();
+        } else {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Thread.currentThread().getContextClassLoader()
+                        .loadClass(iDPInitSSOAuthnRequestValidatorClassName);
+                return (IdPInitSSOAuthnRequestProcessor) clazz.newInstance();
+
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                log.error("Error while instantiating the IdPInitSSOAuthnRequestProcessor ", e);
+            }
+        }
+        return null;
+    }
+
+    public static void setSPInitSSOAuthnRequestProcessor(String SPInitSSOAuthnRequestProcessor) {
+        SAMLSSOUtil.sPInitSSOAuthnRequestProcessorClassName = SPInitSSOAuthnRequestProcessor;
+    }
+
+    public static SPInitSSOAuthnRequestProcessor getSPInitSSOAuthnRequestProcessor() {
+        if (sPInitSSOAuthnRequestProcessorClassName == null || "".equals(sPInitSSOAuthnRequestProcessorClassName)) {
+            return new SPInitSSOAuthnRequestProcessor();
+        } else {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Thread.currentThread().getContextClassLoader()
+                        .loadClass(sPInitSSOAuthnRequestProcessorClassName);
+                return (SPInitSSOAuthnRequestProcessor) clazz.newInstance();
+
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                log.error("Error while instantiating the SPInitSSOAuthnRequestProcessor ", e);
+            }
+        }
+        return null;
+    }
+
+    public static void setSPInitLogoutRequestProcessor(String SPInitLogoutRequestProcessor) {
+        SAMLSSOUtil.sPInitLogoutRequestProcessorClassName = SPInitLogoutRequestProcessor;
+    }
+
+    public static SPInitLogoutRequestProcessor getSPInitLogoutRequestProcessor() {
+        if (sPInitLogoutRequestProcessorClassName == null || "".equals(sPInitLogoutRequestProcessorClassName)) {
+            return new SPInitLogoutRequestProcessor();
+        } else {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Thread.currentThread().getContextClassLoader()
+                        .loadClass(sPInitLogoutRequestProcessorClassName);
+                return (SPInitLogoutRequestProcessor) clazz.newInstance();
+
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                log.error("Error while instantiating the SPInitLogoutRequestProcessor ", e);
+            }
+        }
+        return null;
+    }
+
+    public static void setIdPInitLogoutRequestProcessor(String idPInitLogoutRequestProcessor) {
+        SAMLSSOUtil.idPInitLogoutRequestProcessorClassName = idPInitLogoutRequestProcessor;
+    }
+
+    public static IdPInitLogoutRequestProcessor getIdPInitLogoutRequestProcessor() {
+        if (idPInitLogoutRequestProcessorClassName == null || "".equals(idPInitLogoutRequestProcessorClassName)) {
+            return new IdPInitLogoutRequestProcessor();
+        } else {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Thread.currentThread().getContextClassLoader()
+                        .loadClass(idPInitLogoutRequestProcessorClassName);
+                return (IdPInitLogoutRequestProcessor) clazz.newInstance();
+
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                log.error("Error while instantiating the SPInitLogoutRequestProcessor ", e);
+            }
+        }
+        return null;
     }
 
 }

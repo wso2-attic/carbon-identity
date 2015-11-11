@@ -102,13 +102,24 @@ public class IdentitySAMLSSOServiceComponent {
 
             SAMLSSOUtil.setResponseBuilder(IdentityUtil.getProperty("SSOService.SAMLSSOResponseBuilder"));
             SAMLSSOUtil.setIdPInitSSOAuthnRequestValidator(IdentityUtil.getProperty("SSOService.IdPInitSSOAuthnRequestValidator"));
-            SAMLSSOUtil.setSPInitSSOAuthnRequestValidator(IdentityUtil.getProperty("SSOService.SPInitSSOAuthnRequestValidator"));
+            SAMLSSOUtil.setSPInitSSOAuthnRequestProcessor(IdentityUtil.getProperty("SSOService.SPInitSSOAuthnRequestProcessor"));
+            SAMLSSOUtil.setSPInitLogoutRequestProcessor(IdentityUtil.getProperty("SSOService.SPInitSSOAuthnRequestProcessor"));
+            SAMLSSOUtil.setIdPInitLogoutRequestProcessor(IdentityUtil.getProperty("SSOService.IdPInitLogoutRequestProcessor"));
+            SAMLSSOUtil.setIdPInitSSOAuthnRequestProcessor(IdentityUtil.getProperty("SSOService.IdPInitSSOAuthnRequestProcessor"));
 
             if (log.isDebugEnabled()) {
                 log.debug("IdPInitSSOAuthnRequestValidator is set to " +
                         IdentityUtil.getProperty("SSOService.IdPInitSSOAuthnRequestValidator"));
                 log.debug("SPInitSSOAuthnRequestValidator is set to " +
                         IdentityUtil.getProperty("SSOService.SPInitSSOAuthnRequestValidator"));
+                log.debug("SPInitSSOAuthnRequestProcessor is set to " +
+                        IdentityUtil.getProperty("SSOService.SPInitSSOAuthnRequestProcessor"));
+                log.debug("SPInitLogoutRequestProcessor is set to " +
+                        IdentityUtil.getProperty("SSOService.SPInitLogoutRequestProcessor"));
+                log.debug("IdPInitLogoutRequestProcessor is set to " +
+                        IdentityUtil.getProperty("SSOService.IdPInitLogoutRequestProcessor"));
+                log.debug("IdPInitSSOAuthnRequestProcessor is set to " +
+                        IdentityUtil.getProperty("SSOService.IdPInitSSOAuthnRequestProcessor"));
                 log.debug("Single logout retry count is set to " + SAMLSSOUtil.getSingleLogoutRetryCount());
                 log.debug("Single logout retry interval is set to " +
                         SAMLSSOUtil.getSingleLogoutRetryInterval() + " in seconds.");
