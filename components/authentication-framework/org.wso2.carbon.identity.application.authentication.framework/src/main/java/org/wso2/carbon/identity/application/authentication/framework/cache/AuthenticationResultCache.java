@@ -41,7 +41,7 @@ public class AuthenticationResultCache extends
 
     private boolean useCache = true;
 
-    private boolean enableTemporaryCaches = true;
+    private boolean enableTemporaryCaches = false;
 
     public AuthenticationResultCache(String cacheName) {
         super(cacheName);
