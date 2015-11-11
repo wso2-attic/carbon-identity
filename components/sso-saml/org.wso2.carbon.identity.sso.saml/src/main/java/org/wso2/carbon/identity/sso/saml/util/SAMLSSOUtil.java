@@ -97,6 +97,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -1358,10 +1359,15 @@ public class SAMLSSOUtil {
                 // multiple times doesn't cost.
                 Class clazz = Thread.currentThread().getContextClassLoader()
                         .loadClass(sPInitSSOAuthnRequestValidatorClassName);
-                return (SSOAuthnRequestValidator) clazz.newInstance();
+                return (SSOAuthnRequestValidator) clazz.getDeclaredConstructor(AuthnRequest.class).newInstance(authnRequest);
 
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
                 log.error("Error while instantiating the SPInitSSOAuthnRequestValidator ", e);
+            } catch (NoSuchMethodException e) {
+                log.error("SP initiated authentication request validation class in run time does not have proper" +
+                        "constructors defined.");
+            } catch (InvocationTargetException e) {
+                log.error("Error in creating an instance of the class: " + sPInitSSOAuthnRequestValidatorClassName);
             }
         }
         return null;
@@ -1375,7 +1381,7 @@ public class SAMLSSOUtil {
     public static SSOAuthnRequestValidator getIdPInitSSOAuthnRequestValidator(QueryParamDTO[] queryParamDTOs, String relayState) {
         if (iDPInitSSOAuthnRequestValidatorClassName == null || "".equals(iDPInitSSOAuthnRequestValidatorClassName)) {
             try {
-                return new IdPInitSSOAuthnRequestValidator(queryParamDTOs,relayState);
+                return new IdPInitSSOAuthnRequestValidator(queryParamDTOs, relayState);
             } catch (IdentityException e) {
                 log.error("Error while instantiating the IdPInitSSOAuthnRequestValidator ", e);
             }
@@ -1386,10 +1392,16 @@ public class SAMLSSOUtil {
                 // multiple times doesn't cost.
                 Class clazz = Thread.currentThread().getContextClassLoader()
                         .loadClass(iDPInitSSOAuthnRequestValidatorClassName);
-                return (SSOAuthnRequestValidator) clazz.newInstance();
+                return (SSOAuthnRequestValidator) clazz.getDeclaredConstructor(
+                        QueryParamDTO[].class, String.class).newInstance(queryParamDTOs, relayState);
 
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 log.error("Error while instantiating the IdPInitSSOAuthnRequestValidator ", e);
+            } catch (NoSuchMethodException e) {
+                log.error("SP initiated authentication request validation class in run time does not have proper" +
+                        "constructors defined.");
+            } catch (InvocationTargetException e) {
+                log.error("Error in creating an instance of the class: " + sPInitSSOAuthnRequestValidatorClassName);
             }
         }
         return null;

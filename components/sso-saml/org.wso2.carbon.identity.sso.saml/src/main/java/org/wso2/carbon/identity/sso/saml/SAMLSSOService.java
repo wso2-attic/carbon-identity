@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.sso.saml.processors.SPInitSSOAuthnRequestProcess
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.identity.sso.saml.validators.IdPInitSSOAuthnRequestValidator;
 import org.wso2.carbon.identity.sso.saml.validators.SPInitSSOAuthnRequestValidator;
+import org.wso2.carbon.identity.sso.saml.validators.SSOAuthnRequestValidator;
 
 public class SAMLSSOService {
 
@@ -83,8 +84,8 @@ public class SAMLSSOService {
         }
 
         if (request instanceof AuthnRequest) {
-            SPInitSSOAuthnRequestValidator authnRequestValidator =
-                    (SPInitSSOAuthnRequestValidator) SAMLSSOUtil.getSPInitSSOAuthnRequestValidator((AuthnRequest) request);
+            SSOAuthnRequestValidator authnRequestValidator =
+                    SAMLSSOUtil.getSPInitSSOAuthnRequestValidator((AuthnRequest) request);
             SAMLSSOReqValidationResponseDTO validationResp = authnRequestValidator.validate();
             validationResp.setRequestMessageString(samlReq);
             validationResp.setQueryString(queryString);
@@ -128,8 +129,8 @@ public class SAMLSSOService {
 
         SAMLSSOReqValidationResponseDTO validationResponseDTO = null;
         if(!isLogout) {
-            IdPInitSSOAuthnRequestValidator authnRequestValidator = (IdPInitSSOAuthnRequestValidator)
-                    SAMLSSOUtil.getIdPInitSSOAuthnRequestValidator(queryParamDTOs, relayState);
+            SSOAuthnRequestValidator authnRequestValidator = SAMLSSOUtil.getIdPInitSSOAuthnRequestValidator(
+                    queryParamDTOs, relayState);
             validationResponseDTO = authnRequestValidator.validate();
             validationResponseDTO.setIdPInitSSO(true);
         } else {
