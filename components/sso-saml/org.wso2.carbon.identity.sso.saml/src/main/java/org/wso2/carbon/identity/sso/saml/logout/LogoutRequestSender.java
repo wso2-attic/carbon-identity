@@ -162,21 +162,17 @@ public class LogoutRequestSender {
                 isSAMLSOAPBindingEnabled = false;
             }
 
-            try {
-                decodedSAMLRequest = SAMLSSOUtil.decodeForPost(logoutReqDTO.getLogoutResponse());
+            decodedSAMLRequest = logoutReqDTO.getLogoutResponse();
 
-                if (isSAMLSOAPBindingEnabled) {
-                    decodedSAMLRequest = decodedSAMLRequest.replaceAll("\\<\\?xml(.+?)\\?\\>", "").trim();
-                    logoutRequestWithSoapBinding.append(startSoapBinding + decodedSAMLRequest + endSoapBinding);
-                    // set the logout request
-                    logoutReqParams.add(new BasicNameValuePair("SAMLRequest",
-                            SAMLSSOUtil.encode(logoutRequestWithSoapBinding.toString())));
-                } else {
-                    // set the logout request
-                    logoutReqParams.add(new BasicNameValuePair("SAMLRequest", logoutReqDTO.getLogoutResponse()));
-                }
-            } catch (IdentityException e) {
-                log.debug("Error in decoding logout request.", e);
+            if (isSAMLSOAPBindingEnabled) {
+                decodedSAMLRequest = decodedSAMLRequest.replaceAll("\\<\\?xml(.+?)\\?\\>", "").trim();
+                logoutRequestWithSoapBinding.append(startSoapBinding + decodedSAMLRequest + endSoapBinding);
+                // set the logout request
+                logoutReqParams.add(new BasicNameValuePair("SAMLRequest",
+                        SAMLSSOUtil.encode(logoutRequestWithSoapBinding.toString())));
+            } else {
+                // set the logout request
+                logoutReqParams.add(new BasicNameValuePair("SAMLRequest", SAMLSSOUtil.encode(logoutReqDTO.getLogoutResponse())));
             }
 
             if (log.isDebugEnabled()) {
