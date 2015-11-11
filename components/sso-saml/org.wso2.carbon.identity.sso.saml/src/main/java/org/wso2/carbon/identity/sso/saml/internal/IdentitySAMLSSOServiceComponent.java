@@ -104,10 +104,15 @@ public class IdentitySAMLSSOServiceComponent {
             SAMLSSOUtil.setIdPInitSSOAuthnRequestValidator(IdentityUtil.getProperty("SSOService.IdPInitSSOAuthnRequestValidator"));
             SAMLSSOUtil.setSPInitSSOAuthnRequestValidator(IdentityUtil.getProperty("SSOService.SPInitSSOAuthnRequestValidator"));
 
-            log.debug("Single logout retry count is set to " + SAMLSSOUtil.getSingleLogoutRetryCount());
-            log.debug("Single logout retry interval is set to " +
-                    SAMLSSOUtil.getSingleLogoutRetryInterval() + " in seconds.");
-
+            if (log.isDebugEnabled()) {
+                log.debug("IdPInitSSOAuthnRequestValidator is set to " +
+                        IdentityUtil.getProperty("SSOService.IdPInitSSOAuthnRequestValidator"));
+                log.debug("SPInitSSOAuthnRequestValidator is set to " +
+                        IdentityUtil.getProperty("SSOService.SPInitSSOAuthnRequestValidator"));
+                log.debug("Single logout retry count is set to " + SAMLSSOUtil.getSingleLogoutRetryCount());
+                log.debug("Single logout retry interval is set to " +
+                        SAMLSSOUtil.getSingleLogoutRetryInterval() + " in seconds.");
+            }
 
             redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
                     + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File.separator + "samlsso_response.html";
@@ -119,7 +124,7 @@ public class IdentitySAMLSSOServiceComponent {
 
             Util.initSSOConfigParams();
             if (log.isDebugEnabled()) {
-                log.info("Identity SAML SSO bundle is activated");
+                log.debug("Identity SAML SSO bundle is activated");
             }
         } catch (FileNotFoundException e) {
             if (log.isDebugEnabled()) {
