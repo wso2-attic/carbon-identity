@@ -84,7 +84,7 @@ public class IdentityApplicationConstants {
 
         public static class OpenID {
 
-            public static final String NAME = "OpenIDAuthenticator";
+            public static final String NAME = "openid";
             public static final String REALM_ID = "RealmId";
             public static final String OPEN_ID_URL = "OpenIdUrl";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
@@ -97,7 +97,7 @@ public class IdentityApplicationConstants {
 
         public static class SAML2SSO {
 
-            public static final String NAME = "SAMLSSOAuthenticator";
+            public static final String NAME = "samlsso";
             public static final String FED_AUTH_NAME = "SAMLSSOAuthenticator";
             public static final String IDP_ENTITY_ID = "IdPEntityId";
             public static final String SP_ENTITY_ID = "SPEntityId";
@@ -133,14 +133,14 @@ public class IdentityApplicationConstants {
 
         public static class OIDC extends OAuth2 {
 
-            public static final String NAME = "OpenIDConnectAuthenticator";
+            public static final String NAME = "openidconnect";
             public static final String USER_INFO_URL = "UserInfoUrl";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
         }
 
         public static class PassiveSTS {
 
-            public static final String NAME = "PassiveSTSAuthenticator";
+            public static final String NAME = "passivests";
             public static final String REALM_ID = "RealmId";
             public static final String IDENTITY_PROVIDER_URL = "IdentityProviderUrl";
             public static final String IDENTITY_PROVIDER_ENTITY_ID = "IdPEntityId";
@@ -153,7 +153,7 @@ public class IdentityApplicationConstants {
 
         public static class Facebook {
 
-            public static final String NAME = "FacebookAuthenticator";
+            public static final String NAME = "facebook";
             public static final String CLIENT_ID = "ClientId";
             public static final String CLIENT_SECRET = "ClientSecret";
             public static final String SCOPE = "Scope";

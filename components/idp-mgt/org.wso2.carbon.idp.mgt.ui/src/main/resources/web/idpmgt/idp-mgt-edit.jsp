@@ -278,9 +278,9 @@
                 if (fedAuthnConfig.getProperties() == null) {
                     fedAuthnConfig.setProperties(new Property[0]);
                 }
-                if (fedAuthnConfig.getName().equals(IdentityApplicationConstants.Authenticator.OpenID.NAME)) {
+                if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.OpenID.NAME)) {
                     isOpenidAuthenticatorActive = true;
-                    allFedAuthConfigs.remove(fedAuthnConfig.getName());
+                    allFedAuthConfigs.remove(fedAuthnConfig.getDisplayName());
                     isOpenIdEnabled = fedAuthnConfig.getEnabled();
 
                     Property openIdUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
@@ -299,9 +299,9 @@
                     if (isOpenIdUserIdInClaimsProp != null) {
                         isOpenIdUserIdInClaims = Boolean.parseBoolean(isOpenIdUserIdInClaimsProp.getValue());
                     }
-                } else if (fedAuthnConfig.getName().equals(IdentityApplicationConstants.Authenticator.Facebook.NAME)) {
+                } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.Facebook.NAME)) {
                     isFacebookAuthenticatorActive = true;
-                    allFedAuthConfigs.remove(fedAuthnConfig.getName());
+                    allFedAuthConfigs.remove(fedAuthnConfig.getDisplayName());
                     isFBAuthEnabled = fedAuthnConfig.getEnabled();
                     Property fbClientIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
                             IdentityApplicationConstants.Authenticator.Facebook.CLIENT_ID);
@@ -342,9 +342,9 @@
                     if (fbUserInfoEndpointProp != null) {
                         fbUserInfoEndpoint = fbUserInfoEndpointProp.getValue();
                     }
-                } else if (fedAuthnConfig.getName().equals(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME)) {
+                } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME)) {
                     isPassivestsAuthenticatorActive = true;
-                    allFedAuthConfigs.remove(fedAuthnConfig.getName());
+                    allFedAuthConfigs.remove(fedAuthnConfig.getDisplayName());
                     isPassiveSTSEnabled = fedAuthnConfig.getEnabled();
                     Property passiveSTSRealmProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
                             IdentityApplicationConstants.Authenticator.PassiveSTS.REALM_ID);
@@ -367,9 +367,9 @@
                         passiveSTSQueryParam = queryParamProp.getValue();
                     }
 
-                } else if (fedAuthnConfig.getName().equals(IdentityApplicationConstants.Authenticator.OIDC.NAME)) {
+                } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.OIDC.NAME)) {
                     isOpenidconnectAuthenticatorActive = true;
-                    allFedAuthConfigs.remove(fedAuthnConfig.getName());
+                    allFedAuthConfigs.remove(fedAuthnConfig.getDisplayName());
                     isOIDCEnabled = fedAuthnConfig.getEnabled();
                     Property authzUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
                             IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_AUTHZ_URL);
@@ -409,9 +409,9 @@
                         oidcQueryParam = queryParamProp.getValue();
                     }
 
-                } else if (fedAuthnConfig.getName().equals(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME)) {
+                } else if (fedAuthnConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME)) {
                     isSamlssoAuthenticatorActive = true;
-                    allFedAuthConfigs.remove(fedAuthnConfig.getName());
+                    allFedAuthConfigs.remove(fedAuthnConfig.getDisplayName());
                     isSAML2SSOEnabled = fedAuthnConfig.getEnabled();
                     Property idPEntityIdProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
                             IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
@@ -875,19 +875,19 @@
     Iterator<FederatedAuthenticatorConfig> fedAuthConfigIterator = allFedAuthConfigs.values().iterator();
     while(fedAuthConfigIterator.hasNext()){
         FederatedAuthenticatorConfig fedAuthConfig = fedAuthConfigIterator.next();
-        if(fedAuthConfig.getName().equals(IdentityApplicationConstants.Authenticator.OpenID.NAME)){
+        if(fedAuthConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.OpenID.NAME)){
             isOpenidAuthenticatorActive = true;
             fedAuthConfigIterator.remove();
-        } else if (fedAuthConfig.getName().equals(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME)) {
+        } else if (fedAuthConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME)) {
             isSamlssoAuthenticatorActive = true;
             fedAuthConfigIterator.remove();
-        } else if (fedAuthConfig.getName().equals(IdentityApplicationConstants.Authenticator.OIDC.NAME)) {
+        } else if (fedAuthConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.OIDC.NAME)) {
             isOpenidconnectAuthenticatorActive = true;
             fedAuthConfigIterator.remove();
-        } else if (fedAuthConfig.getName().equals(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME)) {
+        } else if (fedAuthConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME)) {
             isPassivestsAuthenticatorActive = true;
             fedAuthConfigIterator.remove();
-        } else if (fedAuthConfig.getName().equals(IdentityApplicationConstants.Authenticator.Facebook.NAME)) {
+        } else if (fedAuthConfig.getDisplayName().equals(IdentityApplicationConstants.Authenticator.Facebook.NAME)) {
             isFacebookAuthenticatorActive = true;
             fedAuthConfigIterator.remove();
         }

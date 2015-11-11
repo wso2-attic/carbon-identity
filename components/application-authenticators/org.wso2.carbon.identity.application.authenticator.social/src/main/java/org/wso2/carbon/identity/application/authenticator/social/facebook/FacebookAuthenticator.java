@@ -400,7 +400,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
 
     @Override
     public String getFriendlyName() {
-        return FacebookAuthenticatorConstants.AUTHENTICATOR_FRIENDLY_NAME;
+        return "facebook";
     }
 
     @Override
