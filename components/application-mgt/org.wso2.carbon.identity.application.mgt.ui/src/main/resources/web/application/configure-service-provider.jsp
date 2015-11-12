@@ -1607,6 +1607,9 @@ var roleMappinRowID = -1;
                     <tr>
                         <td>
                             <input type="checkbox" name="dumb" id="dumb" value="false" onclick ="disable()" <%=appBean.getServiceProvider().getInboundProvisioningConfig().getDumbMode() ? "checked" : "" %>>Enable Dumb Mode<br>
+                            <div class="sectionHelp">
+                                <fmt:message key='help.inbound.scim.dumb'/>
+                            </div>
                         </td>
                     </tr>
                     </table>
