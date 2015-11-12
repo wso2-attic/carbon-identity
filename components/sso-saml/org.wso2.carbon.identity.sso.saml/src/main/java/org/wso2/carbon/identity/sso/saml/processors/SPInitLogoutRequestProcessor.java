@@ -41,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class SPInitLogoutRequestProcessor {
+public class SPInitLogoutRequestProcessor implements SPInitSSOLogoutRequestProcessor{
 
     private static Log log = LogFactory.getLog(SPInitLogoutRequestProcessor.class);
 
