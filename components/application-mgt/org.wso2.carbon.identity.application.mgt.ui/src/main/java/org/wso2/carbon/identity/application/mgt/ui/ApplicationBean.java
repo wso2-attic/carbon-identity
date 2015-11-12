@@ -81,9 +81,15 @@ public class ApplicationBean {
     private String openid;
     private String[] claimUris;
     private List<InboundAuthenticationRequestConfig> inboundAuthenticationRequestConfigs;
+    private List<String> standardInboundAuthTypes;
 
     public ApplicationBean() {
-
+        standardInboundAuthTypes = new ArrayList<String>();
+        standardInboundAuthTypes.add("oauth2");
+        standardInboundAuthTypes.add("wstrust");
+        standardInboundAuthTypes.add("samlsso");
+        standardInboundAuthTypes.add("openid");
+        standardInboundAuthTypes.add("passivests");
     }
 
     public void reset() {
@@ -833,6 +839,10 @@ public class ApplicationBean {
     }
 
 
+    private boolean isCustomInboundAuthType(String authType) {
+        return !standardInboundAuthTypes.contains(authType);
+    }
+
     /**
      * Get all custom authenticators
      * @return Custom authenticators
@@ -851,7 +861,9 @@ public class ApplicationBean {
 
         if (authRequests != null) {
             for (InboundAuthenticationRequestConfig request : authRequests) {
-                inboundAuthenticationRequestConfigs.add(request);
+                if (isCustomInboundAuthType(request.getInboundAuthType())) {
+                    inboundAuthenticationRequestConfigs.add(request);
+                }
             }
         }
         return inboundAuthenticationRequestConfigs;
@@ -1144,19 +1156,13 @@ public class ApplicationBean {
             for (InboundAuthenticationRequestConfig customAuthConfig : inboundAuthenticationRequestConfigs) {
                 String type = customAuthConfig.getInboundAuthType();
                 Property[] properties = customAuthConfig.getProperties();
-                boolean isCustomAuthConfig = false;
                 if (!ArrayUtils.isEmpty(properties)) {
                     for (Property prop : properties) {
                         String propVal = request.getParameter("custom_auth_prop_name_" + type + "_" + prop.getName());
                         prop.setValue(propVal);
-                        if (propVal != null) {
-                            isCustomAuthConfig = true;
-                        }
                     }
                 }
-                if (isCustomAuthConfig) {
-                    authRequestList.add(customAuthConfig);
-                }
+                authRequestList.add(customAuthConfig);
             }
         }
 
