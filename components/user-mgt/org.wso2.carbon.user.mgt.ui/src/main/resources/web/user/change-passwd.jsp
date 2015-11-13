@@ -148,12 +148,12 @@
 
         function doValidation() {
             var reason = "";
-
             if (!skipPasswordValidation) {
-
-                if(isEmpty("currentPassword")) {
-                    CARBON.showWarningDialog("<fmt:message key="empty.current.password"/>");
-                    return false;
+                if (!(typeof document.getElementsByName("currentPassword")[0] === 'undefined')) {
+                    if (isEmpty("currentPassword")) {
+                        CARBON.showWarningDialog("<fmt:message key="empty.current.password"/>");
+                        return false;
+                    }
                 }
 
                 var pwdRegEX = document.getElementById("pwd_regex").value;
