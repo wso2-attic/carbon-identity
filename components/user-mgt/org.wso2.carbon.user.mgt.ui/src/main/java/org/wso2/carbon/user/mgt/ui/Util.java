@@ -63,7 +63,9 @@ public class Util {
                     identityMgtProperties.load(is);
                     boolean tempPasswordEnabled = Boolean.parseBoolean(identityMgtProperties.getProperty("Temporary" +
                             ".Password.Enable"));
-                    if(!tempPasswordEnabled){
+                    boolean acctVerificationEnabled = Boolean.parseBoolean(identityMgtProperties.getProperty
+                            ("UserAccount.Verification.Enable"));
+                    if(!tempPasswordEnabled || !acctVerificationEnabled){
                         isAskPasswordEnabled = false;
                     }
                 } else {

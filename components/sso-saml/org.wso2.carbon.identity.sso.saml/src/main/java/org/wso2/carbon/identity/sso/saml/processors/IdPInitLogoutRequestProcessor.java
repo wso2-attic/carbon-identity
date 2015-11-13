@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class IdPInitLogoutRequestProcessor {
+public class IdPInitLogoutRequestProcessor implements IdpInitSSOLogoutRequestProcessor{
 
     private static Log log = LogFactory.getLog(IdPInitLogoutRequestProcessor.class);
 
