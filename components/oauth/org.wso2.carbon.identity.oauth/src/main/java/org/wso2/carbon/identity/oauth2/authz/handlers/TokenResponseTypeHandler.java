@@ -35,6 +35,7 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeRespDTO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
+import org.wso2.carbon.identity.openidconnect.IDTokenBuilder;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -335,6 +336,12 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
 
             respDTO.setScope(newAccessTokenDO.getScope());
             respDTO.setTokenType(newAccessTokenDO.getTokenType());
+
+            if (oauthAuthzMsgCtx.getApprovedScope() != null && OAuth2Util.isOIDCAuthzRequest(oauthAuthzMsgCtx.getApprovedScope())) {
+                IDTokenBuilder builder = OAuthServerConfiguration.getInstance().getOpenIDConnectIDTokenBuilder();
+                respDTO.setIdToken(builder.buildIDToken(oauthAuthzMsgCtx, respDTO));
+            }
+
             return respDTO;
         }
     }

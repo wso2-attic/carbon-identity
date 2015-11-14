@@ -347,16 +347,21 @@ public class OAuth2AuthzEndpoint {
             OAuthASResponse.OAuthAuthorizationResponseBuilder builder = OAuthASResponse
                     .authorizationResponse(request, HttpServletResponse.SC_FOUND);
             // all went okay
-            if (ResponseType.CODE.toString().equals(oauth2Params.getResponseType())) {
-                String code = authzRespDTO.getAuthorizationCode();
-                builder.setCode(code);
-                addUserAttributesToCache(sessionDataCacheEntry, code);
-            } else if (ResponseType.TOKEN.toString().equals(oauth2Params.getResponseType())) {
-                builder.setAccessToken(authzRespDTO.getAccessToken());
-                builder.setParam(OAuth.OAUTH_TOKEN_TYPE, authzRespDTO.getTokenType());
-                builder.setExpiresIn(String.valueOf(authzRespDTO.getValidityPeriod()));
+            if (StringUtils.isNotBlank(authzRespDTO.getAuthorizationCode())){
+                builder.setCode(authzRespDTO.getAuthorizationCode());
+                addUserAttributesToCache(sessionDataCacheEntry, authzRespDTO.getAuthorizationCode());
             }
-            builder.setParam("state", oauth2Params.getState());
+            if (StringUtils.isNotBlank(authzRespDTO.getAccessToken())){
+                builder.setAccessToken(authzRespDTO.getAccessToken());
+                builder.setExpiresIn(authzRespDTO.getValidityPeriod());
+                builder.setParam(OAuth.OAUTH_TOKEN_TYPE, "Bearer");
+            }
+            if (StringUtils.isNotBlank(authzRespDTO.getIdToken())){
+                builder.setParam("id_token", authzRespDTO.getIdToken());
+            }
+            if (StringUtils.isNotBlank(oauth2Params.getState())) {
+                builder.setParam(OAuth.OAUTH_STATE, oauth2Params.getState());
+            }
             String redirectURL = authzRespDTO.getCallbackURI();
             oauthResponse = builder.location(redirectURL).buildQueryMessage();
 
