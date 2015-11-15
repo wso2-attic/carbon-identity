@@ -27,7 +27,7 @@ public class OAuthAuthzReqMessageContext {
 
     private OAuth2AuthorizeReqDTO authorizationReqDTO;
 
-    private ResponseType responseType;
+    private String responseType;
 
     private String[] approvedScope;
 
@@ -47,11 +47,11 @@ public class OAuthAuthzReqMessageContext {
         this.authorizationReqDTO = authorizationReqDTO;
     }
 
-    public ResponseType getResponseType() {
+    public String getResponseType() {
         return responseType;
     }
 
-    public void setResponseType(ResponseType responseType) {
+    public void setResponseType(String responseType) {
         this.responseType = responseType;
     }
 

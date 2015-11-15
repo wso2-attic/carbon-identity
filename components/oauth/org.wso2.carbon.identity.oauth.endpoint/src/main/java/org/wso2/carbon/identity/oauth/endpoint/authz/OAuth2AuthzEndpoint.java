@@ -671,6 +671,7 @@ public class OAuth2AuthzEndpoint {
         authzReqDTO.setScopes(oauth2Params.getScopes().toArray(new String[oauth2Params.getScopes().size()]));
         authzReqDTO.setUsername(sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier());
         authzReqDTO.setACRValues(oauth2Params.getACRValues());
+        authzReqDTO.setNonce(oauth2Params.getNonce());
         return EndpointUtil.getOAuth2Service().authorize(authzReqDTO);
     }
 
