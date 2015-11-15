@@ -97,8 +97,8 @@ public class RegistryConfigReader implements ConfigReader {
 				log.debug("Ignored ResourceNotFoundException", e);
 			}
 		} catch (RegistryException e) {
-			throw new I18nMgtEmailConfigException(
-					"Error occurred while reading email templates from path : " + resourcePath, e);
+			throw new
+					I18nMgtEmailConfigException("Error occurred while reading email templates from path : " + resourcePath, e);
 		}
 		return readerProps;
 	}

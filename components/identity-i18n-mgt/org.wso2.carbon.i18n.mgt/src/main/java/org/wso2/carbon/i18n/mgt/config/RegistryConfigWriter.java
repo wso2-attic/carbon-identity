@@ -97,7 +97,7 @@ public class RegistryConfigWriter implements ConfigWriter {
 
 				Resource resource = userReg.newResource();
 				String emailTemplateContent = props.getProperty(emailTemplateFilename);
-				resource.setMediaType("text/plain");
+				resource.setMediaType(I18nMgtConstants.EMAIL_MEDIA_TYPE);
 				resource.setContent(emailTemplateContent);
 				userReg.put(emailTemplateFileResourcePath, resource);
 

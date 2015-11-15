@@ -19,5 +19,5 @@
 package org.wso2.carbon.i18n.mgt.config;
 
 public enum ConfigType {
-	EMAIL
+    EMAIL
 }
