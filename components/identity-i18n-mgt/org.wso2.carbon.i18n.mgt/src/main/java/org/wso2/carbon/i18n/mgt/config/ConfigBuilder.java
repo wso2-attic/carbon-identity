@@ -145,22 +145,22 @@ public class ConfigBuilder {
 	 */
 	public void saveConfiguration(StorageType stype, int tenantId, Config config) throws I18nMgtEmailConfigException {
 		switch (stype) {
-		case REGISTRY:
-			cm.setWriter(new RegistryConfigWriter());
-			if (config instanceof EmailNotificationConfig) {
-				cm.setConfig(new EmailNotificationConfig());
-				cm.setResourcePath(I18nMgtConstants.EMAIL_TEMPLATE_PATH);
-				cm.saveConfig(config, tenantId);
-			} else {
-				throw new I18nMgtEmailConfigException("Configuration type not supported");
-			}
-			break;
-		case DB:
-			break;
-		case FILE:
-			break;
-		default:
-			throw new I18nMgtEmailConfigException("Configuration storage type not supported");
+			case REGISTRY:
+				cm.setWriter(new RegistryConfigWriter());
+				if (config instanceof EmailNotificationConfig) {
+					cm.setConfig(new EmailNotificationConfig());
+					cm.setResourcePath(I18nMgtConstants.EMAIL_TEMPLATE_PATH);
+					cm.saveConfig(config, tenantId);
+				} else {
+					throw new I18nMgtEmailConfigException("Configuration type not supported");
+				}
+				break;
+			case DB:
+				break;
+			case FILE:
+				break;
+			default:
+				throw new I18nMgtEmailConfigException("Configuration storage type not supported");
 		}
 	}
 
@@ -230,9 +230,9 @@ public class ConfigBuilder {
 
 			}
 		} catch (XMLStreamException e) {
-			log.warn("Error while loading email config. using default configuration");
+			log.warn("Error while loading email config. using default configuration", e);
 		} catch (FileNotFoundException e) {
-			log.warn("Error while loading email config. using default configuration");
+			log.warn("Error while loading email config. using default configuration", e);
 		} finally {
 			try {
 				if (parser != null) {
@@ -242,9 +242,9 @@ public class ConfigBuilder {
 					stream.close();
 				}
 			} catch (XMLStreamException e) {
-				log.error("Error while closing XML stream");
+				log.error("Error while closing XML stream", e);
 			} catch (IOException e) {
-				log.error("Error while closing input stream");
+				log.error("Error while closing input stream", e);
 			}
 		}
 		return emailConfig;
@@ -267,5 +267,6 @@ public class ConfigBuilder {
 			}
 		}
 		return emailTemplate.toString();
+
 	}
 }

@@ -27,13 +27,13 @@ import java.util.Properties;
  */
 public interface ConfigWriter {
 
-	/**
-	 * Writes configuration to a tenant specific persistence store.
-	 *
-	 * @param tenantId     - Tenant Id which the email template configuration belongs.
-	 * @param props        - Email properties to be saved.
-	 * @param resourcePath - Resource path to be saved the email templates.
-	 * @throws org.wso2.carbon.i18n.mgt.exceptions.I18nMgtEmailConfigException
-	 */
-	void write(int tenantId, Properties props, String resourcePath) throws I18nMgtEmailConfigException;
+    /**
+     * Writes configuration to a tenant specific persistence store.
+     *
+     * @param tenantId     - Tenant Id which the email template configuration belongs.
+     * @param props        - Email properties to be saved.
+     * @param resourcePath - Resource path to be saved the email templates.
+     * @throws org.wso2.carbon.i18n.mgt.exceptions.I18nMgtEmailConfigException
+     */
+    void write(int tenantId, Properties props, String resourcePath) throws I18nMgtEmailConfigException;
 }

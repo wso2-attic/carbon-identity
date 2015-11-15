@@ -21,12 +21,13 @@ package org.wso2.carbon.i18n.mgt.config;
 import java.util.Properties;
 
 public interface Config {
-	
-	String getProperty(String key);
 
-	void setProperty(String key, String value);
+    String getProperty(String key);
 
-	Properties getProperties();
+    void setProperty(String key, String value);
 
-	void setProperties(Properties props);
+    Properties getProperties();
+
+    void setProperties(Properties props);
+
 }

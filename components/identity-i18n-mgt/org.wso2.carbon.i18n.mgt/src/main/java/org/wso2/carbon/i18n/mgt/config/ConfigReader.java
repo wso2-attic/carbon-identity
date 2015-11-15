@@ -24,17 +24,16 @@ import java.util.Properties;
 
 /**
  * This is used to read email template property configurations from a persistence store.
- *
  */
 public interface ConfigReader {
 
-	/**
-	 * Reads a tenant specific configuration
-	 *
-	 * @param tenantId     -  Tenant Id which the Email Template configuration belongs.
-	 * @param resourcePath - Resource path to be saved the email templates.
-	 * @return The populated email template configuration properties.
-	 * @throws org.wso2.carbon.i18n.mgt.exceptions.I18nMgtEmailConfigException
-	 */
-	Properties read(int tenantId, String resourcePath) throws I18nMgtEmailConfigException;
+    /**
+     * Reads a tenant specific configuration
+     *
+     * @param tenantId     -  Tenant Id which the Email Template configuration belongs.
+     * @param resourcePath - Resource path to be saved the email templates.
+     * @return The populated email template configuration properties.
+     * @throws org.wso2.carbon.i18n.mgt.exceptions.I18nMgtEmailConfigException
+     */
+    Properties read(int tenantId, String resourcePath) throws I18nMgtEmailConfigException;
 }

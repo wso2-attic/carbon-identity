@@ -32,72 +32,71 @@ import java.util.Set;
 /**
  * This class is used to transform <code>Properties</code> to <code>EmailTemplateDTO</code>
  * and vice versa.
- *
  */
 public class EmailConfigTransformer {
 
-	private EmailConfigTransformer() {
-	}
+    private EmailConfigTransformer() {
+    }
 
-	private static final Log log = LogFactory.getLog(EmailConfigTransformer.class);
+    private static final Log log = LogFactory.getLog(EmailConfigTransformer.class);
 
-	public static EmailTemplateDTO[] transform(Properties props) throws IdentityException {
+    public static EmailTemplateDTO[] transform(Properties props) throws IdentityException {
 
-		List<EmailTemplateDTO> emailTemplates = new ArrayList<EmailTemplateDTO>();
+        List<EmailTemplateDTO> emailTemplates = new ArrayList<EmailTemplateDTO>();
 
-		if (log.isDebugEnabled()) {
-			log.debug("Transforming Properties to EmailTemplateDTO[]");
-		}
+        if (log.isDebugEnabled()) {
+            log.debug("Transforming Properties to EmailTemplateDTO[]");
+        }
 
-		Set<String> keySet = props.stringPropertyNames();
-		String emailTemplateLanguage;
-		String emailTemplateDisplayType;
-		String emailTemplateLocale;
+        Set<String> keySet = props.stringPropertyNames();
+        String emailTemplateLanguage;
+        String emailTemplateDisplayType;
+        String emailTemplateLocale;
 
-		for (String key : keySet) {
-			EmailTemplateDTO template = new EmailTemplateDTO();
-			String[] emailTemplateKeyArray = key.split("\\|");
-			template.setName(emailTemplateKeyArray[0]);
-			emailTemplateDisplayType = emailTemplateKeyArray[1];
+        for (String key : keySet) {
+            EmailTemplateDTO template = new EmailTemplateDTO();
+            String[] emailTemplateKeyArray = key.split("\\|");
+            template.setName(emailTemplateKeyArray[0]);
+            emailTemplateDisplayType = emailTemplateKeyArray[1];
 
-			// Retrieves the content of each email template.
-			String[] emailTemplateContent = props.getProperty(key).split("\\|");
-			if (emailTemplateContent.length > 3) {
-				throw new IdentityException("Cannot have | character in the template");
-			}
+            // Retrieves the content of each email template.
+            String[] emailTemplateContent = props.getProperty(key).split("\\|");
+            if (emailTemplateContent.length > 3) {
+                throw new IdentityException("Cannot have | character in the template");
+            }
 
-			String[] emailTypeKeyArray = emailTemplateKeyArray[0].split("\\.");
-			emailTemplateLocale = emailTypeKeyArray[1];
-			Locale localeObject = new Locale(emailTemplateLocale);
-			emailTemplateLanguage = localeObject.getDisplayLanguage();
-			String subject = emailTemplateContent[0];
-			String body = emailTemplateContent[1];
-			String footer = emailTemplateContent[2];
+            String[] emailTypeKeyArray = emailTemplateKeyArray[0].split("\\.");
+            emailTemplateLocale = emailTypeKeyArray[1];
+            Locale localeObject = new Locale(emailTemplateLocale);
+            emailTemplateLanguage = localeObject.getDisplayLanguage();
+            String subject = emailTemplateContent[0];
+            String body = emailTemplateContent[1];
+            String footer = emailTemplateContent[2];
 
-			if (log.isDebugEnabled()) {
-				log.debug("Template info - name:" + key + "locale:" + " " +
-						emailTemplateLanguage + "subject:" + subject + " " +
-						"body:" + body + " footer:" + footer + " " + "displayName:" + emailTemplateDisplayType);
-			}
+            if (log.isDebugEnabled()) {
+                log.debug("Template info - name:" + key + "locale:" + " " +
+                        emailTemplateLanguage + "subject:" + subject + " " +
+                        "body:" + body + " footer:" + footer + " " + "displayName:" + emailTemplateDisplayType);
+            }
 
-			template.setLocale(emailTemplateLanguage);
-			template.setSubject(subject);
-			template.setBody(body);
-			template.setFooter(footer);
-			template.setDisplayName(emailTemplateDisplayType);
+            template.setLocale(emailTemplateLanguage);
+            template.setSubject(subject);
+            template.setBody(body);
+            template.setFooter(footer);
+            template.setDisplayName(emailTemplateDisplayType);
 
-			emailTemplates.add(template);
-		}
+            emailTemplates.add(template);
+        }
 
-		return emailTemplates.toArray(new EmailTemplateDTO[emailTemplates.size()]);
-	}
+        return emailTemplates.toArray(new EmailTemplateDTO[emailTemplates.size()]);
+    }
 
-	public static Properties transform(EmailTemplateDTO template) throws IdentityException {
-		Properties props = new Properties();
-		StringBuilder contents = new StringBuilder();
-		contents.append(template.getSubject()).append("|").append(template.getBody()).append("|").
-				append(template.getFooter());
-		props.setProperty(template.getName(), contents.toString());
-		return props;
-	}
+    public static Properties transform(EmailTemplateDTO template) throws IdentityException {
+        Properties props = new Properties();
+        StringBuilder contents = new StringBuilder();
+        contents.append(template.getSubject()).append("|").append(template.getBody()).append("|").
+                append(template.getFooter());
+        props.setProperty(template.getName(), contents.toString());
+        return props;
+    }
 }

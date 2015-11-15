@@ -109,7 +109,7 @@ public class RegistryConfigAdd implements ConfigWriter {
             }
         } catch (RegistryException e) {
             throw new I18nMgtEmailConfigException("Error occurred while adding email template to registry path : "
-                    + resourcePath);
+                    + resourcePath, e);
         }
     }
 

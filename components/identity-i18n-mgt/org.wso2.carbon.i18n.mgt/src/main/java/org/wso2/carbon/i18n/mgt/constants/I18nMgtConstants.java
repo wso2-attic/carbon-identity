@@ -38,4 +38,6 @@ public class I18nMgtConstants {
 
     public static final String DEFAULT_EMAIL_LOCALE = "en";
 
+    public static final String EMAIL_MEDIA_TYPE = "text/plain";
+
 }

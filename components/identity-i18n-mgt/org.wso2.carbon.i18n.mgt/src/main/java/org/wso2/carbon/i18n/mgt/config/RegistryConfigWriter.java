@@ -78,7 +78,7 @@ public class RegistryConfigWriter implements ConfigWriter {
 					userReg.put(emailTemplateFolderResourcePath, emailCollection);
 					Resource resource = userReg.newResource();
 					String emailTemplateContent = props.getProperty(propsKeyName);
-					resource.setMediaType("text/plain");
+					resource.setMediaType(I18nMgtConstants.EMAIL_MEDIA_TYPE);
 					resource.setContent(emailTemplateContent);
 					userReg.put(emailTemplateFileResourcePath, resource);
 				}
@@ -109,7 +109,7 @@ public class RegistryConfigWriter implements ConfigWriter {
 			}
 		} catch (RegistryException e) {
 			throw new I18nMgtEmailConfigException("Error occurred while adding email template to registry path : "
-					+ resourcePath);
+					+ resourcePath, e);
 		}
 
 	}
