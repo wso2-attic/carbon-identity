@@ -25,13 +25,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.as.validator.AuthorizationCodeValidator;
 import org.apache.oltu.oauth2.as.validator.ClientCredentialValidator;
+import org.apache.oltu.oauth2.as.validator.CodeValidator;
 import org.apache.oltu.oauth2.as.validator.PasswordValidator;
 import org.apache.oltu.oauth2.as.validator.RefreshTokenValidator;
+import org.apache.oltu.oauth2.as.validator.TokenValidator;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.apache.oltu.oauth2.common.validators.OAuthValidator;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.oauth.common.IDTokenResponseValidator;
+import org.wso2.carbon.identity.oauth.common.IDTokenTokenResponseValidator;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.SAML2GrantValidator;
 import org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor;
@@ -113,6 +117,8 @@ public class OAuthServerConfiguration {
     private Map<String, Class<? extends OAuthValidator<HttpServletRequest>>> supportedGrantTypeValidators;
     private Map<String, String> supportedResponseTypeClassNames = new HashMap<>();
     private Map<String, ResponseTypeHandler> supportedResponseTypes;
+    private Map<String, String> supportedResponseTypeValidatorNames = new HashMap<>();
+    private Map<String, Class<? extends OAuthValidator<HttpServletRequest>>> supportedResponseTypeValidators;
     private String[] supportedClaims = null;
     private Map<String, Properties> supportedClientAuthHandlerData = new HashMap<>();
     private List<ClientAuthenticationHandler> supportedClientAuthHandlers;
@@ -396,6 +402,48 @@ public class OAuthServerConfiguration {
         }
 
         return supportedGrantTypeValidators;
+    }
+
+    public Map<String, Class<? extends OAuthValidator<HttpServletRequest>>> getSupportedResponseTypeValidators() {
+
+        if (supportedResponseTypeValidators == null) {
+            synchronized (this) {
+                if (supportedResponseTypeValidators == null) {
+                    supportedResponseTypeValidators =
+                            new Hashtable<String, Class<? extends OAuthValidator<HttpServletRequest>>>();
+                    // Load default grant type validators
+                    supportedResponseTypeValidators
+                            .put(ResponseType.CODE.toString(), CodeValidator.class);
+                    supportedResponseTypeValidators.put(ResponseType.TOKEN.toString(),
+                            TokenValidator.class);
+                    supportedResponseTypeValidators.put("id_token", IDTokenResponseValidator.class);
+                    supportedResponseTypeValidators.put("id_token token", IDTokenTokenResponseValidator.class);
+
+
+                    if (supportedResponseTypeValidatorNames != null) {
+                        // Load configured grant type validators
+                        for (Map.Entry<String, String> entry : supportedResponseTypeValidatorNames
+                                .entrySet()) {
+                            try {
+                                @SuppressWarnings("unchecked")
+                                Class<? extends OAuthValidator<HttpServletRequest>>
+                                        oauthValidatorClass =
+                                        (Class<? extends OAuthValidator<HttpServletRequest>>) Class
+                                                .forName(entry.getValue());
+                                supportedResponseTypeValidators
+                                        .put(entry.getKey(), oauthValidatorClass);
+                            } catch (ClassNotFoundException e) {
+                                log.error("Cannot find class: " + entry.getValue(), e);
+                            } catch (ClassCastException e) {
+                                log.error("Cannot cast class: " + entry.getValue(), e);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return supportedResponseTypeValidators;
     }
 
     public Map<String, ResponseTypeHandler> getSupportedResponseTypes() {
@@ -1118,9 +1166,11 @@ public class OAuthServerConfiguration {
             log.warn("\'SupportedResponseTypes\' element not configured in identity.xml. " +
                     "Therefore instantiating default response type handlers");
 
-            Map<String, String> defaultResponseTypes = new HashMap<>(2);
+            Map<String, String> defaultResponseTypes = new HashMap<>(4);
             defaultResponseTypes.put(ResponseType.CODE.toString(), "org.wso2.carbon.identity.oauth2.authz.handlers.CodeResponseTypeHandler");
             defaultResponseTypes.put(ResponseType.TOKEN.toString(), "org.wso2.carbon.identity.oauth2.authz.handlers.TokenResponseTypeHandler");
+            defaultResponseTypes.put("id_token", "org.wso2.carbon.identity.oauth.common.IDTokenResponseValidator");
+            defaultResponseTypes.put("id_token token", "org.wso2.carbon.identity.oauth.common.IDTokenTokenResponseValidator");
             supportedResponseTypeClassNames.putAll(defaultResponseTypes);
         }
 

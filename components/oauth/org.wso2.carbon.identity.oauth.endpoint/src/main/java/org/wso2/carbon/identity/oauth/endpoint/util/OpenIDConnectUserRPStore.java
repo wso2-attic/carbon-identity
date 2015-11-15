@@ -18,9 +18,8 @@
 package org.wso2.carbon.identity.oauth.endpoint.util;
 
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
-import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
 import org.wso2.carbon.identity.core.dao.OpenIDUserRPDAO;
+import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
 
 /**
  * Stores user consent on applications

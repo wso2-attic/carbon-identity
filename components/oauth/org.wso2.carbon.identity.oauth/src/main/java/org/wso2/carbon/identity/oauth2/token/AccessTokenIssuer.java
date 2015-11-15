@@ -29,7 +29,6 @@ import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
-import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
