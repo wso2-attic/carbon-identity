@@ -21,15 +21,11 @@ package org.wso2.carbon.identity.oauth.common;
 public class OAuth2ErrorCodes {
 
     public static final String UNAUTHORIZED_CLIENT = "unauthorized_client";
-    public static final String INVALID_SCOPE = "invalid_scope";
-    public static final String UNSUPPORTED_RESP_TYPE = "unsupported_response_type";
     public static final String SERVER_ERROR = "server_error";
     public static final String ACCESS_DENIED = "access_denied";
     public static final String INVALID_CALLBACK = "invalid_callback";
     public static final String INVALID_REQUEST = "invalid_request";
-    public static final String INVALID_OAUTH_URL = "invalid_request_url";
     public static final String INVALID_CLIENT = "invalid_client";
-    public static final String INVALID_GRANT = "invalid_grant";
     public static final String UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
 
     private OAuth2ErrorCodes(){

@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.identity.oauth2.authz;
 
-import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 
 import java.util.Properties;
@@ -26,8 +25,6 @@ import java.util.Properties;
 public class OAuthAuthzReqMessageContext {
 
     private OAuth2AuthorizeReqDTO authorizationReqDTO;
-
-    private String responseType;
 
     private String[] approvedScope;
 
@@ -45,14 +42,6 @@ public class OAuthAuthzReqMessageContext {
 
     public void setAuthorizationReqDTO(OAuth2AuthorizeReqDTO authorizationReqDTO) {
         this.authorizationReqDTO = authorizationReqDTO;
-    }
-
-    public String getResponseType() {
-        return responseType;
-    }
-
-    public void setResponseType(String responseType) {
-        this.responseType = responseType;
     }
 
     public String[] getApprovedScope() {

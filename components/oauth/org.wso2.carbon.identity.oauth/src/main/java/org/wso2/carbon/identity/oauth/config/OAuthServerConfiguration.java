@@ -34,6 +34,8 @@ import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.apache.oltu.oauth2.common.validators.OAuthValidator;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.oauth.common.IDTokenResponseValidator;
+import org.wso2.carbon.identity.oauth.common.IDTokenTokenResponseValidator;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.SAML2GrantValidator;
 import org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor;
@@ -414,8 +416,8 @@ public class OAuthServerConfiguration {
                             .put(ResponseType.CODE.toString(), CodeValidator.class);
                     supportedResponseTypeValidators.put(ResponseType.TOKEN.toString(),
                             TokenValidator.class);
-                    supportedResponseTypeValidators.put("id_token", null);
-                    supportedResponseTypeValidators.put("id_token token", null);
+                    supportedResponseTypeValidators.put("id_token", IDTokenResponseValidator.class);
+                    supportedResponseTypeValidators.put("id_token token", IDTokenTokenResponseValidator.class);
 
 
                     if (supportedResponseTypeValidatorNames != null) {
@@ -1164,9 +1166,11 @@ public class OAuthServerConfiguration {
             log.warn("\'SupportedResponseTypes\' element not configured in identity.xml. " +
                     "Therefore instantiating default response type handlers");
 
-            Map<String, String> defaultResponseTypes = new HashMap<>(2);
+            Map<String, String> defaultResponseTypes = new HashMap<>(4);
             defaultResponseTypes.put(ResponseType.CODE.toString(), "org.wso2.carbon.identity.oauth2.authz.handlers.CodeResponseTypeHandler");
             defaultResponseTypes.put(ResponseType.TOKEN.toString(), "org.wso2.carbon.identity.oauth2.authz.handlers.TokenResponseTypeHandler");
+            defaultResponseTypes.put("id_token", "org.wso2.carbon.identity.oauth.common.IDTokenResponseValidator");
+            defaultResponseTypes.put("id_token token", "org.wso2.carbon.identity.oauth.common.IDTokenTokenResponseValidator");
             supportedResponseTypeClassNames.putAll(defaultResponseTypes);
         }
 

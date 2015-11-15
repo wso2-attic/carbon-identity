@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
@@ -62,7 +63,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
 
         String responseType = oauthAuthzMsgCtx.getAuthorizationReqDTO().getResponseType();
 
-        String grantType = StringUtils.equals(OAuthConstants.GrantTypes.TOKEN, responseType) ?
+        String grantType = StringUtils.contains(responseType, OAuthConstants.GrantTypes.TOKEN) ?
                 OAuthConstants.GrantTypes.IMPLICIT : responseType;
 
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
@@ -117,6 +118,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         }
                         respDTO.setScope(oauthAuthzMsgCtx.getApprovedScope());
                         respDTO.setTokenType(accessTokenDO.getTokenType());
+                        buildIdToken(oauthAuthzMsgCtx, respDTO);
                         return respDTO;
                     } else {
 
@@ -191,6 +193,8 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
 
                     respDTO.setScope(oauthAuthzMsgCtx.getApprovedScope());
                     respDTO.setTokenType(existingAccessTokenDO.getTokenType());
+
+                    buildIdToken(oauthAuthzMsgCtx, respDTO);
 
                     return respDTO;
 
@@ -326,23 +330,31 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                 }
             }
 
-            respDTO.setAccessToken(accessToken);
+            if(StringUtils.contains(responseType, ResponseType.TOKEN.toString())) {
+                respDTO.setAccessToken(accessToken);
 
-            if(validityPeriodInMillis > 0){
-                respDTO.setValidityPeriod(newAccessTokenDO.getValidityPeriod());
-            } else {
-                respDTO.setValidityPeriod(Long.MAX_VALUE / 1000);
+                if (validityPeriodInMillis > 0) {
+                    respDTO.setValidityPeriod(newAccessTokenDO.getValidityPeriod());
+                } else {
+                    respDTO.setValidityPeriod(Long.MAX_VALUE / 1000);
+                }
+
+                respDTO.setScope(newAccessTokenDO.getScope());
+                respDTO.setTokenType(newAccessTokenDO.getTokenType());
             }
+        }
 
-            respDTO.setScope(newAccessTokenDO.getScope());
-            respDTO.setTokenType(newAccessTokenDO.getTokenType());
+        buildIdToken(oauthAuthzMsgCtx, respDTO);
+        return respDTO;
+    }
 
-            if (oauthAuthzMsgCtx.getApprovedScope() != null && OAuth2Util.isOIDCAuthzRequest(oauthAuthzMsgCtx.getApprovedScope())) {
-                IDTokenBuilder builder = OAuthServerConfiguration.getInstance().getOpenIDConnectIDTokenBuilder();
-                respDTO.setIdToken(builder.buildIDToken(oauthAuthzMsgCtx, respDTO));
-            }
+    private void buildIdToken(OAuthAuthzReqMessageContext msgCtx, OAuth2AuthorizeRespDTO authzRespDTO)
+            throws IdentityOAuth2Exception{
 
-            return respDTO;
+        if (StringUtils.contains(msgCtx.getAuthorizationReqDTO().getResponseType(), "id_token") &&
+                msgCtx.getApprovedScope() != null && OAuth2Util.isOIDCAuthzRequest(msgCtx.getApprovedScope())) {
+            IDTokenBuilder builder = OAuthServerConfiguration.getInstance().getOpenIDConnectIDTokenBuilder();
+            authzRespDTO.setIdToken(builder.buildIDToken(msgCtx, authzRespDTO));
         }
     }
 }
