@@ -27,8 +27,10 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.UserStoreManager;
@@ -605,13 +607,12 @@ public class UserProfileAdmin extends AbstractAdmin {
 
     }
 
-    public String getNameAssociatedWith(String idpID, String associatedID) throws UserProfileException {
+    public User getNameAssociatedWith(String idpID, String associatedID) throws UserProfileException {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet resultSet;
         String sql = null;
-        String username = "";
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
         try {
@@ -629,11 +630,8 @@ public class UserProfileAdmin extends AbstractAdmin {
 
             if (resultSet.next()) {
                 String domainName = resultSet.getString(1);
-                username = resultSet.getString(2);
-                if(!"PRIMARY".equals(domainName)) {
-                    username = domainName + CarbonConstants.DOMAIN_SEPARATOR + username;
-                }
-                return username;
+                String username = resultSet.getString(2);
+                return User.createLocalUser(username, domainName, IdentityTenantUtil.getTenantDomain(tenantID));
             }
 
         } catch (SQLException e) {

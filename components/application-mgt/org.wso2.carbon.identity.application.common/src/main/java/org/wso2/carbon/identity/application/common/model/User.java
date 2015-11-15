@@ -34,6 +34,28 @@ public class User implements Serializable {
     protected String userName;
 
     /**
+     * Returns a User instance populated from the given userId, userStoreDomain and tenantDomain strings.
+     *
+     * @param userId
+     * @param userStoreDomain
+     * @param tenantDomain
+     * @return populated User instance
+     */
+    public static User createLocalUser(String userId, String userStoreDomain, String tenantDomain) {
+
+        if (StringUtils.isBlank(userId)) {
+            throw new IllegalArgumentException("Failed to create Local Authenticated User from the given subject " +
+                    "identifier. Invalid argument. authenticatedSubjectIdentifier : " + userId);
+        }
+
+        User user = new User();
+        user.setUserName(userId);
+        user.setUserStoreDomain(userStoreDomain);
+        user.setTenantDomain(tenantDomain);
+        return user;
+    }
+
+    /**
      * Returns a User instance populated from the given OMElement
      * The OMElement is of the form below
      * <User>
