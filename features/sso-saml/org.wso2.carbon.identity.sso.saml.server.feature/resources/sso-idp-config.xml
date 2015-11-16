@@ -17,27 +17,29 @@
  -->
 <SSOIdentityProviderConfig>
 	<ServiceProviders>
-       		<!--ServiceProvider>
-          		<Issuer></Issuer>
-                        <AssertionConsumerServiceURLs><AssertionConsumerServiceURL></AssertionConsumerServiceURL></AssertionConsumerServiceURLs>
-                        <DefaultAssertionConsumerServiceURL></DefaultAssertionConsumerServiceURL>
-			<SignAssertion>false</SignAssertion>
-           		<SignResponse>false</SignResponse>
-			<EnableAttributeProfile>false</EnableAttributeProfile>
-			<IncludeAttributeByDefault>false</IncludeAttributeByDefault>
-           		<Claims>
+		<!--ServiceProvider>
+            <Issuer></Issuer>
+            <AssertionConsumerServiceURLs>
+				<AssertionConsumerServiceURL></AssertionConsumerServiceURL>
+            </AssertionConsumerServiceURLs>
+            <DefaultAssertionConsumerServiceURL></DefaultAssertionConsumerServiceURL>
+            <SignAssertion>false</SignAssertion>
+            <SignResponse>false</SignResponse>
+            <EnableAttributeProfile>false</EnableAttributeProfile>
+            <IncludeAttributeByDefault>false</IncludeAttributeByDefault>
+            <Claims>
 				<Claim>http://wso2.org/claims/role</Claim>
 				<Claim>http://wso2.org/claims/emailaddress</Claim>
- 			</Claims>
-			<EnableSingleLogout>false</EnableSingleLogout>
-			<SingleLogoutUrl></SingleLogoutUrl>
-			<EnableAudienceRestriction>false</EnableAudienceRestriction>
-			<AudiencesList>
+            </Claims>
+            <EnableSingleLogout>false</EnableSingleLogout>
+            <SingleLogoutUrl></SingleLogoutUrl>
+            <EnableAudienceRestriction>false</EnableAudienceRestriction>
+            <AudiencesList>
 				<Audience></Audience>
-			</AudiencesList>
-			<ConsumingServiceIndex></ConsumingServiceIndex>
-			<SAMLDefaultSigningAlgorithmURI>http://www.w3.org/2000/09/xmldsig#rsa-sha1</SAMLDefaultSigningAlgorithmURI>
-			<SAMLDefaultDigestAlgorithmURI>http://www.w3.org/2000/09/xmldsig#sha1</SAMLDefaultDigestAlgorithmURI>
-       		</ServiceProvider-->  
-	</ServiceProviders> 
+            </AudiencesList>
+            <ConsumingServiceIndex></ConsumingServiceIndex>
+            <SAMLDefaultSigningAlgorithmURI>http://www.w3.org/2000/09/xmldsig#rsa-sha1</SAMLDefaultSigningAlgorithmURI>
+            <SAMLDefaultDigestAlgorithmURI>http://www.w3.org/2000/09/xmldsig#sha1</SAMLDefaultDigestAlgorithmURI>
+		</ServiceProvider-->
+	</ServiceProviders>
 </SSOIdentityProviderConfig>
