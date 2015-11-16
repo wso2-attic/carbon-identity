@@ -172,7 +172,7 @@ jQuery(document).ready(function(){
             CARBON.showWarningDialog("Resident IdP Entity ID cannot be empty");
             return false;
         }
-        var isSessionTimeoutValidated = doValidateInputToConfirm(document.getElementById('sessionIdleTimeout'), "Resident IdP Idle Session Timeout must be numeric");
+        var isSessionTimeoutValidated = doValidateInput(document.getElementById('sessionIdleTimeout'), "Resident IdP Idle Session Timeout must be numeric value greater than 0");
         if (!isSessionTimeoutValidated) {
             return false;
         }
@@ -304,7 +304,7 @@ jQuery(document).ready(function(){
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='idle.session.timeout'/>:</td>
                             <td>
-                                <input id="sessionIdleTimeout" name="sessionIdleTimeout" type="text" white-list-patterns="digits-only" value="<%=Encode.forHtmlAttribute(sessionIdleTimeout)%>" autofocus/>
+                                <input id="sessionIdleTimeout" name="sessionIdleTimeout" type="text" white-list-patterns="^0*[1-9][0-9]*$" value="<%=Encode.forHtmlAttribute(sessionIdleTimeout)%>" autofocus/>
                                 <div class="sectionHelp">
                                     <fmt:message key='idle.session.timeout.help'/>
                                 </div>

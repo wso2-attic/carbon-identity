@@ -600,9 +600,13 @@ public class IdentityProviderManager {
         rememberMeTimeoutProperty.setValue(rememberMeTimeout);
 
         IdentityProviderProperty sessionIdletimeOutProperty = new IdentityProviderProperty();
-
+        String idleTimeout = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SESSION_IDLE_TIMEOUT);
+        if (StringUtils.isBlank(idleTimeout) || !StringUtils.isNumeric(idleTimeout)) {
+            log.warn("SessionIdleTimeout in identity.xml should be a numeric value");
+            idleTimeout = IdentityApplicationConstants.SESSION_IDLE_TIME_OUT_DEFAULT;
+        }
         sessionIdletimeOutProperty.setName(IdentityApplicationConstants.SESSION_IDLE_TIME_OUT);
-        sessionIdletimeOutProperty.setValue(getDefaultSessionIdleTime());
+        sessionIdletimeOutProperty.setValue(idleTimeout);
 
         idpProperties[0] = rememberMeTimeoutProperty;
         idpProperties[1] = sessionIdletimeOutProperty;
@@ -629,9 +633,11 @@ public class IdentityProviderManager {
             throws IdentityProviderManagementException {
 
         for (IdentityProviderProperty idpProp : identityProvider.getIdpProperties()) {
-            if (StringUtils.equals(idpProp.getName(), IdentityConstants.ServerConfig.SESSION_IDLE_TIMEOUT)) {
-                if (StringUtils.isBlank(idpProp.getValue()) || !StringUtils.isNumeric(idpProp.getValue())) {
-                    idpProp.setValue(getDefaultSessionIdleTime());
+            if (StringUtils.equals(idpProp.getName(), IdentityApplicationConstants.SESSION_IDLE_TIME_OUT)) {
+                if (StringUtils.isBlank(idpProp.getValue()) || !StringUtils.isNumeric(idpProp.getValue()) ||
+                        StringUtils.equals(idpProp.getValue().trim(), "0")) {
+                    throw new IdentityProviderManagementException(IdentityApplicationConstants.SESSION_IDLE_TIME_OUT
+                            + " of ResidentIdP should be a numeric value greater than 0 ");
                 }
             }
         }
@@ -1451,17 +1457,4 @@ public class IdentityProviderManager {
     }
 
 
-    /**
-     * @return the string for idleTimeout. First it reads from the server config value.
-     * If it is not given or not a numeric it will return the hard-corded constant.
-     */
-    private String getDefaultSessionIdleTime() {
-        String idleTimeout = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SESSION_IDLE_TIMEOUT);
-        if (StringUtils.isBlank(idleTimeout) || !StringUtils.isNumeric(idleTimeout)) {
-            log.warn("SessionIdleTimeout in identity.xml should be a numeric value");
-            idleTimeout = IdentityApplicationConstants.SESSION_IDLE_TIME_OUT_DEFAULT;
-        }
-        return idleTimeout;
-
-    }
 }
