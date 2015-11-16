@@ -165,6 +165,14 @@
                 <ResponseTypeName>code</ResponseTypeName>
                 <ResponseTypeHandlerImplClass>org.wso2.carbon.identity.oauth2.authz.handlers.CodeResponseTypeHandler</ResponseTypeHandlerImplClass>
             </SupportedResponseType>
+            <SupportedResponseType>
+                <ResponseTypeName>id_token</ResponseTypeName>
+                <ResponseTypeHandlerImplClass>org.wso2.carbon.identity.oauth2.authz.handlers.TokenResponseTypeHandler</ResponseTypeHandlerImplClass>
+            </SupportedResponseType>
+            <SupportedResponseType>
+                <ResponseTypeName>id_token token</ResponseTypeName>
+                <ResponseTypeHandlerImplClass>org.wso2.carbon.identity.oauth2.authz.handlers.TokenResponseTypeHandler</ResponseTypeHandlerImplClass>
+            </SupportedResponseType>
         </SupportedResponseTypes>
         <!-- Supported Grant Types -->
         <SupportedGrantTypes>

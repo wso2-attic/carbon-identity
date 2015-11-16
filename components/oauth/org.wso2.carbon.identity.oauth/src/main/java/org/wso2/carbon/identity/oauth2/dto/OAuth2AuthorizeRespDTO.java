@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.oauth2.dto;
 
+import java.util.Properties;
+
 public class OAuth2AuthorizeRespDTO {
 
     private String authorizationCode;
@@ -28,6 +30,8 @@ public class OAuth2AuthorizeRespDTO {
     private String tokenType;
     private String[] scope;
     private long validityPeriod;
+    private String idToken;
+    private Properties properties = new Properties();
 
     public String getAuthorizationCode() {
         return authorizationCode;
@@ -91,5 +95,21 @@ public class OAuth2AuthorizeRespDTO {
 
     public void setTokenType(String tokenType) {
         this.tokenType = tokenType;
+    }
+
+    public String getIdToken() {
+        return idToken;
+    }
+
+    public void setIdToken(String idToken) {
+        this.idToken = idToken;
+    }
+
+    public void addProperty(Object propName, Object propValue) {
+        properties.put(propName, propValue);
+    }
+
+    public Object getProperty(Object propName) {
+        return properties.get(propName);
     }
 }

@@ -97,6 +97,7 @@
                                         <include>p2.inf</include>
                                         <include>application-authentication.xml</include>
                                         <include>authenticationendpoint.war</include>
+                                        <include>EndpointConfig.properties</include>
                                     </includes>
                                 </resource>
                             </resources>

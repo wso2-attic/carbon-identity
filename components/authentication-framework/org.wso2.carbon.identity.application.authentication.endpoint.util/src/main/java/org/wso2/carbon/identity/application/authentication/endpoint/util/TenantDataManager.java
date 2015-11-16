@@ -26,7 +26,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.wso2.carbon.identity.application.authentication.endpoint.util.AuthenticationException;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 import org.xml.sax.InputSource;
@@ -90,6 +89,7 @@ public class TenantDataManager {
                 } else {
                     log.info(Constants.TenantConstants.CONFIG_FILE_NAME + " file loaded from authentication endpoint " +
                             "webapp");
+
                     inputStream = TenantDataManager.class.getClassLoader().getResourceAsStream(Constants
                             .TenantConstants.CONFIG_FILE_NAME);
                     prop.load(inputStream);

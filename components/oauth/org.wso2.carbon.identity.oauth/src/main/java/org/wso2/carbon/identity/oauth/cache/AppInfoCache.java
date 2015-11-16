@@ -18,10 +18,8 @@
 
 package org.wso2.carbon.identity.oauth.cache;
 
-import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
 /**
