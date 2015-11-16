@@ -600,13 +600,9 @@ public class IdentityProviderManager {
         rememberMeTimeoutProperty.setValue(rememberMeTimeout);
 
         IdentityProviderProperty sessionIdletimeOutProperty = new IdentityProviderProperty();
-        String idleTimeout = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SESSION_IDLE_TIMEOUT);
-        if (StringUtils.isBlank(idleTimeout) || !StringUtils.isNumeric(rememberMeTimeout)) {
-            log.warn("SessionIdleTimeout in identity.xml should be a numeric value");
-            idleTimeout = IdentityApplicationConstants.SESSION_IDLE_TIME_OUT_DEFAULT;
-        }
+
         sessionIdletimeOutProperty.setName(IdentityApplicationConstants.SESSION_IDLE_TIME_OUT);
-        sessionIdletimeOutProperty.setValue(idleTimeout);
+        sessionIdletimeOutProperty.setValue(getDefaultSessionIdleTime());
 
         idpProperties[0] = rememberMeTimeoutProperty;
         idpProperties[1] = sessionIdletimeOutProperty;
@@ -632,6 +628,13 @@ public class IdentityProviderManager {
     public void updateResidentIdP(IdentityProvider identityProvider, String tenantDomain)
             throws IdentityProviderManagementException {
 
+        for (IdentityProviderProperty idpProp : identityProvider.getIdpProperties()) {
+            if (StringUtils.equals(idpProp.getName(), IdentityConstants.ServerConfig.SESSION_IDLE_TIMEOUT)) {
+                if (StringUtils.isBlank(idpProp.getValue()) || !StringUtils.isNumeric(idpProp.getValue())) {
+                    idpProp.setValue(getDefaultSessionIdleTime());
+                }
+            }
+        }
         // invoking the pre listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
@@ -1448,4 +1451,17 @@ public class IdentityProviderManager {
     }
 
 
+    /**
+     * @return the string for idleTimeout. First it reads from the server config value.
+     * If it is not given or not a numeric it will return the hard-corded constant.
+     */
+    private String getDefaultSessionIdleTime() {
+        String idleTimeout = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SESSION_IDLE_TIMEOUT);
+        if (StringUtils.isBlank(idleTimeout) || !StringUtils.isNumeric(idleTimeout)) {
+            log.warn("SessionIdleTimeout in identity.xml should be a numeric value");
+            idleTimeout = IdentityApplicationConstants.SESSION_IDLE_TIME_OUT_DEFAULT;
+        }
+        return idleTimeout;
+
+    }
 }
