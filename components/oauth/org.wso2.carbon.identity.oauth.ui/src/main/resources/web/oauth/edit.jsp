@@ -173,11 +173,6 @@
                     if (versionValue == '<%=OAuthConstants.OAuthVersions.VERSION_2%>') {
                         if (!$(jQuery("#grant_code"))[0].checked && !$(jQuery("#grant_implicit"))[0].checked) {
                             document.getElementsByName("callback")[0].value = '';
-                        } else {
-                            if (!regexp.test(callbackUrl) || callbackUrl.indexOf(",") > -1) {
-                                CARBON.showWarningDialog("<fmt:message key='callback.is.not.url'/>", null, null);
-                                return false;
-                            }
                         }
                     } else {
                         if (value == '') {
