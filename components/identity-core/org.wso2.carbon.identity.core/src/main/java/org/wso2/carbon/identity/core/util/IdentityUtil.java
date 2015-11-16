@@ -35,6 +35,7 @@ import org.opensaml.xml.io.UnmarshallingException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.base.CarbonEntityResolver;
 import org.wso2.carbon.identity.base.IdentityConstants;
@@ -63,9 +64,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.SocketException;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -600,6 +599,28 @@ public class IdentityUtil {
             urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
                     IdentityConstants.CarbonPlaceholders.CARBON_WEB_CONTEXT_ROOT,
                     webContextRoot);
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, CarbonConstants.CARBON_HOME_PARAMETER)) {
+
+            String carbonHome = CarbonUtils.getCarbonHome();
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    CarbonConstants.CARBON_HOME_PARAMETER,
+                    carbonHome);
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_CONTEXT)) {
+
+            String carbonContext = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
+                    .WEB_CONTEXT_ROOT);
+
+            if (carbonContext.equals("/")) {
+                carbonContext = "";
+            }
+
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_CONTEXT,
+                    carbonContext);
         }
 
         return urlWithPlaceholders;

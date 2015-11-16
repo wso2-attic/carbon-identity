@@ -316,6 +316,7 @@ public class IdentityConstants {
        public static final String CARBON_PROXY_CONTEXT_PATH = "${carbon.proxycontextpath}";
        public static final String CARBON_WEB_CONTEXT_ROOT = "${carbon.webcontextroot}";
        public static final String CARBON_PROTOCOL = "${carbon.protocol}";
+       public static final String CARBON_CONTEXT = "${carbon.context}";
 
     }
 }
