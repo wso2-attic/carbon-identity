@@ -17,10 +17,10 @@
  -->
 <SSOIdentityProviderConfig>
 	<ServiceProviders>
-		<!--ServiceProvider>
+            <!--ServiceProvider>
             <Issuer></Issuer>
             <AssertionConsumerServiceURLs>
-				<AssertionConsumerServiceURL></AssertionConsumerServiceURL>
+		<AssertionConsumerServiceURL></AssertionConsumerServiceURL>
             </AssertionConsumerServiceURLs>
             <DefaultAssertionConsumerServiceURL></DefaultAssertionConsumerServiceURL>
             <SignAssertion>false</SignAssertion>
@@ -28,18 +28,18 @@
             <EnableAttributeProfile>false</EnableAttributeProfile>
             <IncludeAttributeByDefault>false</IncludeAttributeByDefault>
             <Claims>
-				<Claim>http://wso2.org/claims/role</Claim>
-				<Claim>http://wso2.org/claims/emailaddress</Claim>
+		<Claim>http://wso2.org/claims/role</Claim>
+		<Claim>http://wso2.org/claims/emailaddress</Claim>
             </Claims>
             <EnableSingleLogout>false</EnableSingleLogout>
             <SingleLogoutUrl></SingleLogoutUrl>
             <EnableAudienceRestriction>false</EnableAudienceRestriction>
             <AudiencesList>
-				<Audience></Audience>
+		<Audience></Audience>
             </AudiencesList>
             <ConsumingServiceIndex></ConsumingServiceIndex>
             <SAMLDefaultSigningAlgorithmURI>http://www.w3.org/2000/09/xmldsig#rsa-sha1</SAMLDefaultSigningAlgorithmURI>
             <SAMLDefaultDigestAlgorithmURI>http://www.w3.org/2000/09/xmldsig#sha1</SAMLDefaultDigestAlgorithmURI>
-		</ServiceProvider-->
+            </ServiceProvider-->
 	</ServiceProviders>
 </SSOIdentityProviderConfig>
