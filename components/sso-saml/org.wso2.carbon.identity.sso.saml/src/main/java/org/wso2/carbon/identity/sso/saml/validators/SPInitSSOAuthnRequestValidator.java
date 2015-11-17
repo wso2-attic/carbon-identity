@@ -87,7 +87,7 @@ public class SPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
                 return validationResponse;
             }
 
-            if (!SAMLSSOUtil.isSAMLIssuerExists(splitAppendedTenantDomain(validationResponse.getIssuer()),
+            if (!SAMLSSOUtil.isSAMLIssuerExists(validationResponse.getIssuer(),
                                                 SAMLSSOUtil.getTenantDomainFromThreadLocal())) {
                 String message = "A Service Provider with the Issuer '" + validationResponse.getIssuer()
                                  + "' is not registered. Service Provider should be registered in advance";
@@ -179,21 +179,6 @@ public class SPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
         } catch (Exception e) {
             throw new IdentityException("Error validating the authentication request", e);
         }
-    }
-
-    private String splitAppendedTenantDomain(String issuer) throws UserStoreException, IdentityException {
-        if (issuer.contains("@")) {
-            String tenantDomain = issuer.substring(issuer.lastIndexOf('@') + 1);
-            issuer = issuer.substring(0, issuer.lastIndexOf('@'));
-            if (StringUtils.isNotEmpty(tenantDomain) && StringUtils.isNotEmpty(issuer)) {
-                SAMLSSOUtil.setTenantDomainInThreadLocal(tenantDomain);
-                if (log.isDebugEnabled()) {
-                    log.debug("Tenant Domain :" + " " + tenantDomain + " " + "&" + " " +
-                            "Issuer name :" + issuer + " " + "has being spilt");
-                }
-            }
-        }
-        return issuer;
     }
 
 }
