@@ -188,7 +188,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         try {
             context.setRelyingParty(URLEncoder.encode(relyingParty, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
-            log.error("Exception occured when encoding", e);
+            throw new FrameworkException(e.getMessage(), e);
         }
         context.setTenantDomain(tenantDomain);
 
