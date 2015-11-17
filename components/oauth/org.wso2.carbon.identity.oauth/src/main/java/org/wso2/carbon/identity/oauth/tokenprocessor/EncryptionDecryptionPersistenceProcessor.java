@@ -33,23 +33,26 @@ public class EncryptionDecryptionPersistenceProcessor implements TokenPersistenc
 
     protected Log log = LogFactory.getLog(EncryptionDecryptionPersistenceProcessor.class);
 
+    /**
+     * Client ID is not to be decrypt as it's not encrypted
+     * @param processedClientId
+     * @return
+     * @throws IdentityOAuth2Exception
+     */
     @Override
     public String getPreprocessedClientId(String processedClientId) throws IdentityOAuth2Exception {
-        try {
-            return new String(CryptoUtil.getDefaultCryptoUtil().base64DecodeAndDecrypt(processedClientId), Charsets
-                    .UTF_8);
-        } catch (CryptoException e) {
-            throw new IdentityOAuth2Exception("Error while retrieving preprocessed client id", e);
-        }
+        return processedClientId;
     }
 
+    /**
+     * Client ID is not required to be encrypted
+     * @param clientId
+     * @return
+     * @throws IdentityOAuth2Exception
+     */
     @Override
     public String getProcessedClientId(String clientId) throws IdentityOAuth2Exception {
-        try {
-            return CryptoUtil.getDefaultCryptoUtil().encryptAndBase64Encode(clientId.getBytes(Charsets.UTF_8));
-        } catch (CryptoException e) {
-            throw new IdentityOAuth2Exception("Error while retrieving processed client id", e);
-        }
+        return clientId;
     }
 
     @Override
