@@ -330,7 +330,13 @@ public class UserInformationRecoveryService {
                 log.warn("No Tenant id for tenant domain " + userDTO.getTenantDomain(), e);
             }
 
-            if (recoveryProcessor.verifyConfirmationCode(3, userDTO.getUserId(), confirmationCode).isVerified()) {
+            if (recoveryProcessor.verifyConfirmationCode(30, userDTO.getUserId(), confirmationCode).isVerified()) {
+                Utils.updatePassword(userDTO.getUserId(), tenantId, newPassword);
+                log.info("Credential is updated for user : " + userDTO.getUserId()
+                        + " and tenant domain : " + userDTO.getTenantDomain());
+                IdentityMgtConfig.getInstance().getRecoveryDataStore().invalidate(userDTO.getUserId(), tenantId);
+                bean = new VerificationBean(true);
+            } else if (recoveryProcessor.verifyConfirmationCode(3, userDTO.getUserId(), confirmationCode).isVerified()) {
                 Utils.updatePassword(userDTO.getUserId(), tenantId, newPassword);
                 log.info("Credential is updated for user : " + userDTO.getUserId()
                         + " and tenant domain : " + userDTO.getTenantDomain());
@@ -385,7 +391,7 @@ public class UserInformationRecoveryService {
             try {
                 bean = processor.verifyConfirmationCode(1, userDTO.getUserId(), confirmation);
                 if (bean.isVerified()) {
-                    bean = processor.updateConfirmationCode(3, userDTO.getUserId(), userDTO.getTenantId());
+                    bean = processor.updateConfirmationCode(20, userDTO.getUserId(), userDTO.getTenantId());
                 } else {
                     bean.setVerified(false);
                 }
@@ -459,9 +465,11 @@ public class UserInformationRecoveryService {
 
             VerificationBean bean;
             try {
-                bean = processor.verifyConfirmationCode(3, userDTO.getUserId(), confirmation);
+                bean = processor.verifyConfirmationCode(20, userDTO.getUserId(), confirmation);
                 if (bean.isVerified()) {
-                    bean = processor.updateConfirmationCode(3, userDTO.getUserId(), userDTO.getTenantId());
+                    bean = processor.updateConfirmationCode(40, userDTO.getUserId(), userDTO.getTenantId());
+                } else if (processor.verifyConfirmationCode(30, userDTO.getUserId(), confirmation).isVerified()) {
+                    bean = processor.updateConfirmationCode(40, userDTO.getUserId(), userDTO.getTenantId());
                 } else {
                     bean.setVerified(false);
                 }
@@ -543,9 +551,10 @@ public class UserInformationRecoveryService {
 
             RecoveryProcessor recoveryProcessor = IdentityMgtServiceComponent.getRecoveryProcessor();
 
-            try {bean = recoveryProcessor.verifyConfirmationCode(3, userDTO.getUserId(), confirmation);
+            try {
+                bean = recoveryProcessor.verifyConfirmationCode(40, userDTO.getUserId(), confirmation);
                 if (bean.isVerified()) {
-                    bean = recoveryProcessor.updateConfirmationCode(3, userDTO.getUserId(), userDTO.getTenantId());
+                    bean = recoveryProcessor.updateConfirmationCode(30, userDTO.getUserId(), userDTO.getTenantId());
                 } else {
                     bean.setVerified(false);
                 }

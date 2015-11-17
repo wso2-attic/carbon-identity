@@ -404,6 +404,14 @@ public class IdentityProviderManager {
             passiveSTSUrlProp.setValue(passiveStsUrl);
             propertiesList.add(passiveSTSUrlProp);
         }
+        if (IdentityApplicationManagementUtil.getProperty(passiveSTSFedAuthn.getProperties(),
+                IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID) == null) {
+            Property idPEntityIdProp = new Property();
+            idPEntityIdProp
+                    .setName(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID);
+            idPEntityIdProp.setValue(IdPManagementUtil.getResidentIdPEntityId());
+            propertiesList.add(idPEntityIdProp);
+        }
         passiveSTSFedAuthn
                 .setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
         fedAuthnCofigs.add(passiveSTSFedAuthn);

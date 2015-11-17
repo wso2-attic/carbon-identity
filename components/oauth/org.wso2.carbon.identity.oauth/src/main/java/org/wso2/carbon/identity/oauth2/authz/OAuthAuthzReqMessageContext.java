@@ -18,18 +18,19 @@
 
 package org.wso2.carbon.identity.oauth2.authz;
 
-import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
+
+import java.util.Properties;
 
 public class OAuthAuthzReqMessageContext {
 
     private OAuth2AuthorizeReqDTO authorizationReqDTO;
 
-    private ResponseType responseType;
-
     private String[] approvedScope;
 
     private long validityPeriod;
+
+    private Properties properties = new Properties();
 
     public OAuthAuthzReqMessageContext(OAuth2AuthorizeReqDTO authorizationReqDTO) {
         this.authorizationReqDTO = authorizationReqDTO;
@@ -41,14 +42,6 @@ public class OAuthAuthzReqMessageContext {
 
     public void setAuthorizationReqDTO(OAuth2AuthorizeReqDTO authorizationReqDTO) {
         this.authorizationReqDTO = authorizationReqDTO;
-    }
-
-    public ResponseType getResponseType() {
-        return responseType;
-    }
-
-    public void setResponseType(ResponseType responseType) {
-        this.responseType = responseType;
     }
 
     public String[] getApprovedScope() {
@@ -65,5 +58,13 @@ public class OAuthAuthzReqMessageContext {
 
     public void setValidityPeriod(long validityPeriod) {
         this.validityPeriod = validityPeriod;
+    }
+
+    public void addProperty(Object propName, Object propValue) {
+        properties.put(propName, propValue);
+    }
+
+    public Object getProperty(Object propName) {
+        return properties.get(propName);
     }
 }
