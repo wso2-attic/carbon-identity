@@ -91,8 +91,7 @@ public abstract class AbstractResponseTypeHandler implements ResponseTypeHandler
         OAuthCallback authzCallback = new OAuthCallback(authorizationReqDTO.getUsername(),
                 authorizationReqDTO.getConsumerKey(), OAuthCallback.OAuthCallbackType.ACCESS_DELEGATION_AUTHZ);
         authzCallback.setRequestedScope(authorizationReqDTO.getScopes());
-        authzCallback.setResponseType(ResponseType.valueOf(authorizationReqDTO.getResponseType()
-                .toUpperCase()));
+        authzCallback.setResponseType(authorizationReqDTO.getResponseType());
         callbackManager.handleCallback(authzCallback);
 
         oauthAuthzMsgCtx.setValidityPeriod(authzCallback.getValidityPeriod());
@@ -105,8 +104,7 @@ public abstract class AbstractResponseTypeHandler implements ResponseTypeHandler
         OAuthCallback scopeValidationCallback = new OAuthCallback(authorizationReqDTO.getUsername(),
                 authorizationReqDTO.getConsumerKey(), OAuthCallback.OAuthCallbackType.SCOPE_VALIDATION_AUTHZ);
         scopeValidationCallback.setRequestedScope(authorizationReqDTO.getScopes());
-        scopeValidationCallback.setResponseType(ResponseType.valueOf(authorizationReqDTO.getResponseType()
-                .toUpperCase()));
+        scopeValidationCallback.setResponseType(authorizationReqDTO.getResponseType());
 
         callbackManager.handleCallback(scopeValidationCallback);
 
