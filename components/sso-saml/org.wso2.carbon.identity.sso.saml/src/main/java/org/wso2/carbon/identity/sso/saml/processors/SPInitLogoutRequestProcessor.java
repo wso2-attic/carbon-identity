@@ -70,15 +70,15 @@ public class SPInitLogoutRequestProcessor implements SPInitSSOLogoutRequestProce
                     .getPersistenceManager();
             if (StringUtils.isBlank(sessionId)) {
                 String message = "Session was already Expired";
-                log.error(message);
+                log.error("ssoTokenId cookie not found in the logout request");
                 return buildErrorResponse(logoutRequest.getID(), SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
                         message, logoutRequest.getDestination(), defaultSigningAlgoUri, defaultDigestAlgoUri);
             }
             String sessionIndex = ssoSessionPersistenceManager.getSessionIndexFromTokenId(sessionId);
 
             if (StringUtils.isBlank(sessionId)) {
-                String message = "Session index value not found in the request";
-                log.error(message);
+                String message = "Error while retrieving the Session Index ";
+                log.error("Error in retrieving Session Index from ssoTokenId cookie : " + sessionId);
                 reqValidationResponseDTO = buildErrorResponse(logoutRequest.getID(), SAMLSSOConstants.StatusCodes
                         .REQUESTOR_ERROR, message, null, defaultSigningAlgoUri, defaultDigestAlgoUri);
                 reqValidationResponseDTO.setLogoutFromAuthFramework(true);
