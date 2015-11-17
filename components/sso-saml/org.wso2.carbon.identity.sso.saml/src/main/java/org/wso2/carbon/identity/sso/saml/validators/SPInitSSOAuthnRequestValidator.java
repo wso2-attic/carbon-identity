@@ -30,6 +30,7 @@ import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.wso2.carbon.user.api.UserStoreException;
 
 
 public class SPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
@@ -71,9 +72,9 @@ public class SPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
 
             // Issuer MUST NOT be null
             if (StringUtils.isNotBlank(issuer.getValue())) {
-                validationResponse.setIssuer(issuer.getValue());
+                validationResponse.setIssuer(splitAppendedTenantDomain(issuer.getValue()));
             } else if (StringUtils.isNotBlank(issuer.getSPProvidedID())) {
-                validationResponse.setIssuer(issuer.getSPProvidedID());
+                validationResponse.setIssuer(splitAppendedTenantDomain(issuer.getSPProvidedID()));
             } else {
                 validationResponse.setValid(false);
                 String errorResp = SAMLSSOUtil.buildErrorResponse(
@@ -178,6 +179,21 @@ public class SPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
         } catch (Exception e) {
             throw new IdentityException("Error validating the authentication request", e);
         }
+    }
+
+    private String splitAppendedTenantDomain(String issuer) throws UserStoreException, IdentityException {
+        if (issuer.contains("@")) {
+            String tenantDomain = issuer.substring(issuer.lastIndexOf('@') + 1);
+            issuer = issuer.substring(0, issuer.lastIndexOf('@'));
+            if (StringUtils.isNotEmpty(tenantDomain) && StringUtils.isNotEmpty(issuer)) {
+                SAMLSSOUtil.setTenantDomainInThreadLocal(tenantDomain);
+                if (log.isDebugEnabled()) {
+                    log.debug("Tenant Domain :" + " " + tenantDomain + " " + "&" + " " +
+                            "Issuer name :" + issuer + " " + "has being spilt");
+                }
+            }
+        }
+        return issuer;
     }
 
 }
