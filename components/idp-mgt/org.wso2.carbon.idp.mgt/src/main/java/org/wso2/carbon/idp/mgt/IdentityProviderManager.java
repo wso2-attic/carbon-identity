@@ -639,6 +639,12 @@ public class IdentityProviderManager {
                     throw new IdentityProviderManagementException(IdentityApplicationConstants.SESSION_IDLE_TIME_OUT
                             + " of ResidentIdP should be a numeric value greater than 0 ");
                 }
+            } else if (StringUtils.equals(idpProp.getName(), IdentityApplicationConstants.REMEMBER_ME_TIME_OUT)) {
+                if (StringUtils.isBlank(idpProp.getValue()) || !StringUtils.isNumeric(idpProp.getValue()) ||
+                        StringUtils.equals(idpProp.getValue().trim(), "0")) {
+                    throw new IdentityProviderManagementException(IdentityApplicationConstants.REMEMBER_ME_TIME_OUT
+                            + " of ResidentIdP should be a numeric value greater than 0 ");
+                }
             }
         }
         // invoking the pre listeners

@@ -176,7 +176,10 @@ jQuery(document).ready(function(){
         if (!isSessionTimeoutValidated) {
             return false;
         }
-
+        var isRememberTimeValidated = doValidateInput(document.getElementById('rememberMeTimeout'), "Resident IdP Remember Me Period must be numeric value greater than 0");
+        if (!isRememberTimeValidated) {
+            return false;
+        }
         return true;
     }
     function onClickAddDestinationUrl() {
@@ -302,7 +305,7 @@ jQuery(document).ready(function(){
                             </td>
                         </tr>
                         <tr>
-                            <td class="leftCol-med labelField"><fmt:message key='idle.session.timeout'/>:</td>
+                            <td class="leftCol-med labelField"><fmt:message key='idle.session.timeout'/><font color="red">*</font>:</td>
                             <td>
                                 <input id="sessionIdleTimeout" name="sessionIdleTimeout" type="text" white-list-patterns="^0*[1-9][0-9]*$" value="<%=Encode.forHtmlAttribute(sessionIdleTimeout)%>" autofocus/>
                                 <div class="sectionHelp">
@@ -311,9 +314,9 @@ jQuery(document).ready(function(){
                             </td>
                         </tr>
                         <tr>
-                            <td class="leftCol-med labelField"><fmt:message key='remember.me.timeout'/>:</td>
+                            <td class="leftCol-med labelField"><fmt:message key='remember.me.timeout'/><font color="red">*</font>:</td>
                             <td>
-                                <input id="rememberMeTimeout" name="rememberMeTimeout" type="text" value="<%=Encode.forHtmlAttribute(rememberMeTimeout)%>" autofocus/>
+                                <input id="rememberMeTimeout" name="rememberMeTimeout" type="text" white-list-patterns="^0*[1-9][0-9]*$" value="<%=Encode.forHtmlAttribute(rememberMeTimeout)%>" autofocus/>
                                 <div class="sectionHelp">
                                     <fmt:message key='remember.me.timeout.help'/>
                                 </div>
