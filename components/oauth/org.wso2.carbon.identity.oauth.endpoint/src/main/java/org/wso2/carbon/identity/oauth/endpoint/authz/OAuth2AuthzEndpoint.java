@@ -49,6 +49,7 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeRespDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientValidationResponseDTO;
+import org.wso2.carbon.identity.oauth2.model.CarbonOAuthAuthzRequest;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
@@ -448,7 +449,7 @@ public class OAuth2AuthzEndpoint {
         }
 
         // Now the client is valid, redirect him to the authorization page.
-        OAuthAuthzRequest oauthRequest = new OAuthAuthzRequest(req);
+        OAuthAuthzRequest oauthRequest = new CarbonOAuthAuthzRequest(req);
 
         OAuth2Parameters params = new OAuth2Parameters();
         params.setClientId(clientId);
