@@ -27,27 +27,43 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 public abstract class AbstractApplicationMgtListener implements ApplicationMgtListener {
 
-    public boolean doPreCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
+    public boolean doPreCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException {
         return true;
     }
 
-    public boolean doPostCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
+    public boolean doPostCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException {
         return true;
     }
 
-    public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
+    public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException {
         return true;
     }
 
-    public boolean doPostUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
+    public boolean doPostUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException {
         return true;
     }
 
-    public boolean doPreDeleteApplication(String applicationName, String tenantDomain, String userName) throws IdentityApplicationManagementException {
+    public boolean doPreDeleteApplication(String applicationName, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException {
         return true;
     }
 
-    public boolean doPostDeleteApplication(String applicationName, String tenantDomain, String userName) throws IdentityApplicationManagementException {
+    public boolean doPostDeleteApplication(String applicationName, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException {
+        return true;
+    }
+
+    public boolean doPreGetApplication(String applicationName, String tenantDomain)
+            throws IdentityApplicationManagementException{
+        return true;
+    }
+
+    public boolean doPostGetApplication(String applicationName, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException{
         return true;
     }
 

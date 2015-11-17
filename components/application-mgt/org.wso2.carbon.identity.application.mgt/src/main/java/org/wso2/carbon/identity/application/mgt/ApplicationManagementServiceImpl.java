@@ -639,6 +639,14 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     public ServiceProvider getServiceProvider(String serviceProviderName, String tenantDomain)
             throws IdentityApplicationManagementException {
 
+        // invoking the listeners
+        Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
+        for (ApplicationMgtListener listener : listeners) {
+            if (!listener.doPreGetApplication(serviceProviderName, tenantDomain)) {
+                return;
+            }
+        }
+
         startTenantFlow(tenantDomain);
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         ServiceProvider serviceProvider = appDAO.getApplication(serviceProviderName, tenantDomain);
@@ -676,6 +684,13 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         String serviceProviderName;
         ServiceProvider serviceProvider = null;
 
+        // invoking the listeners
+        Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
+        for (ApplicationMgtListener listener : listeners) {
+            if (!listener.doPreGetApplicationByClientId(clientId, clientType, tenantDomain)) {
+                return;
+            }
+        }
         serviceProviderName = getServiceProviderNameByClientId(clientId, clientType, tenantDomain);
 
         try {
