@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 /**
  * Request Coordinator
@@ -184,7 +185,11 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         context.setCallerSessionKey(callerSessionDataKey);
         context.setCallerPath(callerPath);
         context.setRequestType(requestType);
-        context.setRelyingParty(relyingParty);
+        try {
+            context.setRelyingParty(URLEncoder.encode(relyingParty, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            log.error("Exception occured when encoding", e);
+        }
         context.setTenantDomain(tenantDomain);
 
         // generate a new key to hold the context data object
