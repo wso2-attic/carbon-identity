@@ -87,8 +87,8 @@ public class SAMLSSOConstants {
 
         public static final String CERT_ALIAS = "CertAlias";
         public static final String LOGOUT_URL = "LogoutURL";
-        public static final String SLO_RESPONSE_URL = "sloResponseURL";
-        public static final String SLO_REQUEST_URL = "sloRequestURL";
+        public static final String SLO_RESPONSE_URL = "SLOResponseURL";
+        public static final String SLO_REQUEST_URL = "SLORequestURL";
         public static final String CLAIMS = "Claims";
         public static final String CLAIM = "Claim";
         public static final String INCLUDE_ATTRIBUTE = "IncludeAttributeByDefault";
@@ -99,6 +99,7 @@ public class SAMLSSOConstants {
         public static final String CONSUMING_SERVICE_INDEX = "ConsumingServiceIndex";
         public static final String USE_AUTHENTICATED_USER_DOMAIN_CRYPTO = "SSOService.UseAuthenticatedUserDomainCrypto";
         public static final String RETURN_TO_URL_LIST = "ReturnToURLList";
+        public static final String RETURN_TO_URL = "ReturnToURL";
 
         private FileBasedSPConfig() {
         }

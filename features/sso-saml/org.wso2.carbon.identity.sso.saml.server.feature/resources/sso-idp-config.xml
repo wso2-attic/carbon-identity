@@ -15,6 +15,43 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
+
+<!--The proper ServiceProvider should be as follows. -->
+<!--ServiceProvider>
+    <Issuer></Issuer>
+	<AssertionConsumerServiceURLs>
+		<AssertionConsumerServiceURL></AssertionConsumerServiceURL>
+	</AssertionConsumerServiceURLs>
+	<DefaultAssertionConsumerServiceURL></DefaultAssertionConsumerServiceURL>
+	<CustomLoginPage></CustomLoginPage>
+	<EnableSingleLogout></EnableSingleLogout>
+	<SLOResponseURL></SLOResponseURL>
+	<SLORequestURL></SLORequestURL>
+    <SignAssertion>false</SignAssertion>
+    <ValidateSignatures></ValidateSignatures>
+    <EncryptAssertion></EncryptAssertion>
+    <SAMLDefaultSigningAlgorithmURI>http://www.w3.org/2000/09/xmldsig#rsa-sha1</SAMLDefaultSigningAlgorithmURI>
+    <SAMLDefaultDigestAlgorithmURI>http://www.w3.org/2000/09/xmldsig#sha1</SAMLDefaultDigestAlgorithmURI>
+    <CertAlias></CertAlias>
+    <EnableAttributeProfile>false</EnableAttributeProfile>
+    <IncludeAttributeByDefault>false</IncludeAttributeByDefault>
+    <ConsumingServiceIndex></ConsumingServiceIndex>
+    <EnableAudienceRestriction></EnableAudienceRestriction>
+    <AudiencesList>
+        <Audience></Audience>
+    </AudiencesList>
+    <EnableRecipients></EnableRecipients>
+    <RecipientList>
+        <Recipient>
+        </Recipient>
+    </RecipientList>
+    <EnableIdPInitSLO>false</EnableIdPInitSLO>
+    <ReturnToURLList>
+        <ReturnToURL></ReturnToURL>
+    </ReturnToURLList>
+    <SignResponse>false</SignResponse>
+    <EnableIdPInitiatedSSO>false</EnableIdPInitiatedSSO>
+</ServiceProvider-->
 <SSOIdentityProviderConfig>
 	<ServiceProviders>
        		<!--ServiceProvider>
