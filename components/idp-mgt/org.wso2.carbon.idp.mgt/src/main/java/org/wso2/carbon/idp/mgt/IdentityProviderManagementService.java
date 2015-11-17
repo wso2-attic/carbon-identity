@@ -47,13 +47,14 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      * @throws IdentityProviderManagementException Error when getting Resident Identity Provider
      */
     public IdentityProvider getResidentIdP() throws IdentityProviderManagementException {
+        String tenantDomain = "";
         try {
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             IdentityProvider residentIdP = IdentityProviderManager.getInstance()
                     .getResidentIdP(tenantDomain);
             return residentIdP;
         } catch (IdentityProviderManagementException idpException) {
-            log.error("Error while getting ResidentIdP", idpException);
+            log.error("Error while getting ResidentIdP in tenantDomain :" + tenantDomain, idpException);
             throw idpException;
         }
     }
@@ -66,11 +67,12 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      */
     public void updateResidentIdP(IdentityProvider identityProvider)
             throws IdentityProviderManagementException {
+        String tenantDomain = "";
         try {
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             IdentityProviderManager.getInstance().updateResidentIdP(identityProvider, tenantDomain);
         } catch (IdentityProviderManagementException idpException) {
-            log.error("Error while updating ResidentIdP", idpException);
+            log.error("Error while updating ResidentIdP in tenantDomain : " + tenantDomain, idpException);
             throw idpException;
         }
     }
@@ -83,8 +85,9 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      * @throws IdentityProviderManagementException Error when getting list of Identity Providers
      */
     public IdentityProvider[] getAllIdPs() throws IdentityProviderManagementException {
+        String tenantDomain = "";
         try {
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             List<IdentityProvider> identityProviders = IdentityProviderManager.getInstance().getIdPs(tenantDomain);
             for (int i = 0; i < identityProviders.size(); i++) {
                 String providerName = identityProviders.get(i).getIdentityProviderName();
@@ -95,7 +98,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
             }
             return identityProviders.toArray(new IdentityProvider[identityProviders.size()]);
         } catch (IdentityProviderManagementException idpException) {
-            log.error("Error while getting IdPs", idpException);
+            log.error("Error while getting IdPs in tenantDomain : " + tenantDomain, idpException);
             throw idpException;
         }
     }
@@ -109,13 +112,14 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      * @throws IdentityProviderManagementException Error when getting list of Identity Providers
      */
     public IdentityProvider[] getEnabledAllIdPs() throws IdentityProviderManagementException {
+        String tenantDomain = "";
         try {
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             List<IdentityProvider> identityProviders = IdentityProviderManager.getInstance().getEnabledIdPs
                     (tenantDomain);
             return identityProviders.toArray(new IdentityProvider[identityProviders.size()]);
         } catch (IdentityProviderManagementException idpException) {
-            log.error("Error while getting enabled registered Identity providers", idpException);
+            log.error("Error while getting enabled registered Identity providers in tenantDomain : " + tenantDomain, idpException);
             throw idpException;
         }
     }
@@ -148,11 +152,12 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      * @throws IdentityProviderManagementException Error when adding Identity Provider
      */
     public void addIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+        String tenantDomain = "";
         try {
-            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             IdentityProviderManager.getInstance().addIdP(identityProvider, tenantDomain);
         } catch (IdentityProviderManagementException idpException) {
-            log.error("Error while adding Identity provider", idpException);
+            log.error("Error while adding Identity provider in tenantDomain : " + tenantDomain, idpException);
             throw idpException;
         }
     }
