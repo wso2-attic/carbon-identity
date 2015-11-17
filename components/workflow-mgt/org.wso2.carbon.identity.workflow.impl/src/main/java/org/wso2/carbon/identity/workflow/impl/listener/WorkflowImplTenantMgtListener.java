@@ -25,6 +25,7 @@ import org.wso2.carbon.base.CarbonBaseConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplException;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHolder;
@@ -55,7 +56,7 @@ public class WorkflowImplTenantMgtListener implements TenantMgtListener {
             bpsProfileDTO.setPassword(tenantInfoBean.getAdminPassword());
             bpsProfileDTO.setCallbackUser(fullName);
             bpsProfileDTO.setCallbackPassword(tenantInfoBean.getAdminPassword());
-            bpsProfileDTO.setProfileName(WFConstant.DEFAULT_BPS_PROFILE);
+            bpsProfileDTO.setProfileName(WFImplConstant.DEFAULT_BPS_PROFILE_NAME);
 
             WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService()
                     .addBPSProfile(bpsProfileDTO, tenantInfoBean
