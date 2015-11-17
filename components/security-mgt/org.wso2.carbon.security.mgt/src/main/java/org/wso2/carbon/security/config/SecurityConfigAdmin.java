@@ -199,13 +199,36 @@ public class SecurityConfigAdmin {
                 throw new SecurityConfigException("AxisService is Null");
             }
         }
-        SecurityScenario scenario = this.readCurrentScenario(serviceName);
-        if (scenario != null) {
+
+        Parameter param = service.getParameter(SecurityConstants.SECURITY_POLICY_PATH);
+        if (param != null) {
             data = new SecurityScenarioData();
-            data.setCategory(scenario.getCategory());
-            data.setDescription(scenario.getDescription());
-            data.setScenarioId(scenario.getScenarioId());
-            data.setSummary(scenario.getSummary());
+            data.setPolicyRegistryPath((String) param.getValue());
+            data.setScenarioId(SecurityConstants.POLICY_FROM_REG_SCENARIO);
+        } else {
+            SecurityScenario scenario = this.readCurrentScenario(serviceName);
+            if (scenario != null) {
+                data = new SecurityScenarioData();
+                data.setCategory(scenario.getCategory());
+                data.setDescription(scenario.getDescription());
+                data.setScenarioId(scenario.getScenarioId());
+                data.setSummary(scenario.getSummary());
+            }
+        }
+        // if service does not have set policy path, retrieve it from carbonSecConfigs and add it to service
+        if (data != null && SecurityConstants.POLICY_FROM_REG_SCENARIO.equalsIgnoreCase(data.getScenarioId()) &&
+                StringUtils.isEmpty(data.getPolicyRegistryPath())) {
+            String policyPath = getPolicyRegistryPath(serviceName);
+            if (StringUtils.isNotEmpty(policyPath)) {
+                data.setPolicyRegistryPath(policyPath);
+                Parameter pathParam = new Parameter(SecurityConstants.SECURITY_POLICY_PATH,
+                        policyPath);
+                try {
+                    service.addParameter(pathParam);
+                } catch (AxisFault axisFault) {
+                    log.error("Error while adding policy path parameter to sts service", axisFault);
+                }
+            }
         }
         return data;
     }
@@ -469,7 +492,8 @@ public class SecurityConfigAdmin {
         this.disableSecurityOnService(serviceName); //todo fix the method
 
         OMElement policyElement = loadPolicyAsXML(scenarioId, null);
-        OMElement carbonSecConfigs = addUserParameters(policyElement, null, null, null, kerberosConfigurations, false);
+        OMElement carbonSecConfigs = addUserParameters(policyElement, null, null, null, kerberosConfigurations,
+                false, null);
 
         policyElement.addChild(buildRampartConfigXML(null, null, kerberosConfigurations));
         Policy policy = PolicyEngine.getPolicy(policyElement);
@@ -509,13 +533,12 @@ public class SecurityConfigAdmin {
         SecurityScenario scenario = SecurityScenarioDatabase.get(scenarioId);
         boolean isTrustEnabled = scenario.getModules().contains(SecurityConstants.TRUST_MODULE);
 
-        if ((isTrustEnabled || (userGroups != null && userGroups
-                .length > 0)) && !SecurityConstants.POLICY_FROM_REG_SCENARIO.equals(scenarioId)) {
+        if ((isTrustEnabled || (userGroups != null && userGroups.length > 0))) {
             carbonSecConfigs = addUserParameters(policyElement, trustedStores, privateStore, userGroups, null,
-                    isTrustEnabled);
+                    isTrustEnabled, policyPath);
         }
         // If policy is taken from registry (custom policy) it needs to have rampartConfigs defined it.
-        if (StringUtils.isNotBlank(policyPath) && !SecurityConstants.POLICY_FROM_REG_SCENARIO.equals(scenarioId)) {
+        if (StringUtils.isNotBlank(policyPath)) {
             policyElement.addChild(buildRampartConfigXML(privateStore, trustedStores, null));
         }
 
@@ -673,7 +696,7 @@ public class SecurityConfigAdmin {
 
     private OMElement addUserParameters(OMElement policyElement, String[] trustedStores, String privateStore,
                                         String[] userGroups, KerberosConfigData kerberosConfigData,
-                                        boolean isTrusEnabled) throws SecurityConfigException {
+                                        boolean isTrusEnabled, String policyPath) throws SecurityConfigException {
 
         if(log.isDebugEnabled()){
             log.debug("Adding user parameters to policy element : " + policyElement);
@@ -682,6 +705,7 @@ public class SecurityConfigAdmin {
         OMNamespace secElement = factory.createOMNamespace(SecurityConstants.SECURITY_NAMESPACE, SEC_LABEL);
         OMElement carbonSecElement = factory.createOMElement(SecurityConstants.CARBON_SEC_CONFIG, secElement);
         OMElement kerberosElement = factory.createOMElement(SecurityConstants.KERBEROS, secElement);
+        OMElement policyPathElement = factory.createOMElement("policyPath", secElement);
         OMElement trustElement = null;
 
         if ((trustedStores != null || privateStore != null) && isTrusEnabled) {
@@ -742,7 +766,6 @@ public class SecurityConfigAdmin {
             propertyElement.addChild(propertyValue);
             authorizationElement.addChild(propertyElement);
             carbonSecElement.addChild(authorizationElement);
-            policyElement.addChild(carbonSecElement);
         }
 
         if (kerberosConfigData != null) {
@@ -776,6 +799,11 @@ public class SecurityConfigAdmin {
 
             }
             carbonSecElement.addChild(kerberosElement);
+        }
+        if(StringUtils.isNotEmpty(policyPath)){
+            OMText policyPathValue = factory.createOMText(policyPathElement, policyPath);
+            policyPathElement.addChild(policyPathValue);
+            carbonSecElement.addChild(policyPathElement);
         }
         policyElement.addChild(carbonSecElement);
         return carbonSecElement;
@@ -1161,6 +1189,23 @@ public class SecurityConfigAdmin {
             log.error("Error in getting security config data. Failed to get Authorization Manager", e);
         }
         return data;
+    }
+
+    private String getPolicyRegistryPath(String serviceName) {
+        AxisService service = axisConfig.getServiceForActivation(serviceName);
+        String policyTagName = "policyPath";
+        String policyPath = "";
+        try {
+            OMElement carbonSecConfig = getCarbonSecConfigs(getCurrentPolicy(service));
+            OMElement policyPathElement = carbonSecConfig.getFirstChildWithName(new QName(SecurityConstants
+                    .SECURITY_NAMESPACE, policyTagName));
+            if (policyPathElement != null) {
+                policyPath = policyPathElement.getText();
+            }
+        } catch (SecurityConfigException e) {
+            log.error("Error while retrieving current policy from service", e);
+        }
+        return policyPath;
     }
 
     public SecurityScenario readCurrentScenario(String serviceName) throws SecurityConfigException {
