@@ -72,9 +72,9 @@ public class SPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
 
             // Issuer MUST NOT be null
             if (StringUtils.isNotBlank(issuer.getValue())) {
-                validationResponse.setIssuer(splitAppendedTenantDomain(issuer.getValue()));
+                validationResponse.setIssuer(issuer.getValue());
             } else if (StringUtils.isNotBlank(issuer.getSPProvidedID())) {
-                validationResponse.setIssuer(splitAppendedTenantDomain(issuer.getSPProvidedID()));
+                validationResponse.setIssuer(issuer.getSPProvidedID());
             } else {
                 validationResponse.setValid(false);
                 String errorResp = SAMLSSOUtil.buildErrorResponse(
@@ -87,7 +87,7 @@ public class SPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
                 return validationResponse;
             }
 
-            if (!SAMLSSOUtil.isSAMLIssuerExists(validationResponse.getIssuer(),
+            if (!SAMLSSOUtil.isSAMLIssuerExists(splitAppendedTenantDomain(validationResponse.getIssuer()),
                                                 SAMLSSOUtil.getTenantDomainFromThreadLocal())) {
                 String message = "A Service Provider with the Issuer '" + validationResponse.getIssuer()
                                  + "' is not registered. Service Provider should be registered in advance";
