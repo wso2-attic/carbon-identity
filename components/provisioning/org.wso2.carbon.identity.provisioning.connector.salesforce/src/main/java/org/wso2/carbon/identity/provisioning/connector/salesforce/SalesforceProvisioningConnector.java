@@ -129,10 +129,12 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
         String provisioningPattern = this.configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.PROVISIONING_PATTERN_KEY);
         if (provisioningPattern == null) {
+            log.info("Provisioning pattern is not defined, hence using default provisioning pattern");
             provisioningPattern = SalesforceConnectorConstants.PropertyConfig.DEFAULT_PROVISIONING_PATTERN;
         }
         String provisioningSeparator = this.configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.PROVISIONING_SEPERATOR_KEY);
         if (provisioningSeparator == null) {
+            log.info("Provisioning separator is not defined, hence using default provisioning separator");
             provisioningSeparator = SalesforceConnectorConstants.PropertyConfig.DEFAULT_PROVISIONING_SEPERATOR;
         }
         String idpName = this.configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.IDP_NAME_KEY);
