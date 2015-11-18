@@ -42,6 +42,8 @@ import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
@@ -72,7 +74,12 @@ public class DefaultStepHandler implements StepHandler {
 
         List<AuthenticatorConfig> authConfigList = stepConfig.getAuthenticatorList();
 
-        String authenticatorNames = FrameworkUtils.getAuthenticatorIdPMappingString(authConfigList);
+        String authenticatorNames = null;
+        try {
+            authenticatorNames = URLEncoder.encode(FrameworkUtils.getAuthenticatorIdPMappingString(authConfigList), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new FrameworkException("Exception occured in encoding authenticatorNames", e);
+        }
 
         String redirectURL = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
 
@@ -338,6 +345,7 @@ public class DefaultStepHandler implements StepHandler {
 
         // if request from the login page with a selected IdP
         String selectedIdp = request.getParameter(FrameworkConstants.RequestParams.IDP);
+       // selectedIdp="Face#book";
 
         if (selectedIdp != null) {
 
