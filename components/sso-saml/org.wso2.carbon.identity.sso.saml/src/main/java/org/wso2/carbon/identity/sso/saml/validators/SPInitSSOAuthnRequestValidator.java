@@ -185,7 +185,7 @@ public class SPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
         if (issuer.contains("@")) {
             String tenantDomain = issuer.substring(issuer.lastIndexOf('@') + 1);
             issuer = issuer.substring(0, issuer.lastIndexOf('@'));
-            if (StringUtils.isNotEmpty(tenantDomain) && StringUtils.isNotEmpty(issuer)) {
+            if (StringUtils.isNotBlank(tenantDomain) && StringUtils.isNotBlank(issuer)) {
                 SAMLSSOUtil.setTenantDomainInThreadLocal(tenantDomain);
                 if (log.isDebugEnabled()) {
                     log.debug("Tenant Domain :" + " " + tenantDomain + " " + "&" + " " +
