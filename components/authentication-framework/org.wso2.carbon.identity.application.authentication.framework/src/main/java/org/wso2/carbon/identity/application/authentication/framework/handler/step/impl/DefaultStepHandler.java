@@ -74,7 +74,7 @@ public class DefaultStepHandler implements StepHandler {
 
         List<AuthenticatorConfig> authConfigList = stepConfig.getAuthenticatorList();
 
-        String authenticatorNames = null;
+        String authenticatorNames;
         try {
             authenticatorNames = URLEncoder.encode(FrameworkUtils.getAuthenticatorIdPMappingString(authConfigList), "UTF-8");
         } catch (UnsupportedEncodingException e) {
