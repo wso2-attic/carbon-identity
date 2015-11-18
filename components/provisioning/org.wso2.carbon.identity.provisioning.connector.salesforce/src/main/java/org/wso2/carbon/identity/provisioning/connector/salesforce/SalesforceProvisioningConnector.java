@@ -127,15 +127,17 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
         boolean isDebugEnabled = log.isDebugEnabled();
 
-        String provisioningPatternKey = "sf-prov-pattern";
-        String provisioningSeparatorKey = "sf-prov-separator";
-        String idpName_key = "identityProviderName";
-        String userIdClaimUriKey = "userIdClaimUri";
-        String provisioningDomainKey = "sf-prov-domainName";
-
-        String provisioningPattern = this.configHolder.getValue(provisioningPatternKey);
-        String provisioningSeparator = this.configHolder.getValue(provisioningSeparatorKey);
-        String idpName = this.configHolder.getValue(idpName_key);
+        String provisioningPattern = this.configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.PROVISIONING_PATTERN_KEY);
+        if (provisioningPattern == null) {
+            log.info("Provisioning pattern is not defined, hence using default provisioning pattern");
+            provisioningPattern = SalesforceConnectorConstants.PropertyConfig.DEFAULT_PROVISIONING_PATTERN;
+        }
+        String provisioningSeparator = this.configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.PROVISIONING_SEPERATOR_KEY);
+        if (provisioningSeparator == null) {
+            log.info("Provisioning separator is not defined, hence using default provisioning separator");
+            provisioningSeparator = SalesforceConnectorConstants.PropertyConfig.DEFAULT_PROVISIONING_SEPERATOR;
+        }
+        String idpName = this.configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.IDP_NAME_KEY);
 
         JSONObject user = new JSONObject();
 
@@ -151,8 +153,8 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity
                     .getAttributes());
 
-            String userIdClaimURL = this.configHolder.getValue(userIdClaimUriKey);
-            String provisioningDomain = this.configHolder.getValue(provisioningDomainKey);
+            String userIdClaimURL = this.configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.USER_ID_CLAIM_URI_KEY);
+            String provisioningDomain = this.configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.PROVISIONING_DOMAIN_KEY);
             String userId = provisioningEntity.getEntityName();
 
             if (StringUtils.isNotBlank(requiredAttributes.get(userIdClaimURL))) {
@@ -172,7 +174,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             if (StringUtils.isBlank(userId)) {
                 throw new IdentityProvisioningException("Cannot Find Username Attribute for Provisioning");
             }
-            
+
             if (StringUtils.isNotBlank(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
                 userId = userId.replaceAll("@", ".").concat("@").concat(provisioningDomain);
             }
