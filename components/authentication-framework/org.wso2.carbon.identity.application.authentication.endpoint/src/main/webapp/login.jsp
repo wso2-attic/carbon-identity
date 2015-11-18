@@ -171,7 +171,7 @@
                                             boolean isHubIdp = false;
                                             if (idpName.endsWith(".hub")) {
                                                 isHubIdp = true;
-                                                idpName = idpName.substring(0, idpName.length() - 4);;
+                                                idpName = idpName.substring(0, idpName.length() - 4);
                                             }
                                             idpName = URLEncoder.encode(idpName, "UTF-8");
                                 %>

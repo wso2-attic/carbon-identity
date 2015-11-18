@@ -345,7 +345,6 @@ public class DefaultStepHandler implements StepHandler {
 
         // if request from the login page with a selected IdP
         String selectedIdp = request.getParameter(FrameworkConstants.RequestParams.IDP);
-       // selectedIdp="Face#book";
 
         if (selectedIdp != null) {
 
