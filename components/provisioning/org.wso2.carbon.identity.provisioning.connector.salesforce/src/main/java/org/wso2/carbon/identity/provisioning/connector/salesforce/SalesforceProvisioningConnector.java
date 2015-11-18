@@ -297,6 +297,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         JSONObject entity = new JSONObject();
         try {
             entity.put(SalesforceConnectorConstants.IS_ACTIVE, false);
+            entity.put(SalesforceConnectorConstants.USERNAME_ATTRIBUTE, alterUsername(provisioningEntity));
             update(provisioningEntity.getIdentifier().getIdentifier(), entity);
         } catch (JSONException e) {
             log.error("Error while creating JSON body");
@@ -565,4 +566,26 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         return sb.toString();
     }
 
+    /**
+     * Alter username while changing user to active state to inactive state. This is necessary when adding previously
+     * deleted users.
+     *
+     * @param provisioningEntity
+     * @return
+     * @throws IdentityProvisioningException
+     */
+    protected String alterUsername(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
+
+        if (StringUtils.isBlank(provisioningEntity.getEntityName())) {
+            throw new IdentityProvisioningException("Could Not Find Entity Name from Provisioning Entity");
+        }
+        String alteredUsername =
+                SalesforceConnectorConstants.SALESFORCE_OLD_USERNAME_PREFIX + provisioningEntity.getEntityName();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Alter username: " + provisioningEntity.getEntityName() + " to: " + alteredUsername +
+                      "while deleting user");
+        }
+        return alteredUsername;
+    }
 }
