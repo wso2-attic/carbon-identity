@@ -112,9 +112,6 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         if (bpsProfileDTO.getPassword() == null || bpsProfileDTO.getPassword().isEmpty()) {
             bpsProfileDTO.setPassword(currentBpsProfile.getPassword());
         }
-        if (bpsProfileDTO.getCallbackPassword() == null || bpsProfileDTO.getCallbackPassword().isEmpty()) {
-            bpsProfileDTO.setCallbackPassword(currentBpsProfile.getCallbackPassword());
-        }
         bpsProfileDAO.updateProfile(bpsProfileDTO, tenantId);
     }
 

@@ -134,7 +134,6 @@
                     <th width="20%"><fmt:message key="workflow.bps.profile.manager.host"/></th>
                     <th width="20%"><fmt:message key="workflow.bps.profile.worker.host"/></th>
                     <th width="15%"><fmt:message key="workflow.bps.profile.auth.user"/></th>
-                    <th width="15%"><fmt:message key="workflow.bps.profile.callback.user"/></th>
                     <th><fmt:message key="actions"/></th>
                 </tr>
                 </thead>
@@ -153,8 +152,6 @@
                     <td><%=profile.getWorkerHostURL()%>
                     </td>
                     <td><%=profile.getUsername()%>
-                    </td>
-                    <td><%=profile.getCallbackUser()%>
                     </td>
                     <td>
                         <%

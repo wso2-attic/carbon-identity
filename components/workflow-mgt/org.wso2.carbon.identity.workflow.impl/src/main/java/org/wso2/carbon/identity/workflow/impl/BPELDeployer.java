@@ -193,11 +193,6 @@ public class BPELDeployer implements TemplateInitializer {
         placeHolderValues.put(BPELDeployer.Constants.BPS_HOST_NAME, url);
         placeHolderValues.put(Constants.URL_TENANT_CONTEXT, tenantContext);
         placeHolderValues.put(BPELDeployer.Constants.CARBON_HOST_NAME, IdentityUtil.getServerURL("", true));
-        placeHolderValues.put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_USER, (bpsProfile.getCallbackUser() != null ?
-                bpsProfile.getCallbackUser() : ""));
-        placeHolderValues
-                .put(BPELDeployer.Constants.CARBON_CALLBACK_AUTH_PASSWORD, (bpsProfile.getCallbackPassword() != null ?
-                        bpsProfile.getCallbackPassword() : ""));
         placeHolderValues.put(BPELDeployer.Constants.HT_OWNER_ROLE, role);
         placeHolderValues.put(BPELDeployer.Constants.HT_ADMIN_ROLE, role);
         return placeHolderValues;
