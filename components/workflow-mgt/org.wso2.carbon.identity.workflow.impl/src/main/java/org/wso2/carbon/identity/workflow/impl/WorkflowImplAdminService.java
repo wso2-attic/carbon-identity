@@ -41,9 +41,16 @@ public class WorkflowImplAdminService {
 
     public void addBPSProfile(BPSProfile bpsProfileDTO) throws WorkflowImplException {
 
+        String result = AUDIT_FAILED;
         try {
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService().addBPSProfile(bpsProfileDTO, tenantId);
+            result = AUDIT_SUCCESS;
+        } catch (WorkflowImplException e) {
+            log.error("Server error when adding the profile " + bpsProfileDTO.getProfileName(), e);
+            throw new WorkflowImplException("Server error occurred when adding the BPS profile");
+        } finally {
+
             String loggedInUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             String auditData = "\"" + "Profile Name" + "\" : \"" + bpsProfileDTO.getProfileName()
                     + "\",\"" + "Manager Host URL" + "\" : \"" + bpsProfileDTO.getManagerHostURL()
@@ -51,10 +58,7 @@ public class WorkflowImplAdminService {
                     + "\",\"" + "User" + "\" : \"" + bpsProfileDTO.getUsername()
                     + "\"";
             AUDIT_LOG.info(String.format( AUDIT_MESSAGE,loggedInUser, "Add BPS Profile",
-                    "Workflow Impl Admin Service", auditData, AUDIT_SUCCESS));
-        } catch (WorkflowImplException e) {
-            log.error("Server error when adding the profile " + bpsProfileDTO.getProfileName(), e);
-            throw new WorkflowImplException("Server error occurred when adding the BPS profile");
+                    "Workflow Impl Admin Service", auditData, result));
         }
     }
 
@@ -105,10 +109,15 @@ public class WorkflowImplAdminService {
     public void updateBPSProfile(BPSProfile bpsProfileDTO) throws WorkflowImplException {
 
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        String result = AUDIT_FAILED;
         try {
             WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService()
                     .updateBPSProfile(bpsProfileDTO, tenantId);
-
+            result = AUDIT_SUCCESS;
+        } catch (WorkflowImplException e) {
+            log.error("Server error when updating the BPS profile", e);
+            throw new WorkflowImplException("Server error occurred when updating the BPS profile");
+        } finally {
             String loggedInUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             String auditData = "\"" + "Profile Name" + "\" : \"" + bpsProfileDTO.getProfileName()
                     + "\",\"" + "Manager Host URL" + "\" : \"" + bpsProfileDTO.getManagerHostURL()
@@ -116,10 +125,7 @@ public class WorkflowImplAdminService {
                     + "\",\"" + "User" + "\" : \"" + bpsProfileDTO.getUsername()
                     + "\"";
             AUDIT_LOG.info(String.format( AUDIT_MESSAGE,loggedInUser, "Update BPS Profile",
-                    "Workflow Impl Admin Service", auditData, AUDIT_SUCCESS));
-        } catch (WorkflowImplException e) {
-            log.error("Server error when updating the BPS profile", e);
-            throw new WorkflowImplException("Server error occurred when updating the BPS profile");
+                    "Workflow Impl Admin Service", auditData, result));
         }
     }
 
@@ -145,7 +151,7 @@ public class WorkflowImplAdminService {
      * @throws WorkflowImplException
      */
     public void removeBPSPackage(Workflow workflow) throws WorkflowImplException {
-
+        String result = AUDIT_FAILED;
         try {
             WorkflowImplService workflowImplService =
                     WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
@@ -156,7 +162,11 @@ public class WorkflowImplAdminService {
             }
 
             workflowImplService.removeBPSPackage(workflow);
-
+            result = AUDIT_SUCCESS;
+        } catch (WorkflowImplException e) {
+            log.error("Error when removing BPS artifacts of: " + workflow.getWorkflowName(), e);
+            throw new WorkflowImplException(e.getMessage());
+        } finally {
             String loggedInUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             String auditData = "\"" + "Workflow Name" + "\" : \"" + workflow.getWorkflowName()
                     + "\",\"" + "Template ID" + "\" : \"" + workflow.getTemplateId()
@@ -165,10 +175,7 @@ public class WorkflowImplAdminService {
                     + "\",\"" + "Workflow Impl ID" + "\" : \"" + workflow.getWorkflowImplId()
                     + "\"";
             AUDIT_LOG.info(String.format( AUDIT_MESSAGE,loggedInUser, "Remove BPS Package",
-                    "Workflow Impl Admin Service", auditData, AUDIT_SUCCESS));
-        } catch (WorkflowImplException e) {
-            log.error("Error when removing BPS artifacts of: " + workflow.getWorkflowName(), e);
-            throw new WorkflowImplException(e.getMessage());
+                    "Workflow Impl Admin Service", auditData, result));
         }
     }
 
