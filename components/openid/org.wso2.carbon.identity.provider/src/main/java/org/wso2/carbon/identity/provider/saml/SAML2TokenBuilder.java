@@ -29,6 +29,7 @@ import org.opensaml.saml2.core.AttributeStatement;
 import org.opensaml.saml2.core.AttributeValue;
 import org.opensaml.saml2.core.Audience;
 import org.opensaml.saml2.core.AudienceRestriction;
+import org.opensaml.saml2.core.AuthnStatement;
 import org.opensaml.saml2.core.Conditions;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.Subject;
@@ -143,6 +144,10 @@ public class SAML2TokenBuilder implements SAMLTokenBuilder {
         conditions.setNotBefore(notBefore);
         conditions.setNotOnOrAfter(notAfter);
 
+        AuthnStatement authnStatement = (AuthnStatement) buildXMLObject(AuthnStatement.DEFAULT_ELEMENT_NAME);
+        authnStatement.setSessionNotOnOrAfter(notAfter);
+
+
         ServerConfiguration config = ServerConfiguration.getInstance();
         String host = "http://" + config.getFirstProperty("HostName");
 
@@ -163,6 +168,7 @@ public class SAML2TokenBuilder implements SAMLTokenBuilder {
 
         assertion.setConditions(conditions);
 
+        assertion.getAuthnStatements().add(authnStatement);
         assertion.getAttributeStatements().add(this.attributeStmt);
         assertion.setID(assertionId);
 
@@ -171,6 +177,9 @@ public class SAML2TokenBuilder implements SAMLTokenBuilder {
                 (SubjectConfirmation) buildXMLObject(SubjectConfirmation.DEFAULT_ELEMENT_NAME);
         SubjectConfirmationData confData =
                 (SubjectConfirmationData) buildXMLObject(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
+        confData.setNotOnOrAfter(notAfter);
+        confData.setNotBefore(notBefore);
+
         confData.setAddress(CONF_KEY);
         subjectConf.setSubjectConfirmationData(confData);
         subject.getSubjectConfirmations().add(subjectConf);
