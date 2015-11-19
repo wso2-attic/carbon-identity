@@ -22,13 +22,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
+import org.wso2.carbon.identity.oauth2.dto.OAuth2IntrospectionResponseDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.validators.TokenValidationHandler;
 
 /**
- * This is the SOAP version of the OAuth validation service which will be used by the
- * resource server.
+ * This is the SOAP version of the OAuth validation service which will be used by the resource server.
  */
 public class OAuth2TokenValidationService extends AbstractAdmin {
 
@@ -40,37 +40,61 @@ public class OAuth2TokenValidationService extends AbstractAdmin {
      */
     public OAuth2TokenValidationResponseDTO validate(OAuth2TokenValidationRequestDTO validationReqDTO) {
 
-        TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
+	TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
 
-        try {
-            return validationHandler.validate(validationReqDTO);
-        } catch (IdentityOAuth2Exception e) {
-            log.error("Error occurred while validating the OAuth2 access token", e);
-            OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
-            errRespDTO.setValid(false);
-            errRespDTO.setErrorMsg("Server error occurred while validating the OAuth2 access token");
-            return errRespDTO;
-        }
+	try {
+	    return validationHandler.validate(validationReqDTO);
+	} catch (IdentityOAuth2Exception e) {
+	    log.error("Error occurred while validating the OAuth2 access token", e);
+	    OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
+	    errRespDTO.setValid(false);
+	    errRespDTO.setErrorMsg("Server error occurred while validating the OAuth2 access token");
+	    return errRespDTO;
+	}
     }
 
     /**
      * @param validationReqDTO
      * @return
      */
+    @Deprecated
     public OAuth2ClientApplicationDTO findOAuthConsumerIfTokenIsValid(OAuth2TokenValidationRequestDTO validationReqDTO) {
 
-        TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
+	TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
 
-        try {
-            return validationHandler.findOAuthConsumerIfTokenIsValid(validationReqDTO);
-        } catch (IdentityOAuth2Exception e) {
-            log.error("Error occurred while validating the OAuth2 access token", e);
-            OAuth2ClientApplicationDTO appDTO = new OAuth2ClientApplicationDTO();
-            OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
-            errRespDTO.setValid(false);
-            errRespDTO.setErrorMsg("Server error occurred while validating the OAuth2 access token");
-            appDTO.setAccessTokenValidationResponse(errRespDTO);
-            return appDTO;
-        }
+	try {
+	    return validationHandler.findOAuthConsumerIfTokenIsValid(validationReqDTO);
+	} catch (IdentityOAuth2Exception e) {
+	    log.error("Error occurred while validating the OAuth2 access token", e);
+	    OAuth2ClientApplicationDTO appDTO = new OAuth2ClientApplicationDTO();
+	    OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
+	    errRespDTO.setValid(false);
+	    errRespDTO.setErrorMsg("Server error occurred while validating the OAuth2 access token");
+	    appDTO.setAccessTokenValidationResponse(errRespDTO);
+	    return appDTO;
+	}
+    }
+
+    /**
+     * returns back the introspection response, which is compatible with RFC 7662.
+     * @param validationReq
+     * @return
+     */
+    public OAuth2IntrospectionResponseDTO buildIntrospectionResponse(OAuth2TokenValidationRequestDTO validationReq) {
+
+	TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
+
+	try {
+	    return validationHandler.buildIntrospectionResponse(validationReq);
+	} catch (IdentityOAuth2Exception e) {
+	    String errorMessage = "Error occurred while building the introspection response";
+	    OAuth2IntrospectionResponseDTO response = new OAuth2IntrospectionResponseDTO();
+	    if (log.isDebugEnabled()) {
+		log.debug(errorMessage);
+	    }
+	    response.setActive(false);
+	    response.setError(errorMessage);
+	    return response;
+	}
     }
 }
