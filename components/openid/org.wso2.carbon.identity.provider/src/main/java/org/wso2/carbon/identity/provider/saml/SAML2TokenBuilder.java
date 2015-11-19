@@ -147,7 +147,6 @@ public class SAML2TokenBuilder implements SAMLTokenBuilder {
         AuthnStatement authnStatement = (AuthnStatement) buildXMLObject(AuthnStatement.DEFAULT_ELEMENT_NAME);
         authnStatement.setSessionNotOnOrAfter(notAfter);
 
-
         ServerConfiguration config = ServerConfiguration.getInstance();
         String host = "http://" + config.getFirstProperty("HostName");
 
