@@ -148,9 +148,23 @@ public class TokenValidationHandler {
 	OAuth2TokenValidator tokenValidator = null;
 	AccessTokenDO accessTokenDO = null;
 
-	tokenValidator = findAccessTokenValidator(accessToken);
-	accessTokenDO = findAccessToken(requestDTO.getAccessToken().getIdentifier());
-	checkAcessTokenExpiration(accessTokenDO);
+	try {
+	    tokenValidator = findAccessTokenValidator(accessToken);
+	} catch (IllegalArgumentException e) {
+	    // access token not provided.
+	    return buildClientAppErrorResponse(e.getMessage());
+	}
+	
+	try {
+	    accessTokenDO = findAccessToken(requestDTO.getAccessToken().getIdentifier());
+	} catch (IllegalArgumentException e) {
+	    // Access token not found in the system.
+	    return buildClientAppErrorResponse(e.getMessage());
+	}
+	
+	if ( hasAcessTokenExpired(accessTokenDO)) {
+	    return buildClientAppErrorResponse("Access token expired");
+	}
 	// Set the token expiration time
 	responseDTO.setExpiryTime(getAccessTokenExpirationTime(accessTokenDO));
 
@@ -206,10 +220,15 @@ public class TokenValidationHandler {
 	OAuth2TokenValidator tokenValidator = null;
 	AccessTokenDO accessTokenDO = null;
 
-	tokenValidator = findAccessTokenValidator(accessToken);
-
+	try {
+	    tokenValidator = findAccessTokenValidator(accessToken);
+	} catch (IllegalArgumentException e) {
+	    // access token not provided.
+	    return buildIntrospectionErrorResponse(e.getMessage());
+	}
+            
 	if (!tokenValidator.validateAccessToken(messageContext)) {
-	    return buildIntrospectionErrorResponse("access token validation failed");
+	    return buildIntrospectionErrorResponse("Access token validation failed");
 	}
 
 	if (messageContext.getProperty(OAuth2Util.REMOTE_ACCESS_TOKEN) != null
@@ -237,9 +256,21 @@ public class TokenValidationHandler {
 	    if (messageContext.getProperty(OAuth2Util.CLIENT_ID) != null) {
 		introResp.setClientId((String) messageContext.getProperty(OAuth2Util.CLIENT_ID));
 	    }
+	    
 	} else {
-	    accessTokenDO = findAccessToken(validationRequest.getAccessToken().getIdentifier());
-	    checkAcessTokenExpiration(accessTokenDO);
+	    
+	    try {
+		accessTokenDO = findAccessToken(validationRequest.getAccessToken().getIdentifier());
+	    } catch (IllegalArgumentException e) {
+		// access token not found in the system.
+		return buildIntrospectionErrorResponse(e.getMessage());
+	    }
+	
+	    if (hasAcessTokenExpired(accessTokenDO)) {
+		// token is not active. we do not need to worry about other details.
+		introResp.setActive(false);
+		return introResp;
+	    }
 
 	    // should be in seconds
 	    introResp
@@ -356,13 +387,13 @@ public class TokenValidationHandler {
 	    throws IdentityOAuth2Exception {
 	// incomplete token validation request
 	if (accessToken == null) {
-	    throw new IdentityOAuth2Exception("Access Token is not present in the validation request");
+	    throw new IllegalArgumentException("Access token is not present in the validation request");
 	}
 
 	String accessTokenIdentifier = accessToken.getIdentifier();
 	// incomplete token validation request
 	if (accessTokenIdentifier == null) {
-	    throw new IdentityOAuth2Exception("Access token identifier is not present in the validation request");
+	    throw new IllegalArgumentException("Access token identifier is not present in the validation request");
 	}
 
 	OAuth2TokenValidator tokenValidator = tokenValidators.get(accessToken.getTokenType());
@@ -402,8 +433,8 @@ public class TokenValidationHandler {
      * @return
      * @throws IdentityOAuth2Exception 
      */
-    private void checkAcessTokenExpiration(AccessTokenDO accessTokenDO) throws IdentityOAuth2Exception {
-	// Check whether the grant is expired
+    private boolean hasAcessTokenExpired(AccessTokenDO accessTokenDO) {
+	// check whether the grant is expired
 	if (accessTokenDO.getValidityPeriod() < 0) {
 	    if (log.isDebugEnabled()) {
 		log.debug("Access Token has infinite lifetime");
@@ -413,9 +444,11 @@ public class TokenValidationHandler {
 		if (log.isDebugEnabled()) {
 		    log.debug("Access Token has expired");
 		}
-		throw new IdentityOAuth2Exception("Access token has expired");
+		return true;
 	    }
 	}
+	
+	return false;
     }
     
     /**
@@ -444,6 +477,10 @@ public class TokenValidationHandler {
 	if (accessTokenDO == null) {
 	    accessTokenDO = tokenMgtDAO.retrieveAccessToken(tokenIdentifier, false);
 	}
+	
+	if (accessTokenDO == null) {
+	    throw new IllegalArgumentException("Invalid access token");
+	}
 
 	// add the token back to the cache in the case of a cache miss
 	if (OAuthServerConfiguration.getInstance().isCacheEnabled() && !cacheHit) {
@@ -454,10 +491,6 @@ public class TokenValidationHandler {
 	    if (log.isDebugEnabled()) {
 		log.debug("Access Token Info object was added back to the cache.");
 	    }
-	}
-
-	if (accessTokenDO == null) {
-	    throw new IdentityOAuth2Exception("Invalid input. Access token validation failed");
 	}
 
 	return accessTokenDO;
