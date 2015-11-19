@@ -22,7 +22,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
@@ -38,7 +40,6 @@ import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
-import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 
 import java.util.ArrayList;
@@ -49,6 +50,10 @@ import java.util.UUID;
 public class WorkflowManagementAdminService {
 
     private static Log log = LogFactory.getLog(WorkflowManagementAdminService.class);
+    private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
+    private static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
+    private static final String AUDIT_SUCCESS = "Success";
+    private static final String AUDIT_FAILED = "Failed";
 
 
     private WorkflowWizard getWorkflow(org.wso2.carbon.identity.workflow.mgt.bean.Workflow workflowBean)
@@ -64,8 +69,6 @@ public class WorkflowManagementAdminService {
                 workflow.setWorkflowId(workflowBean.getWorkflowId());
                 workflow.setWorkflowName(workflowBean.getWorkflowName());
                 workflow.setWorkflowDescription(workflowBean.getWorkflowDescription());
-                //workflow.setTemplateId(workflowBean.getTemplateId());
-                //workflow.setWorkflowImplId(workflowBean.getWorkflowImplId());
 
                 AbstractTemplate abstractTemplate =
                         WorkflowServiceDataHolder.getInstance().getTemplates().get(workflowBean.getTemplateId());
@@ -154,6 +157,7 @@ public class WorkflowManagementAdminService {
 
     public void addWorkflow(WorkflowWizard workflow) throws WorkflowException {
 
+        String result = AUDIT_FAILED;
         String id = workflow.getWorkflowId();
         if (StringUtils.isBlank(id)) {
             id = UUID.randomUUID().toString();
@@ -189,42 +193,73 @@ public class WorkflowManagementAdminService {
 
             WorkflowServiceDataHolder.getInstance().getWorkflowService()
                     .addWorkflow(workflowBean, parameterList, tenantId);
-
+            result = AUDIT_SUCCESS;
         } catch (WorkflowRuntimeException e) {
             log.error("Error when adding workflow " + workflow.getWorkflowName(), e);
             throw new WorkflowException(e.getMessage());
         } catch (WorkflowException e) {
             log.error("Server error when adding workflow " + workflow.getWorkflowName(), e);
             throw new WorkflowException("Server error occurred when adding the workflow");
+        } finally {
+            String loggedInUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+            String auditData = "\"" + "Workflow Name" + "\" : \"" + workflow.getWorkflowName()
+                    + "\",\"" + "Workflow Impl ID" + "\" : \"" + workflow.getWorkflowImplId()
+                    + "\",\"" + "Workerflow ID" + "\" : \"" + workflow.getWorkflowId()
+                    + "\",\"" + "Workflow Description" + "\" : \"" + workflow.getWorkflowDescription()
+                    + "\",\"" + "Template ID" + "\" : \"" + workflow.getTemplateId()
+                    + "\"";
+            AUDIT_LOG.info(String.format( AUDIT_MESSAGE,loggedInUser, "Add Workflow",
+                    "Workflow Management Admin Service", auditData, result));
         }
     }
 
     public void addAssociation(String associationName, String workflowId, String eventId, String condition) throws
                                                                                                             WorkflowException {
 
+        String result = AUDIT_FAILED;
         try {
             WorkflowServiceDataHolder.getInstance().getWorkflowService()
                     .addAssociation(associationName, workflowId, eventId, condition);
+            result = AUDIT_SUCCESS;
         } catch (WorkflowRuntimeException e) {
             log.error("Error when adding association " + associationName, e);
             throw new WorkflowException(e.getMessage());
         } catch (WorkflowException e) {
             log.error("Server error when adding association of workflow " + workflowId + " with " + eventId, e);
             throw new WorkflowException("Server error occurred when associating the workflow with the event");
+        } finally {
+            String loggedInUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+            String auditData = "\"" + "Association Name" + "\" : \"" + associationName
+                    + "\",\"" + "Workflow ID" + "\" : \"" + workflowId
+                    + "\",\"" + "Event ID" + "\" : \"" + eventId
+                    + "\",\"" + "Condition" + "\" : \"" + condition
+                    + "\"";
+            AUDIT_LOG.info(String.format( AUDIT_MESSAGE,loggedInUser, "Add Association",
+                    "Workflow Management Admin Service", auditData, result));
         }
     }
 
 
     public void changeAssociationState(String associationId, boolean isEnable) throws WorkflowException {
+
+        String result = AUDIT_FAILED;
         try {
             WorkflowServiceDataHolder.getInstance().getWorkflowService()
                     .changeAssociationState(associationId, isEnable);
+            result = AUDIT_SUCCESS;
         } catch (WorkflowRuntimeException e) {
             log.error("Error when changing an association ", e);
             throw new WorkflowException(e.getMessage());
         } catch (WorkflowException e) {
             log.error("Server error when changing state of association ", e);
             throw new WorkflowException("Server error occurred when changing the state of association");
+        } finally {
+            String loggedInUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+            String auditData = "\"" + "Association ID" + "\" : \"" + associationId
+                    + "\",\"" + "Resulting State" + "\" : \"" + isEnable
+                    + "\"";
+            AUDIT_LOG.info(String.format( AUDIT_MESSAGE,loggedInUser, "Change Association State",
+                    "Workflow Management Admin Service", auditData, result));
         }
 
     }
@@ -250,22 +285,40 @@ public class WorkflowManagementAdminService {
 
     public void removeWorkflow(String id) throws WorkflowException {
 
+        String result = AUDIT_FAILED;
         try {
             WorkflowServiceDataHolder.getInstance().getWorkflowService().removeWorkflow(id);
+            result = AUDIT_SUCCESS;
         } catch (InternalWorkflowException e) {
             log.error("Server error when removing workflow " + id, e);
             throw new WorkflowException("Server error occurred when removing workflow");
+        } finally {
+            String loggedInUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+            String auditData = "\"" + "Workflow ID" + "\" : \"" + id
+                    + "\"";
+            AUDIT_LOG.info(String.format( AUDIT_MESSAGE,loggedInUser, "Remove workflow",
+                    "Workflow Management Admin Service", auditData, result));
+
         }
     }
 
     public void removeAssociation(String associationId) throws WorkflowException {
 
+        String result = AUDIT_FAILED;
         try {
             WorkflowServiceDataHolder.getInstance().getWorkflowService()
                     .removeAssociation(Integer.parseInt(associationId));
+            result = AUDIT_SUCCESS;
         } catch (InternalWorkflowException e) {
             log.error("Server error when removing association " + associationId, e);
             throw new WorkflowException("Server error occurred when removing association");
+        } finally {
+
+            String loggedInUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+            String auditData = "\"" + "Association ID" + "\" : \"" + associationId
+                    + "\"";
+            AUDIT_LOG.info(String.format( AUDIT_MESSAGE,loggedInUser, "Remove Association",
+                    "Workflow Management Admin Service", auditData, result));
         }
     }
 
@@ -354,8 +407,18 @@ public class WorkflowManagementAdminService {
      */
     public void deleteWorkflowRequest(String requestId) throws WorkflowException {
 
-        WorkflowServiceDataHolder.getInstance().getWorkflowService()
-                .deleteWorkflowRequest(requestId);
+        String result = AUDIT_FAILED;
+        try {
+            WorkflowServiceDataHolder.getInstance().getWorkflowService()
+                    .deleteWorkflowRequest(requestId);
+            result = AUDIT_SUCCESS;
+        } finally {
+            String loggedInUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+            String auditData = "\"" + "Request ID" + "\" : \"" + requestId
+                    + "\"";
+            AUDIT_LOG.info(String.format( AUDIT_MESSAGE,loggedInUser, "Remove workflow request",
+                    "Workflow Management Admin Service", auditData, result));
+        }
     }
 
     /**
