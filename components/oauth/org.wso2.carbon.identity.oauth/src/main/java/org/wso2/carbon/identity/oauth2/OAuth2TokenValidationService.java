@@ -89,9 +89,7 @@ public class OAuth2TokenValidationService extends AbstractAdmin {
 	} catch (IdentityOAuth2Exception e) {
 	    String errorMessage = "Error occurred while building the introspection response";
 	    OAuth2IntrospectionResponseDTO response = new OAuth2IntrospectionResponseDTO();
-	    if (log.isDebugEnabled()) {
-		log.debug(errorMessage);
-	    }
+	    log.error(errorMessage, e);
 	    response.setActive(false);
 	    response.setError(errorMessage);
 	    return response;
