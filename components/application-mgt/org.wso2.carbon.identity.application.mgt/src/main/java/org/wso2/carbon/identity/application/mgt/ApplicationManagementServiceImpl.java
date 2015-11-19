@@ -643,7 +643,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
             if (!listener.doPreGetApplication(serviceProviderName, tenantDomain)) {
-                return;
+                return null;
             }
         }
 
@@ -688,7 +688,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
             if (!listener.doPreGetApplicationByClientId(clientId, clientType, tenantDomain)) {
-                return;
+                return null;
             }
         }
         serviceProviderName = getServiceProviderNameByClientId(clientId, clientType, tenantDomain);

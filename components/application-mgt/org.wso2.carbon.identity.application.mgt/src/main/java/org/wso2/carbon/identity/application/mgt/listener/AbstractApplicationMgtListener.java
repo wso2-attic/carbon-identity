@@ -67,6 +67,10 @@ public abstract class AbstractApplicationMgtListener implements ApplicationMgtLi
         return true;
     }
 
+    public boolean doPreGetApplicationByClientId(String clientId, String clientType, String tenantDomain) {
+        return false;
+    }
+
     public boolean isEnable() {
         IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
                 (ApplicationMgtListener.class.getName(), this.getClass().getName());
