@@ -490,7 +490,7 @@ public class OAuth2Util {
     }
 
     public static String hashScopes(String scope){
-        if (StringUtils.isNotBlank(scope)) {
+        if (scope != null) {
             //first converted to an array to sort the scopes
             return DigestUtils.md5Hex(OAuth2Util.buildScopeString(buildScopeArray(scope)));
         } else {
