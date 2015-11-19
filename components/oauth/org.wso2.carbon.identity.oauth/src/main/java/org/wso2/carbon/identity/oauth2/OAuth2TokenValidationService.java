@@ -57,7 +57,6 @@ public class OAuth2TokenValidationService extends AbstractAdmin {
      * @param validationReqDTO
      * @return
      */
-    @Deprecated
     public OAuth2ClientApplicationDTO findOAuthConsumerIfTokenIsValid(OAuth2TokenValidationRequestDTO validationReqDTO) {
 
 	TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
