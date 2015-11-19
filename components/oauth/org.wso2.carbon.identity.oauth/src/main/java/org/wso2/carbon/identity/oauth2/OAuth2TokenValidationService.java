@@ -69,7 +69,7 @@ public class OAuth2TokenValidationService extends AbstractAdmin {
 	    OAuth2ClientApplicationDTO appDTO = new OAuth2ClientApplicationDTO();
 	    OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
 	    errRespDTO.setValid(false);
-	    errRespDTO.setErrorMsg("Server error occurred while validating the OAuth2 access token");
+	    errRespDTO.setErrorMsg(e.getMessage());
 	    appDTO.setAccessTokenValidationResponse(errRespDTO);
 	    return appDTO;
 	}
@@ -87,11 +87,10 @@ public class OAuth2TokenValidationService extends AbstractAdmin {
 	try {
 	    return validationHandler.buildIntrospectionResponse(validationReq);
 	} catch (IdentityOAuth2Exception e) {
-	    String errorMessage = "Error occurred while building the introspection response";
+	    log.error("Error occurred while building the introspection response", e);
 	    OAuth2IntrospectionResponseDTO response = new OAuth2IntrospectionResponseDTO();
-	    log.error(errorMessage, e);
 	    response.setActive(false);
-	    response.setError(errorMessage);
+	    response.setError(e.getMessage());
 	    return response;
 	}
     }

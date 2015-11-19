@@ -148,18 +148,14 @@ public class TokenValidationHandler {
 	OAuth2TokenValidator tokenValidator = null;
 	AccessTokenDO accessTokenDO = null;
 
-	try {
-	    tokenValidator = findAccessTokenValidator(accessToken);
-	    accessTokenDO = findAccessToken(requestDTO.getAccessToken().getIdentifier());
-	    checkAcessTokenExpiration(accessTokenDO);
-	    // Set the token expiration time
-	    responseDTO.setExpiryTime(getAccessTokenExpirationTime(accessTokenDO));
+	tokenValidator = findAccessTokenValidator(accessToken);
+	accessTokenDO = findAccessToken(requestDTO.getAccessToken().getIdentifier());
+	checkAcessTokenExpiration(accessTokenDO);
+	// Set the token expiration time
+	responseDTO.setExpiryTime(getAccessTokenExpirationTime(accessTokenDO));
 
-	    // Adding the AccessTokenDO as a context property for further use
-	    messageContext.addProperty("AccessTokenDO", accessTokenDO);
-	} catch (IdentityOAuth2Exception e) {
-	    return buildClientAppErrorResponse(e.getMessage());
-	}
+	// Adding the AccessTokenDO as a context property for further use
+	messageContext.addProperty("AccessTokenDO", accessTokenDO);
 
         if (!tokenValidator.validateAccessDelegation(messageContext)) {
 	    return buildClientAppErrorResponse("Invalid access delegation");
@@ -210,63 +206,59 @@ public class TokenValidationHandler {
 	OAuth2TokenValidator tokenValidator = null;
 	AccessTokenDO accessTokenDO = null;
 
-	try {
-	    tokenValidator = findAccessTokenValidator(accessToken);
+	tokenValidator = findAccessTokenValidator(accessToken);
 
-	    if (!tokenValidator.validateAccessToken(messageContext)) {
-		return buildIntrospectionErrorResponse("access token validation failed");
-	    }
-
-	    if (messageContext.getProperty(OAuth2Util.REMOTE_ACCESS_TOKEN) != null
-		    && "true".equalsIgnoreCase((String) messageContext.getProperty(OAuth2Util.REMOTE_ACCESS_TOKEN))) {
-		// this can be a self-issued JWT or any access token issued by a trusted OAuth authorization server.
-		
-		// should be in seconds
-		if (messageContext.getProperty(OAuth2Util.EXP) != null) {
-		    introResp.setExp(Long.parseLong((String)messageContext.getProperty(OAuth2Util.EXP)));
-		}
-		// should be in seconds
-		if (messageContext.getProperty(OAuth2Util.IAT) != null) {
-		    introResp.setIat(Long.parseLong((String)messageContext.getProperty(OAuth2Util.IAT)));
-		}
-		
-		// token scopes - space delimited
-		if (messageContext.getProperty(OAuth2Util.SCOPE) != null) {
-		    introResp.setScope((String)messageContext.getProperty(OAuth2Util.SCOPE));
-		}
-		// set user-name
-		if (messageContext.getProperty(OAuth2Util.USERNAME) != null) {
-		    introResp.setUsername((String)messageContext.getProperty(OAuth2Util.USERNAME));
-		}
-		// set client-id
-		if (messageContext.getProperty(OAuth2Util.CLIENT_ID) != null) {
-		    introResp.setClientId((String)messageContext.getProperty(OAuth2Util.CLIENT_ID));
-		}
-	    } else {
-		accessTokenDO = findAccessToken(validationRequest.getAccessToken().getIdentifier());
-		checkAcessTokenExpiration(accessTokenDO);
-
-		// should be in seconds
-		introResp
-			.setExp((accessTokenDO.getValidityPeriodInMillis() + accessTokenDO.getIssuedTime().getTime()) / 1000);
-		// should be in seconds
-		introResp.setIat(accessTokenDO.getIssuedTime().getTime() / 1000);
-		// token scopes
-		introResp.setScope(concat(accessTokenDO.getScope()));
-		// set user-name
-		introResp.setUsername(getAuthzUser(accessTokenDO));
-		// add client id
-		introResp.setClientId(accessTokenDO.getConsumerKey());
-		// adding the AccessTokenDO as a context property for further use
-		messageContext.addProperty("AccessTokenDO", accessTokenDO);
-	    }
-	} catch (IdentityOAuth2Exception e) {
-	    return buildIntrospectionErrorResponse(e.getMessage());
+	if (!tokenValidator.validateAccessToken(messageContext)) {
+	    return buildIntrospectionErrorResponse("access token validation failed");
 	}
 
-        if (!tokenValidator.validateAccessDelegation(messageContext)) {
+	if (messageContext.getProperty(OAuth2Util.REMOTE_ACCESS_TOKEN) != null
+		&& "true".equalsIgnoreCase((String) messageContext.getProperty(OAuth2Util.REMOTE_ACCESS_TOKEN))) {
+	    // this can be a self-issued JWT or any access token issued by a trusted OAuth authorization server.
+
+	    // should be in seconds
+	    if (messageContext.getProperty(OAuth2Util.EXP) != null) {
+		introResp.setExp(Long.parseLong((String) messageContext.getProperty(OAuth2Util.EXP)));
+	    }
+	    // should be in seconds
+	    if (messageContext.getProperty(OAuth2Util.IAT) != null) {
+		introResp.setIat(Long.parseLong((String) messageContext.getProperty(OAuth2Util.IAT)));
+	    }
+
+	    // token scopes - space delimited
+	    if (messageContext.getProperty(OAuth2Util.SCOPE) != null) {
+		introResp.setScope((String) messageContext.getProperty(OAuth2Util.SCOPE));
+	    }
+	    // set user-name
+	    if (messageContext.getProperty(OAuth2Util.USERNAME) != null) {
+		introResp.setUsername((String) messageContext.getProperty(OAuth2Util.USERNAME));
+	    }
+	    // set client-id
+	    if (messageContext.getProperty(OAuth2Util.CLIENT_ID) != null) {
+		introResp.setClientId((String) messageContext.getProperty(OAuth2Util.CLIENT_ID));
+	    }
+	} else {
+	    accessTokenDO = findAccessToken(validationRequest.getAccessToken().getIdentifier());
+	    checkAcessTokenExpiration(accessTokenDO);
+
+	    // should be in seconds
+	    introResp
+		    .setExp((accessTokenDO.getValidityPeriodInMillis() + accessTokenDO.getIssuedTime().getTime()) / 1000);
+	    // should be in seconds
+	    introResp.setIat(accessTokenDO.getIssuedTime().getTime() / 1000);
+	    // token scopes
+	    introResp.setScope(concat(accessTokenDO.getScope()));
+	    // set user-name
+	    introResp.setUsername(getAuthzUser(accessTokenDO));
+	    // add client id
+	    introResp.setClientId(accessTokenDO.getConsumerKey());
+	    // adding the AccessTokenDO as a context property for further use
+	    messageContext.addProperty("AccessTokenDO", accessTokenDO);
+	}
+
+	if (!tokenValidator.validateAccessDelegation(messageContext)) {
 	    return buildIntrospectionErrorResponse("Invalid access delegation");
-        }
+	}
         
 	if (!tokenValidator.validateScope(messageContext)) {
 	    return buildIntrospectionErrorResponse("Scope validation failed");
@@ -362,7 +354,6 @@ public class TokenValidationHandler {
      */
     private OAuth2TokenValidator findAccessTokenValidator(OAuth2TokenValidationRequestDTO.OAuth2AccessToken accessToken)
 	    throws IdentityOAuth2Exception {
-	
 	// incomplete token validation request
 	if (accessToken == null) {
 	    throw new IdentityOAuth2Exception("Access Token is not present in the validation request");
