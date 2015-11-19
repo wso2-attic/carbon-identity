@@ -868,8 +868,7 @@ public class UserInformationRecoveryService {
      * This method is used to resend selef sign up confiration code when user is not recieved email properly
      *
      * @param userName
-     * @param password
-     * @param claims
+     * @param code
      * @param profileName
      * @param tenantDomain
      * @return
@@ -904,18 +903,15 @@ public class UserInformationRecoveryService {
             return vBean;
         }
 
-        VerificationBean bean = new VerificationBean();
         try {
-            bean = processor.verifyConfirmationCode(1, userName, code);
-            if (!bean.isVerified()) {
-                VerificationBean verificationBean = new VerificationBean();
-                verificationBean.setVerified(false);
-                verificationBean.setError(VerificationBean.ERROR_CODE_INVALID_CODE);
-                return verificationBean;
+            vBean = processor.verifyConfirmationCode(1, userName, code);
+            if (!vBean.isVerified()) {
+                vBean.setError(VerificationBean.ERROR_CODE_INVALID_CODE);
+                return vBean;
             }
         } catch (IdentityException e) {
-            bean = handleError("Error while validating confirmation code for user : " + userName, e);
-            return bean;
+            vBean = handleError("Error while validating confirmation code for user : " + userName, e);
+            return vBean;
         }
 
         try {
