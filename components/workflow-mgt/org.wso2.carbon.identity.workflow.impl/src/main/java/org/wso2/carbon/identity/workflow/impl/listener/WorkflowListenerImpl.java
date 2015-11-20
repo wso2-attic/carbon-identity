@@ -44,6 +44,7 @@ import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHo
 import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
+import org.wso2.carbon.identity.workflow.mgt.listener.AbstractWorkflowListener;
 import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
 
 import javax.xml.stream.XMLStreamException;
@@ -57,7 +58,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class WorkflowListenerImpl implements WorkflowListener {
+public class WorkflowListenerImpl extends AbstractWorkflowListener {
     @Override
     public void doPreDeleteWorkflowRequest(WorkflowRequest workflowRequest) throws WorkflowException {
         WorkflowImplService workflowImplService = WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();

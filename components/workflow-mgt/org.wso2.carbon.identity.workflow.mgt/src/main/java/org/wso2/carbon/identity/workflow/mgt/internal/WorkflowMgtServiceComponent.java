@@ -21,14 +21,17 @@ package org.wso2.carbon.identity.workflow.mgt.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementServiceImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowAuditLogger;
 import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
@@ -78,6 +81,15 @@ public class WorkflowMgtServiceComponent {
 
 
         WorkflowServiceDataHolder.getInstance().setBundleContext(bundleContext);
+        ServiceRegistration serviceRegistration = context.getBundleContext().registerService
+                (WorkflowListener.class.getName(), new WorkflowAuditLogger(), null);
+        if (serviceRegistration != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("WorkflowAuditLogger registered.");
+            }
+        } else {
+            log.error("Workflow Audit Logger could not be registered.");
+        }
     }
 
     private static Log log = LogFactory.getLog(WorkflowMgtServiceComponent.class);
