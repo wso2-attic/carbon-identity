@@ -61,10 +61,6 @@ public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListen
             return true;
         }
 
-        String currentUser = "wso2.system";
-        if (getUser() != null) {
-            currentUser = getUser();
-        }
         audit.info(String.format(AUDIT_MESSAGE, getUser(), "Delete User",
                 userName, "", SUCCESS));
         return true;

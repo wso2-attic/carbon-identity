@@ -72,7 +72,7 @@ public class UserMgtDSComponent {
             ServiceRegistration serviceRegistration = ctxt.getBundleContext().registerService
                     (AuthorizationManagerListener.class.getName(),
                             new PermissionAuthorizationListener(), null);
-            if (serviceRegistration != null) {
+            if (serviceRegistration == null) {
                 log.error("Error while registering PermissionAuthorizationListener.");
             } else {
                 if (log.isDebugEnabled()) {
@@ -81,7 +81,7 @@ public class UserMgtDSComponent {
             }
             serviceRegistration = ctxt.getBundleContext().registerService(UserOperationEventListener.class.getName(),
                     new UserMgtAuditLogger(), null);
-            if (serviceRegistration != null) {
+            if (serviceRegistration == null) {
                 log.error("Error while registering UserMgtAuditLogger.");
             } else {
                 if (log.isDebugEnabled()) {
