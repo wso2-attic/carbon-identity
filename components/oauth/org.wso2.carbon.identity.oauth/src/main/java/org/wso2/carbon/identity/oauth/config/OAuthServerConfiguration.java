@@ -281,10 +281,15 @@ public class OAuthServerConfiguration {
 	    synchronized (this) {
 		if (oauthTokenGenerator == null) {
 		    try {
-			Class clazz = this.getClass().getClassLoader().loadClass(oauthTokenGeneratorClassName);
-			oauthTokenGenerator = (OAuthIssuer) clazz.newInstance();
-			log.info("An instance of " + oauthTokenGeneratorClassName
-				+ " is created for OAuth token generation.");
+			if (oauthTokenGeneratorClassName != null) {
+			    Class clazz = this.getClass().getClassLoader().loadClass(oauthTokenGeneratorClassName);
+			    oauthTokenGenerator = (OAuthIssuer) clazz.newInstance();
+			    log.info("An instance of " + oauthTokenGeneratorClassName
+				    + " is created for OAuth token generation.");
+			} else {
+			    oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
+			    log.info("The default token issuer will be used. No custom token generator is set.");
+			}
 		    } catch (Exception e) {
 			String errorMsg = "Error when instantiating the OAuthIssuer : "
 				+ tokenPersistenceProcessorClassName + ". Defaulting to OAuthIssuerImpl";
