@@ -49,22 +49,32 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
 
     public boolean doPostGetApplication(ServiceProvider serviceProvider, String serviceProviderName, String tenantDomain)
             throws IdentityApplicationManagementException {
+
+        if (serviceProvider == null) {
+            return true; // if service provider is not present no need to add this information
+        }
+
         try {
             addClientSecret(serviceProvider, serviceProviderName, tenantDomain);
         } catch (IdentityOAuthAdminException e) {
             throw new IdentityApplicationManagementException("Injecting client secret failed.", e);
         }
+
         return true;
     }
 
     public boolean doPostGetApplicationByClientId(ServiceProvider serviceProvider, String clientId, String clientType,
                                                   String tenantDomain) throws IdentityApplicationManagementException {
+        if (serviceProvider == null) {
+            return true; // if service provider is not present no need to add this information
+        }
 
         try {
             addClientSecret(serviceProvider, clientType, tenantDomain);
         } catch (IdentityOAuthAdminException e) {
             throw new IdentityApplicationManagementException("Injecting client secret failed.", e);
         }
+
         return true;
     }
 
