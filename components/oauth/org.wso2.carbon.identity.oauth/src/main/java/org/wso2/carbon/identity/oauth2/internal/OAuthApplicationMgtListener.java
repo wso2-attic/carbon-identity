@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.identity.oauth2.internal;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.InboundAuthenticationConfig;
 import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
@@ -89,7 +90,8 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
                         Property[] props = inboundRequestConfig.getProperties();
                         for (Property prop : props) {
                             if (prop.getName().equalsIgnoreCase(OAUTH2_CONSUMER_SECRET)) {
-                                prop.setValue("");
+                                props = (Property[]) ArrayUtils.removeElement(props, prop);
+                                inboundRequestConfig.setProperties(props);
                                 continue;   //we are interested only on this property
                             } else {
                                 //ignore
@@ -119,14 +121,11 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
                 for (InboundAuthenticationRequestConfig inboundRequestConfig : inboundRequestConfigs) {
                     if (inboundRequestConfig.getInboundAuthType().equals(OAUTH2)) {
                         Property[] props = inboundRequestConfig.getProperties();
-                        for (Property prop : props) {
-                            if (prop.getName().equalsIgnoreCase(OAUTH2_CONSUMER_SECRET)) {
-                                prop.setValue(getClientSecret(inboundRequestConfig.getInboundAuthKey()));
-                                continue;   //we are interested only on this property
-                            } else {
-                                //ignore
-                            }
-                        }
+                        Property property = new Property();
+                        property.setName(OAUTH2_CONSUMER_SECRET);
+                        property.setValue(getClientSecret(inboundRequestConfig.getInboundAuthKey()));
+                        props = (Property[]) ArrayUtils.add(props, property);
+                        inboundRequestConfig.setProperties(props);
                         continue;// we are interested only on oauth2 config. Only one will be present.
                     } else {
                         //ignore
