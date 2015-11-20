@@ -385,25 +385,4 @@ public class Utils {
         return PolicyEngine.getPolicy(new ByteArrayInputStream(policyString.getBytes()));
 
     }
-
-    /**
-     * Append the distinguished name to the tenantAwareEntry name.
-     * This method is available in user.core. However the particular method has a bug and
-     * it is only fixed in kernel 4.4.2. Therefore for this particular version we are duplicating
-     * the method.
-     *
-     * @param tenantAwareEntry
-     * @param tenantDomain
-     * @return
-     */
-    public static String addTenantDomainToEntry(String tenantAwareEntry, String tenantDomain) {
-
-        if (StringUtils.isEmpty(tenantAwareEntry)){
-            throw new IllegalArgumentException();
-        } else if (!StringUtils.isEmpty(tenantDomain)) {
-            return tenantAwareEntry + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
-        } else {
-            return tenantAwareEntry + UserCoreConstants.TENANT_DOMAIN_COMBINER + MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-        }
-    }
 }
