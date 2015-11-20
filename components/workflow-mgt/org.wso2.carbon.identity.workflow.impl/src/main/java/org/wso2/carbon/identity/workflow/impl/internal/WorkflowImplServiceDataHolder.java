@@ -23,9 +23,14 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplService;
+import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplServiceListener;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class WorkflowImplServiceDataHolder {
@@ -36,6 +41,7 @@ public class WorkflowImplServiceDataHolder {
     private RealmService realmService;
     private ConfigurationContextService configurationContextService;
     private BundleContext bundleContext;
+    private List<WorkflowImplServiceListener> workflowListenerList = new ArrayList<>();
 
     private ServerConfigurationService serverConfigurationService;
 
@@ -107,6 +113,15 @@ public class WorkflowImplServiceDataHolder {
 
     public void setWorkflowImplService(WorkflowImplService workflowImplService) {
         this.workflowImplService = workflowImplService;
+    }
+
+    public List<WorkflowImplServiceListener> getWorkflowListenerList() {
+        return workflowListenerList;
+    }
+
+    public void setWorkflowListenerList(
+            List<WorkflowImplServiceListener> workflowListenerList) {
+        this.workflowListenerList = workflowListenerList;
     }
 }
 

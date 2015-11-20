@@ -18,6 +18,10 @@
 
 package org.wso2.carbon.identity.workflow.mgt.listener;
 
+import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
@@ -606,5 +610,29 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
     public void doPostListEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID,
                                       String idFilter) throws WorkflowException {
 
+    }
+
+    public boolean isEnable() {
+        IdentityEventListener workflowListener = IdentityUtil.readEventListenerProperty
+                (WorkflowListener.class.getName(), this.getClass().getName());
+
+        if (workflowListener == null) {
+            return true;
+        }
+
+        if (StringUtils.isNotBlank(workflowListener.getEnable())) {
+            return Boolean.parseBoolean(workflowListener.getEnable());
+        } else {
+            return true;
+        }
+    }
+
+    public int getOrderId() {
+        IdentityEventListener workflowListener = IdentityUtil.readEventListenerProperty
+                (WorkflowListener.class.getName(), this.getClass().getName());
+        if (workflowListener == null) {
+            return IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
+        }
+        return workflowListener.getOrder();
     }
 }
