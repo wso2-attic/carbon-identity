@@ -18,13 +18,15 @@
 
 package org.wso2.carbon.identity.oauth2.token.handlers.grant;
 
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.UUID;
+
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.oltu.oauth2.as.issuer.MD5Generator;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
-import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -47,18 +49,15 @@ import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.UUID;
-
 public abstract class AbstractAuthorizationGrantHandler implements AuthorizationGrantHandler {
 
     private static Log log = LogFactory.getLog(AbstractAuthorizationGrantHandler.class);
-    protected OAuthIssuer oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
+    protected OAuthIssuer oauthIssuerImpl = OAuthServerConfiguration.getInstance().getOAuthTokenGenerator(); 
     protected TokenMgtDAO tokenMgtDAO;
     protected OAuthCallbackManager callbackManager;
     protected boolean cacheEnabled;
     protected OAuthCache oauthCache;
+    
 
     @Override
     public void init() throws IdentityOAuth2Exception {
