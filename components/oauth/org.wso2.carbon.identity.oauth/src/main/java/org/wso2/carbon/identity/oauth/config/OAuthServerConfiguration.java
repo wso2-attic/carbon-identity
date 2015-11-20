@@ -288,7 +288,7 @@ public class OAuthServerConfiguration {
 				    + " is created for OAuth token generation.");
 			} else {
 			    oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
-			    log.info("The default token issuer will be used. No custom token generator is set.");
+			    log.info("The default OAuth token issuer will be used. No custom token generator is set.");
 			}
 		    } catch (Exception e) {
 			String errorMsg = "Error when instantiating the OAuthIssuer : "
@@ -1122,11 +1122,11 @@ public class OAuthServerConfiguration {
 	if (tokenGeneratorClassConfigElem != null && !"".equals(tokenGeneratorClassConfigElem.getText().trim())) {
 	    oauthTokenGeneratorClassName = tokenGeneratorClassConfigElem.getText().trim();
 	    if (log.isDebugEnabled()) {
-		log.debug("Token generator is set to : " + oauthTokenGeneratorClassName);
+		log.debug("OAuth token generator is set to : " + oauthTokenGeneratorClassName);
 	    }
 	} else {
 	    if (log.isDebugEnabled()) {
-		log.debug("The default token issuer will be used. No custom token generator is set.");
+		log.debug("The default OAuth token issuer will be used. No custom token generator is set.");
 	    }
 	}
     }
