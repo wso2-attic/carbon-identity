@@ -54,6 +54,72 @@ import java.util.TreeMap;
  */
 public class OAuth2Util {
 
+    public static final String REMOTE_ACCESS_TOKEN = "REMOTE_ACCESS_TOKEN";
+    public static final String JWT_ACCESS_TOKEN = "JWT_ACCESS_TOKEN";
+    
+
+    /*
+     * OPTIONAL. A JSON string containing a space-separated list of scopes associated with this token, in the format
+     * described in Section 3.3 of OAuth 2.0
+     */
+    public static final String SCOPE = "scope";
+
+    /*
+     * OPTIONAL. Client identifier for the OAuth 2.0 client that requested this token.
+     */
+    public static final String CLIENT_ID = "client_id";
+
+    /*
+     * OPTIONAL. Human-readable identifier for the resource owner who authorized this token.
+     */
+    public static final String USERNAME = "username";
+
+    /*
+     * OPTIONAL. Type of the token as defined in Section 5.1 of OAuth 2.0
+     */
+    public static final String TOKEN_TYPE = "token_type";
+
+    /*
+     * OPTIONAL. Integer time-stamp, measured in the number of seconds since January 1 1970 UTC, indicating when this
+     * token is not to be used before, as defined in JWT
+     */
+    public static final String NBF = "nbf";
+
+    /*
+     * OPTIONAL. Service-specific string identifier or list of string identifiers representing the intended audience for
+     * this token, as defined in JWT
+     */
+    public static final String AUD = "aud";
+
+    /*
+     * OPTIONAL. String representing the issuer of this token, as defined in JWT
+     */
+    public static final String ISS = "iss";
+
+    /*
+     * OPTIONAL. String identifier for the token, as defined in JWT
+     */
+    public static final String JTI = "jti";
+
+    /*
+     * OPTIONAL. Subject of the token, as defined in JWT [RFC7519]. Usually a machine-readable identifier of the
+     * resource owner who authorized this token.
+     */
+    public static final String SUB = "sub";
+
+    /*
+     * OPTIONAL. Integer time-stamp, measured in the number of seconds since January 1 1970 UTC, indicating when this
+     * token will expire, as defined in JWT
+     */
+    public static final String EXP = "exp";
+
+    /*
+     * OPTIONAL. Integer time-stamp, measured in the number of seconds since January 1 1970 UTC, indicating when this
+     * token was originally issued, as defined in JWT
+     */
+    public static final String IAT = "iat";
+
+    
     private static Log log = LogFactory.getLog(OAuth2Util.class);
     private static boolean cacheEnabled = OAuthServerConfiguration.getInstance().isCacheEnabled();
     private static OAuthCache cache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
