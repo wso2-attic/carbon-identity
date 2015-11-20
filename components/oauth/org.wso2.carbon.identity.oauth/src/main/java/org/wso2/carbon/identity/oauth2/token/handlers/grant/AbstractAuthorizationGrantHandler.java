@@ -54,11 +54,12 @@ import java.util.UUID;
 public abstract class AbstractAuthorizationGrantHandler implements AuthorizationGrantHandler {
 
     private static Log log = LogFactory.getLog(AbstractAuthorizationGrantHandler.class);
-    protected OAuthIssuer oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
+    protected OAuthIssuer oauthIssuerImpl = OAuthServerConfiguration.getInstance().getOAuthTokenGenerator(); 
     protected TokenMgtDAO tokenMgtDAO;
     protected OAuthCallbackManager callbackManager;
     protected boolean cacheEnabled;
     protected OAuthCache oauthCache;
+    
 
     @Override
     public void init() throws IdentityOAuth2Exception {
