@@ -19,7 +19,6 @@
 package org.wso2.carbon.user.mgt.listeners;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
