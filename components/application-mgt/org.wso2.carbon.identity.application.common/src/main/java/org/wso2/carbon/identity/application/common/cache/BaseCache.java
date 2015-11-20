@@ -21,6 +21,8 @@ package org.wso2.carbon.identity.application.common.cache;
 import org.wso2.carbon.caching.impl.CacheImpl;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.listener.AbstractCacheListener;
+import org.wso2.carbon.identity.core.model.IdentityCacheConfig;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.cache.Cache;
@@ -41,35 +43,19 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
     private static final String CACHE_MANAGER_NAME = "IdentityApplicationManagementCacheManager";
     private CacheBuilder<K, V> cacheBuilder;
     private String cacheName;
-    private int cacheTimeout;
-    private int capacity = 0;
     private List<AbstractCacheListener> cacheListeners = new ArrayList<AbstractCacheListener>();
 
     public BaseCache(String cacheName) {
         this.cacheName = cacheName;
-        this.cacheTimeout = -1;
-
     }
 
     public BaseCache(String cacheName, int timeout) {
         this.cacheName = cacheName;
-
-        if (timeout > 0) {
-            this.cacheTimeout = timeout;
-        } else {
-            this.cacheTimeout = -1;
-        }
     }
 
 
     public BaseCache(String cacheName, int timeout, int capacity) {
         this.cacheName = cacheName;
-        this.capacity = capacity;
-        if (timeout > 0) {
-            this.cacheTimeout = timeout;
-        } else {
-            this.cacheTimeout = -1;
-        }
     }
 
     private Cache<K, V> getBaseCache() {
@@ -78,25 +64,24 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
         try {
 
             PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
-                    .getThreadLocalCarbonContext();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
             CacheManager cacheManager = Caching.getCacheManagerFactory()
                     .getCacheManager(CACHE_MANAGER_NAME);
 
-            if (cacheTimeout > 0 && cacheBuilder == null) {
+            if (getCacheTimeout() > 0 && cacheBuilder == null) {
                 synchronized (cacheName.intern()) {
                     if (cacheBuilder == null) {
                         cacheManager.removeCache(cacheName);
                         cacheBuilder = cacheManager.<K, V>createCacheBuilder(cacheName).
                                 setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
                                         new CacheConfiguration
-                                                .Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                                .Duration(TimeUnit.SECONDS, getCacheTimeout())).
                                 setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
                                         new CacheConfiguration
-                                                .Duration(TimeUnit.SECONDS, cacheTimeout)).
+                                                .Duration(TimeUnit.SECONDS, getCacheTimeout())).
                                 setStoreByValue(false);
                         cache = cacheBuilder.build();
 
@@ -104,16 +89,16 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
                             this.cacheBuilder.registerCacheEntryListener(cacheListener);
                         }
 
-                        if (capacity != 0) {
-                            ((CacheImpl) cache).setCapacity(capacity);
-                        }
+                        setCapacity((CacheImpl) cache);
                     } else {
                         cache = cacheManager.getCache(cacheName);
+                        setCapacity((CacheImpl) cache);
                     }
                 }
 
             } else {
                 cache = cacheManager.getCache(cacheName);
+                setCapacity((CacheImpl) cache);
 
             }
         } finally {
@@ -130,6 +115,10 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
      * @param entry Actual object where cache entry is placed.
      */
     public void addToCache(K key, V entry) {
+        if (!isEnabled()) {
+            return;
+        }
+
         try {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
@@ -153,6 +142,9 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
      * @return Cached entry.
      */
     public V getValueFromCache(K key) {
+        if (!isEnabled()) {
+            return null;
+        }
 
         if(key == null) {
             return null;
@@ -180,6 +172,9 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
      * @param key Key to clear cache.
      */
     public void clearCacheEntry(K key) {
+        if (!isEnabled()) {
+            return;
+        }
 
         try {
             PrivilegedCarbonContext.startTenantFlow();
@@ -200,6 +195,9 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
      * Remove everything in the cache.
      */
     public void clear() {
+        if (!isEnabled()) {
+            return;
+        }
 
         try {
             PrivilegedCarbonContext.startTenantFlow();
@@ -218,5 +216,35 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
 
     public void addListener(AbstractCacheListener listener){
         cacheListeners.add(listener);
+    }
+
+    public boolean isEnabled() {
+        IdentityCacheConfig identityCacheConfig = IdentityUtil.getIdentityCacheConfig(CACHE_MANAGER_NAME, cacheName);
+        if (identityCacheConfig != null) {
+            return identityCacheConfig.isEnabled();
+        }
+        return true;
+    }
+
+    public int getCacheTimeout() {
+        IdentityCacheConfig identityCacheConfig = IdentityUtil.getIdentityCacheConfig(CACHE_MANAGER_NAME, cacheName);
+        if (identityCacheConfig != null && identityCacheConfig.getTimeout() > 0) {
+            return identityCacheConfig.getTimeout();
+        }
+        return -1;
+    }
+
+    public int getCapacity() {
+        IdentityCacheConfig identityCacheConfig = IdentityUtil.getIdentityCacheConfig(CACHE_MANAGER_NAME, cacheName);
+        if (identityCacheConfig != null && identityCacheConfig.getCapacity() > 0) {
+            return identityCacheConfig.getCapacity();
+        }
+        return -1;
+    }
+
+    public void setCapacity(CacheImpl cache) {
+        if (getCapacity() > 0) {
+            cache.setCapacity(getCapacity());
+        }
     }
 }
