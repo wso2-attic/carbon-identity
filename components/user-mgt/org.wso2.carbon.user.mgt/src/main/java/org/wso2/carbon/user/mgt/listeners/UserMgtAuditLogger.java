@@ -66,7 +66,8 @@ public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListen
         return true;
     }
 
-    public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager) throws
+            UserStoreException {
 
         if(!isEnable()) {
             return true;
@@ -77,7 +78,8 @@ public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListen
         return true;
     }
 
-    public boolean doPreUpdateCredentialByAdmin(String userName, Object newCredential, UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPreUpdateCredentialByAdmin(String userName, Object newCredential, UserStoreManager
+            userStoreManager) throws UserStoreException {
 
         if(!isEnable()) {
             return true;
@@ -99,7 +101,8 @@ public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListen
         return true;
     }
 
-    public boolean doPostAddRole(String roleName, String[] userList, Permission[] permissions, UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPostAddRole(String roleName, String[] userList, Permission[] permissions, UserStoreManager
+            userStoreManager) throws UserStoreException {
 
         if(!isEnable()) {
             return true;
@@ -110,7 +113,8 @@ public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListen
         return true;
     }
 
-    public boolean doPostUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPostUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager)
+            throws UserStoreException {
 
         if(!isEnable()) {
             return true;
@@ -133,7 +137,8 @@ public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListen
         return true;
     }
 
-    public boolean doPostUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles, UserStoreManager userStoreManager) throws UserStoreException {
+    public boolean doPostUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles,
+                                              UserStoreManager userStoreManager) throws UserStoreException {
 
         if(!isEnable()) {
             return true;
