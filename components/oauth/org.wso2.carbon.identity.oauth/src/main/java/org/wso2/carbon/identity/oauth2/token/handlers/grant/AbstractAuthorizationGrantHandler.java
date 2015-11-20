@@ -466,8 +466,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                 oAuthAppDO = new OAuthAppDAO().getAppInformation(tokenReqDTO.getClientId());
                 appInfoCache.addToCache(tokenReqDTO.getClientId(), oAuthAppDO);
             } catch (InvalidOAuthClientException e) {
-                log.error("Error while reading application data for client id : " + tokenReqDTO.getClientId(), e);
-                return false;
+                throw new IdentityOAuth2Exception(e.getMessage(), e);
             }
         }
         // If the application has defined a limited set of grant types, then check the grant
