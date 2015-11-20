@@ -22,7 +22,6 @@ import org.apache.axis2.AxisFault;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
@@ -43,18 +42,12 @@ import javax.activation.DataHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class UserAdmin {
 
     private static final Log log = LogFactory.getLog(UserAdmin.class);
 
-    private static final Log audit = CarbonConstants.AUDIT_LOG;
-    public static final String SUCCESS = "Success";
-    public static final String FAILED = "Failed";
-
-    private static String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
 
     public UserAdmin() {
 
@@ -203,24 +196,10 @@ public class UserAdmin {
      */
     public void addUser(String userName, String password, String[] roles, ClaimValue[] claims,
                         String profileName) throws UserAdminException {
-        String result = null;
         try {
             getUserAdminProxy().addUser(userName, password, roles, claims, profileName);
-            result = SUCCESS;
         } catch (UserAdminException e) {
-            result = FAILED;
             throw e;
-        } finally {
-            // ################### <Audit Logs> ##########################################
-            StringBuilder builder = new StringBuilder();
-            if (roles != null) {
-                for (int i = 0; i < roles.length; i++) {
-                    builder.append(roles[i] + ",");
-                }
-            }
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "Add User", userName, "Roles :"
-                    + builder.toString(), result));
-            // ################### </Audit Logs> ##########################################
         }
     }
 
@@ -238,19 +217,12 @@ public class UserAdmin {
      */
     public void changePassword(String userName, String newPassword) throws UserAdminException {
 
-        String result = null;
-
         try {
             getUserAdminProxy().changePassword(userName, newPassword);
-            result = SUCCESS;
         } catch (UserAdminException e) {
-            result = FAILED;
             throw e;
         } finally {
-            // ################### <Audit Logs> ##########################################
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "Change Password by Administrator",
-                    userName, "", result));
-            // ################### </Audit Logs> ##########################################
+
         }
 
     }
@@ -269,20 +241,14 @@ public class UserAdmin {
      */
     public void deleteUser(String userName) throws UserAdminException {
 
-        String result = null;
 
         try {
             getUserAdminProxy().deleteUser(userName,
                     CarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.USER_CONFIGURATION));
-            result = SUCCESS;
         } catch (UserAdminException e) {
-            result = FAILED;
             throw e;
         } finally {
-            // ################### <Audit Logs> ##########################################
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "Delete User",
-                    userName, "", result));
-            // ################### </Audit Logs> ##########################################
+
         }
 
     }
@@ -324,9 +290,7 @@ public class UserAdmin {
                 getUserAdminProxy().addInternalRole(roleName, userList, permissions);
 
             }
-            result = SUCCESS;
         } catch (UserAdminException e) {
-            result = FAILED;
             throw e;
         } finally {
 
@@ -344,10 +308,6 @@ public class UserAdmin {
                 }
             }
 
-            // ################### <Audit Logs> ##########################################
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "Add Role", roleName, "Users : "
-                    + users.toString() + " Permissions : " + Arrays.toString(permissions), result));
-            // ################### </Audit Logs> ##########################################
         }
     }
 
@@ -397,20 +357,10 @@ public class UserAdmin {
      * @see org.wso2.carbon.user.mgt.TestClass#deleteRole(java.lang.String)
      */
     public void deleteRole(String roleName) throws UserAdminException {
-        String result = null;
-
         try {
             getUserAdminProxy().deleteRole(roleName);
-            result = SUCCESS;
         } catch (UserAdminException e) {
-            result = FAILED;
             throw e;
-        } finally {
-
-            // ################### <Audit Logs> ##########################################
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "Delete Role", roleName, "",
-                    result));
-            // ################### </Audit Logs> ##########################################
         }
     }
 
@@ -420,20 +370,10 @@ public class UserAdmin {
      * @throws UserAdminException
      */
     public void updateRoleName(String roleName, String newRoleName) throws UserAdminException {
-        String result = null;
-
         try {
             getUserAdminProxy().updateRoleName(roleName, newRoleName);
-            result = SUCCESS;
         } catch (UserAdminException e) {
-            result = FAILED;
             throw e;
-        } finally {
-
-            // ################### <Audit Logs> ##########################################
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "Update Role Name", roleName,
-                    "Old : " + roleName + " New : " + newRoleName, result));
-            // ################### </Audit Logs> ##########################################
         }
     }
 
@@ -477,13 +417,10 @@ public class UserAdmin {
      */
     public void updateUsersOfRole(String roleName, FlaggedName[] userList)
             throws UserAdminException {
-        String result = null;
 
         try {
             getUserAdminProxy().updateUsersOfRole(roleName, userList);
-            result = SUCCESS;
         } catch (UserAdminException e) {
-            result = FAILED;
             throw e;
         } finally {
             StringBuilder users = new StringBuilder();
@@ -495,10 +432,6 @@ public class UserAdmin {
                 }
             }
 
-            // ################### <Audit Logs> ##########################################
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "Update Users of Role", roleName,
-                    "Users : " + users.toString(), result));
-            // ################### </Audit Logs> ##########################################
         }
     }
 
@@ -530,13 +463,10 @@ public class UserAdmin {
      * java.lang.String)
      */
     public void updateRolesOfUser(String userName, String[] newRoleList) throws UserAdminException {
-        String result = null;
 
         try {
             getUserAdminProxy().updateRolesOfUser(userName, newRoleList);
-            result = SUCCESS;
         } catch (UserAdminException e) {
-            result = FAILED;
             throw e;
         } finally {
             StringBuilder roles = new StringBuilder();
@@ -548,10 +478,6 @@ public class UserAdmin {
                 }
             }
 
-            // ################### <Audit Logs> ##########################################
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "Update Users of Role", userName,
-                    "Roles : " + roles.toString(), result));
-            // ################### </Audit Logs> ##########################################
         }
     }
 
@@ -581,13 +507,10 @@ public class UserAdmin {
      */
     public void setRoleUIPermission(String roleName, String[] rawResources)
             throws UserAdminException {
-        String result = null;
 
         try {
             getUserAdminProxy().setRoleUIPermission(roleName, rawResources);
-            result = SUCCESS;
         } catch (UserAdminException e) {
-            result = FAILED;
             throw e;
         } finally {
             StringBuilder permissions = new StringBuilder();
@@ -599,10 +522,6 @@ public class UserAdmin {
                 }
             }
 
-            // ################### <Audit Logs> ##########################################
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "Set Role UI Permissions", roleName,
-                    "Permissions : " + permissions.toString(), result));
-            // ################### </Audit Logs> ##########################################
         }
     }
 
@@ -618,7 +537,7 @@ public class UserAdmin {
         if (fileName == null || handler == null || defaultPassword == null) {
             throw new UserAdminException("Required data not provided");
         }
-        if(StringUtils.isEmpty(userStoreDomain)){
+        if (StringUtils.isEmpty(userStoreDomain)) {
             userStoreDomain = IdentityUtil.getPrimaryDomainName();
         }
         try {
@@ -637,40 +556,30 @@ public class UserAdmin {
      * @throws UserAdminException
      * @throws AxisFault
      */
-        public void changePasswordByUser(String userName, String oldPassword, String newPassword)
+    public void changePasswordByUser(String userName, String oldPassword, String newPassword)
             throws UserAdminException {
 
         String result = null;
-        try{
+        try {
             String tenantDomain = MultitenantUtils.getTenantDomain(userName);
             UserRealmService realmService = UserMgtDSComponent.getRealmService();
             int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
             org.wso2.carbon.user.api.UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
             boolean isAuthenticated = userRealm.getUserStoreManager().authenticate(tenantAwareUsername, oldPassword);
-            if(isAuthenticated){
+            if (isAuthenticated) {
                 getUserAdminProxy().changePasswordByUser(userName, oldPassword, newPassword);
-                result = SUCCESS;
-            }else{
-                result = FAILED;
+            } else {
                 throw new UserAdminException("Error while updating password. Wrong old credential provided ");
             }
         } catch (UserAdminException e) {
-            result = FAILED;
             throw e;
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            result = FAILED;
             throw new UserAdminException("Error while updating password. Please enter tenant unaware username",
                     e);
-        } finally {
-
-            // ################### <Audit Logs> ##########################################
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "Change Password by User",
-                    getUser(), "", result));
-            // ################### </Audit Logs> ##########################################
         }
 
-        }
+    }
 
 
     /**
@@ -681,13 +590,10 @@ public class UserAdmin {
      */
     public void addRemoveUsersOfRole(String roleName, String[] newUsers, String[] deletedUsers)
             throws UserAdminException {
-        String result = null;
 
         try {
             getUserAdminProxy().updateUsersOfRole(roleName, newUsers, deletedUsers);
-            result = SUCCESS;
         } catch (UserAdminException e) {
-            result = FAILED;
             throw e;
         } finally {
 
@@ -705,11 +611,6 @@ public class UserAdmin {
                 }
             }
 
-            // ################### <Audit Logs> ##########################################
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "Add/Remove Users from Role",
-                    roleName, "New Users : " + newUsersList.toString() + " Deleted Users : "
-                            + deletedUsersList.toString(), result));
-            // ################### </Audit Logs> ##########################################
         }
     }
 
@@ -721,13 +622,10 @@ public class UserAdmin {
      */
     public void addRemoveRolesOfUser(String userName, String[] newRoles, String[] deletedRoles)
             throws UserAdminException {
-        String result = null;
 
         try {
             getUserAdminProxy().updateRolesOfUser(userName, newRoles, deletedRoles);
-            result = SUCCESS;
         } catch (UserAdminException e) {
-            result = FAILED;
             throw e;
         } finally {
             StringBuilder newRolesList = new StringBuilder();
@@ -744,11 +642,6 @@ public class UserAdmin {
                 }
             }
 
-            // ################### <Audit Logs> ##########################################
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "Add/Remove Roles from User",
-                    userName, "New Roles : " + newRolesList.toString() + " Deleted Roles : "
-                            + deletedUsersList.toString(), result));
-            // ################### </Audit Logs> ##########################################
         }
     }
 
@@ -809,13 +702,7 @@ public class UserAdmin {
         return new UserRealmProxy(realm);
     }
 
-    /**
-     * @return
-     */
-    private String getUser() {
-        return CarbonContext.getThreadLocalCarbonContext().getUsername() + "@" +
-                CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-    }
+
 
     public boolean isSharedRolesEnabled() throws UserAdminException {
         return getUserAdminProxy().isSharedRolesEnabled();
