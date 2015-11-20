@@ -86,7 +86,9 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
                         cache = cacheBuilder.build();
 
                         for (AbstractCacheListener cacheListener : cacheListeners) {
-                            this.cacheBuilder.registerCacheEntryListener(cacheListener);
+                            if (cacheListener.isEnable()) {
+                                this.cacheBuilder.registerCacheEntryListener(cacheListener);
+                            }
                         }
 
                         setCapacity((CacheImpl) cache);

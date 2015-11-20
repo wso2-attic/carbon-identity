@@ -26,7 +26,6 @@ import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
-import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
@@ -50,10 +49,10 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeRespDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientValidationResponseDTO;
+import org.wso2.carbon.identity.oauth2.model.CarbonOAuthAuthzRequest;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
-import org.wso2.carbon.ui.util.CharacterEncoder;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -347,16 +346,21 @@ public class OAuth2AuthzEndpoint {
             OAuthASResponse.OAuthAuthorizationResponseBuilder builder = OAuthASResponse
                     .authorizationResponse(request, HttpServletResponse.SC_FOUND);
             // all went okay
-            if (ResponseType.CODE.toString().equals(oauth2Params.getResponseType())) {
-                String code = authzRespDTO.getAuthorizationCode();
-                builder.setCode(code);
-                addUserAttributesToCache(sessionDataCacheEntry, code);
-            } else if (ResponseType.TOKEN.toString().equals(oauth2Params.getResponseType())) {
-                builder.setAccessToken(authzRespDTO.getAccessToken());
-                builder.setParam(OAuth.OAUTH_TOKEN_TYPE, authzRespDTO.getTokenType());
-                builder.setExpiresIn(String.valueOf(authzRespDTO.getValidityPeriod()));
+            if (StringUtils.isNotBlank(authzRespDTO.getAuthorizationCode())){
+                builder.setCode(authzRespDTO.getAuthorizationCode());
+                addUserAttributesToCache(sessionDataCacheEntry, authzRespDTO.getAuthorizationCode());
             }
-            builder.setParam("state", oauth2Params.getState());
+            if (StringUtils.isNotBlank(authzRespDTO.getAccessToken())){
+                builder.setAccessToken(authzRespDTO.getAccessToken());
+                builder.setExpiresIn(authzRespDTO.getValidityPeriod());
+                builder.setParam(OAuth.OAUTH_TOKEN_TYPE, "Bearer");
+            }
+            if (StringUtils.isNotBlank(authzRespDTO.getIdToken())){
+                builder.setParam("id_token", authzRespDTO.getIdToken());
+            }
+            if (StringUtils.isNotBlank(oauth2Params.getState())) {
+                builder.setParam(OAuth.OAUTH_STATE, oauth2Params.getState());
+            }
             String redirectURL = authzRespDTO.getCallbackURI();
             oauthResponse = builder.location(redirectURL).buildQueryMessage();
 
@@ -445,7 +449,7 @@ public class OAuth2AuthzEndpoint {
         }
 
         // Now the client is valid, redirect him to the authorization page.
-        OAuthAuthzRequest oauthRequest = new OAuthAuthzRequest(req);
+        OAuthAuthzRequest oauthRequest = new CarbonOAuthAuthzRequest(req);
 
         OAuth2Parameters params = new OAuth2Parameters();
         params.setClientId(clientId);
@@ -666,6 +670,7 @@ public class OAuth2AuthzEndpoint {
         authzReqDTO.setScopes(oauth2Params.getScopes().toArray(new String[oauth2Params.getScopes().size()]));
         authzReqDTO.setUsername(sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier());
         authzReqDTO.setACRValues(oauth2Params.getACRValues());
+        authzReqDTO.setNonce(oauth2Params.getNonce());
         return EndpointUtil.getOAuth2Service().authorize(authzReqDTO);
     }
 

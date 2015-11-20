@@ -32,7 +32,7 @@ import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
 
-public class SPInitSSOAuthnRequestValidator {
+public class SPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
 
     private static Log log = LogFactory.getLog(SPInitSSOAuthnRequestValidator.class);
     AuthnRequest authnReq;

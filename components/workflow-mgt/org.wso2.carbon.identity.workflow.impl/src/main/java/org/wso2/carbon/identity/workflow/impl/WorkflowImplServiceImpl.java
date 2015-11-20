@@ -197,7 +197,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             BPSProfile bpsProfile = workflowImplService.getBPSProfile(bpsProfileName, tenantId);
 
             if (log.isDebugEnabled()) {
-                log.debug("Removing BPS Artifacts of" + " " + bpsProfileName + " " + "for Tenant ID : " + tenantId);
+                log.debug("Removing BPS Artifacts of " + bpsProfileName + " " + "for Tenant ID : " + tenantId);
             }
 
             BPELPackageManagementServiceStub bpsPackagestub = null;
@@ -210,8 +210,8 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             ServiceClient bpsPackageClient = bpsPackagestub._getServiceClient();
             authenticate(bpsPackageClient, bpsProfile.getUsername(), bpsProfile.getPassword());
 
-            URL bPSProcessServicesUrl = new URL(new URL(host), WFImplConstant.BPS_PROCESS_SERVICES_URL);
-            bpsProcessStub = new ProcessManagementServiceStub(bPSProcessServicesUrl.toString());
+            URL bpsProcessServicesUrl = new URL(new URL(host), WFImplConstant.BPS_PROCESS_SERVICES_URL);
+            bpsProcessStub = new ProcessManagementServiceStub(bpsProcessServicesUrl.toString());
             ServiceClient bpsProcessClient = bpsProcessStub._getServiceClient();
             authenticate(bpsProcessClient, bpsProfile.getUsername(), bpsProfile.getPassword());
 
@@ -252,7 +252,8 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
 
         } catch (WorkflowException | MalformedURLException | PackageManagementException | RemoteException |
                 ProcessManagementException e) {
-            throw new WorkflowImplException("Error while deleting the BPS Artifacts of the request");
+            throw new WorkflowImplException("Error while deleting the BPS Artifacts of the Workflow "
+                    + workflow.getWorkflowName(), e);
         }
     }
 

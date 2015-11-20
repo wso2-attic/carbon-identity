@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.sso.saml.processors.SPInitSSOAuthnRequestProcess
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.identity.sso.saml.validators.IdPInitSSOAuthnRequestValidator;
 import org.wso2.carbon.identity.sso.saml.validators.SPInitSSOAuthnRequestValidator;
+import org.wso2.carbon.identity.sso.saml.validators.SSOAuthnRequestValidator;
 
 public class SAMLSSOService {
 
@@ -83,9 +84,8 @@ public class SAMLSSOService {
         }
 
         if (request instanceof AuthnRequest) {
-            SPInitSSOAuthnRequestValidator authnRequestValidator =
-                    new SPInitSSOAuthnRequestValidator(
-                            (AuthnRequest) request);
+            SSOAuthnRequestValidator authnRequestValidator =
+                    SAMLSSOUtil.getSPInitSSOAuthnRequestValidator((AuthnRequest) request);
             SAMLSSOReqValidationResponseDTO validationResp = authnRequestValidator.validate();
             validationResp.setRequestMessageString(samlReq);
             validationResp.setQueryString(queryString);
@@ -94,7 +94,7 @@ public class SAMLSSOService {
 
             return validationResp;
         } else if (request instanceof LogoutRequest) {
-            SPInitLogoutRequestProcessor logoutReqProcessor = new SPInitLogoutRequestProcessor();
+            SPInitLogoutRequestProcessor logoutReqProcessor = SAMLSSOUtil.getSPInitLogoutRequestProcessor();
             SAMLSSOReqValidationResponseDTO validationResponseDTO =
                     logoutReqProcessor.process((LogoutRequest) request,
                             sessionId,
@@ -129,12 +129,12 @@ public class SAMLSSOService {
 
         SAMLSSOReqValidationResponseDTO validationResponseDTO = null;
         if(!isLogout) {
-            IdPInitSSOAuthnRequestValidator authnRequestValidator = new IdPInitSSOAuthnRequestValidator(queryParamDTOs,
-                                                                                                        relayState);
+            SSOAuthnRequestValidator authnRequestValidator = SAMLSSOUtil.getIdPInitSSOAuthnRequestValidator(
+                    queryParamDTOs, relayState);
             validationResponseDTO = authnRequestValidator.validate();
             validationResponseDTO.setIdPInitSSO(true);
         } else {
-            IdPInitLogoutRequestProcessor idPInitLogoutRequestProcessor = new IdPInitLogoutRequestProcessor();
+            IdPInitLogoutRequestProcessor idPInitLogoutRequestProcessor = SAMLSSOUtil.getIdPInitLogoutRequestProcessor();
             validationResponseDTO = idPInitLogoutRequestProcessor.process(sessionId, queryParamDTOs, serverURL);
             validationResponseDTO.setIdPInitSLO(true);
         }
@@ -152,14 +152,14 @@ public class SAMLSSOService {
     public SAMLSSORespDTO authenticate(SAMLSSOAuthnReqDTO authReqDTO, String sessionId, boolean authenticated, String authenticators, String authMode)
             throws IdentityException {
         if (authReqDTO.isIdPInitSSOEnabled()) {
-            IdPInitSSOAuthnRequestProcessor authnRequestProcessor = new IdPInitSSOAuthnRequestProcessor();
+            IdPInitSSOAuthnRequestProcessor authnRequestProcessor = SAMLSSOUtil.getIdPInitSSOAuthnRequestProcessor();
             try {
                 return authnRequestProcessor.process(authReqDTO, sessionId, authenticated, authenticators, authMode);
             } catch (Exception e) {
                 throw new IdentityException("Error when authenticating the users", e);
             }
         } else {
-            SPInitSSOAuthnRequestProcessor authnRequestProcessor = new SPInitSSOAuthnRequestProcessor();
+            SPInitSSOAuthnRequestProcessor authnRequestProcessor = SAMLSSOUtil.getSPInitSSOAuthnRequestProcessor();
             try {
                 return authnRequestProcessor.process(authReqDTO, sessionId, authenticated, authenticators, authMode);
             } catch (Exception e) {
@@ -178,7 +178,7 @@ public class SAMLSSOService {
      */
     public SAMLSSOReqValidationResponseDTO doSingleLogout(String sessionId)
             throws IdentityException {
-        SPInitLogoutRequestProcessor logoutReqProcessor = new SPInitLogoutRequestProcessor();
+        SPInitLogoutRequestProcessor logoutReqProcessor = SAMLSSOUtil.getSPInitLogoutRequestProcessor();
         SAMLSSOReqValidationResponseDTO validationResponseDTO =
                 logoutReqProcessor.process(null,
                         sessionId,

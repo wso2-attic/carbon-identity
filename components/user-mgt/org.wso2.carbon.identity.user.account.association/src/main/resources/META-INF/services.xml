@@ -25,8 +25,51 @@
         <parameter name="ServiceClass" locked="false">
             org.wso2.carbon.identity.user.account.association.UserAccountAssociationService
         </parameter>
-        <parameter name="AuthorizationAction" locked="true">/permission/admin/login</parameter>
+        <parameter name="AuthorizationAction" locked="false">/permission/admin/login</parameter>
+
+        <operation name="createUserAccountAssociation">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/login
+            </parameter>
+        </operation>
+        <operation name="createUserAccountAssociation">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user/association/create
+            </parameter>
+        </operation>
+        <operation name="associateMyAccounts">
+            <parameter name="DoAuthentication" locked="true">false</parameter>
+        </operation>
+        <operation name="deleteUserAccountAssociation">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/login
+            </parameter>
+        </operation>
+        <operation name="deleteMyAssociations">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/login
+            </parameter>
+        </operation>
+        <operation name="deleteAssociationsOfUser">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user/association/delete
+            </parameter>
+        </operation>
+        <operation name="deleteMyAssociationsWithoutLogin">
+            <parameter name="DoAuthentication" locked="true">false</parameter>
+        </operation>
+        <operation name="getAccountAssociationsOfUser">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/login
+            </parameter>
+        </operation>
+        <operation name="getAccountAssociations">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user/association/view
+            </parameter>
+        </operation>
+        <operation name="getMyAccountAssociationsWithoutLogin">
+            <parameter name="DoAuthentication" locked="true">false</parameter>
+        </operation>
+        <operation name="switchLoggedInUser">
+            <parameter name="AuthorizationAction" locked="true">/permission/admin/login
+            </parameter>
+        </operation>
+
     </service>
-    <parameter name="adminService" locked="true">true</parameter>
-    <parameter name="hiddenService" locked="true">false</parameter>
+    <parameter name="adminService" locked="false">true</parameter>
+    <parameter name="hiddenService" locked="false">true</parameter>
 </serviceGroup>

@@ -1155,12 +1155,6 @@ public class IdPManagementDAO {
 
                 federatedIdp.setDisplayName(rs.getString("DISPLAY_NAME"));
 
-                if (defaultAuthenticatorName != null) {
-                    FederatedAuthenticatorConfig defaultAuthenticator = new FederatedAuthenticatorConfig();
-                    defaultAuthenticator.setName(defaultAuthenticatorName);
-                    federatedIdp.setDefaultAuthenticatorConfig(defaultAuthenticator);
-                }
-
                 if (defaultProvisioningConnectorConfigName != null) {
                     ProvisioningConnectorConfig defaultProConnector = new ProvisioningConnectorConfig();
                     defaultProConnector.setName(defaultProvisioningConnectorConfigName);
@@ -1170,6 +1164,12 @@ public class IdPManagementDAO {
                 // get federated authenticators.
                 federatedIdp.setFederatedAuthenticatorConfigs(getFederatedAuthenticatorConfigs(
                         dbConnection, idPName, federatedIdp, tenantId));
+
+                if (defaultAuthenticatorName != null && federatedIdp.getFederatedAuthenticatorConfigs() != null) {
+                    federatedIdp.setDefaultAuthenticatorConfig(IdentityApplicationManagementUtil
+                            .getFederatedAuthenticator(federatedIdp.getFederatedAuthenticatorConfigs(),
+                                    defaultAuthenticatorName));
+                }
 
                 if (federatedIdp.getClaimConfig().isLocalClaimDialect()) {
                     federatedIdp.setClaimConfig(getLocalIdPDefaultClaimValues(dbConnection,

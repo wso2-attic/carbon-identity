@@ -204,7 +204,7 @@ function validateInput(inputElement) {
     var blackListPatternString = "";
     var labelString = "";
 
-    if (value != null && value != 'null' && value != "") {
+    if (value != null && value != 'null') {
         var whiteListPatterns = inputElement.getAttribute('white-list-patterns');
         var blackListPatterns = inputElement.getAttribute('black-list-patterns');
 

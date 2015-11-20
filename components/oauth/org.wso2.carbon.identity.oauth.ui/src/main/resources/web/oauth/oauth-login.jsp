@@ -16,9 +16,8 @@
  ~ under the License.
  -->
 
-<%@ page import="java.net.URLDecoder" %>
-<%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="java.net.URLDecoder" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 

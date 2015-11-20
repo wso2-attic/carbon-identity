@@ -101,11 +101,29 @@ public class IdentitySAMLSSOServiceComponent {
                     IdentityConstants.ServerConfig.SINGLE_LOGOUT_RETRY_INTERVAL)));
 
             SAMLSSOUtil.setResponseBuilder(IdentityUtil.getProperty("SSOService.SAMLSSOResponseBuilder"));
+            SAMLSSOUtil.setIdPInitSSOAuthnRequestValidator(IdentityUtil.getProperty("SSOService.IdPInitSSOAuthnRequestValidator"));
+            SAMLSSOUtil.setSPInitSSOAuthnRequestProcessor(IdentityUtil.getProperty("SSOService.SPInitSSOAuthnRequestProcessor"));
+            SAMLSSOUtil.setSPInitLogoutRequestProcessor(IdentityUtil.getProperty("SSOService.SPInitSSOAuthnRequestProcessor"));
+            SAMLSSOUtil.setIdPInitLogoutRequestProcessor(IdentityUtil.getProperty("SSOService.IdPInitLogoutRequestProcessor"));
+            SAMLSSOUtil.setIdPInitSSOAuthnRequestProcessor(IdentityUtil.getProperty("SSOService.IdPInitSSOAuthnRequestProcessor"));
 
-            log.debug("Single logout retry count is set to " + SAMLSSOUtil.getSingleLogoutRetryCount());
-            log.debug("Single logout retry interval is set to " +
-                    SAMLSSOUtil.getSingleLogoutRetryInterval() + " in seconds.");
-
+            if (log.isDebugEnabled()) {
+                log.debug("IdPInitSSOAuthnRequestValidator is set to " +
+                        IdentityUtil.getProperty("SSOService.IdPInitSSOAuthnRequestValidator"));
+                log.debug("SPInitSSOAuthnRequestValidator is set to " +
+                        IdentityUtil.getProperty("SSOService.SPInitSSOAuthnRequestValidator"));
+                log.debug("SPInitSSOAuthnRequestProcessor is set to " +
+                        IdentityUtil.getProperty("SSOService.SPInitSSOAuthnRequestProcessor"));
+                log.debug("SPInitLogoutRequestProcessor is set to " +
+                        IdentityUtil.getProperty("SSOService.SPInitLogoutRequestProcessor"));
+                log.debug("IdPInitLogoutRequestProcessor is set to " +
+                        IdentityUtil.getProperty("SSOService.IdPInitLogoutRequestProcessor"));
+                log.debug("IdPInitSSOAuthnRequestProcessor is set to " +
+                        IdentityUtil.getProperty("SSOService.IdPInitSSOAuthnRequestProcessor"));
+                log.debug("Single logout retry count is set to " + SAMLSSOUtil.getSingleLogoutRetryCount());
+                log.debug("Single logout retry interval is set to " +
+                        SAMLSSOUtil.getSingleLogoutRetryInterval() + " in seconds.");
+            }
 
             redirectHtmlPath = CarbonUtils.getCarbonHome() + File.separator + "repository"
                     + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File.separator + "samlsso_response.html";
@@ -117,7 +135,7 @@ public class IdentitySAMLSSOServiceComponent {
 
             Util.initSSOConfigParams();
             if (log.isDebugEnabled()) {
-                log.info("Identity SAML SSO bundle is activated");
+                log.debug("Identity SAML SSO bundle is activated");
             }
         } catch (FileNotFoundException e) {
             if (log.isDebugEnabled()) {

@@ -37,8 +37,8 @@ import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Handles the token validation by invoking the proper validation handler by looking at the token
@@ -49,8 +49,7 @@ public class TokenValidationHandler {
     private static TokenValidationHandler instance = null;
     AuthorizationContextTokenGenerator tokenGenerator = null;
     private Log log = LogFactory.getLog(TokenValidationHandler.class);
-    private Map<String, OAuth2TokenValidator> tokenValidators =
-            new HashMap<>();
+    private Map<String, OAuth2TokenValidator> tokenValidators =  new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
     private TokenValidationHandler() {
