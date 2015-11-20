@@ -32,11 +32,9 @@ import java.util.Map;
 
 public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListener {
 
-    private static final Log log = LogFactory.getLog(UserMgtAuditLogger.class);
 
     private static final Log audit = CarbonConstants.AUDIT_LOG;
     public static final String SUCCESS = "Success";
-    public static final String FAILED = "Failed";
 
     private static String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
 
