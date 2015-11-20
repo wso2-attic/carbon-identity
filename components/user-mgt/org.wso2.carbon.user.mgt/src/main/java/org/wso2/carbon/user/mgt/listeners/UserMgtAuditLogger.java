@@ -33,7 +33,7 @@ public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListen
 
 
     private static final Log audit = CarbonConstants.AUDIT_LOG;
-    public static final String SUCCESS = "Success";
+    private static final String SUCCESS = "Success";
 
     private static String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
 
