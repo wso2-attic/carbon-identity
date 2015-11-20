@@ -148,7 +148,7 @@ public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListen
         String user = CarbonContext.getThreadLocalCarbonContext().getUsername() + "@" +
                 CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         if (user == null) {
-            user = "wso2.system";
+            user = CarbonConstants.REGISTRY_SYSTEM_USERNAME;
         }
         return user;
     }
