@@ -43,6 +43,10 @@ public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListen
     public boolean doPostAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
                                  String profile, UserStoreManager userStoreManager) throws UserStoreException {
 
+        if(!isEnable()) {
+            return true;
+        }
+
         StringBuilder builder = new StringBuilder();
         if (roleList != null) {
             for (int i = 0; i < roleList.length; i++) {
@@ -55,6 +59,11 @@ public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListen
     }
 
     public boolean doPostDeleteUser(String userName, UserStoreManager userStoreManager) throws UserStoreException {
+
+        if(!isEnable()) {
+            return true;
+        }
+
         String currentUser = "wso2.system";
         if (getUser() != null) {
             currentUser = getUser();
@@ -65,30 +74,55 @@ public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListen
     }
 
     public boolean doPostUpdateCredential(String userName, Object credential, UserStoreManager userStoreManager) throws UserStoreException {
+
+        if(!isEnable()) {
+            return true;
+        }
+
         audit.info(String.format(AUDIT_MESSAGE, getUser(), "Change Password by User",
                 userName, "", SUCCESS));
         return true;
     }
 
     public boolean doPreUpdateCredentialByAdmin(String userName, Object newCredential, UserStoreManager userStoreManager) throws UserStoreException {
+
+        if(!isEnable()) {
+            return true;
+        }
+
         audit.info(String.format(AUDIT_MESSAGE, getUser(), "Change Password by Administrator",
                 userName, "", SUCCESS));
         return true;
     }
 
     public boolean doPostDeleteRole(String roleName, UserStoreManager userStoreManager) throws UserStoreException {
+
+        if(!isEnable()) {
+            return true;
+        }
+
         audit.info(String.format(AUDIT_MESSAGE, getUser(), "Delete Role", roleName, "",
                 SUCCESS));
         return true;
     }
 
     public boolean doPostAddRole(String roleName, String[] userList, Permission[] permissions, UserStoreManager userStoreManager) throws UserStoreException {
+
+        if(!isEnable()) {
+            return true;
+        }
+
         audit.info(String.format(AUDIT_MESSAGE, getUser(), "Add Role", roleName, "Users : "
                 + userList.toString() + " Permissions : " + Arrays.toString(permissions), SUCCESS));
         return true;
     }
 
     public boolean doPostUpdateRoleName(String roleName, String newRoleName, UserStoreManager userStoreManager) throws UserStoreException {
+
+        if(!isEnable()) {
+            return true;
+        }
+
         audit.info(String.format(AUDIT_MESSAGE, getUser(), "Update Role Name", roleName,
                 "Old : " + roleName + " New : " + newRoleName, SUCCESS));
         return true;
@@ -96,12 +130,22 @@ public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListen
 
     public boolean doPostUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers,
                                               UserStoreManager userStoreManager) throws UserStoreException {
+
+        if(!isEnable()) {
+            return true;
+        }
+
         audit.info(String.format(AUDIT_MESSAGE, getUser(), "Update Users of Role", roleName,
                 "Users : " + newUsers.toString(), SUCCESS));
         return true;
     }
 
     public boolean doPostUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles, UserStoreManager userStoreManager) throws UserStoreException {
+
+        if(!isEnable()) {
+            return true;
+        }
+
         audit.info(String.format(AUDIT_MESSAGE, getUser(), "Update Roles of User", userName,
                 "Roles : " + newRoles.toString(), SUCCESS));
         return true;
