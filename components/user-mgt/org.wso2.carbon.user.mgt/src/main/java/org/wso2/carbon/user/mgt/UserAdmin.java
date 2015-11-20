@@ -221,8 +221,6 @@ public class UserAdmin {
             getUserAdminProxy().changePassword(userName, newPassword);
         } catch (UserAdminException e) {
             throw e;
-        } finally {
-
         }
 
     }
@@ -247,8 +245,6 @@ public class UserAdmin {
                     CarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.USER_CONFIGURATION));
         } catch (UserAdminException e) {
             throw e;
-        } finally {
-
         }
 
     }
@@ -292,22 +288,6 @@ public class UserAdmin {
             }
         } catch (UserAdminException e) {
             throw e;
-        } finally {
-
-            StringBuilder users = new StringBuilder();
-            if (userList != null) {
-                for (int i = 0; i < userList.length; i++) {
-                    users.append(userList[i] + ",");
-                }
-            }
-
-            StringBuilder perms = new StringBuilder();
-            if (permissions != null && permissions.length > 0) {
-                for (int i = 0; i < permissions.length; i++) {
-                    perms.append(permissions[i] + ",");
-                }
-            }
-
         }
     }
 
@@ -422,16 +402,6 @@ public class UserAdmin {
             getUserAdminProxy().updateUsersOfRole(roleName, userList);
         } catch (UserAdminException e) {
             throw e;
-        } finally {
-            StringBuilder users = new StringBuilder();
-            if (userList != null) {
-                for (int i = 0; i < userList.length; i++) {
-                    if (userList[i] != null) {
-                        users.append(userList[i].getItemName() + ",");
-                    }
-                }
-            }
-
         }
     }
 
@@ -468,16 +438,6 @@ public class UserAdmin {
             getUserAdminProxy().updateRolesOfUser(userName, newRoleList);
         } catch (UserAdminException e) {
             throw e;
-        } finally {
-            StringBuilder roles = new StringBuilder();
-            if (newRoleList != null) {
-                for (int i = 0; i < newRoleList.length; i++) {
-                    if (newRoleList[i] != null) {
-                        roles.append(newRoleList[i] + ",");
-                    }
-                }
-            }
-
         }
     }
 
@@ -512,16 +472,6 @@ public class UserAdmin {
             getUserAdminProxy().setRoleUIPermission(roleName, rawResources);
         } catch (UserAdminException e) {
             throw e;
-        } finally {
-            StringBuilder permissions = new StringBuilder();
-            if (rawResources != null) {
-                for (int i = 0; i < rawResources.length; i++) {
-                    if (rawResources[i] != null) {
-                        permissions.append(rawResources[i] + ",");
-                    }
-                }
-            }
-
         }
     }
 
@@ -595,22 +545,6 @@ public class UserAdmin {
             getUserAdminProxy().updateUsersOfRole(roleName, newUsers, deletedUsers);
         } catch (UserAdminException e) {
             throw e;
-        } finally {
-
-            StringBuilder newUsersList = new StringBuilder();
-            if (newUsers != null) {
-                for (int i = 0; i < newUsers.length; i++) {
-                    newUsersList.append(newUsers[i] + ",");
-                }
-            }
-
-            StringBuilder deletedUsersList = new StringBuilder();
-            if (deletedUsers != null) {
-                for (int i = 0; i < deletedUsers.length; i++) {
-                    deletedUsersList.append(deletedUsers[i] + ",");
-                }
-            }
-
         }
     }
 
@@ -627,21 +561,6 @@ public class UserAdmin {
             getUserAdminProxy().updateRolesOfUser(userName, newRoles, deletedRoles);
         } catch (UserAdminException e) {
             throw e;
-        } finally {
-            StringBuilder newRolesList = new StringBuilder();
-            if (newRoles != null) {
-                for (int i = 0; i < newRoles.length; i++) {
-                    newRolesList.append(newRoles[i] + ",");
-                }
-            }
-
-            StringBuilder deletedUsersList = new StringBuilder();
-            if (deletedRoles != null) {
-                for (int i = 0; i < deletedRoles.length; i++) {
-                    deletedUsersList.append(deletedRoles[i] + ",");
-                }
-            }
-
         }
     }
 
