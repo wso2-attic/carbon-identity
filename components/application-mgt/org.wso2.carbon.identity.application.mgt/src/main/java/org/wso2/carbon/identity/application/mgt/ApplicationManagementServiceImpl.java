@@ -716,6 +716,13 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         String serviceProviderName;
         ServiceProvider serviceProvider = null;
 
+        // invoking the listeners
+        Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
+        for (ApplicationMgtListener listener : listeners) {
+            if (!listener.doPreGetApplicationByClientId(clientId, clientType, tenantDomain)) {
+                return null;
+            }
+        }
         serviceProviderName = getServiceProviderNameByClientId(clientId, clientType, tenantDomain);
 
         try {

@@ -33,6 +33,7 @@ import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.UUID;
 
 public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
 
@@ -70,7 +71,7 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
 
         AuthzCodeDO authzCodeDO = new AuthzCodeDO(OAuth2Util.getUserFromUserName(authorizationReqDTO.getUsername()),
                 oauthAuthzMsgCtx.getApprovedScope(),timestamp, validityPeriod, authorizationReqDTO.getCallbackUrl(),
-                authorizationReqDTO.getConsumerKey(), authorizationCode);
+                authorizationReqDTO.getConsumerKey(), authorizationCode, UUID.randomUUID().toString());
 
         tokenMgtDAO.storeAuthorizationCode(authorizationCode, authorizationReqDTO.getConsumerKey(),
                 authorizationReqDTO.getCallbackUrl(), authzCodeDO);
