@@ -44,6 +44,7 @@ import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
@@ -366,8 +367,8 @@ public class OAuthAdminService extends AbstractAdmin {
                                 appDO = appDAO.getAppInformation(scopedToken.getConsumerKey());
                                 appDTO.setOauthConsumerKey(scopedToken.getConsumerKey());
                                 appDTO.setApplicationName(appDO.getApplicationName());
-                                appDTO.setUsername(appDO.getUserName() + "@" +
-                                        IdentityTenantUtil.getTenantDomain(appDO.getTenantId()));
+                                appDTO.setUsername(UserCoreUtil.addTenantDomainToEntry(appDO.getUserName(),
+                                                IdentityTenantUtil.getTenantDomain(appDO.getTenantId())));
                                 appDTO.setGrantTypes(appDO.getGrantTypes());
                                 appDTOs.add(appDTO);
                             } catch (InvalidOAuthClientException e) {
