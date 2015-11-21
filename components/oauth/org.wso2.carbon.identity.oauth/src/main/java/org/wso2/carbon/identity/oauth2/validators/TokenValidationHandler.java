@@ -278,7 +278,7 @@ public class TokenValidationHandler {
 	    // should be in seconds
 	    introResp.setIat(accessTokenDO.getIssuedTime().getTime() / 1000);
 	    // token scopes
-	    introResp.setScope(concat(accessTokenDO.getScope()));
+	    introResp.setScope(OAuth2Util.buildScopeString((accessTokenDO.getScope())));
 	    // set user-name
 	    introResp.setUsername(getAuthzUser(accessTokenDO));
 	    // add client id
@@ -496,21 +496,4 @@ public class TokenValidationHandler {
 	return accessTokenDO;
     }
     
-    /**
-     * 
-     * @param strArr
-     * @return
-     */
-    private String concat(String[] strArr) {
-
-	if (strArr != null && strArr.length > 0) {
-	    StringBuilder builder = new StringBuilder();
-	    for (String str : strArr) {
-		builder.append(str + " ");
-	    }
-	    return builder.toString();
-	}
-
-	return "";
-    }
 }
