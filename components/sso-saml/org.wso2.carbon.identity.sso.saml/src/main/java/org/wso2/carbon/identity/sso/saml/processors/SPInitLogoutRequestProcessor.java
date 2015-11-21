@@ -27,6 +27,7 @@ import org.opensaml.saml2.core.SessionIndex;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.builders.SingleLogoutMessageBuilder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
@@ -124,33 +125,27 @@ public class SPInitLogoutRequestProcessor implements SPInitSSOLogoutRequestProce
 
                 issuer = logoutRequest.getIssuer().getValue();
 
-                if (issuer.contains("@")) {
-                    String tenantDomain = issuer.substring(issuer.lastIndexOf('@') + 1);
-                    issuer = issuer.substring(0, issuer.lastIndexOf('@'));
-                    if (StringUtils.isNotEmpty(tenantDomain) && StringUtils.isNotEmpty(issuer)) {
-                        SAMLSSOUtil.setTenantDomainInThreadLocal(tenantDomain);
-                        if (log.isDebugEnabled()) {
-                            log.debug("Tenant Domain :" + " " + tenantDomain + " " + "&" + " " +
-                                    "Issuer name :" + issuer + " " + "has being spilt");
+                if(IdentityUtil.isBlank(SAMLSSOUtil.getTenantDomainFromThreadLocal())) {
+                    if (issuer.contains("@")) {
+                        String tenantDomain = issuer.substring(issuer.lastIndexOf('@') + 1);
+                        issuer = issuer.substring(0, issuer.lastIndexOf('@'));
+                        if (StringUtils.isNotBlank(tenantDomain) && StringUtils.isNotBlank(issuer)) {
+                            SAMLSSOUtil.setTenantDomainInThreadLocal(tenantDomain);
+                            if (log.isDebugEnabled()) {
+                                log.debug("Tenant Domain: " + tenantDomain + " & Issuer name: " + issuer + "has been " +
+                                        "split");
+                            }
                         }
-                    } else {
+                    }
+                    if (IdentityUtil.isBlank(SAMLSSOUtil.getTenantDomainFromThreadLocal())) {
                         SAMLSSOServiceProviderDO serviceProvider = sessionInfoData.getServiceProviderList().get(issuer);
                         if (serviceProvider != null) {
                             SAMLSSOUtil.setTenantDomainInThreadLocal(
                                     sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
                         } else {
-                            throw new IdentityException("Service provider :" + issuer + " does not exist in session " +
-                                    "info data.");
+                            throw new IdentityException("Service provider :" + issuer + " does not exist in session info " +
+                                    "data.");
                         }
-                    }
-                } else {
-                    SAMLSSOServiceProviderDO serviceProvider = sessionInfoData.getServiceProviderList().get(issuer);
-                    if (serviceProvider != null) {
-                        SAMLSSOUtil.setTenantDomainInThreadLocal(
-                                sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
-                    } else {
-                        throw new IdentityException("Service provider :" + issuer + " does not exist in session info " +
-                                "data.");
                     }
                 }
                 subject = sessionInfoData.getSubject(issuer);
