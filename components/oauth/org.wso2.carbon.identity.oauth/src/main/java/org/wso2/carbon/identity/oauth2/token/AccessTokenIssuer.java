@@ -150,13 +150,22 @@ public class AccessTokenIssuer {
             tokReqMsgCtx.getAuthorizedUser().setTenantDomain(IdentityTenantUtil.getTenantDomain(oAuthAppDO.getTenantId()));
         }
 
-        boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
+        boolean isValidGrant = false;
+        String error = "Provided Authorization Grant is invalid";
+        try {
+            isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
+        } catch (IdentityOAuth2Exception e) {
+            if(log.isDebugEnabled()){
+                log.debug("Error occurred while validating grant", e);
+            }
+            error = e.getMessage();
+        }
+
         if (!isValidGrant) {
             if (log.isDebugEnabled()) {
                 log.debug("Invalid Grant provided by the client Id: " + tokenReqDTO.getClientId());
             }
-            tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_GRANT,
-                    "Provided Authorization Grant is invalid.", tokenReqDTO);
+            tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_GRANT, error, tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
