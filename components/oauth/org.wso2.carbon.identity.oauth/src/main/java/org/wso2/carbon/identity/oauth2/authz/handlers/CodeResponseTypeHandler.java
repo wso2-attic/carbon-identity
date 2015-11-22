@@ -46,11 +46,6 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
 
         OAuth2AuthorizeReqDTO authorizationReqDTO = oauthAuthzMsgCtx.getAuthorizationReqDTO();
 
-        try {
-            authorizationCode = oauthIssuerImpl.authorizationCode();
-        } catch (OAuthSystemException e) {
-            throw new IdentityOAuth2Exception(e.getMessage(), e);
-        }
 
         Timestamp timestamp = new Timestamp(new Date().getTime());
 
@@ -67,6 +62,19 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
         }
         // convert to milliseconds
         validityPeriod = validityPeriod * 1000;
+        
+        // set the validity period. this is needed by downstream handlers.
+        // if this is set before - then this will override it by the calculated new value.
+        oauthAuthzMsgCtx.setValidityPeriod(validityPeriod);
+    
+        // set code issued time.this is needed by downstream handlers.
+        oauthAuthzMsgCtx.setCodeIssuedTime(timestamp.getTime());
+        
+        try {
+            authorizationCode = oauthIssuerImpl.authorizationCode();
+        } catch (OAuthSystemException e) {
+            throw new IdentityOAuth2Exception(e.getMessage(), e);
+        }
 
         AuthzCodeDO authzCodeDO = new AuthzCodeDO(OAuth2Util.getUserFromUserName(authorizationReqDTO.getUsername()),
                 oauthAuthzMsgCtx.getApprovedScope(),timestamp, validityPeriod, authorizationReqDTO.getCallbackUrl(),
