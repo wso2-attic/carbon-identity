@@ -86,24 +86,6 @@
                     </tr>
                     </tbody>
                 </table>
-                <table class="styledLeft noBorders" style="margin-top: 10px">
-                    <thead>
-                    <tr>
-                        <th colspan="2"><fmt:message key="workflow.bps.profile.callback.details"/></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td width="30%"><fmt:message key='workflow.bps.profile.callback.auth.user'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_USER%>"/></td>
-                    </tr>
-                    <tr>
-                        <td width="30%"><fmt:message key='workflow.bps.profile.callback.auth.password'/></td>
-                        <td><input type="password" name="<%=WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD%>"/>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
                 <table style="margin-top: 10px">
                     <tr>
                         <td class="buttonRow">

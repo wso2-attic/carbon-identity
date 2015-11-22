@@ -26,10 +26,13 @@ import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.Subject;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 
 public class SPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
@@ -86,7 +89,7 @@ public class SPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
                 return validationResponse;
             }
 
-            if (!SAMLSSOUtil.isSAMLIssuerExists(validationResponse.getIssuer(),
+            if (!SAMLSSOUtil.isSAMLIssuerExists(splitAppendedTenantDomain(validationResponse.getIssuer()),
                                                 SAMLSSOUtil.getTenantDomainFromThreadLocal())) {
                 String message = "A Service Provider with the Issuer '" + validationResponse.getIssuer()
                                  + "' is not registered. Service Provider should be registered in advance";
@@ -178,6 +181,27 @@ public class SPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
         } catch (Exception e) {
             throw new IdentityException("Error validating the authentication request", e);
         }
+    }
+
+    protected String splitAppendedTenantDomain(String issuer) throws UserStoreException, IdentityException {
+
+        if(IdentityUtil.isBlank(SAMLSSOUtil.getTenantDomainFromThreadLocal())) {
+            if (issuer.contains("@")) {
+                String tenantDomain = issuer.substring(issuer.lastIndexOf('@') + 1);
+                issuer = issuer.substring(0, issuer.lastIndexOf('@'));
+                if (StringUtils.isNotBlank(tenantDomain) && StringUtils.isNotBlank(issuer)) {
+                    SAMLSSOUtil.setTenantDomainInThreadLocal(tenantDomain);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Tenant Domain: " + tenantDomain + " & Issuer name: " + issuer + "has been " +
+                                "split");
+                    }
+                }
+            }
+        }
+        if(IdentityUtil.isBlank(SAMLSSOUtil.getTenantDomainFromThreadLocal())){
+            SAMLSSOUtil.setTenantDomainInThreadLocal(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+        }
+        return issuer;
     }
 
 }
