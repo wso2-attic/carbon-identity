@@ -42,6 +42,7 @@ import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
 import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
+import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -579,8 +580,8 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         if (StringUtils.isBlank(provisioningEntity.getEntityName())) {
             throw new IdentityProvisioningException("Could Not Find Entity Name from Provisioning Entity");
         }
-        String alteredUsername =
-                SalesforceConnectorConstants.SALESFORCE_OLD_USERNAME_PREFIX + provisioningEntity.getEntityName();
+        String alteredUsername = SalesforceConnectorConstants.SALESFORCE_OLD_USERNAME_PREFIX +
+                                    UUIDGenerator.generateUUID() + provisioningEntity.getEntityName();
 
         if (log.isDebugEnabled()) {
             log.debug("Alter username: " + provisioningEntity.getEntityName() + " to: " + alteredUsername +
