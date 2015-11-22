@@ -31,7 +31,7 @@ public class OAuthAuthzReqMessageContext {
 
     private long validityPeriod;
     
-    private long refreshTokenvalidityPeriod = OAuthConstants.UNASSIGNED_VALIDITY_PERIOD;
+    private long refreshTokenvalidityPeriod;
     
     private long accessTokenIssuedTime;
     
