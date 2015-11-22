@@ -77,7 +77,7 @@ public class SPInitLogoutRequestProcessor implements SPInitSSOLogoutRequestProce
             }
             String sessionIndex = ssoSessionPersistenceManager.getSessionIndexFromTokenId(sessionId);
 
-            if (StringUtils.isBlank(sessionId)) {
+            if (StringUtils.isBlank(sessionIndex)) {
                 String message = "Error while retrieving the Session Index ";
                 log.error("Error in retrieving Session Index from ssoTokenId cookie : " + sessionId);
                 reqValidationResponseDTO = buildErrorResponse(logoutRequest.getID(), SAMLSSOConstants.StatusCodes
