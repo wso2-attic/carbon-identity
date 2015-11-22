@@ -51,6 +51,7 @@ public class SalesforceConnectorConstants {
 
     public static final String SALESFORCE_SERVICES_DATA = "/services/data/";
     public static final String SALESFORCE_ENDPOINT_QUERY = "/query";
+    public static final String SALESFORCE_OLD_USERNAME_PREFIX = "old";
 
     public class PropertyConfig {
 
