@@ -191,7 +191,16 @@ public class AccessTokenIssuer {
             return tokenRespDTO;
         }
 
-        tokenRespDTO = authzGrantHandler.issue(tokReqMsgCtx);
+	try {
+	    // set the token request context to be used by downstream handlers. This is introduced as a fix for
+	    // IDENTITY-4111.
+	    OAuth2Util.setTokenRequestContext(tokReqMsgCtx);
+	    tokenRespDTO = authzGrantHandler.issue(tokReqMsgCtx);
+	} finally {
+	    // clears the token request context.
+	    OAuth2Util.clearTokenRequestContext();
+	}
+	
         tokenRespDTO.setCallbackURI(oAuthAppDO.getCallbackUrl());
 
         String[] scopes = tokReqMsgCtx.getScope();

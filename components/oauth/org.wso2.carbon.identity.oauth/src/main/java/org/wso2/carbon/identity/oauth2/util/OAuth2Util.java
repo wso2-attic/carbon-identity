@@ -38,6 +38,7 @@ import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.ClientCredentialDO;
+import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -59,9 +60,42 @@ public class OAuth2Util {
     private static OAuthCache cache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
     private static long timestampSkew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
     private static ThreadLocal<Integer> clientTenatId = new ThreadLocal<>();
+    private static ThreadLocal<OAuthTokenReqMessageContext> tokenRequestContext = new ThreadLocal<OAuthTokenReqMessageContext>();
 
     private OAuth2Util(){
 
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public static OAuthTokenReqMessageContext getTokenRequestContext() {
+	if (log.isDebugEnabled()) {
+	    log.debug("Retreived OAuthTokenReqMessageContext from threadlocal");
+	}
+	return tokenRequestContext.get();
+    }
+
+    /**
+     * 
+     * @param context
+     */
+    public static void setTokenRequestContext(OAuthTokenReqMessageContext context) {
+	tokenRequestContext.set(context);
+	if (log.isDebugEnabled()) {
+	    log.debug("Added OAuthTokenReqMessageContext to threadlocal");
+	}
+    }
+
+    /**
+     * 
+     */
+    public static void clearTokenRequestContext() {
+	tokenRequestContext.remove();
+	if (log.isDebugEnabled()) {
+	    log.debug("Cleared OAuthTokenReqMessageContext");
+	}
     }
 
     /**
@@ -609,4 +643,5 @@ public class OAuth2Util {
         }
         return false;
     }
+
 }
