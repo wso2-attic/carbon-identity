@@ -8,24 +8,25 @@ public class InboundAuthenticationContext implements Serializable {
 
 	private static final long serialVersionUID = -3113147804821962230L;
 
-	private InboundAuthenticationRequest authenticationRequest;
+	private InboundAuthenticationRequest inboundAuthenticationRequest;
+    private InboundAuthenticationResponse inboundAuthenticationResponse;
 	private String tenantDomain;
 	private Map<String, Object> properties = new HashMap<String, Object>();
 
-	public InboundAuthenticationRequest getAuthenticationRequest() {
-		return authenticationRequest;
+	public InboundAuthenticationRequest getInboundAuthenticationRequest() {
+		return inboundAuthenticationRequest;
 	}
 
-	public void setAuthenticationRequest(InboundAuthenticationRequest authenticationRequest) {
-		this.authenticationRequest = authenticationRequest;
+	public void setInboundAuthenticationRequest(InboundAuthenticationRequest inboundAuthenticationRequest) {
+		this.inboundAuthenticationRequest = inboundAuthenticationRequest;
 	}
 
-	public Map<String, Object> getProperties() {
-		return properties;
+	public Object getProperty(String key) {
+		return properties.get(key);
 	}
 
-	public void setProperties(Map<String, Object> properties) {
-		this.properties = properties;
+	public void addProperty(String key, Object value) {
+		properties.put(key, value);
 	}
 
 	public String getTenantDomain() {
@@ -35,4 +36,12 @@ public class InboundAuthenticationContext implements Serializable {
 	public void setTenantDomain(String tenantDomain) {
 		this.tenantDomain = tenantDomain;
 	}
+
+    public InboundAuthenticationResponse getInboundAuthenticationResponse() {
+        return inboundAuthenticationResponse;
+    }
+
+    public void setInboundAuthenticationResponse(InboundAuthenticationResponse inboundAuthenticationResponse) {
+        this.inboundAuthenticationResponse = inboundAuthenticationResponse;
+    }
 }

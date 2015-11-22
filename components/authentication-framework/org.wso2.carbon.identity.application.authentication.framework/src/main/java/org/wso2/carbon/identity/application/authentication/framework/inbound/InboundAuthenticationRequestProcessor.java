@@ -17,7 +17,17 @@
  */
 package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.util.Map;
 
 public abstract class InboundAuthenticationRequestProcessor {
 
@@ -67,9 +77,50 @@ public abstract class InboundAuthenticationRequestProcessor {
     public abstract boolean canHandle(InboundAuthenticationRequest authenticationRequest) throws FrameworkException;
 
     /**
-     * Is direct response required
-     * @return boolean
+     * Send to framework for authentication
+     *
+     * @param context Inbound authentication context
+     * @return
+     * @throws IOException
+     * @throws IdentityApplicationManagementException
+     * @throws FrameworkException
      */
-    public abstract boolean isDirectResponseRequired();
+    protected InboundAuthenticationResponse sendToFrameworkForAuthentication(InboundAuthenticationContext context)
+            throws IOException, IdentityApplicationManagementException, FrameworkException {
+
+        String sessionDataKey = UUIDGenerator.generateUUID();
+
+        AuthenticationRequest authenticationRequest = new AuthenticationRequest();
+        InboundAuthenticationRequest inboundAuthenticationRequest = context.getInboundAuthenticationRequest();
+
+        Map<String, String[]> parameterMap = inboundAuthenticationRequest.getParameters();
+
+        parameterMap.put(FrameworkConstants.SESSION_DATA_KEY, new String[] { sessionDataKey });
+        parameterMap.put(FrameworkConstants.RequestParams.TYPE, new String[] { getName() });
+
+        authenticationRequest.appendRequestQueryParams(parameterMap);
+
+        for (Map.Entry<String, String> entry : inboundAuthenticationRequest.getHeaders().entrySet()) {
+            authenticationRequest.addHeader(entry.getKey(), entry.getValue());
+        }
+
+        authenticationRequest.setRelyingParty(getRelyingPartyId());
+        authenticationRequest.setType(getName());
+        authenticationRequest.setCommonAuthCallerPath(URLEncoder.encode(getCallbackPath(context), "UTF-8"));
+
+        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry(authenticationRequest);
+        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
+
+        InboundAuthenticationContextCacheEntry contextCacheEntry = new InboundAuthenticationContextCacheEntry(context);
+        InboundAuthenticationUtil.addInboundAuthenticationContextToCache(sessionDataKey, contextCacheEntry);
+
+        InboundAuthenticationResponse response = new InboundAuthenticationResponse();
+        response.addParameters(InboundAuthenticationConstants.RequestProcessor.AUTH_NAME, getName());
+        response.addParameters(InboundAuthenticationConstants.RequestProcessor.SESSION_DATA_KEY, sessionDataKey);
+        response.addParameters(InboundAuthenticationConstants.RequestProcessor.CALL_BACK_PATH, getCallbackPath(context));
+        response.addParameters(InboundAuthenticationConstants.RequestProcessor.RELYING_PARTY, getRelyingPartyId());
+
+        return response;
+    }
 
 }

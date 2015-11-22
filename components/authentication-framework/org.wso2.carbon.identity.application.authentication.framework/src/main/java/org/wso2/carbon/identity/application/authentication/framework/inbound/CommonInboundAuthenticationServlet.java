@@ -19,24 +19,18 @@ package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceDataHolder;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
-import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.List;
-import java.util.Map;
 
 public class CommonInboundAuthenticationServlet extends HttpServlet {
 
@@ -101,7 +95,15 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
         InboundAuthenticationRequest authenticationRequest = requestBuilder.buildRequest(request, response);
 
         if (request.getPathInfo().contains(InboundAuthenticationConstants.HTTP_PATH_PARAM_REQUEST)) {
-            doProcessRequest(request, response, authenticationRequest);
+            InboundAuthenticationResponse inboundAuthenticationResponse = doProcessRequest(request, response,
+                    authenticationRequest);
+            if (inboundAuthenticationResponse.getStatusCode() == InboundAuthenticationConstants.StatusCode.REDIRECT) {
+                try {
+                    sendToFrameworkForAuthentication(response, inboundAuthenticationResponse);
+                } catch (IOException ex) {
+                    throw new AuthenticationFrameworkRuntimeException("Error occurred while redirecting response", ex);
+                }
+            }
         } else if (request.getPathInfo().contains(InboundAuthenticationConstants.HTTP_PATH_PARAM_RESPONSE)) {
             InboundAuthenticationResponse result = doProcessResponse(authenticationRequest);
             if (result.getRedirectURL() != null) {
@@ -114,6 +116,18 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
             }
         }
 
+    }
+
+    private void sendToFrameworkForAuthentication(HttpServletResponse response,
+            InboundAuthenticationResponse inboundAuthenticationResponse) throws IOException {
+
+        String sessionDataKey = inboundAuthenticationResponse
+                .getParameter(InboundAuthenticationConstants.RequestProcessor.SESSION_DATA_KEY);
+        String type = inboundAuthenticationResponse
+                .getParameter(InboundAuthenticationConstants.RequestProcessor.AUTH_NAME);
+        String queryParams = "?sessionDataKey=" + sessionDataKey + "&" + "type" + "=" + type;
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+        response.sendRedirect(commonAuthURL + queryParams);
     }
 
     /**
@@ -131,11 +145,8 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
 
         try {
             InboundAuthenticationResponse result = inboundAuthenticationManager.processRequest(authenticationRequest);
-            InboundAuthenticationContext context = new InboundAuthenticationContext();
-            context.setAuthenticationRequest(authenticationRequest);
-            sendToFrameworkForAuthentication(request, response, context, result);
             return result;
-        } catch (ServletException | IOException | IdentityApplicationManagementException | FrameworkException ex) {
+        } catch (FrameworkException ex) {
             throw new AuthenticationFrameworkRuntimeException("Error occurred while processing authentication request",
                     ex);
         }
@@ -168,60 +179,5 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
         throw new AuthenticationFrameworkRuntimeException("No session found to process the response.");
     }
 
-    /**
-     * Send to framework for authentication
-     *
-     * @param req   Http request
-     * @param resp  Http response
-     * @param context   Inbound authentication context
-     * @param inboundAuthenticationResponse Inbound authentication response
-     * @throws ServletException
-     * @throws IOException
-     * @throws IdentityApplicationManagementException
-     * @throws FrameworkException
-     */
-    protected void sendToFrameworkForAuthentication(HttpServletRequest req, HttpServletResponse resp,
-            InboundAuthenticationContext context, InboundAuthenticationResponse inboundAuthenticationResponse)
-            throws ServletException, IOException, IdentityApplicationManagementException, FrameworkException {
 
-        String sessionDataKey = UUIDGenerator.generateUUID();
-        String authName = inboundAuthenticationResponse.getInboundAuthenticationRequestProcessor().getName();
-        String relyingParty = inboundAuthenticationResponse.getInboundAuthenticationRequestProcessor().getRelyingPartyId();
-        String callbackPath = inboundAuthenticationResponse.getInboundAuthenticationRequestProcessor().getCallbackPath(context);
-
-
-        AuthenticationRequest authenticationRequest = new AuthenticationRequest();
-        InboundAuthenticationRequest inboundAuthenticationRequest = context.getAuthenticationRequest();
-
-        Map<String, String[]> parameterMap = inboundAuthenticationRequest.getParameters();
-
-        parameterMap.put(FrameworkConstants.SESSION_DATA_KEY, new String[] { sessionDataKey });
-        parameterMap.put("type", new String[] { authName });
-
-        authenticationRequest.appendRequestQueryParams(parameterMap);
-
-        for (Map.Entry<String, String> entry : inboundAuthenticationRequest.getHeaders().entrySet()) {
-            authenticationRequest.addHeader(entry.getKey(), entry.getValue());
-        }
-
-        authenticationRequest.setRelyingParty(relyingParty);
-        authenticationRequest.setType(authName);
-        authenticationRequest.setCommonAuthCallerPath(URLEncoder.encode(callbackPath, "UTF-8"));
-
-        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry(authenticationRequest);
-        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
-
-        InboundAuthenticationContextCacheEntry contextCacheEntry = new InboundAuthenticationContextCacheEntry(context);
-        InboundAuthenticationUtil.addInboundAuthenticationContextToCache(sessionDataKey, contextCacheEntry);
-
-        String queryParams = "?sessionDataKey=" + sessionDataKey + "&" + "type" + "=" + authName;
-
-        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
-
-        if (inboundAuthenticationResponse.getInboundAuthenticationRequestProcessor().isDirectResponseRequired()) {
-            FrameworkUtils.getRequestCoordinator().handle(req, resp);
-        } else {
-            resp.sendRedirect(commonAuthURL + queryParams);
-        }
-    }
 }

@@ -19,7 +19,7 @@ package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 
-public abstract class InboundAuthenticationResponseBuilder {
+public abstract class InboundAuthenticationResponseProcessor {
 
     /**
      * Build response
@@ -27,7 +27,7 @@ public abstract class InboundAuthenticationResponseBuilder {
      * @return Inbound authentication response
      * @throws FrameworkException
      */
-	public abstract InboundAuthenticationResponse buildResponse(InboundAuthenticationContext context)
+	public abstract InboundAuthenticationResponse processResponse(InboundAuthenticationContext context)
 			throws FrameworkException;
 
     /**

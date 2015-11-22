@@ -22,7 +22,7 @@ import org.osgi.framework.BundleContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationRequestBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationRequestProcessor;
-import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationResponseBuilder;
+import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationResponseProcessor;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 
@@ -40,7 +40,7 @@ public class FrameworkServiceDataHolder {
     private long unixTimeReference = 0;
     private List<InboundAuthenticationRequestProcessor> inboundAuthenticationRequestProcessors = new ArrayList<InboundAuthenticationRequestProcessor>();
     private List<InboundAuthenticationRequestBuilder> inboundAuthenticationRequestBuilders = new ArrayList<InboundAuthenticationRequestBuilder>();
-    private List<InboundAuthenticationResponseBuilder> inboundAuthenticationResponseBuilders = new ArrayList<InboundAuthenticationResponseBuilder>();
+    private List<InboundAuthenticationResponseProcessor> inboundAuthenticationResponseBuilders = new ArrayList<InboundAuthenticationResponseProcessor>();
 
     private FrameworkServiceDataHolder() {
         setNanoTimeReference(System.nanoTime());
@@ -113,12 +113,12 @@ public class FrameworkServiceDataHolder {
         this.inboundAuthenticationRequestProcessors = inboundAuthenticationRequestProcessors;
     }
 
-    public List<InboundAuthenticationResponseBuilder> getInboundAuthenticationResponseBuilders() {
+    public List<InboundAuthenticationResponseProcessor> getInboundAuthenticationResponseBuilders() {
         return inboundAuthenticationResponseBuilders;
     }
 
     public void setInboundAuthenticationResponseBuilders(
-            List<InboundAuthenticationResponseBuilder> inboundAuthenticationResponseBuilders) {
+            List<InboundAuthenticationResponseProcessor> inboundAuthenticationResponseBuilders) {
         this.inboundAuthenticationResponseBuilders = inboundAuthenticationResponseBuilders;
     }
 }

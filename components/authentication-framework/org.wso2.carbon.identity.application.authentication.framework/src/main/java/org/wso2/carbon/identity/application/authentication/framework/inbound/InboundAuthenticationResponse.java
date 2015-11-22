@@ -33,8 +33,6 @@ public class InboundAuthenticationResponse implements Serializable {
 	private Map<String, String> parameters = new HashMap<String, String>();
 	private int statusCode;
 	private String redirectURL;
-	private InboundAuthenticationRequestProcessor inboundAuthenticationRequestProcessor;
-	private InboundAuthenticationResponseBuilder inboundAuthenticationResponseBuilder;
 
 	public Map<String, String> getResponseHeaders() {
 		return responseHeaders;
@@ -60,12 +58,12 @@ public class InboundAuthenticationResponse implements Serializable {
 		cookies.put(key, values);
 	}
 
-	public Map<String, String> getParameters() {
-		return parameters;
+	public String getParameter(String key) {
+		return parameters.get(key);
 	}
 
-	public void setParameters(Map<String, String> parameters) {
-		this.parameters = parameters;
+	public void addParameters(String key, String value) {
+		parameters.put(key, value);
 	}
 
 	public int getStatusCode() {
@@ -84,21 +82,4 @@ public class InboundAuthenticationResponse implements Serializable {
 		this.redirectURL = redirectURL;
 	}
 
-	public InboundAuthenticationRequestProcessor getInboundAuthenticationRequestProcessor() {
-		return inboundAuthenticationRequestProcessor;
-	}
-
-	public void setInboundAuthenticationRequestProcessor(
-			InboundAuthenticationRequestProcessor inboundAuthenticationRequestProcessor) {
-		this.inboundAuthenticationRequestProcessor = inboundAuthenticationRequestProcessor;
-	}
-
-	public InboundAuthenticationResponseBuilder getInboundAuthenticationResponseBuilder() {
-		return inboundAuthenticationResponseBuilder;
-	}
-
-	public void setInboundAuthenticationResponseBuilder(
-			InboundAuthenticationResponseBuilder inboundAuthenticationResponseBuilder) {
-		this.inboundAuthenticationResponseBuilder = inboundAuthenticationResponseBuilder;
-	}
 }

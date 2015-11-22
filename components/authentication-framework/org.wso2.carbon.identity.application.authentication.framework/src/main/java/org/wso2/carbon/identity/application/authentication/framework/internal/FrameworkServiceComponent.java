@@ -34,7 +34,7 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.F
 import org.wso2.carbon.identity.application.authentication.framework.inbound.CommonInboundAuthenticationServlet;
 import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationRequestBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationRequestProcessor;
-import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationResponseBuilder;
+import org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationResponseProcessor;
 import org.wso2.carbon.identity.application.authentication.framework.listener.AuthenticationEndpointTenantActivityListener;
 import org.wso2.carbon.identity.application.authentication.framework.servlet.CommonAuthenticationServlet;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
@@ -305,7 +305,7 @@ public class FrameworkServiceComponent {
         }
     }
 
-    protected void setInboundResponseBuilder(InboundAuthenticationResponseBuilder responseBuilder) {
+    protected void setInboundResponseBuilder(InboundAuthenticationResponseProcessor responseBuilder) {
 
         FrameworkServiceDataHolder.getInstance().getInboundAuthenticationResponseBuilders().add(responseBuilder);
         Collections
@@ -317,7 +317,7 @@ public class FrameworkServiceComponent {
         }
     }
 
-    protected void unsetInboundResponseBuilder(InboundAuthenticationResponseBuilder responseBuilder) {
+    protected void unsetInboundResponseBuilder(InboundAuthenticationResponseProcessor responseBuilder) {
 
         FrameworkServiceDataHolder.getInstance().getInboundAuthenticationResponseBuilders().remove(responseBuilder);
 
@@ -376,12 +376,12 @@ public class FrameworkServiceComponent {
                     }
                 }
             };
-    private static Comparator<InboundAuthenticationResponseBuilder> inboundResponseBuilder =
-            new Comparator<InboundAuthenticationResponseBuilder>() {
+    private static Comparator<InboundAuthenticationResponseProcessor> inboundResponseBuilder =
+            new Comparator<InboundAuthenticationResponseProcessor>() {
 
                 @Override
-                public int compare(InboundAuthenticationResponseBuilder inboundResponseBuilder1,
-                        InboundAuthenticationResponseBuilder inboundResponseBuilder2) {
+                public int compare(InboundAuthenticationResponseProcessor inboundResponseBuilder1,
+                        InboundAuthenticationResponseProcessor inboundResponseBuilder2) {
 
                     if (inboundResponseBuilder1.getPriority() > inboundResponseBuilder2.getPriority()) {
                         return 1;

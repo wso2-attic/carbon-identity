@@ -19,13 +19,8 @@ package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceDataHolder;
-import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 
 import java.util.List;
 
@@ -61,12 +56,12 @@ public class InboundAuthenticationManager {
      * @return Inbound authentication response builder
      * @throws FrameworkException
      */
-    private InboundAuthenticationResponseBuilder getInboundResponseBuilder(InboundAuthenticationContext context,
+    private InboundAuthenticationResponseProcessor getInboundResponseBuilder(InboundAuthenticationContext context,
             InboundAuthenticationRequest authenticationRequest) throws FrameworkException {
-        List<InboundAuthenticationResponseBuilder> responseBuilders = FrameworkServiceDataHolder.getInstance()
+        List<InboundAuthenticationResponseProcessor> responseBuilders = FrameworkServiceDataHolder.getInstance()
                 .getInboundAuthenticationResponseBuilders();
 
-        for (InboundAuthenticationResponseBuilder responseBuilder : responseBuilders) {
+        for (InboundAuthenticationResponseProcessor responseBuilder : responseBuilders) {
             if (responseBuilder.canHandle(context, authenticationRequest)) {
                 return responseBuilder;
             }
@@ -106,37 +101,16 @@ public class InboundAuthenticationManager {
     public InboundAuthenticationResponse processResponse(InboundAuthenticationContext context,
             InboundAuthenticationRequest authenticationRequest) throws FrameworkException {
 
-        InboundAuthenticationResponseBuilder responseBuilder = getInboundResponseBuilder(context,
+        InboundAuthenticationResponseProcessor responseBuilder = getInboundResponseBuilder(context,
                 authenticationRequest);
         if (responseBuilder != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Starting to process inbound authentication response : " + responseBuilder.getName());
             }
-            return responseBuilder.buildResponse(context);
+            return responseBuilder.processResponse(context);
         } else {
             throw new FrameworkException("No response builder found to process the response");
         }
     }
 
-    /**
-     * Get Authentication result from cache
-     *
-     * @param sessionDataKey Session data key
-     * @return Authentication result
-     */
-    protected AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
-
-        AuthenticationResultCacheKey authResultCacheKey = new AuthenticationResultCacheKey(sessionDataKey);
-        CacheEntry cacheEntry = AuthenticationResultCache.getInstance().getValueFromCache(authResultCacheKey);
-        AuthenticationResult authResult = null;
-
-        if (cacheEntry != null) {
-            AuthenticationResultCacheEntry authResultCacheEntry = (AuthenticationResultCacheEntry) cacheEntry;
-            authResult = authResultCacheEntry.getResult();
-        } else {
-            log.error("Cannot find AuthenticationResult from the cache");
-        }
-
-        return authResult;
-    }
 }
