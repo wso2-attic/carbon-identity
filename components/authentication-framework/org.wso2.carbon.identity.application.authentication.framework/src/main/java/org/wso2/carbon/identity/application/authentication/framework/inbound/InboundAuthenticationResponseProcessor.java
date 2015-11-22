@@ -27,8 +27,8 @@ public abstract class InboundAuthenticationResponseProcessor {
      * @return Inbound authentication response
      * @throws FrameworkException
      */
-	public abstract InboundAuthenticationResponse processResponse(InboundAuthenticationContext context)
-			throws FrameworkException;
+    public abstract InboundAuthenticationResponse processResponse(InboundAuthenticationContext context)
+            throws FrameworkException;
 
     /**
      * Can handle
@@ -37,25 +37,25 @@ public abstract class InboundAuthenticationResponseProcessor {
      * @return boolean
      * @throws FrameworkException
      */
-	public abstract boolean canHandle(InboundAuthenticationContext context, InboundAuthenticationRequest request)
-			throws FrameworkException;
+    public abstract boolean canHandle(InboundAuthenticationContext context, InboundAuthenticationRequest request)
+            throws FrameworkException;
 
     /**
      * Get priority
      * @return priority
      */
-	public abstract int getPriority();
+    public abstract int getPriority();
 
     /**
      * Check direct response require
      * @return boolean
      */
-	public abstract boolean isDirectResponseRequired();
+    public abstract boolean isDirectResponseRequired();
 
     /**
      * Get Name
      * @return name
      */
-	public abstract String getName();
+    public abstract String getName();
 
 }

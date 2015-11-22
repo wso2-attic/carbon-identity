@@ -39,7 +39,7 @@ public abstract class InboundAuthenticationRequestProcessor {
      * @throws FrameworkException
      */
     public abstract InboundAuthenticationResponse process(InboundAuthenticationRequest authenticationRequest)
-    throws FrameworkException;
+            throws FrameworkException;
 
     /**
      * Get Name
@@ -77,7 +77,7 @@ public abstract class InboundAuthenticationRequestProcessor {
     public abstract boolean canHandle(InboundAuthenticationRequest authenticationRequest) throws FrameworkException;
 
     /**
-     * Send to framework for authentication
+     * Build response for framework login
      *
      * @param context Inbound authentication context
      * @return
@@ -85,7 +85,7 @@ public abstract class InboundAuthenticationRequestProcessor {
      * @throws IdentityApplicationManagementException
      * @throws FrameworkException
      */
-    protected InboundAuthenticationResponse sendToFrameworkForAuthentication(InboundAuthenticationContext context)
+    protected InboundAuthenticationResponse buildResponseForFrameworkLogin(InboundAuthenticationContext context)
             throws IOException, IdentityApplicationManagementException, FrameworkException {
 
         String sessionDataKey = UUIDGenerator.generateUUID();
@@ -117,10 +117,60 @@ public abstract class InboundAuthenticationRequestProcessor {
         InboundAuthenticationResponse response = new InboundAuthenticationResponse();
         response.addParameters(InboundAuthenticationConstants.RequestProcessor.AUTH_NAME, getName());
         response.addParameters(InboundAuthenticationConstants.RequestProcessor.SESSION_DATA_KEY, sessionDataKey);
-        response.addParameters(InboundAuthenticationConstants.RequestProcessor.CALL_BACK_PATH, getCallbackPath(context));
+        response.addParameters(InboundAuthenticationConstants.RequestProcessor.CALL_BACK_PATH,
+                getCallbackPath(context));
         response.addParameters(InboundAuthenticationConstants.RequestProcessor.RELYING_PARTY, getRelyingPartyId());
 
         return response;
     }
 
+    /**
+     * Build response for framework logout
+     *
+     * @param context Inbound authentication context
+     * @return
+     * @throws IOException
+     * @throws IdentityApplicationManagementException
+     * @throws FrameworkException
+     */
+    protected InboundAuthenticationResponse buildResponseForFrameworkLogout(InboundAuthenticationContext context)
+            throws IOException, IdentityApplicationManagementException, FrameworkException {
+
+        String sessionDataKey = UUIDGenerator.generateUUID();
+
+        AuthenticationRequest authenticationRequest = new AuthenticationRequest();
+        InboundAuthenticationRequest inboundAuthenticationRequest = context.getInboundAuthenticationRequest();
+
+        Map<String, String[]> parameterMap = inboundAuthenticationRequest.getParameters();
+
+        parameterMap.put(FrameworkConstants.SESSION_DATA_KEY, new String[] { sessionDataKey });
+        parameterMap.put(FrameworkConstants.RequestParams.TYPE, new String[] { getName() });
+
+        authenticationRequest.appendRequestQueryParams(parameterMap);
+
+        for (Map.Entry<String, String> entry : inboundAuthenticationRequest.getHeaders().entrySet()) {
+            authenticationRequest.addHeader(entry.getKey(), entry.getValue());
+        }
+
+        authenticationRequest.setRelyingParty(getRelyingPartyId());
+        authenticationRequest.setType(getName());
+        authenticationRequest.setCommonAuthCallerPath(URLEncoder.encode(getCallbackPath(context), "UTF-8"));
+        authenticationRequest.addRequestQueryParam(FrameworkConstants.RequestParams.LOGOUT,
+                new String[]{"true"});
+
+        AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry(authenticationRequest);
+        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
+
+        InboundAuthenticationContextCacheEntry contextCacheEntry = new InboundAuthenticationContextCacheEntry(context);
+        InboundAuthenticationUtil.addInboundAuthenticationContextToCache(sessionDataKey, contextCacheEntry);
+
+        InboundAuthenticationResponse response = new InboundAuthenticationResponse();
+        response.addParameters(InboundAuthenticationConstants.RequestProcessor.AUTH_NAME, getName());
+        response.addParameters(InboundAuthenticationConstants.RequestProcessor.SESSION_DATA_KEY, sessionDataKey);
+        response.addParameters(InboundAuthenticationConstants.RequestProcessor.CALL_BACK_PATH,
+                getCallbackPath(context));
+        response.addParameters(InboundAuthenticationConstants.RequestProcessor.RELYING_PARTY, getRelyingPartyId());
+
+        return response;
+    }
 }

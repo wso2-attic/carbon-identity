@@ -22,8 +22,6 @@ import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceDataHolder;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -31,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class CommonInboundAuthenticationServlet extends HttpServlet {
 
@@ -87,7 +86,7 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
             throws AuthenticationFrameworkRuntimeException {
 
         InboundAuthenticationRequestBuilder requestBuilder = getInboundRequestBuilder(request, response);
-        if(requestBuilder == null){
+        if (requestBuilder == null) {
             throw new AuthenticationFrameworkRuntimeException(
                     "No authentication request builder found to build the request");
         }
@@ -99,7 +98,7 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
                     authenticationRequest);
             if (inboundAuthenticationResponse.getStatusCode() == InboundAuthenticationConstants.StatusCode.REDIRECT) {
                 try {
-                    sendToFrameworkForAuthentication(response, inboundAuthenticationResponse);
+                    sendRedirect(response, inboundAuthenticationResponse);
                 } catch (IOException ex) {
                     throw new AuthenticationFrameworkRuntimeException("Error occurred while redirecting response", ex);
                 }
@@ -118,16 +117,26 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
 
     }
 
-    private void sendToFrameworkForAuthentication(HttpServletResponse response,
-            InboundAuthenticationResponse inboundAuthenticationResponse) throws IOException {
+    private void sendRedirect(HttpServletResponse response, InboundAuthenticationResponse inboundAuthenticationResponse)
+            throws IOException {
 
-        String sessionDataKey = inboundAuthenticationResponse
-                .getParameter(InboundAuthenticationConstants.RequestProcessor.SESSION_DATA_KEY);
-        String type = inboundAuthenticationResponse
-                .getParameter(InboundAuthenticationConstants.RequestProcessor.AUTH_NAME);
-        String queryParams = "?sessionDataKey=" + sessionDataKey + "&" + "type" + "=" + type;
-        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
-        response.sendRedirect(commonAuthURL + queryParams);
+        StringBuilder queryParams = new StringBuilder("?");
+        boolean isFirst = true;
+        for (Map.Entry<String, String> entry : inboundAuthenticationResponse.getParameters().entrySet()) {
+
+            if (isFirst) {
+                queryParams.append(entry.getKey());
+                queryParams.append("=");
+                queryParams.append(entry.getValue());
+                isFirst = false;
+            }
+            queryParams.append("&");
+            queryParams.append(entry.getKey());
+            queryParams.append("=");
+            queryParams.append(entry.getValue());
+        }
+
+        response.sendRedirect(inboundAuthenticationResponse.getRedirectURL() + queryParams);
     }
 
     /**
@@ -178,6 +187,5 @@ public class CommonInboundAuthenticationServlet extends HttpServlet {
         }
         throw new AuthenticationFrameworkRuntimeException("No session found to process the response.");
     }
-
 
 }

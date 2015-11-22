@@ -20,7 +20,6 @@ package org.wso2.carbon.identity.application.authentication.framework.inbound;
 
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
 
-
 public class InboundAuthenticationContextCacheKey extends CacheKey {
 
     private static final long serialVersionUID = 717492345264523421L;
