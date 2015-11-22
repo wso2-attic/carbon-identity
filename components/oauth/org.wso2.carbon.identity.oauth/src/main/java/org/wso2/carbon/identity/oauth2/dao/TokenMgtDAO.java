@@ -1378,6 +1378,65 @@ public class TokenMgtDAO {
         }
     }
 
+    public String getCodeIdByAuthorizationCode(String authzCode) throws IdentityOAuth2Exception {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+        try {
+            String sql = SQLQueries.RETRIEVE_CODE_ID_BY_AUTHORIZATION_CODE;
+
+            prepStmt = connection.prepareStatement(sql);
+            prepStmt.setString(1, authzCode);
+            resultSet = prepStmt.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getString("CODE_ID");
+            }
+            connection.commit();
+            return null;
+
+        } catch (SQLException e) {
+            String errorMsg = "Error occurred while retrieving 'Code ID' for " +
+                    "authorization code : " + authzCode;
+            throw new IdentityOAuth2Exception(errorMsg, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+        }
+
+    }
+
+    public String getAuthzCodeByCodeId(String codeId) throws IdentityOAuth2Exception {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+        try {
+            String sql = SQLQueries.RETRIEVE_AUTHZ_CODE_BY_CODE_ID;
+
+            prepStmt = connection.prepareStatement(sql);
+            prepStmt.setString(1, codeId);
+            resultSet = prepStmt.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getString("CODE_ID");
+            }
+            connection.commit();
+            return null;
+
+        } catch (SQLException e) {
+            String errorMsg = "Error occurred while retrieving 'Authorization Code' for " +
+                    "authorization code : " + codeId;
+            throw new IdentityOAuth2Exception(errorMsg, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+        }
+
+    }
+
+
     private void updateTokenIdIfAutzCodeGrantType(String oldAccessTokenId, String newAccessTokenId, Connection
             connection) throws IdentityOAuth2Exception {
         PreparedStatement prepStmt = null;

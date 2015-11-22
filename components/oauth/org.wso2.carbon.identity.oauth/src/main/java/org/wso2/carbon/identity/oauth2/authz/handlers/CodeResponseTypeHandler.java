@@ -44,11 +44,13 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
             throws IdentityOAuth2Exception {
         OAuth2AuthorizeRespDTO respDTO = new OAuth2AuthorizeRespDTO();
         String authorizationCode;
+        String codeId;
 
         OAuth2AuthorizeReqDTO authorizationReqDTO = oauthAuthzMsgCtx.getAuthorizationReqDTO();
 
         try {
             authorizationCode = oauthIssuerImpl.authorizationCode();
+            codeId = UUID.randomUUID().toString();
         } catch (OAuthSystemException e) {
             throw new IdentityOAuth2Exception(e.getMessage(), e);
         }
@@ -71,7 +73,7 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
 
         AuthzCodeDO authzCodeDO = new AuthzCodeDO(OAuth2Util.getUserFromUserName(authorizationReqDTO.getUsername()),
                 oauthAuthzMsgCtx.getApprovedScope(),timestamp, validityPeriod, authorizationReqDTO.getCallbackUrl(),
-                authorizationReqDTO.getConsumerKey(), authorizationCode, UUID.randomUUID().toString());
+                authorizationReqDTO.getConsumerKey(), authorizationCode, codeId);
 
         tokenMgtDAO.storeAuthorizationCode(authorizationCode, authorizationReqDTO.getConsumerKey(),
                 authorizationReqDTO.getCallbackUrl(), authzCodeDO);

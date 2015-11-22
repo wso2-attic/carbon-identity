@@ -43,6 +43,7 @@ import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
@@ -78,8 +79,9 @@ public class OAuthAdminService extends AbstractAdmin {
 
         String tenantUser = MultitenantUtils.getTenantAwareUsername(loggedInUser);
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        String userDomain = UserCoreUtil.extractDomainFromName(loggedInUser);
         OAuthAppDAO dao = new OAuthAppDAO();
-        return dao.addOAuthConsumer(tenantUser, tenantId);
+        return dao.addOAuthConsumer(tenantUser, tenantId, userDomain);
     }
 
     /**
@@ -224,6 +226,7 @@ public class OAuthAdminService extends AbstractAdmin {
                 }
                 app.setUserName(tenantUser);
                 app.setTenantId(tenantId);
+                app.setUserDomain(UserCoreUtil.extractDomainFromName(userName));
                 if (application.getOAuthVersion() != null) {
                     app.setOauthVersion(application.getOAuthVersion());
                 } else {   // by default, assume OAuth 2.0, if it is not set.
