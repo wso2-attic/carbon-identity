@@ -74,12 +74,7 @@ public class DefaultStepHandler implements StepHandler {
 
         List<AuthenticatorConfig> authConfigList = stepConfig.getAuthenticatorList();
 
-        String authenticatorNames;
-        try {
-            authenticatorNames = URLEncoder.encode(FrameworkUtils.getAuthenticatorIdPMappingString(authConfigList), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new FrameworkException("Exception occured in encoding authenticatorNames", e);
-        }
+        String authenticatorNames = FrameworkUtils.getAuthenticatorIdPMappingString(authConfigList);
 
         String redirectURL = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
 
@@ -132,7 +127,7 @@ public class DefaultStepHandler implements StepHandler {
             try {
                 response.sendRedirect(redirectURL
                                       + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
-                                      + authenticatorNames + "&hrd=true");
+                                      + URLEncoder.encode(authenticatorNames, "UTF-8") + "&hrd=true");
             } catch (IOException e) {
                 throw new FrameworkException(e.getMessage(), e);
             }
@@ -223,8 +218,8 @@ public class DefaultStepHandler implements StepHandler {
 
                     try {
                         response.sendRedirect(redirectURL
-                                              + ("?" + context.getContextIdIncludedQueryParams())
-                                              + "&authenticators=" + authenticatorNames + retryParam);
+                                + ("?" + context.getContextIdIncludedQueryParams())
+                                + "&authenticators=" + URLEncoder.encode(authenticatorNames, "UTF-8") + retryParam);
                     } catch (IOException e) {
                         throw new FrameworkException(e.getMessage(), e);
                     }
@@ -262,7 +257,7 @@ public class DefaultStepHandler implements StepHandler {
             try {
                 response.sendRedirect(redirectURL
                                       + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
-                                      + authenticatorNames + "&hrd=true");
+                                      + URLEncoder.encode(authenticatorNames, "UTF-8") + "&hrd=true");
             } catch (IOException e) {
                 throw new FrameworkException(e.getMessage(), e);
             }
@@ -324,7 +319,7 @@ public class DefaultStepHandler implements StepHandler {
 
         try {
             response.sendRedirect(redirectURL + ("?" + context.getContextIdIncludedQueryParams())
-                                  + "&authenticators=" + authenticatorNames + "&authFailure=true"
+                                  + "&authenticators=" + URLEncoder.encode(authenticatorNames, "UTF-8") + "&authFailure=true"
                                   + "&authFailureMsg=" + errorMsg + "&hrd=true");
         } catch (IOException e) {
             throw new FrameworkException(e.getMessage(), e);

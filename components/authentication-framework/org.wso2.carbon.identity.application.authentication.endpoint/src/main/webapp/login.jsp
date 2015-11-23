@@ -25,7 +25,6 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.List" %>
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.TenantDataManager" %>
-<%@ page import="java.net.URLEncoder" %>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
 
@@ -37,7 +36,6 @@
         if (request.getAttribute(Constants.IDP_AUTHENTICATOR_MAP) != null) {
             idpAuthenticatorMapping = (Map<String, String>) request.getAttribute(Constants.IDP_AUTHENTICATOR_MAP);
         }
-
 
         String errorMessage = "Authentication Failed! Please Retry";
         String loginFailed = "false";
@@ -173,16 +171,15 @@
                                                 isHubIdp = true;
                                                 idpName = idpName.substring(0, idpName.length() - 4);
                                             }
-                                            idpName = URLEncoder.encode(idpName, "UTF-8");
                                 %>
                                 <% if (isHubIdp) { %>
                                 <a href="#" data-toggle="popover" data-placement="bottom"
-                                   title="Sign in with <%=idpName%>" id="popover">
+                                   title="Sign in with <%=Encode.forHtmlContent(idpName)%>" id="popover">
                                     <img class="idp-image" src="images/login-icon.png"
-                                         title="Sign in with <%=idpName%>"/>
+                                         title="Sign in with <%=Encode.forHtmlContent(idpName)%>"/>
 
                                     <div id="popover-head" class="hide">
-                                        <label class="font-large">Sign in with <%=idpName%></label>
+                                        <label class="font-large">Sign in with <%=Encode.forHtmlContent(idpName)%></label>
                                     </div>
                                     <div id="popover-content" class="hide">
                                         <form class="form-inline">
@@ -197,17 +194,20 @@
                                     </div>
                                 </a>
                                 <%} else { %>
-                                <a onclick="javascript: handleNoDomain('<%=idpName%>',
-                                        '<%=Encode.forJavaScriptAttribute(idpEntry.getValue())%>')" href="#">
+                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(Encode.
+                                forUriComponent(idpName))%>',
+                                        '<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(idpEntry.getValue()))%>')"
+                                   href="#">
                                     <img class="idp-image" src="images/login-icon.png" data-toggle="tooltip"
-                                         data-placement="top" title="Sign in with <%=idpName%>"/>
+                                         data-placement="top" title="Sign in with <%=Encode.forHtmlContent(idpName)%>"/>
                                 </a>
                                 <%} %>
                                 <%
                                 } else if (localAuthenticatorNames.size() > 0) {
                                     if (localAuthenticatorNames.contains("IWAAuthenticator")) {
                                 %>
-                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpEntry.getKey())%>',
+                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(Encode.
+                                forUriComponent(idpEntry.getKey()))%>',
                                         'IWAAuthenticator')" class="main-link" style="cursor:pointer">
                                     <img class="idp-image" src="images/login-icon.png" data-toggle="tooltip"
                                          data-placement="top" title="Sign in with IWA"/>
@@ -216,7 +216,8 @@
                                     }
                                     if (localAuthenticatorNames.contains("FIDOAuthenticator")) {
                                 %>
-                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpEntry.getKey())%>',
+                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(Encode.
+                                forUriComponent(idpEntry.getKey()))%>',
                                         'FIDOAuthenticator')" class="main-link" style="cursor:pointer">
                                     <img class="idp-image" src="images/login-icon.png" data-toggle="tooltip"
                                          data-placement="top" title="Sign in with FIDO"/>
