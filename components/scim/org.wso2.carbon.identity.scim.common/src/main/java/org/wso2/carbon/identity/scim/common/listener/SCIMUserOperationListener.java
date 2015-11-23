@@ -69,7 +69,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                       UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable()) {
+        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
             return true;
         }
 
@@ -124,7 +124,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                 Map<String, String> claims, String profile,
                                 UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable()) {
+        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
             return true;
         }
         claims = this.getSCIMAttributes(userName, claims);
@@ -164,7 +164,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                                  UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable()) {
+        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
             return true;
         }
 
@@ -227,7 +227,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                             String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable()) {
+        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
             return true;
         }
 
@@ -287,7 +287,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                  org.wso2.carbon.user.api.Permission[] permissions,
                                  UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable()) {
+        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
             return true;
         }
 
@@ -327,7 +327,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable()) {
+        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
             return true;
         }
 
@@ -372,7 +372,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                         UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable()) {
+        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
             return true;
         }
 
