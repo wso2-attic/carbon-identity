@@ -191,7 +191,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
     public boolean doPreDeleteUser(String userName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        return true;
+            return true;
 
     }
 
@@ -413,7 +413,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                               String[] newUsers, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        return true;
+            return true;
 
     }
 
