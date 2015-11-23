@@ -149,7 +149,9 @@ public class IdentityUtil {
             strValue = (String) value;
         }
 
-        strValue = fillURLPlaceholders(strValue);
+        if(StringUtils.isNotEmpty(strValue)){
+            strValue = fillURLPlaceholders(strValue);
+        }
 
         return strValue;
     }
