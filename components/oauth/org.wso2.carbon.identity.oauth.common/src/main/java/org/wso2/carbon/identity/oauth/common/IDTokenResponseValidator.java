@@ -53,4 +53,9 @@ public class IDTokenResponseValidator extends AbstractValidator<HttpServletReque
                     .description("Method not correct.");
         }
     }
+
+    @Override
+    public void validateContentType(HttpServletRequest request) throws OAuthProblemException {
+    }
+
 }
