@@ -126,8 +126,8 @@ public class DefaultStepHandler implements StepHandler {
 
             try {
                 response.sendRedirect(redirectURL
-                                      + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
-                                      + URLEncoder.encode(authenticatorNames, "UTF-8") + "&hrd=true");
+                        + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
+                        + URLEncoder.encode(authenticatorNames, "UTF-8") + "&hrd=true");
             } catch (IOException e) {
                 throw new FrameworkException(e.getMessage(), e);
             }
@@ -256,8 +256,8 @@ public class DefaultStepHandler implements StepHandler {
             //SP hasn't specified a domain. We assume it wants to get the domain from the user
             try {
                 response.sendRedirect(redirectURL
-                                      + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
-                                      + URLEncoder.encode(authenticatorNames, "UTF-8") + "&hrd=true");
+                        + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
+                        + URLEncoder.encode(authenticatorNames, "UTF-8") + "&hrd=true");
             } catch (IOException e) {
                 throw new FrameworkException(e.getMessage(), e);
             }
@@ -319,8 +319,8 @@ public class DefaultStepHandler implements StepHandler {
 
         try {
             response.sendRedirect(redirectURL + ("?" + context.getContextIdIncludedQueryParams())
-                                  + "&authenticators=" + URLEncoder.encode(authenticatorNames, "UTF-8") + "&authFailure=true"
-                                  + "&authFailureMsg=" + errorMsg + "&hrd=true");
+                    + "&authenticators=" + URLEncoder.encode(authenticatorNames, "UTF-8") + "&authFailure=true"
+                    + "&authFailureMsg=" + errorMsg + "&hrd=true");
         } catch (IOException e) {
             throw new FrameworkException(e.getMessage(), e);
         }
