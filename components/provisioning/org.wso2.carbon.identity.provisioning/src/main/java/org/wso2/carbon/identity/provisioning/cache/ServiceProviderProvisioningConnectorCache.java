@@ -19,17 +19,15 @@
 package org.wso2.carbon.identity.provisioning.cache;
 
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
-import org.wso2.carbon.identity.application.common.cache.CacheKey;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 
-public class ServiceProviderProvisioningConnectorCache extends BaseCache<CacheKey, CacheEntry> {
+public class ServiceProviderProvisioningConnectorCache extends
+        BaseCache<ServiceProviderProvisioningConnectorCacheKey, ServiceProviderProvisioningConnectorCacheEntry> {
 
     private static volatile ServiceProviderProvisioningConnectorCache instance;
 
-    public ServiceProviderProvisioningConnectorCache(String cacheName) {
-        super(cacheName);
-
+    private ServiceProviderProvisioningConnectorCache() {
+        super(IdentityProvisioningConstants.PropertyConfig.IDENTITY_PROVISIONING_SP_CONNECTOR_CACHE_NAME);
     }
 
     /**
@@ -38,27 +36,11 @@ public class ServiceProviderProvisioningConnectorCache extends BaseCache<CacheKe
     public static ServiceProviderProvisioningConnectorCache getInstance() {
         if (instance == null) {
             synchronized (ProvisioningConnectorCache.class) {
-
                 if (instance == null) {
-                    instance = new ServiceProviderProvisioningConnectorCache(IdentityProvisioningConstants.PropertyConfig.IDENTITY_PROVISIONING_SP_CONNECTOR_CACHE_NAME);
+                    instance = new ServiceProviderProvisioningConnectorCache();
                 }
             }
         }
         return instance;
-    }
-
-    @Override
-    public void addToCache(CacheKey key, CacheEntry entry) {
-        super.addToCache(key, entry);
-    }
-
-    @Override
-    public CacheEntry getValueFromCache(CacheKey key) {
-        return super.getValueFromCache(key);
-    }
-
-    @Override
-    public void clearCacheEntry(CacheKey key) {
-        super.clearCacheEntry(key);
     }
 }

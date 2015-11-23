@@ -60,7 +60,6 @@ import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.config.SecurityServiceAdmin;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -683,8 +682,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
             IdentityServiceProviderCacheKey cacheKey = new IdentityServiceProviderCacheKey(
                     tenantDomain, serviceProviderName);
-            IdentityServiceProviderCacheEntry entry = ((IdentityServiceProviderCacheEntry) IdentityServiceProviderCache
-                    .getInstance().getValueFromCache(cacheKey));
+            IdentityServiceProviderCacheEntry entry = IdentityServiceProviderCache.getInstance().
+                    getValueFromCache(cacheKey);
 
             if (entry != null) {
                 return entry.getServiceProvider();

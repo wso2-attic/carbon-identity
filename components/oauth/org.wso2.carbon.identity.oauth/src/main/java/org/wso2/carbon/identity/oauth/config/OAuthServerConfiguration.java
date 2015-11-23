@@ -102,7 +102,6 @@ public class OAuthServerConfiguration {
     private int sessionDataCacheTimeout = -1;
     private int authorizationGrantCacheTimeout = -1;
     private int appInfoCacheTimeout = -1;
-    private int claimCacheTimeout = -1;
     private String tokenPersistenceProcessorClassName = "org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor";
     private boolean cacheEnabled = true;
     private boolean isRefreshTokenRenewalEnabled = true;
@@ -299,10 +298,6 @@ public class OAuthServerConfiguration {
 
     public int getAppInfoCacheTimeout() {
         return appInfoCacheTimeout;
-    }
-
-    public int getClaimCacheTimeout(){
-        return claimCacheTimeout;
     }
 
     public long getRefreshTokenValidityPeriodInSeconds() {
@@ -883,12 +878,6 @@ public class OAuthServerConfiguration {
                 getQNameWithIdentityNS(ConfigElements.SESSION_DATA_CACHE_TIMEOUT));
         if (appInfoCacheTimeoutElem != null) {
             sessionDataCacheTimeout = Integer.parseInt(sessionDataCacheTimeoutElem.getText());
-        }
-
-        OMElement claimCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
-                getQNameWithIdentityNS(ConfigElements.AUTHORIZATION_GRANT_CACHE_TIMEOUT));
-        if (appInfoCacheTimeoutElem != null) {
-            claimCacheTimeout = Integer.parseInt(claimCacheTimeoutElem.getText());
         }
 
         if (log.isDebugEnabled()) {
