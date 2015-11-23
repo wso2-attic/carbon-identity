@@ -69,8 +69,12 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                       UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
-            return true;
+        try {
+            if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
+                return true;
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error while reading isScimEnabled from userstore manager", e);
         }
 
         String domainName = userStoreManager.getRealmConfiguration().getUserStoreProperty(
@@ -124,8 +128,12 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                 Map<String, String> claims, String profile,
                                 UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
-            return true;
+        try {
+            if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
+                return true;
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error while reading isScimEnabled from userstore manager", e);
         }
         claims = this.getSCIMAttributes(userName, claims);
         return true;
@@ -164,8 +172,12 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                                  UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
-            return true;
+        try {
+            if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
+                return true;
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error while reading isScimEnabled from userstore manager", e);
         }
 
         //update last-modified-date
@@ -227,8 +239,12 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                             String profileName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
-            return true;
+        try {
+            if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
+                return true;
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error while reading isScimEnabled from userstore manager", e);
         }
 
         String newUserName = claims.get("urn:scim:schemas:core:1.0:userName");
@@ -287,8 +303,12 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                  org.wso2.carbon.user.api.Permission[] permissions,
                                  UserStoreManager userStoreManager) throws UserStoreException {
 
-        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
-            return true;
+        try {
+            if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
+                return true;
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error while reading isScimEnabled from userstore manager", e);
         }
 
         try {
@@ -327,8 +347,12 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
     public boolean doPreDeleteRole(String roleName, UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
-            return true;
+        try {
+            if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
+                return true;
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error while reading isScimEnabled from userstore manager", e);
         }
 
         try {
@@ -372,8 +396,12 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
                                         UserStoreManager userStoreManager)
             throws UserStoreException {
 
-        if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
-            return true;
+        try {
+            if (!isEnable() || !userStoreManager.isSCIMEnabled()) {
+                return true;
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error while reading isScimEnabled from userstore manager", e);
         }
 
         try {
