@@ -23,7 +23,6 @@ import java.util.Set;
 
 public class WFConstant {
 
-    public static final String DEFAULT_BPS_PROFILE = "embeded_bps";
     public static final String REQUEST_ID = "REQUEST ID";
 
     public static final String HT_STATE_SKIPPED = "SKIPPED";

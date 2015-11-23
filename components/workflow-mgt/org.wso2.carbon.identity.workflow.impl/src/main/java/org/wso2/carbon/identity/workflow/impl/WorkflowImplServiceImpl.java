@@ -23,6 +23,8 @@ import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
+import org.apache.axiom.om.util.AXIOMUtil;
+import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.databinding.types.NCName;
@@ -30,6 +32,7 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.bpel.stub.mgt.BPELPackageManagementServiceStub;
 import org.wso2.carbon.bpel.stub.mgt.PackageManagementException;
 import org.wso2.carbon.bpel.stub.mgt.ProcessManagementException;
@@ -109,9 +112,6 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         if (bpsProfileDTO.getPassword() == null || bpsProfileDTO.getPassword().isEmpty()) {
             bpsProfileDTO.setPassword(currentBpsProfile.getPassword());
         }
-        if (bpsProfileDTO.getCallbackPassword() == null || bpsProfileDTO.getCallbackPassword().isEmpty()) {
-            bpsProfileDTO.setCallbackPassword(currentBpsProfile.getCallbackPassword());
-        }
         bpsProfileDAO.updateProfile(bpsProfileDTO, tenantId);
     }
 
@@ -138,7 +138,24 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                 URL servicesUrl = new URL(new URL(host), WFImplConstant.HT_SERVICES_URL);
                 stub = new HumanTaskClientAPIAdminStub(servicesUrl.toString());
                 ServiceClient client = stub._getServiceClient();
-                authenticate(client, bpsProfiles.get(i).getUsername(), bpsProfiles.get(i).getPassword());
+                if (bpsProfiles.get(i).getProfileName().equals(WFImplConstant.DEFAULT_BPS_PROFILE_NAME)) {
+                    System.setProperty(WFImplConstant.KEYSTORE_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
+                            .getFirstProperty(WFImplConstant.KEYSTORE_CARBON_CONFIG_PATH));
+                    System.setProperty(WFImplConstant.KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID, ServerConfiguration
+                            .getInstance()
+                            .getFirstProperty(WFImplConstant.KEYSTORE_PASSWORD_CARBON_CONFIG_PATH));
+                    OMElement mutualSSLHeader;
+                    try {
+                        String headerString = WFImplConstant.MUTUAL_SSL_HEADER.replaceAll("\\$username", bpsProfiles
+                                .get(i).getUsername());
+                        mutualSSLHeader = AXIOMUtil.stringToOM(headerString);
+                        client.addHeader(mutualSSLHeader);
+                    } catch (XMLStreamException e) {
+                        throw new AxisFault("Error while creating mutualSSLHeader XML Element.", e);
+                    }
+                } else {
+                    authenticate(client, bpsProfiles.get(i).getUsername(), bpsProfiles.get(i).getPassword());
+                }
                 TTaskSimpleQueryResultSet results = stub.simpleQuery(input);
                 TTaskSimpleQueryResultRow[] arr = results.getRow();
                 for (int j = 0; j < arr.length; j++) {
@@ -208,12 +225,30 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             URL bpsPackageServicesUrl = new URL(new URL(host), WFImplConstant.BPS_PACKAGE_SERVICES_URL);
             bpsPackagestub = new BPELPackageManagementServiceStub(bpsPackageServicesUrl.toString());
             ServiceClient bpsPackageClient = bpsPackagestub._getServiceClient();
-            authenticate(bpsPackageClient, bpsProfile.getUsername(), bpsProfile.getPassword());
 
             URL bpsProcessServicesUrl = new URL(new URL(host), WFImplConstant.BPS_PROCESS_SERVICES_URL);
             bpsProcessStub = new ProcessManagementServiceStub(bpsProcessServicesUrl.toString());
             ServiceClient bpsProcessClient = bpsProcessStub._getServiceClient();
-            authenticate(bpsProcessClient, bpsProfile.getUsername(), bpsProfile.getPassword());
+            if (bpsProfileName.equals(WFImplConstant.DEFAULT_BPS_PROFILE_NAME)) {
+                System.setProperty(WFImplConstant.KEYSTORE_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
+                        .getFirstProperty(WFImplConstant.KEYSTORE_CARBON_CONFIG_PATH));
+                System.setProperty(WFImplConstant.KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID, ServerConfiguration
+                        .getInstance()
+                        .getFirstProperty(WFImplConstant.KEYSTORE_PASSWORD_CARBON_CONFIG_PATH));
+                OMElement mutualSSLHeader;
+                try {
+                    String headerString = WFImplConstant.MUTUAL_SSL_HEADER.replaceAll("\\$username", bpsProfile
+                            .getUsername());
+                    mutualSSLHeader = AXIOMUtil.stringToOM(headerString);
+                    bpsProcessClient.addHeader(mutualSSLHeader);
+                    bpsPackageClient.addHeader(mutualSSLHeader);
+                } catch (XMLStreamException e) {
+                    throw new AxisFault("Error while creating mutualSSLHeader XML Element.", e);
+                }
+            } else {
+                authenticate(bpsProcessClient, bpsProfile.getUsername(), bpsProfile.getPassword());
+                authenticate(bpsPackageClient, bpsProfile.getUsername(), bpsProfile.getPassword());
+            }
 
             DeployedPackagesPaginated deployedPackagesPaginated =
                     bpsPackagestub.listDeployedPackagesPaginated(0, workflow.getWorkflowName());

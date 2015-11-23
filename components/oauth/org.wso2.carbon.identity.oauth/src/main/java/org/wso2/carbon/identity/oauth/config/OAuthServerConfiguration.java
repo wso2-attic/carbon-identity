@@ -23,6 +23,9 @@ import org.apache.axis2.util.JavaUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.as.issuer.MD5Generator;
+import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
+import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.oltu.oauth2.as.validator.AuthorizationCodeValidator;
 import org.apache.oltu.oauth2.as.validator.ClientCredentialValidator;
 import org.apache.oltu.oauth2.as.validator.CodeValidator;
@@ -52,6 +55,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -104,6 +108,8 @@ public class OAuthServerConfiguration {
     private int appInfoCacheTimeout = -1;
     private int claimCacheTimeout = -1;
     private String tokenPersistenceProcessorClassName = "org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor";
+    private String oauthTokenGeneratorClassName;
+    private OAuthIssuer oauthTokenGenerator;
     private boolean cacheEnabled = true;
     private boolean isRefreshTokenRenewalEnabled = true;
     private boolean assertionsUserNameEnabled = false;
@@ -230,6 +236,9 @@ public class OAuthServerConfiguration {
 
         // read openid connect configurations
         parseOpenIDConnectConfig(oauthElem);
+        
+        // parse OAuth 2.0 token generator
+        parseOAuthTokenGeneratorConfig(oauthElem);
     }
 
     public Set<OAuthCallbackHandlerMetaData> getCallbackHandlerMetaData() {
@@ -258,6 +267,39 @@ public class OAuthServerConfiguration {
 
     public String getOauth2UserInfoEPUrl() {
         return oauth2UserInfoEPUrl;
+    }
+    
+    /**
+     * instantiate the OAuth token generator. to override the default implementation, one can specify the custom class
+     * in the identity.xml.
+     * 
+     * @return
+     */
+    public OAuthIssuer getOAuthTokenGenerator() {
+
+	if (oauthTokenGenerator == null) {
+	    synchronized (this) {
+		if (oauthTokenGenerator == null) {
+		    try {
+			if (oauthTokenGeneratorClassName != null) {
+			    Class clazz = this.getClass().getClassLoader().loadClass(oauthTokenGeneratorClassName);
+			    oauthTokenGenerator = (OAuthIssuer) clazz.newInstance();
+			    log.info("An instance of " + oauthTokenGeneratorClassName
+				    + " is created for OAuth token generation.");
+			} else {
+			    oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
+			    log.info("The default OAuth token issuer will be used. No custom token generator is set.");
+			}
+		    } catch (Exception e) {
+			String errorMsg = "Error when instantiating the OAuthIssuer : "
+				+ tokenPersistenceProcessorClassName + ". Defaulting to OAuthIssuerImpl";
+			log.error(errorMsg, e);
+			oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
+		    }
+		}
+	    }
+	}
+	return oauthTokenGenerator;
     }
 
     public String getOIDCConsentPageUrl() {
@@ -1067,6 +1109,27 @@ public class OAuthServerConfiguration {
         }
 
     }
+    
+    /**
+     * parse the configuration to load the class name of the OAuth 2.0 token generator.
+     * this is a global configuration at the moment.
+     * @param oauthConfigElem
+     */
+    private void parseOAuthTokenGeneratorConfig(OMElement oauthConfigElem) {
+
+	OMElement tokenGeneratorClassConfigElem = oauthConfigElem
+		.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.OAUTH_TOKEN_GENERATOR));
+	if (tokenGeneratorClassConfigElem != null && !"".equals(tokenGeneratorClassConfigElem.getText().trim())) {
+	    oauthTokenGeneratorClassName = tokenGeneratorClassConfigElem.getText().trim();
+	    if (log.isDebugEnabled()) {
+		log.debug("OAuth token generator is set to : " + oauthTokenGeneratorClassName);
+	    }
+	} else {
+	    if (log.isDebugEnabled()) {
+		log.debug("The default OAuth token issuer will be used. No custom token generator is set.");
+	    }
+	}
+    }
 
     private void parseSupportedGrantTypesConfig(OMElement oauthConfigElem) {
 
@@ -1169,8 +1232,8 @@ public class OAuthServerConfiguration {
             Map<String, String> defaultResponseTypes = new HashMap<>(4);
             defaultResponseTypes.put(ResponseType.CODE.toString(), "org.wso2.carbon.identity.oauth2.authz.handlers.CodeResponseTypeHandler");
             defaultResponseTypes.put(ResponseType.TOKEN.toString(), "org.wso2.carbon.identity.oauth2.authz.handlers.TokenResponseTypeHandler");
-            defaultResponseTypes.put("id_token", "org.wso2.carbon.identity.oauth.common.IDTokenResponseValidator");
-            defaultResponseTypes.put("id_token token", "org.wso2.carbon.identity.oauth.common.IDTokenTokenResponseValidator");
+            defaultResponseTypes.put("id_token", "org.wso2.carbon.identity.oauth2.authz.handlers.TokenResponseTypeHandler");
+            defaultResponseTypes.put("id_token token", "org.wso2.carbon.identity.oauth2.authz.handlers.TokenResponseTypeHandler");
             supportedResponseTypeClassNames.putAll(defaultResponseTypes);
         }
 
@@ -1453,6 +1516,9 @@ public class OAuthServerConfiguration {
         private static final String RENEW_REFRESH_TOKEN_FOR_REFRESH_GRANT = "RenewRefreshTokenForRefreshGrant";
         // TokenPersistenceProcessor
         private static final String TOKEN_PERSISTENCE_PROCESSOR = "TokenPersistenceProcessor";
+        // Token issuer generator.
+        private static final String OAUTH_TOKEN_GENERATOR = "OAuthTokenGenerator";
+
         // Supported Grant Types
         private static final String SUPPORTED_GRANT_TYPES = "SupportedGrantTypes";
         private static final String SUPPORTED_GRANT_TYPE = "SupportedGrantType";

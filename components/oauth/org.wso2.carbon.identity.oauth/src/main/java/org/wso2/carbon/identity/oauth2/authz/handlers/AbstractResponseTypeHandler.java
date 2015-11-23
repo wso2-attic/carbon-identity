@@ -22,9 +22,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.as.issuer.MD5Generator;
+import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
+import org.apache.oltu.oauth2.common.utils.OAuthUtils;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.callback.OAuthCallback;
@@ -40,7 +42,7 @@ public abstract class AbstractResponseTypeHandler implements ResponseTypeHandler
     private static Log log = LogFactory.getLog(AbstractResponseTypeHandler.class);
 
     public static final String IMPLICIT = "implicit";
-    protected OAuthIssuerImpl oauthIssuerImpl;
+    protected OAuthIssuer oauthIssuerImpl;
     protected TokenMgtDAO tokenMgtDAO;
     protected boolean cacheEnabled;
     protected OAuthCache oauthCache;
@@ -49,7 +51,7 @@ public abstract class AbstractResponseTypeHandler implements ResponseTypeHandler
     @Override
     public void init() throws IdentityOAuth2Exception {
         callbackManager = new OAuthCallbackManager();
-        oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
+        oauthIssuerImpl = OAuthServerConfiguration.getInstance().getOAuthTokenGenerator();
         tokenMgtDAO = new TokenMgtDAO();
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
             cacheEnabled = true;
@@ -91,8 +93,7 @@ public abstract class AbstractResponseTypeHandler implements ResponseTypeHandler
         OAuthCallback authzCallback = new OAuthCallback(authorizationReqDTO.getUsername(),
                 authorizationReqDTO.getConsumerKey(), OAuthCallback.OAuthCallbackType.ACCESS_DELEGATION_AUTHZ);
         authzCallback.setRequestedScope(authorizationReqDTO.getScopes());
-        authzCallback.setResponseType(ResponseType.valueOf(authorizationReqDTO.getResponseType()
-                .toUpperCase()));
+        authzCallback.setResponseType(authorizationReqDTO.getResponseType());
         callbackManager.handleCallback(authzCallback);
 
         oauthAuthzMsgCtx.setValidityPeriod(authzCallback.getValidityPeriod());
@@ -105,8 +106,7 @@ public abstract class AbstractResponseTypeHandler implements ResponseTypeHandler
         OAuthCallback scopeValidationCallback = new OAuthCallback(authorizationReqDTO.getUsername(),
                 authorizationReqDTO.getConsumerKey(), OAuthCallback.OAuthCallbackType.SCOPE_VALIDATION_AUTHZ);
         scopeValidationCallback.setRequestedScope(authorizationReqDTO.getScopes());
-        scopeValidationCallback.setResponseType(ResponseType.valueOf(authorizationReqDTO.getResponseType()
-                .toUpperCase()));
+        scopeValidationCallback.setResponseType(authorizationReqDTO.getResponseType());
 
         callbackManager.handleCallback(scopeValidationCallback);
 

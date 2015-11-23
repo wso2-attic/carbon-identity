@@ -52,14 +52,11 @@ public class BPSProfileDAO {
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_BPS_PROFILE_QUERY;
         String password = bpsProfileDTO.getPassword();
-        String callbackPassword = bpsProfileDTO.getCallbackPassword();
         String profileName = bpsProfileDTO.getProfileName();
         String encryptedPassword;
-        String encryptedCallBackPassword;
 
         try {
             encryptedPassword = encryptPassword(password);
-            encryptedCallBackPassword = encryptPassword(callbackPassword);
         } catch (CryptoException e) {
             throw new WorkflowImplException("Error while encrypting the passwords of BPS Profile: " + profileName, e);
         }
@@ -71,9 +68,7 @@ public class BPSProfileDAO {
             prepStmt.setString(3, bpsProfileDTO.getWorkerHostURL());
             prepStmt.setString(4, bpsProfileDTO.getUsername());
             prepStmt.setString(5, encryptedPassword);
-            prepStmt.setString(6, bpsProfileDTO.getCallbackUser());
-            prepStmt.setString(7, encryptedCallBackPassword);
-            prepStmt.setInt(8, tenantId);
+            prepStmt.setInt(6, tenantId);
             prepStmt.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
@@ -98,14 +93,11 @@ public class BPSProfileDAO {
         PreparedStatement prepStmt = null;
         String query = SQLConstants.UPDATE_BPS_PROFILE_QUERY;
         String password = bpsProfile.getPassword();
-        String callbackPassword = bpsProfile.getCallbackPassword();
         String profileName = bpsProfile.getProfileName();
         String encryptedPassword;
-        String encryptedCallBackPassword;
 
         try {
             encryptedPassword = encryptPassword(password);
-            encryptedCallBackPassword = encryptPassword(callbackPassword);
         } catch (CryptoException e) {
             throw new WorkflowImplException("Error while encrypting the passwords of BPS Profile: " + profileName, e);
         }
@@ -116,10 +108,8 @@ public class BPSProfileDAO {
             prepStmt.setString(2, bpsProfile.getWorkerHostURL());
             prepStmt.setString(3, bpsProfile.getUsername());
             prepStmt.setString(4, encryptedPassword);
-            prepStmt.setString(5, bpsProfile.getCallbackUser());
-            prepStmt.setString(6, encryptedCallBackPassword);
-            prepStmt.setInt(7, tenantId);
-            prepStmt.setString(8, bpsProfile.getProfileName());
+            prepStmt.setInt(5, tenantId);
+            prepStmt.setString(6, bpsProfile.getProfileName());
 
             prepStmt.executeUpdate();
             connection.commit();
@@ -163,29 +153,24 @@ public class BPSProfileDAO {
                 String managerHostName = rs.getString(SQLConstants.HOST_URL_MANAGER_COLUMN);
                 String workerHostName = rs.getString(SQLConstants.HOST_URL_WORKER_COLUMN);
                 String user = rs.getString(SQLConstants.USERNAME_COLUMN);
-                String callbackUser = rs.getString(SQLConstants.CALLBACK_USER_COLUMN);
 
                 bpsProfileDTO = new BPSProfile();
                 bpsProfileDTO.setProfileName(profileName);
                 bpsProfileDTO.setManagerHostURL(managerHostName);
                 bpsProfileDTO.setWorkerHostURL(workerHostName);
                 bpsProfileDTO.setUsername(user);
-                bpsProfileDTO.setCallbackUser(callbackUser);
 
                 if (isWithPasswords) {
                     String password = rs.getString(SQLConstants.PASSWORD_COLUMN);
-                    String callbackPassword = rs.getString(SQLConstants.CALLBACK_PASSWORD_COLUMN);
 
                     try {
                         decryptedPassword = decryptPassword(password);
-                        decryptedCallBackPassword = decryptPassword(callbackPassword);
 
                     } catch (CryptoException | UnsupportedEncodingException e) {
                         throw new WorkflowImplException("Error while decrypting the password for BPEL Profile"
                                 + " " + profileName, e);
                     }
                     bpsProfileDTO.setPassword(decryptedPassword);
-                    bpsProfileDTO.setCallbackPassword(decryptedCallBackPassword);
                 }
 
             }
@@ -213,7 +198,6 @@ public class BPSProfileDAO {
         List<BPSProfile> profiles = new ArrayList<>();
         String query = SQLConstants.LIST_BPS_PROFILES_QUERY;
         String decryptPassword;
-        String decryptCallBackPassword;
         CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
         try {
             Object classCheckresult = null;
@@ -233,15 +217,10 @@ public class BPSProfileDAO {
                 String managerHostName = rs.getString(SQLConstants.HOST_URL_MANAGER_COLUMN);
                 String workerHostName = rs.getString(SQLConstants.HOST_URL_WORKER_COLUMN);
                 String user = rs.getString(SQLConstants.USERNAME_COLUMN);
-                String callbackUser = rs.getString(SQLConstants.CALLBACK_USER_COLUMN);
                 String password = rs.getString(SQLConstants.PASSWORD_COLUMN);
-                String callbackPassword = rs.getString(SQLConstants.CALLBACK_PASSWORD_COLUMN);
                 try {
                     byte[] decryptedPasswordBytes = cryptoUtil.base64DecodeAndDecrypt(password);
                     decryptPassword = new String(decryptedPasswordBytes, "UTF-8");
-                    byte[] decryptedCallBackPasswordBytes = cryptoUtil.base64DecodeAndDecrypt(callbackPassword);
-                    decryptCallBackPassword = new String(decryptedCallBackPasswordBytes, "UTF-8");
-
                 } catch (CryptoException | UnsupportedEncodingException e) {
                     throw new WorkflowImplException("Error while decrypting the password for BPEL Profile" + " " +
                                                     name, e);
@@ -252,8 +231,6 @@ public class BPSProfileDAO {
                 profileBean.setProfileName(name);
                 profileBean.setUsername(user);
                 profileBean.setPassword(decryptPassword);
-                profileBean.setCallbackPassword(decryptCallBackPassword);
-                profileBean.setCallbackUser(callbackUser);
                 profiles.add(profileBean);
             }
         } catch (SQLException e) {
