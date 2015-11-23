@@ -556,12 +556,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         PreparedStatement inboundProConfigPrepStmt = null;
 
         try {
-            if (inBoundProvisioningConfig == null
-                    || inBoundProvisioningConfig.getProvisioningUserStore() == null) {
-                // no in-bound authentication requests defined.
-                return;
-            }
-
             inboundProConfigPrepStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.UPDATE_BASIC_APPINFO_WITH_PRO_PROPERTIES);
 
@@ -875,17 +869,19 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     }
 
                     IdentityProvider fedIdp = authSteps[0].getFederatedIdentityProviders()[0];
-                    IdentityProviderDAO idpDAO = ApplicationMgtSystemConfig.getInstance()
-                            .getIdentityProviderDAO();
 
-                    String defualtAuthName = idpDAO.getDefaultAuthenticator(fedIdp
-                            .getIdentityProviderName());
+                    if (fedIdp.getDefaultAuthenticatorConfig() == null || fedIdp.getFederatedAuthenticatorConfigs() == null) {
+                        IdentityProviderDAO idpDAO = ApplicationMgtSystemConfig.getInstance().getIdentityProviderDAO();
 
-                    // set the default authenticator.
-                    FederatedAuthenticatorConfig defaultAuth = new FederatedAuthenticatorConfig();
-                    defaultAuth.setName(defualtAuthName);
-                    fedIdp.setDefaultAuthenticatorConfig(defaultAuth);
-                    fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{defaultAuth});
+                        String defualtAuthName = idpDAO.getDefaultAuthenticator(fedIdp
+                                .getIdentityProviderName());
+
+                        // set the default authenticator.
+                        FederatedAuthenticatorConfig defaultAuth = new FederatedAuthenticatorConfig();
+                        defaultAuth.setName(defualtAuthName);
+                        fedIdp.setDefaultAuthenticatorConfig(defaultAuth);
+                        fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{defaultAuth});
+                    }
                 }
 
                 // iterating through each step.

@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
@@ -35,6 +36,7 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeRespDTO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
+import org.wso2.carbon.identity.openidconnect.IDTokenBuilder;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -61,7 +63,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
 
         String responseType = oauthAuthzMsgCtx.getAuthorizationReqDTO().getResponseType();
 
-        String grantType = StringUtils.equals(OAuthConstants.GrantTypes.TOKEN, responseType) ?
+        String grantType = StringUtils.contains(responseType, OAuthConstants.GrantTypes.TOKEN) ?
                 OAuthConstants.GrantTypes.IMPLICIT : responseType;
 
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
@@ -116,6 +118,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         }
                         respDTO.setScope(oauthAuthzMsgCtx.getApprovedScope());
                         respDTO.setTokenType(accessTokenDO.getTokenType());
+                        buildIdToken(oauthAuthzMsgCtx, respDTO);
                         return respDTO;
                     } else {
 
@@ -191,6 +194,8 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                     respDTO.setScope(oauthAuthzMsgCtx.getApprovedScope());
                     respDTO.setTokenType(existingAccessTokenDO.getTokenType());
 
+                    buildIdToken(oauthAuthzMsgCtx, respDTO);
+
                     return respDTO;
 
                 } else {
@@ -234,32 +239,6 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                 }
             }
 
-            // issue a new access token
-            String accessToken;
-
-            try {
-                accessToken = oauthIssuerImpl.accessToken();
-
-                // regenerate only if refresh token is null
-                if(refreshToken == null) {
-                    refreshToken = oauthIssuerImpl.refreshToken();
-                }
-
-            } catch (OAuthSystemException e) {
-                throw new IdentityOAuth2Exception(
-                        "Error occurred while generating access token and refresh token", e);
-            }
-
-            if (OAuth2Util.checkUserNameAssertionEnabled()) {
-                String userName = oauthAuthzMsgCtx.getAuthorizationReqDTO().getUsername();
-                //use ':' for token & userStoreDomain separation
-                String accessTokenStrToEncode = accessToken + ":" + userName;
-                accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes(Charsets.UTF_8));
-
-                String refreshTokenStrToEncode = refreshToken + ":" + userName;
-                refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes(Charsets.UTF_8));
-            }
-
             Timestamp timestamp = new Timestamp(new Date().getTime());
 
             // if reusing existing refresh token, use its original issued time
@@ -282,6 +261,45 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             if(refreshTokenValidityPeriodInMillis == 0) {
                 refreshTokenValidityPeriodInMillis = OAuthServerConfiguration.getInstance()
                         .getRefreshTokenValidityPeriodInSeconds() * 1000;
+            }
+            
+            // issue a new access token
+            String accessToken;
+            
+            // set the validity period. this is needed by downstream handlers.
+            // if this is set before - then this will override it by the calculated new value.
+            oauthAuthzMsgCtx.setValidityPeriod(validityPeriodInMillis);
+            
+            // set the refresh token validity period. this is needed by downstream handlers.
+            // if this is set before - then this will override it by the calculated new value.
+            oauthAuthzMsgCtx.setRefreshTokenvalidityPeriod(refreshTokenValidityPeriodInMillis);
+            
+            // set access token issued time.this is needed by downstream handlers.
+            oauthAuthzMsgCtx.setAccessTokenIssuedTime(timestamp.getTime());
+            
+            // set refresh token issued time.this is needed by downstream handlers.
+            oauthAuthzMsgCtx.setRefreshTokenIssuedTime(refreshTokenIssuedTime.getTime());
+
+	    try {
+		accessToken = oauthIssuerImpl.accessToken();
+
+		// regenerate only if refresh token is null
+		if (refreshToken == null) {
+		    refreshToken = oauthIssuerImpl.refreshToken();
+		}
+
+	    } catch (OAuthSystemException e) {
+		throw new IdentityOAuth2Exception("Error occurred while generating access token and refresh token", e);
+	    } 
+
+            if (OAuth2Util.checkUserNameAssertionEnabled()) {
+                String userName = oauthAuthzMsgCtx.getAuthorizationReqDTO().getUsername();
+                //use ':' for token & userStoreDomain separation
+                String accessTokenStrToEncode = accessToken + ":" + userName;
+                accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes(Charsets.UTF_8));
+
+                String refreshTokenStrToEncode = refreshToken + ":" + userName;
+                refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes(Charsets.UTF_8));
             }
 
             AccessTokenDO newAccessTokenDO = new AccessTokenDO(consumerKey, OAuth2Util.getUserFromUserName
@@ -325,17 +343,31 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                 }
             }
 
-            respDTO.setAccessToken(accessToken);
+            if(StringUtils.contains(responseType, ResponseType.TOKEN.toString())) {
+                respDTO.setAccessToken(accessToken);
 
-            if(validityPeriodInMillis > 0){
-                respDTO.setValidityPeriod(newAccessTokenDO.getValidityPeriod());
-            } else {
-                respDTO.setValidityPeriod(Long.MAX_VALUE / 1000);
+                if (validityPeriodInMillis > 0) {
+                    respDTO.setValidityPeriod(newAccessTokenDO.getValidityPeriod());
+                } else {
+                    respDTO.setValidityPeriod(Long.MAX_VALUE / 1000);
+                }
+
+                respDTO.setScope(newAccessTokenDO.getScope());
+                respDTO.setTokenType(newAccessTokenDO.getTokenType());
             }
+        }
 
-            respDTO.setScope(newAccessTokenDO.getScope());
-            respDTO.setTokenType(newAccessTokenDO.getTokenType());
-            return respDTO;
+        buildIdToken(oauthAuthzMsgCtx, respDTO);
+        return respDTO;
+    }
+
+    private void buildIdToken(OAuthAuthzReqMessageContext msgCtx, OAuth2AuthorizeRespDTO authzRespDTO)
+            throws IdentityOAuth2Exception{
+
+        if (StringUtils.contains(msgCtx.getAuthorizationReqDTO().getResponseType(), "id_token") &&
+                msgCtx.getApprovedScope() != null && OAuth2Util.isOIDCAuthzRequest(msgCtx.getApprovedScope())) {
+            IDTokenBuilder builder = OAuthServerConfiguration.getInstance().getOpenIDConnectIDTokenBuilder();
+            authzRespDTO.setIdToken(builder.buildIDToken(msgCtx, authzRespDTO));
         }
     }
 }

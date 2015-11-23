@@ -404,6 +404,14 @@ public class IdentityProviderManager {
             passiveSTSUrlProp.setValue(passiveStsUrl);
             propertiesList.add(passiveSTSUrlProp);
         }
+        if (IdentityApplicationManagementUtil.getProperty(passiveSTSFedAuthn.getProperties(),
+                IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID) == null) {
+            Property idPEntityIdProp = new Property();
+            idPEntityIdProp
+                    .setName(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID);
+            idPEntityIdProp.setValue(IdPManagementUtil.getResidentIdPEntityId());
+            propertiesList.add(idPEntityIdProp);
+        }
         passiveSTSFedAuthn
                 .setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
         fedAuthnCofigs.add(passiveSTSFedAuthn);
@@ -584,7 +592,8 @@ public class IdentityProviderManager {
 
         IdentityProviderProperty rememberMeTimeoutProperty = new IdentityProviderProperty();
         String rememberMeTimeout = IdentityUtil.getProperty(IdentityConstants.ServerConfig.REMEMBER_ME_TIME_OUT);
-        if (StringUtils.isBlank(rememberMeTimeout) || !StringUtils.isNumeric(rememberMeTimeout)) {
+        if (StringUtils.isBlank(rememberMeTimeout) || !StringUtils.isNumeric(rememberMeTimeout) ||
+                Integer.parseInt(rememberMeTimeout) <= 0) {
             log.warn("RememberMeTimeout in identity.xml should be a numeric value");
             rememberMeTimeout = IdentityApplicationConstants.REMEMBER_ME_TIME_OUT_DEFAULT;
         }
@@ -593,7 +602,8 @@ public class IdentityProviderManager {
 
         IdentityProviderProperty sessionIdletimeOutProperty = new IdentityProviderProperty();
         String idleTimeout = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SESSION_IDLE_TIMEOUT);
-        if (StringUtils.isBlank(idleTimeout) || !StringUtils.isNumeric(rememberMeTimeout)) {
+        if (StringUtils.isBlank(idleTimeout) || !StringUtils.isNumeric(idleTimeout) ||
+                Integer.parseInt(idleTimeout) <= 0) {
             log.warn("SessionIdleTimeout in identity.xml should be a numeric value");
             idleTimeout = IdentityApplicationConstants.SESSION_IDLE_TIME_OUT_DEFAULT;
         }
@@ -624,6 +634,21 @@ public class IdentityProviderManager {
     public void updateResidentIdP(IdentityProvider identityProvider, String tenantDomain)
             throws IdentityProviderManagementException {
 
+        for (IdentityProviderProperty idpProp : identityProvider.getIdpProperties()) {
+            if (StringUtils.equals(idpProp.getName(), IdentityApplicationConstants.SESSION_IDLE_TIME_OUT)) {
+                if (StringUtils.isBlank(idpProp.getValue()) || !StringUtils.isNumeric(idpProp.getValue()) ||
+                        Integer.parseInt(idpProp.getValue().trim()) <= 0) {
+                    throw new IdentityProviderManagementException(IdentityApplicationConstants.SESSION_IDLE_TIME_OUT
+                            + " of ResidentIdP should be a numeric value greater than 0 ");
+                }
+            } else if (StringUtils.equals(idpProp.getName(), IdentityApplicationConstants.REMEMBER_ME_TIME_OUT)) {
+                if (StringUtils.isBlank(idpProp.getValue()) || !StringUtils.isNumeric(idpProp.getValue()) ||
+                        Integer.parseInt(idpProp.getValue().trim()) <= 0) {
+                    throw new IdentityProviderManagementException(IdentityApplicationConstants.REMEMBER_ME_TIME_OUT
+                            + " of ResidentIdP should be a numeric value greater than 0 ");
+                }
+            }
+        }
         // invoking the pre listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {

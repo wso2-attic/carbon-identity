@@ -18,18 +18,29 @@
 
 package org.wso2.carbon.identity.oauth2.authz;
 
-import org.apache.oltu.oauth2.common.message.types.ResponseType;
+import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
+
+import java.util.Properties;
 
 public class OAuthAuthzReqMessageContext {
 
     private OAuth2AuthorizeReqDTO authorizationReqDTO;
 
-    private ResponseType responseType;
-
     private String[] approvedScope;
 
     private long validityPeriod;
+    
+    private long refreshTokenvalidityPeriod;
+    
+    private long accessTokenIssuedTime;
+    
+    private long refreshTokenIssuedTime;
+    
+    private long codeIssuedTime;
+
+
+    private Properties properties = new Properties();
 
     public OAuthAuthzReqMessageContext(OAuth2AuthorizeReqDTO authorizationReqDTO) {
         this.authorizationReqDTO = authorizationReqDTO;
@@ -41,14 +52,6 @@ public class OAuthAuthzReqMessageContext {
 
     public void setAuthorizationReqDTO(OAuth2AuthorizeReqDTO authorizationReqDTO) {
         this.authorizationReqDTO = authorizationReqDTO;
-    }
-
-    public ResponseType getResponseType() {
-        return responseType;
-    }
-
-    public void setResponseType(ResponseType responseType) {
-        this.responseType = responseType;
     }
 
     public String[] getApprovedScope() {
@@ -65,5 +68,45 @@ public class OAuthAuthzReqMessageContext {
 
     public void setValidityPeriod(long validityPeriod) {
         this.validityPeriod = validityPeriod;
+    }
+
+    public void addProperty(Object propName, Object propValue) {
+        properties.put(propName, propValue);
+    }
+
+    public Object getProperty(Object propName) {
+        return properties.get(propName);
+    }
+
+    public long getRefreshTokenvalidityPeriod() {
+	return refreshTokenvalidityPeriod;
+    }
+
+    public void setRefreshTokenvalidityPeriod(long refreshTokenvalidityPeriod) {
+	this.refreshTokenvalidityPeriod = refreshTokenvalidityPeriod;
+    }
+
+    public long getAccessTokenIssuedTime() {
+	return accessTokenIssuedTime;
+    }
+
+    public void setAccessTokenIssuedTime(long accessTokenIssuedTime) {
+	this.accessTokenIssuedTime = accessTokenIssuedTime;
+    }
+
+    public long getRefreshTokenIssuedTime() {
+	return refreshTokenIssuedTime;
+    }
+
+    public void setRefreshTokenIssuedTime(long refreshTokenIssuedTime) {
+	this.refreshTokenIssuedTime = refreshTokenIssuedTime;
+    }
+
+    public long getCodeIssuedTime() {
+	return codeIssuedTime;
+    }
+
+    public void setCodeIssuedTime(long codeIssuedTime) {
+	this.codeIssuedTime = codeIssuedTime;
     }
 }

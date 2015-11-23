@@ -29,7 +29,6 @@ import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
-import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
@@ -151,13 +150,22 @@ public class AccessTokenIssuer {
             tokReqMsgCtx.getAuthorizedUser().setTenantDomain(IdentityTenantUtil.getTenantDomain(oAuthAppDO.getTenantId()));
         }
 
-        boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
+        boolean isValidGrant = false;
+        String error = "Provided Authorization Grant is invalid";
+        try {
+            isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
+        } catch (IdentityOAuth2Exception e) {
+            if(log.isDebugEnabled()){
+                log.debug("Error occurred while validating grant", e);
+            }
+            error = e.getMessage();
+        }
+
         if (!isValidGrant) {
             if (log.isDebugEnabled()) {
                 log.debug("Invalid Grant provided by the client Id: " + tokenReqDTO.getClientId());
             }
-            tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_GRANT,
-                    "Provided Authorization Grant is invalid.", tokenReqDTO);
+            tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_GRANT, error, tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
@@ -183,7 +191,16 @@ public class AccessTokenIssuer {
             return tokenRespDTO;
         }
 
-        tokenRespDTO = authzGrantHandler.issue(tokReqMsgCtx);
+	try {
+	    // set the token request context to be used by downstream handlers. This is introduced as a fix for
+	    // IDENTITY-4111.
+	    OAuth2Util.setTokenRequestContext(tokReqMsgCtx);
+	    tokenRespDTO = authzGrantHandler.issue(tokReqMsgCtx);
+	} finally {
+	    // clears the token request context.
+	    OAuth2Util.clearTokenRequestContext();
+	}
+	
         tokenRespDTO.setCallbackURI(oAuthAppDO.getCallbackUrl());
 
         String[] scopes = tokReqMsgCtx.getScope();

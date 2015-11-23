@@ -60,7 +60,7 @@ import java.net.URISyntaxException;
  * unbind="unsetRealmService"
  * @scr.reference name="org.wso2.carbon.identity.workflow.mgt.workflowservice"
  * interface="org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService"
- * cardinality="0..n" policy="dynamic" bind="setWorkflowManagementService"
+ * cardinality="1..1" policy="dynamic" bind="setWorkflowManagementService"
  * unbind="unsetWorkflowManagementService"
  * @scr.reference name="identityCoreInitializedEventService"
  * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
@@ -142,27 +142,19 @@ public class WorkflowImplServiceComponent {
         try {
             WorkflowImplService workflowImplService =
                     WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
-            BPSProfile currentBpsProfile = workflowImplService.getBPSProfile(WFConstant.DEFAULT_BPS_PROFILE,
+            BPSProfile currentBpsProfile = workflowImplService.getBPSProfile(WFImplConstant.DEFAULT_BPS_PROFILE_NAME,
                     MultitenantConstants.SUPER_TENANT_ID);
             String url = IdentityUtil.getServerURL("", true);
             String userName = WorkflowImplServiceDataHolder.getInstance().getRealmService()
                     .getBootstrapRealmConfiguration().getAdminUserName();
-            String password = WorkflowImplServiceDataHolder.getInstance().getRealmService()
-                    .getBootstrapRealmConfiguration().getAdminPassword();
-            if (StringUtils.isBlank(password)) {
-                log.info("Insufficient data for adding embedded_bps profile, hence skipping.");
-                return;
-            }
             if (currentBpsProfile == null || !currentBpsProfile.getWorkerHostURL().equals(url) || !currentBpsProfile
-                    .getUsername().equals(userName) || !currentBpsProfile.getPassword().equals(password)) {
+                    .getUsername().equals(userName)) {
                 BPSProfile bpsProfileDTO = new BPSProfile();
                 bpsProfileDTO.setManagerHostURL(url);
                 bpsProfileDTO.setWorkerHostURL(url);
                 bpsProfileDTO.setUsername(userName);
-                bpsProfileDTO.setPassword(password);
-                bpsProfileDTO.setCallbackUser(userName);
-                bpsProfileDTO.setCallbackPassword(password);
-                bpsProfileDTO.setProfileName(WFConstant.DEFAULT_BPS_PROFILE);
+                bpsProfileDTO.setPassword("");
+                bpsProfileDTO.setProfileName(WFImplConstant.DEFAULT_BPS_PROFILE_NAME);
                 if (currentBpsProfile == null) {
                     workflowImplService.addBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);
                     log.info("Default BPS profile added to the DB.");

@@ -62,46 +62,61 @@
         <div id="workArea">
             <script type="text/javascript">
                 function onClickAdd() {
-                    if($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
-                        var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.not.https'/>",
-                                validate, null, null);
-                        if (isValidated) {
-                            validate();
+                    var version2Checked = document.getElementById("oauthVersion20").checked;
+                    if ($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
+                        var callbackUrl = document.getElementById('callback').value;
+                        if (callbackUrl.trim() == '') {
+                            CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
+                            return false;
+                        } else {
+                            var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.not.https'/>",
+                                    validate, null, null);
+                            if (isValidated) {
+                                validate();
+                            }
                         }
                     } else {
-                        validate();
+                        var callbackUrl = document.getElementsByName("callback")[0].value;
+                        if (!version2Checked) {
+                            if (callbackUrl.trim() == '') {
+                                CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
+                                return false;
+                            } else {
+                                var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.not.https'/>",
+                                        validate, null, null);
+                                if (isValidated) {
+                                    validate();
+                                }
+                            }
+
+                        } else {
+                            validate();
+                        }
                     }
                 }
                 function validate() {
                     var callbackUrl = document.getElementById('callback').value;
-                    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-                    if (!regexp.test(callbackUrl) || callbackUrl.indexOf(",") > -1) {
-                        CARBON.showWarningDialog("<fmt:message key='callback.is.not.url'/>", null, null);
-                        return false;
+                    if ($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
+                        if (!isWhiteListed(callbackUrl, "url")) {
+                            CARBON.showWarningDialog('<fmt:message key="callback.is.not.url"/>');
+                            return false;
+                        }
                     }
-
                     var value = document.getElementsByName("application")[0].value;
                     if (value == '') {
                         CARBON.showWarningDialog('<fmt:message key="application.is.required"/>');
                         return false;
                     }
-                    value = document.getElementsByName("callback")[0].value;
                     var version2Checked = document.getElementById("oauthVersion20").checked;
-                    if(version2Checked){
-                        if (value == '') {
-                            if($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked){
-                                CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
-                                return false;
-                            }
-                        } else {
-                            if(!$(jQuery("#grant_code"))[0].checked && !$(jQuery("#grant_implicit"))[0].checked){
-                                document.getElementsByName("callback")[0].value = '';
-                            }
+                    if (version2Checked) {
+                        if (!$(jQuery("#grant_code"))[0].checked && !$(jQuery("#grant_implicit"))[0].checked) {
+                            document.getElementsByName("callback")[0].value = '';
                         }
                     } else {
-                        if(value == ''){
-                            CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
+                        if (!isWhiteListed(callbackUrl, "url")) {
+                            CARBON.showWarningDialog('<fmt:message key="callback.is.not.url"/>');
                             return false;
+
                         }
                     }
                     document.addAppform.submit();

@@ -40,7 +40,7 @@ import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SPInitSSOAuthnRequestProcessor {
+public class SPInitSSOAuthnRequestProcessor implements SSOAuthnRequestProcessor{
 
     private static Log log = LogFactory.getLog(SPInitSSOAuthnRequestProcessor.class);
 

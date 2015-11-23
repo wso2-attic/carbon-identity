@@ -309,12 +309,16 @@ public class RecoveryProcessor {
 
         try {
             dataDO = dataStore.load(internalCode);
-            if (dataDO != null && sequence != 2) {
+            if (dataDO != null && sequence != 2 && sequence != 40) {
                 dataStore.invalidate(dataDO);
             }
 
         } catch (IdentityException e) {
             throw new IdentityException("Error loading recovery data for user : " + username, e);
+        }
+
+        if (dataDO == null && (sequence == 30 || sequence == 20)) {
+            return new VerificationBean(false);
         }
 
         if (dataDO == null) {
@@ -337,7 +341,7 @@ public class RecoveryProcessor {
         UserRecoveryDataDO recoveryDataDO = new UserRecoveryDataDO(username,
                 tenantId, confirmationKey, secretKey);
 
-        if (sequence != 3) {
+        if (sequence != 3 && sequence != 30) {
             dataStore.invalidate(username, tenantId);
         }
         dataStore.store(recoveryDataDO);

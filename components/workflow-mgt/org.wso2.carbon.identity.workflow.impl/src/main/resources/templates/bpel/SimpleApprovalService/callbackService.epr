@@ -20,11 +20,4 @@
         xmlns:wsa="http://www.w3.org/2005/08/addressing"
         >
     <wsa:Address>${carbonHostName}/services/WorkflowCallbackService</wsa:Address>
-    <wsa:Metadata>
-        <id>SInvokeEPR</id>
-        <transport type="http">
-            <authorization-username>${carbonUserName}</authorization-username>
-            <authorization-password>${carbonUserPassword}</authorization-password>
-        </transport>
-    </wsa:Metadata>
 </wsa:EndpointReference>
