@@ -348,7 +348,8 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         context.setSequenceConfig(sequenceConfig);
     }
 
-    private void buildOutboundQueryString(HttpServletRequest request, AuthenticationContext context) throws FrameworkException {
+    private void buildOutboundQueryString(HttpServletRequest request, AuthenticationContext context)
+            throws FrameworkException {
 
         // Build the outbound query string that will be sent to the authentication endpoint and
         // federated IdPs
