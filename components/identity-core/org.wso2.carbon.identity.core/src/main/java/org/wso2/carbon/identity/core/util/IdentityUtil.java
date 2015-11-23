@@ -35,9 +35,7 @@ import org.opensaml.xml.io.UnmarshallingException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.core.util.Utils;
 import org.wso2.carbon.identity.base.CarbonEntityResolver;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -139,19 +137,11 @@ public class IdentityUtil {
      * @return Element text value, "text" for the above element.
      */
     public static String getProperty(String key) {
-
         Object value = configuration.get(key);
-        String strValue;
-
         if (value instanceof ArrayList) {
-            strValue = (String) ((ArrayList) value).get(0);
-        } else {
-            strValue = (String) value;
+            return (String) ((ArrayList) value).get(0);
         }
-
-        strValue = fillURLPlaceholders(strValue);
-
-        return strValue;
+        return (String) value;
     }
 
     public static IdentityEventListener readEventListenerProperty(String type, String name) {
@@ -545,98 +535,5 @@ public class IdentityUtil {
                                                                    Pattern.COMMENTS);
         Matcher matcher = pattern.matcher(fileName);
         return matcher.matches();
-    }
-
-    /**
-     * Replace the placeholders with the related values in the URL.
-     * @param urlWithPlaceholders URL with the placeholders.
-     * @return URL filled with the placeholder values.
-     */
-    public static String fillURLPlaceholders(String urlWithPlaceholders) {
-
-        // First replace carbon placeholders and then move on to identity related placeholders.
-        urlWithPlaceholders = Utils.replaceSystemProperty(urlWithPlaceholders);
-
-        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_HOST)) {
-
-            String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
-
-            if (hostName == null) {
-                try {
-                    hostName = NetworkUtils.getLocalHostname();
-                } catch (SocketException e) {
-                    throw new IdentityRuntimeException("Error while trying to read hostname.", e);
-                }
-            }
-
-            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
-                    IdentityConstants.CarbonPlaceholders.CARBON_HOST,
-                    hostName);
-        }
-
-        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PORT)) {
-
-            String mgtTransport = CarbonUtils.getManagementTransport();
-            AxisConfiguration axisConfiguration = IdentityCoreServiceComponent.getConfigurationContextService().
-                    getServerConfigContext().getAxisConfiguration();
-            int mgtTransportPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
-            if (mgtTransportPort <= 0) {
-                mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
-            }
-
-            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
-                    IdentityConstants.CarbonPlaceholders.CARBON_PORT,
-                    Integer.toString(mgtTransportPort));
-        }
-
-        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PROTOCOL)) {
-
-            String mgtTransport = CarbonUtils.getManagementTransport();
-            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
-                    IdentityConstants.CarbonPlaceholders.CARBON_PROTOCOL,
-                    mgtTransport);
-        }
-
-        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PROXY_CONTEXT_PATH)) {
-
-            String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
-                    .PROXY_CONTEXT_PATH);
-            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
-                    IdentityConstants.CarbonPlaceholders.CARBON_PROXY_CONTEXT_PATH,
-                    proxyContextPath);
-        }
-
-        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_WEB_CONTEXT_ROOT)) {
-
-            String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
-                    .WEB_CONTEXT_ROOT);
-            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
-                    IdentityConstants.CarbonPlaceholders.CARBON_WEB_CONTEXT_ROOT,
-                    webContextRoot);
-        }
-
-        if (StringUtils.contains(urlWithPlaceholders, CarbonConstants.CARBON_HOME_PARAMETER)) {
-
-            String carbonHome = CarbonUtils.getCarbonHome();
-            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
-                    CarbonConstants.CARBON_HOME_PARAMETER,
-                    carbonHome);
-        }
-
-        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_CONTEXT)) {
-
-            String carbonContext = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
-                    .WEB_CONTEXT_ROOT);
-
-            if (carbonContext.equals("/")) {
-                carbonContext = "";
-            }
-
-            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
-                    IdentityConstants.CarbonPlaceholders.CARBON_CONTEXT,
-                    carbonContext);
-        }
-
-        return urlWithPlaceholders;
     }
 }
