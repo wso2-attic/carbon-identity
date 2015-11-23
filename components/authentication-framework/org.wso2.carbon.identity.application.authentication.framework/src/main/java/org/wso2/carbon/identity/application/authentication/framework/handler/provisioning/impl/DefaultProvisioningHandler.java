@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.handler.provisioning.impl;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -259,7 +260,7 @@ public class DefaultProvisioningHandler implements ProvisioningHandler {
      * @return
      */
     protected String generatePassword() {
-        return new BigInteger(130, random).toString(32);
+        return RandomStringUtils.randomNumeric(12);
     }
 
     /**
