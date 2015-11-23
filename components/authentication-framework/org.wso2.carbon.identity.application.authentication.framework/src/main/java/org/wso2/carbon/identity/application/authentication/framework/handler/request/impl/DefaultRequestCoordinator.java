@@ -185,11 +185,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         context.setCallerSessionKey(callerSessionDataKey);
         context.setCallerPath(callerPath);
         context.setRequestType(requestType);
-        try {
-            context.setRelyingParty(URLEncoder.encode(relyingParty, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new FrameworkException(e.getMessage(), e);
-        }
+        context.setRelyingParty(relyingParty);
         context.setTenantDomain(tenantDomain);
 
         // generate a new key to hold the context data object
@@ -352,7 +348,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         context.setSequenceConfig(sequenceConfig);
     }
 
-    private void buildOutboundQueryString(HttpServletRequest request, AuthenticationContext context) {
+    private void buildOutboundQueryString(HttpServletRequest request, AuthenticationContext context) throws FrameworkException {
 
         // Build the outbound query string that will be sent to the authentication endpoint and
         // federated IdPs
@@ -363,11 +359,15 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
             outboundQueryStringBuilder.append("&");
         }
 
-        outboundQueryStringBuilder.append("sessionDataKey=").append(context.getContextIdentifier())
-                .append("&relyingParty=").append(context.getRelyingParty()).append("&type=")
-                .append(context.getRequestType()).append("&sp=")
-                .append(context.getServiceProviderName()).append("&isSaaSApp=")
-                .append(context.getSequenceConfig().getApplicationConfig().isSaaSApp());
+        try {
+            outboundQueryStringBuilder.append("sessionDataKey=").append(context.getContextIdentifier())
+                    .append("&relyingParty=").append(URLEncoder.encode(context.getRelyingParty(), "UTF-8")).append("&type=")
+                    .append(context.getRequestType()).append("&sp=")
+                    .append(context.getServiceProviderName()).append("&isSaaSApp=")
+                    .append(context.getSequenceConfig().getApplicationConfig().isSaaSApp());
+        } catch (UnsupportedEncodingException e) {
+            throw new FrameworkException("Error while URL Encoding", e);
+        }
 
         if (log.isDebugEnabled()) {
             log.debug("Outbound Query String: " + outboundQueryStringBuilder.toString());
