@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.dao.OAuthConsumerDAO;
 import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
+import org.wso2.carbon.identity.oauth2.authz.OAuthAuthzReqMessageContext;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.ClientCredentialDO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
@@ -127,9 +128,42 @@ public class OAuth2Util {
     private static long timestampSkew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
     private static ThreadLocal<Integer> clientTenatId = new ThreadLocal<>();
     private static ThreadLocal<OAuthTokenReqMessageContext> tokenRequestContext = new ThreadLocal<OAuthTokenReqMessageContext>();
+    private static ThreadLocal<OAuthAuthzReqMessageContext> authzRequestContext = new ThreadLocal<OAuthAuthzReqMessageContext>();
 
     private OAuth2Util(){
 
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public static OAuthAuthzReqMessageContext getAuthzRequestContext() {
+	if (log.isDebugEnabled()) {
+	    log.debug("Retreived OAuthAuthzReqMessageContext from threadlocal");
+	}
+	return authzRequestContext.get();
+    }
+
+    /**
+     * 
+     * @param context
+     */
+    public static void setAuthzRequestContext(OAuthAuthzReqMessageContext context) {
+	authzRequestContext.set(context);
+	if (log.isDebugEnabled()) {
+	    log.debug("Added OAuthAuthzReqMessageContext to threadlocal");
+	}
+    }
+
+    /**
+     * 
+     */
+    public static void clearAuthzRequestContext() {
+	authzRequestContext.remove();
+	if (log.isDebugEnabled()) {
+	    log.debug("Cleared OAuthAuthzReqMessageContext");
+	}
     }
     
     /**

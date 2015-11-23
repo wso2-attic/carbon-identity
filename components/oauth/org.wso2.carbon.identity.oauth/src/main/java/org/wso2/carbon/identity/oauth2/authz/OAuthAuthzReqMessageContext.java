@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.oauth2.authz;
 
+import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 
 import java.util.Properties;
@@ -29,6 +30,15 @@ public class OAuthAuthzReqMessageContext {
     private String[] approvedScope;
 
     private long validityPeriod;
+    
+    private long refreshTokenvalidityPeriod;
+    
+    private long accessTokenIssuedTime;
+    
+    private long refreshTokenIssuedTime;
+    
+    private long codeIssuedTime;
+
 
     private Properties properties = new Properties();
 
@@ -66,5 +76,37 @@ public class OAuthAuthzReqMessageContext {
 
     public Object getProperty(Object propName) {
         return properties.get(propName);
+    }
+
+    public long getRefreshTokenvalidityPeriod() {
+	return refreshTokenvalidityPeriod;
+    }
+
+    public void setRefreshTokenvalidityPeriod(long refreshTokenvalidityPeriod) {
+	this.refreshTokenvalidityPeriod = refreshTokenvalidityPeriod;
+    }
+
+    public long getAccessTokenIssuedTime() {
+	return accessTokenIssuedTime;
+    }
+
+    public void setAccessTokenIssuedTime(long accessTokenIssuedTime) {
+	this.accessTokenIssuedTime = accessTokenIssuedTime;
+    }
+
+    public long getRefreshTokenIssuedTime() {
+	return refreshTokenIssuedTime;
+    }
+
+    public void setRefreshTokenIssuedTime(long refreshTokenIssuedTime) {
+	this.refreshTokenIssuedTime = refreshTokenIssuedTime;
+    }
+
+    public long getCodeIssuedTime() {
+	return codeIssuedTime;
+    }
+
+    public void setCodeIssuedTime(long codeIssuedTime) {
+	this.codeIssuedTime = codeIssuedTime;
     }
 }
