@@ -114,9 +114,19 @@ public class FileBasedConfigManager {
             Element elem = (Element) nodeSet.item(i);
             SAMLSSOServiceProviderDO spDO = new SAMLSSOServiceProviderDO();
             spDO.setIssuer(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ISSUER));
-            spDO.setAssertionConsumerUrls(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.ASSERTION_CONSUMER_URL));
-            spDO.setDefaultAssertionConsumerUrl(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.DEFAULT_ACS_URL));
-            spDO.setLoginPageURL(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CUSTOM_LOGIN_PAGE));
+
+            List<String> assertionConsumerUrls = new ArrayList<>();
+            for(String assertionConsumerUrl : getTextValueList(elem, SAMLSSOConstants
+                    .FileBasedSPConfig.ASSERTION_CONSUMER_URL)) {
+                assertionConsumerUrls.add(IdentityUtil.fillURLPlaceholders(assertionConsumerUrl));
+            }
+            spDO.setAssertionConsumerUrls(assertionConsumerUrls);
+
+            spDO.setDefaultAssertionConsumerUrl(IdentityUtil
+                    .fillURLPlaceholders(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.DEFAULT_ACS_URL)));
+            spDO.setLoginPageURL(IdentityUtil
+                    .fillURLPlaceholders(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CUSTOM_LOGIN_PAGE)));
+
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SINGLE_LOGOUT)) != null) {
                 singleLogout = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SINGLE_LOGOUT));
                 spDO.setSloResponseURL(IdentityUtil
@@ -172,8 +182,12 @@ public class FileBasedConfigManager {
             if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENABLE_IDP_INIT_SLO))) {
                 spDO.setIdPInitSLOEnabled(true);
                 if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.RETURN_TO_URL_LIST) != null) {
-                    spDO.setIdpInitSLOReturnToURLs(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig
-                            .RETURN_TO_URL));
+                    List<String> sloReturnToUrls = new ArrayList<>();
+                    for(String sloReturnUrl : getTextValueList(elem, SAMLSSOConstants
+                            .FileBasedSPConfig.RETURN_TO_URL)) {
+                        sloReturnToUrls.add(IdentityUtil.fillURLPlaceholders(sloReturnUrl));
+                    }
+                    spDO.setIdpInitSLOReturnToURLs(sloReturnToUrls);
                 }
             }
 
