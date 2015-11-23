@@ -79,10 +79,10 @@ import java.util.List;
  * interface="org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationRequestProcessor"
  * cardinality="0..n" policy="dynamic" bind="setInboundRequestProcessor"
  * unbind="unsetInboundRequestProcessor"
- * @scr.reference name="application.responsebuilder"
- * interface="org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationResponseBuilder"
- * cardinality="0..n" policy="dynamic" bind="setInboundResponseBuilder"
- * unbind="unsetInboundResponseBuilder"
+ * @scr.reference name="application.responseprocessor"
+ * interface="org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationResponseProcessor"
+ * cardinality="0..n" policy="dynamic" bind="setInboundResponseProcessor"
+ * unbind="unsetInboundResponseProcessor"
  * @scr.reference name="application.requestbuilder"
  * interface="org.wso2.carbon.identity.application.authentication.framework.inbound.InboundAuthenticationRequestBuilder"
  * cardinality="0..n" policy="dynamic" bind="setInboundRequestBuilder"
@@ -305,24 +305,24 @@ public class FrameworkServiceComponent {
         }
     }
 
-    protected void setInboundResponseBuilder(InboundAuthenticationResponseProcessor responseBuilder) {
+    protected void setInboundResponseProcessor(InboundAuthenticationResponseProcessor responseProcessor) {
 
-        FrameworkServiceDataHolder.getInstance().getInboundAuthenticationResponseBuilders().add(responseBuilder);
+        FrameworkServiceDataHolder.getInstance().getInboundAuthenticationResponseProcessors().add(responseProcessor);
         Collections
-                .sort(FrameworkServiceDataHolder.getInstance().getInboundAuthenticationResponseBuilders(),
+                .sort(FrameworkServiceDataHolder.getInstance().getInboundAuthenticationResponseProcessors(),
                         inboundResponseBuilder);
 
         if (log.isDebugEnabled()) {
-            log.debug("Added application inbound response builder : " + responseBuilder.getName());
+            log.debug("Added application inbound response builder : " + responseProcessor.getName());
         }
     }
 
-    protected void unsetInboundResponseBuilder(InboundAuthenticationResponseProcessor responseBuilder) {
+    protected void unsetInboundResponseProcessor(InboundAuthenticationResponseProcessor responseProcessor) {
 
-        FrameworkServiceDataHolder.getInstance().getInboundAuthenticationResponseBuilders().remove(responseBuilder);
+        FrameworkServiceDataHolder.getInstance().getInboundAuthenticationResponseProcessors().remove(responseProcessor);
 
         if (log.isDebugEnabled()) {
-            log.debug("Removed application inbound response builder : " + responseBuilder.getName());
+            log.debug("Removed application inbound response builder : " + responseProcessor.getName());
         }
 
     }

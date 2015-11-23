@@ -40,7 +40,7 @@ public class FrameworkServiceDataHolder {
     private long unixTimeReference = 0;
     private List<InboundAuthenticationRequestProcessor> inboundAuthenticationRequestProcessors = new ArrayList<InboundAuthenticationRequestProcessor>();
     private List<InboundAuthenticationRequestBuilder> inboundAuthenticationRequestBuilders = new ArrayList<InboundAuthenticationRequestBuilder>();
-    private List<InboundAuthenticationResponseProcessor> inboundAuthenticationResponseBuilders = new ArrayList<InboundAuthenticationResponseProcessor>();
+    private List<InboundAuthenticationResponseProcessor> inboundAuthenticationResponseProcessors = new ArrayList<InboundAuthenticationResponseProcessor>();
 
     private FrameworkServiceDataHolder() {
         setNanoTimeReference(System.nanoTime());
@@ -113,12 +113,12 @@ public class FrameworkServiceDataHolder {
         this.inboundAuthenticationRequestProcessors = inboundAuthenticationRequestProcessors;
     }
 
-    public List<InboundAuthenticationResponseProcessor> getInboundAuthenticationResponseBuilders() {
-        return inboundAuthenticationResponseBuilders;
+    public List<InboundAuthenticationResponseProcessor> getInboundAuthenticationResponseProcessors() {
+        return inboundAuthenticationResponseProcessors;
     }
 
-    public void setInboundAuthenticationResponseBuilders(
-            List<InboundAuthenticationResponseProcessor> inboundAuthenticationResponseBuilders) {
-        this.inboundAuthenticationResponseBuilders = inboundAuthenticationResponseBuilders;
+    public void setInboundAuthenticationResponseProcessors(
+            List<InboundAuthenticationResponseProcessor> inboundAuthenticationResponseProcessors) {
+        this.inboundAuthenticationResponseProcessors = inboundAuthenticationResponseProcessors;
     }
 }

@@ -59,7 +59,7 @@ public class InboundAuthenticationManager {
     private InboundAuthenticationResponseProcessor getInboundResponseBuilder(InboundAuthenticationContext context,
             InboundAuthenticationRequest authenticationRequest) throws FrameworkException {
         List<InboundAuthenticationResponseProcessor> responseBuilders = FrameworkServiceDataHolder.getInstance()
-                .getInboundAuthenticationResponseBuilders();
+                .getInboundAuthenticationResponseProcessors();
 
         for (InboundAuthenticationResponseProcessor responseBuilder : responseBuilders) {
             if (responseBuilder.canHandle(context, authenticationRequest)) {
