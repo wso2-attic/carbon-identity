@@ -37,6 +37,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.core.util.Utils;
 import org.wso2.carbon.identity.base.CarbonEntityResolver;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -542,6 +543,9 @@ public class IdentityUtil {
      * @return URL filled with the placeholder values.
      */
     public static String fillURLPlaceholders(String urlWithPlaceholders) {
+
+        // First replace carbon placeholders and then move on to identity related placeholders.
+        urlWithPlaceholders = Utils.replaceSystemProperty(urlWithPlaceholders);
 
         if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_HOST)) {
 
