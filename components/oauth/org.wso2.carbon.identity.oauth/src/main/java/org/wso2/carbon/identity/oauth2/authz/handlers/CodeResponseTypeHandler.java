@@ -86,7 +86,7 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
 
         AuthzCodeDO authzCodeDO = new AuthzCodeDO(OAuth2Util.getUserFromUserName(authorizationReqDTO.getUsername()),
                 oauthAuthzMsgCtx.getApprovedScope(),timestamp, validityPeriod, authorizationReqDTO.getCallbackUrl(),
-                authorizationReqDTO.getConsumerKey(), authorizationCode, codeId);
+                authorizationReqDTO.getConsumerKey(), authorizationCode, authorizationReqDTO.getCodeId());
 
         tokenMgtDAO.storeAuthorizationCode(authorizationCode, authorizationReqDTO.getConsumerKey(),
                 authorizationReqDTO.getCallbackUrl(), authzCodeDO);

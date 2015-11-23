@@ -25,6 +25,15 @@ package org.wso2.carbon.identity.oauth.cache;
 public class AuthorizationGrantCacheKey extends CacheKey {
     //todo:variable name userAttributesId should be change later because userAttributesId = authorizationCode
     private String userAttributesId;
+    private Boolean isAuthzCode = false;
+
+    public Boolean getIsAuthzCode() {
+        return isAuthzCode;
+    }
+
+    public void setIsAuthzCode(Boolean isAuthzCode) {
+        this.isAuthzCode = isAuthzCode;
+    }
 
     public AuthorizationGrantCacheKey(String userAttributesId) {
         this.userAttributesId = userAttributesId;

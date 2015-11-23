@@ -31,6 +31,7 @@ public class OAuth2AuthorizeReqDTO {
     private LinkedHashSet acrValues;
     private String nonce;
     private Properties properties = new Properties();
+    private String codeId;
 
     public String getUsername() {
         return username;
@@ -103,5 +104,13 @@ public class OAuth2AuthorizeReqDTO {
 
     public Object getProperty(Object propName) {
         return properties.get(propName);
+    }
+
+    public void setCodeId(String codeId) {
+        this.codeId = codeId;
+    }
+
+    public String getCodeId(){
+        return codeId;
     }
 }
