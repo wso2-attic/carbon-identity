@@ -5048,62 +5048,86 @@ function doValidation() {
         </tr>
 
         <tr>
-            <td class="leftCol-med labelField">API version:<span
+            <td class="leftCol-med labelField"><fmt:message
+                    key='sf.provisioning.api.version'/>:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-api-version"
                        name="sf-api-version" type="text" value=<%=Encode.forHtmlAttribute(sfApiVersion) %>></td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField">Domain Name:<span
+            <td class="leftCol-med labelField"><fmt:message
+                    key='sf.provisioning.domain.name'/>:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-domain-name"
                        name="sf-domain-name" type="text" value=<%=Encode.forHtmlAttribute(sfDomainName) %>></td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField">Client ID:<span
+            <td class="leftCol-med labelField"><fmt:message
+                    key='sf.provisioning.client.id'/>:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-clientid"
                        name="sf-clientid" type="text" value=<%=Encode.forHtmlAttribute(sfClientId) %>></td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField">Client Secret:<span
+            <td class="leftCol-med labelField"><fmt:message
+                    key='sf.provisioning.client.secret'/>:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-client-secret"
                        name="sf-client-secret" type="password" value=<%=Encode.forHtmlAttribute(sfClientSecret) %>></td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField">Username:<span
+            <td class="leftCol-med labelField"><fmt:message
+                    key='sf.provisioning.username'/>:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-username"
                        name="sf-username" type="text" value=<%=Encode.forHtmlAttribute(sfUserName) %>></td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField">Password:<span
+            <td class="leftCol-med labelField"><fmt:message
+                    key='sf.provisioning.password'/>:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-password"
                        name="sf-password" type="password" value=<%=Encode.forHtmlAttribute(sfPassword) %>></td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField">OAuth2 Token Endpoint:<span
+            <td class="leftCol-med labelField"><fmt:message
+                    key='sf.provisioning.oauth.endpoint'/>:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="sf-token-endpoint"
                        name="sf-token-endpoint" type="text"
                        value=<%=Encode.forHtmlAttribute(sfOauth2TokenEndpoint)%>></td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField">Provisioning Pattern:</td>
-            <td><input class="text-box-big" id="sf-prov-pattern"
-                       name="sf-prov-pattern" type="text" value=<%=Encode.forHtmlAttribute(sfProvPattern)%>></td>
+            <td class="leftCol-med labelField"><fmt:message
+                    key='sf.provisioning.pattern'/>:</td>
+            <td>
+                <div>
+                    <input class="text-box-big" id="sf-prov-pattern"
+                       name="sf-prov-pattern" type="text" value=<%=Encode.forHtmlAttribute(sfProvPattern)%>>
+                </div>
+                <div class="sectionHelp">
+                    <fmt:message key='sf_prov_pattern.help'/>
+                </div>
+            </td>
         </tr>
 
         <tr>
-            <td class="leftCol-med labelField">Provisioning Separator:</td>
-            <td><input class="text-box-big" id="sf-prov-separator"
-                       name="sf-prov-separator" type="text" value=<%=Encode.forHtmlAttribute(sfProvSeparator)%>></td>
+            <td class="leftCol-med labelField"><fmt:message
+                    key='sf.provisioning.separator'/>:</td>
+            <td>
+                <div>
+                    <input class="text-box-big" id="sf-prov-separator"
+                       name="sf-prov-separator" type="text" value=<%=Encode.forHtmlAttribute(sfProvSeparator)%>>
+                </div>
+                <div class="sectionHelp">
+                    <fmt:message key='sf.provisioning.separator.help'/>
+                </div>
+            </td>
         </tr>
 
         <tr>
-            <td class="leftCol-med labelField">Provisioning Domain:</td>
+            <td class="leftCol-med labelField"><fmt:message
+                    key='sf.provisioning.domain'/>:</td>
             <td><input class="text-box-big" id="sf-prov-domainName"
                        name="sf-prov-domainName" type="text" value=<%=Encode.forHtmlAttribute(sfProvDomainName)%>></td>
         </tr>
@@ -5159,30 +5183,35 @@ function doValidation() {
         </tr>
 
         <tr>
-            <td class="leftCol-med labelField">Username:<span
+            <td class="leftCol-med labelField"><fmt:message
+                    key='scim.provisioning.user.name'/>:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="scim-username"
                        name="scim-username" type="text" value=<%=Encode.forHtmlAttribute(scimUserName) %>></td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField">Password:<span
+            <td class="leftCol-med labelField"><fmt:message
+                    key='scim.provisioning.user.password'/>:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="scim-password"
                        name="scim-password" type="password" value=<%=Encode.forHtmlAttribute(scimPassword) %>></td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField">User Endpoint:<span
+            <td class="leftCol-med labelField"><fmt:message
+                    key='scim.provisioning.user.endpoint'/>:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="scim-user-ep"
                        name="scim-user-ep" type="text" value=<%=Encode.forHtmlAttribute(scimUserEp) %>></td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField">Group Endpoint:</td>
+            <td class="leftCol-med labelField"><fmt:message
+                    key='scim.provisioning.group.endpoint'/>:</td>
             <td><input class="text-box-big" id="scim-group-ep"
                        name="scim-group-ep" type="text" value=<%=Encode.forHtmlAttribute(scimGroupEp) %>></td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField">User Store Domain:</td>
+            <td class="leftCol-med labelField"><fmt:message
+                    key='scim.provisioning.userStore.domain'/>:</td>
             <td><input class="text-box-big" id="scim-user-store-domain" name="scim-user-store-domain" type="text"
                        value=<%=Encode.forHtmlAttribute(scimUserStoreDomain)%>></td>
         </tr>
@@ -5258,24 +5287,28 @@ function doValidation() {
         </tr>
 
         <tr>
-            <td class="leftCol-med labelField">Username:</td>
+            <td class="leftCol-med labelField"><fmt:message
+                    key='spml.provisioning.user.name'/>:</td>
             <td><input class="text-box-big" id="spml-username"
                        name="spml-username" type="text" value=<%=Encode.forHtmlAttribute(spmlUserName) %>></td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField">Password:</td>
+            <td class="leftCol-med labelField"><fmt:message
+                    key='spml.provisioning.user.password'/>:</td>
             <td><input class="text-box-big" id="spml-password"
                        name="spml-password" type="password" value=<%=Encode.forHtmlAttribute(spmlPassword) %>></td>
         </tr>
         <tr>
-            <td class="leftCol-med labelField">SPML Endpoint:<span
+            <td class="leftCol-med labelField"><fmt:message
+                    key='spml.provisioning.endpoint'/>:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="spml-ep" name="spml-ep"
                        type="text" value=<%=Encode.forHtmlAttribute(spmlEndpoint) %>></td>
         </tr>
 
         <tr>
-            <td class="leftCol-med labelField">SPML ObjectClass:<span
+            <td class="leftCol-med labelField"><fmt:message
+                    key='spml.provisioning.objectClass'/>:<span
                     class="required">*</span></td>
             <td><input class="text-box-big" id="spml-oc" name="spml-oc"
                        type="text" value=<%=Encode.forHtmlAttribute(spmlObjectClass) %>></td>
