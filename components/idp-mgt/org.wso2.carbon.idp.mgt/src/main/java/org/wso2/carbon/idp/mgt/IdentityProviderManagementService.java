@@ -152,6 +152,13 @@ public class IdentityProviderManagementService extends AbstractAdmin {
      * @throws IdentityProviderManagementException Error when adding Identity Provider
      */
     public void addIdP(IdentityProvider identityProvider) throws IdentityProviderManagementException {
+        // The following check is applicable only for the IdPs added from UI/Service call and should not be
+        // applicable for IdPs added from file. hence the check is moved from listener to the service
+        if (identityProvider != null && identityProvider.getIdentityProviderName() != null &&
+                identityProvider.getIdentityProviderName().startsWith(IdPManagementConstants.SHARED_IDP_PREFIX)) {
+            throw new IdentityProviderManagementException("Identity provider name cannot have " +
+                    IdPManagementConstants.SHARED_IDP_PREFIX + " as prefix.");
+        }
         String tenantDomain = "";
         try {
             tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
