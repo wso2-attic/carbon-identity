@@ -397,7 +397,7 @@ public class OAuth2AuthzEndpoint {
                 sessionDataCacheEntry.getLoggedInUser().getUserAttributes());
         authorizationGrantCacheEntry.setNonceValue(sessionDataCacheEntry.getoAuth2Parameters().getNonce());
         AuthorizationGrantCache.getInstance(OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout())
-                .addToCache(authorizationGrantCacheKey, authorizationGrantCacheEntry);
+                .addToCacheByCode(authorizationGrantCacheKey, authorizationGrantCacheEntry);
     }
 
     /**

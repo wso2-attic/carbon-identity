@@ -239,7 +239,7 @@ public class AccessTokenIssuer {
         if (oldCacheKey.getUserAttributesId() != null) {
             AuthorizationGrantCacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance(OAuthServerConfiguration.
                     getInstance().getAuthorizationGrantCacheTimeout())
-                    .getValueFromCache(oldCacheKey);
+                    .getValueFromCacheByCode(oldCacheKey);
             AuthorizationGrantCacheKey newCacheKey = new AuthorizationGrantCacheKey(tokenRespDTO.getAccessToken());
             int authorizationGrantCacheTimeout = OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout();
 

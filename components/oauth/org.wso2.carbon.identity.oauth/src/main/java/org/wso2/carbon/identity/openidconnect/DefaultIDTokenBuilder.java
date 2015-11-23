@@ -426,7 +426,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         AuthorizationGrantCacheEntry authorizationGrantCacheEntry =
                 (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance(OAuthServerConfiguration.
                                                                     getInstance().getAuthorizationGrantCacheTimeout()).
-                                                                        getValueFromCache(authorizationGrantCacheKey);
+                                                                        getValueFromCacheByCode(authorizationGrantCacheKey);
         return authorizationGrantCacheEntry;
     }
 
