@@ -300,7 +300,7 @@
                                     </td>
                                 </tr>
                             <% } %>
-		                    <!--<tr>
+		                    <tr>
 		                        <td class="leftCol-small"><fmt:message key='accesstoken'/></td>
                                  <%if (OAuthConstants.OAuthVersions.VERSION_2.equals(app.getOAuthVersion())){ %>
                                    <td><%=OAuthUIUtil.getAbsoluteEndpointURL(
@@ -326,7 +326,7 @@
 		                        <td class="leftCol-small"><fmt:message key='requesttokenurl'/></td>
 		                        <td><%=OAuthUIUtil.getAbsoluteEndpointURL(
                                         OAuthConstants.OAuth10AEndpoints.REQUEST_TOKEN_URL, app.getOAuthVersion(), request)%></td>
-		                    </tr> -->
+		                    </tr>
 		                    <% } %>
 				</table>
 			</td>
