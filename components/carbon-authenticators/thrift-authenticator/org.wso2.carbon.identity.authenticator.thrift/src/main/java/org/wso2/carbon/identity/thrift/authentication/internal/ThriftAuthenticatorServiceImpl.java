@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.thrift.authentication.internal;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.services.util.CarbonAuthenticationUtil;
@@ -52,6 +53,8 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
     private Map<String, ThriftSession> authenticatedSessions =
             new ConcurrentHashMap<String, ThriftSession>();
     private ThriftSessionDAO thriftSessionDAO;
+    private static final Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String AUDIT_MESSAGE = "User : %s , Action : Authenticate , Result : %s";
 
     public ThriftAuthenticatorServiceImpl(RealmService realmService, ThriftSessionDAO thriftSessionDAO, long thriftSessionTimeOut) {
         this.realmService = realmService;
@@ -119,8 +122,14 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
             // Check if the user is authenticated
             isSuccessful = userRealm.getUserStoreManager().authenticate(tenantLessUsername, password);
 
+            if(isSuccessful){
+                audit.info(String.format(AUDIT_MESSAGE, tenantLessUsername, "SUCCESS"));
+            } else {
+                audit.info(String.format(AUDIT_MESSAGE, tenantLessUsername, "FAILURE"));
+            }
             // Let the engine know if the user is authenticated or not
         } catch (UserStoreException e) {
+            audit.info(String.format(AUDIT_MESSAGE, tenantLessUsername, "FAILURE"));
             throw new AuthenticationException("User not authenticated for the given username : " + tenantLessUsername);
         }
 

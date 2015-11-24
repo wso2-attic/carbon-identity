@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.provider.openid;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
@@ -47,6 +48,8 @@ public class OpenIDUtil {
     private static final Set<Character> UNRESERVED_CHARACTERS = new HashSet<Character>();
     private static final Log log = LogFactory.getLog(OpenIDUtil.class);
     private static Map<String, String> axMapping = new HashMap<String, String>();
+    private static final Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String AUDIT_MESSAGE = "User : %s , Action : Authenticate , Result : %s";
 
     static {
         for (char c = 'a'; c <= 'z'; c++)
@@ -203,9 +206,16 @@ public class OpenIDUtil {
     public static boolean doLogin(String username, String password) {
         try {
             UserStoreManager userStore = IdentityTenantUtil.getRealm(null, username).getUserStoreManager();
-            return userStore.authenticate(username, password);
+            boolean isAuthenticated = userStore.authenticate(username, password);
+            if(isAuthenticated){
+                audit.info(String.format(AUDIT_MESSAGE, username, "SUCCESS"));
+            } else {
+                audit.info(String.format(AUDIT_MESSAGE, username, "FAILURE"));
+            }
+            return isAuthenticated;
         } catch (Exception e) {
             log.error("Error while authenticating user", e);
+            audit.info(String.format(AUDIT_MESSAGE, username, "FAILURE"));
             return false;
         }
 

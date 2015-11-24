@@ -46,6 +46,8 @@ import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
 
     private static Log log = LogFactory.getLog(PasswordGrantHandler.class);
+    private static final Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String AUDIT_MESSAGE = "User : %s , Action : Authenticate , Result : %s";
 
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx)
@@ -93,7 +95,11 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
         try {
             userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
             authStatus = userStoreManager.authenticate(tenantAwareUserName, oAuth2AccessTokenReqDTO.getResourceOwnerPassword());
-
+            if(authStatus){
+                audit.info(String.format(AUDIT_MESSAGE, username, "SUCCESS"));
+            } else {
+                audit.info(String.format(AUDIT_MESSAGE, username, "FAILURE"));
+            }
             if (log.isDebugEnabled()) {
                 log.debug("Token request with Password Grant Type received. " +
                         "Username : " + username +
@@ -102,6 +108,7 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
             }
 
         } catch (UserStoreException e) {
+            audit.info(String.format(AUDIT_MESSAGE, username, "FAILURE"));
             throw new IdentityOAuth2Exception(e.getMessage(), e);
         }
         if (authStatus) {

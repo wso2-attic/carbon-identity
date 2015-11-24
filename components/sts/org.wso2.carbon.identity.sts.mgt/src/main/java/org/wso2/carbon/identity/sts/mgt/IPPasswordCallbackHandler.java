@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.sts.mgt;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ws.security.WSPasswordCallback;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.core.util.AnonymousSessionUtil;
 import org.wso2.carbon.identity.sts.mgt.internal.IdentitySTSMgtServiceComponent;
@@ -37,7 +38,8 @@ import java.io.IOException;
 public class IPPasswordCallbackHandler implements CallbackHandler {
 
     private static final Log log = LogFactory.getLog(IPPasswordCallbackHandler.class);
-
+    private static final Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String AUDIT_MESSAGE = "Authenticate : %s , Result : %s";
     public IPPasswordCallbackHandler() {
 
     }
@@ -75,6 +77,11 @@ public class IPPasswordCallbackHandler implements CallbackHandler {
         UserRealm realm = AnonymousSessionUtil.getRealmByUserName(registryService, realmService, userName);
         String tenantFreeUsername = MultitenantUtils.getTenantAwareUsername(userName);
         isAuthenticated = realm.getUserStoreManager().authenticate(tenantFreeUsername, password);
+        if (isAuthenticated) {
+            audit.info(String.format(AUDIT_MESSAGE, tenantFreeUsername, "SUCCESS"));
+        } else {
+            audit.info(String.format(AUDIT_MESSAGE, tenantFreeUsername, "FAILURE"));
+        }
         return isAuthenticated;
     }
 
