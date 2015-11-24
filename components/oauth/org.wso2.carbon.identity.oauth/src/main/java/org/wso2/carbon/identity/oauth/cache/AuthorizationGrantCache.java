@@ -49,7 +49,7 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
     public static AuthorizationGrantCache getInstance(int timeout) {
         CarbonUtils.checkSecurity();
         if (instance == null) {
-            synchronized (SessionDataCache.class) {
+            synchronized (AuthorizationGrantCache.class) {
                 if (instance == null) {
                     instance = new AuthorizationGrantCache(AUTHORIZATION_GRANT_CACHE_NAME, timeout);
                 }
