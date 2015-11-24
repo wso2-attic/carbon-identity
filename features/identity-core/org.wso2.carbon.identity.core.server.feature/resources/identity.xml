@@ -128,6 +128,7 @@
         <!--OAuth1AccessTokenUrl>https://localhost:9443/oauth/access-token</OAuth1AccessTokenUrl-->
         <!--OAuth2AuthzEPUrl>https://localhost:9443/oauth2/authorize</OAuth2AuthzEPUrl-->
         <!--OAuth2TokenEPUrl>https://localhost:9443/oauth2/token</OAuth2TokenEPUrl-->
+        <!--OAuth2RevokeEPUrl>https://localhost:9443/oauth2/revoke</OAuth2RevokeEPUrl-->
         <!--OAuth2UserInfoEPUrl>https://localhost:9443/oauth2/userinfo</OAuth2UserInfoEPUrl-->
         <!--OIDCConsentPage>https://localhost:9443/authenticationendpoint/oauth2_consent.do</OIDCConsentPage-->
         <!--OAuth2ConsentPage>https://localhost:9443/authenticationendpoint/oauth2_authz.do</OAuth2ConsentPage-->

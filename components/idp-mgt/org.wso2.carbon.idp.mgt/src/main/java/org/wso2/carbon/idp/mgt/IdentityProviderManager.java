@@ -111,6 +111,7 @@ public class IdentityProviderManager {
         String oauth1AccessTokenUrl = null;
         String oauth2AuthzEPUrl = null;
         String oauth2TokenEPUrl = null;
+        String oauth2RevokeEPUrl = null;
         String oauth2UserInfoEPUrl = null;
         String passiveStsUrl = null;
         String stsUrl = null;
@@ -152,6 +153,11 @@ public class IdentityProviderManager {
                 getConfigElement("OAuth.OAuth2TokenEPUrl");
         if(elem != null){
             oauth2TokenEPUrl = elem.getText();
+        }
+        elem = IdentityConfigParser.getInstance().
+                getConfigElement("OAuth.OAuth2RevokeEPUrl");
+        if(elem != null){
+            oauth2RevokeEPUrl = elem.getText();
         }
         elem = IdentityConfigParser.getInstance().
                 getConfigElement("OAuth.OAuth2UserInfoEPUrl");
@@ -202,6 +208,9 @@ public class IdentityProviderManager {
         }
         if(StringUtils.isBlank(oauth2TokenEPUrl)){
             oauth2TokenEPUrl = IdentityUtil.getServerURL("oauth2/token", false);
+        }
+        if(StringUtils.isBlank(oauth2RevokeEPUrl)){
+            oauth2RevokeEPUrl = IdentityUtil.getServerURL("oauth2/revoke", false);
         }
         if(StringUtils.isBlank(oauth2UserInfoEPUrl)){
             oauth2UserInfoEPUrl = IdentityUtil.getServerURL("oauth2/userinfo", false);
@@ -377,6 +386,13 @@ public class IdentityProviderManager {
             tokenUrlProp.setName(IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL);
             tokenUrlProp.setValue(oauth2TokenEPUrl);
             propertiesList.add(tokenUrlProp);
+        }
+        if (IdentityApplicationManagementUtil.getProperty(oidcFedAuthn.getProperties(),
+                IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_REVOKE_URL) == null) {
+            Property revokeUrlProp = new Property();
+            revokeUrlProp.setName(IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_REVOKE_URL);
+            revokeUrlProp.setValue(oauth2RevokeEPUrl);
+            propertiesList.add(revokeUrlProp);
         }
         if (IdentityApplicationManagementUtil.getProperty(oidcFedAuthn.getProperties(),
                 IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_USER_INFO_EP_URL) == null) {
