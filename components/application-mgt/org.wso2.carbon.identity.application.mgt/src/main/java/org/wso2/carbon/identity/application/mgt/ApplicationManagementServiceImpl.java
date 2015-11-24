@@ -196,7 +196,18 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         try {
             startTenantFlow(tenantDomain, username);
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
-            return appDAO.getAllApplicationBasicInfo();
+            ApplicationBasicInfo[] applicationBasicInfos = appDAO.getAllApplicationBasicInfo();
+
+            ArrayList<ApplicationBasicInfo> appInfo = new ArrayList<>();
+            for (ApplicationBasicInfo applicationBasicInfo: applicationBasicInfos) {
+                if (ApplicationMgtUtil.isUserAuthorized(applicationBasicInfo.getApplicationName(), username)) {
+                    appInfo.add(applicationBasicInfo);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Application Name:" + applicationBasicInfo.getApplicationName());
+                    }
+                }
+            }
+            return appInfo.toArray(new ApplicationBasicInfo[appInfo.size()]);
         } catch (Exception e) {
             String error = "Error occurred while retrieving all the applications";
             throw new IdentityApplicationManagementException(error, e);

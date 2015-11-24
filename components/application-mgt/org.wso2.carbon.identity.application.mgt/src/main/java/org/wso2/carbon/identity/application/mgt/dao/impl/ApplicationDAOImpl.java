@@ -2135,13 +2135,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
                 basicInfo.setApplicationName(appNameResultSet.getString(1));
                 basicInfo.setDescription(appNameResultSet.getString(2));
-
-                if (ApplicationMgtUtil.isUserAuthorized(basicInfo.getApplicationName(), username)) {
-                    appInfo.add(basicInfo);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Application Name:" + basicInfo.getApplicationName());
-                    }
-                }
+                appInfo.add(basicInfo);
             }
             connection.commit();
         } catch (SQLException e) {
