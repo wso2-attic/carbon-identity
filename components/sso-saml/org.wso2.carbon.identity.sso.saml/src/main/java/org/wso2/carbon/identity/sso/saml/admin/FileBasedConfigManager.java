@@ -104,7 +104,6 @@ public class FileBasedConfigManager {
         Element element = document.getDocumentElement();
         NodeList nodeSet = element.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.SERVICE_PROVIDER);
         SAMLSSOServiceProviderDO[] serviceProviders = new SAMLSSOServiceProviderDO[nodeSet.getLength()];
-        boolean fullQualifyUserName = true;
         boolean singleLogout = true;
         boolean signAssertion = true;
         boolean validateSignature = false;
@@ -115,12 +114,9 @@ public class FileBasedConfigManager {
             Element elem = (Element) nodeSet.item(i);
             SAMLSSOServiceProviderDO spDO = new SAMLSSOServiceProviderDO();
             spDO.setIssuer(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ISSUER));
-            spDO.setAssertionConsumerUrls(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.ACS_URLS));
+            spDO.setAssertionConsumerUrls(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.ASSERTION_CONSUMER_URL));
             spDO.setDefaultAssertionConsumerUrl(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.DEFAULT_ACS_URL));
             spDO.setLoginPageURL(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CUSTOM_LOGIN_PAGE));
-            if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.USE_FULLY_QUALIFY_USER_NAME)) != null) {
-                fullQualifyUserName = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.USE_FULLY_QUALIFY_USER_NAME));
-            }
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SINGLE_LOGOUT)) != null) {
                 singleLogout = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SINGLE_LOGOUT));
                 spDO.setSloResponseURL(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SLO_RESPONSE_URL));
@@ -156,10 +152,8 @@ public class FileBasedConfigManager {
                 }
             }
             if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ATTRIBUTE_PROFILE))) {
-                if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.CLAIMS) != null) {
-                    spDO.setRequestedClaims(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.CLAIM));
-                }
                 spDO.setEnableAttributesByDefault(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.INCLUDE_ATTRIBUTE)));
+                spDO.setAttributeConsumingServiceIndex(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CONSUMING_SERVICE_INDEX));
             }
             if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_RESTRICTION)) && elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_LIST) != null) {
                 spDO.setRequestedAudiences(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE));
@@ -172,7 +166,7 @@ public class FileBasedConfigManager {
                 spDO.setIdPInitSLOEnabled(true);
                 if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.RETURN_TO_URL_LIST) != null) {
                     spDO.setIdpInitSLOReturnToURLs(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig
-                            .RETURN_TO_URL_LIST));
+                            .RETURN_TO_URL));
                 }
             }
 
@@ -183,7 +177,6 @@ public class FileBasedConfigManager {
             spDO.setDoSignResponse(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIGN_RESPONSE)));
             spDO.setCertAlias(certAlias);
             spDO.setIdPInitSSOEnabled(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.IDP_INIT)));
-            spDO.setAttributeConsumingServiceIndex(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CONSUMING_SERVICE_INDEX));
             serviceProviders[i] = spDO;
         }
         return serviceProviders;

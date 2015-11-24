@@ -17,45 +17,13 @@
  */
 package org.wso2.carbon.identity.workflow.impl.listener;
 
-import org.apache.axiom.om.OMAttribute;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.impl.builder.StAXOMBuilder;
-import org.apache.axiom.om.impl.llom.OMElementImpl;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.client.ServiceClient;
-import org.apache.axis2.databinding.types.NCName;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.humantask.stub.types.TSimpleQueryCategory;
-import org.wso2.carbon.humantask.stub.types.TSimpleQueryInput;
-import org.wso2.carbon.humantask.stub.types.TStatus;
-import org.wso2.carbon.humantask.stub.types.TTaskSimpleQueryResultRow;
-import org.wso2.carbon.humantask.stub.types.TTaskSimpleQueryResultSet;
-import org.wso2.carbon.humantask.stub.ui.task.client.api.HumanTaskClientAPIAdminStub;
-import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalAccessFault;
-import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalArgumentFault;
-import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalOperationFault;
-import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalStateFault;
-import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplService;
-import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
-import org.wso2.carbon.identity.workflow.impl.dao.BPSProfileDAO;
 import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.listener.AbstractWorkflowListener;
 import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
-
-import javax.xml.stream.XMLStreamException;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.rmi.RemoteException;
-import java.util.Iterator;
-import java.util.List;
 
 
 public class WorkflowListenerImpl extends AbstractWorkflowListener {

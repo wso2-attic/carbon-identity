@@ -21,11 +21,14 @@ package org.wso2.carbon.identity.mgt.store;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimsDO;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -52,71 +55,82 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
     public void store(UserIdentityClaimsDO userIdentityDTO, UserStoreManager userStoreManager)
             throws IdentityException {
 
-        if (userIdentityDTO != null && userIdentityDTO.getUserName() != null) {
-            String userName = userIdentityDTO.getUserName();
-            if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
-                if (!IdentityUtil.isUserStoreCaseSensitive((org.wso2.carbon.user.core.UserStoreManager)
-                        userStoreManager)) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Case insensitive user store found. Changing username from : " + userName +
-                                " to : " + userName.toLowerCase());
-                    }
-                    userName = userName.toLowerCase();
-                }
-            }
-
-            if (log.isDebugEnabled()) {
-                StringBuilder data = new StringBuilder("{");
-                if (userIdentityDTO.getUserIdentityDataMap() != null) {
-                    for (Map.Entry<String, String> entry : userIdentityDTO.getUserIdentityDataMap().entrySet()) {
-                        data.append("[").append(entry.getKey()).append(" = ").append(entry.getValue()).append("], ");
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            if (userIdentityDTO != null && userIdentityDTO.getUserName() != null) {
+                String userName = userIdentityDTO.getUserName();
+                if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
+                    if (!IdentityUtil.isUserStoreCaseSensitive((org.wso2.carbon.user.core.UserStoreManager)
+                            userStoreManager)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Case insensitive user store found. Changing username from : " + userName +
+                                    " to : " + userName.toLowerCase());
+                        }
+                        userName = userName.toLowerCase();
                     }
                 }
-                if (data.indexOf(",") >= 0) {
-                    data.deleteCharAt(data.lastIndexOf(","));
+
+                if (log.isDebugEnabled()) {
+                    StringBuilder data = new StringBuilder("{");
+                    if (userIdentityDTO.getUserIdentityDataMap() != null) {
+                        for (Map.Entry<String, String> entry : userIdentityDTO.getUserIdentityDataMap().entrySet()) {
+                            data.append("[").append(entry.getKey()).append(" = ").append(entry.getValue()).append("], ");
+                        }
+                    }
+                    if (data.indexOf(",") >= 0) {
+                        data.deleteCharAt(data.lastIndexOf(","));
+                    }
+                    data.append("}");
+                    log.debug("Storing UserIdentityClaimsDO to cache for user: " + userName + " with claims: " + data);
                 }
-                data.append("}");
-                log.debug("Storing UserIdentityClaimsDO to cache for user: " + userName + " with claims: " + data);
+
+                org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
+                String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+                String key = domainName + userStoreManager.getTenantId() + userName;
+
+                Cache<String, UserIdentityClaimsDO> cache = getCache();
+                if (cache != null) {
+                    cache.put(key, userIdentityDTO);
+                }
             }
-
-            org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
-            String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-
-            String key = domainName +
-                    CarbonContext.getThreadLocalCarbonContext().getTenantId() +
-                    userName;
-
-            Cache<String, UserIdentityClaimsDO> cache = getCache();
-            if(cache != null) {
-                cache.put(key, userIdentityDTO);
-            }
+        } catch (UserStoreException e) {
+            log.error("Error while obtaining tenant ID from user store manager");
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
     }
 
     @Override
     public UserIdentityClaimsDO load(String userName, UserStoreManager userStoreManager) {
 
-        Cache<String, UserIdentityClaimsDO> cache = getCache();
-        if (userName != null && cache != null) {
-            if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
-                if (!IdentityUtil.isUserStoreCaseSensitive((org.wso2.carbon.user.core.UserStoreManager)
-                        userStoreManager)) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Case insensitive user store found. Changing username from : " + userName +
-                                " to : " + userName.toLowerCase());
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            Cache<String, UserIdentityClaimsDO> cache = getCache();
+            if (userName != null && cache != null) {
+                if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
+                    if (!IdentityUtil.isUserStoreCaseSensitive((org.wso2.carbon.user.core.UserStoreManager)
+                            userStoreManager)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Case insensitive user store found. Changing username from : " + userName +
+                                    " to : " + userName.toLowerCase());
+                        }
+                        userName = userName.toLowerCase();
                     }
-                    userName = userName.toLowerCase();
                 }
-            }
 
-            org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
+                org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager) userStoreManager;
 
-            String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
-            UserIdentityClaimsDO userIdentityDTO = (UserIdentityClaimsDO) cache.get(domainName +
-                    CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
+                UserIdentityClaimsDO userIdentityDTO = (UserIdentityClaimsDO) cache.get(domainName + userStoreManager
+                        .getTenantId() + userName);
 
-            if (userIdentityDTO != null && log.isDebugEnabled()) {
+                if (userIdentityDTO != null && log.isDebugEnabled()) {
                     StringBuilder data = new StringBuilder("{");
                     if (userIdentityDTO.getUserIdentityDataMap() != null) {
                         for (Map.Entry<String, String> entry : userIdentityDTO.getUserIdentityDataMap().entrySet()) {
@@ -129,33 +143,49 @@ public class InMemoryIdentityDataStore extends UserIdentityDataStore {
                     data.append("}");
                     log.debug("Loaded UserIdentityClaimsDO from cache for user :" + userName + " with claims: " + data);
 
+                }
+                return userIdentityDTO;
             }
-            return userIdentityDTO;
+        } catch (UserStoreException e) {
+            log.error("Error while obtaining tenant ID from user store manager");
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
         return null;
     }
 
     @Override
     public void remove(String userName, UserStoreManager userStoreManager) throws IdentityException {
-        Cache<String, UserIdentityClaimsDO> cache = getCache();
-        if (userName == null) {
-            return;
-        }
-        if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
-            if (!IdentityUtil.isUserStoreCaseSensitive((org.wso2.carbon.user.core.UserStoreManager) userStoreManager)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Case insensitive user store found. Changing username from : " + userName + " to : " +
-                            userName.toLowerCase());
-                }
-                userName = userName.toLowerCase();
-            }
-        }
-        org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager)
-                userStoreManager;
-        String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
-                .PROPERTY_DOMAIN_NAME);
 
-        cache.remove(domainName + CarbonContext.getThreadLocalCarbonContext().getTenantId() + userName);
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+
+            Cache<String, UserIdentityClaimsDO> cache = getCache();
+            if (userName == null) {
+                return;
+            }
+            if (userStoreManager instanceof org.wso2.carbon.user.core.UserStoreManager) {
+                if (!IdentityUtil.isUserStoreCaseSensitive((org.wso2.carbon.user.core.UserStoreManager) userStoreManager)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Case insensitive user store found. Changing username from : " + userName + " to : " +
+                                userName.toLowerCase());
+                    }
+                    userName = userName.toLowerCase();
+                }
+            }
+            org.wso2.carbon.user.core.UserStoreManager store = (org.wso2.carbon.user.core.UserStoreManager)
+                    userStoreManager;
+            String domainName = store.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                    .PROPERTY_DOMAIN_NAME);
+
+            cache.remove(domainName + userStoreManager.getTenantId() + userName);
+        } catch (UserStoreException e) {
+            log.error("Error while obtaining tenant ID from user store manager");
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
     }
 
 }

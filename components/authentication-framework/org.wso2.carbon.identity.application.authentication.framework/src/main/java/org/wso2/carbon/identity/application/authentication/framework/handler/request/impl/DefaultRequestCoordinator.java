@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 /**
  * Request Coordinator
@@ -347,7 +348,8 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         context.setSequenceConfig(sequenceConfig);
     }
 
-    private void buildOutboundQueryString(HttpServletRequest request, AuthenticationContext context) {
+    private void buildOutboundQueryString(HttpServletRequest request, AuthenticationContext context)
+            throws FrameworkException {
 
         // Build the outbound query string that will be sent to the authentication endpoint and
         // federated IdPs
@@ -358,11 +360,15 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
             outboundQueryStringBuilder.append("&");
         }
 
-        outboundQueryStringBuilder.append("sessionDataKey=").append(context.getContextIdentifier())
-                .append("&relyingParty=").append(context.getRelyingParty()).append("&type=")
-                .append(context.getRequestType()).append("&sp=")
-                .append(context.getServiceProviderName()).append("&isSaaSApp=")
-                .append(context.getSequenceConfig().getApplicationConfig().isSaaSApp());
+        try {
+            outboundQueryStringBuilder.append("sessionDataKey=").append(context.getContextIdentifier())
+                    .append("&relyingParty=").append(URLEncoder.encode(context.getRelyingParty(), "UTF-8")).append("&type=")
+                    .append(context.getRequestType()).append("&sp=")
+                    .append(URLEncoder.encode(context.getServiceProviderName(), "UTF-8")).append("&isSaaSApp=")
+                    .append(context.getSequenceConfig().getApplicationConfig().isSaaSApp());
+        } catch (UnsupportedEncodingException e) {
+            throw new FrameworkException("Error while URL Encoding", e);
+        }
 
         if (log.isDebugEnabled()) {
             log.debug("Outbound Query String: " + outboundQueryStringBuilder.toString());

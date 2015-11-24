@@ -132,7 +132,16 @@ public class AuthorizationHandlerManager {
             }
         }
 
-        authorizeRespDTO = authzHandler.issue(authzReqMsgCtx);
+	try {
+	    // set the authorization request context to be used by downstream handlers. This is introduced as a fix for
+	    // IDENTITY-4111
+	    OAuth2Util.setAuthzRequestContext(authzReqMsgCtx);
+	    authorizeRespDTO = authzHandler.issue(authzReqMsgCtx);
+	} finally {
+	    // clears authorization request context
+	    OAuth2Util.clearAuthzRequestContext();
+	}
+	
         return authorizeRespDTO;
     }
 
