@@ -124,6 +124,7 @@ location.href = "list-service-providers.jsp";
     
     if (oauthapp!=null && "delete".equals(action)){
     	appBean.deleteOauthApp();
+        isNeedToUpdate = true;
     }
     
     String oauthConsumerSecret = null;
@@ -145,6 +146,7 @@ location.href = "list-service-providers.jsp";
     
     if (wsTrust != null && "delete".equals(action)){
     	appBean.deleteWstrustEp();
+        isNeedToUpdate = true;
     }
     
     wsTrust  = appBean.getWstrustSP();
@@ -1706,13 +1708,5 @@ var roleMappinRowID = -1;
             </form>
         </div>
     </div>
-	<script>
-		update();
-		function update() {
-			if (window.location.href.indexOf("action=delete") > -1) {
-				createAppOnclick();
-			}
-		}
-	</script>
 
 </fmt:bundle>
