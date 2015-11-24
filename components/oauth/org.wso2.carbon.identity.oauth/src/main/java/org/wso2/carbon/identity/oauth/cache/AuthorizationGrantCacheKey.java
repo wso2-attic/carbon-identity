@@ -26,14 +26,8 @@ public class AuthorizationGrantCacheKey extends CacheKey {
     //todo:variable name userAttributesId should be change later because userAttributesId = authorizationCode
     private String userAttributesId;
     private Boolean isAuthzCode = false;
-
-    public Boolean getIsAuthzCode() {
-        return isAuthzCode;
-    }
-
-    public void setIsAuthzCode(Boolean isAuthzCode) {
-        this.isAuthzCode = isAuthzCode;
-    }
+    private String tokenId;
+    private String codeId;
 
     public AuthorizationGrantCacheKey(String userAttributesId) {
         this.userAttributesId = userAttributesId;
@@ -54,5 +48,29 @@ public class AuthorizationGrantCacheKey extends CacheKey {
     @Override
     public int hashCode() {
         return userAttributesId.hashCode();
+    }
+
+    public String getTokenId() {
+        return tokenId;
+    }
+
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
+    }
+
+    public String getCodeId() {
+        return codeId;
+    }
+
+    public void setCodeId(String codeId) {
+        this.codeId = codeId;
+    }
+
+    public Boolean getIsAuthzCode() {
+        return isAuthzCode;
+    }
+
+    public void setIsAuthzCode(Boolean isAuthzCode) {
+        this.isAuthzCode = isAuthzCode;
     }
 }

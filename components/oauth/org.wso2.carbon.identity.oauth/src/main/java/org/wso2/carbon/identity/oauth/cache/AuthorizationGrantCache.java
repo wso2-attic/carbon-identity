@@ -63,13 +63,14 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
         super.addToCache(key, entry);
 
         //if key is authorization code, for the first time get the code id from entry else try to get from database layer
-        if(key.getIsAuthzCode()) {
-            if(entry.getCodeId() != null){
-                keyValue = entry.getCodeId();
-            }
-            else {
+        if (key.getIsAuthzCode()) {
+            if (key.getCodeId() != null) {
+                keyValue = key.getCodeId();
+            } else {
                 keyValue = replaceFromCodeId(keyValue);
             }
+        } else {
+            keyValue = key.getTokenId();
         }
         SessionDataStore.getInstance().storeSessionData(keyValue, AUTHORIZATION_GRANT_CACHE_NAME, entry);
         if (enableRequestScopeCache) {
