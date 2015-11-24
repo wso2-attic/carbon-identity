@@ -31,6 +31,7 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
+import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.callback.OAuthCallback;
@@ -67,7 +68,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         // Set the cache instance if caching is enabled.
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
             cacheEnabled = true;
-            oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
+            oauthCache = OAuthCache.getInstance();
         }
     }
 
@@ -126,9 +127,11 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             // check if valid access token exists in cache
             if (cacheEnabled) {
 
-                AccessTokenDO existingAccessTokenDO = (AccessTokenDO) oauthCache.getValueFromCache(cacheKey);
+                AccessTokenDO existingAccessTokenDO = null;
 
-                if (existingAccessTokenDO != null) {
+                CacheEntry cacheEntry = oauthCache.getValueFromCache(cacheKey);
+                if (cacheEntry != null && cacheEntry instanceof AccessTokenDO) {
+                    existingAccessTokenDO = (AccessTokenDO) cacheEntry;
 
                     if (log.isDebugEnabled()) {
                         log.debug("Retrieved active access token : " + existingAccessTokenDO.getAccessToken() +
@@ -458,8 +461,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         String grantType = tokenReqDTO.getGrantType();
 
         // Load application data from the cache
-        AppInfoCache appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().
-                                                                                        getAppInfoCacheTimeout());
+        AppInfoCache appInfoCache = AppInfoCache.getInstance();
         OAuthAppDO oAuthAppDO = appInfoCache.getValueFromCache(tokenReqDTO.getClientId());
         if (oAuthAppDO == null) {
             try {

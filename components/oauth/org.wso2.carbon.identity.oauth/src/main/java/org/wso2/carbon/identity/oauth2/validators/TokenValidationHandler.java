@@ -22,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
-import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -184,8 +183,8 @@ public class TokenValidationHandler {
         boolean cacheHit = false;
         // Check the cache, if caching is enabled.
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-            OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
-            CacheKey cacheKey = new OAuthCacheKey(requestDTO.getAccessToken().getIdentifier());
+            OAuthCache oauthCache = OAuthCache.getInstance();
+            OAuthCacheKey cacheKey = new OAuthCacheKey(requestDTO.getAccessToken().getIdentifier());
             CacheEntry result = oauthCache.getValueFromCache(cacheKey);
             // cache hit, do the type check.
             if (result instanceof AccessTokenDO) {
@@ -228,8 +227,8 @@ public class TokenValidationHandler {
 
         // Add the token back to the cache in the case of a cache miss
         if (OAuthServerConfiguration.getInstance().isCacheEnabled() && !cacheHit) {
-            OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
-            CacheKey cacheKey = new OAuthCacheKey(accessTokenIdentifier);
+            OAuthCache oauthCache = OAuthCache.getInstance();
+            OAuthCacheKey cacheKey = new OAuthCacheKey(accessTokenIdentifier);
             oauthCache.addToCache(cacheKey, accessTokenDO);
             if (log.isDebugEnabled()) {
                 log.debug("Access Token Info object was added back to the cache.");

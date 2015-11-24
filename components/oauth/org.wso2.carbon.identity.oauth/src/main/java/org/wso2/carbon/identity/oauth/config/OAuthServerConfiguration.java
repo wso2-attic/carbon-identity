@@ -99,9 +99,6 @@ public class OAuthServerConfiguration {
     private long applicationAccessTokenValidityPeriodInSeconds = 3600;
     private long refreshTokenValidityPeriodInSeconds = 24L * 3600;
     private long timeStampSkewInSeconds = 300;
-    private int sessionDataCacheTimeout = -1;
-    private int authorizationGrantCacheTimeout = -1;
-    private int appInfoCacheTimeout = -1;
     private String tokenPersistenceProcessorClassName = "org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor";
     private boolean cacheEnabled = true;
     private boolean isRefreshTokenRenewalEnabled = true;
@@ -281,23 +278,6 @@ public class OAuthServerConfiguration {
 
     public long getApplicationAccessTokenValidityPeriodInSeconds() {
         return applicationAccessTokenValidityPeriodInSeconds;
-    }
-
-    public int getOAuthCacheTimeout() {
-        return (int)Math.max(authorizationCodeValidityPeriodInSeconds,
-                Math.max(userAccessTokenValidityPeriodInSeconds, applicationAccessTokenValidityPeriodInSeconds));
-    }
-
-    public int getSessionDataCacheTimeout() {
-        return sessionDataCacheTimeout;
-    }
-
-    public int getAuthorizationGrantCacheTimeout() {
-        return authorizationGrantCacheTimeout;
-    }
-
-    public int getAppInfoCacheTimeout() {
-        return appInfoCacheTimeout;
     }
 
     public long getRefreshTokenValidityPeriodInSeconds() {
@@ -862,24 +842,6 @@ public class OAuthServerConfiguration {
             timeStampSkewInSeconds = Long.parseLong(timeStampSkewElem.getText());
         }
 
-        OMElement appInfoCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
-                getQNameWithIdentityNS(ConfigElements.APP_INFO_CACHE_TIMEOUT));
-        if (appInfoCacheTimeoutElem != null) {
-            appInfoCacheTimeout = Integer.parseInt(appInfoCacheTimeoutElem.getText());
-        }
-
-        OMElement authorizationGrantCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
-                getQNameWithIdentityNS(ConfigElements.AUTHORIZATION_GRANT_CACHE_TIMEOUT));
-        if (appInfoCacheTimeoutElem != null) {
-            authorizationGrantCacheTimeout = Integer.parseInt(authorizationGrantCacheTimeoutElem.getText());
-        }
-
-        OMElement sessionDataCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
-                getQNameWithIdentityNS(ConfigElements.SESSION_DATA_CACHE_TIMEOUT));
-        if (appInfoCacheTimeoutElem != null) {
-            sessionDataCacheTimeout = Integer.parseInt(sessionDataCacheTimeoutElem.getText());
-        }
-
         if (log.isDebugEnabled()) {
             if (authzCodeTimeoutElem == null) {
                 log.debug("\"Authorization Code Default Timeout\" element was not available "
@@ -1433,9 +1395,6 @@ public class OAuthServerConfiguration {
         private static final String USER_ACCESS_TOKEN_DEFAULT_VALIDITY_PERIOD = "UserAccessTokenDefaultValidityPeriod";
         private static final String APPLICATION_ACCESS_TOKEN_VALIDATION_PERIOD = "AccessTokenDefaultValidityPeriod";
         private static final String REFRESH_TOKEN_VALIDITY_PERIOD = "RefreshTokenValidityPeriod";
-        private static final String APP_INFO_CACHE_TIMEOUT = "AppInfoCacheTimeout";
-        private static final String AUTHORIZATION_GRANT_CACHE_TIMEOUT = "AuthorizationGrantCacheTimeout";
-        private static final String SESSION_DATA_CACHE_TIMEOUT = "SessionDataCacheTimeout";
         // Enable/Disable cache
         private static final String ENABLE_CACHE = "EnableOAuthCache";
         // Enable/Disable refresh token renewal on each refresh_token grant request

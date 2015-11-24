@@ -57,7 +57,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
         AuthzCodeDO authzCodeDO = null;
         // if cache is enabled, check in the cache first.
         if (cacheEnabled) {
-            CacheKey cacheKey = new OAuthCacheKey(OAuth2Util.buildCacheKeyStringForAuthzCode(
+            OAuthCacheKey cacheKey = new OAuthCacheKey(OAuth2Util.buildCacheKeyStringForAuthzCode(
                     clientId, authorizationCode));
             authzCodeDO = (AuthzCodeDO) oauthCache.getValueFromCache(cacheKey);
         }

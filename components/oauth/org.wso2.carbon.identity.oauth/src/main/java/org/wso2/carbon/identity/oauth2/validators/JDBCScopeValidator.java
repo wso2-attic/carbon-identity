@@ -19,7 +19,6 @@
 package org.wso2.carbon.identity.oauth2.validators;
 
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
-import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
@@ -55,8 +54,8 @@ public class JDBCScopeValidator extends OAuth2ScopeValidator {
         boolean cacheHit = false;
         // Check the cache, if caching is enabled.
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-            OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
-            CacheKey cacheKey = new OAuthCacheKey(resource);
+            OAuthCache oauthCache = OAuthCache.getInstance();
+            OAuthCacheKey cacheKey = new OAuthCacheKey(resource);
             CacheEntry result = oauthCache.getValueFromCache(cacheKey);
 
             //Cache hit
@@ -71,8 +70,8 @@ public class JDBCScopeValidator extends OAuth2ScopeValidator {
             resourceScope = tokenMgtDAO.findScopeOfResource(resource);
 
             if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-                OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
-                CacheKey cacheKey = new OAuthCacheKey(resource);
+                OAuthCache oauthCache = OAuthCache.getInstance();
+                OAuthCacheKey cacheKey = new OAuthCacheKey(resource);
                 ResourceScopeCacheEntry cacheEntry = new ResourceScopeCacheEntry(resourceScope);
                 //Store resourceScope in cache even if it is null (to avoid database calls when accessing resources for
                 //which scopes haven't been defined).
