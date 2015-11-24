@@ -309,7 +309,7 @@ public class OAuthAppDAO {
                     oauthApp.setOauthConsumerSecret(persistenceProcessor.getPreprocessedClientSecret(rSet.getString(1)));
                     oauthApp.setUserName(rSet.getString(2));
                     oauthApp.setUserDomain(rSet.getString(3));
-                    oauthApp.setOauthConsumerKey(persistenceProcessor.getPreprocessedClientSecret(rSet.getString(4)));
+                    oauthApp.setOauthConsumerKey(persistenceProcessor.getPreprocessedClientId(rSet.getString(4)));
                     oauthApp.setOauthVersion(rSet.getString(5));
                     oauthApp.setCallbackUrl(rSet.getString(6));
                     oauthApp.setGrantTypes(rSet.getString(7));
