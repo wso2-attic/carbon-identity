@@ -114,7 +114,7 @@ public class FileBasedConfigManager {
             Element elem = (Element) nodeSet.item(i);
             SAMLSSOServiceProviderDO spDO = new SAMLSSOServiceProviderDO();
             spDO.setIssuer(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ISSUER));
-            spDO.setAssertionConsumerUrls(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.ACS_URLS));
+            spDO.setAssertionConsumerUrls(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.ASSERTION_CONSUMER_URL));
             spDO.setDefaultAssertionConsumerUrl(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.DEFAULT_ACS_URL));
             spDO.setLoginPageURL(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CUSTOM_LOGIN_PAGE));
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SINGLE_LOGOUT)) != null) {

@@ -367,4 +367,10 @@
         <EventListener type="org.wso2.carbon.user.core.listener.UserOperationEventListener" name="org.wso2.carbon.identity.provider.openid.listener.IdentityOpenIDUserEventListener"
                        orderId="70" enable="false"/>
     </EventListeners>
+
+    <CacheConfig>
+        <CacheManager name="IdentityApplicationManagementCacheManager">
+            <!--<Cache name="AppAuthFrameworkSessionContextCache" enable="false" timeout="1" capacity="5000"/>-->
+        </CacheManager>
+    </CacheConfig>
 </Server>

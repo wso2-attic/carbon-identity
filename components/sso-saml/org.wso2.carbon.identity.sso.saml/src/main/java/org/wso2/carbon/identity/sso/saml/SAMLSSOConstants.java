@@ -67,7 +67,7 @@ public class SAMLSSOConstants {
         public static final String SERVICE_PROVIDERS = "ServiceProviders";
         public static final String SERVICE_PROVIDER = "ServiceProvider";
         public static final String ISSUER = "Issuer";
-        public static final String ASSERTION_CONSUMER_URL = "AssertionConsumerService";
+        public static final String ASSERTION_CONSUMER_URL = "AssertionConsumerServiceURL";
         public static final String ACS_URLS = "AssertionConsumerServiceURLs";
         public static final String DEFAULT_ACS_URL= "DefaultAssertionConsumerServiceURL";
         public static final String CUSTOM_LOGIN_PAGE = "CustomLoginPage";
