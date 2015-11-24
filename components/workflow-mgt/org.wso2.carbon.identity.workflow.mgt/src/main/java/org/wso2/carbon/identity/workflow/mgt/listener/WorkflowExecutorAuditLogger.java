@@ -49,7 +49,7 @@ public class WorkflowExecutorAuditLogger extends AbstractWorkflowExecutorManager
         String auditData = "\"" + "Operation Type" + "\" : \"" + workFlowRequest.getEventType()
                 + "\",\"" + "Request parameters" + "\" : \"" + workFlowRequest.getRequestParameterAsString()
                 + "\"";
-        AUDIT_LOG.info(String.format(AUDIT_MESSAGE, loggedInUser, "Add Workflow Request", auditData,
+        AUDIT_LOG.info(String.format(AUDIT_MESSAGE, loggedInUser, "Initiate Workflow", auditData,
                 AUDIT_SUCCESS));
     }
 
@@ -63,6 +63,14 @@ public class WorkflowExecutorAuditLogger extends AbstractWorkflowExecutorManager
      */
     @Override
     public void doPostHandleCallback(String uuid, String status, Map<String, Object> additionalParams) throws WorkflowException {
-        super.doPostHandleCallback(uuid, status, additionalParams);
+        String loggedInUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
+        if (StringUtils.isBlank(loggedInUser)) {
+            loggedInUser = CarbonConstants.REGISTRY_SYSTEM_USERNAME;
+        }
+        String auditData = "\"" + "Request ID" + "\" : \"" + uuid
+                + "\",\"" + "Callback Status" + "\" : \"" + status
+                + "\"";
+        AUDIT_LOG.info(String.format(AUDIT_MESSAGE, loggedInUser, "Callback for Workflow Request", auditData,
+                AUDIT_SUCCESS));
     }
 }

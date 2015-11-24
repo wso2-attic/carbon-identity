@@ -28,6 +28,8 @@ import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementServiceImpl;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowAuditLogger;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowExecutorAuditLogger;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowExecutorManagerListener;
 import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
@@ -67,6 +69,11 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  * cardinality="0..n" policy="dynamic"
  * bind="setWorkflowRequestDeleteListener"
  * unbind="unsetWorkflowRequestDeleteListener"
+ * @scr.reference name="org.wso2.carbon.identity.workflow.mgt.listener.workflowexecutorlistner"
+ * interface="org.wso2.carbon.identity.workflow.mgt.listener.WorkflowExecutorManagerListener"
+ * cardinality="0..n" policy="dynamic"
+ * bind="setWorkflowExecutorListener"
+ * unbind="unsetWorkflowExecutorListener"
  */
 public class WorkflowMgtServiceComponent {
 
@@ -83,6 +90,8 @@ public class WorkflowMgtServiceComponent {
         WorkflowServiceDataHolder.getInstance().setBundleContext(bundleContext);
         ServiceRegistration serviceRegistration = context.getBundleContext().registerService
                 (WorkflowListener.class.getName(), new WorkflowAuditLogger(), null);
+        context.getBundleContext().registerService
+                (WorkflowExecutorManagerListener.class.getName(), new WorkflowExecutorAuditLogger(), null);
         if (serviceRegistration != null) {
             if (log.isDebugEnabled()) {
                 log.debug("WorkflowAuditLogger registered.");
@@ -155,6 +164,20 @@ public class WorkflowMgtServiceComponent {
     protected void unsetWorkflowRequestDeleteListener(WorkflowListener workflowListener) {
         if(workflowListener !=null) {
             WorkflowServiceDataHolder.getInstance().getWorkflowListenerList()
+                    .remove(workflowListener);
+        }
+    }
+
+    protected void setWorkflowExecutorListener(WorkflowExecutorManagerListener workflowListener) {
+        if(workflowListener !=null) {
+            WorkflowServiceDataHolder.getInstance().getExecutorListenerList()
+                    .add(workflowListener);
+        }
+    }
+
+    protected void unsetWorkflowExecutorListener(WorkflowExecutorManagerListener workflowListener) {
+        if(workflowListener !=null) {
+            WorkflowServiceDataHolder.getInstance().getExecutorListenerList()
                     .remove(workflowListener);
         }
     }

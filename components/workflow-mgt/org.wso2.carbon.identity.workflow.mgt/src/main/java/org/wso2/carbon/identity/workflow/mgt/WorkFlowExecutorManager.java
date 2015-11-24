@@ -39,6 +39,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowExecutorManagerListener;
 import org.wso2.carbon.identity.workflow.mgt.util.ExecutorResultState;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestBuilder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
@@ -67,6 +68,18 @@ public class WorkFlowExecutorManager {
     public WorkflowExecutorResult executeWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
+        List<WorkflowExecutorManagerListener> workflowListenerList =
+                WorkflowServiceDataHolder.getInstance().getExecutorListenerList();
+        for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
+            try {
+                workflowListener.doPreExecuteWorkflow(workFlowRequest);
+            } catch (WorkflowException e) {
+                throw new WorkflowException(
+                        "Error occurred while calling doPreExecuteWorkflow in WorkflowExecutorManager ," +
+                                workflowListener.getClass().getName(), e);
+            }
+        }
+
         if (StringUtils.isBlank(workFlowRequest.getUuid())) {
             workFlowRequest.setUuid(UUID.randomUUID().toString());
         }
@@ -121,6 +134,15 @@ public class WorkFlowExecutorManager {
         if (!workflowEngaged) {
             //handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null, "");
             return new WorkflowExecutorResult(ExecutorResultState.CONDITION_FAILED);
+        }
+        for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
+            try {
+                workflowListener.doPostExecuteWorkflow(workFlowRequest);
+            } catch (WorkflowException e) {
+                throw new WorkflowException(
+                        "Error occurred while calling doPostExecuteWorkflow in WorkflowExecutorManager ," +
+                                workflowListener.getClass().getName(), e);
+            }
         }
         return new WorkflowExecutorResult(ExecutorResultState.STARTED_ASSOCIATION);
     }
@@ -190,11 +212,35 @@ public class WorkFlowExecutorManager {
     public void handleCallback(String uuid, String status, Map<String, Object> additionalParams)
             throws WorkflowException {
 
+        List<WorkflowExecutorManagerListener> workflowListenerList =
+                WorkflowServiceDataHolder.getInstance().getExecutorListenerList();
+        for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
+            try {
+                workflowListener.doPreHandleCallback(uuid, status, additionalParams);
+            } catch (WorkflowException e) {
+                throw new WorkflowException(
+                        "Error occurred while calling doPreHandleCallback in WorkflowExecutorManager ," +
+                                workflowListener.getClass().getName(), e);
+            }
+        }
+
         WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
         String requestId = workflowRequestAssociationDAO.getRequestIdOfRelationship(uuid);
         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
         WorkflowRequest request = requestDAO.retrieveWorkflow(requestId);
         handleCallback(request, status, additionalParams, uuid);
+
+        for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
+            try {
+                workflowListener.doPostHandleCallback(uuid, status, additionalParams);
+            } catch (WorkflowException e) {
+                throw new WorkflowException(
+                        "Error occurred while calling doPostHandleCallback in WorkflowExecutorManager ," +
+                                workflowListener.getClass().getName(), e);
+            }
+        }
+
+
     }
 
     /**
