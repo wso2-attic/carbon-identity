@@ -853,10 +853,10 @@
            
     <script type="text/javascript">
 		function testConnection() {
-			var domainName = document.getElementById("domainId").value;
-			var connectionURL = document.getElementById("propertyValue_1").value;
-			var username = document.getElementById("propertyValue_2").value;
-			var connectionPassword = document.getElementById("propertyValue_3").value;
+            var domainName = document.getElementById("domainId").value;
+            var connectionURL = document.getElementById("propertyValue_1").value;
+            var username = document.getElementById("propertyValue_2").value;
+            var connectionPassword = document.getElementById("propertyValue_3").value;
             var driverName = document.getElementById("propertyValue_4").value;
 
 			var url = 'validateconnection-ajaxprocessor.jsp?' +
