@@ -554,6 +554,10 @@ public class IdentityUtil {
      */
     public static String fillURLPlaceholders(String urlWithPlaceholders) {
 
+        if (StringUtils.isBlank(urlWithPlaceholders)) {
+            return urlWithPlaceholders;
+        }
+
         // First replace carbon placeholders and then move on to identity related placeholders.
         urlWithPlaceholders = Utils.replaceSystemProperty(urlWithPlaceholders);
 

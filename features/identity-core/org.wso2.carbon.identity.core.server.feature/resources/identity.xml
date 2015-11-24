@@ -66,7 +66,7 @@
             If above format doesn't satisfy uncomment the following configs and explicitly configure the values
          -->
         <OpenIDServerUrl>${carbon.protocol}://${carbon.host}:${carbon.management.port}/openidserver</OpenIDServerUrl>
-        <OpenIDUserPattern>${carbon.protocol}://${carbon.host}:${carbon.management.port}/openid/</OpenIDUserPattern>
+        <OpenIDUserPattern>${carbon.protocol}://${carbon.host}:${carbon.management.port}/openid</OpenIDUserPattern>
         <OpenIDLoginUrl>${carbon.protocol}://${carbon.host}:${carbon.management.port}/authenticationendpoint/openid_login.do</OpenIDLoginUrl>
 
         <!-- If the users must be prompted for approval -->
