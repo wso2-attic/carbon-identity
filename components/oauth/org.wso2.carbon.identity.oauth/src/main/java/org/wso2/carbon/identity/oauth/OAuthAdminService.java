@@ -82,7 +82,7 @@ public class OAuthAdminService extends AbstractAdmin {
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String userDomain = UserCoreUtil.extractDomainFromName(loggedInUser);
         OAuthAppDAO dao = new OAuthAppDAO();
-        return dao.addOAuthConsumer(tenantUser, tenantId, userDomain);
+        return dao.addOAuthConsumer(UserCoreUtil.removeDomainFromName(tenantUser), tenantId, userDomain);
     }
 
     /**
@@ -225,7 +225,7 @@ public class OAuthAdminService extends AbstractAdmin {
                     }
 
                 }
-                app.setUserName(tenantUser);
+                app.setUserName(UserCoreUtil.removeDomainFromName(tenantUser));
                 app.setTenantId(tenantId);
                 app.setUserDomain(UserCoreUtil.extractDomainFromName(userName));
                 if (application.getOAuthVersion() != null) {
