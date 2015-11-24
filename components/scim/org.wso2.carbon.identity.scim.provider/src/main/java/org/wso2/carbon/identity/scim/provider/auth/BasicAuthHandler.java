@@ -23,7 +23,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
 import org.apache.cxf.message.Message;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
@@ -55,8 +54,7 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
     private Map<String, String> properties;
     /* properties specific to this authenticator */
     private int priority;
-    private static final Log audit = CarbonConstants.AUDIT_LOG;
-    private static final String AUDIT_MESSAGE = "User : %s , Action : Authenticate , Result : %s";
+
     public void setDefaultPriority() {
         priority = DEFAULT_PRIORITY;
     }
@@ -128,7 +126,6 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
                         boolean authenticated = userRealm.getUserStoreManager().authenticate(
                                 tenantLessUserName, password);
                         if (authenticated) {
-                            audit.info(String.format(AUDIT_MESSAGE, tenantLessUserName, "SUCCESS"));
 
                             // setup thread local variable to be consumed by the provisioning
                             // framework.
@@ -152,7 +149,6 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
                             carbonContext.setTenantDomain(tenantDomain);
                             return true;
                         } else {
-                            audit.info(String.format(AUDIT_MESSAGE, tenantLessUserName, "FAILURE"));
                             UnauthorizedException unauthorizedException = new UnauthorizedException(
                                     "Authentication failed for the user: " + tenantLessUserName
                                             + "@" + tenantDomain);

@@ -191,7 +191,7 @@
                             org.wso2.carbon.identity.application.common.model;
                             version="${carbon.identity.package.import.version.range}",
                             org.owasp.encoder; version ="${encoder.wso2.imp.pkg.version.range}",
-
+                            org.wso2.carbon; version="${carbon.kernel.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.provider.internal,
