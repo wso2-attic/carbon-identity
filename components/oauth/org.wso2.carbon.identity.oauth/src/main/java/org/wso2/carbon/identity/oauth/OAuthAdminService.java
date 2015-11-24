@@ -268,6 +268,7 @@ public class OAuthAdminService extends AbstractAdmin {
         OAuthAppDO oauthappdo = new OAuthAppDO();
         oauthappdo.setUserName(tenantAwareUsername);
         oauthappdo.setTenantId(tenantId);
+        oauthappdo.setUserDomain(UserCoreUtil.extractDomainFromName(userName));
         oauthappdo.setOauthConsumerKey(consumerAppDTO.getOauthConsumerKey());
         oauthappdo.setOauthConsumerSecret(consumerAppDTO.getOauthConsumerSecret());
         oauthappdo.setCallbackUrl(consumerAppDTO.getCallbackUrl());

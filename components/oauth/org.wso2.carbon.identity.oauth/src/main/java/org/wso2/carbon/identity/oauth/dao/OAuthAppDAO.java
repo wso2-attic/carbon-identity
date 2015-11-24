@@ -391,7 +391,7 @@ public class OAuthAppDAO {
         ResultSet rSet = null;
 
         boolean isDuplicateApp = false;
-        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(username);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(username, tenantId);
 
         try {
             String sql = SQLQueries.OAuthAppDAOSQLQueries.CHECK_EXISTING_APPLICATION;
