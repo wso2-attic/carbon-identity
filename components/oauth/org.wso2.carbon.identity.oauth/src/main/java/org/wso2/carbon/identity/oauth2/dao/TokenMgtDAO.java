@@ -1388,7 +1388,7 @@ public class TokenMgtDAO {
             String sql = SQLQueries.RETRIEVE_CODE_ID_BY_AUTHORIZATION_CODE;
 
             prepStmt = connection.prepareStatement(sql);
-            prepStmt.setString(1, authzCode);
+            prepStmt.setString(1, persistenceProcessor.getPreprocessedAuthzCode(authzCode));
             resultSet = prepStmt.executeQuery();
 
             if (resultSet.next()) {
