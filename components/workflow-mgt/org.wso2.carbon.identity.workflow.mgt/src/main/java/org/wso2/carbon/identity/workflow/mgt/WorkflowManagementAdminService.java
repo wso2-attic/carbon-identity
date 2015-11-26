@@ -38,7 +38,6 @@ import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
-import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ import java.util.UUID;
 
 public class WorkflowManagementAdminService {
 
-    private static Log log = LogFactory.getLog(WorkflowManagementAdminService.class);
+    private static final Log log = LogFactory.getLog(WorkflowManagementAdminService.class);
 
 
     private WorkflowWizard getWorkflow(org.wso2.carbon.identity.workflow.mgt.bean.Workflow workflowBean)

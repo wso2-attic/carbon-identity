@@ -18,9 +18,6 @@
 
 package org.wso2.carbon.identity.workflow.impl.ui;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class WorkflowUIConstants {
     public static final String PARAM_ACTION = "action";
     public static final String ACTION_VALUE_ADD = "addNew";

@@ -152,7 +152,8 @@ public class WorkflowRequestBuilder {
                         requestBuilder.addListTypeParam(parameter.getName(), (List<Object>) parameter.getValue());
                         break;
                     case WorkflowDataType.STRING_STRING_MAP_TYPE:
-                        requestBuilder.addMapTypeParam(parameter.getName(), (Map<String, Object>) parameter.getValue());
+                        requestBuilder.addMapTypeParam(parameter.getName(), (Map<String, Object>) parameter.getValue
+                                ());
                         break;
                     //ignoring the other types
                 }

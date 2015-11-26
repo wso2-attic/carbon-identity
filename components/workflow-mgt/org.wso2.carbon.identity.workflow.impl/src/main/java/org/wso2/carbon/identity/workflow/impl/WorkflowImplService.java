@@ -23,7 +23,6 @@ import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 
 import java.util.List;
-import java.util.Map;
 
 public interface WorkflowImplService {
 
