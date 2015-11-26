@@ -97,6 +97,9 @@ public class TOTPTokenGenerator {
 				String secretKey = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername
 						(username), Constants.SECRET_KEY_CLAIM_URL, null);
 
+				String phoneNumber = userStoreManager.getUserClaimValue(MultitenantUtils.getTenantAwareUsername
+						(username), "http://wso2.org/claims/telephone", null);
+
 				byte[] secretkey;
 				String encoding = Constants.BASE32;
 				try {
@@ -116,7 +119,7 @@ public class TOTPTokenGenerator {
 				}
 				try {
 					token = getCode(secretkey, getTimeIndex());
-					sendNotification("TOTP token Generator",username,Long.toString(token));
+					sendNotification("TOTP token Generator",username,Long.toString(token),phoneNumber);
 					if (log.isDebugEnabled()) {
 						log.debug("Token is sent to via email to the user : " + username);
 					}
@@ -215,7 +218,7 @@ public class TOTPTokenGenerator {
 	}
 
 
-	private void sendNotification(String operation, String username, String token) {
+	private void sendNotification(String operation, String username, String token, String phoneNumber) {
 		NotificationSender notificationSender = TOTPManagerComponent.getNotificationSender();
 		if (notificationSender != null) {
 			try {
@@ -223,6 +226,7 @@ public class TOTPTokenGenerator {
 				event.addEventProperty(operationLabel, operation);
 				event.addEventProperty(usernameLabel, username);
 				event.addEventProperty(tokenLabel,token);
+				event.addEventProperty("number",phoneNumber);
 				if (log.isDebugEnabled()) {
 					log.debug("Invoking notification sender");
 				}
