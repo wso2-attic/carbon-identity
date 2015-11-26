@@ -35,6 +35,7 @@ import org.wso2.carbon.identity.application.common.IdentityApplicationManagement
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
@@ -330,7 +331,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 String value = userClaims.get(entry.getValue());
                 if (value != null) {
                     mappedAppClaims.put(entry.getKey(), value);
-                    if (log.isDebugEnabled()) {
+                    if (log.isDebugEnabled() &&
+                            IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)) {
                         log.debug("Mapped claim: key -  " + entry.getKey() + " value -" + value);
                     }
                 }
@@ -425,7 +427,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 String value = userClaims.get(entry.getValue());
                 if (value != null) {
                     mappedAppClaims.put(entry.getKey(), value);
-                    if (log.isDebugEnabled()) {
+                    if (log.isDebugEnabled() &&
+                            IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)) {
                         log.debug("Mapped claim: key -  " + entry.getKey() + " value -" + value);
                     }
                 }
