@@ -44,7 +44,12 @@ class IdentityLogTokenParser {
 
     private IdentityLogTokenParser() {
 
-        buildConfiguration();
+        boolean readProperties = Boolean
+                .valueOf(System.getProperty(IdentityConstants.IdentityTokens.READ_LOG_TOKEN_PROPERTIES));
+
+        if (readProperties) {
+            buildConfiguration();
+        }
     }
 
     /**

@@ -651,13 +651,6 @@ public class IdentityUtil {
      */
     public static boolean isTokenLoggable(String tokenName) {
 
-        boolean readProperties = Boolean
-                .valueOf(System.getProperty(IdentityConstants.IdentityTokens.READ_LOG_TOKEN_PROPERTIES));
-
-        if (!readProperties) {
-            return false;
-        }
-
         IdentityLogTokenParser identityLogTokenParser = IdentityLogTokenParser.getInstance();
         Map<String, String> logTokenMap = identityLogTokenParser.getLogTokenMap();
 
