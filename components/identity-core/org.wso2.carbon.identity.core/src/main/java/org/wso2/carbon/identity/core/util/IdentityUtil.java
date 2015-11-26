@@ -526,4 +526,24 @@ public class IdentityUtil {
         Matcher matcher = pattern.matcher(fileName);
         return matcher.matches();
     }
+
+    /**
+     * Check whether the given token value is appropriate to log.
+     * @param tokenName Name of the token.
+     * @return True if token is appropriate to log.
+     */
+    public static boolean isTokenLoggable(String tokenName) {
+
+        boolean readProperties = Boolean
+                .valueOf(System.getProperty(IdentityConstants.IdentityTokens.READ_LOG_TOKEN_PROPERTIES));
+
+        if (!readProperties) {
+            return false;
+        }
+
+        IdentityLogTokenParser identityLogTokenParser = IdentityLogTokenParser.getInstance();
+        Map<String, String> logTokenMap = identityLogTokenParser.getLogTokenMap();
+
+        return Boolean.valueOf(logTokenMap.get(tokenName));
+    }
 }

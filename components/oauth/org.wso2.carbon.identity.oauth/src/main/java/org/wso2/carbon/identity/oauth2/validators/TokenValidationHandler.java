@@ -200,7 +200,7 @@ public class TokenValidationHandler {
             // No data retrieved due to invalid input.
             if (accessTokenDO == null) {
                 if (log.isDebugEnabled()){
-                    log.debug("Invalid access token : " + accessTokenIdentifier + ". Access token validation failed");
+                    log.debug("Invalid access token. Access token validation failed");
                 }
                 responseDTO.setValid(false);
                 responseDTO.setErrorMsg("Invalid input. Access token validation failed");
@@ -212,12 +212,12 @@ public class TokenValidationHandler {
         // Check whether the grant is expired
         if(accessTokenDO.getValidityPeriod() < 0) {
             if (log.isDebugEnabled()) {
-                log.debug("Access Token : " + accessTokenIdentifier + " has infinite lifetime");
+                log.debug("Access Token has infinite lifetime");
             }
         } else {
             if (OAuth2Util.getAccessTokenExpireMillis(accessTokenDO) == 0) {
                 if (log.isDebugEnabled()) {
-                        log.debug("Access Token : " + accessTokenIdentifier + " has expired");
+                        log.debug("Access Token has expired");
                     }
                 responseDTO.setValid(false);
                 responseDTO.setErrorMsg("Access token has expired");
@@ -279,7 +279,7 @@ public class TokenValidationHandler {
 
         if (!isValidAccessToken) {
             if (log.isDebugEnabled()) {
-                log.debug("OAuth2 access token " + accessTokenIdentifier + " validation failed");
+                log.debug("OAuth2 access token validation failed");
             }
             responseDTO.setValid(false);
             responseDTO.setErrorMsg("OAuth2 access token validation failed");
@@ -296,10 +296,6 @@ public class TokenValidationHandler {
 
         if (tokenGenerator != null) {
             tokenGenerator.generateToken(messageContext);
-            if (log.isDebugEnabled()) {
-                log.debug(tokenGenerator.getClass().getName() + "generated token set to response : " +
-                        responseDTO.getAuthorizationContextToken().getTokenString());
-            }
         }
 
         clientApp.setAccessTokenValidationResponse(responseDTO);

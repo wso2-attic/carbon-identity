@@ -74,10 +74,6 @@ public class OAuth2TokenEndpoint {
 
             HttpServletRequestWrapper httpRequest = new OAuthRequestWrapper(request, paramMap);
 
-            if (log.isDebugEnabled()) {
-                logAccessTokenRequest(httpRequest);
-            }
-
             // extract the basic auth credentials if present in the request and use for
             // authentication.
             if (request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ) != null) {
@@ -216,30 +212,6 @@ public class OAuth2TokenEndpoint {
 
         return Response.status(response.getResponseStatus()).header(OAuthConstants.HTTP_RESP_HEADER_AUTHENTICATE,
                 EndpointUtil.getRealmInfo()).entity(response.getBody()).build();
-    }
-
-    private void logAccessTokenRequest(HttpServletRequest request) {
-
-        if (log.isDebugEnabled()){
-            log.debug("Received a request : " + request.getRequestURI());
-            // log the headers.
-            log.debug("----------logging request headers.----------");
-
-            Enumeration headerNames = request.getHeaderNames();
-            while (headerNames.hasMoreElements()) {
-                String headerName = (String) headerNames.nextElement();
-                Enumeration headers = request.getHeaders(headerName);
-                while (headers.hasMoreElements()) {
-                    log.debug(headerName + " : " + headers.nextElement());
-                }
-            }
-            // log the parameters.
-            log.debug("----------logging request parameters.----------");
-            log.debug(OAuth.OAUTH_GRANT_TYPE + " - " + request.getParameter(OAuth.OAUTH_GRANT_TYPE));
-            log.debug(OAuth.OAUTH_CLIENT_ID + " - " + request.getParameter(OAuth.OAUTH_CLIENT_ID));
-            log.debug(OAuth.OAUTH_CODE + " - " + request.getParameter(OAuth.OAUTH_CODE));
-            log.debug(OAuth.OAUTH_REDIRECT_URI + " - " + request.getParameter(OAuth.OAUTH_REDIRECT_URI));
-        }
     }
 
     private OAuth2AccessTokenRespDTO getAccessToken(CarbonOAuthTokenRequest oauthRequest) {

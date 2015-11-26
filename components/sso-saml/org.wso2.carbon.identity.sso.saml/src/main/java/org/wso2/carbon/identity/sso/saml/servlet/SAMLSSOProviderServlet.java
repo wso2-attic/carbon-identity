@@ -122,6 +122,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      */
     private void handleRequest(HttpServletRequest req, HttpServletResponse resp, boolean isPost)
             throws ServletException, IOException {
+
         String sessionId = null;
         Cookie ssoTokenIdCookie = getTokenIdCookie(req);
 
@@ -333,7 +334,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 sendToFrameworkForAuthentication(req, resp, signInRespDTO, relayState, isPost);
             } else {
                 //TODO send invalid response to SP
-                if (log.isDebugEnabled()) {
+                if (log.isDebugEnabled() &&
+                        IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.SAML_REQUEST)) {
                     log.debug("Invalid SAML SSO Request : " + samlRequest);
                 }
                 String errorResp = signInRespDTO.getResponse();
@@ -345,7 +347,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             if (signInRespDTO.isValid()) {
                 sendToFrameworkForLogout(req, resp, signInRespDTO, relayState, sessionId, false, isPost);
             } else {
-                if (log.isDebugEnabled()) {
+                if (log.isDebugEnabled() &&
+                        IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.SAML_REQUEST)) {
                     log.debug("Invalid SAML SSO Logout Request : " + samlRequest);
                 }
                 if (signInRespDTO.isLogoutFromAuthFramework()) {
