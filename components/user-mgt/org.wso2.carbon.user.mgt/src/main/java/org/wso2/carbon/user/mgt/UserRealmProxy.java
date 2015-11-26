@@ -896,9 +896,7 @@ public class UserRealmProxy {
             UserStoreManager secManager = null;
 
             if (roleName.contains("/")) {
-                secManager = usAdmin.
-                        getSecondaryUserStoreManager(roleName.substring(0, roleName.indexOf("/")));
-
+                secManager = usAdmin.getSecondaryUserStoreManager(roleName.substring(0, roleName.indexOf("/")));
             } else {
                 secManager = usAdmin;
             }
@@ -949,14 +947,24 @@ public class UserRealmProxy {
 
             UserStoreManager usAdmin = realm.getUserStoreManager();
             if (usAdmin instanceof AbstractUserStoreManager) {
-                ((AbstractUserStoreManager) usAdmin).addRole(UserCoreConstants.INTERNAL_DOMAIN
-                        + UserCoreConstants.DOMAIN_SEPARATOR + roleName, userList, null, false);
+                if ((roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR) && UserMgtConstants.APPLICATION_DOMAIN
+                        .equals(roleName.substring(0, roleName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR))))) {
+                    ((AbstractUserStoreManager) usAdmin).addRole(roleName, userList, null, false);
+                } else {
+                    ((AbstractUserStoreManager) usAdmin).addRole(UserCoreConstants.INTERNAL_DOMAIN
+                            + UserCoreConstants.DOMAIN_SEPARATOR + roleName, userList, null, false);
+                }
             } else {
                 throw new UserStoreException("Internal role can not be created");
             }
             // adding permission with internal domain name
-            ManagementPermissionUtil.updateRoleUIPermission(UserCoreConstants.INTERNAL_DOMAIN
-                    + UserCoreConstants.DOMAIN_SEPARATOR + roleName, permissions);
+            if((roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR) && UserMgtConstants.APPLICATION_DOMAIN.equals
+                    (roleName.substring(0, roleName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR))))) {
+                ManagementPermissionUtil.updateRoleUIPermission(roleName, permissions);
+            } else {
+                ManagementPermissionUtil.updateRoleUIPermission(UserCoreConstants.INTERNAL_DOMAIN
+                        + UserCoreConstants.DOMAIN_SEPARATOR + roleName, permissions);
+            }
         } catch (UserStoreException e) {
             log.error(e.getMessage(), e);
             throw new UserAdminException(e.getMessage(), e);
