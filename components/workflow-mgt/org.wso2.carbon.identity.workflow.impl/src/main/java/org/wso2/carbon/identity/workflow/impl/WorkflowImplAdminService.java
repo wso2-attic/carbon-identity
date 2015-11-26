@@ -32,6 +32,12 @@ public class WorkflowImplAdminService {
 
     private static Log log = LogFactory.getLog(WorkflowImplAdminService.class);
 
+    /**
+     * Add new BPS profile
+     *
+     * @param bpsProfileDTO Details of new profile to add
+     * @throws WorkflowImplException
+     */
     public void addBPSProfile(BPSProfile bpsProfileDTO) throws WorkflowImplException {
 
         try {
@@ -43,6 +49,12 @@ public class WorkflowImplAdminService {
         }
     }
 
+    /**
+     * List BPS profile of tenant domain
+     *
+     * @return
+     * @throws WorkflowImplException
+     */
     public BPSProfile[] listBPSProfiles() throws WorkflowImplException {
 
         List<BPSProfile> bpsProfiles = null;
@@ -63,7 +75,7 @@ public class WorkflowImplAdminService {
     /**
      * Reading BPS profile for given profile name and for current tenant
      *
-     * @param bpsProfileName
+     * @param bpsProfileName Name of the profile
      * @return
      * @throws WorkflowImplException
      */
@@ -84,7 +96,7 @@ public class WorkflowImplAdminService {
     /**
      * update BPS profile for given data
      *
-     * @param bpsProfileDTO
+     * @param bpsProfileDTO BPS profile object with new details
      * @throws WorkflowImplException
      */
     public void updateBPSProfile(BPSProfile bpsProfileDTO) throws WorkflowImplException {
@@ -99,6 +111,12 @@ public class WorkflowImplAdminService {
         }
     }
 
+    /**
+     * Remove a BPS profile
+     *
+     * @param profileName Name of profile
+     * @throws WorkflowImplException
+     */
     public void removeBPSProfile(String profileName) throws WorkflowImplException {
 
         try {

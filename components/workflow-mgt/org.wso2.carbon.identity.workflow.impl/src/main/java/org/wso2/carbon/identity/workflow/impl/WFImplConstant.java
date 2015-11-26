@@ -32,10 +32,6 @@ public class WFImplConstant {
     public static final String BPS_PROCESS_SERVICES_URL = "services/ProcessManagementService/";
 
     public static final String DEFAULT_BPS_PROFILE_NAME = "embeded_bps";
-    public static final String KEYSTORE_SYSTEM_PROPERTY_ID = "javax.net.ssl.keyStore";
-    public static final String KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID = "javax.net.ssl.keyStorePassword";
-    public static final String KEYSTORE_CARBON_CONFIG_PATH = "Security.KeyStore.Location";
-    public static final String KEYSTORE_PASSWORD_CARBON_CONFIG_PATH = "Security.KeyStore.Password";
 
     public static final String MUTUAL_SSL_HEADER = "<m:UserName xmlns:m=\"http://mutualssl.carbon.wso2.org\" " +
             "xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\" " +

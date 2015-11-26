@@ -39,10 +39,10 @@ import java.util.Map;
 public class BPSProfileDAO {
 
     /**
+     * Add a new BPS profile
      *
-     *
-     * @param bpsProfileDTO
-     * @param tenantId
+     * @param bpsProfileDTO Details of profile to add
+     * @param tenantId      ID of tenant domain
      * @throws WorkflowImplException
      */
     public void addProfile(BPSProfile bpsProfileDTO, int tenantId)
@@ -80,10 +80,10 @@ public class BPSProfileDAO {
 
 
     /**
+     * Update existing BPS Profile
      *
-     *
-     * @param bpsProfile
-     * @param tenantId
+     * @param bpsProfile BPS profile object with new details
+     * @param tenantId   ID of tenant domain
      * @throws WorkflowImplException
      */
     public void updateProfile(BPSProfile bpsProfile, int tenantId)
@@ -121,11 +121,11 @@ public class BPSProfileDAO {
     }
 
     /**
+     * Retrieve details of a BPS profile
      *
-     *
-     * @param profileName
-     * @param tenantId
-     * @param isWithPasswords
+     * @param profileName     Name of profile to retrieve
+     * @param tenantId        Id of tenant domain
+     * @param isWithPasswords Whether password to be retrieved or not
      * @return
      * @throws WorkflowImplException
      */
@@ -135,13 +135,10 @@ public class BPSProfileDAO {
         BPSProfile bpsProfileDTO = null;
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
-        ;
         PreparedStatement prepStmt = null;
         ResultSet rs;
-        Map<String, Object> profileParams = new HashMap<>();
         String query = SQLConstants.GET_BPS_PROFILE_FOR_TENANT_QUERY;
         String decryptedPassword;
-        String decryptedCallBackPassword;
 
         try {
             prepStmt = connection.prepareStatement(query);
@@ -184,9 +181,9 @@ public class BPSProfileDAO {
 
 
     /**
+     * Retrieve list of existing BPS profiles
      *
-     *
-     * @param tenantId
+     * @param tenantId  Id of tenant domain to retrieve BPS profiles
      * @return
      * @throws WorkflowImplException
      */
@@ -200,18 +197,20 @@ public class BPSProfileDAO {
         String decryptPassword;
         CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
         try {
-            Object classCheckresult = null;
+            Object classCheckResult = null;
+            //Checks if IS has BPS features installed with it
             try {
-                classCheckresult = Class.forName("org.wso2.carbon.humantask.deployer.HumanTaskDeployer");
+                classCheckResult = Class.forName("org.wso2.carbon.humantask.deployer.HumanTaskDeployer");
             } catch (ClassNotFoundException e) {
-
+                //If BPS features are not installed, it will throw a ClassNotFoundException, no actionto be executed
+                // here
             }
             prepStmt = connection.prepareStatement(query);
             prepStmt.setInt(1, tenantId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String name = rs.getString(SQLConstants.PROFILE_NAME_COLUMN);
-                if (classCheckresult == null && name.equals("embeded_bps")) {
+                if (classCheckResult == null && name.equals("embeded_bps")) {
                     continue;
                 }
                 String managerHostName = rs.getString(SQLConstants.HOST_URL_MANAGER_COLUMN);
@@ -243,8 +242,9 @@ public class BPSProfileDAO {
 
 
     /**
+     * Delete a BPS profile
      *
-     * @param profileName
+     * @param profileName Name of the profile to retrieve
      * @throws WorkflowImplException
      */
     public void removeBPSProfile(String profileName) throws WorkflowImplException {

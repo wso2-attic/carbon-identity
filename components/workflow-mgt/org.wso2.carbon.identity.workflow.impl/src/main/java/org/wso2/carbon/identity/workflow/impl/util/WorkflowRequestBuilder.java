@@ -122,6 +122,14 @@ public class WorkflowRequestBuilder {
         return requestBuilder.buildRequest();
     }
 
+    /**
+     * Create OM Element with workflow object
+     *
+     * @param workFlowRequest Request to be converted to OM Element
+     * @param parameterList   Workflow parameter list
+     * @return
+     * @throws WorkflowException
+     */
     public static OMElement buildXMLRequest(WorkflowRequest workFlowRequest, List<Parameter> parameterList)
             throws WorkflowException {
 

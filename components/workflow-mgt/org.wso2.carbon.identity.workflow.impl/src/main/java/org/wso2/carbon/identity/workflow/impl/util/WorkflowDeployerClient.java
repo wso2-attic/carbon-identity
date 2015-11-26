@@ -68,10 +68,6 @@ public class WorkflowDeployerClient {
 
     public WorkflowDeployerClient(String bpsURL, String username) throws AxisFault {
 
-        System.setProperty(WFImplConstant.KEYSTORE_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
-                .getFirstProperty(WFImplConstant.KEYSTORE_CARBON_CONFIG_PATH));
-        System.setProperty(WFImplConstant.KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
-                .getFirstProperty(WFImplConstant.KEYSTORE_PASSWORD_CARBON_CONFIG_PATH));
         bpelUploaderStub = new BPELUploaderStub(bpsURL + BPEL_UPLOADER_SERVICE);
         ServiceClient serviceClient = bpelUploaderStub._getServiceClient();
         OMElement mutualSSLHeader;
@@ -92,11 +88,22 @@ public class WorkflowDeployerClient {
         htServiceClient.addHeader(mutualSSLHeader);
     }
 
-
+    /**
+     * Upload BPEL artifacts
+     *
+     * @param fileItems Artifacts todeploy
+     * @throws RemoteException
+     */
     public void uploadBPEL(UploadedFileItem[] fileItems) throws RemoteException {
         bpelUploaderStub.uploadService(fileItems);
     }
 
+    /**
+     * Upload human task artifacts
+     *
+     * @param fileItems Artifacts to deploy
+     * @throws RemoteException
+     */
     public void uploadHumanTask(org.wso2.carbon.humantask.stub.upload.types.UploadedFileItem[] fileItems)
             throws RemoteException {
         humanTaskUploaderStub.uploadHumanTask(fileItems);

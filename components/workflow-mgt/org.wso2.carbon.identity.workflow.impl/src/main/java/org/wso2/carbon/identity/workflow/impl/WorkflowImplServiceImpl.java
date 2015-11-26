@@ -32,7 +32,6 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.bpel.stub.mgt.BPELPackageManagementServiceStub;
 import org.wso2.carbon.bpel.stub.mgt.PackageManagementException;
 import org.wso2.carbon.bpel.stub.mgt.ProcessManagementException;
@@ -139,11 +138,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                 stub = new HumanTaskClientAPIAdminStub(servicesUrl.toString());
                 ServiceClient client = stub._getServiceClient();
                 if (bpsProfiles.get(i).getProfileName().equals(WFImplConstant.DEFAULT_BPS_PROFILE_NAME)) {
-                    System.setProperty(WFImplConstant.KEYSTORE_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
-                            .getFirstProperty(WFImplConstant.KEYSTORE_CARBON_CONFIG_PATH));
-                    System.setProperty(WFImplConstant.KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID, ServerConfiguration
-                            .getInstance()
-                            .getFirstProperty(WFImplConstant.KEYSTORE_PASSWORD_CARBON_CONFIG_PATH));
+
                     OMElement mutualSSLHeader;
                     try {
                         String headerString = WFImplConstant.MUTUAL_SSL_HEADER.replaceAll("\\$username", bpsProfiles
@@ -230,11 +225,6 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             bpsProcessStub = new ProcessManagementServiceStub(bpsProcessServicesUrl.toString());
             ServiceClient bpsProcessClient = bpsProcessStub._getServiceClient();
             if (bpsProfileName.equals(WFImplConstant.DEFAULT_BPS_PROFILE_NAME)) {
-                System.setProperty(WFImplConstant.KEYSTORE_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
-                        .getFirstProperty(WFImplConstant.KEYSTORE_CARBON_CONFIG_PATH));
-                System.setProperty(WFImplConstant.KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID, ServerConfiguration
-                        .getInstance()
-                        .getFirstProperty(WFImplConstant.KEYSTORE_PASSWORD_CARBON_CONFIG_PATH));
                 OMElement mutualSSLHeader;
                 try {
                     String headerString = WFImplConstant.MUTUAL_SSL_HEADER.replaceAll("\\$username", bpsProfile
