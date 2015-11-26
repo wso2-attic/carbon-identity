@@ -132,7 +132,8 @@ public class UserRealmProxy {
                             indexOf(CarbonConstants.DOMAIN_SEPARATOR) : -1;
                     boolean domainProvided = index1 > 0;
                     String domain = domainProvided ? flaggedNames[i].getItemName().substring(0, index1) : null;
-                    if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                    if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) &&
+                            !UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                         UserStoreManager secondaryUM = realm.getUserStoreManager().getSecondaryUserStoreManager(domain);
                         if (secondaryUM != null && secondaryUM.isReadOnly()) {
                             flaggedNames[i].setEditable(false);
@@ -190,7 +191,8 @@ public class UserRealmProxy {
                         ? flaggedNames[i].getItemName().indexOf(CarbonConstants.DOMAIN_SEPARATOR) : -1;
                 boolean domainProvided = index1 > 0;
                 String domain = domainProvided ? flaggedNames[i].getItemName().substring(0, index1) : null;
-                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) &&
+                        !UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                     UserStoreManager secondaryUM =
                             realm.getUserStoreManager().getSecondaryUserStoreManager(domain);
                     if (secondaryUM != null && secondaryUM.isReadOnly()) {
@@ -305,7 +307,8 @@ public class UserRealmProxy {
                         realm.getUserStoreManager()
                                 .getSecondaryUserStoreManager(domain);
 
-                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) &&
+                        !UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                     if (secManager != null &&
                             (secManager.isReadOnly() || (secManager.getRealmConfiguration()
                                     .getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null &&
@@ -411,7 +414,8 @@ public class UserRealmProxy {
                 String domain = domainProvided ? externalRole.substring(0, index) : null;
                 UserStoreManager secManager = realm.getUserStoreManager().getSecondaryUserStoreManager(domain);
 
-                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) &&
+                        !UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                     if (secManager != null && (secManager.isReadOnly() ||
                             (FALSE.equals(secManager.getRealmConfiguration().
                                     getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))))) {
@@ -1312,7 +1316,8 @@ public class UserRealmProxy {
                     FlaggedName fName = new FlaggedName();
                     mapEntityName(role, fName, admin);
                     fName.setSelected(true);
-                    if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                    if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) &&
+                            !UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                         if ((admin.getSecondaryUserStoreManager(domain).isReadOnly() ||
                                 (admin.getSecondaryUserStoreManager(domain).getRealmConfiguration().
                                         getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null &&
