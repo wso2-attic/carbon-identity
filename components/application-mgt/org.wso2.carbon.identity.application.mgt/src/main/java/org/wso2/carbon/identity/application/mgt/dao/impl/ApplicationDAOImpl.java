@@ -64,7 +64,6 @@ import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.DBUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -2745,13 +2744,18 @@ public class ApplicationDAOImpl implements ApplicationDAO {
      * @throws SQLException
      */
     private Map<String, String> readApplicationPermissions(Connection connection, String applicationName) throws SQLException {
-        PreparedStatement roadPermissionsPrepStmt = null;
+        PreparedStatement readPermissionsPrepStmt = null;
         ResultSet resultSet = null;
         Map<String, String> permissions = new HashMap<>();
         try {
-            roadPermissionsPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS);
-            roadPermissionsPrepStmt.setString(1, "%" + ApplicationMgtUtil.getApplicationPermissionPath() + "%");
-            resultSet = roadPermissionsPrepStmt.executeQuery();
+
+            //overriding the received connection as a temporary fix. Since the the query is a UM_DB query it should be ran
+            //against user db
+            connection = IdentityDatabaseUtil.getUserDBConnection();
+
+            readPermissionsPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS);
+            readPermissionsPrepStmt.setString(1, "%" + ApplicationMgtUtil.getApplicationPermissionPath() + "%");
+            resultSet = readPermissionsPrepStmt.executeQuery();
             while (resultSet.next()) {
                 String UM_ID = resultSet.getString(1);
                 String permission = resultSet.getString(2);
@@ -2762,7 +2766,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             }
         } finally {
             IdentityDatabaseUtil.closeResultSet(resultSet);
-            IdentityDatabaseUtil.closeStatement(roadPermissionsPrepStmt);
+            IdentityDatabaseUtil.closeStatement(readPermissionsPrepStmt);
         }
         return permissions;
     }
@@ -2778,6 +2782,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     private void updatePermissionPath(Connection connection, String id, String newPermission) throws SQLException {
         PreparedStatement updatePermissionPrepStmt = null;
         try {
+
+            //overriding the received connection as a temporary fix. Since the the query is a UM_DB query it should be ran
+            //against user db
+            connection = IdentityDatabaseUtil.getUserDBConnection();
+
             updatePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.UPDATE_SP_PERMISSIONS);
             updatePermissionPrepStmt.setString(1, newPermission);
             updatePermissionPrepStmt.setString(2, id);
@@ -2800,6 +2809,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         ResultSet resultSet = null;
         int id = -1;
         try {
+
+            //overriding the received connection as a temporary fix. Since the the query is a UM_DB query it should be ran
+            //against user db
+            connection = IdentityDatabaseUtil.getUserDBConnection();
+
             loadPermissionsPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS_W);
             loadPermissionsPrepStmt.setString(1, permission.toLowerCase());
             resultSet = loadPermissionsPrepStmt.executeQuery();
@@ -2823,6 +2837,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     private void deleteRolePermissionMapping(Connection connection, int id) throws SQLException {
         PreparedStatement deleteRolePermissionPrepStmt = null;
         try {
+
+            //overriding the received connection as a temporary fix. Since the the query is a UM_DB query it should be ran
+            //against user db
+            connection = IdentityDatabaseUtil.getUserDBConnection();
+
             deleteRolePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_ROLE_PERMISSION);
             deleteRolePermissionPrepStmt.setInt(1, id);
             deleteRolePermissionPrepStmt.executeUpdate();
@@ -2841,6 +2860,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     private void deletePermission(Connection connection, int entry_id) throws SQLException {
         PreparedStatement deletePermissionPrepStmt = null;
         try {
+
+            //overriding the received connection as a temporary fix. Since the the query is a UM_DB query it should be ran
+            //against user db
+            connection = IdentityDatabaseUtil.getUserDBConnection();
+
             deletePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_PERMISSIONS);
             deletePermissionPrepStmt.setInt(1, entry_id);
             deletePermissionPrepStmt.executeUpdate();
