@@ -2110,7 +2110,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             throws IdentityApplicationManagementException {
 
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        String username = CarbonContext.getThreadLocalCarbonContext().getUsername();
 
         if (log.isDebugEnabled()) {
             log.debug("Reading all Applications of Tenant " + tenantID);
