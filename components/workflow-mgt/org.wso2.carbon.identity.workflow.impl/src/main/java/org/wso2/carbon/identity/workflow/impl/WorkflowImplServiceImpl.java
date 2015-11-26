@@ -29,6 +29,7 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.databinding.types.NCName;
 import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -153,16 +154,18 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                 }
                 TTaskSimpleQueryResultSet results = stub.simpleQuery(input);
                 TTaskSimpleQueryResultRow[] arr = results.getRow();
-                for (int j = 0; j < arr.length; j++) {
-                    Object task = stub.getInput(arr[j].getId(), new NCName(""));
-                    InputStream stream = new ByteArrayInputStream(task.toString().getBytes(StandardCharsets.UTF_8));
-                    OMElement taskXML = new StAXOMBuilder(stream).getDocumentElement();
-                    Iterator<OMElementImpl> iterator = taskXML.getChildElements();
-                    while (iterator.hasNext()) {
-                        OMElementImpl child = iterator.next();
-                        checkMatchingTaskAndDelete(workflowRequest.getRequestId(), stub, arr, j, child);
-                    }
+                if (ArrayUtils.isNotEmpty(arr)) {
+                    for (int j = 0; j < arr.length; j++) {
+                        Object task = stub.getInput(arr[j].getId(), new NCName(""));
+                        InputStream stream = new ByteArrayInputStream(task.toString().getBytes(StandardCharsets.UTF_8));
+                        OMElement taskXML = new StAXOMBuilder(stream).getDocumentElement();
+                        Iterator<OMElementImpl> iterator = taskXML.getChildElements();
+                        while (iterator.hasNext()) {
+                            OMElementImpl child = iterator.next();
+                            checkMatchingTaskAndDelete(workflowRequest.getRequestId(), stub, arr, j, child);
+                        }
 
+                    }
                 }
             }
         } catch (MalformedURLException | XMLStreamException | IllegalOperationFault | IllegalAccessFault |
