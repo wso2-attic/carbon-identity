@@ -73,9 +73,19 @@
         stsProperties[0] = stsProperty;
         passiveStsFedAuthn.setProperties(stsProperties);
 
-        FederatedAuthenticatorConfig[] federatedAuthenticators = new FederatedAuthenticatorConfig[2];
+        FederatedAuthenticatorConfig totpFedAuth = new FederatedAuthenticatorConfig();
+        totpFedAuth.setName(IdentityApplicationConstants.Authenticator.TOTP.NAME);
+        properties = new Property[1];
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.TOTP.ENCODING_METHOD);
+        property.setValue(request.getParameter("totpEncodingID"));
+        properties[0]=property;
+        totpFedAuth.setProperties(properties);
+
+        FederatedAuthenticatorConfig[] federatedAuthenticators = new FederatedAuthenticatorConfig[3];
         federatedAuthenticators[0] = samlFedAuthn;
         federatedAuthenticators[1] = passiveStsFedAuthn;
+        federatedAuthenticators[2] = totpFedAuth;
         identityProvider.setFederatedAuthenticatorConfigs(federatedAuthenticators);
 
         IdentityProviderProperty[] idpProperties = new IdentityProviderProperty[2];

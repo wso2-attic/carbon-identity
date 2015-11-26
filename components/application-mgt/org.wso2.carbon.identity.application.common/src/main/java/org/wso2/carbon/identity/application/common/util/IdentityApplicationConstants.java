@@ -174,6 +174,11 @@ public class IdentityApplicationConstants {
             }
         }
 
+        public static class TOTP {
+            public static final String NAME = "totp";
+            public static final String ENCODING_METHOD = "encoding method";
+        }
+
         public static class FIDO{
             public static final String FIDO_AUTH = "FidoAuth";
         }

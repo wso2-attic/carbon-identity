@@ -128,6 +128,15 @@
     </servlet>
 
     <servlet>
+        <servlet-name>totp_login.do</servlet-name>
+        <jsp-file>/totp.jsp</jsp-file>
+    </servlet>
+    <servlet>
+        <servlet-name>totp_error.do</servlet-name>
+        <jsp-file>/totp_error.jsp</jsp-file>
+    </servlet>
+
+    <servlet>
         <servlet-name>openid_login.do</servlet-name>
         <jsp-file>/login.jsp</jsp-file>
     </servlet>
@@ -151,6 +160,17 @@
         <servlet-name>registration.do</servlet-name>
         <jsp-file>/registration.jsp</jsp-file>
     </servlet>
+
+    <servlet-mapping>
+        <servlet-name>totp_login.do</servlet-name>
+        <url-pattern>/totp_login.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>totp_error.do</servlet-name>
+        <url-pattern>/totp_error.do</url-pattern>
+    </servlet-mapping>
+
 
     <servlet-mapping>
         <servlet-name>retry.do</servlet-name>

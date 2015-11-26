@@ -432,6 +432,24 @@ public class IdentityProviderManager {
                 .setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
         fedAuthnCofigs.add(passiveSTSFedAuthn);
 
+        FederatedAuthenticatorConfig totpLocalAuth = IdentityApplicationManagementUtil.
+                getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
+                IdentityApplicationConstants.Authenticator.TOTP.NAME);
+        if (totpLocalAuth == null) {
+            totpLocalAuth = new FederatedAuthenticatorConfig();
+            totpLocalAuth.setName(IdentityApplicationConstants.Authenticator.TOTP.NAME);
+        }
+        propertiesList = new ArrayList<Property>(Arrays.asList(totpLocalAuth.getProperties()));
+        if (IdentityApplicationManagementUtil.getProperty(totpLocalAuth.getProperties(),
+                IdentityApplicationConstants.Authenticator.TOTP.ENCODING_METHOD) == null) {
+            Property totpEncodingMethod = new Property();
+            totpEncodingMethod.setName(IdentityApplicationConstants.Authenticator.TOTP.ENCODING_METHOD);
+            totpEncodingMethod.setValue("Base32");
+            propertiesList.add(totpEncodingMethod);
+        }
+        totpLocalAuth.setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
+        fedAuthnCofigs.add(totpLocalAuth);
+
         FederatedAuthenticatorConfig stsFedAuthn = IdentityApplicationManagementUtil
                 .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
                         IdentityApplicationConstants.Authenticator.WSTrust.NAME);
@@ -599,8 +617,15 @@ public class IdentityProviderManager {
         passiveStsAuthenticationConfig.setName(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME);
 
 
-        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = { saml2SSOResidentAuthenticatorConfig,
-                idpPropertiesResidentAuthenticatorConfig, passiveStsAuthenticationConfig };
+        FederatedAuthenticatorConfig totpFedAuth = IdentityApplicationManagementUtil.getFederatedAuthenticator
+                (identityProvider.getFederatedAuthenticatorConfigs(),
+                        IdentityApplicationConstants.Authenticator.TOTP.NAME);
+        if(totpFedAuth==null){
+            totpFedAuth = new FederatedAuthenticatorConfig();
+            totpFedAuth.setName(IdentityApplicationConstants.Authenticator.TOTP.NAME);
+        }
+        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = {saml2SSOResidentAuthenticatorConfig,
+                idpPropertiesResidentAuthenticatorConfig, totpFedAuth};
         identityProvider.setFederatedAuthenticatorConfigs(IdentityApplicationManagementUtil
                 .concatArrays(identityProvider.getFederatedAuthenticatorConfigs(), federatedAuthenticatorConfigs));
 
