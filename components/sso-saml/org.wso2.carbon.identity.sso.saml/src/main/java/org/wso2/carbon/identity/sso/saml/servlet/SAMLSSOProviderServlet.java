@@ -23,6 +23,8 @@ import org.apache.commons.logging.LogFactory;
 import org.owasp.encoder.Encode;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
+import org.wso2.carbon.identity.application.authentication.framework.CommonAuthenticationHandler;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
@@ -32,6 +34,8 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.sso.saml.DelegatingResponseWrapper;
+import org.wso2.carbon.identity.sso.saml.ParameterDelegatingRequestWrapper;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOService;
 import org.wso2.carbon.identity.sso.saml.cache.SessionDataCache;
@@ -424,18 +428,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                 (authenticationRequest);
         FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
-        StringBuilder queryStringBuilder = new StringBuilder();
-        queryStringBuilder.append(commonAuthURL).
-                append("?").
-                append(SAMLSSOConstants.SESSION_DATA_KEY).
-                append("=").
-                append(sessionDataKey).
-                append("&").
-                append(FrameworkConstants.RequestParams.TYPE).
-                append("=").
-                append(FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
         FrameworkUtils.setRequestPathCredentials(req);
-        resp.sendRedirect(queryStringBuilder.toString());
+        forward(req, resp, sessionDataKey, FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
     }
 
     private void sendToFrameworkForLogout(HttpServletRequest request, HttpServletResponse response,
@@ -495,7 +489,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String queryParams = "?" + SAMLSSOConstants.SESSION_DATA_KEY + "=" + sessionDataKey
                              + "&" + "type" + "=" + "samlsso";
 
-        response.sendRedirect(commonAuthURL + queryParams);
+        forward(request, response, sessionDataKey, FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
     }
 
     /**
@@ -894,5 +888,30 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         }
 
         return queryParamDTOs.toArray(new QueryParamDTO[queryParamDTOs.size()]);
+    }
+
+    private void forward(HttpServletRequest request, HttpServletResponse response, String sessionDataKey, String type)
+            throws ServletException, IOException {
+
+        CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
+
+        ParameterDelegatingRequestWrapper requestWrapper = new ParameterDelegatingRequestWrapper(request);
+        requestWrapper.setParameter(FrameworkConstants.SESSION_DATA_KEY, sessionDataKey);
+        requestWrapper.setParameter(FrameworkConstants.RequestParams.TYPE, type);
+
+        DelegatingResponseWrapper responseWrapper = new DelegatingResponseWrapper(response);
+        commonAuthenticationHandler.doGet(requestWrapper, responseWrapper);
+
+        Object object = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+        if (object != null) {
+            AuthenticatorFlowStatus status = (AuthenticatorFlowStatus) object;
+            if (status == AuthenticatorFlowStatus.INCOMPLETE) {
+                response.sendRedirect(responseWrapper.getRedirectURL());
+            } else {
+                doGet(requestWrapper, responseWrapper);
+            }
+        } else {
+            doGet(requestWrapper, responseWrapper);
+        }
     }
 }

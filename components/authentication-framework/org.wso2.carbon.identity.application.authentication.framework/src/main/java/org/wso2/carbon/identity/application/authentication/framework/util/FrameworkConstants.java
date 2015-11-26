@@ -143,6 +143,7 @@ public abstract class FrameworkConstants {
         public static final String LOGOUT = "commonAuthLogout";
         public static final String IDP = "idp";
         public static final String AUTHENTICATOR = "authenticator";
+        public static final String FLOW_STATUS = "flowStatus";
         private RequestParams() {
         }
     }
