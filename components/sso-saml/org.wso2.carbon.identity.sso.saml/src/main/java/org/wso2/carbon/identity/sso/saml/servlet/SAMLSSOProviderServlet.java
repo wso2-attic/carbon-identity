@@ -390,18 +390,6 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         sessionDTO.setAssertionConsumerURL(signInRespDTO.getAssertionConsumerURL());
         sessionDTO.setTenantDomain(SAMLSSOUtil.getTenantDomainFromThreadLocal());
         sessionDTO.setAttributeConsumingServiceIndex(signInRespDTO.getAttributeConsumingServiceIndex());
-
-        if (sessionDTO.getTenantDomain() == null) {
-            String[] splitIssuer = sessionDTO.getIssuer().split("@");
-            if (splitIssuer != null && splitIssuer.length == 2 &&
-                    !splitIssuer[0].trim().isEmpty() && !splitIssuer[1].trim().isEmpty()) {
-                sessionDTO.setTenantDomain(splitIssuer[1]);
-            } else {
-                sessionDTO.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-            }
-        }
-        SAMLSSOUtil.setTenantDomainInThreadLocal(sessionDTO.getTenantDomain());
-
         sessionDTO.setForceAuth(signInRespDTO.isForceAuthn());
         sessionDTO.setPassiveAuth(signInRespDTO.isPassive());
         sessionDTO.setValidationRespDTO(signInRespDTO);

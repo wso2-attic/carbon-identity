@@ -58,6 +58,7 @@ import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -256,6 +257,9 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
         Conditions conditions = assertion.getConditions();
         if (conditions != null) {
+            //Set validity period extracted from SAML Assertion
+            long curTimeInMillis = Calendar.getInstance().getTimeInMillis();
+            tokReqMsgCtx.setValidityPeriod(conditions.getNotOnOrAfter().getMillis() - curTimeInMillis);
             List<AudienceRestriction> audienceRestrictions = conditions.getAudienceRestrictions();
             if (audienceRestrictions != null && !audienceRestrictions.isEmpty()) {
                 boolean audienceFound = false;

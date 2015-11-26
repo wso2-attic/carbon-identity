@@ -233,32 +233,6 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                 }
             }
 
-            // issue a new access token
-            String accessToken;
-
-            try {
-                accessToken = oauthIssuerImpl.accessToken();
-
-                // regenerate only if refresh token is null
-                if(refreshToken == null) {
-                    refreshToken = oauthIssuerImpl.refreshToken();
-                }
-
-            } catch (OAuthSystemException e) {
-                throw new IdentityOAuth2Exception(
-                        "Error occurred while generating access token and refresh token", e);
-            }
-
-            if (OAuth2Util.checkUserNameAssertionEnabled()) {
-                String userName = oauthAuthzMsgCtx.getAuthorizationReqDTO().getUsername();
-                //use ':' for token & userStoreDomain separation
-                String accessTokenStrToEncode = accessToken + ":" + userName;
-                accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes(Charsets.UTF_8));
-
-                String refreshTokenStrToEncode = refreshToken + ":" + userName;
-                refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes(Charsets.UTF_8));
-            }
-
             Timestamp timestamp = new Timestamp(new Date().getTime());
 
             // if reusing existing refresh token, use its original issued time
@@ -281,6 +255,45 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             if(refreshTokenValidityPeriodInMillis == 0) {
                 refreshTokenValidityPeriodInMillis = OAuthServerConfiguration.getInstance()
                         .getRefreshTokenValidityPeriodInSeconds() * 1000;
+            }
+            
+            // issue a new access token
+            String accessToken;
+            
+            // set the validity period. this is needed by downstream handlers.
+            // if this is set before - then this will override it by the calculated new value.
+            oauthAuthzMsgCtx.setValidityPeriod(validityPeriodInMillis);
+            
+            // set the refresh token validity period. this is needed by downstream handlers.
+            // if this is set before - then this will override it by the calculated new value.
+            oauthAuthzMsgCtx.setRefreshTokenvalidityPeriod(refreshTokenValidityPeriodInMillis);
+            
+            // set access token issued time.this is needed by downstream handlers.
+            oauthAuthzMsgCtx.setAccessTokenIssuedTime(timestamp.getTime());
+            
+            // set refresh token issued time.this is needed by downstream handlers.
+            oauthAuthzMsgCtx.setRefreshTokenIssuedTime(refreshTokenIssuedTime.getTime());
+
+	    try {
+		accessToken = oauthIssuerImpl.accessToken();
+
+		// regenerate only if refresh token is null
+		if (refreshToken == null) {
+		    refreshToken = oauthIssuerImpl.refreshToken();
+		}
+
+	    } catch (OAuthSystemException e) {
+		throw new IdentityOAuth2Exception("Error occurred while generating access token and refresh token", e);
+	    } 
+
+            if (OAuth2Util.checkUserNameAssertionEnabled()) {
+                String userName = oauthAuthzMsgCtx.getAuthorizationReqDTO().getUsername();
+                //use ':' for token & userStoreDomain separation
+                String accessTokenStrToEncode = accessToken + ":" + userName;
+                accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes(Charsets.UTF_8));
+
+                String refreshTokenStrToEncode = refreshToken + ":" + userName;
+                refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes(Charsets.UTF_8));
             }
 
             AccessTokenDO newAccessTokenDO = new AccessTokenDO(consumerKey, OAuth2Util.getUserFromUserName
