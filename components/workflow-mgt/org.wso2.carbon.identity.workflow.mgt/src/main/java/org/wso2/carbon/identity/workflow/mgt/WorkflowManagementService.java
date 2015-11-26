@@ -34,51 +34,190 @@ import java.util.List;
 
 public interface WorkflowManagementService {
 
+    /**
+     * List events that can be associated to workflows, eg:- Add user, Addrole, etc
+     *
+     * @return
+     */
     List<WorkflowEvent> listWorkflowEvents();
 
     List<WorkflowImpl> listWorkflowImpls(String templateId) throws WorkflowException;
 
+    /**
+     * Retrieve workflow event oblect from ID
+     *
+     * @param id  Workflow event ID
+     * @return
+     */
     WorkflowEvent getEvent(String id);
 
+    /**
+     * List existing workflow templates
+     *
+     * @return
+     * @throws WorkflowException
+     */
     List<Template> listTemplates() throws WorkflowException;
 
+    /**
+     * Retrieve workflow template using workflow ID
+     *
+     * @param templateId  template id
+     * @return
+     * @throws WorkflowException
+     */
     Template getTemplate(String templateId) throws WorkflowException;
 
+    /**
+     * Retrieve worklflow impl object
+     *
+     * @param templateId     template id
+     * @param workflowImplId workflow impl id
+     * @return
+     * @throws WorkflowException
+     */
     WorkflowImpl getWorkflowImpl(String templateId, String workflowImplId) throws WorkflowException;
 
+    /**
+     * Add new workflow
+     *
+     * @param workflowDTO  Workflow details
+     * @param parameterList  List of parameters
+     * @param tenantId  tenant id
+     * @throws WorkflowException
+     */
     void addWorkflow(Workflow workflowDTO,
                      List<Parameter> parameterList, int tenantId) throws WorkflowException;
 
+    /**
+     * Retrieve workflow from workflow ID
+     *
+     * @param workflowId  workflow id
+     * @return
+     * @throws WorkflowException
+     */
     Workflow getWorkflow(String workflowId) throws WorkflowException;
 
+    /**
+     * List parameters of a workflow
+     *
+     * @param workflowId  workflow id
+     * @return
+     * @throws WorkflowException
+     */
     List<Parameter> getWorkflowParameters(String workflowId) throws WorkflowException;
 
+    /**
+     * Add new workflow association
+     *
+     * @param associationName  Name for the association
+     * @param workflowId  Workflow to associate
+     * @param eventId  Event to associate
+     * @param condition  Condition to check the event for associating
+     * @throws WorkflowException
+     */
     void addAssociation(String associationName, String workflowId, String eventId, String condition) throws
                                                                                                      WorkflowException;
 
+    /**
+     * List workflows
+     *
+     * @param tenantId  Tenant ID
+     * @return
+     * @throws WorkflowException
+     */
     List<Workflow> listWorkflows(int tenantId) throws WorkflowException;
 
+    /**
+     * Remove a workflow
+     *
+     * @param id  ID of workflow to remove
+     * @throws WorkflowException
+     */
     void removeWorkflow(String id) throws WorkflowException;
 
+    /**
+     * Remove association
+     *
+     * @param associationId  ID of association to remove
+     * @throws WorkflowException
+     */
     void removeAssociation(int associationId) throws WorkflowException;
 
-
+    /**
+     * List associations of a specific workflow
+     *
+     * @param workflowId  Workflow ID
+     * @return
+     * @throws WorkflowException
+     */
     List<Association> getAssociationsForWorkflow(String workflowId) throws WorkflowException;
 
+    /**
+     * List all associations of a tenant
+     *
+     * @param tenantId  Tenant ID
+     * @return
+     * @throws WorkflowException
+     */
     List<Association> listAllAssociations(int tenantId) throws WorkflowException;
 
+    /**
+     * Enable or disable association
+     *
+     * @param associationId  Association ID
+     * @param isEnable  New state
+     * @throws WorkflowException
+     */
     void changeAssociationState(String associationId, boolean isEnable) throws WorkflowException;
 
+    /**
+     * Add new relationships for entities
+     *
+     * @param requestId  Request ID
+     * @param entities  Entity list
+     * @throws InternalWorkflowException
+     */
     void addRequestEntityRelationships(String requestId, Entity[] entities) throws InternalWorkflowException;
 
+    /**
+     * Check if given entity has pending workflow associated with it
+     *
+     * @param entity  Entity object to test
+     * @return
+     * @throws InternalWorkflowException
+     */
     boolean entityHasPendingWorkflows(Entity entity) throws InternalWorkflowException;
 
+    /**
+     * Check if a given entity associated with a given object
+     *
+     * @param entity  Entity object to test
+     * @param requestType  Type of request, eg:- Add user
+     * @return
+     * @throws InternalWorkflowException
+     */
     boolean entityHasPendingWorkflowsOfType(Entity entity, String requestType) throws
                                                                                InternalWorkflowException;
 
+    /**
+     * Check if two entities are related
+     *
+     * @param entity1  first entity object to test
+     * @param entity2  second entity object to test
+     * @return
+     * @throws InternalWorkflowException
+     */
     boolean areTwoEntitiesRelated(Entity entity1, Entity entity2) throws
                                                                   InternalWorkflowException;
 
+    /**
+     * Check if a given event is associated with workflows
+     *
+     * @param eventType  event type to check
+     * @return
+     * @throws InternalWorkflowException
+     */
     boolean isEventAssociated(String eventType) throws InternalWorkflowException;
 
     WorkflowRequest[] getRequestsCreatedByUser(String user, int tenantId) throws WorkflowException;
