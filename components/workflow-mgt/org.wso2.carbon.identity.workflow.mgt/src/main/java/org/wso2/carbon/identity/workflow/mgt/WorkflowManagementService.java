@@ -41,10 +41,17 @@ public interface WorkflowManagementService {
      */
     List<WorkflowEvent> listWorkflowEvents();
 
+    /**
+     * List implementations of a workflow template
+     *
+     * @param templateId  ID of template
+     * @return
+     * @throws WorkflowException
+     */
     List<WorkflowImpl> listWorkflowImpls(String templateId) throws WorkflowException;
 
     /**
-     * Retrieve workflow event oblect from ID
+     * Retrieve workflow event object from ID
      *
      * @param id  Workflow event ID
      * @return
@@ -220,6 +227,14 @@ public interface WorkflowManagementService {
      */
     boolean isEventAssociated(String eventType) throws InternalWorkflowException;
 
+    /**
+     * Get arrat of request objects initiated by user
+     *
+     * @param user  User name
+     * @param tenantId  tenant ID
+     * @return
+     * @throws WorkflowException
+     */
     WorkflowRequest[] getRequestsCreatedByUser(String user, int tenantId) throws WorkflowException;
 
     WorkflowRequestAssociation[] getWorkflowsOfRequest(String requestId) throws WorkflowException;
