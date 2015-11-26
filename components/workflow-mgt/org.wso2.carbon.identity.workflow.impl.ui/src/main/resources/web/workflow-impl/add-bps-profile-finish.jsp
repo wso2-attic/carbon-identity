@@ -37,8 +37,6 @@
     String workerHost = request.getParameter(WorkflowUIConstants.PARAM_BPS_WORKER_HOST);
     String username = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER);
     String password = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD);
-    String callbackUser = request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_USER);
-    String callbackPassword = request.getParameter(WorkflowUIConstants.PARAM_CARBON_AUTH_PASSWORD);
     String forwardTo = "list-bps-profiles.jsp";
 //    todo:validate
 
@@ -55,8 +53,6 @@
         bpsProfile.setWorkerHostURL(workerHost);
         bpsProfile.setUsername(username);
         bpsProfile.setPassword(password);
-        bpsProfile.setCallbackUser(username);
-        bpsProfile.setCallbackPassword(callbackPassword);
         client.addBPSProfile(bpsProfile);
     } catch (WorkflowImplAdminServiceWorkflowImplException e) {
         String message = resourceBundle.getString("workflow.error.bps.profile.add");

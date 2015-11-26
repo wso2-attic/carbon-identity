@@ -97,6 +97,16 @@ public class IdentityConstants {
     public final static String EVENT_LISTENERS = "EventListeners";
     public final static String EVENT_LISTENER = "EventListener";
 
+    // Cache Config constants
+    public final static String CACHE_CONFIG = "CacheConfig";
+    public final static String CACHE_MANAGER = "CacheManager";
+    public final static String CACHE_MANAGER_NAME = "name";
+    public final static String CACHE = "Cache";
+    public final static String CACHE_NAME = "name";
+    public final static String CACHE_ENABLE = "enable";
+    public final static String CACHE_TIMEOUT = "timeout";
+    public final static String CACHE_CAPACITY = "capacity";
+
     private IdentityConstants() {
     }
 
@@ -307,5 +317,16 @@ public class IdentityConstants {
             public final static String VALUE = "openid.ext1.value.";
             public final static String FETCH_RESPONSE = "fetch_response";
         }
+    }
+
+    public static class CarbonPlaceholders {
+
+       public static final String CARBON_HOST = "${carbon.host}";
+       public static final String CARBON_PORT = "${carbon.management.port}";
+       public static final String CARBON_PROXY_CONTEXT_PATH = "${carbon.proxycontextpath}";
+       public static final String CARBON_WEB_CONTEXT_ROOT = "${carbon.webcontextroot}";
+       public static final String CARBON_PROTOCOL = "${carbon.protocol}";
+       public static final String CARBON_CONTEXT = "${carbon.context}";
+
     }
 }
