@@ -135,8 +135,8 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             input.setSimpleQueryCategory(TSimpleQueryCategory.ALL_TASKS);
             for (int i = 0; i < bpsProfiles.size(); i++) {
                 String host = bpsProfiles.get(i).getWorkerHostURL();
-                URL servicesUrl = new URL(new URL(host), WFImplConstant.HT_SERVICES_URL);
-                stub = new HumanTaskClientAPIAdminStub(servicesUrl.toString());
+                String servicesUrl = host + WFImplConstant.HT_SERVICES_URL;
+                stub = new HumanTaskClientAPIAdminStub(servicesUrl);
                 ServiceClient client = stub._getServiceClient();
                 if (bpsProfiles.get(i).getProfileName().equals(WFImplConstant.DEFAULT_BPS_PROFILE_NAME)) {
 
@@ -168,7 +168,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                     }
                 }
             }
-        } catch (MalformedURLException | XMLStreamException | IllegalOperationFault | IllegalAccessFault |
+        } catch (XMLStreamException | IllegalOperationFault | IllegalAccessFault |
                 RemoteException | IllegalStateFault | IllegalArgumentFault e) {
             throw new WorkflowImplException("Error while deleting the human tasks of the request.");
         }

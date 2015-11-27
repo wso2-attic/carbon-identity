@@ -385,10 +385,6 @@ public class BPELDeployer implements TemplateInitializer {
         private static final String BPS_HOST_NAME = "${bpsURL}";
         private static final String URL_TENANT_CONTEXT = "${tenantContext}";
         private static final String CARBON_HOST_NAME = "${carbonHostName}";
-        private static final String CARBON_CALLBACK_AUTH_USER = "${carbonUserName}";
-        private static final String CARBON_CALLBACK_AUTH_PASSWORD = "${carbonUserPassword}";
-        private static final String HT_SUBJECT = "${htSubject}";
-        private static final String HT_DESCRIPTION = "${htDescription}";
         private static final String HT_OWNER_ROLE = "${htOwnerRole}";
         private static final String HT_ADMIN_ROLE = "${htAdminRole}";
 

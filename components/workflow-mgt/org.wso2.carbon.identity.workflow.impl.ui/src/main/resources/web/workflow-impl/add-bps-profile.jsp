@@ -62,7 +62,7 @@
                         <td width="30%"><fmt:message key='workflow.bps.profile.name'/></td>
                         <td><input id="profile-name" type="text"
                                    name="<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>"
-                                   white-list-patterns="^[a-zA-Z0-9]+$"/></td>
+                                   white-list-patterns="^[a-zA-Z0-9]+$" style="width:30%" class="text-box-big"/></td>
                     </tr>
                     </tbody>
                 </table>
@@ -75,19 +75,32 @@
                     <tbody>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.manager.host'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_MANAGER_HOST%>"/></td>
+                        <td>
+                            <input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_MANAGER_HOST%>"
+                                   style="width:30%" class="text-box-big"/>
+                            <div class="sectionHelp">
+                                <fmt:message key='help.desc.manager'/>
+                            </div>
+                        </td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.worker.host'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_WORKER_HOST%>"/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_WORKER_HOST%>"
+                                   style="width:30%" class="text-box-big"/>
+                            <div class="sectionHelp">
+                                <fmt:message key='help.desc.worker'/>
+                            </div>
+                        </td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.auth.user'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>"/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>"
+                                   style="width:30%" class="text-box-big"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.auth.password'/></td>
-                        <td><input type="password" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>"/>
+                        <td><input type="password" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>"
+                                   style="width:30%" class="text-box-big"/>
                         </td>
                     </tr>
                     </tbody>

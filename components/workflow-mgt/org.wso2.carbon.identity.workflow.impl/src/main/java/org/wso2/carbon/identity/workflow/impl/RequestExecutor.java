@@ -133,9 +133,9 @@ public class RequestExecutor implements WorkFlowExecutor {
 
         String endpoint;
         if (tenantDomain != null && !tenantDomain.equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)) {
-            endpoint = host + "/services/t/" + tenantDomain + "/" + serviceName + WFConstant.TemplateConstants.SERVICE_SUFFIX;
+            endpoint = host + "/t/" + tenantDomain + "/" + serviceName + WFConstant.TemplateConstants.SERVICE_SUFFIX;
         } else {
-            endpoint = host + "/services/" + serviceName + WFConstant.TemplateConstants.SERVICE_SUFFIX;
+            endpoint = host + "/" + serviceName + WFConstant.TemplateConstants.SERVICE_SUFFIX;
         }
 
         options.setTo(new EndpointReference(endpoint));

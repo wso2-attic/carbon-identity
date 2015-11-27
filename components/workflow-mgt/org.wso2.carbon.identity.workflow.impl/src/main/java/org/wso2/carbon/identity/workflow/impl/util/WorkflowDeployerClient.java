@@ -35,8 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WorkflowDeployerClient {
-    private static final String BPEL_UPLOADER_SERVICE = "/services/BPELUploader";
-    private final static String HT_UPLOADER_SERVICE = "/services/HumanTaskUploader";
+    private static final String BPEL_UPLOADER_SERVICE = "/BPELUploader";
+    private final static String HT_UPLOADER_SERVICE = "/HumanTaskUploader";
 
     private BPELUploaderStub bpelUploaderStub;
     private HumanTaskUploaderStub humanTaskUploaderStub;

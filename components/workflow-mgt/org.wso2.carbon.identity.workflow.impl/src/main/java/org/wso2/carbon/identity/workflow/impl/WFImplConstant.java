@@ -27,9 +27,9 @@ public class WFImplConstant {
     public static final String HT_PARAMETER_LIST_ELEMENT = "parametersList";
     public static final String HT_ITEM_NAME_ATTRIBUTE = "itemName";
     public static final String HT_REQUEST_ID_ATTRIBUTE_VALUE = "REQUEST ID";
-    public static final String HT_SERVICES_URL = "services/HumanTaskClientAPIAdmin";
-    public static final String BPS_PACKAGE_SERVICES_URL = "services/BPELPackageManagementService/";
-    public static final String BPS_PROCESS_SERVICES_URL = "services/ProcessManagementService/";
+    public static final String HT_SERVICES_URL = "/HumanTaskClientAPIAdmin";
+    public static final String BPS_PACKAGE_SERVICES_URL = "/BPELPackageManagementService/";
+    public static final String BPS_PROCESS_SERVICES_URL = "/ProcessManagementService/";
 
     public static final String DEFAULT_BPS_PROFILE_NAME = "embeded_bps";
 
