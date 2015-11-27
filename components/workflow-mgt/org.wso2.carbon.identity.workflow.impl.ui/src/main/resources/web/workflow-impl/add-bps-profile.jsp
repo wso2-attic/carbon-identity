@@ -40,7 +40,7 @@
             window.location = "list-bps-profiles.jsp";
         }
         function doValidation(){
-            return doValidateInput(document.getElementById('profile-name'), "xxxxxxxxxx");
+            return doValidateInput(document.getElementById('profile-name'), "<fmt:message key="error.input.validation.msg"/>");
         }
     </script>
 
