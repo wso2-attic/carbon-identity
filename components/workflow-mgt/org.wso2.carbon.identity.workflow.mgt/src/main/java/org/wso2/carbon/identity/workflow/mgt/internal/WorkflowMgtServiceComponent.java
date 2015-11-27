@@ -80,10 +80,14 @@ public class WorkflowMgtServiceComponent {
 
 
         WorkflowServiceDataHolder.getInstance().setBundleContext(bundleContext);
-        System.setProperty(WFConstant.KEYSTORE_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
-                .getFirstProperty(WFConstant.KEYSTORE_CARBON_CONFIG_PATH));
-        System.setProperty(WFConstant.KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
-                .getFirstProperty(WFConstant.KEYSTORE_PASSWORD_CARBON_CONFIG_PATH));
+        if (System.getProperty(WFConstant.KEYSTORE_SYSTEM_PROPERTY_ID) == null) {
+            System.setProperty(WFConstant.KEYSTORE_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
+                    .getFirstProperty(WFConstant.KEYSTORE_CARBON_CONFIG_PATH));
+        }
+        if (System.getProperty(WFConstant.KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID) == null) {
+            System.setProperty(WFConstant.KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
+                    .getFirstProperty(WFConstant.KEYSTORE_PASSWORD_CARBON_CONFIG_PATH));
+        }
     }
 
     private static Log log = LogFactory.getLog(WorkflowMgtServiceComponent.class);

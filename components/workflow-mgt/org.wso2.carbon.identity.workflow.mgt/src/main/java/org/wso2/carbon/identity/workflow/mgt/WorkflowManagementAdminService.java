@@ -117,40 +117,84 @@ public class WorkflowManagementAdminService {
 
     }
 
+    /**
+     * Retrieve workflow from workflow ID
+     *
+     * @param workflowId  workflow id
+     * @return
+     * @throws WorkflowException
+     */
     public WorkflowWizard getWorkflow(String workflowId) throws WorkflowException {
         org.wso2.carbon.identity.workflow.mgt.bean.Workflow workflowBean =
                 WorkflowServiceDataHolder.getInstance().getWorkflowService().getWorkflow(workflowId);
         return getWorkflow(workflowBean);
     }
 
-
+    /**
+     * List events that can be associated to workflows, eg:- Add user, Addrole, etc
+     *
+     * @return
+     */
     public WorkflowEvent[] listWorkflowEvents() {
 
         List<WorkflowEvent> events = WorkflowServiceDataHolder.getInstance().getWorkflowService().listWorkflowEvents();
         return events.toArray(new WorkflowEvent[events.size()]);
     }
 
+    /**
+     * List existing workflow templates
+     *
+     * @return
+     * @throws WorkflowException
+     */
     public Template[] listTemplates() throws WorkflowException {
         List<Template> templates = WorkflowServiceDataHolder.getInstance().getWorkflowService().listTemplates();
         return templates.toArray(new Template[templates.size()]);
     }
 
+    /**
+     * Retrieve workflow template using workflow ID
+     *
+     * @param templateId  template id
+     * @return
+     * @throws WorkflowException
+     */
     public Template getTemplate(String templateId) throws WorkflowException {
         return WorkflowServiceDataHolder.getInstance().getWorkflowService().getTemplate(templateId);
     }
 
+    /**
+     * Retrieve worklflow impl object
+     *
+     * @param templateId     template id
+     * @param implementationId workflow impl id
+     * @return
+     * @throws WorkflowException
+     */
     public WorkflowImpl getWorkflowImpl(String templateId, String implementationId) throws WorkflowException {
         return WorkflowServiceDataHolder.getInstance().getWorkflowService().getWorkflowImpl(templateId,
                                                                                             implementationId);
     }
 
+    /**
+     * List implementations of a workflow template
+     *
+     * @param templateId  ID of template
+     * @return
+     * @throws WorkflowException
+     */
     public WorkflowImpl[] listWorkflowImpls(String templateId) throws WorkflowException {
         List<WorkflowImpl> workflowList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowService().listWorkflowImpls(templateId);
         return workflowList.toArray(new WorkflowImpl[workflowList.size()]);
     }
 
-
+    /**
+     * Add new workflow
+     *
+     * @param workflow  Workflow details
+     * @throws WorkflowException
+     */
     public void addWorkflow(WorkflowWizard workflow) throws WorkflowException {
 
         String id = workflow.getWorkflowId();
@@ -198,6 +242,15 @@ public class WorkflowManagementAdminService {
         }
     }
 
+    /**
+     * Add new workflow association
+     *
+     * @param associationName  Name for the association
+     * @param workflowId  Workflow to associate
+     * @param eventId  Event to associate
+     * @param condition  Condition to check the event for associating
+     * @throws WorkflowException
+     */
     public void addAssociation(String associationName, String workflowId, String eventId, String condition) throws
                                                                                                             WorkflowException {
 
@@ -213,7 +266,13 @@ public class WorkflowManagementAdminService {
         }
     }
 
-
+    /**
+     * Enable or disable association
+     *
+     * @param associationId  Association ID
+     * @param isEnable  New state
+     * @throws WorkflowException
+     */
     public void changeAssociationState(String associationId, boolean isEnable) throws WorkflowException {
         try {
             WorkflowServiceDataHolder.getInstance().getWorkflowService()
@@ -228,7 +287,12 @@ public class WorkflowManagementAdminService {
 
     }
 
-
+    /**
+     * List workflows
+     *
+     * @return
+     * @throws WorkflowException
+     */
     public WorkflowWizard[] listWorkflows() throws WorkflowException {
 
         List<WorkflowWizard> workflowWizards = new ArrayList<>();
@@ -247,6 +311,12 @@ public class WorkflowManagementAdminService {
         return workflowWizards.toArray(new WorkflowWizard[workflowWizards.size()]);
     }
 
+    /**
+     * Remove a workflow
+     *
+     * @param id  ID of workflow to remove
+     * @throws WorkflowException
+     */
     public void removeWorkflow(String id) throws WorkflowException {
 
         try {
@@ -257,6 +327,12 @@ public class WorkflowManagementAdminService {
         }
     }
 
+    /**
+     * Remove association
+     *
+     * @param associationId  ID of association to remove
+     * @throws WorkflowException
+     */
     public void removeAssociation(String associationId) throws WorkflowException {
 
         try {
@@ -268,6 +344,13 @@ public class WorkflowManagementAdminService {
         }
     }
 
+    /**
+     * List associations of a specific workflow
+     *
+     * @param workflowId  Workflow ID
+     * @return
+     * @throws WorkflowException
+     */
     public Association[] listAssociations(String workflowId) throws WorkflowException {
 
         List<Association> associations;
@@ -284,6 +367,12 @@ public class WorkflowManagementAdminService {
         return associations.toArray(new Association[associations.size()]);
     }
 
+    /**
+     * List all associations
+     *
+     * @return
+     * @throws WorkflowException
+     */
     public Association[] listAllAssociations() throws WorkflowException {
 
         List<Association> associations;
@@ -300,10 +389,12 @@ public class WorkflowManagementAdminService {
         return associations.toArray(new Association[associations.size()]);
     }
 
-
-    //TODO:Below method should refactor
-
-
+    /**
+     * Retrieve workflow event object from ID
+     *
+     * @param eventId  Workflow event ID
+     * @return
+     */
     public WorkflowEvent getEvent(String eventId) {
 
         return WorkflowServiceDataHolder.getInstance().getWorkflowService().getEvent(eventId);
@@ -312,10 +403,11 @@ public class WorkflowManagementAdminService {
     /**
      * Returns array of requests initiated by a user.
      *
-     * @param user
-     * @param beginDate
-     * @param endDate
-     * @param dateCategory
+     * @param user  User to retrieve requests of
+     * @param beginDate  Lower limit of date range
+     * @param endDate  Upper limit of date range
+     * @param dateCategory  Filter by created date or last updated date
+     * @param status  Status of requests to filter
      * @return
      * @throws WorkflowException
      */
@@ -331,9 +423,10 @@ public class WorkflowManagementAdminService {
     /**
      * Return array of requests according to createdAt and updatedAt filter
      *
-     * @param beginDate
-     * @param endDate
-     * @param dateCategory
+     * @param beginDate  Lower limit of date range
+     * @param endDate  Upper limit of date range
+     * @param dateCategory  Filter by created date or last updated date
+     * @param status  Status of requests to filter
      * @return
      * @throws WorkflowException
      */
@@ -348,7 +441,7 @@ public class WorkflowManagementAdminService {
     /**
      * Move Workflow request to DELETED state.
      *
-     * @param requestId
+     * @param requestId Request ID to delete requests of.
      * @throws WorkflowException
      */
     public void deleteWorkflowRequest(String requestId) throws WorkflowException {
@@ -360,7 +453,7 @@ public class WorkflowManagementAdminService {
     /**
      * Get workflows of a request.
      *
-     * @param requestId
+     * @param requestId Request ID to get workflows of.
      * @return
      * @throws WorkflowException
      */

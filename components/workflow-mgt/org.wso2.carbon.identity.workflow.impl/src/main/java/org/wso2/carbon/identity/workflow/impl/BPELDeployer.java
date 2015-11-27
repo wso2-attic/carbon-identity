@@ -113,7 +113,11 @@ public class BPELDeployer implements TemplateInitializer {
         return true;
     }
 
-
+    /**
+     * Generate and deploy artifacts
+     *
+     * @throws WorkflowImplException
+     */
     public void generateAndDeployArtifacts() throws WorkflowImplException {
 
         try {

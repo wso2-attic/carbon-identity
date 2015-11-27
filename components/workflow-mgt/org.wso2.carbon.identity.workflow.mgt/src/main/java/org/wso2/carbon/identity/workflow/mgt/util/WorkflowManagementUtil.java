@@ -24,6 +24,12 @@ import java.util.List;
 public class WorkflowManagementUtil {
     private static Log log = LogFactory.getLog(WorkflowManagementUtil.class);
 
+    /**
+     * Create a internal role in workflow domain with same name as workflow.
+     *
+     * @param workflowName Workflow name
+     * @throws WorkflowException
+     */
     public static void createAppRole(String workflowName) throws WorkflowException {
         String roleName = createWorkflowRoleName(workflowName);
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
@@ -42,6 +48,12 @@ public class WorkflowManagementUtil {
 
     }
 
+    /**
+     * Delete role created for workflow.
+     *
+     * @param workflowName Workflow  name
+     * @throws WorkflowException
+     */
     public static void deleteWorkflowRole(String workflowName) throws WorkflowException {
         String roleName = createWorkflowRoleName(workflowName);
 
@@ -56,6 +68,12 @@ public class WorkflowManagementUtil {
         }
     }
 
+    /**
+     * Generate owner role name for workflow.
+     *
+     * @param workflowName Workflow name
+     * @return
+     */
     public static String createWorkflowRoleName(String workflowName) {
         return UserCoreConstants.INTERNAL_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + workflowName;
     }

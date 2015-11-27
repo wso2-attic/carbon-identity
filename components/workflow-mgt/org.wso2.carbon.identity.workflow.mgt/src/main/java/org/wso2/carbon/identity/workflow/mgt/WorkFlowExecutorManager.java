@@ -64,6 +64,15 @@ public class WorkFlowExecutorManager {
         return instance;
     }
 
+    /**
+     * Called when initiate a request that can be engaged with a workflow. Here it determine if operation has engaged
+     * with a workflow or not. If workflows engaged this will deploy communicate with relevant workflow engine and
+     * return false which will stop continuation of operation. Otherwise this will return true.
+     *
+     * @param workFlowRequest Workflow request object with request attributes.
+     * @return
+     * @throws WorkflowException
+     */
     public WorkflowExecutorResult executeWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
@@ -187,6 +196,14 @@ public class WorkFlowExecutorManager {
         return true;
     }
 
+    /**
+     * Called when callback received for a pending operation.
+     *
+     * @param uuid             Unique ID of request
+     * @param status           Status of approval/disapproval
+     * @param additionalParams Additional parameters required to execute operation.
+     * @throws WorkflowException
+     */
     public void handleCallback(String uuid, String status, Map<String, Object> additionalParams)
             throws WorkflowException {
 

@@ -150,7 +150,8 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                         throw new AxisFault("Error while creating mutualSSLHeader XML Element.", e);
                     }
                 } else {
-                    authenticate(client, bpsProfiles.get(i).getUsername(), bpsProfiles.get(i).getPassword());
+                    setAuthenticationProperties(client, bpsProfiles.get(i).getUsername(), bpsProfiles.get(i)
+                            .getPassword());
                 }
                 TTaskSimpleQueryResultSet results = stub.simpleQuery(input);
                 TTaskSimpleQueryResultRow[] arr = results.getRow();
@@ -228,6 +229,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             bpsProcessStub = new ProcessManagementServiceStub(bpsProcessServicesUrl.toString());
             ServiceClient bpsProcessClient = bpsProcessStub._getServiceClient();
             if (bpsProfileName.equals(WFImplConstant.DEFAULT_BPS_PROFILE_NAME)) {
+                //If emebeded_bps, use mutual ssl authentication
                 OMElement mutualSSLHeader;
                 try {
                     String headerString = WFImplConstant.MUTUAL_SSL_HEADER.replaceAll("\\$username", bpsProfile
@@ -239,8 +241,9 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                     throw new AxisFault("Error while creating mutualSSLHeader XML Element.", e);
                 }
             } else {
-                authenticate(bpsProcessClient, bpsProfile.getUsername(), bpsProfile.getPassword());
-                authenticate(bpsPackageClient, bpsProfile.getUsername(), bpsProfile.getPassword());
+                //For external BPS profiles, use password authentication
+                setAuthenticationProperties(bpsProcessClient, bpsProfile.getUsername(), bpsProfile.getPassword());
+                setAuthenticationProperties(bpsPackageClient, bpsProfile.getUsername(), bpsProfile.getPassword());
             }
 
             DeployedPackagesPaginated deployedPackagesPaginated =
@@ -329,7 +332,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
 
     }
 
-    private void authenticate(ServiceClient client, String accessUsername, String accessPassword)
+    private void setAuthenticationProperties(ServiceClient client, String accessUsername, String accessPassword)
             throws WorkflowImplException {
 
         if (accessUsername != null && accessPassword != null) {

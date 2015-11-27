@@ -92,6 +92,13 @@ public class WorkflowRequestBuilder {
     private Map<String, Map<String, Object>> mapTypeParams;
     private List<Parameter> parameterList;
 
+    /**
+     * Create OM Element with workflow object
+     *
+     * @param workFlowRequest Request to be converted to OM Element
+     * @return
+     * @throws WorkflowException
+     */
     public static OMElement buildXMLRequest(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
