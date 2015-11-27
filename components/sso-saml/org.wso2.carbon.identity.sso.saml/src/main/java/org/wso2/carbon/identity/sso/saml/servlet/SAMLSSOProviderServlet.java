@@ -29,13 +29,13 @@ import org.wso2.carbon.identity.application.authentication.framework.cache.Authe
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthRequestWrapper;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthResponseWrapper;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.identity.sso.saml.DelegatingResponseWrapper;
-import org.wso2.carbon.identity.sso.saml.ParameterDelegatingRequestWrapper;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOService;
 import org.wso2.carbon.identity.sso.saml.cache.SessionDataCache;
@@ -895,11 +895,11 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
         CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
 
-        ParameterDelegatingRequestWrapper requestWrapper = new ParameterDelegatingRequestWrapper(request);
+        CommonAuthRequestWrapper requestWrapper = new CommonAuthRequestWrapper(request);
         requestWrapper.setParameter(FrameworkConstants.SESSION_DATA_KEY, sessionDataKey);
         requestWrapper.setParameter(FrameworkConstants.RequestParams.TYPE, type);
 
-        DelegatingResponseWrapper responseWrapper = new DelegatingResponseWrapper(response);
+        CommonAuthResponseWrapper responseWrapper = new CommonAuthResponseWrapper(response);
         commonAuthenticationHandler.doGet(requestWrapper, responseWrapper);
 
         Object object = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
@@ -908,10 +908,10 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             if (status == AuthenticatorFlowStatus.INCOMPLETE) {
                 response.sendRedirect(responseWrapper.getRedirectURL());
             } else {
-                doGet(requestWrapper, responseWrapper);
+                doGet(request, response);
             }
         } else {
-            doGet(requestWrapper, responseWrapper);
+            doGet(request, response);
         }
     }
 }

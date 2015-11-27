@@ -123,6 +123,7 @@ public class DefaultStepHandler implements StepHandler {
             }
 
             try {
+                request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
                 response.sendRedirect(redirectURL
                                       + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
                                       + authenticatorNames + "&hrd=true");
@@ -253,6 +254,7 @@ public class DefaultStepHandler implements StepHandler {
         if (domain.trim().length() == 0) {
             //SP hasn't specified a domain. We assume it wants to get the domain from the user
             try {
+                request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
                 response.sendRedirect(redirectURL
                                       + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
                                       + authenticatorNames + "&hrd=true");
