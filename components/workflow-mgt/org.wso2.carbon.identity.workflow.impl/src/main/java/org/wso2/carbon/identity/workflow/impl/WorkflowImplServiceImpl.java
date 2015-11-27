@@ -119,21 +119,22 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
     public void deleteHumanTask(WorkflowRequest workflowRequest) throws WorkflowImplException {
         BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
 
-        try {
-            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-            List<BPSProfile> bpsProfiles = bpsProfileDAO.listBPSProfiles(tenantId);
-            HumanTaskClientAPIAdminStub stub = null;
-            TSimpleQueryInput input = new TSimpleQueryInput();
-            TStatus reservedState = new TStatus();
-            reservedState.setTStatus(WFImplConstant.HT_STATE_RESERVED);
-            input.addStatus(reservedState);
-            TStatus readyState = new TStatus();
-            readyState.setTStatus(WFImplConstant.HT_STATE_READY);
-            input.addStatus(readyState);
-            input.setPageSize(100000);
-            input.setPageNumber(0);
-            input.setSimpleQueryCategory(TSimpleQueryCategory.ALL_TASKS);
-            for (int i = 0; i < bpsProfiles.size(); i++) {
+
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        List<BPSProfile> bpsProfiles = bpsProfileDAO.listBPSProfiles(tenantId);
+        HumanTaskClientAPIAdminStub stub = null;
+        TSimpleQueryInput input = new TSimpleQueryInput();
+        TStatus reservedState = new TStatus();
+        reservedState.setTStatus(WFImplConstant.HT_STATE_RESERVED);
+        input.addStatus(reservedState);
+        TStatus readyState = new TStatus();
+        readyState.setTStatus(WFImplConstant.HT_STATE_READY);
+        input.addStatus(readyState);
+        input.setPageSize(100000);
+        input.setPageNumber(0);
+        input.setSimpleQueryCategory(TSimpleQueryCategory.ALL_TASKS);
+        for (int i = 0; i < bpsProfiles.size(); i++) {
+            try {
                 String host = bpsProfiles.get(i).getWorkerHostURL();
                 String servicesUrl = host + WFImplConstant.HT_SERVICES_URL;
                 stub = new HumanTaskClientAPIAdminStub(servicesUrl);
@@ -157,22 +158,34 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                 TTaskSimpleQueryResultRow[] arr = results.getRow();
                 if (ArrayUtils.isNotEmpty(arr)) {
                     for (int j = 0; j < arr.length; j++) {
-                        Object task = stub.getInput(arr[j].getId(), new NCName(""));
-                        InputStream stream = new ByteArrayInputStream(task.toString().getBytes(StandardCharsets.UTF_8));
-                        OMElement taskXML = new StAXOMBuilder(stream).getDocumentElement();
-                        Iterator<OMElementImpl> iterator = taskXML.getChildElements();
-                        while (iterator.hasNext()) {
-                            OMElementImpl child = iterator.next();
-                            checkMatchingTaskAndDelete(workflowRequest.getRequestId(), stub, arr, j, child);
+                        try {
+                            Object task = stub.getInput(arr[j].getId(), new NCName(""));
+                            InputStream stream = new ByteArrayInputStream(task.toString().getBytes(StandardCharsets.UTF_8));
+
+
+                            OMElement taskXML = new StAXOMBuilder(stream).getDocumentElement();
+                            Iterator<OMElementImpl> iterator = taskXML.getChildElements();
+                            while (iterator.hasNext()) {
+                                OMElementImpl child = iterator.next();
+                                checkMatchingTaskAndDelete(workflowRequest.getRequestId(), stub, arr, j, child);
+                            }
+                        } catch (IllegalStateFault | XMLStreamException | IllegalArgumentFault | RemoteException |
+                                IllegalOperationFault | IllegalAccessFault e) {
+                            //If exception throws when retrieving and deleting a specific task, it will continue with
+                            // other tasks without terminating.
+                            log.info ("Failed to check human task.");
                         }
 
                     }
                 }
+            } catch (IllegalArgumentFault | RemoteException | IllegalStateFault e) {
+                //If exception throws at one iteration of loop, which is testing 1 BPS profile, it will continue with
+                // other profiles without terminating.
+                log.info("Failed to delete human task associated for this request in BPS profile : " + bpsProfiles.get
+                        (i).getProfileName());
             }
-        } catch (XMLStreamException | IllegalOperationFault | IllegalAccessFault |
-                RemoteException | IllegalStateFault | IllegalArgumentFault e) {
-            throw new WorkflowImplException("Error while deleting the human tasks of the request.");
         }
+
     }
 
     /**
@@ -267,11 +280,18 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                                     workflow.getWorkflowName());
                         }
                         for (int k = 0; k < numberOfProcesses; k++) {
-                            String processStatus = versionType.getProcesses().getProcess()[k].getStatus().getValue();
-                            if (StringUtils.equals(processStatus, WFImplConstant.BPS_STATUS_ACTIVE)) {
-                                String processID = versionType.getProcesses().getProcess()[k].getPid();
-                                QName pid = QName.valueOf(processID);
-                                bpsProcessStub.retireProcess(pid);
+                            QName pid = null;
+                            try {
+                                String processStatus = versionType.getProcesses().getProcess()[k].getStatus().getValue();
+                                if (StringUtils.equals(processStatus, WFImplConstant.BPS_STATUS_ACTIVE)) {
+                                    String processID = versionType.getProcesses().getProcess()[k].getPid();
+                                    pid = QName.valueOf(processID);
+                                    bpsProcessStub.retireProcess(pid);
+                                }
+                            } catch (RemoteException | ProcessManagementException e) {
+                                //If exception throws at retiring one process, it will continue with
+                                // other processes without terminating.
+                                log.info("Failed to retire BPS process : " + pid);
                             }
                         }
                     }
@@ -281,8 +301,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                 log.debug("BPS Artifacts Successfully removed for Workflow : " + workflow.getWorkflowName());
             }
 
-        } catch (WorkflowException | MalformedURLException | PackageManagementException | RemoteException |
-                ProcessManagementException e) {
+        } catch (WorkflowException | MalformedURLException | PackageManagementException | RemoteException  e) {
             throw new WorkflowImplException("Error while deleting the BPS Artifacts of the Workflow "
                     + workflow.getWorkflowName(), e);
         }
