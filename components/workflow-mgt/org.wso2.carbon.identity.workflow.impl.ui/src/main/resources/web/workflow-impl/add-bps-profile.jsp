@@ -23,6 +23,7 @@
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 
 <fmt:bundle basename="org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources">
     <carbon:breadcrumb
@@ -38,13 +39,16 @@
         function doCancel(){
             window.location = "list-bps-profiles.jsp";
         }
+        function doValidation(){
+            return doValidateInput(document.getElementById('profile-name'), "xxxxxxxxxx");
+        }
     </script>
 
     <div id="middle">
         <h2><fmt:message key='workflow.bps.profile.add'/></h2>
 
         <div id="workArea">
-            <form method="post" name="serviceAdd" action="update-bps-profile-finish.jsp">
+            <form method="post" name="serviceAdd" action="update-bps-profile-finish.jsp" onsubmit="return doValidation();">
                 <input type="hidden" name="<%=WorkflowUIConstants.PARAM_ACTION%>"
                        value="<%=WorkflowUIConstants.ACTION_VALUE_ADD%>">
                 <table class="styledLeft noBorders">
@@ -56,7 +60,9 @@
                     <tbody>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.name'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>"/></td>
+                        <td><input id="profile-name" type="text"
+                                   name="<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>"
+                                   white-list-patterns="^[a-zA-Z0-9]+$"/></td>
                     </tr>
                     </tbody>
                 </table>
