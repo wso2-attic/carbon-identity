@@ -153,7 +153,7 @@ public class TOTPAuthenticator extends AbstractApplicationAuthenticator
 			if (context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser() != null &&
 			    context.getSequenceConfig().getStepMap().get(i).getAuthenticatedAutenticator()
 					    .getApplicationAuthenticator() instanceof LocalApplicationAuthenticator) {
-				username = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser().getUserName();
+				username = context.getSequenceConfig().getStepMap().get(i).getAuthenticatedUser().toString();
 				if (log.isDebugEnabled()) {
 					log.debug("username :" + username);
 				}
