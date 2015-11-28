@@ -908,10 +908,10 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             if (status == AuthenticatorFlowStatus.INCOMPLETE) {
                 response.sendRedirect(responseWrapper.getRedirectURL());
             } else {
-                doGet(request, response);
+                doGet(requestWrapper, response);
             }
         } else {
-            doGet(request, response);
+            doGet(requestWrapper, response);
         }
     }
 }
