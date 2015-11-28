@@ -420,7 +420,7 @@
     <%--START properties--%>
     <%--**********************--%>
     <%--**********************--%>
-<div class="sectionSeperator" id="userStoreTypeSub"><%="Define Properties For"%><strong></strong></div>
+<div class="sectionSeperator" id="userStoreTypeSub"><%="Define Properties For "%><strong></strong></div>
 <div class="sectionSub">
         <%--MandatoryProperties--%>
     <%if (mandatories != null && mandatories[0] != null) {%>
