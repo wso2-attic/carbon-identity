@@ -33,11 +33,23 @@ public class EncryptionDecryptionPersistenceProcessor implements TokenPersistenc
 
     protected Log log = LogFactory.getLog(EncryptionDecryptionPersistenceProcessor.class);
 
+    /**
+     * Client ID is not to be decrypt as it's not encrypted
+     * @param processedClientId
+     * @return
+     * @throws IdentityOAuth2Exception
+     */
     @Override
     public String getPreprocessedClientId(String processedClientId) throws IdentityOAuth2Exception {
         return processedClientId;
     }
 
+    /**
+     * Client ID is not required to be encrypted
+     * @param clientId
+     * @return
+     * @throws IdentityOAuth2Exception
+     */
     @Override
     public String getProcessedClientId(String clientId) throws IdentityOAuth2Exception {
         return clientId;

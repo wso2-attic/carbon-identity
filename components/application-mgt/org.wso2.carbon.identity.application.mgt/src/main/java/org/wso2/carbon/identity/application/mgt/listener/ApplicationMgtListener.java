@@ -116,4 +116,28 @@ public interface ApplicationMgtListener {
     public boolean doPostDeleteApplication(String applicationName, String tenantDomain, String userName)
             throws IdentityApplicationManagementException;
 
+    /**
+     * Define any additional actions before getting an application
+     *
+     * @param applicationName
+     * @param tenantDomain
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    boolean doPreGetApplication(String applicationName, String tenantDomain)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions after getting an application
+     *
+     * @param applicationName
+     * @param tenantDomain
+     * @param userName
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    boolean doPostGetApplication(String applicationName, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException;
+
+    boolean doPreGetApplicationByClientId(String clientId, String clientType, String tenantDomain);
 }
