@@ -201,6 +201,7 @@ public class IdentityApplicationConstants {
         public static final String CLIENT_SECRET = "ClientSecret";
         public static final String OAUTH2_AUTHZ_URL = "OAuth2AuthzEPUrl";
         public static final String OAUTH2_TOKEN_URL = "OAuth2TokenEPUrl";
+        public static final String OAUTH2_REVOKE_URL = "OAuth2RevokeEPUrl";
         public static final String OAUTH2_USER_INFO_EP_URL = "OAuth2UserInfoEPUrl";
         public static final String CALLBACK_URL = "callbackUrl";
 

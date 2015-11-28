@@ -420,7 +420,7 @@
     <%--START properties--%>
     <%--**********************--%>
     <%--**********************--%>
-<div class="sectionSeperator" id="userStoreTypeSub"><%="Define Properties For"%><strong></strong></div>
+<div class="sectionSeperator" id="userStoreTypeSub"><%="Define Properties For "%><strong></strong></div>
 <div class="sectionSub">
         <%--MandatoryProperties--%>
     <%if (mandatories != null && mandatories[0] != null) {%>
@@ -853,11 +853,11 @@
            
     <script type="text/javascript">
 		function testConnection() {
-			var domainName = document.getElementById("domainId").value;
-			var driverName = document.getElementById("propertyValue_1").value;
-			var connectionURL = document.getElementById("propertyValue_2").value;
-			var username = document.getElementById("propertyValue_3").value;
-			var connectionPassword = document.getElementById("propertyValue_4").value;
+            var domainName = document.getElementById("domainId").value;
+            var connectionURL = document.getElementById("propertyValue_1").value;
+            var username = document.getElementById("propertyValue_2").value;
+            var connectionPassword = document.getElementById("propertyValue_3").value;
+            var driverName = document.getElementById("propertyValue_4").value;
 
 			var url = 'validateconnection-ajaxprocessor.jsp?' +
                     '&domainName=' + encodeURIComponent(domainName) +
