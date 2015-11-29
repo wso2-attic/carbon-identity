@@ -893,6 +893,18 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         return queryParamDTOs.toArray(new QueryParamDTO[queryParamDTOs.size()]);
     }
 
+    /**
+     * This method use to call authentication framework directly via API other than using HTTP redirects.
+     * Sending wrapper request object to doGet method since other original request doesn't exist required parameters
+     * Doesn't check SUCCESS_COMPLETED since taking decision with INCOMPLETE status
+     *
+     * @param request  Http Request
+     * @param response Http Response
+     * @param sessionDataKey Session data key
+     * @param type authenticator type
+     * @throws ServletException
+     * @throws IOException
+     */
     private void forward(HttpServletRequest request, HttpServletResponse response, String sessionDataKey, String type)
             throws ServletException, IOException {
 
