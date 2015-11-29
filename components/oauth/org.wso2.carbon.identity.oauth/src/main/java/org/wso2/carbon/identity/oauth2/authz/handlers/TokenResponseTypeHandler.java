@@ -93,7 +93,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                 AccessTokenDO accessTokenDO = (AccessTokenDO) oauthCache.getValueFromCache(cacheKey);
                 if (accessTokenDO != null) {
                     if (log.isDebugEnabled()) {
-                        log.debug("Retrieved active Access Token : " + accessTokenDO.getAccessToken() +
+                        log.debug("Retrieved active Access Token" +
                                 " for Client Id : " + consumerKey + ", User ID :" + authorizedUser +
                                 " and Scope : " + scope + " from cache");
                     }
@@ -103,11 +103,10 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                     if (expireTime > 0 || expireTime < 0) {
                         if (log.isDebugEnabled()) {
                             if(expireTime > 0) {
-                                log.debug("Access Token " + accessTokenDO.getAccessToken() +
+                                log.debug("Access Token"+
                                                 " is valid for another " + expireTime + "ms");
                             } else {
-                                log.debug("Infinite lifetime Access Token " +
-                                                accessTokenDO.getAccessToken() + " found in cache");
+                                log.debug("Infinite lifetime Access Token found in cache");
                             }
                         }
                         respDTO.setAccessToken(accessTokenDO.getAccessToken());
@@ -134,8 +133,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         //Token is expired. Clear it from cache
                         oauthCache.clearCacheEntry(cacheKey);
                         if (log.isDebugEnabled()) {
-                            log.debug("Access Token " + accessTokenDO.getAccessToken() +
-                                    " is expired. Therefore cleared it from cache and marked it" +
+                            log.debug("Access Token is expired. Therefore cleared it from cache and marked it" +
                                     " as expired in database");
                         }
                     }
@@ -154,7 +152,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             if (existingAccessTokenDO != null) {
 
                 if (log.isDebugEnabled()) {
-                    log.debug("Retrieved latest Access Token : " + existingAccessTokenDO.getAccessToken() +
+                    log.debug("Retrieved latest Access Token" +
                             " for Client ID : " + consumerKey + ", User ID :" + authorizedUser +
                             " and Scope : " + scope + " from database");
                 }
@@ -168,18 +166,16 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                     // token is active and valid
                     if (log.isDebugEnabled()) {
                         if(expiryTime > 0){
-                            log.debug("Access token : " + existingAccessTokenDO.getAccessToken() +
-                                            " is valid for another " + expiryTime + "ms");
+                            log.debug("Access token is valid for another " + expiryTime + "ms");
                         } else {
-                            log.debug("Infinite lifetime Access Token " + existingAccessTokenDO.getAccessToken() +
-                                            " found in cache");
+                            log.debug("Infinite lifetime Access Token found in cache");
                         }
                     }
                     if (cacheEnabled) {
                         oauthCache.addToCache(cacheKey, existingAccessTokenDO);
                         if (log.isDebugEnabled()) {
-                            log.debug("Access Token : " + existingAccessTokenDO.getAccessToken() +
-                                    " was added to cache for cache key : " + cacheKey.getCacheKeyString());
+                            log.debug("Access Token was added to cache for cache key : "
+                                    + cacheKey.getCacheKeyString());
                         }
                     }
 
@@ -201,8 +197,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                 } else {
 
                     if (log.isDebugEnabled()) {
-                        log.debug("Access Token " + existingAccessTokenDO.getAccessToken() +
-                                  " is " + existingAccessTokenDO.getTokenState());
+                        log.debug("Access Token is " + existingAccessTokenDO.getTokenState());
                     }
 
                     String tokenState = existingAccessTokenDO.getTokenState();
@@ -219,15 +214,14 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         }
 
                         if (log.isDebugEnabled()) {
-                            log.debug("Marked Access Token " + existingAccessTokenDO.getAccessToken() + " as expired");
+                            log.debug("Marked Access Token as expired");
                         }
 
                     } else {
 
                         //Token is revoked or inactive
                         if (log.isDebugEnabled()) {
-                            log.debug("Access Token " + existingAccessTokenDO.getAccessToken() + " is " +
-                                      existingAccessTokenDO.getTokenState());
+                            log.debug("Access Token is " + existingAccessTokenDO.getTokenState());
                         }
                     }
                 }
@@ -323,7 +317,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("Persisted Access Token : " + accessToken + " for " +
+                log.debug("Persisted Access Token for " +
                           "Client ID : " + authorizationReqDTO.getConsumerKey() +
                           ", Authorized User : " + authorizationReqDTO.getUsername() +
                           ", Timestamp : " + timestamp +
@@ -338,7 +332,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             if (cacheEnabled) {
                 oauthCache.addToCache(cacheKey, newAccessTokenDO);
                 if (log.isDebugEnabled()) {
-                    log.debug("Access Token : " + accessToken + " was added to OAuthCache for " +
+                    log.debug("Access Token was added to OAuthCache for " +
                             "cache key : " + cacheKey.getCacheKeyString());
                 }
             }
