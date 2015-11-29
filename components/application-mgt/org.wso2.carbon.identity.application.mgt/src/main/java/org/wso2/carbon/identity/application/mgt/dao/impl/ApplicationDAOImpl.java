@@ -2750,10 +2750,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         Map<String, String> permissions = new HashMap<>();
         try {
 
-            //overriding the received connection as a temporary fix. Since the the query is a UM_DB query it should be ran
-            //against user db
             connection = IdentityDatabaseUtil.getUserDBConnection();
-
             readPermissionsPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS);
             readPermissionsPrepStmt.setString(1, "%" + ApplicationMgtUtil.getApplicationPermissionPath() + "%");
             resultSet = readPermissionsPrepStmt.executeQuery();
@@ -2786,10 +2783,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         Connection connection = null;
         try {
 
-            //overriding the received connection as a temporary fix. Since the the query is a UM_DB query it should be ran
-            //against user db
             connection = IdentityDatabaseUtil.getUserDBConnection();
-
             updatePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.UPDATE_SP_PERMISSIONS);
             updatePermissionPrepStmt.setString(1, newPermission);
             updatePermissionPrepStmt.setString(2, id);
@@ -2815,10 +2809,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         int id = -1;
         try {
 
-            //overriding the received connection as a temporary fix. Since the the query is a UM_DB query it should be ran
-            //against user db
             connection = IdentityDatabaseUtil.getUserDBConnection();
-
             loadPermissionsPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS_W);
             loadPermissionsPrepStmt.setString(1, permission.toLowerCase());
             resultSet = loadPermissionsPrepStmt.executeQuery();
@@ -2845,10 +2836,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         Connection connection = null;
         try {
 
-            //overriding the received connection as a temporary fix. Since the the query is a UM_DB query it should be ran
-            //against user db
             connection = IdentityDatabaseUtil.getUserDBConnection();
-
             deleteRolePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_ROLE_PERMISSION);
             deleteRolePermissionPrepStmt.setInt(1, id);
             deleteRolePermissionPrepStmt.executeUpdate();
@@ -2870,10 +2858,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         Connection connection = null;
         try {
 
-            //overriding the received connection as a temporary fix. Since the the query is a UM_DB query it should be ran
-            //against user db
             connection = IdentityDatabaseUtil.getUserDBConnection();
-
             deletePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_PERMISSIONS);
             deletePermissionPrepStmt.setInt(1, entry_id);
             deletePermissionPrepStmt.executeUpdate();
