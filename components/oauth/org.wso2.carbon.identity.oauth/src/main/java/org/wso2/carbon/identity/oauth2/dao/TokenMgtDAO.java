@@ -1421,7 +1421,7 @@ public class TokenMgtDAO {
             resultSet = prepStmt.executeQuery();
 
             if (resultSet.next()) {
-                return resultSet.getString("CODE_ID");
+                return resultSet.getString("AUTHORIZATION_CODE");
             }
             connection.commit();
             return null;
@@ -1429,6 +1429,66 @@ public class TokenMgtDAO {
         } catch (SQLException e) {
             String errorMsg = "Error occurred while retrieving 'Authorization Code' for " +
                     "authorization code : " + codeId;
+            throw new IdentityOAuth2Exception(errorMsg, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+        }
+
+    }
+
+
+    public String getTokenIdByToken(String token) throws IdentityOAuth2Exception {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+        try {
+            String sql = SQLQueries.RETRIEVE_TOKEN_ID_BY_TOKEN;
+
+            prepStmt = connection.prepareStatement(sql);
+            prepStmt.setString(1, persistenceProcessor.getProcessedAccessTokenIdentifier(token));
+            resultSet = prepStmt.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getString("TOKEN_ID");
+            }
+            connection.commit();
+            return null;
+
+        } catch (SQLException e) {
+            String errorMsg = "Error occurred while retrieving 'Token ID' for " +
+                    "token : " + token;
+            throw new IdentityOAuth2Exception(errorMsg, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+        }
+
+    }
+
+
+    public String getTokenByTokenId(String tokenId) throws IdentityOAuth2Exception {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+        try {
+            String sql = SQLQueries.RETRIEVE_TOKEN_BY_TOKEN_ID;
+
+            prepStmt = connection.prepareStatement(sql);
+            prepStmt.setString(1, tokenId);
+            resultSet = prepStmt.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getString("ACCESS_TOKEN");
+            }
+            connection.commit();
+            return null;
+
+        } catch (SQLException e) {
+            String errorMsg = "Error occurred while retrieving 'Access Token' for " +
+                    "token id : " + tokenId;
             throw new IdentityOAuth2Exception(errorMsg, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);

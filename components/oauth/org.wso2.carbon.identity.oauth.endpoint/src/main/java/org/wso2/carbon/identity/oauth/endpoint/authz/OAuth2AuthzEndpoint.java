@@ -393,13 +393,11 @@ public class OAuth2AuthzEndpoint {
 
     private void addUserAttributesToCache(SessionDataCacheEntry sessionDataCacheEntry, String code) {
         AuthorizationGrantCacheKey authorizationGrantCacheKey = new AuthorizationGrantCacheKey(code);
-        authorizationGrantCacheKey.setIsAuthzCode(true);
         AuthorizationGrantCacheEntry authorizationGrantCacheEntry = new AuthorizationGrantCacheEntry(
                 sessionDataCacheEntry.getLoggedInUser().getUserAttributes());
         authorizationGrantCacheEntry.setNonceValue(sessionDataCacheEntry.getoAuth2Parameters().getNonce());
-        authorizationGrantCacheKey.setCodeId(sessionDataCacheEntry.getCodeId());
         AuthorizationGrantCache.getInstance(OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout())
-                .addToCache(authorizationGrantCacheKey, authorizationGrantCacheEntry);
+                .addToCacheByCode(authorizationGrantCacheKey, authorizationGrantCacheEntry);
     }
 
     /**
@@ -547,12 +545,10 @@ public class OAuth2AuthzEndpoint {
         }
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        String codeId = UUIDGenerator.generateUUID();
         CacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
         SessionDataCacheEntry sessionDataCacheEntryNew = new SessionDataCacheEntry();
         sessionDataCacheEntryNew.setoAuth2Parameters(params);
         sessionDataCacheEntryNew.setQueryString(req.getQueryString());
-        sessionDataCacheEntryNew.setCodeId(codeId);
 
         if (req.getParameterMap() != null) {
             sessionDataCacheEntryNew.setParamMap(new ConcurrentHashMap<String, String[]>(req.getParameterMap()));
@@ -675,7 +671,6 @@ public class OAuth2AuthzEndpoint {
         authzReqDTO.setUsername(sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier());
         authzReqDTO.setACRValues(oauth2Params.getACRValues());
         authzReqDTO.setNonce(oauth2Params.getNonce());
-        authzReqDTO.setCodeId(sessionDataCacheEntry.getCodeId());
         return EndpointUtil.getOAuth2Service().authorize(authzReqDTO);
     }
 

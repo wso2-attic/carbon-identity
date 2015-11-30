@@ -34,6 +34,12 @@ public class SQLQueries {
     public static final String RETRIEVE_AUTHZ_CODE_BY_CODE_ID = "SELECT AUTHORIZATION_CODE FROM " +
             "IDN_OAUTH2_AUTHORIZATION_CODE WHERE CODE_ID = ?";
 
+    public static final String RETRIEVE_TOKEN_ID_BY_TOKEN = "SELECT TOKEN_ID FROM " +
+            "IDN_OAUTH2_ACCESS_TOKEN WHERE ACCESS_TOKEN = ?";
+
+    public static final String RETRIEVE_TOKEN_BY_TOKEN_ID = "SELECT ACCESS_TOKEN FROM " +
+            "IDN_OAUTH2_ACCESS_TOKEN WHERE TOKEN_ID = ?";
+
     public static final String UPDATE_TOKEN_AGAINST_AUTHZ_CODE = "UPDATE IDN_OAUTH2_AUTHORIZATION_CODE SET " +
                                                                  "TOKEN_ID=? WHERE AUTHORIZATION_CODE=?";
 

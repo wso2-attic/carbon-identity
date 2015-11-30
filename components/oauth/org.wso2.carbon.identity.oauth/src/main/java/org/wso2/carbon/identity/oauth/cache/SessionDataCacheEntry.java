@@ -79,11 +79,4 @@ public class SessionDataCacheEntry extends CacheEntry {
         this.authenticatedIdPs = authenticatedIdPs;
     }
 
-    public String getCodeId() {
-        return codeId;
-    }
-
-    public void setCodeId(String codeId) {
-        this.codeId = codeId;
-    }
 }

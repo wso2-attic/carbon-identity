@@ -58,62 +58,86 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
         return instance;
     }
 
-    public void addToCache(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
-        String keyValue = key.getUserAttributesId();
+    public void addToCacheByToken(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
+        String tokenId = null;
         super.addToCache(key, entry);
+        storeToSessionStore(replaceFromTokenId(key.getUserAttributesId()), entry);
 
-        //if key is authorization code, for the first time get the code id from entry else try to get from database layer
-        if (key.getIsAuthzCode()) {
-            if (key.getCodeId() != null) {
-                keyValue = key.getCodeId();
-            } else {
-                keyValue = replaceFromCodeId(keyValue);
-            }
-        } else {
-            keyValue = key.getTokenId();
-        }
-        SessionDataStore.getInstance().storeSessionData(keyValue, AUTHORIZATION_GRANT_CACHE_NAME, entry);
-        if (enableRequestScopeCache) {
-            SessionDataStore.getInstance().storeSessionData(keyValue, AUTHORIZATION_GRANT_CACHE_NAME, entry);
-        }
     }
 
-    public AuthorizationGrantCacheEntry getValueFromCache(AuthorizationGrantCacheKey key) {
-        String keyValue = key.getUserAttributesId();
+
+    public AuthorizationGrantCacheEntry getValueFromCacheByToken(AuthorizationGrantCacheKey key) {
         AuthorizationGrantCacheEntry cacheEntry = super.getValueFromCache(key);
         if (cacheEntry == null) {
-            //if key is authorization code, convert it to code id which is used in database layer
-            if(key.getIsAuthzCode()) {
-                keyValue = replaceFromCodeId(keyValue);
-            }
-            cacheEntry = (AuthorizationGrantCacheEntry) SessionDataStore.getInstance().getSessionData(keyValue,
-                    AUTHORIZATION_GRANT_CACHE_NAME);
+            cacheEntry = getFromSessionStore(replaceFromTokenId(key.getUserAttributesId()));
         }
         return cacheEntry;
     }
 
-    public void clearCacheEntry(AuthorizationGrantCacheKey key) {
-        String keyValue = key.getUserAttributesId();
+    public void clearCacheEntryByToken(AuthorizationGrantCacheKey key) {
+        String tokenId = null;
         super.clearCacheEntry(key);
-
-        //if key is authorization code, convert it to code id which is used in database layer
-        if(key.getIsAuthzCode()) {
-            keyValue = replaceFromCodeId(keyValue);
-        }
-
-        SessionDataStore.getInstance().clearSessionData(keyValue, AUTHORIZATION_GRANT_CACHE_NAME);
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().clearSessionData(keyValue,AUTHORIZATION_GRANT_CACHE_NAME);
-        }
+        clearFromSessionStore(replaceFromTokenId(key.getUserAttributesId()));
     }
 
-    private String replaceFromCodeId(String authzCode){
+
+    public void addToCacheByCode(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
+        super.addToCache(key, entry);
+        storeToSessionStore(replaceFromCodeId(key.getUserAttributesId()), entry);
+    }
+
+
+    public AuthorizationGrantCacheEntry getValueFromCacheByCode(AuthorizationGrantCacheKey key) {
+        AuthorizationGrantCacheEntry cacheEntry = super.getValueFromCache(key);
+        if (cacheEntry == null) {
+            getFromSessionStore(replaceFromCodeId(key.getUserAttributesId()));
+        }
+        return cacheEntry;
+    }
+
+
+    public void clearCacheEntryByCode(AuthorizationGrantCacheKey key) {
+        String codeId = null;
+        super.clearCacheEntry(key);
+        clearFromSessionStore(replaceFromCodeId(key.getUserAttributesId()));
+
+    }
+
+
+    private String replaceFromCodeId(String authzCode) {
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
         try {
             return tokenMgtDAO.getCodeIdByAuthorizationCode(authzCode);
         } catch (IdentityOAuth2Exception e) {
-            log.error("Failed to retrieve authorization code id by authorization code from store for - ."+authzCode, e);
+            log.error("Failed to retrieve authorization code id by authorization code from store for - ." + authzCode, e);
         }
         return authzCode;
     }
+
+
+    private String replaceFromTokenId(String keyValue) {
+        TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
+        try {
+            return tokenMgtDAO.getTokenIdByToken(keyValue);
+        } catch (IdentityOAuth2Exception e) {
+            log.error("Failed to retrieve token id by token from store for - ." + keyValue, e);
+        }
+        return keyValue;
+    }
+
+
+    private void clearFromSessionStore(String id) {
+        SessionDataStore.getInstance().clearSessionData(id, AUTHORIZATION_GRANT_CACHE_NAME);
+    }
+
+
+    private AuthorizationGrantCacheEntry getFromSessionStore(String id) {
+        return (AuthorizationGrantCacheEntry) SessionDataStore.getInstance().getSessionData(id, AUTHORIZATION_GRANT_CACHE_NAME);
+    }
+
+
+    private void storeToSessionStore(String id, AuthorizationGrantCacheEntry entry) {
+        SessionDataStore.getInstance().storeSessionData(id, AUTHORIZATION_GRANT_CACHE_NAME, entry);
+    }
+
 }

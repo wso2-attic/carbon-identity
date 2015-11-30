@@ -69,7 +69,7 @@ public class UserInfoJSONResponseBuilder implements UserInfoResponseBuilder {
         AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(tokenResponse.getAuthorizationContextToken()
                 .getTokenString());
         AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance(0)
-                .getValueFromCache(cacheKey);
+                .getValueFromCacheByToken(cacheKey);
 
         if (cacheEntry == null) {
             return new HashMap<ClaimMapping, String>();
