@@ -23,10 +23,14 @@ import org.apache.commons.logging.LogFactory;
 import org.owasp.encoder.Encode;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
+import org.wso2.carbon.identity.application.authentication.framework.CommonAuthenticationHandler;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthRequestWrapper;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthResponseWrapper;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.base.IdentityConstants;
@@ -427,18 +431,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                 (authenticationRequest);
         FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
-        StringBuilder queryStringBuilder = new StringBuilder();
-        queryStringBuilder.append(commonAuthURL).
-                append("?").
-                append(SAMLSSOConstants.SESSION_DATA_KEY).
-                append("=").
-                append(sessionDataKey).
-                append("&").
-                append(FrameworkConstants.RequestParams.TYPE).
-                append("=").
-                append(FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
         FrameworkUtils.setRequestPathCredentials(req);
-        resp.sendRedirect(queryStringBuilder.toString());
+        forward(req, resp, sessionDataKey, FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
     }
 
     private void sendToFrameworkForLogout(HttpServletRequest request, HttpServletResponse response,
@@ -498,7 +492,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String queryParams = "?" + SAMLSSOConstants.SESSION_DATA_KEY + "=" + sessionDataKey
                              + "&" + "type" + "=" + "samlsso";
 
-        response.sendRedirect(commonAuthURL + queryParams);
+        forward(request, response, sessionDataKey, FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
     }
 
     /**
@@ -897,5 +891,42 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         }
 
         return queryParamDTOs.toArray(new QueryParamDTO[queryParamDTOs.size()]);
+    }
+
+    /**
+     * This method use to call authentication framework directly via API other than using HTTP redirects.
+     * Sending wrapper request object to doGet method since other original request doesn't exist required parameters
+     * Doesn't check SUCCESS_COMPLETED since taking decision with INCOMPLETE status
+     *
+     * @param request  Http Request
+     * @param response Http Response
+     * @param sessionDataKey Session data key
+     * @param type authenticator type
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void forward(HttpServletRequest request, HttpServletResponse response, String sessionDataKey, String type)
+            throws ServletException, IOException {
+
+        CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
+
+        CommonAuthRequestWrapper requestWrapper = new CommonAuthRequestWrapper(request);
+        requestWrapper.setParameter(FrameworkConstants.SESSION_DATA_KEY, sessionDataKey);
+        requestWrapper.setParameter(FrameworkConstants.RequestParams.TYPE, type);
+
+        CommonAuthResponseWrapper responseWrapper = new CommonAuthResponseWrapper(response);
+        commonAuthenticationHandler.doGet(requestWrapper, responseWrapper);
+
+        Object object = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+        if (object != null) {
+            AuthenticatorFlowStatus status = (AuthenticatorFlowStatus) object;
+            if (status == AuthenticatorFlowStatus.INCOMPLETE) {
+                response.sendRedirect(responseWrapper.getRedirectURL());
+            } else {
+                doGet(requestWrapper, response);
+            }
+        } else {
+            doGet(requestWrapper, response);
+        }
     }
 }
