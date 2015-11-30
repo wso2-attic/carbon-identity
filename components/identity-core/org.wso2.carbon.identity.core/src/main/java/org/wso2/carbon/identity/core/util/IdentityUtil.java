@@ -509,18 +509,23 @@ public class IdentityUtil {
     }
 
     /**
-     * Appends domain name to the application name without making the domain name into uppercase
+     * Appends domain name to the user/role name
      *
-     * @param name application name
+     * @param name       user/role name
      * @param domainName domain name
      * @return application name with domain name
      */
     public static String addDomainToName(String name, String domainName) {
-        if (name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) < 0 && !"PRIMARY".equalsIgnoreCase(domainName) && domainName != null) {
-            domainName = domainName + UserCoreConstants.DOMAIN_SEPARATOR;
-            name = domainName + name;
+        if (domainName != null && name != null && name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR) < 0) {
+            if (!UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase(domainName)) {
+                if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domainName) ||
+                        "Workflow".equalsIgnoreCase(domainName) || "Application".equalsIgnoreCase(domainName)) {
+                    name = domainName + UserCoreConstants.DOMAIN_SEPARATOR + name;
+                } else {
+                    name = domainName.toUpperCase() + UserCoreConstants.DOMAIN_SEPARATOR + name;
+                }
+            }
         }
-
         return name;
     }
 
