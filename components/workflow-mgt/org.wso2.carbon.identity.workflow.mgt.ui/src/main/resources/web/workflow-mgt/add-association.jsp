@@ -514,7 +514,7 @@
                             <td>
                                 <select id="id_<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>" onchange="changeWorkFlow();" name="<%=WorkflowUIConstants.PARAM_WORKFLOW_ID%>" style="min-width: 30%;">
                                     <option value=""><fmt:message key="select"/></option>
-                                    <option value="create_new_workflow">Create New WorkFlow...</option>
+                                    <option value="create_new_workflow">Create New Workflow...</option>
                                     <%
                                         for (WorkflowWizard workflowBean : client.listWorkflows()) {
                                             if (workflowBean != null) {
@@ -539,7 +539,7 @@
                             <td colspan="2">
                                 <input type="radio" name="conditionType" value="applyToAll" disabled  checked="checked"
                                        onclick="handleRadioInput(this);" class="enableOnOperationSel">
-                                Apply to all Requests
+                                Apply to all requests
                             </td>
                         </tr>
                         <tr>

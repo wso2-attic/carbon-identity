@@ -45,6 +45,9 @@
         if ((roleType == null || "null".equals(roleType)) &&
                 UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(IdentityUtil.extractDomainFromName(roleName))) {
             roleType = UserCoreConstants.INTERNAL_DOMAIN;
+        } else if ((roleType == null || "null".equals(roleType)) &&
+                UserAdminUIConstants.APPLICATION_DOMAIN.equalsIgnoreCase(IdentityUtil.extractDomainFromName(roleName))){
+            roleType = UserAdminUIConstants.APPLICATION_DOMAIN;
         }
         boolean isSharedRole = roleBean.getSharedRole() != null && !roleBean.getSharedRole().isEmpty(); 
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -58,6 +61,8 @@
         if(UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)){
             client.addInternalRole(UserCoreUtil.removeDomainFromName(roleName), roleBean.getRoleUsers(),
                                                                 roleBean.getSelectedPermissions());
+        } else if(UserAdminUIConstants.APPLICATION_DOMAIN.equalsIgnoreCase(roleType)) {
+            client.addInternalRole(roleName, roleBean.getRoleUsers(), roleBean.getSelectedPermissions());
         } else {
             client.addRole(roleName, roleBean.getRoleUsers(), roleBean.getSelectedPermissions(), isSharedRole);
         }

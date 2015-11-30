@@ -556,7 +556,7 @@ public class OAuth2Util {
         long refreshTokenValidityPeriodMillis = accessTokenDO.getRefreshTokenValidityPeriodInMillis();
 
         if (refreshTokenValidityPeriodMillis < 0) {
-            log.debug("Refresh Token : " + accessTokenDO.getRefreshToken() + " has infinite lifetime");
+            log.debug("Refresh Token has infinite lifetime");
             return -1;
         }
 
@@ -579,7 +579,7 @@ public class OAuth2Util {
         long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
 
         if (validityPeriodMillis < 0) {
-            log.debug("Access Token : " + accessTokenDO.getAccessToken() + " has infinite lifetime");
+            log.debug("Access Token has infinite lifetime");
             return -1;
         }
 

@@ -94,6 +94,7 @@
             }
         }
         domainNames.add(UserAdminUIConstants.INTERNAL_DOMAIN.toUpperCase());
+        domainNames.add(UserAdminUIConstants.APPLICATION_DOMAIN);
 
         if (domainNames.size() > 0) {
             if (primaryDomainName == null) {
@@ -284,13 +285,13 @@
                                         %>
                                         <option selected="selected"
                                                 value="<%=Encode.forHtmlAttribute(domainName)%>">
-                                            <%=Encode.forHtmlContent(domainName)%>
+                                            <%=Encode.forHtmlContent(domainName.toUpperCase())%>
                                         </option>
                                         <%
                                         } else {
                                         %>
                                         <option value="<%=Encode.forHtmlAttribute(domainName)%>">
-                                            <%=Encode.forHtmlContent(domainName)%>
+                                            <%=Encode.forHtmlContent(domainName.toUpperCase())%>
                                         </option>
                                         <%
                                                 }

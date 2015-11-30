@@ -24,7 +24,7 @@
             <i18n-bundle>org.wso2.carbon.identity.workflow.impl.ui.i18n.Resources</i18n-bundle>
             <parent-menu>configure_menu</parent-menu>
             <link>#</link>
-            <icon>../workflow-impl/images/workflow.gif</icon>
+            <icon>../workflow-impl/images/wf-profile.gif</icon>
             <region>region1</region>
             <order>55</order>
             <style-class>manage</style-class>
