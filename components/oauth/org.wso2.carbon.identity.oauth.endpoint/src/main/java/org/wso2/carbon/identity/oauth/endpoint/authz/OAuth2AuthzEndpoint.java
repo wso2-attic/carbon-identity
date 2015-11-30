@@ -749,9 +749,9 @@ public class OAuth2AuthzEndpoint {
         CommonAuthResponseWrapper responseWrapper = new CommonAuthResponseWrapper(response);
         commonAuthenticationHandler.doGet(requestWrapper, responseWrapper);
 
-        Object object = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
-        if (object != null) {
-            if (object == AuthenticatorFlowStatus.INCOMPLETE) {
+        Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+        if (attribute != null) {
+            if (attribute == AuthenticatorFlowStatus.INCOMPLETE) {
                 return Response.status(HttpServletResponse.SC_FOUND)
                         .location(new URI("../" + responseWrapper.getRedirectURL())).build();
             } else {
