@@ -18,14 +18,22 @@
 
 package org.wso2.carbon.identity.workflow.impl.util;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
+import org.apache.axis2.client.Stub;
 import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.bpel.stub.upload.BPELUploaderStub;
 import org.wso2.carbon.bpel.stub.upload.types.UploadedFileItem;
 import org.wso2.carbon.humantask.stub.upload.HumanTaskUploaderStub;
+import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
+import org.wso2.carbon.utils.CarbonUtils;
 
+import javax.xml.stream.XMLStreamException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +64,32 @@ public class WorkflowDeployerClient {
         Options htOptions = htServiceClient.getOptions();
         htOptions.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
         htServiceClient.setOptions(htOptions);
+    }
+
+    public WorkflowDeployerClient(String bpsURL, String username) throws AxisFault {
+
+        System.setProperty(WFImplConstant.KEYSTORE_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
+                .getFirstProperty(WFImplConstant.KEYSTORE_CARBON_CONFIG_PATH));
+        System.setProperty(WFImplConstant.KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
+                .getFirstProperty(WFImplConstant.KEYSTORE_PASSWORD_CARBON_CONFIG_PATH));
+        bpelUploaderStub = new BPELUploaderStub(bpsURL + BPEL_UPLOADER_SERVICE);
+        ServiceClient serviceClient = bpelUploaderStub._getServiceClient();
+        OMElement mutualSSLHeader;
+        try {
+            String headerString = WFImplConstant.MUTUAL_SSL_HEADER.replaceAll("\\$username", username);
+            mutualSSLHeader = AXIOMUtil.stringToOM(headerString);
+            serviceClient.addHeader(mutualSSLHeader);
+        } catch (XMLStreamException e) {
+            throw new AxisFault("Error while creating mutualSSLHeader XML Element.", e);
+        }
+        Options options = serviceClient.getOptions();
+        serviceClient.setOptions(options);
+
+        humanTaskUploaderStub = new HumanTaskUploaderStub(bpsURL + HT_UPLOADER_SERVICE);
+        ServiceClient htServiceClient = humanTaskUploaderStub._getServiceClient();
+        Options htOptions = htServiceClient.getOptions();
+        htServiceClient.setOptions(htOptions);
+        htServiceClient.addHeader(mutualSSLHeader);
     }
 
 

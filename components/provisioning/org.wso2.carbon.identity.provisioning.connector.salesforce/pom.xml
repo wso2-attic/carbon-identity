@@ -107,6 +107,7 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.application.common.model;
                             version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.registry.core.*; version="${carbon.kernel.registry.imp.pkg.version}",
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.provisioning.connector.salesforce.internal,

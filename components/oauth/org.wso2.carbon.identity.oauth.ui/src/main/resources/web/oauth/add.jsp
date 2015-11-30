@@ -62,23 +62,42 @@
         <div id="workArea">
             <script type="text/javascript">
                 function onClickAdd() {
-                    if($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
-                        var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.not.https'/>",
-                                validate, null, null);
-                        if (isValidated) {
-                            validate();
+                    var version2Checked = document.getElementById("oauthVersion20").checked;
+                    if ($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
+                        var callbackUrl = document.getElementById('callback').value;
+                        if (callbackUrl.trim() == '') {
+                            CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
+                            return false;
+                        } else {
+                            var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.not.https'/>",
+                                    validate, null, null);
+                            if (isValidated) {
+                                validate();
+                            }
                         }
                     } else {
-                        validate();
+                        var callbackUrl = document.getElementsByName("callback")[0].value;
+                        if (!version2Checked) {
+                            if (callbackUrl.trim() == '') {
+                                CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
+                                return false;
+                            } else {
+                                var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.not.https'/>",
+                                        validate, null, null);
+                                if (isValidated) {
+                                    validate();
+                                }
+                            }
+
+                        } else {
+                            validate();
+                        }
                     }
                 }
                 function validate() {
                     var callbackUrl = document.getElementById('callback').value;
                     if ($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
-                        if (callbackUrl == '') {
-                            CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
-                            return false;
-                        } else if (!isWhiteListed(callbackUrl, "url")) {
+                        if (!isWhiteListed(callbackUrl, "url")) {
                             CARBON.showWarningDialog('<fmt:message key="callback.is.not.url"/>');
                             return false;
                         }
@@ -88,17 +107,13 @@
                         CARBON.showWarningDialog('<fmt:message key="application.is.required"/>');
                         return false;
                     }
-                    value = document.getElementsByName("callback")[0].value;
                     var version2Checked = document.getElementById("oauthVersion20").checked;
                     if (version2Checked) {
                         if (!$(jQuery("#grant_code"))[0].checked && !$(jQuery("#grant_implicit"))[0].checked) {
                             document.getElementsByName("callback")[0].value = '';
                         }
                     } else {
-                        if (value == '') {
-                            CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
-                            return false;
-                        } else if (!isWhiteListed(callbackUrl, "url")) {
+                        if (!isWhiteListed(callbackUrl, "url")) {
                             CARBON.showWarningDialog('<fmt:message key="callback.is.not.url"/>');
                             return false;
 

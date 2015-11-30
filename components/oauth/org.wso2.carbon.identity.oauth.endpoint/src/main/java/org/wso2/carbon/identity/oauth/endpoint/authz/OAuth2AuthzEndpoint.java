@@ -27,9 +27,14 @@ import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
+import org.wso2.carbon.identity.application.authentication.framework.CommonAuthenticationHandler;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthRequestWrapper;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthResponseWrapper;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
@@ -53,6 +58,7 @@ import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
@@ -64,6 +70,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -83,7 +90,8 @@ public class OAuth2AuthzEndpoint {
     @Path("/")
     @Consumes("application/x-www-form-urlencoded")
     @Produces("text/html")
-    public Response authorize(@Context HttpServletRequest request) throws URISyntaxException {
+    public Response authorize(@Context HttpServletRequest request, @Context HttpServletResponse response)
+            throws URISyntaxException {
 
         // Setting super-tenant carbon context
         PrivilegedCarbonContext.startTenantFlow();
@@ -156,7 +164,20 @@ public class OAuth2AuthzEndpoint {
             if (clientId != null && sessionDataKeyFromLogin == null && sessionDataKeyFromConsent == null) {
                 // Authz request from client
                 String redirectURL = handleOAuthAuthorizationRequest(clientId, request);
-                return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
+
+                Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+                if (attribute != null && attribute == AuthenticatorFlowStatus.SUCCESS_COMPLETED) {
+                    try {
+                        return forward(request, response,
+                                (String) request.getAttribute(FrameworkConstants.SESSION_DATA_KEY),
+                                FrameworkConstants.OAUTH2);
+                    } catch (ServletException | IOException e ) {
+                       log.error("Error occurred while sending request to authentication framework.");
+                    }
+                    return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build();
+                } else {
+                    return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
+                }
 
             } else if (resultFromLogin != null) { // Authentication response
 
@@ -307,10 +328,10 @@ public class OAuth2AuthzEndpoint {
     @Path("/")
     @Consumes("application/x-www-form-urlencoded")
     @Produces("text/html")
-    public Response authorizePost(@Context HttpServletRequest request, MultivaluedMap paramMap)
+    public Response authorizePost(@Context HttpServletRequest request,@Context HttpServletResponse response,  MultivaluedMap paramMap)
             throws URISyntaxException {
         HttpServletRequestWrapper httpRequest = new OAuthRequestWrapper(request, paramMap);
-        return authorize(httpRequest);
+        return authorize(httpRequest, response);
     }
 
     /**
@@ -552,8 +573,11 @@ public class OAuth2AuthzEndpoint {
         SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntryNew);
 
         try {
+            req.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.SUCCESS_COMPLETED);
+            req.setAttribute(FrameworkConstants.SESSION_DATA_KEY, sessionDataKey);
             return EndpointUtil.getLoginPageURL(clientId, sessionDataKey, forceAuthenticate,
                     checkAuthentication, oauthRequest.getScopes(), req.getParameterMap());
+
         } catch (IdentityOAuth2Exception e) {
             if (log.isDebugEnabled()) {
                 log.debug("Error while retrieving the login page url.", e);
@@ -689,5 +713,45 @@ public class OAuth2AuthzEndpoint {
         }
 
         return authResult;
+    }
+
+    /**
+     * This method use to call authentication framework directly via API other than using HTTP redirects.
+     * Sending wrapper request object to doGet method since other original request doesn't exist required parameters
+     * Doesn't check SUCCESS_COMPLETED since taking decision with INCOMPLETE status
+     *
+     * Appending "../" to redirect url since tomcat container redirects to
+     * https://localhost:9443/oauth2/authenticationendpoint/login.do
+     *
+     * @param request  Http Request
+     * @param response Http Response
+     * @param sessionDataKey Session data key
+     * @param type authenticator type
+     * @throws ServletException
+     * @throws IOException
+     */
+    private Response forward(HttpServletRequest request, HttpServletResponse response, String sessionDataKey,
+            String type) throws ServletException, IOException, URISyntaxException {
+
+        CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
+
+        CommonAuthRequestWrapper requestWrapper = new CommonAuthRequestWrapper(request);
+        requestWrapper.setParameter(FrameworkConstants.SESSION_DATA_KEY, sessionDataKey);
+        requestWrapper.setParameter(FrameworkConstants.RequestParams.TYPE, type);
+
+        CommonAuthResponseWrapper responseWrapper = new CommonAuthResponseWrapper(response);
+        commonAuthenticationHandler.doGet(requestWrapper, responseWrapper);
+
+        Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+        if (attribute != null) {
+            if (attribute == AuthenticatorFlowStatus.INCOMPLETE) {
+                return Response.status(HttpServletResponse.SC_FOUND)
+                        .location(new URI("../" + responseWrapper.getRedirectURL())).build();
+            } else {
+                return authorize(requestWrapper, responseWrapper);
+            }
+        } else {
+            return authorize(requestWrapper, responseWrapper);
+        }
     }
 }

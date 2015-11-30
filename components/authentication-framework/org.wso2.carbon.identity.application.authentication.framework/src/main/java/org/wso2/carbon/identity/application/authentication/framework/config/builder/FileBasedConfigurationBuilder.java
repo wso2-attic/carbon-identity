@@ -455,7 +455,7 @@ public class FileBasedConfigurationBuilder {
                 OMElement tenantDataListenerURLElem = (OMElement) tenantDataURLElems.next();
                 if (tenantDataListenerURLElem != null &&
                     StringUtils.isNotEmpty(tenantDataListenerURLElem.getText())) {
-                    tenantDataEndpointURLs.add(tenantDataListenerURLElem.getText());
+                    tenantDataEndpointURLs.add(IdentityUtil.fillURLPlaceholders(tenantDataListenerURLElem.getText()));
                 }
             }
         }
@@ -466,7 +466,7 @@ public class FileBasedConfigurationBuilder {
                 getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_AUTHENTICATION_ENDPOINT_URL));
 
         if (authEndpointURLElem != null) {
-            authenticationEndpointURL = authEndpointURLElem.getText();
+            authenticationEndpointURL = IdentityUtil.fillURLPlaceholders(authEndpointURLElem.getText());
         }
     }
 
@@ -475,7 +475,7 @@ public class FileBasedConfigurationBuilder {
                 getQNameWithIdentityApplicationNS(FrameworkConstants.Config.QNAME_AUTHENTICATION_ENDPOINT_RETRY_URL));
 
         if (authEndpointRetryURLElem != null) {
-            authenticationEndpointRetryURL = authEndpointRetryURLElem.getText();
+            authenticationEndpointRetryURL = IdentityUtil.fillURLPlaceholders(authEndpointRetryURLElem.getText());
         }
     }
 

@@ -18,13 +18,15 @@
 
 package org.wso2.carbon.identity.oauth2.token.handlers.grant;
 
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.UUID;
+
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.oltu.oauth2.as.issuer.MD5Generator;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
-import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -48,18 +50,15 @@ import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.UUID;
-
 public abstract class AbstractAuthorizationGrantHandler implements AuthorizationGrantHandler {
 
     private static Log log = LogFactory.getLog(AbstractAuthorizationGrantHandler.class);
-    protected OAuthIssuer oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
+    protected OAuthIssuer oauthIssuerImpl = OAuthServerConfiguration.getInstance().getOAuthTokenGenerator(); 
     protected TokenMgtDAO tokenMgtDAO;
     protected OAuthCallbackManager callbackManager;
     protected boolean cacheEnabled;
     protected OAuthCache oauthCache;
+    
 
     @Override
     public void init() throws IdentityOAuth2Exception {
@@ -280,33 +279,6 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                         + consumerKey + " AuthorizedUser : " + authorizedUser);
             }
 
-            String newAccessToken;
-
-            try {
-                String userName = tokReqMsgCtx.getAuthorizedUser().toString();
-
-                newAccessToken = oauthIssuerImpl.accessToken();
-                if (OAuth2Util.checkUserNameAssertionEnabled()) {
-                    //use ':' for token & userStoreDomain separation
-                    String accessTokenStrToEncode = newAccessToken + ":" + userName;
-                    newAccessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes(Charsets.UTF_8));
-                }
-
-                // regenerate only if refresh token is null
-                if (refreshToken == null) {
-                    refreshToken = oauthIssuerImpl.refreshToken();
-                    if (OAuth2Util.checkUserNameAssertionEnabled()) {
-                        //use ':' for token & userStoreDomain separation
-                        String refreshTokenStrToEncode = refreshToken + ":" + userName;
-                        refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes(Charsets.UTF_8));
-                    }
-                }
-
-            } catch (OAuthSystemException e) {
-                throw new IdentityOAuth2Exception(
-                        "Error occurred while generating access token and refresh token", e);
-            }
-
             Timestamp timestamp = new Timestamp(new Date().getTime());
 
             // if reusing existing refresh token, use its original issued time
@@ -341,6 +313,47 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             AccessTokenDO newAccessTokenDO = new AccessTokenDO(consumerKey, tokReqMsgCtx.getAuthorizedUser(),
                     tokReqMsgCtx.getScope(), timestamp, refreshTokenIssuedTime,
                     validityPeriodInMillis, refreshTokenValidityPeriodInMillis, tokenType);
+            
+            String newAccessToken;
+
+            try {
+                String userName = tokReqMsgCtx.getAuthorizedUser().toString();
+
+                // set the validity period. this is needed by downstream handlers.
+                // if this is set before - then this will override it by the calculated new value.
+                tokReqMsgCtx.setValidityPeriod(validityPeriodInMillis);
+                
+                // set the refresh token validity period. this is needed by downstream handlers.
+                // if this is set before - then this will override it by the calculated new value.
+                tokReqMsgCtx.setRefreshTokenvalidityPeriod(refreshTokenValidityPeriodInMillis);
+                
+                // set access token issued time.this is needed by downstream handlers.
+                tokReqMsgCtx.setAccessTokenIssuedTime(timestamp.getTime());
+                
+                // set refresh token issued time.this is needed by downstream handlers.
+                tokReqMsgCtx.setRefreshTokenIssuedTime(refreshTokenIssuedTime.getTime());
+                
+                newAccessToken = oauthIssuerImpl.accessToken();
+                if (OAuth2Util.checkUserNameAssertionEnabled()) {
+                    //use ':' for token & userStoreDomain separation
+                    String accessTokenStrToEncode = newAccessToken + ":" + userName;
+                    newAccessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes(Charsets.UTF_8));
+                }
+
+                // regenerate only if refresh token is null
+                if (refreshToken == null) {
+                    refreshToken = oauthIssuerImpl.refreshToken();
+                    if (OAuth2Util.checkUserNameAssertionEnabled()) {
+                        //use ':' for token & userStoreDomain separation
+                        String refreshTokenStrToEncode = refreshToken + ":" + userName;
+                        refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes(Charsets.UTF_8));
+                    }
+                }
+
+            } catch (OAuthSystemException e) {
+                throw new IdentityOAuth2Exception(
+                        "Error occurred while generating access token and refresh token", e);
+            }
 
             newAccessTokenDO.setAccessToken(newAccessToken);
             newAccessTokenDO.setRefreshToken(refreshToken);
@@ -355,7 +368,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                     existingAccessTokenDO);
 
             if (log.isDebugEnabled()) {
-                log.debug("Persisted Access Token : " + newAccessToken + " for " +
+                log.debug("Persisted Access Token for " +
                         "Client ID : " + oAuth2AccessTokenReqDTO.getClientId() +
                         ", Authorized User : " + tokReqMsgCtx.getAuthorizedUser() +
                         ", Timestamp : " + timestamp +
@@ -468,8 +481,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                 oAuthAppDO = new OAuthAppDAO().getAppInformation(tokenReqDTO.getClientId());
                 appInfoCache.addToCache(tokenReqDTO.getClientId(), oAuthAppDO);
             } catch (InvalidOAuthClientException e) {
-                log.error("Error while reading application data for client id : " + tokenReqDTO.getClientId(), e);
-                return false;
+                throw new IdentityOAuth2Exception(e.getMessage(), e);
             }
         }
         // If the application has defined a limited set of grant types, then check the grant

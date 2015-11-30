@@ -81,8 +81,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
         if (authzCodeDO == null) {
             if (log.isDebugEnabled()) {
                 log.debug("Invalid access token request with " +
-                        "Client Id : " + clientId +
-                        " , Authorization Code : " + oAuth2AccessTokenReqDTO.getAuthorizationCode());
+                        "Client Id : " + clientId);
             }
             return false;
         }
@@ -93,16 +92,14 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
                 if (log.isDebugEnabled()) {
                     log.debug("Invalid access token request with " +
                             "Client Id : " + clientId +
-                            " , Authorization Code : " + oAuth2AccessTokenReqDTO.getAuthorizationCode() +
-                            " : redirect_uri not present in request");
+                            "redirect_uri not present in request");
                 }
                 return false;
             } else if (!oAuth2AccessTokenReqDTO.getCallbackURI().equals(authzCodeDO.getCallbackUrl())) {
                 if (log.isDebugEnabled()) {
                     log.debug("Invalid access token request with " +
                             "Client Id : " + clientId +
-                            " , Authorization Code : " + oAuth2AccessTokenReqDTO.getAuthorizationCode() +
-                            " : redirect_uri does not match previously presented redirect_uri to authorization endpoint");
+                            "redirect_uri does not match previously presented redirect_uri to authorization endpoint");
                 }
                 return false;
             }
@@ -118,7 +115,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
         // if authorization code is expired.
         if ((currentTimeInMillis - timestampSkew) > (issuedTimeInMillis + validityPeriodInMillis)) {
             if (log.isDebugEnabled()) {
-                log.debug("Authorization Code : " + authorizationCode + " is expired." +
+                log.debug("Authorization Code is expired." +
                         " Issued Time(ms) : " + issuedTimeInMillis +
                         ", Validity Period : " + validityPeriodInMillis +
                         ", Timestamp Skew : " + timestampSkew +
@@ -128,7 +125,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
             // remove the authorization code from the database.
             tokenMgtDAO.expireAuthzCode(authorizationCode);
             if (log.isDebugEnabled()) {
-                log.debug("Expired Authorization code : " + authorizationCode +
+                log.debug("Expired Authorization code" +
                         " issued for client " + clientId +
                         " was removed from the database.");
             }
@@ -139,7 +136,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
                             authorizationCode)));
 
             if (log.isDebugEnabled()) {
-                log.debug("Expired Authorization code : " + authorizationCode +
+                log.debug("Expired Authorization code" +
                         " issued for client " + clientId +
                         " was removed from the cache.");
             }
@@ -150,7 +147,6 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
         if (log.isDebugEnabled()) {
             log.debug("Found an Authorization Code, " +
                     "Client : " + clientId +
-                    " , Authorization Code : " + oAuth2AccessTokenReqDTO.getAuthorizationCode() +
                     ", authorized user : " + authzCodeDO.getAuthorizedUser() +
                     ", scope : " + OAuth2Util.buildScopeString(authzCodeDO.getScope()));
         }
@@ -188,11 +184,6 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
             }
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Authorization Code clean up completed for request from the Client, " +
-                    "Client Id: " + authzCode);
-        }
-
         return tokenRespDTO;
     }
 
@@ -214,7 +205,7 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
                                          newAccessTokenDO, existingAccessTokenDO, userStoreDomain);
         } catch (IdentityException e) {
             throw new IdentityOAuth2Exception(
-                    "Error occurred while storing new access token : " + newAccessToken, e);
+                    "Error occurred while storing new access token", e);
         }
     }
 

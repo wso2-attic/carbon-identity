@@ -27,8 +27,6 @@ public class BPSProfile {
     private String workerHostURL;
     private String username;
     private String password;
-    private String callbackUser;
-    private String callbackPassword;
 
     public String getProfileName() {
         return profileName;
@@ -46,30 +44,12 @@ public class BPSProfile {
         this.username = username;
     }
 
-    public String getCallbackUser() {
-
-        return callbackUser;
-    }
-
-    public void setCallbackUser(String callbackUser) {
-
-        this.callbackUser = callbackUser;
-    }
-
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getCallbackPassword() {
-        return callbackPassword;
-    }
-
-    public void setCallbackPassword(String callbackPassword) {
-        this.callbackPassword = callbackPassword;
     }
 
     public String getManagerHostURL() {
