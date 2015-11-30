@@ -340,7 +340,6 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
             throw new UserStoreException(e);
         }
 
-
     }
 
     @Override
@@ -362,7 +361,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
             if (domainName == null) {
                 domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
-            String roleNameWithDomain = domainName + CarbonConstants.DOMAIN_SEPARATOR + roleName;
+            String roleNameWithDomain = domainName.toUpperCase() + CarbonConstants.DOMAIN_SEPARATOR + roleName;
             try {
                 //delete group attributes - no need to check existence here,
                 //since it is checked in below method.
