@@ -163,6 +163,7 @@
     String googleProvPattern = null;
     String googleProvisioningSeparator = null;
     String googleProvPrivateKeyData = null;
+    String googleUniqueID = null;
 
     boolean isSfProvEnabled = false;
     boolean isSfProvDefault = false;
@@ -176,6 +177,7 @@
     String sfProvDomainName = null;
     String sfPassword = null;
     String sfOauth2TokenEndpoint = null;
+    String sfUniqueID = null;
 
     boolean isScimProvEnabled = false;
     boolean isScimProvDefault = false;
@@ -187,6 +189,7 @@
     boolean isSCIMPwdProvEnabled = false;
     String scimDefaultPwd = null;
     String disableDefaultPwd = "";
+    String scimUniqueID = null;
 
     boolean isSpmlProvEnabled = false;
     boolean isSpmlProvDefault = false;
@@ -194,6 +197,7 @@
     String spmlPassword = null;
     String spmlEndpoint = null;
     String spmlObjectClass = null;
+    String spmlUniqueID = null;
 
     String oidcQueryParam = "";
     String samlQueryParam = "";
@@ -684,6 +688,8 @@
                         sfProvSeparator = sfProperty.getValue();
                     } else if ("sf-prov-domainName".equals(sfProperty.getName())) {
                         sfProvDomainName = sfProperty.getValue();
+                    } else if ("UniqueID".equals(sfProperty.getName())){
+                        sfUniqueID = sfProperty.getValue();
                     }
                 }
             }
@@ -717,6 +723,8 @@
                       isSCIMPwdProvEnabled = Boolean.parseBoolean(scimProperty.getValue());
                     } else if ("scim-default-pwd".equals(scimProperty.getName())){
                         scimDefaultPwd = scimProperty.getValue();
+                    } else if ("UniqueID".equals(scimProperty.getName())){
+                        scimUniqueID = scimProperty.getValue();
                     }
                 }
             }
@@ -786,6 +794,8 @@
                         googleProvPattern = googleProperty.getValue();
                     } else if ("google_prov_separator".equals(googleProperty.getName())) {
                         googleProvisioningSeparator = googleProperty.getValue();
+                    } else if ("UniqueID".equals(googleProperty.getName())){
+                        googleUniqueID = googleProperty.getValue();
                     }
 
 
@@ -816,6 +826,8 @@
                         spmlEndpoint = spmlProperty.getValue();
                     } else if ("spml-oc".equals(spmlProperty.getName())) {
                         spmlObjectClass = spmlProperty.getValue();
+                    } else if ("UniqueID".equals(spmlProperty.getName())){
+                        spmlUniqueID = spmlProperty.getValue();
                     }
                 }
             }
@@ -5105,7 +5117,11 @@ function doValidation() {
         <tr>
             <td class="leftCol-med labelField">Provisioning Domain:</td>
             <td><input class="text-box-big" id="sf-prov-domainName"
-                       name="sf-prov-domainName" type="text" value=<%=Encode.forHtmlAttribute(sfProvDomainName)%>></td>
+                       name="sf-prov-domainName" type="text" value=<%=Encode.forHtmlAttribute(sfProvDomainName)%>>
+            <%if(sfUniqueID != null){%>
+                <input type="hidden" id="sf-unique-id" name="sf-unique-id" value=<%=Encode.forHtmlAttribute(sfUniqueID)%>>
+            <%}%>
+            </td>
         </tr>
 
     </table>
@@ -5205,6 +5221,9 @@ function doValidation() {
                 <fmt:message key='scim.default.password'/>:</td>
             <td><input class="text-box-big" id="scim-default-pwd" <%=disableDefaultPwd%>
                        name="scim-default-pwd" type="text" value=<%=scimDefaultPwd%>></td>
+            <%if(scimUniqueID != null){%>
+                            <input type="hidden" id="scim-unique-id" name="scim-unique-id" value=<%=Encode.forHtmlAttribute(scimUniqueID)%>>
+                        <%}%>
         </tr>
     </table>
 
@@ -5279,6 +5298,9 @@ function doValidation() {
                     class="required">*</span></td>
             <td><input class="text-box-big" id="spml-oc" name="spml-oc"
                        type="text" value=<%=Encode.forHtmlAttribute(spmlObjectClass) %>></td>
+                <%if(spmlUniqueID != null){%>
+                    <input type="hidden" id="spml-unique-id" name="spml-unique-id" value=<%=Encode.forHtmlAttribute(spmlUniqueID)%>>
+                <%}%>
         </tr>
 
     </table>

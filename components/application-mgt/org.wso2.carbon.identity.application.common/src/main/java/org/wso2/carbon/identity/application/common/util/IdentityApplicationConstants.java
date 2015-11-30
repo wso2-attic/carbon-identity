@@ -65,6 +65,9 @@ public class IdentityApplicationConstants {
     public static final String TIME_CONFIG = "TimeConfig";
     public static final String COMMONAUTH = "commonauth";
     public static final String MULTIVALUED_PROPERTY_CHARACTER = ".";
+    public static final String UNIQUE_ID_CONSTANT = "UniqueID";
+    public static final String PASSWORD = "password";
+    public static final String RANDOM_PHRASE_PREFIX = "random-password-generated!@#$%^&*(0)+_";
 
     public static class ConfigElements {
         public static final String PROPERTIES = "Properties";

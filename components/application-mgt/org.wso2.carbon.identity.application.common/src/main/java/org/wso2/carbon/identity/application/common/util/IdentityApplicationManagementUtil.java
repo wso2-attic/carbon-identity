@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.application.common.util;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.Base64;
 import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,17 +56,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 public class IdentityApplicationManagementUtil {
 
@@ -739,5 +730,23 @@ public class IdentityApplicationManagementUtil {
             }
         }
         return propValueSet;
+    }
+
+    public static String getPropertyValue(Property[] properties, String propertyName) {
+
+        if (ArrayUtils.isEmpty(properties) || StringUtils.isBlank(propertyName)) {
+            return null;
+        }
+        for (Property property : properties) {
+            if (property == null || StringUtils.isBlank(property.getName())) {
+                continue;
+            }
+            if (property.getName().equals(propertyName)) {
+                if (StringUtils.isNotBlank(property.getValue())){
+                    return property.getValue();
+                }
+            }
+        }
+        return null;
     }
 }
