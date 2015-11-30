@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity-core</artifactId>
-        <version>4.6.0-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -49,10 +49,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.security.mgt</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
@@ -106,7 +102,7 @@
                             javax.sql,
                             javax.xml.namespace,
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
-                            javax.xml.parsers,
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
                             javax.xml.stream; version="${equinox.osgi.stax-api.imp.pkg.version.range}",
 
                             org.apache.axiom.om.*; version="${axiom.osgi.version.range}",
@@ -137,7 +133,6 @@
                             org.wso2.carbon.user.core.*;version="${carbon.kernel.package.import.version.range}",
 
                             org.wso2.carbon.identity.base;version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.security.config;version="${carbon.identity.package.import.version.range}",
 
                             org.wso2.carbon.registry.core.*;version="${carbon.kernel.registry.imp.pkg.version}",
 

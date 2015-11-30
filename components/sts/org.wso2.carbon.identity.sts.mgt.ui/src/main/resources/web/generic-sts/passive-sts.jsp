@@ -29,6 +29,7 @@
 <%@ page import="org.wso2.carbon.identity.sts.passive.ui.client.IdentityPassiveSTSClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <fmt:bundle basename="org.wso2.carbon.identity.sts.mgt.ui.i18n.Resources">
@@ -119,7 +120,7 @@
                         for (ClaimDTO claimDTO : trustedServices) {
                 %>
                 <tr>
-                    <td><%=claimDTO.getRealm()%>
+                    <td><%=Encode.forHtmlContent(claimDTO.getRealm())%>
                     </td>
                     <td>
                         <table class="normal" style="width:100%">
@@ -127,7 +128,7 @@
                                 for (String claim : claimDTO.getDefaultClaims()) {
                             %>
                             <tr>
-                                <td><%=claim%>
+                                <td><%=Encode.forHtmlContent(claim)%>
                                 </td>
                             </tr>
                             <%
@@ -137,7 +138,7 @@
                     </td>
                     <td width="20px">
                         <a title="Remove Trusted RP"
-                           onclick="removePassiveSTSTrustService('<%=claimDTO.getRealm()%>');return false;"
+                           onclick="removePassiveSTSTrustService('<%=Encode.forJavaScriptAttribute(claimDTO.getRealm())%>');return false;"
                            href="#" class="icon-link"
                            style="background-image:url(../admin/images/delete.gif)">Delete
                         </a>

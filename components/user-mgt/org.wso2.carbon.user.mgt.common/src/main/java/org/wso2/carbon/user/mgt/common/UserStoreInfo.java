@@ -23,6 +23,10 @@ public class UserStoreInfo {
 
     private boolean isReadOnly = true;
 
+    private boolean readGroupsEnabled = true;
+
+    private boolean writeGroupsEnabled = true;
+
     private boolean isPasswordsExternallyManaged = false;
 
     private String userNameRegEx;
@@ -67,8 +71,24 @@ public class UserStoreInfo {
         return isReadOnly;
     }
 
+    public boolean isReadGroupsEnabled() {
+        return readGroupsEnabled;
+    }
+
+    public boolean isWriteGroupsEnabled() {
+        return writeGroupsEnabled;
+    }
+
     public void setReadOnly(boolean isReadOnly) {
         this.isReadOnly = isReadOnly;
+    }
+
+    public void setReadGroupsEnabled(boolean readGroupsEnabled) {
+        this.readGroupsEnabled = readGroupsEnabled;
+    }
+
+    public void setWriteGroupsEnabled(boolean writeGroupsEnabled) {
+        this.writeGroupsEnabled = writeGroupsEnabled;
     }
 
     public String getUserNameRegEx() {

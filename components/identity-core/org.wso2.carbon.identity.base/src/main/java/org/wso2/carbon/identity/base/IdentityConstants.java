@@ -97,6 +97,16 @@ public class IdentityConstants {
     public final static String EVENT_LISTENERS = "EventListeners";
     public final static String EVENT_LISTENER = "EventListener";
 
+    // Cache Config constants
+    public final static String CACHE_CONFIG = "CacheConfig";
+    public final static String CACHE_MANAGER = "CacheManager";
+    public final static String CACHE_MANAGER_NAME = "name";
+    public final static String CACHE = "Cache";
+    public final static String CACHE_NAME = "name";
+    public final static String CACHE_ENABLE = "enable";
+    public final static String CACHE_TIMEOUT = "timeout";
+    public final static String CACHE_CAPACITY = "capacity";
+
     private IdentityConstants() {
     }
 
@@ -117,6 +127,7 @@ public class IdentityConstants {
 
         public final static String OPENID_SERVER_URL = "OpenID.OpenIDServerUrl";
         public final static String OPENID_USER_PATTERN = "OpenID.OpenIDUserPattern";
+        public final static String OPENID_LOGIN_PAGE_URL = "OpenID.OpenIDLoginUrl";
         public final static String OPENID_SKIP_USER_CONSENT = "OpenID.OpenIDSkipUserConsent";
         public final static String OPENID_REMEMBER_ME_EXPIRY = "OpenID.OpenIDRememberMeExpiry";
         public final static String OPENID_USE_MULTIFACTOR_AUTHENTICATION = "OpenID.UseMultifactorAuthentication";
@@ -175,15 +186,32 @@ public class IdentityConstants {
         //SAML SSO Service config
         public final static String ENTITY_ID = "SSOService.EntityID";
         public final static String SSO_IDP_URL = "SSOService.IdentityProviderURL";
+        public final static String DEFAULT_LOGOUT_ENDPOINT = "SSOService.DefaultLogoutEndpoint";
+        public final static String NOTIFICATION_ENDPOINT = "SSOService.NotificationEndpoint";
         public final static String SSO_ATTRIB_CLAIM_DIALECT = "SSOService.AttributesClaimDialect";
         public static final String SINGLE_LOGOUT_RETRY_COUNT = "SSOService.SingleLogoutRetryCount";
         public static final String SINGLE_LOGOUT_RETRY_INTERVAL = "SSOService.SingleLogoutRetryInterval";
         public static final String SSO_TENANT_PARTITIONING_ENABLED = "SSOService.TenantPartitioningEnabled";
         public static final String ACCEPT_OPENID_LOGIN = "SSOService.AcceptOpenIDLogin";
         public static final String SAML_RESPONSE_VALIDITY_PERIOD = "SSOService.SAMLResponseValidityPeriod";
-
+        public static final String SSO_DEFAULT_SIGNING_ALGORITHM = "SSOService.SAMLDefaultSigningAlgorithmURI";
+        public static final String SSO_DEFAULT_DIGEST_ALGORITHM = "SSOService.SAMLDefaultDigestAlgorithmURI";
         //Identity Persistence Manager
         public static final String SKIP_DB_SCHEMA_CREATION = "JDBCPersistenceManager.SkipDBSchemaCreation";
+
+        //Timeout Configurations
+        public static final String SESSION_IDLE_TIMEOUT = "TimeConfig.SessionIdleTimeout";
+        public static final String REMEMBER_ME_TIME_OUT = "TimeConfig.RememberMeTimeout";
+
+        public static final String CLEAN_UP_PERIOD = "JDBCPersistenceManager.SessionDataPersist.SessionDataCleanUp.CleanUpPeriod";
+        public static final String CLEAN_UP_TIMEOUT = "JDBCPersistenceManager.SessionDataPersist.SessionDataCleanUp.CleanUpTimeout";
+
+        public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
+        public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
+
+        //PassiveSTS
+        public static final String PASSIVE_STS_RETRY = "PassiveSTS.RetryURL";
+
     }
 
     /**
@@ -206,6 +234,20 @@ public class IdentityConstants {
         public final static String X509V3_AUTNENTICATE = "X509V3Authenticate";
         public final static String IDENTITY = "Identity";
         public final static String OPEN_ID_TOKEN = "OpenIDToken";
+    }
+
+    public static class IdentityTokens {
+
+        public static final String FILE_NAME = "identity_log_tokens.properties";
+        public static final String READ_LOG_TOKEN_PROPERTIES = "Read_Log_Token_Properties";
+
+        public static final String USER_CLAIMS = "UserClaims";
+        public static final String USER_ID_TOKEN = "UserIdToken";
+        public static final String XACML_REQUEST = "XACML_Request";
+        public static final String XACML_RESPONSE = "XACML_Response";
+        public static final String NTLM_TOKEN = "NTLM_Token";
+        public static final String SAML_ASSERTION = "SAML_Assertion";
+        public static final String SAML_REQUEST = "SAML_Request";
     }
 
     /**
@@ -289,5 +331,16 @@ public class IdentityConstants {
             public final static String VALUE = "openid.ext1.value.";
             public final static String FETCH_RESPONSE = "fetch_response";
         }
+    }
+
+    public static class CarbonPlaceholders {
+
+       public static final String CARBON_HOST = "${carbon.host}";
+       public static final String CARBON_PORT = "${carbon.management.port}";
+       public static final String CARBON_PROXY_CONTEXT_PATH = "${carbon.proxycontextpath}";
+       public static final String CARBON_WEB_CONTEXT_ROOT = "${carbon.webcontextroot}";
+       public static final String CARBON_PROTOCOL = "${carbon.protocol}";
+       public static final String CARBON_CONTEXT = "${carbon.context}";
+
     }
 }

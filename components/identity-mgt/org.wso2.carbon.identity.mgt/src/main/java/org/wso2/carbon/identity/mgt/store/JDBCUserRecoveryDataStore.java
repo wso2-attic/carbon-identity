@@ -19,7 +19,6 @@
 package org.wso2.carbon.identity.mgt.store;
 
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.mgt.dto.UserRecoveryDataDO;
@@ -48,7 +47,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
      */
     @Override
     public void invalidate(UserRecoveryDataDO recoveryDataDO) throws IdentityException {
-        Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
             prepStmt = connection.prepareStatement(SQLQuery.INVALIDATE_METADATA); // TODO Delete entry
@@ -72,7 +71,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
      */
     @Override
     public void invalidate(String userId, int tenant) throws IdentityException {
-        Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
             prepStmt = connection.prepareStatement(SQLQuery.INVALIDATE_METADATA);
@@ -95,7 +94,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
      */
     @Override
     public void store(UserRecoveryDataDO recoveryDataDO) throws IdentityException {
-        Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
             prepStmt = connection.prepareStatement(SQLQuery.STORE_META_DATA);
@@ -121,7 +120,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
      */
     @Override
     public void store(UserRecoveryDataDO[] recoveryDataDOs) throws IdentityException {
-        Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
             connection.setAutoCommit(false);
@@ -162,7 +161,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
      */
     @Override
     public UserRecoveryDataDO[] load(String userName, int tenantId) throws IdentityException {
-        Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet results = null;
         try {

@@ -19,7 +19,6 @@
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RowDTO" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RuleDTO" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.TargetDTO" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <jsp:useBean id="entitlementPolicyBean" type="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean"
@@ -47,17 +46,17 @@
     TargetDTO targetDTO = new TargetDTO();
     entitlementPolicyBean.setRuleElementOrder(null);
 
-    String targetRowIndexString = CharacterEncoder.getSafeText(request.getParameter("targetRowIndex"));
-    String ruleRowIndexString = CharacterEncoder.getSafeText(request.getParameter("ruleRowIndex"));
-    String targetRuleRowIndexString = CharacterEncoder.getSafeText(request.getParameter("targetRuleRowIndex"));
-    String dynamicRowIndexString = CharacterEncoder.getSafeText(request.getParameter("dynamicRowIndex"));
-    String obligationRowIndexString = CharacterEncoder.getSafeText(request.getParameter("obligationRowIndex"));
+    String targetRowIndexString = request.getParameter("targetRowIndex");
+    String ruleRowIndexString = request.getParameter("ruleRowIndex");
+    String targetRuleRowIndexString = request.getParameter("targetRuleRowIndex");
+    String dynamicRowIndexString = request.getParameter("dynamicRowIndex");
+    String obligationRowIndexString = request.getParameter("obligationRowIndex");
 
-    String maxTargetRowsString = CharacterEncoder.getSafeText(request.getParameter("maxTargetRows"));
-    String maxTargetRuleRowsString = CharacterEncoder.getSafeText(request.getParameter("maxTargetRuleRows"));
-    String maxRuleRowsString = CharacterEncoder.getSafeText(request.getParameter("maxRuleRows"));
-    String maxObligationRuleRowsString = CharacterEncoder.getSafeText(request.getParameter("maxObligationRuleRows"));
-    String maxObligationRowsString = CharacterEncoder.getSafeText(request.getParameter("maxObligationRows"));
+    String maxTargetRowsString = request.getParameter("maxTargetRows");
+    String maxTargetRuleRowsString = request.getParameter("maxTargetRuleRows");
+    String maxRuleRowsString = request.getParameter("maxRuleRows");
+    String maxObligationRuleRowsString = request.getParameter("maxObligationRuleRows");
+    String maxObligationRowsString = request.getParameter("maxObligationRows");
 
     try{
         if(maxTargetRowsString != null && maxTargetRowsString.trim().length() > 0){
@@ -107,8 +106,7 @@
     for(rowNumber = 0; rowNumber < maxTargetRows + 1; rowNumber ++){
 
         RowDTO  rowDTO = new RowDTO();
-        String targetCategory = CharacterEncoder.getSafeText(request.
-                getParameter("targetCategory_" + rowNumber));
+        String targetCategory = request.getParameter("targetCategory_" + rowNumber);
         if(targetRowIndex == rowNumber){
             categoryType = targetCategory;
             rowDTO.setNotCompleted(true);
@@ -119,20 +117,17 @@
             continue;
         }
 
-        String targetPreFunction = CharacterEncoder.getSafeText(request.
-                getParameter("targetPreFunction_" + rowNumber));
+        String targetPreFunction = request.getParameter("targetPreFunction_" + rowNumber);
         if(targetPreFunction != null){
             rowDTO.setPreFunction(targetPreFunction);
         }
 
-        String targetFunction = CharacterEncoder.getSafeText(request.
-                getParameter("targetFunction_" + rowNumber));
+        String targetFunction = request.getParameter("targetFunction_" + rowNumber);
         if(targetFunction != null){
             rowDTO.setFunction(targetFunction);
         }
 
-        String targetAttributeId = CharacterEncoder.getSafeText(request.
-                getParameter("targetAttributeId_" + rowNumber));
+        String targetAttributeId = request.getParameter("targetAttributeId_" + rowNumber);
         if(targetAttributeId != null && targetAttributeId.trim().length() > 0){
             rowDTO.setAttributeId(targetAttributeId);
             if(targetRowIndex == rowNumber){
@@ -140,8 +135,7 @@
             }
         }
 
-        String targetAttributeType = CharacterEncoder.getSafeText(request.
-                getParameter("targetAttributeTypes_" + rowNumber));
+        String targetAttributeType = request.getParameter("targetAttributeTypes_" + rowNumber);
         if(targetAttributeType != null && targetAttributeType.trim().length() > 0){
             rowDTO.setAttributeDataType(targetAttributeType);
             if(targetRowIndex == rowNumber){
@@ -149,14 +143,12 @@
             }
         }
 
-        String targetCombineFunction = CharacterEncoder.getSafeText(request.
-                getParameter("targetCombineFunctions_" + rowNumber));
+        String targetCombineFunction = request.getParameter("targetCombineFunctions_" + rowNumber);
         if(targetCombineFunction != null){
             rowDTO.setCombineFunction(targetCombineFunction);
         }
 
-        String targetAttributeValue = CharacterEncoder.getSafeText(request.
-                getParameter("targetAttributeValue_" + rowNumber));
+        String targetAttributeValue = request.getParameter("targetAttributeValue_" + rowNumber);
         if(targetAttributeValue != null && targetAttributeValue.trim().length() > 0){
             rowDTO.setAttributeValue(targetAttributeValue);
         } else {
@@ -188,8 +180,7 @@
         for(rowNumber = 0; rowNumber < maxTargetRuleRows + 1; rowNumber ++){
 
             RowDTO  rowDTO = new RowDTO();
-            String targetCategory = CharacterEncoder.getSafeText(request.
-                    getParameter("ruleTargetCategory_" + rowNumber));
+            String targetCategory = request.getParameter("ruleTargetCategory_" + rowNumber);
             if(targetRuleRowIndex == rowNumber){
                 categoryType = targetCategory;
                 rowDTO.setNotCompleted(true);
@@ -200,20 +191,17 @@
                 continue;
             }
 
-            String targetPreFunction = CharacterEncoder.getSafeText(request.
-                    getParameter("ruleTargetPreFunction_" + rowNumber));
+            String targetPreFunction = request.getParameter("ruleTargetPreFunction_" + rowNumber);
             if(targetPreFunction != null){
                 rowDTO.setPreFunction(targetPreFunction);
             }
 
-            String targetFunction = CharacterEncoder.getSafeText(request.
-                    getParameter("ruleTargetFunction_" + rowNumber));
+            String targetFunction = request.getParameter("ruleTargetFunction_" + rowNumber);
             if(targetFunction != null){
                 rowDTO.setFunction(targetFunction);
             }
 
-            String targetAttributeId = CharacterEncoder.getSafeText(request.
-                    getParameter("ruleTargetAttributeId_" + rowNumber));
+            String targetAttributeId = request.getParameter("ruleTargetAttributeId_" + rowNumber);
             if(targetAttributeId != null){
                 rowDTO.setAttributeId(targetAttributeId);
                 if(targetRuleRowIndex == rowNumber){
@@ -221,8 +209,7 @@
                 }
             }
 
-            String targetAttributeType = CharacterEncoder.getSafeText(request.
-                    getParameter("ruleTargetAttributeTypes_" + rowNumber));
+            String targetAttributeType = request.getParameter("ruleTargetAttributeTypes_" + rowNumber);
             if(targetAttributeType != null){
                 rowDTO.setAttributeDataType(targetAttributeType);
                 if(targetRuleRowIndex == rowNumber){
@@ -230,14 +217,12 @@
                 }
             }
 
-            String targetCombineFunction = CharacterEncoder.getSafeText(request.
-                    getParameter("ruleTargetCombineFunctions_" + rowNumber));
+            String targetCombineFunction = request.getParameter("ruleTargetCombineFunctions_" + rowNumber);
             if(targetCombineFunction != null){
                 rowDTO.setCombineFunction(targetCombineFunction);
             }
 
-            String targetAttributeValue = CharacterEncoder.getSafeText(request.
-                    getParameter("ruleTargetAttributeValue_" + rowNumber));
+            String targetAttributeValue = request.getParameter("ruleTargetAttributeValue_" + rowNumber);
             if(targetAttributeValue != null && targetAttributeValue.trim ().length() > 0){
                 rowDTO.setAttributeValue(targetAttributeValue);
             } else {
@@ -256,8 +241,7 @@
         for(rowNumber = 0; rowNumber < maxRuleRows + 1; rowNumber ++){
 
             RowDTO rowDTO = new RowDTO();
-            String ruleCategory = CharacterEncoder.getSafeText(request.
-                    getParameter("ruleCategory_" + rowNumber));
+            String ruleCategory = request.getParameter("ruleCategory_" + rowNumber);
             if(ruleRowIndex == rowNumber){
                 categoryType = ruleCategory;
                 rowDTO.setNotCompleted(true);
@@ -268,20 +252,17 @@
                 continue;
             }
 
-            String rulePreFunction = CharacterEncoder.getSafeText(request.
-                    getParameter("rulePreFunction_" + rowNumber));
+            String rulePreFunction = request.getParameter("rulePreFunction_" + rowNumber);
             if(rulePreFunction != null){
                 rowDTO.setPreFunction(rulePreFunction);
             }
 
-            String ruleFunction = CharacterEncoder.getSafeText(request.
-                    getParameter("ruleFunction_" + rowNumber));
+            String ruleFunction = request.getParameter("ruleFunction_" + rowNumber);
             if(ruleFunction != null){
                 rowDTO.setFunction(ruleFunction);
             }
 
-            String ruleAttributeId = CharacterEncoder.getSafeText(request.
-                    getParameter("ruleAttributeId_" + rowNumber));
+            String ruleAttributeId = request.getParameter("ruleAttributeId_" + rowNumber);
             if(ruleAttributeId != null){
                 rowDTO.setAttributeId(ruleAttributeId);
                 if(ruleRowIndex == rowNumber){
@@ -289,8 +270,7 @@
                 }
             }
 
-            String ruleAttributeType = CharacterEncoder.getSafeText(request.
-                    getParameter("ruleAttributeTypes_" + rowNumber));
+            String ruleAttributeType = request.getParameter("ruleAttributeTypes_" + rowNumber);
             if(ruleAttributeType != null){
                 rowDTO.setAttributeDataType(ruleAttributeType);
                 if(ruleRowIndex == rowNumber){
@@ -298,14 +278,12 @@
                 }
             }
 
-            String ruleCombineFunction = CharacterEncoder.getSafeText(request.
-                    getParameter("ruleCombineFunctions_" + rowNumber));
+            String ruleCombineFunction = request.getParameter("ruleCombineFunctions_" + rowNumber);
             if(ruleCombineFunction != null){
                 rowDTO.setCombineFunction(ruleCombineFunction);
             }
 
-            String ruleAttributeValue = CharacterEncoder.getSafeText(request.
-                    getParameter("ruleAttributeValue_" + rowNumber));
+            String ruleAttributeValue = request.getParameter("ruleAttributeValue_" + rowNumber);
             if(ruleAttributeValue != null  && ruleAttributeValue.trim().length() > 0){
                 rowDTO.setAttributeValue(ruleAttributeValue);
             } else {
@@ -320,30 +298,26 @@
         for(rowNumber = 0; rowNumber < maxObligationRuleRows + 1; rowNumber ++){
 
             ObligationDTO dto = new ObligationDTO();
-            String obligationType = CharacterEncoder.getSafeText(request.
-                    getParameter("obligationRuleType_" + rowNumber));
+            String obligationType = request.getParameter("obligationRuleType_" + rowNumber);
             if(obligationType != null){
                 dto.setType(obligationType);
             } else {
                 continue;
             }
 
-            String obligationId = CharacterEncoder.getSafeText(request.
-                    getParameter("obligationRuleId_" + rowNumber));
+            String obligationId = request.getParameter("obligationRuleId_" + rowNumber);
             if(obligationId != null && obligationId.trim().length() > 0){
                 dto.setObligationId(obligationId);
             } else {
                 continue;
             }
 
-            String obligationAttributeValue = CharacterEncoder.getSafeText(request.
-                    getParameter("obligationRuleAttributeValue_" + rowNumber));
+            String obligationAttributeValue = request.getParameter("obligationRuleAttributeValue_" + rowNumber);
             if(obligationAttributeValue != null){
                 dto.setAttributeValue(obligationAttributeValue);
             }
 
-            String obligationAttributeId = CharacterEncoder.getSafeText(request.
-                    getParameter("obligationRuleAttributeId_" + rowNumber));
+            String obligationAttributeId = request.getParameter("obligationRuleAttributeId_" + rowNumber);
             if(obligationAttributeId != null){
                 dto.setResultAttributeId(obligationAttributeId);
             }
@@ -367,35 +341,30 @@
     for(rowNumber = 0; rowNumber < maxObligationRows + 1; rowNumber ++){
 
         ObligationDTO dto = new ObligationDTO();
-        String obligationType = CharacterEncoder.getSafeText(request.
-                getParameter("obligationType_" + rowNumber));
+        String obligationType = request.getParameter("obligationType_" + rowNumber);
         if(obligationType != null){
             dto.setType(obligationType);
         } else{
             continue;
         }
-        String obligationId = CharacterEncoder.getSafeText(request.
-                getParameter("obligationId_" + rowNumber));
+        String obligationId = request.getParameter("obligationId_" + rowNumber);
         if(obligationId != null && obligationId.trim().length() > 0){
             dto.setObligationId(obligationId);
         } else {
             continue;
         }
 
-        String obligationAttributeValue = CharacterEncoder.getSafeText(request.
-                getParameter("obligationAttributeValue_" + rowNumber));
+        String obligationAttributeValue = request.getParameter("obligationAttributeValue_" + rowNumber);
         if(obligationAttributeValue != null){
             dto.setAttributeValue(obligationAttributeValue);
         }
 
-        String obligationAttributeId = CharacterEncoder.getSafeText(request.
-                getParameter("obligationAttributeId_" + rowNumber));
+        String obligationAttributeId = request.getParameter("obligationAttributeId_" + rowNumber);
         if(obligationAttributeId != null){
             dto.setResultAttributeId(obligationAttributeId);
         }
 
-        String obligationEffect = CharacterEncoder.getSafeText(request.
-                getParameter("obligationEffect_" + rowNumber));
+        String obligationEffect = request.getParameter("obligationEffect_" + rowNumber);
         if(obligationEffect != null){
             dto.setEffect(obligationEffect);
         }
@@ -414,7 +383,7 @@
 //    while(true){
 //
 //        ExtendAttributeDTO dto = new ExtendAttributeDTO();
-//        String dynamicId = CharacterEncoder.getSafeText(request.
+//        String dynamicId = request.
 //                getParameter("dynamicId_" + rowNumber));
 //        if(dynamicId != null){
 //            dto.setId(dynamicId);
@@ -422,37 +391,37 @@
 //            break;
 //        }
 //
-//        String dynamicSelector = CharacterEncoder.getSafeText(request.
+//        String dynamicSelector = request.
 //                getParameter("dynamicSelector_" + rowNumber));
 //        if(dynamicSelector != null){
 //            dto.setSelector(dynamicSelector);
 //        }
 //
-//        String dynamicFunction = CharacterEncoder.getSafeText(request.
+//        String dynamicFunction = request.
 //                getParameter("dynamicFunction_" + rowNumber));
 //        if(dynamicFunction != null){
 //            dto.setFunction(dynamicFunction);
 //        }
 //
-//        String dynamicCategory = CharacterEncoder.getSafeText(request.
+//        String dynamicCategory = request.
 //                getParameter("dynamicCategory_" + rowNumber));
 //        if(dynamicCategory != null){
 //            dto.setCategory(dynamicCategory);
 //        }
 //
-//        String dynamicAttributeValue = CharacterEncoder.getSafeText(request.
+//        String dynamicAttributeValue = request.
 //                getParameter("dynamicAttributeValue_" + rowNumber));
 //        if(dynamicAttributeValue != null  && dynamicAttributeValue.trim().length() > 0){
 //            dto.setAttributeValue(dynamicAttributeValue);
 //        }
 //
-//        String dynamicAttributeId = CharacterEncoder.getSafeText(request.
+//        String dynamicAttributeId = request.
 //                getParameter("dynamicAttributeId_" + rowNumber));
 //        if(dynamicAttributeId != null){
 //            dto.setAttributeId(dynamicAttributeId);
 //        }
 //
-//        String dynamicAttributeTypes = CharacterEncoder.getSafeText(request.
+//        String dynamicAttributeTypes = request.
 //                getParameter("dynamicAttributeTypes_0" + rowNumber));
 //        if(dynamicAttributeTypes != null){
 //            dto.setDataType(dynamicAttributeTypes);

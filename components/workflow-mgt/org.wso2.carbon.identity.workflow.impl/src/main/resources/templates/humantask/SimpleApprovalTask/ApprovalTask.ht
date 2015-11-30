@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<htd:humanInteractions
+        xmlns:htd="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/200803"
+        xmlns:htt="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/types/200803"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:htdef="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl"
+        targetNamespace="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org"
+        xsi:schemaLocation="http://docs.oasis-open.org/ns/bpel4people/ws-humantask/200803
+                ../resources/ws-humantask.xsd">
+
+    <htd:documentation>
+        Human task for request approvals
+    </htd:documentation>
+
+    <htd:import importType="http://schemas.xmlsoap.org/wsdl/" location="${htServiceName}Service.wsdl"
+                namespace="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl"/>
+
+    <htd:logicalPeopleGroups>
+        <htd:logicalPeopleGroup name="taskAdmin">
+            <htd:documentation xml:lang="en-US">
+                The group of people responsible for administrative tasks
+            </htd:documentation>
+            <htd:parameter name="role" type="xsd:string"/>
+        </htd:logicalPeopleGroup>
+        <htd:logicalPeopleGroup name="taskUser">
+            <htd:documentation xml:lang="en-US">
+                The group of potential users
+            </htd:documentation>
+            <htd:parameter name="role" type="xsd:string"/>
+        </htd:logicalPeopleGroup>
+    </htd:logicalPeopleGroups>
+
+
+    <htd:tasks>
+        <htd:task name="${htServiceName}">
+            <htd:documentation xml:lang="en-US">
+                This task is used to get approval for the associated event
+            </htd:documentation>
+
+            <htd:interface portType="htdef:${htServiceName}PT"
+                           operation="approve"
+                           responsePortType="htdef:${htServiceName}CBPT"
+                           responseOperation="approvalResponse"/>
+
+            <htd:priority>
+                htd:getInput("ApprovalRequest")//priority
+            </htd:priority>
+
+            <htd:peopleAssignments>
+                <htd:potentialOwners>
+                    <htd:from>
+                        htd:getInput("ApprovalRequest")//assignees
+                    </htd:from>
+                </htd:potentialOwners>
+                <htd:taskInitiator>
+                  <htd:from>
+                    <htd:literal>
+                      <htt:organizationalEntity>
+                        <htt:group>admin</htt:group>
+                        <htt:user>htd:getInput("ApprovalRequest")//htInitiator</htt:user>
+                      </htt:organizationalEntity>
+                    </htd:literal>
+                  </htd:from>
+                </htd:taskInitiator>
+                <htd:businessAdministrators>
+                    <htd:from logicalPeopleGroup="taskAdmin">
+                        <htd:argument name="role">
+                            ${htOwnerRole}
+                        </htd:argument>
+                    </htd:from>
+                </htd:businessAdministrators>
+            </htd:peopleAssignments>
+
+            <htd:delegation potentialDelegatees="nobody"/>
+
+            <htd:presentationElements>
+                <htd:name xml:lang="en-US">${htServiceName}</htd:name>
+                <htd:presentationParameters>
+                    <htd:presentationParameter name="subject"
+                                               type="xsd:string">
+                        htd:getInput("ApprovalRequest")//taskSubject
+                    </htd:presentationParameter>
+                    <htd:presentationParameter name="description"
+                                               type="xsd:string">
+                        htd:getInput("ApprovalRequest")//taskDescription
+                    </htd:presentationParameter>
+                    <htd:presentationParameter name="parametersList"
+                                               type="xsd:string">
+                        htd:getInput("ApprovalRequest")//parametersList
+                    </htd:presentationParameter>
+                </htd:presentationParameters>
+
+                <htd:subject xml:lang="en-US">
+                    $subject$
+                </htd:subject>
+                <htd:description xml:lang="en-US">
+                    $description$
+                </htd:description>
+            </htd:presentationElements>
+        </htd:task>
+    </htd:tasks>
+</htd:humanInteractions>

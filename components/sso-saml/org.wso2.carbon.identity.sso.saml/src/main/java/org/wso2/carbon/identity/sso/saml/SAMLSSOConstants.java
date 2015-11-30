@@ -53,9 +53,10 @@ public class SAMLSSOConstants {
     public static final String LOGIN_PAGE = "customLoginPage";
     public static final String CLAIM_DIALECT_URL = "http://wso2.org/claims";
     public static final String SAML_ENDPOINT = "samlsso/carbon/";
-    public static final String DEFAULT_LOGOUT_LOCATION = "/authenticationendpoint/samlsso_logout.do";
+    public static final String DEFAULT_LOGOUT_ENDPOINT = "/authenticationendpoint/samlsso_logout.do";
     public static final String SAMLSSO_URL = "/samlsso";
     public static final String NOTIFICATION_ENDPOINT ="/authenticationendpoint/samlsso_notification.do";
+    public static final String SLO_SAML_SOAP_BINDING_ENABLED = "SSOService.SLOSAMLSOAPBindingEnabled";
 
     private SAMLSSOConstants() {
     }
@@ -66,7 +67,7 @@ public class SAMLSSOConstants {
         public static final String SERVICE_PROVIDERS = "ServiceProviders";
         public static final String SERVICE_PROVIDER = "ServiceProvider";
         public static final String ISSUER = "Issuer";
-        public static final String ASSERTION_CONSUMER_URL = "AssertionConsumerService";
+        public static final String ASSERTION_CONSUMER_URL = "AssertionConsumerServiceURL";
         public static final String ACS_URLS = "AssertionConsumerServiceURLs";
         public static final String DEFAULT_ACS_URL= "DefaultAssertionConsumerServiceURL";
         public static final String CUSTOM_LOGIN_PAGE = "CustomLoginPage";
@@ -81,11 +82,13 @@ public class SAMLSSOConstants {
         public static final String IDP_INIT = "EnableIdPInitiatedSSO";
         public static final String USE_FULLY_QUALIFY_USER_NAME = "UseFullyQualifiedUsernameInNameID";
         public static final String ENABLE_IDP_INIT_SLO = "EnableIdPInitSLO";
+        public static final String SSO_DEFAULT_SIGNING_ALGORITHM = "SAMLDefaultSigningAlgorithmURI";
+        public static final String SSO_DEFAULT_DIGEST_ALGORITHM = "SAMLDefaultDigestAlgorithmURI";
 
         public static final String CERT_ALIAS = "CertAlias";
         public static final String LOGOUT_URL = "LogoutURL";
-        public static final String SLO_RESPONSE_URL = "sloResponseURL";
-        public static final String SLO_REQUEST_URL = "sloRequestURL";
+        public static final String SLO_RESPONSE_URL = "SLOResponseURL";
+        public static final String SLO_REQUEST_URL = "SLORequestURL";
         public static final String CLAIMS = "Claims";
         public static final String CLAIM = "Claim";
         public static final String INCLUDE_ATTRIBUTE = "IncludeAttributeByDefault";
@@ -96,6 +99,7 @@ public class SAMLSSOConstants {
         public static final String CONSUMING_SERVICE_INDEX = "ConsumingServiceIndex";
         public static final String USE_AUTHENTICATED_USER_DOMAIN_CRYPTO = "SSOService.UseAuthenticatedUserDomainCrypto";
         public static final String RETURN_TO_URL_LIST = "ReturnToURLList";
+        public static final String RETURN_TO_URL = "ReturnToURL";
 
         private FileBasedSPConfig() {
         }

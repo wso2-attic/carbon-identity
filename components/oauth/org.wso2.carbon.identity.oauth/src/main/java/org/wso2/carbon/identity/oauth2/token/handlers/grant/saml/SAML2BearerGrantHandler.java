@@ -37,12 +37,12 @@ import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.signature.SignatureValidator;
 import org.opensaml.xml.validation.ValidationException;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -52,11 +52,13 @@ import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.oauth2.util.X509CredentialImpl;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -122,7 +124,7 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
         }
 
         // Logging the SAML token
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.SAML_ASSERTION)) {
             log.debug("Received SAML assertion : " +
                             new String(Base64.decodeBase64(tokReqMsgCtx.getOauth2AccessTokenReqDTO().getAssertion()))
             );
@@ -200,7 +202,11 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                         }
 
                         if (idpEntityId == null || !assertion.getIssuer().getValue().equals(idpEntityId)) {
-                            log.debug("SAML Token Issuer verification failed or Issuer not registered");
+                            if(log.isDebugEnabled()) {
+                                log.debug("SAML Token Issuer verification failed against resident Identity Provider " +
+                                        "in tenant : " + tenantDomain + ". Received : " +
+                                        assertion.getIssuer().getValue() + ", Expected : " + idpEntityId);
+                            }
                             return false;
                         }
 
@@ -221,10 +227,13 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                         tokenEndpointAlias = identityProvider.getAlias();
                     }
                 } else {
-                    log.debug("SAML Token Issuer verification failed or Issuer not registered");
+                    if(log.isDebugEnabled()) {
+                        log.debug("SAML Token Issuer : " + assertion.getIssuer().getValue() +
+                                " not registered as a local Identity Provider in tenant : " + tenantDomain);
+                    }
                     return false;
                 }
-            } catch (IdentityApplicationManagementException e) {
+            } catch (IdentityProviderManagementException e) {
                 log.error("Error while getting Federated Identity Provider ", e);
             }
         }
@@ -239,8 +248,8 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
         if (StringUtils.isBlank(tokenEndpointAlias)) {
             if (log.isDebugEnabled()){
-                String errorMsg = "Token Endpoint alias of the local Identity Provider has not been configured for "
-                        + identityProvider.getIdentityProviderName();
+                String errorMsg = "Token Endpoint alias has not been configured in the Identity Provider : "
+                        + identityProvider.getIdentityProviderName() + " in tenant : " + tenantDomain;
                 log.debug(errorMsg);
             }
             return false;
@@ -248,6 +257,9 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
         Conditions conditions = assertion.getConditions();
         if (conditions != null) {
+            //Set validity period extracted from SAML Assertion
+            long curTimeInMillis = Calendar.getInstance().getTimeInMillis();
+            tokReqMsgCtx.setValidityPeriod(conditions.getNotOnOrAfter().getMillis() - curTimeInMillis);
             List<AudienceRestriction> audienceRestrictions = conditions.getAudienceRestrictions();
             if (audienceRestrictions != null && !audienceRestrictions.isEmpty()) {
                 boolean audienceFound = false;
@@ -266,8 +278,9 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
                 }
                 if (!audienceFound) {
                     if (log.isDebugEnabled()) {
-                        String message = "SAML Assertion Audience Restriction validation failed";
-                        log.debug(message);
+                        log.debug("SAML Assertion Audience Restriction validation failed against the Audience : " +
+                                tokenEndpointAlias + " of Identity Provider : " +
+                                identityProvider.getIdentityProviderName() + " in tenant : " + tenantDomain);
                     }
                     return false;
                 }
@@ -370,7 +383,9 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
 
         if (CollectionUtils.isNotEmpty(recipientURLS) && !recipientURLS.contains(tokenEndpointAlias)) {
             if (log.isDebugEnabled()){
-                log.debug("None of the recipient URLs match the token endpoint or an acceptable alias");
+                log.debug("None of the recipient URLs match against the token endpoint alias : " + tokenEndpointAlias +
+                        " of Identity Provider " + identityProvider.getIdentityProviderName() + " in tenant : " +
+                        tenantDomain);
             }
             return false;
         }

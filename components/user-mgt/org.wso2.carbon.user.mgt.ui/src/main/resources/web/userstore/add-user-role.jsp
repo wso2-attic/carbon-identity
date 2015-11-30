@@ -74,8 +74,8 @@
 
     </script>
     <%
-    	UserRealmInfo userRealmInfo = null;
-            String currentUser = (String) session.getAttribute("logged-user");
+        boolean multipleUserStores = false;
+        UserRealmInfo userRealmInfo = null;
 
             try {
     			String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -84,6 +84,9 @@
     					.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     			UserAdminClient client = new UserAdminClient(cookie,backendServerURL, configContext);
     			userRealmInfo = client.getUserRealmInfo();
+                       if (userRealmInfo != null) {
+                           multipleUserStores = userRealmInfo.getMultipleUserStore();
+                       }
     			session.setAttribute(UserAdminUIConstants.USER_STORE_INFO,userRealmInfo);
     		} catch (Exception e) {
     			CarbonUIMessage uiMsg = new CarbonUIMessage(e.getMessage(),
@@ -127,6 +130,25 @@
                             </tr>
                             <% } %>
                         </table>
+                        <%
+                            if ((multipleUserStores || !userRealmInfo.getPrimaryUserStoreInfo().getReadOnly())
+                                    && userRealmInfo.getPrimaryUserStoreInfo().getExternalIdP() == null
+                                    && CarbonUIUtil.isUserAuthorized(request,
+                                    "/permission/admin/configure/security/usermgt/users")) {
+                        %>
+                        <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-top:2px;">
+                            <tr>
+                                <td class="addNewSecurity">
+                                    <a href="../user/bulk-import.jsp" class="icon-link"
+                                       style="background-image:url(../user/images/bulk-import.gif);"><fmt:message
+                                            key="bulk.import.user"/></a>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <%
+                            }
+                        %>
                     </td>
                 </tr>
             </table>

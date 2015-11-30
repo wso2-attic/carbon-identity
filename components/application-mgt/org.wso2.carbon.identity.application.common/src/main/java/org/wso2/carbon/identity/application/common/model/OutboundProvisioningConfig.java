@@ -31,10 +31,7 @@ import java.util.Set;
 
 public class OutboundProvisioningConfig implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1653270395614833536L;
+    private static final long serialVersionUID = 3669233357817378229L;
 
     private IdentityProvider[] provisioningIdentityProviders = new IdentityProvider[0];
     private String[] provisionByRoleList;

@@ -18,15 +18,102 @@
  */
 package org.wso2.carbon.identity.application.mgt.listener;
 
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 
 public interface ApplicationMgtListener {
 
-    public void createApplication(ServiceProvider serviceProvider);
+    /**
+     * Get the execution order identifier for this listener.
+     *
+     * @return The execution order identifier integer value.
+     */
+    int getExecutionOrderId();
 
-    public void updateApplication(ServiceProvider serviceProvider);
+    /**
+     * Get the default order identifier for this listener.
+     *
+     * @return default order id
+     */
+    public int getDefaultOrderId();
 
-    public void deleteApplication(String applicationName);
+    /**
+     * Check whether the listener is enabled or not
+     *
+     * @return true if enabled
+     */
+    public boolean isEnable();
 
+    /**
+     * Define any additional actions before creating an application
+     *
+     * @param serviceProvider Created Service Provider
+     * @param tenantDomain    Tenant domain of the user
+     * @param userName        User name of the user
+     * @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @throws IdentityApplicationManagementException
+     */
+    public boolean doPreCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions after creating an application
+     *
+     * @param serviceProvider
+     * @param tenantDomain
+     * @param userName
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    public boolean doPostCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions before updating an application
+     *
+     * @param serviceProvider
+     * @param tenantDomain
+     * @param userName
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions after updating an application
+     *
+     * @param serviceProvider
+     * @param tenantDomain
+     * @param userName
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    public boolean doPostUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions before deleting an application
+     *
+     * @param applicationName
+     * @param tenantDomain
+     * @param userName
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    public boolean doPreDeleteApplication(String applicationName, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions after deleting an application
+     *
+     * @param applicationName
+     * @param tenantDomain
+     * @param userName
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    public boolean doPostDeleteApplication(String applicationName, String tenantDomain, String userName)
+            throws IdentityApplicationManagementException;
 
 }

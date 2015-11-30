@@ -180,6 +180,7 @@
 
         function doPaginate(page, pageNumberParameterName, pageNumber) {
             var form = document.createElement("form");
+            form.id = "paginateForm";
             form.setAttribute("method", "POST");
             form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
             var selectedUsersStr = "";
@@ -211,7 +212,7 @@
             unselectedUsersElem.setAttribute("value", unselectedUsersStr);
             form.appendChild(unselectedUsersElem);
             document.body.appendChild(form);
-            form.submit();
+            $("#paginateForm").submit();
         }
     </script>
 
@@ -306,9 +307,9 @@
                                         for (FlaggedName user : users) {
                                             if (user != null) {
                                                 String userName = user.getItemName();
-                                                String disPlayName = user.getItemDisplayName();
-                                                if (disPlayName == null || disPlayName.trim().length() == 0) {
-                                                    disPlayName = userName;
+                                                String displayName = user.getItemDisplayName();
+                                                if (displayName == null || displayName.trim().length() == 0) {
+                                                    displayName = userName;
                                                 }
 
                                                 String doCheck = "";
@@ -333,7 +334,7 @@
                                     <td>
                                         <input type="checkbox" name="roleUsers"
                                                value="<%=Encode.forHtmlAttribute(userName)%>" <%=doEdit%>
-                                                <%=doCheck%>/><%=Encode.forHtml(disPlayName)%>
+                                                <%=doCheck%>/><%=Encode.forHtml(displayName)%>
                                         <%if (!user.getEditable()) { %> <%="(Read-Only)"%> <% } %>
                                     </td>
 
@@ -418,6 +419,7 @@
 
     function doSelectAllRetrieved() {
         var form = document.createElement("form");
+        form.id = "selectAllRetrievedForm";
         form.setAttribute("method", "POST");
         form.setAttribute("action", "add-step3.jsp?pageNumber=" + <%=pageNumber%> +"&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
         var selectedRolesElem = document.createElement("input");
@@ -426,12 +428,13 @@
         selectedRolesElem.setAttribute("value", "ALL");
         form.appendChild(selectedRolesElem);
         document.body.appendChild(form);
-        form.submit();
+        $("#selectAllRetrievedForm").submit();
 
     }
 
     function doUnSelectAllRetrieved() {
         var form = document.createElement("form");
+        form.id = "unSelectAllRetrievedForm";
         form.setAttribute("method", "POST");
         form.setAttribute("action", "add-step3.jsp?pageNumber=" + <%=pageNumber%> +"&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
         var unselectedRolesElem = document.createElement("input");
@@ -440,7 +443,7 @@
         unselectedRolesElem.setAttribute("value", "ALL");
         form.appendChild(unselectedRolesElem);
         document.body.appendChild(form);
-        form.submit();
+        $("#unSelectAllRetrievedForm").submit();
     }
 
     $(document).ready(function () {

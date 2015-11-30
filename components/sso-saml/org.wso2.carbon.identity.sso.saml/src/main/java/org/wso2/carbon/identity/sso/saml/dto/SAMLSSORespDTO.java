@@ -23,6 +23,8 @@ import java.io.Serializable;
 
 public class SAMLSSORespDTO implements Serializable {
 
+    private static final long serialVersionUID = 5848839581755256822L;
+
     private String respString;
     private boolean isSessionEstablished;
     private String assertionConsumerURL;

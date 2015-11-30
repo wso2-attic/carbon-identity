@@ -17,13 +17,11 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>identity-workflow-mgt</artifactId>
         <groupId>org.wso2.carbon.identity</groupId>
-        <version>4.6.0-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -61,10 +59,15 @@
             <groupId>commons-lang.wso2</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
+            <artifactId>encoder</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -82,15 +85,18 @@
                             org.apache.commons.io; version="${commons.io.wso2.osgi.version.range}",
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
-                            org.wso2.carbon.identity.workflow.mgt.stub; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.identity.workflow.mgt.stub.bean; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.workflow.mgt.stub.*;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.workflow.mgt.stub.bean.*;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.workflow.mgt.stub.mgt.*;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.workflow.mgt.stub.metadata.*;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.workflow.mgt.stub.metadata.bean.*;version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.bpel.stub.upload; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.bpel.stub.upload.types; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.humantask.stub.upload; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.humantask.stub.upload.types; version="${carbon.identity.package.import.version.range}"
+                            org.wso2.carbon.bpel.stub.upload.types;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.humantask.stub.upload;version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.humantask.stub.upload.types;version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
-                            org.wso2.carbon.identity.workflow.mgt.ui.*; version="${carbon.identity.package.export.version}"
+                            org.wso2.carbon.identity.workflow.mgt.ui.*;version="${carbon.identity.package.export.version}"
                         </Export-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>
                     </instructions>

@@ -27,7 +27,10 @@ public class IdentityProvisioningConstants {
 
     public static final String WSO2_CARBON_DIALECT = "http://wso2.org/claims";
     public static final String USERNAME_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:username";
-    public static final String USER_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:user";
+    public static final String ID_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:id";
+    public static final String OLD_GROUP_NAME_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:group:name:old";
+    public static final String NEW_GROUP_NAME_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:group:name:new";
+    public static final String USER_STORE_DOMAIN_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:domain";
     public static final String NEW_USER_CLAIM_URI = "org:wso2:carbon:identity:provisioning:new:claim:user";
     public static final String DELETED_USER_CLAIM_URI = "org:wso2:carbon:identity:provisioning:deleted:claim:user";
     public static final String GROUP_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:group";
@@ -36,13 +39,12 @@ public class IdentityProvisioningConstants {
     public static final String PASSWORD_CLAIM_URI = "org:wso2:carbon:identity:provisioning:claim:password";
     public static final String LOCAL_SP = ApplicationConstants.LOCAL_SP;
     public static final String JIT_PROVISIONING_ENABLED = "jitProvisioningEnabled";
-    public static final String PARAM_ENABLE_DEFAULT_INBOUND_PROV_LISTENER = "Provisioning.EnableDefaultInboundUserProvisioningListener";
-
 
     public static class SQLQueries {
 
-        public static final String ADD_PROVISIONING_ENTITY_SQL = "INSERT INTO IDP_PROVISIONING_ENTITY (PROVISIONING_CONFIG_ID, ENTITY_TYPE, "
-                + "ENTITY_LOCAL_USERSTORE, ENTITY_NAME, ENTITY_VALUE, TENANT_ID) VALUES (?, ?, ?, ?, ?, ?)";
+        public static final String ADD_PROVISIONING_ENTITY_SQL = "INSERT INTO IDP_PROVISIONING_ENTITY " +
+              "(PROVISIONING_CONFIG_ID, ENTITY_TYPE, ENTITY_LOCAL_USERSTORE, ENTITY_NAME, ENTITY_VALUE, TENANT_ID, " +
+              "ENTITY_LOCAL_ID) VALUES (?, ?, ?, ?, ?, ?,?)";
 
         public static final String DELETE_PROVISIONING_ENTITY_SQL = "DELETE FROM IDP_PROVISIONING_ENTITY WHERE (PROVISIONING_CONFIG_ID=? "
                 + "AND ENTITY_TYPE=? AND ENTITY_LOCAL_USERSTORE=? AND ENTITY_NAME=? AND TENANT_ID=?)";
@@ -52,6 +54,12 @@ public class IdentityProvisioningConstants {
                 + "ENTITY_LOCAL_USERSTORE=? AND ENTITY_NAME=? AND TENANT_ID=?";
 
         public static final String GET_IDP_PROVISIONING_CONFIG_ID_SQL = "SELECT ID FROM IDP_PROVISIONING_CONFIG WHERE IDP_ID=? AND PROVISIONING_CONNECTOR_TYPE=?";
+
+        public static final String GET_PROVISIONED_ENTITY_NAME_SQL = "SELECT ENTITY_NAME FROM IDP_PROVISIONING_ENTITY" +
+                                                                     " WHERE ENTITY_LOCAL_ID=?";
+
+        public static final String UPDATE_PROVISIONED_ENTITY_NAME_SQL = "UPDATE IDP_PROVISIONING_ENTITY SET " +
+                                                                        "ENTITY_NAME=? WHERE ENTITY_LOCAL_ID=?";
 
         public static final String GET_SP_NAMES_OF_PROVISIONING_CONNECTORS_BY_IDP = "SELECT DISTINCT(APP.APP_NAME) " +
                                                                                     "FROM SP_PROVISIONING_CONNECTOR " +

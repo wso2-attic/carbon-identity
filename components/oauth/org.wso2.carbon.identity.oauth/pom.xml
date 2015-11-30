@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>oauth</artifactId>
-        <version>4.6.0-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -111,7 +111,7 @@
             <artifactId>tomcat-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.dblock.waffle.wso2</groupId>
+            <groupId>org.wso2.orbit.com.github.dblock.waffle</groupId>
             <artifactId>waffle-jna</artifactId>
         </dependency>
         <dependency>

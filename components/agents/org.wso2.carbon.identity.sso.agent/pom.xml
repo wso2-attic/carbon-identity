@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>agents</artifactId>
-        <version>4.6.0-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -45,8 +45,14 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>opensaml</artifactId>
+            <groupId>opensaml.wso2</groupId>
+            <artifactId>opensaml2</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.openid4java</groupId>
@@ -74,8 +80,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.0</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -92,7 +98,7 @@
                             javax.servlet;version="${imp.pkg.version.javax.servlet}",
                             javax.servlet.http;version="${imp.pkg.version.javax.servlet}",
                             javax.xml.namespace,
-                            javax.xml.parsers,
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
                             com.google.gson;version="${com.google.code.gson.osgi.version.range}",
                             org.apache.http.conn.ssl; version="${httpcomponents-httpclient.imp.pkg.version.range}",
                             org.apache.xerces.util;resolution:=optional,
@@ -107,6 +113,7 @@
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
                             org.wso2.carbon.identity.core.util;
                             version="${carbon.identity.package.import.version.range}",
+                            org.apache.commons.collections; version="${commons-collections.wso2.osgi.version.range}",
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.identity.sso.agent.*; version="${carbon.identity.package.export.version}",

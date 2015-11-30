@@ -246,6 +246,27 @@ public class IdentityTenantUtil {
 
     }
 
+    public static String getTenantDomain(int tenantId) throws IdentityRuntimeException {
+
+        String tenantDomain = null;
+        try {
+            tenantDomain = realmService.getTenantManager().getDomain(tenantId);
+        } catch (UserStoreException e) {
+            // Ideally user.core should be throwing an unchecked exception, in which case no need to wrap at this
+            // level once more without adding any valuable contextual information. Because we don't have exception
+            // enrichment properly implemented, we are appending the error message from the UserStoreException to the
+            // new message
+            throw new IdentityRuntimeException("Error occurred while retrieving tenantDomain for tenantId: " +
+                    tenantId + e.getMessage(), e);
+        }
+        if(tenantDomain == null){
+            throw new IdentityRuntimeException("Invalid tenant domain " + tenantDomain);
+        } else {
+            return tenantDomain;
+        }
+
+    }
+
     /**
      * Get the tenant id of the given user.
      *

@@ -74,10 +74,6 @@ public class OAuth2TokenEndpoint {
 
             HttpServletRequestWrapper httpRequest = new OAuthRequestWrapper(request, paramMap);
 
-            if (log.isDebugEnabled()) {
-                logAccessTokenRequest(httpRequest);
-            }
-
             // extract the basic auth credentials if present in the request and use for
             // authentication.
             if (request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ) != null) {
@@ -118,6 +114,10 @@ public class OAuth2TokenEndpoint {
                     // if there is an auth failure, HTTP 401 Status Code should be sent back to the client.
                     if (OAuth2ErrorCodes.INVALID_CLIENT.equals(oauth2AccessTokenResp.getErrorCode())) {
                         return handleBasicAuthFailure();
+                    } else if ("sql_error".equals(oauth2AccessTokenResp.getErrorCode())){
+                        return handleSQLError();
+                    } else if (OAuth2ErrorCodes.SERVER_ERROR.equals(oauth2AccessTokenResp.getErrorCode())) {
+                        return handleServerError();
                     } else {
                         // Otherwise send back HTTP 400 Status Code
                         OAuthResponse.OAuthErrorResponseBuilder oAuthErrorResponseBuilder = OAuthASResponse
@@ -197,28 +197,21 @@ public class OAuth2TokenEndpoint {
                 .entity(response.getBody()).build();
     }
 
-    private void logAccessTokenRequest(HttpServletRequest request) {
+    private Response handleServerError() throws OAuthSystemException {
+        OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).
+                setError(OAuth2ErrorCodes.SERVER_ERROR).setErrorDescription("Internal Server Error.").buildJSONMessage();
 
-        if (log.isDebugEnabled()){
-            log.debug("Received a request : " + request.getRequestURI());
-            // log the headers.
-            log.debug("----------logging request headers.----------");
+        return Response.status(response.getResponseStatus()).header(OAuthConstants.HTTP_RESP_HEADER_AUTHENTICATE,
+                        EndpointUtil.getRealmInfo()).entity(response.getBody()).build();
 
-            Enumeration headerNames = request.getHeaderNames();
-            while (headerNames.hasMoreElements()) {
-                String headerName = (String) headerNames.nextElement();
-                Enumeration headers = request.getHeaders(headerName);
-                while (headers.hasMoreElements()) {
-                    log.debug(headerName + " : " + headers.nextElement());
-                }
-            }
-            // log the parameters.
-            log.debug("----------logging request parameters.----------");
-            log.debug(OAuth.OAUTH_GRANT_TYPE + " - " + request.getParameter(OAuth.OAUTH_GRANT_TYPE));
-            log.debug(OAuth.OAUTH_CLIENT_ID + " - " + request.getParameter(OAuth.OAUTH_CLIENT_ID));
-            log.debug(OAuth.OAUTH_CODE + " - " + request.getParameter(OAuth.OAUTH_CODE));
-            log.debug(OAuth.OAUTH_REDIRECT_URI + " - " + request.getParameter(OAuth.OAUTH_REDIRECT_URI));
-        }
+    }
+
+    private Response handleSQLError() throws OAuthSystemException {
+        OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_GATEWAY).
+                setError(OAuth2ErrorCodes.SERVER_ERROR).setErrorDescription("Service Unavailable Error.").buildJSONMessage();
+
+        return Response.status(response.getResponseStatus()).header(OAuthConstants.HTTP_RESP_HEADER_AUTHENTICATE,
+                EndpointUtil.getRealmInfo()).entity(response.getBody()).build();
     }
 
     private OAuth2AccessTokenRespDTO getAccessToken(CarbonOAuthTokenRequest oauthRequest) {

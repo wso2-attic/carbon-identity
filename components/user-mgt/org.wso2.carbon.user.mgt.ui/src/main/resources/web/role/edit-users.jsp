@@ -20,6 +20,9 @@
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ page session="true" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.apache.commons.collections.CollectionUtils" %>
+<%@ page import="org.apache.commons.lang.ArrayUtils" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
@@ -27,21 +30,18 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.LinkedHashSet" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="java.util.LinkedHashSet" %>
 <%@ page import="java.util.Set" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="org.apache.commons.lang.ArrayUtils" %>
-<%@ page import="org.apache.commons.collections.CollectionUtils" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
@@ -144,7 +144,7 @@
                 FlaggedName[] data = client.getUsersOfRole(roleName, filter, -1);
                 if (CarbonUIUtil.isContextRegistered(config, "/usermgt-workflow/")) {
                     String[] DeletePendingRolesList = UserMgtClient.
-                            listAllEntityNames("DELETE_USER", "PENDING", "USER");
+                            listAllEntityNames("DELETE_USER", "PENDING", "USER", filter);
                     workFlowDeletePendingUsers = new LinkedHashSet<String>(Arrays.asList(DeletePendingRolesList));
                     String pendingStatus = "[Pending User for Delete]";
                     if (data != null) {
@@ -238,6 +238,7 @@
 
         function doPaginate(page, pageNumberParameterName, pageNumber) {
             var form = document.createElement("form");
+            form.id = "paginateForm";
             form.setAttribute("method", "POST");
             form.setAttribute("action", page + "?" + pageNumberParameterName + "=" + pageNumber + "&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
             var selectedRolesStr = "";
@@ -269,11 +270,12 @@
             unselectedRolesElem.setAttribute("value", unselectedRolesStr);
             form.appendChild(unselectedRolesElem);
             document.body.appendChild(form);
-            form.submit();
+            $("#paginateForm").submit();
         }
 
         function doSelectAllRetrieved() {
             var form = document.createElement("form");
+            form.id = "selectAllRetrievedForm";
             form.setAttribute("method", "POST");
             form.setAttribute("action", "edit-users.jsp?pageNumber=" + <%=pageNumber%> +"&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
             var selectedRolesElem = document.createElement("input");
@@ -282,12 +284,12 @@
             selectedRolesElem.setAttribute("value", "ALL");
             form.appendChild(selectedRolesElem);
             document.body.appendChild(form);
-            form.submit();
-
+            $("#selectAllRetrievedForm").submit();
         }
 
         function doUnSelectAllRetrieved() {
             var form = document.createElement("form");
+            form.id = "unSelectAllRetrievedForm";
             form.setAttribute("method", "POST");
             form.setAttribute("action", "edit-users.jsp?pageNumber=" + <%=pageNumber%> +"&roleName=" + '<%=Encode.forJavaScript(Encode.forUriComponent(roleName))%>');
             var unselectedRolesElem = document.createElement("input");
@@ -296,7 +298,7 @@
             unselectedRolesElem.setAttribute("value", "ALL");
             form.appendChild(unselectedRolesElem);
             document.body.appendChild(form);
-            form.submit();
+            $("#unSelectAllRetrievedForm").submit();
         }
 
         $(document).ready(function () {
@@ -408,9 +410,9 @@
                                                         String doEdit = "";
                                                         String doCheck = "";
                                                         String userName = users[i].getItemName();
-                                                        String disPlayName = users[i].getItemDisplayName();
-                                                        if (disPlayName == null || disPlayName.trim().length() == 0) {
-                                                            disPlayName = userName;
+                                                        String displayName = users[i].getItemDisplayName();
+                                                        if (displayName == null || displayName.trim().length() == 0) {
+                                                            displayName = userName;
                                                         }
                                                         if (users[i].getItemName()
                                                                 .equals(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME)) {
@@ -434,7 +436,7 @@
                                         <%
                                         } else {
                                         %>
-                                        <%=Encode.forHtml(disPlayName)%>
+                                        <%=Encode.forHtml(displayName)%>
                                         <%
                                             }
                                         %>

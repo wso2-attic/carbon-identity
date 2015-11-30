@@ -19,9 +19,7 @@
 package org.wso2.carbon.identity.oauth.util;
 
 
-import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -31,7 +29,6 @@ public class ClaimCache extends BaseCache<String, CacheEntry> {
     private static final String CLAIM_CACHE_NAME = "ClaimCache";
 
     private static ClaimCache instance;
-    private boolean enableRequestScopeCache = false;
 
     private ClaimCache(String cacheName) {
         super(cacheName);
@@ -39,9 +36,6 @@ public class ClaimCache extends BaseCache<String, CacheEntry> {
 
     private ClaimCache(String cacheName, int timeout) {
         super(cacheName, timeout);
-        if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
-            enableRequestScopeCache = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
-        }
     }
 
     public static ClaimCache getInstance(int timeout) {
@@ -58,9 +52,7 @@ public class ClaimCache extends BaseCache<String, CacheEntry> {
 
     public void addToCache(CacheKey key, CacheEntry entry) {
         super.addToCache(key.toString(), entry);
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().storeSessionData(key.toString(),CLAIM_CACHE_NAME,entry);
-        }
+
     }
 
     public CacheEntry getValueFromCache(CacheKey key) {
@@ -69,8 +61,5 @@ public class ClaimCache extends BaseCache<String, CacheEntry> {
 
     public void clearCacheEntry(CacheKey key) {
         super.clearCacheEntry(key.toString());
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().clearSessionData(key.toString(),CLAIM_CACHE_NAME);
-        }
     }
 }

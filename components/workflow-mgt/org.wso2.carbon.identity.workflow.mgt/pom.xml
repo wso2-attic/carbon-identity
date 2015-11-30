@@ -17,13 +17,11 @@
   ~ under the License.
   -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>identity-workflow-mgt</artifactId>
         <groupId>org.wso2.carbon.identity</groupId>
-        <version>4.6.0-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -50,17 +48,16 @@
             <artifactId>org.wso2.carbon.identity.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.base</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.workflow.mgt.bps.stub</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon.commons</groupId>
             <artifactId>org.wso2.carbon.tenant.common</artifactId>
         </dependency>
+        <!--dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-xjc-plugin</artifactId>
+            <version>3.0.5</version>
+        </dependency-->
+
+
 
     </dependencies>
 
@@ -70,6 +67,33 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
             </plugin>
+            <!--plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-xjc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>xsdtojava</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceRoot>${basedir}/src/main/java/</sourceRoot>
+                    <xsdOptions>
+                        <xsdOption>
+                            <extension>true</extension>
+                            <xsd>${basedir}/src/main/resources/MetaDataType.xsd</xsd>
+                            <xsd>${basedir}/src/main/resources/MetaData.xsd</xsd>
+                            <extensionArgs>
+                                <arg>-Xdv</arg>
+                            </extensionArgs>
+                        </xsdOption>
+                    </xsdOptions>
+                    <extensions>
+                        <extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:2.3.0</extension>
+                    </extensions>
+                </configuration>
+            </plugin-->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -85,11 +109,13 @@
                             javax.activation; version="${javax.activation.import.pkg.version}",
                             javax.xml.xpath,
                             org.apache.axiom.om; version="${axiom.osgi.version.range}",
+                            org.apache.axiom.om.impl.*; version="${axiom.osgi.version.range}",
                             org.apache.axiom.om.xpath; version="${axiom.osgi.version.range}",
                             org.apache.axis2; version="${axis2.osgi.version.range}",
                             org.apache.axis2.addressing; version="${axis2.osgi.version.range}",
                             org.apache.axis2.client; version="${axis2.osgi.version.range}",
                             org.apache.axis2.context; version="${axis2.osgi.version.range}",
+                            org.apache.axis2.databinding.*; version="${axis2.osgi.version.range}",
                             org.apache.axis2.description; version="${axis2.osgi.version.range}",
                             org.apache.axis2.transport.http; version="${axis2.osgi.version.range}",
                             org.apache.commons.collections; version="${commons-collections.wso2.osgi.version.range}",
@@ -100,11 +126,7 @@
                             org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
                             org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
                             org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",
-                            org.wso2.carbon.bpel.stub.upload; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.bpel.stub.upload.types; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.humantask.stub.upload; version="${carbon.identity.package.import.version.range}",
-                            org.wso2.carbon.humantask.stub.upload.types; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.core.util; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
@@ -112,9 +134,9 @@
                             org.wso2.carbon.user.core.tenant; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.user.core.util; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.utils; version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.stratos.common.*; version="${carbon.commons.imp.pkg.version}",
                             org.wso2.carbon.core.util; version="${carbon.kernel.package.import.version.range}",
-                            org.wso2.carbon.stratos.common.*; version="${carbon.commons.imp.pkg.version}"
+                            org.wso2.carbon.stratos.common.*; version="${carbon.commons.imp.pkg.version}",
+                            org.wso2.carbon; version="${carbon.kernel.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.workflow.mgt.internal,
@@ -123,6 +145,7 @@
                     </instructions>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 </project>

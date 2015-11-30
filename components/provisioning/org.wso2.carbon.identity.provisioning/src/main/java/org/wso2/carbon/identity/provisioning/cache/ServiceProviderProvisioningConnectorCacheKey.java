@@ -22,7 +22,7 @@ import org.wso2.carbon.identity.application.common.cache.CacheKey;
 
 public class ServiceProviderProvisioningConnectorCacheKey extends CacheKey {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -2783679537746811792L;
 
 
     private String spProvisioningConnectorKey;

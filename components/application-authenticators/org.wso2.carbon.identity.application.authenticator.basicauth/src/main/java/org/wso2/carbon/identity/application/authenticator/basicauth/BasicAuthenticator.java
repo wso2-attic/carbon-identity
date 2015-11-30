@@ -94,6 +94,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
         }
 
         String loginPage = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
+        String retryPage = ConfigurationFacade.getInstance().getAuthenticationEndpointRetryURL();
         String queryParams = context.getContextIdIncludedQueryParams();
 
         try {
@@ -128,7 +129,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
                         response.sendRedirect(response.encodeRedirectURL(loginPage + ("?" + queryParams))
                                 + BasicAuthenticatorConstants.AUTHENTICATORS + getName() + ":" + BasicAuthenticatorConstants.LOCAL + retryParam);
                     } else if (errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED)) {
-                        String redirectURL = loginPage.replace("login.do", "retry.do");
+                        String redirectURL = retryPage;
                         if (remainingAttempts == 0) {
                             redirectURL = response.encodeRedirectURL(redirectURL + ("?" + queryParams)) +
                                     BasicAuthenticatorConstants.ERROR_CODE + errorCode + BasicAuthenticatorConstants.FAILED_USERNAME +
@@ -154,7 +155,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
             } else {
                 String errorCode = errorContext != null ? errorContext.getErrorCode() : null;
                 if (errorCode != null && errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED)) {
-                    String redirectURL = loginPage.replace("login.do", "retry.do");
+                    String redirectURL = retryPage;
                     redirectURL = response.encodeRedirectURL(redirectURL + ("?" + queryParams)) + BasicAuthenticatorConstants.FAILED_USERNAME + URLEncoder.encode(request.getParameter(BasicAuthenticatorConstants.USER_NAME), BasicAuthenticatorConstants.UTF_8);
                     response.sendRedirect(redirectURL);
 
@@ -254,7 +255,9 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
                         }
                     } catch (UserStoreException e) {
                         //ignore  but log in debug
-                        log.debug("Error while retrieving UserNameAttribute for user : " + username, e);
+                        if(log.isDebugEnabled()) {
+                            log.debug("Error while retrieving UserNameAttribute for user : " + username, e);
+                        }
                     }
                 } else {
                     if (log.isDebugEnabled()) {

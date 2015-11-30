@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.application.authenticator.samlsso;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.owasp.encoder.Encode;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorStateInfo;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
@@ -427,9 +428,9 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
                 PrintWriter out = response.getWriter();
                 out.println("<html>");
                 out.println("<body>");
-                out.println("<p>You are now redirected to " + url);
+                out.println("<p>You are now redirected to " + Encode.forHtml(url));
                 out.println(" If the redirection fails, please click the post button.</p>");
-                out.println("<form method='post' action='" + url + "'>");
+                out.println("<form method='post' action='" + Encode.forHtmlAttribute(url) + "'>");
                 out.println("<p>");
                 out.println(postPageInputs);
                 out.println("<button type='submit'>POST</button>");

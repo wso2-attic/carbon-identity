@@ -22,9 +22,9 @@
 <%@page import="org.wso2.carbon.directory.server.manager.ui.DirectoryServerManagerClient" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@page import="java.text.MessageFormat" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String spName = request.getParameter("spName");
@@ -79,9 +79,9 @@
         if (!isError) {
     %>
     location.href =
-            '../application/configure-service-provider.jsp?action=delete&display=kerberos&spName=<%=spName%>&kerberos&=<%=servicePrincipleName%>';
+            '../application/configure-service-provider.jsp?action=delete&display=kerberos&spName=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&kerberos&=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(servicePrincipleName))%>';
     <%  } else { %>
-    location.href = '../application/configure-service-provider.jsp?action=cancel&display=kerberos&spName=<%=spName%>';
+    location.href = '../application/configure-service-provider.jsp?action=cancel&display=kerberos&spName=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>';
     <%
         }
     }else {

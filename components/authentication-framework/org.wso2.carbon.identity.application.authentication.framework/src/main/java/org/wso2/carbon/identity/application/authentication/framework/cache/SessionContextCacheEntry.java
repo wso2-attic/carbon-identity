@@ -19,7 +19,10 @@
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
 import org.wso2.carbon.identity.application.authentication.framework.context.SessionContext;
+import org.wso2.carbon.identity.application.authentication.framework.store.SessionContextDO;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+
+import java.util.concurrent.TimeUnit;
 
 public class SessionContextCacheEntry extends CacheEntry {
 
@@ -27,6 +30,18 @@ public class SessionContextCacheEntry extends CacheEntry {
 
     SessionContext context;
     String loggedInUser;
+    private long accessedTime;
+
+    public SessionContextCacheEntry() {
+        setAccessedTime();
+    }
+
+    public SessionContextCacheEntry(SessionContextDO sessionContextDO) {
+        SessionContextCacheEntry entry = (SessionContextCacheEntry) sessionContextDO.getEntry();
+        this.context = entry.getContext();
+        this.loggedInUser = entry.getLoggedInUser();
+        this.setAccessedTime(sessionContextDO.getTimestamp().getTime());
+    }
 
     public String getLoggedInUser() {
         return loggedInUser;
@@ -42,5 +57,17 @@ public class SessionContextCacheEntry extends CacheEntry {
 
     public void setContext(SessionContext context) {
         this.context = context;
+    }
+
+    public void setAccessedTime() {
+        this.accessedTime = System.currentTimeMillis();
+    }
+
+    private void setAccessedTime(long accessedTime) {
+        this.accessedTime = accessedTime;
+    }
+
+    public long getAccessedTime() {
+        return this.accessedTime;
     }
 }

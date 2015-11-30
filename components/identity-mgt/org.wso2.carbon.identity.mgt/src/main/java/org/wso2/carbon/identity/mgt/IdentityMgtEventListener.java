@@ -54,7 +54,6 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -74,17 +73,12 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
      * This is to pass data from doPreX() method to doPostX() and to avoid
      * infinite loops.
      */
-    public static final ThreadLocal<HashMap<String, Object>> threadLocalProperties = new ThreadLocal<HashMap<String, Object>>() {
-        @Override
-        protected HashMap<String, Object> initialValue() {
-            return new HashMap<String, Object>();
-        }
-    };
     private static final Log log = LogFactory.getLog(IdentityMgtEventListener.class);
     private static final String EMPTY_PASSWORD_USED = "EmptyPasswordUsed";
     private static final String USER_IDENTITY_DO = "UserIdentityDO";
     private static final String EMAIL_NOTIFICATION_TYPE = "EMAIL";
     private static final String UNLOCK_ADMIN_SYS_PROP = "unlockAdmin";
+    private static final String PASSWORD_INVALID = "PasswordInvalid";
     PolicyRegistry policyRegistry = null;
     private UserIdentityDataStore module;
     private IdentityMgtConfig identityMgtConfig;
@@ -94,6 +88,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
     private static final String DO_POST_ADD_USER = "doPostAddUser";
     private static final String DO_PRE_SET_USER_CLAIM_VALUES = "doPreSetUserClaimValues";
     private static final String DO_POST_UPDATE_CREDENTIAL = "doPostUpdateCredential";
+    private static final String ASK_PASSWORD_FEATURE_IS_DISABLED = "Ask Password Feature is disabled";
+
 
 
 
@@ -157,8 +153,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
         // Top level try and finally blocks are used to unset thread local variables
         try {
-            if (!threadLocalProperties.get().containsKey(DO_PRE_AUTHENTICATE)) {
-                threadLocalProperties.get().put(DO_PRE_AUTHENTICATE, true);
+            if (!IdentityUtil.threadLocalProperties.get().containsKey(DO_PRE_AUTHENTICATE)) {
+                IdentityUtil.threadLocalProperties.get().put(DO_PRE_AUTHENTICATE, true);
 
                 if (log.isDebugEnabled()) {
                     log.debug("Pre authenticator is called in IdentityMgtEventListener");
@@ -226,7 +222,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
         } finally {
             // remove thread local variable
-            threadLocalProperties.get().remove(DO_PRE_AUTHENTICATE);
+            IdentityUtil.threadLocalProperties.get().remove(DO_PRE_AUTHENTICATE);
         }
     }
 
@@ -244,8 +240,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
         // Top level try and finally blocks are used to unset thread local variables
         try {
-            if (!threadLocalProperties.get().containsKey(DO_POST_AUTHENTICATE)) {
-                threadLocalProperties.get().put(DO_POST_AUTHENTICATE, true);
+            if (!IdentityUtil.threadLocalProperties.get().containsKey(DO_POST_AUTHENTICATE)) {
+                IdentityUtil.threadLocalProperties.get().put(DO_POST_AUTHENTICATE, true);
 
                 if (log.isDebugEnabled()) {
                     log.debug("Post authenticator is called in IdentityMgtEventListener");
@@ -430,7 +426,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             return true;
         } finally {
             // Remove thread local variable
-            threadLocalProperties.get().remove(DO_POST_AUTHENTICATE);
+            IdentityUtil.threadLocalProperties.get().remove(DO_POST_AUTHENTICATE);
         }
     }
 
@@ -449,7 +445,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
         if (!isEnable()) {
             if (credential == null || StringUtils.isBlank(credential.toString())) {
                 log.error("Identity Management listener is disabled");
-                throw new UserStoreException("Ask Password Feature is disabled");
+                throw new UserStoreException(PASSWORD_INVALID + ASK_PASSWORD_FEATURE_IS_DISABLED);
             }
             return true;
         }
@@ -476,21 +472,16 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
             if (!config.isEnableTemporaryPassword()) {
                 log.error("Temporary password property is disabled");
-                throw new UserStoreException("Ask Password Feature is disabled");
+                throw new UserStoreException(ASK_PASSWORD_FEATURE_IS_DISABLED);
             }
             if (log.isDebugEnabled()) {
                 log.debug("Credentials are null. Using a temporary password as credentials");
             }
             // setting the thread-local to check in doPostAddUser
-            threadLocalProperties.get().put(EMPTY_PASSWORD_USED, true);
+            IdentityUtil.threadLocalProperties.get().put(EMPTY_PASSWORD_USED, true);
             // temporary passwords will be used
             char[] temporaryPassword = null;
-            if (IdentityMgtConfig.getInstance().getTemporaryDefaultPassword() != null) {
-                temporaryPassword = IdentityMgtConfig.getInstance().getTemporaryDefaultPassword()
-                        .toCharArray();
-            } else {
-                temporaryPassword = UserIdentityManagementUtil.generateTemporaryPassword();
-            }
+            temporaryPassword = UserIdentityManagementUtil.generateTemporaryPassword();
 
             // setting the password value
             ((StringBuffer) credential).replace(0, temporaryPassword.length, new String(temporaryPassword));
@@ -514,7 +505,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
         UserIdentityClaimsDO identityDTO = new UserIdentityClaimsDO(userName, userDataMap);
         // adding dto to thread local to be read again from the doPostAddUser method
-        threadLocalProperties.get().put(USER_IDENTITY_DO, identityDTO);
+        IdentityUtil.threadLocalProperties.get().put(USER_IDENTITY_DO, identityDTO);
         return true;
     }
 
@@ -538,17 +529,17 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
         // Top level try and finally blocks are used to unset thread local variables
         try {
-            if (!threadLocalProperties.get().containsKey(DO_POST_ADD_USER)) {
-                threadLocalProperties.get().put(DO_POST_ADD_USER, true);
+            if (!IdentityUtil.threadLocalProperties.get().containsKey(DO_POST_ADD_USER)) {
+                IdentityUtil.threadLocalProperties.get().put(DO_POST_ADD_USER, true);
                 if (log.isDebugEnabled()) {
                     log.debug("Post add user is called in IdentityMgtEventListener");
                 }
                 IdentityMgtConfig config = IdentityMgtConfig.getInstance();
                 // reading the value from the thread local
-                UserIdentityClaimsDO userIdentityClaimsDO = (UserIdentityClaimsDO) threadLocalProperties.get().get(USER_IDENTITY_DO);
+                UserIdentityClaimsDO userIdentityClaimsDO = (UserIdentityClaimsDO) IdentityUtil.threadLocalProperties.get().get(USER_IDENTITY_DO);
 
 
-                if (config.isEnableUserAccountVerification() && threadLocalProperties.get().containsKey(EMPTY_PASSWORD_USED)) {
+                if (config.isEnableUserAccountVerification() && IdentityUtil.threadLocalProperties.get().containsKey(EMPTY_PASSWORD_USED)) {
 
                     // empty password account creation
                     String domainName = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager)
@@ -645,7 +636,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             return true;
         } finally {
             // Remove thread local variable
-            threadLocalProperties.get().remove(DO_POST_ADD_USER);
+            IdentityUtil.threadLocalProperties.get().remove(DO_POST_ADD_USER);
         }
     }
 
@@ -796,8 +787,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
         // Top level try and finally blocks are used to unset thread local variables
         try {
-            if (!threadLocalProperties.get().containsKey(DO_PRE_SET_USER_CLAIM_VALUES)) {
-                threadLocalProperties.get().put(DO_PRE_SET_USER_CLAIM_VALUES, true);
+            if (!IdentityUtil.threadLocalProperties.get().containsKey(DO_PRE_SET_USER_CLAIM_VALUES)) {
+                IdentityUtil.threadLocalProperties.get().put(DO_PRE_SET_USER_CLAIM_VALUES, true);
                 IdentityMgtConfig config = IdentityMgtConfig.getInstance();
                 UserIdentityDataStore identityDataStore = IdentityMgtConfig.getInstance().getIdentityDataStore();
                 UserIdentityClaimsDO identityDTO = identityDataStore.load(userName, userStoreManager);
@@ -831,7 +822,7 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             return true;
         } finally {
             // Remove thread local variable
-            threadLocalProperties.get().remove(DO_PRE_SET_USER_CLAIM_VALUES);
+            IdentityUtil.threadLocalProperties.get().remove(DO_PRE_SET_USER_CLAIM_VALUES);
         }
     }
 

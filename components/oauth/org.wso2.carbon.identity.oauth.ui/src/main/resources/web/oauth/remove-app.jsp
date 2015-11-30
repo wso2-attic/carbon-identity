@@ -17,6 +17,7 @@
  -->
 
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO"%>
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthAdminClient"%>
@@ -44,7 +45,7 @@
 	
 	boolean qpplicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
 	if (qpplicationComponentFound) {
-		forwardTo = "../application/configure-service-provider.jsp?action=delete&spName="+spName+"&oauthapp="+consumerkey;
+        forwardTo = "../application/configure-service-provider.jsp?action=delete&spName="+ Encode.forUriComponent(spName)+"&oauthapp="+ Encode.forUriComponent(consumerkey);
 	}
 	
     String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";

@@ -58,39 +58,6 @@ public class OpenIDSQLQueries {
             "SELECT " + "USER_NAME, TENANT_ID, COOKIE_VALUE, CREATED_TIME " +
             "FROM IDN_OPENID_REMEMBER_ME " + "WHERE  USER_NAME = ? AND TENANT_ID = ?";
 
-    /**
-     * {@link OpenIDUserRPDAO}
-     */
-    public static final String CHECK_USER_RP_EXIST = "SELECT * " + "FROM IDN_OPENID_USER_RPS " +
-                                                     "WHERE USER_NAME = ? AND TENANT_ID = ? AND RP_URL = ?";
-
-    public static final String STORE_USER_RP = "INSERT " + "INTO IDN_OPENID_USER_RPS " +
-                                               "(USER_NAME, TENANT_ID, RP_URL, TRUSTED_ALWAYS, LAST_VISIT, VISIT_COUNT, DEFAULT_PROFILE_NAME) " +
-                                               "VALUES (?,?,?,?,?,?,?)";
-
-    public static final String UPDATE_USER_RP = "UPDATE " + "IDN_OPENID_USER_RPS " +
-                                                "SET TRUSTED_ALWAYS = ?, LAST_VISIT = ?, VISIT_COUNT = ?, DEFAULT_PROFILE_NAME = ? " +
-                                                "WHERE USER_NAME = ? AND TENANT_ID = ? AND RP_URL = ?";
-
-    public static final String LOAD_USER_RP =
-            "SELECT " + "USER_NAME, TENANT_ID, RP_URL, TRUSTED_ALWAYS, LAST_VISIT, VISIT_COUNT, DEFAULT_PROFILE_NAME " +
-            "FROM IDN_OPENID_USER_RPS " + "WHERE USER_NAME = ? AND TENANT_ID = ? AND RP_URL = ?";
-
-    public static final String LOAD_ALL_USER_RPS =
-            "SELECT " + "USER_NAME, TENANT_ID, RP_URL, TRUSTED_ALWAYS, LAST_VISIT, VISIT_COUNT, DEFAULT_PROFILE_NAME " +
-            "FROM IDN_OPENID_USER_RPS ";
-
-    public static final String LOAD_USER_RPS =
-            "SELECT " + "USER_NAME, TENANT_ID, RP_URL, TRUSTED_ALWAYS, LAST_VISIT, VISIT_COUNT, DEFAULT_PROFILE_NAME " +
-            "FROM IDN_OPENID_USER_RPS " + "WHERE USER_NAME = ? AND TENANT_ID = ?";
-
-    public static final String LOAD_USER_RP_DEFAULT_PROFILE = "SELECT " + "DEFAULT_PROFILE_NAME " +
-                                                              "FROM IDN_OPENID_USER_RPS " +
-                                                              "WHERE USER_NAME = ? AND TENANT_ID = ? AND RP_URL = ?";
-
-    public static final String REMOVE_USER_RP = "DELETE " + "FROM IDN_OPENID_USER_RPS " +
-                                                "WHERE USER_NAME = ? AND TENANT_ID = ? AND RP_URL = ?";
-
     private OpenIDSQLQueries() {
     }
 }

@@ -18,7 +18,9 @@
 package org.wso2.carbon.identity.openidconnect;
 
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
+import org.wso2.carbon.identity.oauth2.authz.OAuthAuthzReqMessageContext;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
+import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeRespDTO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 
 public interface IDTokenBuilder {
@@ -32,6 +34,9 @@ public interface IDTokenBuilder {
      * @throws IdentityOAuth2Exception
      */
     public String buildIDToken(OAuthTokenReqMessageContext tokReqMsgCtx, OAuth2AccessTokenRespDTO tokenRespDTO)
+            throws IdentityOAuth2Exception;
+
+    public String buildIDToken(OAuthAuthzReqMessageContext tokReqMsgCtx, OAuth2AuthorizeRespDTO tokenRespDTO)
             throws IdentityOAuth2Exception;
 
 }

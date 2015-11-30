@@ -17,6 +17,7 @@
  -->
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.wso2.carbon.identity.core.util.IdentityUtil"%>
 <%@ page import="org.wso2.carbon.identity.oauth.common.OAuthConstants"%>
@@ -24,7 +25,6 @@
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthServiceClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 <%@ page import="java.util.ResourceBundle" %>
@@ -39,8 +39,8 @@
 <jsp:include page="../dialog/display_messages.jsp" />
 
 <%
-	String oauthUserName = CharacterEncoder.getSafeText(request.getParameter("oauth_user_name"));
-    String oauthUserPassword = CharacterEncoder.getSafeText(request.getParameter("oauth_user_password"));
+    String oauthUserName = request.getParameter("oauth_user_name");
+    String oauthUserPassword = request.getParameter("oauth_user_password");
 	String forwardTo = "index.jsp";
     String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";
 	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
@@ -60,11 +60,13 @@
         session.removeAttribute("oauth_req_token");
         session.removeAttribute("oauth_scope");
         session.removeAttribute("oauth_app_name");
-        forwardTo = resp.getOauthCallback() + "?"+ OAuthConstants.OAUTH_TOKEN + "=" + resp.getOauthToken() + "&" + OAuthConstants.OAUTH_VERIFIER + "=" + resp.getOauthTokenVerifier();
+        forwardTo = Encode.forUriComponent(resp.getOauthCallback()) + "?"+ OAuthConstants.OAUTH_TOKEN + "=" +
+        Encode.forUriComponent(resp.getOauthToken()) + "&" + Encode.forUriComponent(OAuthConstants.OAUTH_VERIFIER) +
+        "=" + Encode.forUriComponent(resp.getOauthTokenVerifier());
     } catch (Exception e) {
     	String message = resourceBundle.getString("auth.error");
     	CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request,e);
-		forwardTo = IdentityUtil.getServerURL("/carbon/oauth/oauth-login.jsp");
+		forwardTo = IdentityUtil.getServerURL("/carbon/oauth/oauth-login.jsp", true);
     }
 %>
 

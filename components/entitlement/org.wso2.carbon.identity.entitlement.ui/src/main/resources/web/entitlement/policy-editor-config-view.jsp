@@ -15,6 +15,7 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
@@ -46,7 +47,7 @@
 <div id="middle">
 <h2><fmt:message key='policy.editor.config'/></h2>
 <div id="workArea">
-    <form method="post" name="configForm" id="configForm" action="add-policy.jsp?type=<%=type%>">
+    <form method="post" name="configForm" id="configForm" action="add-policy.jsp?type=<%=Encode.forUriComponent(type)%>">
         <table class="styledLeft" style="width:100%">
             <thead>
             <tr>
@@ -66,7 +67,7 @@
                                 <textarea name="editorConfigText"  id="editorConfigText"  rows="50" cols="50"
                                           style="border: 1px solid rgb(204, 204, 204); width: 90%;">
                                           <%--height: 1000px; margin-top: 5px; display: none;"--%>
-                                          <%=editorConfig%>
+                                          <%=Encode.forHtmlContent(editorConfig)%>
                                 </textarea>
                             </td>
                         </tr>

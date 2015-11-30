@@ -18,6 +18,7 @@
 package org.wso2.carbon.identity.sso.saml.builders.signature;
 
 import org.apache.xml.security.c14n.Canonicalizer;
+import org.opensaml.common.impl.SAMLObjectContentReference;
 import org.opensaml.saml2.core.RequestAbstractType;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilder;
@@ -68,8 +69,8 @@ public class DefaultSSOSigner implements SSOSigner {
     }
 
     @Override
-    public SignableXMLObject setSignature(SignableXMLObject signableXMLObject, String signatureAlgorithm,
-                                          X509Credential cred) throws IdentityException {
+    public SignableXMLObject setSignature(SignableXMLObject signableXMLObject, String signatureAlgorithm, String
+            digestAlgorithm, X509Credential cred) throws IdentityException {
 
         Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
         signature.setSigningCredential(cred);
@@ -93,6 +94,7 @@ public class DefaultSSOSigner implements SSOSigner {
         signature.setKeyInfo(keyInfo);
 
         signableXMLObject.setSignature(signature);
+        ((SAMLObjectContentReference) signature.getContentReferences().get(0)).setDigestAlgorithm(digestAlgorithm);
 
         List<Signature> signatureList = new ArrayList<Signature>();
         signatureList.add(signature);

@@ -99,14 +99,6 @@ public class POXSecurityHandler implements Handler {
             return InvocationResponse.CONTINUE;
         }
 
-        //this handler only intercepts
-        //Adding a check for http since UT should work with http as well.
-        if (msgCtx.getIncomingTransportName() != null && (!(msgCtx.isDoingREST() || isSOAPWithoutSecHeader(msgCtx)) ||
-                !("https".equals(msgCtx.getIncomingTransportName()) ||
-                        "http".equals(msgCtx.getIncomingTransportName())))) {
-            return InvocationResponse.CONTINUE;
-        }
-
         AxisService service = msgCtx.getAxisService();
 
         if (service == null) {
@@ -147,6 +139,10 @@ public class POXSecurityHandler implements Handler {
             // we only need to execute this block in Unauthorized situations when basicAuth used
             // otherwise it should continue the message flow by throwing the incoming fault message since
             // this is already a fault response - ESBJAVA-2731
+            if(log.isDebugEnabled()){
+                log.debug("SOAP Fault occurred and message flow equals to out fault flow. SOAP fault :" + msgCtx
+                        .getEnvelope().toString());
+            }
             try {
                 String scenarioID = getScenarioId(msgCtx, service);
                 if (scenarioID != null && scenarioID.equals(SecurityConstants.USERNAME_TOKEN_SCENARIO_ID)) {
@@ -179,8 +175,9 @@ public class POXSecurityHandler implements Handler {
             return InvocationResponse.CONTINUE;
         }
 
-        //return if transport is not https
-        if (!StringUtils.equals("https", msgCtx.getIncomingTransportName())) {
+        //return if transport is not https or http (UT scenario should work over http transport as well.)
+        if (!StringUtils.equals("https", msgCtx.getIncomingTransportName()) && !StringUtils.equals("http", msgCtx
+                .getIncomingTransportName())) {
             return InvocationResponse.CONTINUE;
         }
 
@@ -197,7 +194,7 @@ public class POXSecurityHandler implements Handler {
         }
 
         //return if incoming message is soap and has soap security headers
-        if (!msgCtx.isDoingREST() && !soapWithoutSecHeader) {
+        if (!soapWithoutSecHeader) {
             return InvocationResponse.CONTINUE;
         }
 

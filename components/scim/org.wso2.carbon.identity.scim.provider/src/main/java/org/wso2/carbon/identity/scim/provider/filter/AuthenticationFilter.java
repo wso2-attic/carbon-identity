@@ -21,7 +21,9 @@ package org.wso2.carbon.identity.scim.provider.filter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.ext.RequestHandler;
+import org.apache.cxf.jaxrs.ext.ResponseHandler;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
+import org.apache.cxf.jaxrs.model.OperationResourceInfo;
 import org.apache.cxf.message.Message;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.scim.provider.auth.SCIMAuthenticationHandler;
@@ -33,7 +35,7 @@ import org.wso2.charon.core.protocol.endpoints.AbstractResourceEndpoint;
 
 import javax.ws.rs.core.Response;
 
-public class AuthenticationFilter implements RequestHandler {
+public class AuthenticationFilter implements RequestHandler, ResponseHandler {
 
     private static Log log = LogFactory.getLog(AuthenticationFilter.class);
 
@@ -64,4 +66,11 @@ public class AuthenticationFilter implements RequestHandler {
         return new JAXRSResponseBuilder().buildResponse(
                 AbstractResourceEndpoint.encodeSCIMException(new JSONEncoder(), unauthorizedException));
     }
+
+    @Override
+    public Response handleResponse(Message message, OperationResourceInfo operationResourceInfo, Response response) {
+        IdentityApplicationManagementUtil.resetThreadLocalProvisioningServiceProvider();
+        return null;
+    }
+
 }

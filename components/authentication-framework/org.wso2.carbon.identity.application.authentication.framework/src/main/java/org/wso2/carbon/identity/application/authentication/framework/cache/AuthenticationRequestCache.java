@@ -18,11 +18,17 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceDataHolder;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.application.common.cache.CacheEntry;
 import org.wso2.carbon.identity.application.common.cache.CacheKey;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.user.api.UserStoreException;
 
 /**
  * This cache keeps all parameters and headers which are directed towards authentication
@@ -30,32 +36,19 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
  * sends the request saves all required information to this cache, which are retrieved later from
  * authentication framework
  */
-public class AuthenticationRequestCache extends BaseCache<String, CacheEntry> {
+public class AuthenticationRequestCache extends
+        BaseCache<AuthenticationRequestCacheKey, AuthenticationRequestCacheEntry> {
 
+    private static Log log = LogFactory.getLog(AuthenticationRequestCache.class);
     private static final String AUTHENTICATION_REQUEST_CACHE_NAME = "AuthenticationRequestCache";
     private static volatile AuthenticationRequestCache instance;
     private boolean enableRequestScopeCache = false;
 
     private AuthenticationRequestCache(String cacheName) {
         super(cacheName);
-    }
-
-    private AuthenticationRequestCache(String cacheName, int timeout) {
-        super(cacheName, timeout);
         if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
             enableRequestScopeCache = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
         }
-    }
-
-    public static AuthenticationRequestCache getInstance(int timeout) {
-        if (instance == null) {
-            synchronized (AuthenticationRequestCache.class) {
-                if (instance == null) {
-                    instance = new AuthenticationRequestCache(AUTHENTICATION_REQUEST_CACHE_NAME, timeout);
-                }
-            }
-        }
-        return instance;
     }
 
     public static AuthenticationRequestCache getInstance() {
@@ -69,28 +62,32 @@ public class AuthenticationRequestCache extends BaseCache<String, CacheEntry> {
         return instance;
     }
 
-    public void addToCache(CacheKey key,CacheEntry entry){
-        String keyValue = ((AuthenticationRequestCacheKey)key).getResultId();
-        super.addToCache(keyValue,entry);
+    public void addToCache(AuthenticationRequestCacheKey key, AuthenticationRequestCacheEntry entry){
+        super.addToCache(key,entry);
         if(enableRequestScopeCache){
-            SessionDataStore.getInstance().storeSessionData(keyValue,AUTHENTICATION_REQUEST_CACHE_NAME,entry);
+            int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+            String tenantDomain = entry.getAuthenticationRequest().getTenantDomain();
+            if (tenantDomain != null) {
+                tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+            }
+            SessionDataStore.getInstance().storeSessionData(key.getResultId(),AUTHENTICATION_REQUEST_CACHE_NAME,
+                    entry, tenantId);
         }
     }
 
-    public CacheEntry getValueFromCache(CacheKey key){
-        String keyValue = ((AuthenticationRequestCacheKey)key).getResultId();
-        CacheEntry cacheEntry = super.getValueFromCache(keyValue);
-        if(cacheEntry == null){
-            cacheEntry = (CacheEntry) SessionDataStore.getInstance().getSessionData(keyValue,AUTHENTICATION_REQUEST_CACHE_NAME);
+    public AuthenticationRequestCacheEntry getValueFromCache(AuthenticationRequestCacheKey key){
+        AuthenticationRequestCacheEntry entry = super.getValueFromCache(key);
+        if(entry == null && enableRequestScopeCache){
+            entry = (AuthenticationRequestCacheEntry) SessionDataStore.getInstance().
+                    getSessionData(key.getResultId(), AUTHENTICATION_REQUEST_CACHE_NAME);
         }
-        return cacheEntry;
+        return entry;
     }
 
-    public void clearCacheEntry(CacheKey key){
-        String keyValue = ((AuthenticationRequestCacheKey)key).getResultId();
-        super.clearCacheEntry(keyValue);
+    public void clearCacheEntry(AuthenticationRequestCacheKey key){
+        super.clearCacheEntry(key);
         if (enableRequestScopeCache) {
-            SessionDataStore.getInstance().clearSessionData(keyValue, AUTHENTICATION_REQUEST_CACHE_NAME);
+            SessionDataStore.getInstance().clearSessionData(key.getResultId(), AUTHENTICATION_REQUEST_CACHE_NAME);
         }
     }
 }

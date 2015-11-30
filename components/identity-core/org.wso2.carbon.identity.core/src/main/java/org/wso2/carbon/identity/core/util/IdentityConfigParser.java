@@ -22,8 +22,10 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
+import org.wso2.carbon.identity.core.model.IdentityCacheConfig;
+import org.wso2.carbon.identity.core.model.IdentityCacheConfigKey;
 import org.wso2.carbon.identity.core.model.IdentityEventListener;
 import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
 import org.wso2.carbon.utils.ServerConstants;
@@ -47,6 +49,7 @@ public class IdentityConfigParser {
 
     private static Map<String, Object> configuration = new HashMap<String, Object>();
     private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new HashMap();
+    private static Map<IdentityCacheConfigKey, IdentityCacheConfig> identityCacheConfigurationHolder = new HashMap();
     private static IdentityConfigParser parser;
     private static SecretResolver secretResolver;
     // To enable attempted thread-safety using double-check locking
@@ -56,16 +59,11 @@ public class IdentityConfigParser {
 
     private OMElement rootElement;
 
-    private IdentityConfigParser() throws ServerConfigurationException {
-        try {
-            buildConfiguration();
-        } catch (Exception e) {
-            log.error("Error while loading Identity Configurations", e);
-            throw new ServerConfigurationException("Error while loading Identity Configurations", e);
-        }
+    private IdentityConfigParser() {
+        buildConfiguration();
     }
 
-    public static IdentityConfigParser getInstance() throws ServerConfigurationException {
+    public static IdentityConfigParser getInstance() {
         if (parser == null) {
             synchronized (lock) {
                 if (parser == null) {
@@ -76,8 +74,7 @@ public class IdentityConfigParser {
         return parser;
     }
 
-    public static IdentityConfigParser getInstance(String filePath)
-            throws ServerConfigurationException {
+    public static IdentityConfigParser getInstance(String filePath) {
         configFilePath = filePath;
         return getInstance();
     }
@@ -90,12 +87,16 @@ public class IdentityConfigParser {
         return eventListenerConfiguration;
     }
 
+    public static Map<IdentityCacheConfigKey, IdentityCacheConfig> getIdentityCacheConfigurationHolder() {
+        return identityCacheConfigurationHolder;
+    }
+
     /**
      * @return
      * @throws XMLStreamException
      * @throws IOException
      */
-    private void buildConfiguration() throws XMLStreamException, IOException {
+    private void buildConfiguration() {
         InputStream inStream = null;
         StAXOMBuilder builder = null;
 
@@ -153,19 +154,22 @@ public class IdentityConfigParser {
             secretResolver = SecretResolverFactory.create(rootElement, true);
             readChildElements(rootElement, nameStack);
             buildEventListenerData();
+            buildCacheConfig();
 
+        } catch (IOException|XMLStreamException e) {
+            throw new IdentityRuntimeException("Error occurred while building configuration from identity.xml", e);
         } finally {
             try {
                 if (inStream != null) {
                     inStream.close();
                 }
             } catch (IOException e) {
-                log.warn("Error closing the input stream.", e);
+                log.error("Error closing the input stream for identity.xml", e);
             }
         }
     }
 
-    private void buildEventListenerData() throws IOException {
+    private void buildEventListenerData() {
         OMElement eventListeners = this.getConfigElement(IdentityConstants.EVENT_LISTENERS);
         if (eventListeners != null) {
             Iterator<OMElement> eventListener = eventListeners.getChildrenWithName(
@@ -184,12 +188,71 @@ public class IdentityConfigParser {
                             IdentityConstants.EVENT_LISTENER_ENABLE));
 
                     if (StringUtils.isBlank(eventListenerType) || StringUtils.isBlank(eventListenerName)) {
-                        throw new IOException("eventListenerType or eventListenerName is not defined correctly");
+                        throw new IdentityRuntimeException("eventListenerType or eventListenerName is not defined correctly");
                     }
                     IdentityEventListenerConfigKey configKey = new IdentityEventListenerConfigKey(eventListenerType, eventListenerName);
                     IdentityEventListener identityEventListener = new IdentityEventListener(enable, order, configKey);
                     eventListenerConfiguration.put(configKey, identityEventListener);
 
+                }
+            }
+
+        }
+    }
+
+    private void buildCacheConfig() {
+        OMElement cacheConfig = this.getConfigElement(IdentityConstants.CACHE_CONFIG);
+        if (cacheConfig != null) {
+            Iterator<OMElement> cacheManagers = cacheConfig.getChildrenWithName(
+                    new QName(IdentityCoreConstants.IDENTITY_DEFAULT_NAMESPACE, IdentityConstants.CACHE_MANAGER));
+
+            if (cacheManagers != null) {
+                while (cacheManagers.hasNext()) {
+                    OMElement cacheManager = cacheManagers.next();
+
+                    String cacheManagerName = cacheManager.getAttributeValue(new QName(
+                            IdentityConstants.CACHE_MANAGER_NAME));
+
+                    if (StringUtils.isBlank(cacheManagerName)) {
+                        throw new IdentityRuntimeException("CacheManager name not defined correctly");
+                    }
+
+                    Iterator<OMElement> caches = cacheManager.getChildrenWithName(
+                            new QName(IdentityCoreConstants.IDENTITY_DEFAULT_NAMESPACE, IdentityConstants.CACHE));
+
+                    if (caches != null) {
+                        while (caches.hasNext()) {
+                            OMElement cache = caches.next();
+
+                            String cacheName = cache.getAttributeValue(new QName(IdentityConstants.CACHE_NAME));
+
+                            if (StringUtils.isBlank(cacheName)) {
+                                throw new IdentityRuntimeException("Cache name not defined correctly");
+                            }
+
+                            IdentityCacheConfigKey identityCacheConfigKey = new IdentityCacheConfigKey(cacheManagerName,
+                                    cacheName);
+                            IdentityCacheConfig identityCacheConfig = new IdentityCacheConfig(identityCacheConfigKey);
+
+                            String enable = cache.getAttributeValue(new QName(IdentityConstants.CACHE_ENABLE));
+                            if (StringUtils.isNotBlank(enable)) {
+                                identityCacheConfig.setEnabled(Boolean.parseBoolean(enable));
+                            }
+
+                            String timeout = cache.getAttributeValue(new QName(IdentityConstants.CACHE_TIMEOUT));
+                            if (StringUtils.isNotBlank(timeout)) {
+                                identityCacheConfig.setTimeout(Integer.parseInt(timeout));
+                            }
+
+                            String capacity = cache.getAttributeValue(new QName(IdentityConstants.CACHE_CAPACITY));
+                            if (StringUtils.isNotBlank(capacity)) {
+                                identityCacheConfig.setCapacity(Integer.parseInt(capacity));
+                            }
+
+                            // Add the config to container
+                            identityCacheConfigurationHolder.put(identityCacheConfigKey, identityCacheConfig);
+                        }
+                    }
                 }
             }
 

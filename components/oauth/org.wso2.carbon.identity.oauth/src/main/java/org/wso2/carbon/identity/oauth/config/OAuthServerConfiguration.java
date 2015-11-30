@@ -23,16 +23,23 @@ import org.apache.axis2.util.JavaUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.as.issuer.MD5Generator;
+import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
+import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.oltu.oauth2.as.validator.AuthorizationCodeValidator;
 import org.apache.oltu.oauth2.as.validator.ClientCredentialValidator;
+import org.apache.oltu.oauth2.as.validator.CodeValidator;
 import org.apache.oltu.oauth2.as.validator.PasswordValidator;
 import org.apache.oltu.oauth2.as.validator.RefreshTokenValidator;
+import org.apache.oltu.oauth2.as.validator.TokenValidator;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.apache.oltu.oauth2.common.validators.OAuthValidator;
-import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.oauth.common.IDTokenResponseValidator;
+import org.wso2.carbon.identity.oauth.common.IDTokenTokenResponseValidator;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.SAML2GrantValidator;
 import org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor;
@@ -49,6 +56,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -88,6 +96,9 @@ public class OAuthServerConfiguration {
     private static String oauth2AuthzEPUrl = null;
     private static String oauth2TokenEPUrl = null;
     private static String oauth2UserInfoEPUrl = null;
+    private static String oidcConsentPageUrl = null;
+    private static String oauth2ConsentPageUrl = null;
+    private static String oauth2ErrorPageUrl = null;
     private long authorizationCodeValidityPeriodInSeconds = 300;
     private long userAccessTokenValidityPeriodInSeconds = 3600;
     private long applicationAccessTokenValidityPeriodInSeconds = 3600;
@@ -98,6 +109,8 @@ public class OAuthServerConfiguration {
     private int appInfoCacheTimeout = -1;
     private int claimCacheTimeout = -1;
     private String tokenPersistenceProcessorClassName = "org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor";
+    private String oauthTokenGeneratorClassName;
+    private OAuthIssuer oauthTokenGenerator;
     private boolean cacheEnabled = true;
     private boolean isRefreshTokenRenewalEnabled = true;
     private boolean assertionsUserNameEnabled = false;
@@ -111,6 +124,8 @@ public class OAuthServerConfiguration {
     private Map<String, Class<? extends OAuthValidator<HttpServletRequest>>> supportedGrantTypeValidators;
     private Map<String, String> supportedResponseTypeClassNames = new HashMap<>();
     private Map<String, ResponseTypeHandler> supportedResponseTypes;
+    private Map<String, String> supportedResponseTypeValidatorNames = new HashMap<>();
+    private Map<String, Class<? extends OAuthValidator<HttpServletRequest>>> supportedResponseTypeValidators;
     private String[] supportedClaims = null;
     private Map<String, Properties> supportedClientAuthHandlerData = new HashMap<>();
     private List<ClientAuthenticationHandler> supportedClientAuthHandlers;
@@ -156,78 +171,75 @@ public class OAuthServerConfiguration {
     }
 
     private void buildOAuthServerConfiguration() {
-        try {
 
-            IdentityConfigParser configParser = IdentityConfigParser.getInstance();
-            OMElement oauthElem = configParser.getConfigElement(CONFIG_ELEM_OAUTH);
+        IdentityConfigParser configParser = IdentityConfigParser.getInstance();
+        OMElement oauthElem = configParser.getConfigElement(CONFIG_ELEM_OAUTH);
 
-            if (oauthElem == null) {
-                warnOnFaultyConfiguration("OAuth element is not available.");
-                return;
-            }
-
-            // read callback handler configurations
-            parseOAuthCallbackHandlers(oauthElem.getFirstChildWithName(
-                    getQNameWithIdentityNS(ConfigElements.OAUTH_CALLBACK_HANDLERS)));
-
-            // get the token validators by type
-            parseTokenValidators(oauthElem.getFirstChildWithName(
-                    getQNameWithIdentityNS(ConfigElements.TOKEN_VALIDATORS)));
-
-            // Get the configured scope validator
-            OMElement scopeValidatorElem = oauthElem.getFirstChildWithName(
-                    getQNameWithIdentityNS(ConfigElements.SCOPE_VALIDATOR));
-            if (scopeValidatorElem != null) {
-                parseScopeValidator(scopeValidatorElem);
-            }
-
-            // read default timeout periods
-            parseDefaultValidityPeriods(oauthElem);
-
-            // read OAuth URLs
-            parseOAuthURLs(oauthElem);
-
-            // read caching configurations
-            parseCachingConfiguration(oauthElem);
-
-            // read refresh token renewal config
-            parseRefreshTokenRenewalConfiguration(oauthElem);
-
-            // read token persistence processor config
-            parseTokenPersistenceProcessorConfig(oauthElem);
-
-            // read supported grant types
-            parseSupportedGrantTypesConfig(oauthElem);
-
-            // read supported response types
-            parseSupportedResponseTypesConfig(oauthElem);
-
-            // read supported response types
-            parseSupportedClientAuthHandlersConfig(oauthElem.getFirstChildWithName(
-                    getQNameWithIdentityNS(ConfigElements.CLIENT_AUTH_HANDLERS)));
-
-            // read SAML2 grant config
-            parseSAML2GrantConfig(oauthElem);
-
-            // read JWT generator config
-            parseAuthorizationContextTokenGeneratorConfig(oauthElem);
-
-            // read the assertions user name config
-            parseEnableAssertionsUserNameConfig(oauthElem);
-
-            // read access token partitioning config
-            parseAccessTokenPartitioningConfig(oauthElem);
-
-            // read access token partitioning domains config
-            parseAccessTokenPartitioningDomainsConfig(oauthElem);
-
-            // read openid connect configurations
-            parseOpenIDConnectConfig(oauthElem);
-
-        } catch (ServerConfigurationException e) {
-            log.error("Error when reading the OAuth Configurations. "
-                    + "OAuth related functionality might be affected.", e);
+        if (oauthElem == null) {
+            warnOnFaultyConfiguration("OAuth element is not available.");
+            return;
         }
+
+        // read callback handler configurations
+        parseOAuthCallbackHandlers(oauthElem.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.OAUTH_CALLBACK_HANDLERS)));
+
+        // get the token validators by type
+        parseTokenValidators(oauthElem.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.TOKEN_VALIDATORS)));
+
+        // Get the configured scope validator
+        OMElement scopeValidatorElem = oauthElem.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.SCOPE_VALIDATOR));
+        if (scopeValidatorElem != null) {
+            parseScopeValidator(scopeValidatorElem);
+        }
+
+        // read default timeout periods
+        parseDefaultValidityPeriods(oauthElem);
+
+        // read OAuth URLs
+        parseOAuthURLs(oauthElem);
+
+        // read caching configurations
+        parseCachingConfiguration(oauthElem);
+
+        // read refresh token renewal config
+        parseRefreshTokenRenewalConfiguration(oauthElem);
+
+        // read token persistence processor config
+        parseTokenPersistenceProcessorConfig(oauthElem);
+
+        // read supported grant types
+        parseSupportedGrantTypesConfig(oauthElem);
+
+        // read supported response types
+        parseSupportedResponseTypesConfig(oauthElem);
+
+        // read supported response types
+        parseSupportedClientAuthHandlersConfig(oauthElem.getFirstChildWithName(
+                getQNameWithIdentityNS(ConfigElements.CLIENT_AUTH_HANDLERS)));
+
+        // read SAML2 grant config
+        parseSAML2GrantConfig(oauthElem);
+
+        // read JWT generator config
+        parseAuthorizationContextTokenGeneratorConfig(oauthElem);
+
+        // read the assertions user name config
+        parseEnableAssertionsUserNameConfig(oauthElem);
+
+        // read access token partitioning config
+        parseAccessTokenPartitioningConfig(oauthElem);
+
+        // read access token partitioning domains config
+        parseAccessTokenPartitioningDomainsConfig(oauthElem);
+
+        // read openid connect configurations
+        parseOpenIDConnectConfig(oauthElem);
+        
+        // parse OAuth 2.0 token generator
+        parseOAuthTokenGeneratorConfig(oauthElem);
     }
 
     public Set<OAuthCallbackHandlerMetaData> getCallbackHandlerMetaData() {
@@ -256,6 +268,51 @@ public class OAuthServerConfiguration {
 
     public String getOauth2UserInfoEPUrl() {
         return oauth2UserInfoEPUrl;
+    }
+    
+    /**
+     * instantiate the OAuth token generator. to override the default implementation, one can specify the custom class
+     * in the identity.xml.
+     * 
+     * @return
+     */
+    public OAuthIssuer getOAuthTokenGenerator() {
+
+	if (oauthTokenGenerator == null) {
+	    synchronized (this) {
+		if (oauthTokenGenerator == null) {
+		    try {
+			if (oauthTokenGeneratorClassName != null) {
+			    Class clazz = this.getClass().getClassLoader().loadClass(oauthTokenGeneratorClassName);
+			    oauthTokenGenerator = (OAuthIssuer) clazz.newInstance();
+			    log.info("An instance of " + oauthTokenGeneratorClassName
+				    + " is created for OAuth token generation.");
+			} else {
+			    oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
+			    log.info("The default OAuth token issuer will be used. No custom token generator is set.");
+			}
+		    } catch (Exception e) {
+			String errorMsg = "Error when instantiating the OAuthIssuer : "
+				+ tokenPersistenceProcessorClassName + ". Defaulting to OAuthIssuerImpl";
+			log.error(errorMsg, e);
+			oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
+		    }
+		}
+	    }
+	}
+	return oauthTokenGenerator;
+    }
+
+    public String getOIDCConsentPageUrl() {
+        return oidcConsentPageUrl;
+    }
+
+    public String getOauth2ConsentPageUrl() {
+        return oauth2ConsentPageUrl;
+    }
+
+    public String getOauth2ErrorPageUrl() {
+        return oauth2ErrorPageUrl;
     }
 
     public long getAuthorizationCodeValidityPeriodInSeconds() {
@@ -339,7 +396,7 @@ public class OAuthServerConfiguration {
      * This method loads default grant type validator classes for PASSWORD, CLIENT_CREDENTIALS, AUTHORIZATION_CODE,
      * REFRESH_TOKEN and SAML20_BEARER grant types and also loads validator classes configured in identity.xml for
      * custom grant types under /Server/OAuth/SupportedGrantTypes/GrantTypeValidatorImplClass element.
-     * A validator class defined under this element should be an implementation of org.apache.oltu.oauth2.common
+     * A validator class defined under this element should be an implementation of org.apache.amber.oauth2.common
      * .validators.OAuthValidator
      *
      * @return a map of <Grant type, Oauth validator class>
@@ -388,6 +445,48 @@ public class OAuthServerConfiguration {
         }
 
         return supportedGrantTypeValidators;
+    }
+
+    public Map<String, Class<? extends OAuthValidator<HttpServletRequest>>> getSupportedResponseTypeValidators() {
+
+        if (supportedResponseTypeValidators == null) {
+            synchronized (this) {
+                if (supportedResponseTypeValidators == null) {
+                    supportedResponseTypeValidators =
+                            new Hashtable<String, Class<? extends OAuthValidator<HttpServletRequest>>>();
+                    // Load default grant type validators
+                    supportedResponseTypeValidators
+                            .put(ResponseType.CODE.toString(), CodeValidator.class);
+                    supportedResponseTypeValidators.put(ResponseType.TOKEN.toString(),
+                            TokenValidator.class);
+                    supportedResponseTypeValidators.put("id_token", IDTokenResponseValidator.class);
+                    supportedResponseTypeValidators.put("id_token token", IDTokenTokenResponseValidator.class);
+
+
+                    if (supportedResponseTypeValidatorNames != null) {
+                        // Load configured grant type validators
+                        for (Map.Entry<String, String> entry : supportedResponseTypeValidatorNames
+                                .entrySet()) {
+                            try {
+                                @SuppressWarnings("unchecked")
+                                Class<? extends OAuthValidator<HttpServletRequest>>
+                                        oauthValidatorClass =
+                                        (Class<? extends OAuthValidator<HttpServletRequest>>) Class
+                                                .forName(entry.getValue());
+                                supportedResponseTypeValidators
+                                        .put(entry.getKey(), oauthValidatorClass);
+                            } catch (ClassNotFoundException e) {
+                                log.error("Cannot find class: " + entry.getValue(), e);
+                            } catch (ClassCastException e) {
+                                log.error("Cannot cast class: " + entry.getValue(), e);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return supportedResponseTypeValidators;
     }
 
     public Map<String, ResponseTypeHandler> getSupportedResponseTypes() {
@@ -813,25 +912,25 @@ public class OAuthServerConfiguration {
 
         OMElement appInfoCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
                 getQNameWithIdentityNS(ConfigElements.APP_INFO_CACHE_TIMEOUT));
-        if(appInfoCacheTimeoutElem!=null){
+        if (appInfoCacheTimeoutElem != null) {
             appInfoCacheTimeout = Integer.parseInt(appInfoCacheTimeoutElem.getText());
         }
 
         OMElement authorizationGrantCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
                 getQNameWithIdentityNS(ConfigElements.AUTHORIZATION_GRANT_CACHE_TIMEOUT));
-        if(appInfoCacheTimeoutElem!=null){
+        if (appInfoCacheTimeoutElem != null) {
             authorizationGrantCacheTimeout = Integer.parseInt(authorizationGrantCacheTimeoutElem.getText());
         }
 
         OMElement sessionDataCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
                 getQNameWithIdentityNS(ConfigElements.SESSION_DATA_CACHE_TIMEOUT));
-        if(appInfoCacheTimeoutElem!=null){
+        if (appInfoCacheTimeoutElem != null) {
             sessionDataCacheTimeout = Integer.parseInt(sessionDataCacheTimeoutElem.getText());
         }
 
         OMElement claimCacheTimeoutElem = oauthConfigElem.getFirstChildWithName(
                 getQNameWithIdentityNS(ConfigElements.AUTHORIZATION_GRANT_CACHE_TIMEOUT));
-        if(appInfoCacheTimeoutElem!=null){
+        if (appInfoCacheTimeoutElem != null) {
             claimCacheTimeout = Integer.parseInt(claimCacheTimeoutElem.getText());
         }
 
@@ -871,42 +970,63 @@ public class OAuthServerConfiguration {
                 ConfigElements.OAUTH1_REQUEST_TOKEN_URL));
         if(elem != null){
             if(StringUtils.isNotBlank(elem.getText())) {
-                oauth1RequestTokenUrl = elem.getText();
+                oauth1RequestTokenUrl = IdentityUtil.fillURLPlaceholders(elem.getText());
             }
         }
         elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
                 ConfigElements.OAUTH1_AUTHORIZE_URL));
         if(elem != null){
             if(StringUtils.isNotBlank(elem.getText())) {
-                oauth1AuthorizeUrl = elem.getText();
+                oauth1AuthorizeUrl = IdentityUtil.fillURLPlaceholders(elem.getText());
             }
         }
         elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
                 ConfigElements.OAUTH1_ACCESS_TOKEN_URL));
         if(elem != null){
             if(StringUtils.isNotBlank(elem.getText())) {
-                oauth1AccessTokenUrl = elem.getText();
+                oauth1AccessTokenUrl = IdentityUtil.fillURLPlaceholders(elem.getText());
             }
         }
         elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
                 ConfigElements.OAUTH2_AUTHZ_EP_URL));
         if(elem != null){
             if(StringUtils.isNotBlank(elem.getText())) {
-                oauth2AuthzEPUrl = elem.getText();
+                oauth2AuthzEPUrl = IdentityUtil.fillURLPlaceholders(elem.getText());
             }
         }
         elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
                 ConfigElements.OAUTH2_TOKEN_EP_URL));
         if(elem != null){
             if(StringUtils.isNotBlank(elem.getText())) {
-                oauth2TokenEPUrl = elem.getText();
+                oauth2TokenEPUrl = IdentityUtil.fillURLPlaceholders(elem.getText());
             }
         }
         elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
                 ConfigElements.OAUTH2_USERINFO_EP_URL));
         if(elem != null){
             if(StringUtils.isNotBlank(elem.getText())) {
-                oauth2UserInfoEPUrl = elem.getText();
+                oauth2UserInfoEPUrl = IdentityUtil.fillURLPlaceholders(elem.getText());
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH2_CONSENT_PAGE_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth2ConsentPageUrl = IdentityUtil.fillURLPlaceholders(elem.getText());
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OIDC_CONSENT_PAGE_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oidcConsentPageUrl = IdentityUtil.fillURLPlaceholders(elem.getText());
+            }
+        }
+        elem = oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(
+                ConfigElements.OAUTH2_ERROR_PAGE_URL));
+        if(elem != null){
+            if(StringUtils.isNotBlank(elem.getText())) {
+                oauth2ErrorPageUrl = IdentityUtil.fillURLPlaceholders(elem.getText());
             }
         }
     }
@@ -989,6 +1109,27 @@ public class OAuthServerConfiguration {
             log.debug("Token Persistence Processor was set to : " + tokenPersistenceProcessorClassName);
         }
 
+    }
+    
+    /**
+     * parse the configuration to load the class name of the OAuth 2.0 token generator.
+     * this is a global configuration at the moment.
+     * @param oauthConfigElem
+     */
+    private void parseOAuthTokenGeneratorConfig(OMElement oauthConfigElem) {
+
+	OMElement tokenGeneratorClassConfigElem = oauthConfigElem
+		.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.OAUTH_TOKEN_GENERATOR));
+	if (tokenGeneratorClassConfigElem != null && !"".equals(tokenGeneratorClassConfigElem.getText().trim())) {
+	    oauthTokenGeneratorClassName = tokenGeneratorClassConfigElem.getText().trim();
+	    if (log.isDebugEnabled()) {
+		log.debug("OAuth token generator is set to : " + oauthTokenGeneratorClassName);
+	    }
+	} else {
+	    if (log.isDebugEnabled()) {
+		log.debug("The default OAuth token issuer will be used. No custom token generator is set.");
+	    }
+	}
     }
 
     private void parseSupportedGrantTypesConfig(OMElement oauthConfigElem) {
@@ -1089,9 +1230,11 @@ public class OAuthServerConfiguration {
             log.warn("\'SupportedResponseTypes\' element not configured in identity.xml. " +
                     "Therefore instantiating default response type handlers");
 
-            Map<String, String> defaultResponseTypes = new HashMap<>(2);
+            Map<String, String> defaultResponseTypes = new HashMap<>(4);
             defaultResponseTypes.put(ResponseType.CODE.toString(), "org.wso2.carbon.identity.oauth2.authz.handlers.CodeResponseTypeHandler");
             defaultResponseTypes.put(ResponseType.TOKEN.toString(), "org.wso2.carbon.identity.oauth2.authz.handlers.TokenResponseTypeHandler");
+            defaultResponseTypes.put("id_token", "org.wso2.carbon.identity.oauth2.authz.handlers.TokenResponseTypeHandler");
+            defaultResponseTypes.put("id_token token", "org.wso2.carbon.identity.oauth2.authz.handlers.TokenResponseTypeHandler");
             supportedResponseTypeClassNames.putAll(defaultResponseTypes);
         }
 
@@ -1313,6 +1456,9 @@ public class OAuthServerConfiguration {
         public static final String OAUTH2_AUTHZ_EP_URL = "OAuth2AuthzEPUrl";
         public static final String OAUTH2_TOKEN_EP_URL = "OAuth2TokenEPUrl";
         public static final String OAUTH2_USERINFO_EP_URL = "OAuth2UserInfoEPUrl";
+        public static final String OAUTH2_CONSENT_PAGE_URL = "OAuth2ConsentPage";
+        public static final String OAUTH2_ERROR_PAGE_URL = "OAuth2ErrorPage";
+        public static final String OIDC_CONSENT_PAGE_URL = "OIDCConsentPage";
 
         // JWT Generator
         public static final String AUTHORIZATION_CONTEXT_TOKEN_GENERATION = "AuthorizationContextTokenGeneration";
@@ -1371,6 +1517,9 @@ public class OAuthServerConfiguration {
         private static final String RENEW_REFRESH_TOKEN_FOR_REFRESH_GRANT = "RenewRefreshTokenForRefreshGrant";
         // TokenPersistenceProcessor
         private static final String TOKEN_PERSISTENCE_PROCESSOR = "TokenPersistenceProcessor";
+        // Token issuer generator.
+        private static final String OAUTH_TOKEN_GENERATOR = "OAuthTokenGenerator";
+
         // Supported Grant Types
         private static final String SUPPORTED_GRANT_TYPES = "SupportedGrantTypes";
         private static final String SUPPORTED_GRANT_TYPE = "SupportedGrantType";

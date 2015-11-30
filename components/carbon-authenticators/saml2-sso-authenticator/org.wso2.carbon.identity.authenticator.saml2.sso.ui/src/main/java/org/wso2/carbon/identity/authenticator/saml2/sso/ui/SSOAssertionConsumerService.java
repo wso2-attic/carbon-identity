@@ -21,6 +21,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.AuthnStatement;
 import org.opensaml.saml2.core.LogoutRequest;
 import org.opensaml.saml2.core.LogoutResponse;
 import org.opensaml.saml2.core.Response;
@@ -249,9 +250,26 @@ public class SSOAssertionConsumerService extends HttpServlet {
             req.setAttribute(SAML2SSOAuthenticatorConstants.HTTP_ATTR_SAML2_RESP_TOKEN,
                     samlResponse);
 
+
+            String sessionIndex = null;
+            List<AuthnStatement> authnStatements = assertion.getAuthnStatements();
+            if (authnStatements != null && authnStatements.size() > 0) {
+                // There can be only one authentication stmt inside the SAML assertion of a SAML Response
+                AuthnStatement authStmt = authnStatements.get(0);
+                sessionIndex = authStmt.getSessionIndex();
+            }
+
             String url = req.getRequestURI();
-            url = url.replace("acs",
-                    "carbon/admin/login_action.jsp?username=" + URLEncoder.encode(username));
+            url = url.replace("acs","carbon/admin/login_action.jsp?username=" + URLEncoder.encode(username, "UTF-8"));
+
+            if(sessionIndex != null) {
+                url += "&" + SAML2SSOAuthenticatorConstants.IDP_SESSION_INDEX + "=" + URLEncoder.encode(sessionIndex, "UTF-8");
+            }
+
+            if(log.isDebugEnabled()) {
+                log.debug("Forwarding to path : " + url);
+            }
+
             RequestDispatcher reqDispatcher = req.getRequestDispatcher(url);
             req.getSession().setAttribute("CarbonAuthenticator", new SAML2SSOUIAuthenticator());
             reqDispatcher.forward(req, resp);
@@ -282,8 +300,7 @@ public class SSOAssertionConsumerService extends HttpServlet {
      * @param resp Corresponding HttpServletResponse
      */
     private void handleSingleLogoutRequest(HttpServletRequest req, HttpServletResponse resp) {
-        String logoutReqStr = decodeHTMLCharacters(req.getParameter(
-                SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ));
+        String logoutReqStr = req.getParameter(SAML2SSOAuthenticatorConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ);
 
         XMLObject samlObject = null;
 
@@ -319,18 +336,6 @@ public class SSOAssertionConsumerService extends HttpServlet {
             url = url.replace("/acs", "");
         }
         return url;
-    }
-
-    /**
-     * A utility method to decode an HTML encoded string
-     *
-     * @param encodedStr encoded String
-     * @return decoded String
-     */
-    private String decodeHTMLCharacters(String encodedStr) {
-        return encodedStr.replaceAll("&amp;", "&").replaceAll("&lt;", "<").replaceAll("&gt;", ">")
-                .replaceAll("&quot;", "\"").replaceAll("&apos;", "'");
-
     }
 
     private void handleFederatedSAMLRequest(HttpServletRequest req, HttpServletResponse resp,
@@ -416,6 +421,8 @@ public class SSOAssertionConsumerService extends HttpServlet {
         Cookie ssoTokenCookie = getSSOTokenCookie(req);
         if (ssoTokenCookie == null) {
             ssoTokenCookie = new Cookie(SSO_TOKEN_ID, ssoTokenID);
+            ssoTokenCookie.setSecure(true);
+            ssoTokenCookie.setHttpOnly(true);
         }
         ssoTokenCookie.setMaxAge(SSO_SESSION_EXPIRE);
         resp.addCookie(ssoTokenCookie);

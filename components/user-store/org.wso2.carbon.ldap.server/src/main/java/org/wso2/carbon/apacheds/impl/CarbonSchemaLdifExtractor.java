@@ -23,6 +23,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.directory.shared.ldap.schema.ldif.extractor.SchemaLdifExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.ldap.server.util.IdentityIOStreamUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -122,10 +123,11 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
 
     protected void unzipSchemaFile()
             throws IOException {
+        ZipInputStream zipFileStream = null;
+
         try {
             FileInputStream schemaFileStream = new FileInputStream(this.zipSchemaStore);
-            ZipInputStream zipFileStream = new ZipInputStream(new BufferedInputStream(
-                    schemaFileStream));
+            zipFileStream = new ZipInputStream(new BufferedInputStream(schemaFileStream));
             ZipEntry entry;
 
             String basePath = this.schemaDirectory.getAbsolutePath();
@@ -136,7 +138,7 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
                     File newDirectory = new File(basePath, entry.getName());
                     if (!newDirectory.mkdir()) {
                         throw new IOException("Unable to create directory - " +
-                                newDirectory.getAbsolutePath());
+                                              newDirectory.getAbsolutePath());
                     }
                     continue;
                 }
@@ -148,22 +150,23 @@ class CarbonSchemaLdifExtractor implements SchemaLdifExtractor {
                         new File(basePath, entry.getName()));
                 BufferedOutputStream extractingBufferedStream =
                         new BufferedOutputStream(extractedSchemaFile, buffer.length);
-
-                while ((size = zipFileStream.read(buffer, 0, buffer.length)) != -1) {
-                    extractingBufferedStream.write(buffer, 0, size);
+                try {
+                    while ((size = zipFileStream.read(buffer, 0, buffer.length)) != -1) {
+                        extractingBufferedStream.write(buffer, 0, size);
+                    }
+                } finally {
+                    IdentityIOStreamUtils.flushOutputStream(extractingBufferedStream);
+                    IdentityIOStreamUtils.closeOutputStream(extractingBufferedStream);
                 }
-                extractingBufferedStream.flush();
-                extractingBufferedStream.close();
             }
-
-            zipFileStream.close();
-            schemaFileStream.close();
         } catch (IOException e) {
             String msg = "Unable to extract schema directory to location " +
                     this.schemaDirectory.getAbsolutePath() + " from " +
                     this.zipSchemaStore.getAbsolutePath();
             logger.error(msg, e);
             throw new IOException(msg, e);
+        } finally{
+            IdentityIOStreamUtils.closeInputStream(zipFileStream);
         }
 
         if (logger.isDebugEnabled()) {

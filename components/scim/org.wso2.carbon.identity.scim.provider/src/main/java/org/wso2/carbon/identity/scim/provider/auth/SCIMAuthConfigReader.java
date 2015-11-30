@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.scim.provider.auth;
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.scim.provider.util.SCIMProviderConstants;
@@ -39,8 +38,9 @@ public class SCIMAuthConfigReader {
     private static Log logger = LogFactory.getLog(SCIMAuthConfigReader.class);
 
     public List<SCIMAuthenticationHandler> buildSCIMAuthenticators() {
+
+        IdentityConfigParser identityConfig = IdentityConfigParser.getInstance();
         try {
-            IdentityConfigParser identityConfig = IdentityConfigParser.getInstance();
             OMElement scimElem = identityConfig.getConfigElement(SCIMProviderConstants.ELEMENT_NAME_SCIM);
             if(scimElem != null) {
                 OMElement scimAuthElement = scimElem.getFirstChildWithName(
@@ -81,9 +81,6 @@ public class SCIMAuthConfigReader {
                 }
             }
 
-        } catch (ServerConfigurationException e) {
-            logger.error("Error in reading authenticator config from " +
-                    "identity.xml when initializing the SCIM webapp...", e);
         } catch (ClassNotFoundException e) {
             //we just log the exception and continue loading other authenticators.
             logger.error("Error in loading the authenticator class...", e);

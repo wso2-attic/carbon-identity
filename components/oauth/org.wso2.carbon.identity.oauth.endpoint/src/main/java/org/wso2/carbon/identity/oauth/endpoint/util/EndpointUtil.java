@@ -40,7 +40,6 @@ import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
-import org.wso2.carbon.ui.util.CharacterEncoder;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -149,7 +148,7 @@ public class EndpointUtil {
                 return userNamePassword.split(":");
             }
         }
-        String errMsg = "Error decoding authorization header. Could not retrieve client id and client secret.";
+        String errMsg = "Error decoding authorization header. Space delimited \"<authMethod> <base64Hash>\" format violated.";
         throw new OAuthClientException(errMsg);
     }
 
@@ -168,7 +167,7 @@ public class EndpointUtil {
         if (redirectUri != null && !"".equals(redirectUri)) {
             errorPageUrl = redirectUri;
         } else {
-            errorPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_error.do");
+            errorPageUrl = OAuth2Util.OAuthURL.getOAuth2ErrorPageUrl();
         }
         try {
             errorPageUrl += "?" + OAuthConstants.OAUTH_ERROR_CODE + "=" + URLEncoder.encode(errorCode, "UTF-8") + "&"
@@ -240,7 +239,7 @@ public class EndpointUtil {
             if (scopes != null && scopes.contains("openid")) {
                 type = "oidc";
             }
-            String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
+            String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
             String selfPath = "/oauth2/authorize";
             AuthenticationRequest authenticationRequest = new AuthenticationRequest();
 
@@ -309,9 +308,9 @@ public class EndpointUtil {
 
 
             if (isOIDC) {
-                consentPage = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_consent.do");
+                consentPage = OAuth2Util.OAuthURL.getOIDCConsentPageUrl();
             } else {
-                consentPage = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_authz.do");
+                consentPage = OAuth2Util.OAuthURL.getOAuth2ConsentPageUrl();
             }
             if (params != null) {
                 consentPage += "?" + OAuthConstants.OIDC_LOGGED_IN_USER + "=" + URLEncoder.encode(loggedInUser,
@@ -332,7 +331,7 @@ public class EndpointUtil {
     public static String getScope(OAuth2Parameters params) {
         StringBuilder scopes = new StringBuilder();
         for (String scope : params.getScopes()) {
-            scopes.append(CharacterEncoder.getSafeText(scope) + " ");
+            scopes.append(scope + " ");
         }
         return scopes.toString().trim();
     }

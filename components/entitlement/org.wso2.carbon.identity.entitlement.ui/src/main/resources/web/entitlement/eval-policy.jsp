@@ -21,9 +21,9 @@
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RequestDTO" %>
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.dto.RowDTO" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
@@ -48,12 +48,12 @@
     }
     if(!showResponse){
         List<RowDTO> rowDTOs = new ArrayList<RowDTO>();
-        String multipleRequest = CharacterEncoder.getSafeText(request.getParameter("multipleRequest"));
-        String returnPolicyList = CharacterEncoder.getSafeText(request.getParameter("returnPolicyList"));
-        String resourceNames = CharacterEncoder.getSafeText(request.getParameter("resourceNames"));
-        String subjectNames = CharacterEncoder.getSafeText(request.getParameter("subjectNames"));
-        String actionNames = CharacterEncoder.getSafeText(request.getParameter("actionNames"));
-        String environmentNames = CharacterEncoder.getSafeText(request.getParameter("environmentNames"));
+        String multipleRequest = request.getParameter("multipleRequest");
+        String returnPolicyList = request.getParameter("returnPolicyList");
+        String resourceNames = request.getParameter("resourceNames");
+        String subjectNames = request.getParameter("subjectNames");
+        String actionNames = request.getParameter("actionNames");
+        String environmentNames = request.getParameter("environmentNames");
 
         if (resourceNames != null  && !resourceNames.trim().equals("")){
             RowDTO rowDTO = new RowDTO();
@@ -61,7 +61,7 @@
             rowDTO.setAttributeDataType(EntitlementPolicyConstants.STRING_DATA_TYPE);
             rowDTO.setAttributeId("urn:oasis:names:tc:xacml:1.0:resource:resource-id");
             rowDTO.setCategory("urn:oasis:names:tc:xacml:3.0:attribute-category:resource");
-            String resourceNamesInclude = CharacterEncoder.getSafeText(request.getParameter("resourceNamesInclude"));
+            String resourceNamesInclude = request.getParameter("resourceNamesInclude");
             if(resourceNamesInclude != null){
                 rowDTO.setNotCompleted(Boolean.parseBoolean(resourceNamesInclude));
                 session.setAttribute("resourceNamesInclude",resourceNamesInclude);
@@ -75,7 +75,7 @@
             rowDTO.setAttributeDataType(EntitlementPolicyConstants.STRING_DATA_TYPE);
             rowDTO.setAttributeId("urn:oasis:names:tc:xacml:1.0:subject:subject-id");
             rowDTO.setCategory("urn:oasis:names:tc:xacml:1.0:subject-category:access-subject");
-            String subjectNamesInclude = CharacterEncoder.getSafeText(request.getParameter("subjectNamesInclude"));
+            String subjectNamesInclude = request.getParameter("subjectNamesInclude");
             if(subjectNamesInclude != null){
                 rowDTO.setNotCompleted(Boolean.parseBoolean(subjectNamesInclude));
                 session.setAttribute("subjectNamesInclude",subjectNamesInclude);
@@ -89,7 +89,7 @@
             rowDTO.setAttributeDataType(EntitlementPolicyConstants.STRING_DATA_TYPE);
             rowDTO.setAttributeId("urn:oasis:names:tc:xacml:1.0:action:action-id");
             rowDTO.setCategory("urn:oasis:names:tc:xacml:3.0:attribute-category:action");
-            String actionNamesInclude = CharacterEncoder.getSafeText(request.getParameter("actionNamesInclude"));
+            String actionNamesInclude = request.getParameter("actionNamesInclude");
             if(actionNamesInclude != null){
                 rowDTO.setNotCompleted(Boolean.parseBoolean(actionNamesInclude));
                 session.setAttribute("actionNamesInclude",actionNamesInclude);
@@ -103,7 +103,7 @@
             rowDTO.setAttributeDataType(EntitlementPolicyConstants.STRING_DATA_TYPE);
             rowDTO.setAttributeId("urn:oasis:names:tc:xacml:1.0:environment:environment-id");
             rowDTO.setCategory("urn:oasis:names:tc:xacml:3.0:attribute-category:environment");
-            String environmentNamesInclude = CharacterEncoder.getSafeText(request.getParameter("environmentNamesInclude"));
+            String environmentNamesInclude = request.getParameter("environmentNamesInclude");
             if(environmentNamesInclude != null){
                 rowDTO.setNotCompleted(Boolean.parseBoolean(environmentNamesInclude));
                 session.setAttribute("actionNamesInclude",environmentNamesInclude);
@@ -228,10 +228,10 @@
             <td>
                 <div>
                 <textarea id="txtRequestTemp" name="txtRequestTemp" rows="30" cols="120">
-                    <%if(showResponse){%> <%=responseString%> <% } else {%> <%=requestString%> <%}%>
+                    <%if(showResponse){%> <%=Encode.forHtmlContent(responseString)%> <% } else {%> <%=Encode.forHtmlContent(requestString)%> <%}%>
                 </textarea>
                 <textarea name="txtRequest" id="txtRequest" style="display:none">
-                    <%if(showResponse){%> <%=responseString%> <% } else {%> <%=requestString%> <%}%>
+                    <%if(showResponse){%> <%=Encode.forHtmlContent(responseString)%> <% } else {%> <%=Encode.forHtmlContent(requestString)%> <%}%>
                 </textarea>
                 <input type="hidden" id="forwardTo" name="forwardTo" value="eval-policy.jsp" />
                 </div>

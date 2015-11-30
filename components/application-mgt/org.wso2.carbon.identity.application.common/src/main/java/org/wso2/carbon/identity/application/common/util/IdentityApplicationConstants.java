@@ -40,13 +40,31 @@ public class IdentityApplicationConstants {
 
     public static final String GOOGLE_OAUTH_URL = "https://accounts.google.com/o/oauth2/auth";
     public static final String GOOGLE_TOKEN_URL = "https://accounts.google.com/o/oauth2/token";
-    public static final String GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo?schema=openid";
+    public static final String GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
 
     public static final String WINDOWS_LIVE_OAUTH_URL = "https://login.live.com/oauth20_authorize.srf";
     public static final String WINDOWS_LIVE_TOKEN_URL = "https://login.live.com/oauth20_token.srf";
     public static final String WINDOWS_LIVE_USERINFO_URL = "https://apis.live.net/v5.0/me?access_token=";
 
     public static final String YAHOO_AUTHZ_URL = "https://me.yahoo.com/";
+
+    public static final String YAHOO_OAUTH2_URL = "https://api.login.yahoo.com/oauth2/request_auth";
+    public static final String YAHOO_TOKEN_URL = "https://api.login.yahoo.com/oauth2/get_token";
+    public static final String YAHOO_USERINFO_URL = "https://social.yahooapis.com/v1/user/";
+
+    public static final String SESSION_IDLE_TIME_OUT = "SessionIdleTimeout";
+    public static final String REMEMBER_ME_TIME_OUT = "RememberMeTimeout";
+    public static final String SESSION_IDLE_TIME_OUT_DEFAULT = "15";
+    public static final String REMEMBER_ME_TIME_OUT_DEFAULT = "20160";
+
+    public static final String NAME = "IDPProperties";
+    public static final String CLEAN_UP_TIMEOUT = "CleanUpTimeout";
+    public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
+    public static final String CLEAN_UP_PERIOD = "CleanUpPeriod";
+    public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
+    public static final String TIME_CONFIG = "TimeConfig";
+    public static final String COMMONAUTH = "commonauth";
+    public static final String MULTIVALUED_PROPERTY_CHARACTER = ".";
 
     public static class ConfigElements {
         public static final String PROPERTIES = "Properties";
@@ -56,7 +74,8 @@ public class IdentityApplicationConstants {
         public static final String PROPERTY_TYPE_STRING = "STRING";
         public static final String PROPERTY_TYPE_BLOB = "BLOB";
 
-        private ConfigElements(){
+        private ConfigElements() {
+            throw new AssertionError("Must not initiate an object of ConfigElements class");
         }
 
     }
@@ -70,7 +89,8 @@ public class IdentityApplicationConstants {
             public static final String OPEN_ID_URL = "OpenIdUrl";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
 
-            private OpenID(){
+            private OpenID() {
+                throw new AssertionError("Must not initiate an object of OpenID class");
             }
         }
 
@@ -102,8 +122,11 @@ public class IdentityApplicationConstants {
             public static final String AUTHENTICATION_CONTEXT_CLASS = "AuthnContextClassRef";
             public static final String AUTHENTICATION_CONTEXT_COMPARISON_LEVEL = "AuthnContextComparisonLevel";
             public static final String ATTRIBUTE_CONSUMING_SERVICE_INDEX = "AttributeConsumingServiceIndex";
+            public static final String DESTINATION_URL_PREFIX = "DestinationURI";
 
-            private SAML2SSO(){
+
+            private SAML2SSO() {
+                throw new AssertionError("Must not initiate an object of SAMLSSO class");
             }
 
         }
@@ -120,9 +143,11 @@ public class IdentityApplicationConstants {
             public static final String NAME = "passivests";
             public static final String REALM_ID = "RealmId";
             public static final String IDENTITY_PROVIDER_URL = "IdentityProviderUrl";
+            public static final String IDENTITY_PROVIDER_ENTITY_ID = "IdPEntityId";
             public static final String IS_USER_ID_IN_CLAIMS = "IsUserIdInClaims";
 
-            private PassiveSTS(){
+            private PassiveSTS() {
+                throw new AssertionError("Must not initiate an object of PassiveSTS class");
             }
         }
 
@@ -136,27 +161,21 @@ public class IdentityApplicationConstants {
             public static final String AUTH_ENDPOINT = "AuthnEndpoint";
             public static final String AUTH_TOKEN_ENDPOINT = "AuthTokenEndpoint";
             public static final String USER_INFO_ENDPOINT = "UserInfoEndpoint";
-            private Facebook(){
+            private Facebook() {
+                throw new AssertionError("Must not initiate an object of Facebook class");
             }
         }
 
         public static class WSTrust {
             public static final String NAME = "wstrust";
             public static final String IDENTITY_PROVIDER_URL = "IDENTITY_PROVIDER_URL";
-            private WSTrust(){
+            private WSTrust() {
+                throw new AssertionError("Must not initiate an object of WSTrust class");
             }
         }
 
-        public static class IDPProperties {
-            public static final String NAME = "IDPProperties";
-            public static final String SESSION_IDLE_TIME_OUT = "SessionIdleTimeout";
-            public static final String SESSION_IDLE_TIME_OUT_DEFAULT = "15";
-            public static final String REMEMBER_ME_TIME_OUT = "RememberMeTimeout";
-            public static final String REMEMBER_ME_TIME_OUT_DEFAULT = "20160";
-            public static final String CLEAN_UP_TIMEOUT = "CleanUpTimeout";
-            public static final String CLEAN_UP_TIMEOUT_DEFAULT = "20160";
-            public static final String CLEAN_UP_PERIOD = "CleanUpPeriod";
-            public static final String CLEAN_UP_PERIOD_DEFAULT = "1140";
+        public static class FIDO{
+            public static final String FIDO_AUTH = "FidoAuth";
         }
 
     }
@@ -170,7 +189,8 @@ public class IdentityApplicationConstants {
         public static final String OAUTH1_AUTHORIZE_URL = "OAuth1AuthorizeUrl";
         public static final String OAUTH1_ACCESS_TOKEN_URL = "OAuth1AccessTokenUrl";
 
-        private OAuth10A(){
+        private OAuth10A() {
+            throw new AssertionError("Must not initiate an object of OAuth10A class");
         }
     }
 
@@ -181,9 +201,12 @@ public class IdentityApplicationConstants {
         public static final String CLIENT_SECRET = "ClientSecret";
         public static final String OAUTH2_AUTHZ_URL = "OAuth2AuthzEPUrl";
         public static final String OAUTH2_TOKEN_URL = "OAuth2TokenEPUrl";
+        public static final String OAUTH2_REVOKE_URL = "OAuth2RevokeEPUrl";
         public static final String OAUTH2_USER_INFO_EP_URL = "OAuth2UserInfoEPUrl";
+        public static final String CALLBACK_URL = "callbackUrl";
 
-        private OAuth2(){
+        private OAuth2() {
+            throw new AssertionError("Must not initiate an object of OAuth2 class");
         }
     }
 

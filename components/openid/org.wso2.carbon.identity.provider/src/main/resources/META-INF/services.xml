@@ -39,7 +39,8 @@
             To administer Identity Provider related functionality.
         </description>
         <parameter name="ServiceClass">org.wso2.carbon.identity.provider.OpenIDProviderService</parameter>
-        <parameter name="DoAuthentication" locked="true">false</parameter>
+        <parameter name="DoAuthentication" locked="true">true</parameter>
+        <parameter name="AuthorizationAction" locked="true">/permission/admin</parameter>
     </service>
 
     <service name="XMPPConfigurationService" scope="transportsession">

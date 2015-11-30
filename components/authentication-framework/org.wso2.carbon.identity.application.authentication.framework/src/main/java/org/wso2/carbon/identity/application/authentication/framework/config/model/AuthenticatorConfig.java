@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class AuthenticatorConfig implements Serializable {
 
-    private static final long serialVersionUID = 2811339541117886651L;
+    private static final long serialVersionUID = 4391415512399764048L;
 
     private String name;
     private boolean enabled;

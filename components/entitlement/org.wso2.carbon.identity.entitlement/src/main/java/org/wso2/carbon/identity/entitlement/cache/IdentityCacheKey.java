@@ -25,7 +25,8 @@ import java.io.Serializable;
  */
 public class IdentityCacheKey implements Serializable {
 
-    private static final long serialVersionUID = -7700438046096986522L;
+    private static final long serialVersionUID = 3413834923591132863L;
+
     private int tenantId;
     private String key;
 

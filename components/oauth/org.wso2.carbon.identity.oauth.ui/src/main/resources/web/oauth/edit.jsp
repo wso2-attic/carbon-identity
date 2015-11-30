@@ -16,6 +16,7 @@
  ~ under the License.
  -->
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.oauth.common.OAuthConstants" %>
 <%@ page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO" %>
@@ -23,7 +24,6 @@
 <%@ page import="org.wso2.carbon.identity.oauth.ui.util.OAuthUIUtil" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 
 <%@ page import="java.util.ArrayList" %>
@@ -37,13 +37,14 @@
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <%
 
-	String consumerkey = CharacterEncoder.getSafeText(request.getParameter("consumerkey"));
-    String appName = CharacterEncoder.getSafeText(request.getParameter("appName"));
+    String consumerkey = request.getParameter("consumerkey");
+    String appName = request.getParameter("appName");
 
     OAuthConsumerAppDTO app = null;
     String forwardTo = null;
@@ -140,28 +141,57 @@
 
         <div id="workArea">
    			<script type="text/javascript">
+                function onClickUpdate() {
+                    var versionValue = document.getElementsByName("oauthVersion")[0].value;
+                    var callbackUrl = document.getElementsByName("callback")[0].value;
+                    if (!(versionValue == '<%=OAuthConstants.OAuthVersions.VERSION_2%>')) {
+                        if (callbackUrl.trim() == '') {
+                            CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
+                            return false;
+                        }else{
+                            var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.not.https'/>",
+                                    validate, null, null);
+                            if (isValidated) {
+                                validate();
+                            }
+                        }
+                    }
+                    if($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked) {
+                         callbackUrl = document.getElementById('callback').value;
+                        if (callbackUrl.trim() == '') {
+                            CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
+                            return false;
+                        } else {
+                            var isValidated = doValidateInputToConfirm(document.getElementById('callback'), "<fmt:message key='callback.is.not.https'/>",
+                                    validate, null, null);
+                            if (isValidated) {
+                                validate();
+                            }
+                        }
+                    } else {
+                        validate();
+                    }
+                }
                 function validate() {
+                    var callbackUrl = document.getElementById('callback').value;
                     var value = document.getElementsByName("application")[0].value;
                     if (value == '') {
                         CARBON.showWarningDialog('<fmt:message key="application.is.required"/>');
                         return false;
                     }
-                    var value = document.getElementsByName("callback")[0].value;
                     var versionValue = document.getElementsByName("oauthVersion")[0].value;
-                    if(versionValue == '<%=OAuthConstants.OAuthVersions.VERSION_2%>') {
-                        if (value == '') {
-                            if($(jQuery("#grant_code"))[0].checked || $(jQuery("#grant_implicit"))[0].checked){
-                                CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
-                                return false;
-                            }
+                    if (versionValue == '<%=OAuthConstants.OAuthVersions.VERSION_2%>') {
+                        if (!$(jQuery("#grant_code"))[0].checked && !$(jQuery("#grant_implicit"))[0].checked) {
+                            document.getElementsByName("callback")[0].value = '';
                         } else {
-                            if(!$(jQuery("#grant_code"))[0].checked && !$(jQuery("#grant_implicit"))[0].checked){
-                                document.getElementsByName("callback")[0].value = '';
+                            if (!isWhiteListed(callbackUrl, "url")) {
+                                CARBON.showWarningDialog('<fmt:message key="callback.is.not.url"/>');
+                                return false;
                             }
                         }
                     } else {
-                        if(value == ''){
-                            CARBON.showWarningDialog('<fmt:message key="callback.is.required"/>');
+                        if (!isWhiteListed(callbackUrl, "url")) {
+                            CARBON.showWarningDialog('<fmt:message key="callback.is.not.url"/>');
                             return false;
                         }
                     }
@@ -177,8 +207,8 @@
             </script>
 
             <form method="post" name="editAppform"  action="edit-finish.jsp"  target="_self">
-            	<input id="consumerkey" name="consumerkey" type="hidden" value="<%=app.getOauthConsumerKey()%>" />
-		        <input id="consumersecret" name="consumersecret" type="hidden" value="<%=app.getOauthConsumerSecret()%>" />
+            	<input id="consumerkey" name="consumerkey" type="hidden" value="<%=Encode.forHtmlAttribute(app.getOauthConsumerKey())%>" />
+		        <input id="consumersecret" name="consumersecret" type="hidden" value="<%=Encode.forHtmlAttribute(app.getOauthConsumerSecret())%>" />
                 <table style="width: 100%" class="styledLeft">
                     <thead>
                     <tr>
@@ -191,25 +221,26 @@
 				<table class="normal" cellspacing="0">
                             <tr>
                                 <td class="leftCol-small"><fmt:message key='oauth.version'/></td>
-                                <td><%=app.getOAuthVersion()%><input id="oauthVersion" name="oauthVersion"
-                                                                        type="hidden" value="<%=app.getOAuthVersion()%>" /></td>
+                                <td><%=Encode.forHtml(app.getOAuthVersion())%><input id="oauthVersion" name="oauthVersion"
+                                                                        type="hidden" value="<%=Encode.forHtmlAttribute(app.getOAuthVersion())%>" /></td>
                             </tr>
                             <%if (applicationSPName ==null) { %>
 				           <tr>
 		                        <td class="leftCol-small"><fmt:message key='application.name'/><span class="required">*</span></td>
 		                        <td><input class="text-box-big" id="application" name="application"
-		                                   type="text" value="<%=app.getApplicationName()%>" /></td>
+		                                   type="text" value="<%=Encode.forHtmlAttribute(app.getApplicationName())%>" /></td>
 		                    </tr>
 		                    <%}else { %>
 		                    <tr style="display: none;">
 		                        <td colspan="2" style="display: none;"><input class="text-box-big" id="application" name="application"
-		                                   type="hidden" value="<%=applicationSPName%>" /></td>
+		                                   type="hidden" value="<%=Encode.forHtmlAttribute(applicationSPName)%>" /></td>
 		                    </tr>
 		                    <%} %>
 		                    <tr id="callback_row">
 		                        <td class="leftCol-small"><fmt:message key='callback'/><span class="required">*</span></td>
-		                        <td><input class="text-box-big" id="callback" name="callback"
-                                           type="text" value="<%=app.getCallbackUrl()%>" /></td>
+                                <td><input class="text-box-big" id="callback" name="callback"
+                                           type="text" value="<%=Encode.forHtmlAttribute(app.getCallbackUrl())%>"
+                                           white-list-patterns="https-url"/></td>
 		                    </tr>
                             <script>
                                 if(<%=app.getOAuthVersion().equals(OAuthConstants.OAuthVersions.VERSION_1A)%> || <%=codeGrant%> || <%=implicitGrant%>){
@@ -269,7 +300,7 @@
                                     </td>
                                 </tr>
                             <% } %>
-		                    <tr>
+		                    <!--<tr>
 		                        <td class="leftCol-small"><fmt:message key='accesstoken'/></td>
                                  <%if (OAuthConstants.OAuthVersions.VERSION_2.equals(app.getOAuthVersion())){ %>
                                    <td><%=OAuthUIUtil.getAbsoluteEndpointURL(
@@ -295,7 +326,7 @@
 		                        <td class="leftCol-small"><fmt:message key='requesttokenurl'/></td>
 		                        <td><%=OAuthUIUtil.getAbsoluteEndpointURL(
                                         OAuthConstants.OAuth10AEndpoints.REQUEST_TOKEN_URL, app.getOAuthVersion(), request)%></td>
-		                    </tr>
+		                    </tr> -->
 		                    <% } %>
 				</table>
 			</td>
@@ -303,13 +334,13 @@
                     <tr>
                         <td class="buttonRow">
                            <input name="update"
-                                   type="button" class="button" value="<fmt:message key='update'/>" onclick="validate();"/>
+                                   type="button" class="button" value="<fmt:message key='update'/>" onclick="onClickUpdate();"/>
                              <%                           
                             boolean applicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
                             if (applicationComponentFound) {                            
                             %>
                             <input type="button" class="button"
-                                       onclick="javascript:location.href='../application/configure-service-provider.jsp'"
+                                       onclick="javascript:location.href='../application/configure-service-provider.jsp?spName=<%=Encode.forUriComponent(applicationSPName)%>'"
                                    value="<fmt:message key='cancel'/>"/>
                             <% } else { %>
                                    

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity-core-feature</artifactId>
-        <version>4.6.0-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -70,6 +70,7 @@
                                     <directory>resources</directory>
                                     <includes>
                                         <include>identity.xml</include>
+                                        <include>identity_log_tokens.properties</include>
                                         <include>**/*.sql</include>
                                         <include>p2.inf</include>
                                         <include>build.properties</include>

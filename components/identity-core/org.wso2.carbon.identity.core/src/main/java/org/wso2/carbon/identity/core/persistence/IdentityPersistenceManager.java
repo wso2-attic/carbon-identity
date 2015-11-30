@@ -264,6 +264,11 @@ public class IdentityPersistenceManager {
         return serviceProviderDAO.getServiceProvider(issuer);
     }
 
+    public boolean isServiceProviderExists(Registry registry, String issuer) throws IdentityException {
+        SAMLSSOServiceProviderDAO serviceProviderDAO = new SAMLSSOServiceProviderDAO(registry);
+        return serviceProviderDAO.isServiceProviderExists(issuer);
+    }
+
     public void createOrUpdateOpenIDAdmin(Registry registry, OpenIDAdminDO opAdmin)
             throws IdentityException {
         OpenIDAdminDAO opDAO = new OpenIDAdminDAO(registry);

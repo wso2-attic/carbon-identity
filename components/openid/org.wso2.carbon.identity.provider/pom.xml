@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>openid</artifactId>
-        <version>4.6.0-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -114,6 +114,10 @@
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
+            <artifactId>encoder</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -139,7 +143,7 @@
                             javax.crypto,
                             javax.crypto.spec,
                             javax.xml.namespace,
-                            javax.xml.parsers,
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
                             javax.xml.transform.*; version = 0.0.0,
                             javax.xml.stream; version="${equinox.osgi.stax-api.imp.pkg.version.range}",
                             javax.servlet; version="${imp.pkg.version.javax.servlet}",
@@ -176,6 +180,7 @@
                             org.wso2.carbon.core;version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.core.util; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.user.core.*; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
 
                             org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",
@@ -185,6 +190,8 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.application.common.model;
                             version="${carbon.identity.package.import.version.range}",
+                            org.owasp.encoder; version ="${encoder.wso2.imp.pkg.version.range}",
+
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.provider.internal,

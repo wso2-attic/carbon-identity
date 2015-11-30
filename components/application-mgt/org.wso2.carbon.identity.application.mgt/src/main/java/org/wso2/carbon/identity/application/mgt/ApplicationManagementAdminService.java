@@ -47,10 +47,10 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
      * @return application id
      * @throws org.wso2.carbon.identity.application.common.IdentityApplicationManagementException
      */
-    public int createApplication(ServiceProvider serviceProvider)
+    public void createApplication(ServiceProvider serviceProvider)
             throws IdentityApplicationManagementException {
         applicationMgtService = ApplicationManagementService.getInstance();
-        return applicationMgtService.createApplication(serviceProvider, getTenantDomain(), getUsername());
+        applicationMgtService.createApplication(serviceProvider, getTenantDomain(), getUsername());
     }
 
     /**
@@ -64,7 +64,7 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
             throws IdentityApplicationManagementException {
 
         if (!ApplicationConstants.LOCAL_SP.equals(applicationName) &&
-                !ApplicationMgtUtil.isUserAuthorized(applicationName)) {
+                !ApplicationMgtUtil.isUserAuthorized(applicationName, getUsername())) {
             log.warn("Illegal Access! User " + CarbonContext.getThreadLocalCarbonContext().getUsername() +
                     " does not have access to the application " + applicationName);
             throw new IdentityApplicationManagementException("User not authorized");
@@ -93,9 +93,10 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
      */
     public void updateApplication(ServiceProvider serviceProvider)
             throws IdentityApplicationManagementException {
+
         // check whether use is authorized to update the application.
         if (!ApplicationConstants.LOCAL_SP.equals(serviceProvider.getApplicationName()) &&
-                !ApplicationMgtUtil.isUserAuthorized(serviceProvider.getApplicationName(),
+                !ApplicationMgtUtil.isUserAuthorized(serviceProvider.getApplicationName(), getUsername(),
                         serviceProvider.getApplicationID())) {
             log.warn("Illegal Access! User " + CarbonContext.getThreadLocalCarbonContext().getUsername() +
                     " does not have access to the application " +
@@ -115,7 +116,7 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
     public void deleteApplication(String applicationName)
             throws IdentityApplicationManagementException {
 
-        if (!ApplicationMgtUtil.isUserAuthorized(applicationName)) {
+        if (!ApplicationMgtUtil.isUserAuthorized(applicationName, getUsername())) {
             log.warn("Illegal Access! User " + CarbonContext.getThreadLocalCarbonContext().getUsername() +
                     " does not have access to the application " + applicationName);
             throw new IdentityApplicationManagementException("User not authorized");

@@ -51,6 +51,7 @@ public class SalesforceConnectorConstants {
 
     public static final String SALESFORCE_SERVICES_DATA = "/services/data/";
     public static final String SALESFORCE_ENDPOINT_QUERY = "/query";
+    public static final String SALESFORCE_OLD_USERNAME_PREFIX = "old";
 
     public class PropertyConfig {
 
@@ -72,6 +73,15 @@ public class SalesforceConnectorConstants {
         public static final String USERNAME = "sf-username";
         public static final String PASSWORD = "sf-password";
         public static final String OAUTH2_TOKEN_ENDPOINT = "sf-token-endpoint";
+
+        public static final String PROVISIONING_PATTERN_KEY = "sf-prov-pattern";
+        public static final String PROVISIONING_SEPERATOR_KEY = "sf-prov-separator";
+        public static final String IDP_NAME_KEY = "identityProviderName";
+        public static final String USER_ID_CLAIM_URI_KEY = "userIdClaimUri";
+        public static final String PROVISIONING_DOMAIN_KEY = "sf-prov-domainName";
+
+        public static final String DEFAULT_PROVISIONING_PATTERN = "{UN}";
+        public static final String DEFAULT_PROVISIONING_SEPERATOR = "_";
 
         private PropertyConfig(){}
 

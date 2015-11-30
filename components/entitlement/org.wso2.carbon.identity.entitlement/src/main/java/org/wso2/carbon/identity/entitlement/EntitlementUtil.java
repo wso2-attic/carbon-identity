@@ -54,15 +54,19 @@ import org.wso2.balana.xacml3.Attributes;
 import org.wso2.carbon.identity.entitlement.cache.EntitlementBaseCache;
 import org.wso2.carbon.identity.entitlement.cache.IdentityCacheEntry;
 import org.wso2.carbon.identity.entitlement.cache.IdentityCacheKey;
+import org.wso2.carbon.identity.entitlement.common.EntitlementConstants;
 import org.wso2.carbon.identity.entitlement.dto.AttributeDTO;
 import org.wso2.carbon.identity.entitlement.dto.PolicyDTO;
 import org.wso2.carbon.identity.entitlement.dto.PolicyStoreDTO;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementExtensionBuilder;
 import org.wso2.carbon.identity.entitlement.internal.EntitlementServiceComponent;
+import org.wso2.carbon.identity.entitlement.pap.EntitlementAdminEngine;
 import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStore;
 import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStoreManager;
 import org.wso2.carbon.identity.entitlement.pap.store.PAPPolicyStoreReader;
+import org.wso2.carbon.identity.entitlement.policy.publisher.PolicyPublisher;
 import org.wso2.carbon.identity.entitlement.policy.store.PolicyStoreManageModule;
+import org.wso2.carbon.identity.entitlement.policy.version.PolicyVersionManager;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
@@ -448,7 +452,14 @@ public class EntitlementUtil {
                         "An Entitlement Policy with the given ID already exists");
             }
 
-            policyDTO.setPromote(true);
+            policyDTO.setPromote(promote);
+            PolicyVersionManager versionManager = EntitlementAdminEngine.getInstance().getVersionManager();
+            try {
+                String version = versionManager.createVersion(policyDTO);
+                policyDTO.setVersion(version);
+            } catch (EntitlementException e) {
+                log.error("Policy versioning is not supported", e);
+            }
             policyAdmin.addOrUpdatePolicy(policyDTO);
 
             PAPPolicyStoreReader reader = new PAPPolicyStoreReader(policyStore);
@@ -459,6 +470,8 @@ public class EntitlementUtil {
             policyStoreDTO.setPolicy(policyDTO.getPolicy());
             policyStoreDTO.setPolicyOrder(policyDTO.getPolicyOrder());
             policyStoreDTO.setAttributeDTOs(policyDTO.getAttributeDTOs());
+            policyStoreDTO.setActive(policyDTO.isActive());
+            policyStoreDTO.setSetActive(policyDTO.isActive());
 
             if (promote) {
                 addPolicyToPDP(policyStoreDTO);
@@ -536,7 +549,7 @@ public class EntitlementUtil {
         String policyStorePath = entry.getValue().getProperty("policyStorePath");
 
         if (policyStorePath == null) {
-            policyStorePath = "/repository/identity/Entitlement/actualStore/";
+            policyStorePath = "/repository/identity/entitlement/policy/pdp/";
         }
 
         if (policyStoreDTO == null || policyStoreDTO.getPolicy() == null
@@ -568,11 +581,29 @@ public class EntitlementUtil {
             resource.setProperty("policyOrder", Integer.toString(policyStoreDTO.getPolicyOrder()));
             resource.setContent(policyStoreDTO.getPolicy());
             resource.setMediaType("application/xacml-policy+xml");
+            resource.setProperty("active", String.valueOf(policyStoreDTO.isActive()));
             AttributeDTO[] attributeDTOs = policyStoreDTO.getAttributeDTOs();
             if (attributeDTOs != null) {
                 setAttributesAsProperties(attributeDTOs, resource);
             }
             registry.put(policyPath, resource);
+            //Enable published policies in PDP
+            PAPPolicyStoreManager storeManager = EntitlementAdminEngine.getInstance().getPapPolicyStoreManager();
+            if (storeManager.isExistPolicy(policyStoreDTO.getPolicyId())) {
+
+                PolicyPublisher publisher = EntitlementAdminEngine.getInstance().getPolicyPublisher();
+                String[] subscribers = new String[]{EntitlementConstants.PDP_SUBSCRIBER_ID};
+
+                if (policyStoreDTO.isActive()) {
+                    publisher.publishPolicy(new String[]{policyStoreDTO.getPolicyId()}, null,
+                            EntitlementConstants.PolicyPublish.ACTION_ENABLE, false, 0, subscribers, null);
+
+                } else {
+                    publisher.publishPolicy(new String[]{policyStoreDTO.getPolicyId()}, null,
+                            EntitlementConstants.PolicyPublish.ACTION_DISABLE, false, 0, subscribers, null);
+                }
+            }
+
         } catch (RegistryException e) {
             log.error(e);
             throw new EntitlementException("Error while adding policy to PDP", e);

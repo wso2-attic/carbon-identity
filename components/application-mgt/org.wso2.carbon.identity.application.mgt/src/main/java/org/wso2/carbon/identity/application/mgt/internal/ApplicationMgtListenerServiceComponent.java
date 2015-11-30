@@ -21,6 +21,9 @@ package org.wso2.carbon.identity.application.mgt.internal;
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -30,27 +33,41 @@ import java.util.List;
  * interface="org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener"
  * cardinality="0..n" policy="dynamic"
  * bind="setApplicationMgtListenerService"
- * unbind="unsetApplicationMgtListenerService" *
+ * unbind="unsetApplicationMgtListenerService"
  */
 public class ApplicationMgtListenerServiceComponent {
 
-    private static List<ApplicationMgtListener> listners = new ArrayList<ApplicationMgtListener>();
+    private static List<ApplicationMgtListener> applicationMgtListeners = new ArrayList<>();
 
+    protected static synchronized void setApplicationMgtListenerService(
+            ApplicationMgtListener applicationMgtListenerService) {
 
-    public static void setApplicationMgtListenerService(
-            ApplicationMgtListener identityProviderMgtListerService) {
-
-        listners.add(identityProviderMgtListerService);
+        applicationMgtListeners.add(applicationMgtListenerService);
+        Collections.sort(applicationMgtListeners, appMgtListenerComparator);
     }
 
-    public static void unsetApplicationMgtListenerService(
-            ApplicationMgtListener identityProviderMgtListerService) {
+    protected static synchronized void unsetApplicationMgtListenerService(
+            ApplicationMgtListener applicationMgtListenerService) {
 
-        listners.remove(identityProviderMgtListerService);
+        applicationMgtListeners.remove(applicationMgtListenerService);
     }
 
-    public static List<ApplicationMgtListener> getListners() {
-        return listners;
+    public static synchronized Collection getApplicationMgtListeners() {
+        return applicationMgtListeners;
     }
 
+    private static Comparator<ApplicationMgtListener> appMgtListenerComparator = new Comparator<ApplicationMgtListener>(){
+
+        @Override
+        public int compare(ApplicationMgtListener applicationMgtListener1,
+                           ApplicationMgtListener applicationMgtListener2) {
+            if (applicationMgtListener1.getExecutionOrderId() > applicationMgtListener2.getExecutionOrderId()) {
+                return 1;
+            } else if (applicationMgtListener1.getExecutionOrderId() < applicationMgtListener2.getExecutionOrderId()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
 }

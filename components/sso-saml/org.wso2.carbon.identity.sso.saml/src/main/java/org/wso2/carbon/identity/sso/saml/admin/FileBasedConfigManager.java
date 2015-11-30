@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
@@ -103,7 +104,6 @@ public class FileBasedConfigManager {
         Element element = document.getDocumentElement();
         NodeList nodeSet = element.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.SERVICE_PROVIDER);
         SAMLSSOServiceProviderDO[] serviceProviders = new SAMLSSOServiceProviderDO[nodeSet.getLength()];
-        boolean fullQualifyUserName = true;
         boolean singleLogout = true;
         boolean signAssertion = true;
         boolean validateSignature = false;
@@ -114,25 +114,49 @@ public class FileBasedConfigManager {
             Element elem = (Element) nodeSet.item(i);
             SAMLSSOServiceProviderDO spDO = new SAMLSSOServiceProviderDO();
             spDO.setIssuer(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ISSUER));
-            spDO.setAssertionConsumerUrls(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.ACS_URLS));
-            spDO.setDefaultAssertionConsumerUrl(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.DEFAULT_ACS_URL));
-            spDO.setLoginPageURL(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CUSTOM_LOGIN_PAGE));
-            if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.USE_FULLY_QUALIFY_USER_NAME)) != null) {
-                fullQualifyUserName = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.USE_FULLY_QUALIFY_USER_NAME));
+
+            List<String> assertionConsumerUrls = new ArrayList<>();
+            for(String assertionConsumerUrl : getTextValueList(elem, SAMLSSOConstants
+                    .FileBasedSPConfig.ASSERTION_CONSUMER_URL)) {
+                assertionConsumerUrls.add(IdentityUtil.fillURLPlaceholders(assertionConsumerUrl));
             }
+            spDO.setAssertionConsumerUrls(assertionConsumerUrls);
+
+            spDO.setDefaultAssertionConsumerUrl(IdentityUtil
+                    .fillURLPlaceholders(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.DEFAULT_ACS_URL)));
+            spDO.setLoginPageURL(IdentityUtil
+                    .fillURLPlaceholders(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CUSTOM_LOGIN_PAGE)));
+
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SINGLE_LOGOUT)) != null) {
                 singleLogout = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SINGLE_LOGOUT));
-                spDO.setSloResponseURL(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SLO_RESPONSE_URL));
-                spDO.setSloRequestURL(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SLO_REQUEST_URL));
+                spDO.setSloResponseURL(IdentityUtil
+                        .fillURLPlaceholders(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SLO_RESPONSE_URL)));
+                spDO.setSloRequestURL(IdentityUtil
+                        .fillURLPlaceholders(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SLO_REQUEST_URL)));
             }
+
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIGN_ASSERTION)) != null) {
                 signAssertion = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIGN_ASSERTION));
             }
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION)) != null) {
-                validateSignature = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIG_VALIDATION));
+                validateSignature = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants
+                        .FileBasedSPConfig.SIG_VALIDATION));
             }
             if ((getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION)) != null) {
-                encryptAssertion = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENCRYPT_ASSERTION));
+                encryptAssertion = Boolean.valueOf(getTextValue(elem, SAMLSSOConstants
+                        .FileBasedSPConfig.ENCRYPT_ASSERTION));
+            }
+            if (getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SSO_DEFAULT_SIGNING_ALGORITHM) != null) {
+                spDO.setSigningAlgorithmUri(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig
+                        .SSO_DEFAULT_SIGNING_ALGORITHM));
+            } else {
+                spDO.setSigningAlgorithmUri(IdentityApplicationManagementUtil.getSigningAlgoURIByConfig());
+            }
+            if (getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SSO_DEFAULT_DIGEST_ALGORITHM) != null) {
+                spDO.setDigestAlgorithmUri(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig
+                        .SSO_DEFAULT_DIGEST_ALGORITHM));
+            } else {
+                spDO.setDigestAlgorithmUri(IdentityApplicationManagementUtil.getDigestAlgoURIByConfig());
             }
             if (validateSignature || encryptAssertion) {
                 certAlias = getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CERT_ALIAS);
@@ -143,23 +167,27 @@ public class FileBasedConfigManager {
                 }
             }
             if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ATTRIBUTE_PROFILE))) {
-                if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.CLAIMS) != null) {
-                    spDO.setRequestedClaims(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.CLAIM));
-                }
                 spDO.setEnableAttributesByDefault(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.INCLUDE_ATTRIBUTE)));
+                spDO.setAttributeConsumingServiceIndex(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CONSUMING_SERVICE_INDEX));
             }
-            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_RESTRICTION)) && elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_LIST) != null) {
+            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_RESTRICTION)) &&
+                    elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.AUDIENCE_LIST) != null) {
                 spDO.setRequestedAudiences(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.AUDIENCE));
             }
-            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_VALIDATION)) && elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_LIST) != null) {
+            if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_VALIDATION)) &&
+                    elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.RECIPIENT_LIST) != null) {
                 spDO.setRequestedRecipients(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig.RECIPIENT));
             }
 
             if (Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ENABLE_IDP_INIT_SLO))) {
                 spDO.setIdPInitSLOEnabled(true);
                 if (elem.getElementsByTagName(SAMLSSOConstants.FileBasedSPConfig.RETURN_TO_URL_LIST) != null) {
-                    spDO.setIdpInitSLOReturnToURLs(getTextValueList(elem, SAMLSSOConstants.FileBasedSPConfig
-                            .RETURN_TO_URL_LIST));
+                    List<String> sloReturnToUrls = new ArrayList<>();
+                    for(String sloReturnUrl : getTextValueList(elem, SAMLSSOConstants
+                            .FileBasedSPConfig.RETURN_TO_URL)) {
+                        sloReturnToUrls.add(IdentityUtil.fillURLPlaceholders(sloReturnUrl));
+                    }
+                    spDO.setIdpInitSLOReturnToURLs(sloReturnToUrls);
                 }
             }
 
@@ -167,10 +195,10 @@ public class FileBasedConfigManager {
             spDO.setDoSignAssertions(signAssertion);
             spDO.setDoValidateSignatureInRequests(validateSignature);
             spDO.setDoEnableEncryptedAssertion(encryptAssertion);
-            spDO.setDoSignResponse(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.SIGN_RESPONSE)));
+            spDO.setDoSignResponse(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants
+                    .FileBasedSPConfig.SIGN_RESPONSE)));
             spDO.setCertAlias(certAlias);
             spDO.setIdPInitSSOEnabled(Boolean.valueOf(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.IDP_INIT)));
-            spDO.setAttributeConsumingServiceIndex(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.CONSUMING_SERVICE_INDEX));
             serviceProviders[i] = spDO;
         }
         return serviceProviders;

@@ -23,6 +23,7 @@ public class IdentityCoreConstants {
     public static final String IDENTITY_CONFIG = "identity.xml";
     public static final String IDENTITY_DEFAULT_NAMESPACE = "http://wso2.org/projects/carbon/carbon.xml";
     public static final String HOST_NAME = "HostName";
+    public static final String FILE_NAME_REGEX = "FileNameRegEx";
     public static final String PORTS_OFFSET = "Ports.Offset";
 
     public static final String PROXY_CONTEXT_PATH = "ProxyContextPath";
@@ -36,6 +37,11 @@ public class IdentityCoreConstants {
     public final static String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     public final static String MULTI_ATTRIBUTE_SEPARATOR_DEFAULT = ",,,";
 
+    public static final String XML_SIGNATURE_ALGORITHM_RSA_SHA1_URI = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
+    public static final String XML_DIGEST_ALGORITHM_SHA1 = "http://www.w3.org/2000/09/xmldsig#sha1";
+
+    public static final String WEB_CONTEXT_ROOT = "WebContextRoot";
+    
     private IdentityCoreConstants(){
     }
 }

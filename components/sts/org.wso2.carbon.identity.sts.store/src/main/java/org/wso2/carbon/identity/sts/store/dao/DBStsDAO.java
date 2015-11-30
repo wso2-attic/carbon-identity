@@ -22,7 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.Token;
 import org.apache.rahas.TrustException;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.sts.store.DBQueries;
 import org.wso2.carbon.identity.sts.store.STSMgtConstants;
@@ -55,14 +54,13 @@ public class DBStsDAO {
      * @param token Token
      */
     public void addToken(Token token) throws TrustException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
         String query = DBQueries.ADD_TOKEN;
 
         try {
-            connection = getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, token.getId());
             byte[] tokenByteContainer = getTokenContent(token);
@@ -75,25 +73,13 @@ public class DBStsDAO {
             connection.commit();
 
         } catch (Exception e) {
-            try {
-                if (connection != null) {
-                    connection.rollback();
-                }
-            } catch (SQLException e1) {
-                String msg1 = "Failed to rollback connection";
-                log.error(msg1, e1);
-            }
+            IdentityDatabaseUtil.rollBack(connection);
             String msg = "Failed to add token";
-            log.error(msg, e);
             throw new TrustException(msg, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rs, prepStmt);
         }
 
-    }
-
-    private Connection getDBConnection() throws IdentityException {
-        return IdentityDatabaseUtil.getDBConnection();
     }
 
     /**
@@ -102,13 +88,12 @@ public class DBStsDAO {
      * @param token Token
      */
     public void updateToken(Token token) throws TrustException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         String query = DBQueries.UPDATE_TOKEN;
 
         try {
-            connection = getDBConnection();
             prepStmt = connection.prepareStatement(query);
             byte[] tokenByteContainer = getTokenContent(token);
             InputStream tokenInputStream = new ByteArrayInputStream(tokenByteContainer);
@@ -121,16 +106,8 @@ public class DBStsDAO {
             connection.commit();
 
         } catch (Exception e) {
+            IdentityDatabaseUtil.rollBack(connection);
             String msg = "Failed to update token ";
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException e1) {
-                    String msg1 = "Failed to rollback connection";
-                    log.error(msg1, e1);
-                }
-            }
-            log.error(msg, e);
             throw new TrustException(msg, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rs, prepStmt);
@@ -144,20 +121,18 @@ public class DBStsDAO {
      * @param tokenId tokenId
      */
     public void removeToken(String tokenId) throws TrustException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
         String query = DBQueries.REMOVE_TOKEN;
         try {
-            connection = getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, tokenId);
             prepStmt.executeUpdate();
 
         } catch (Exception e) {
             String msg = "Failed to remove token";
-            log.error(msg, e);
             throw new TrustException(msg, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rs, prepStmt);
@@ -171,14 +146,13 @@ public class DBStsDAO {
      * @return arrays of keys
      */
     public String[] getAllTokenKeys() throws TrustException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         List<String> keyList;
         String[] keys = new String[0];
         String query = DBQueries.ALL_TOKEN_KEYS;
         try {
-            connection = getDBConnection();
             prepStmt = connection.prepareStatement(query);
             rs = prepStmt.executeQuery();
 
@@ -193,7 +167,6 @@ public class DBStsDAO {
             }
         } catch (Exception e) {
             String msg = "Failed to get all tokens";
-            log.error(msg, e);
             throw new TrustException(msg, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rs, prepStmt);
@@ -208,14 +181,13 @@ public class DBStsDAO {
      * @return Token
      */
     public Token getToken(String tokenId) throws TrustException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         Token token = null;
 
         String query = DBQueries.GET_TOKEN;
         try {
-            connection = getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setString(1, tokenId);
             rs = prepStmt.executeQuery();
@@ -229,7 +201,6 @@ public class DBStsDAO {
             }
         } catch (Exception e) {
             String msg = "Failed to get token";
-            log.error(msg, e);
             throw new TrustException(msg, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rs, prepStmt);
@@ -246,7 +217,6 @@ public class DBStsDAO {
             token = (Token) tokenObj;
         } catch (Exception e) {
             String msg = "Failed to convert blob content to Token object ";
-            log.error(msg, e);
             throw new TrustException(msg, e);
         }
         return token;
@@ -258,14 +228,13 @@ public class DBStsDAO {
      * @return List of Tokens
      */
     public List<Token> getTokens() throws TrustException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         List<Token> tokens = new ArrayList<Token>();
 
         String query = DBQueries.GET_ALL_TOKENS;
         try {
-            connection = getDBConnection();
             prepStmt = connection.prepareStatement(query);
             rs = prepStmt.executeQuery();
 
@@ -277,7 +246,6 @@ public class DBStsDAO {
             return tokens;
         } catch (Exception e) {
             String msg = "Failed to get all  tokens";
-            log.error(msg, e);
             throw new TrustException(msg, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rs, prepStmt);
@@ -292,14 +260,13 @@ public class DBStsDAO {
      * @throws TrustException if failed to get valid tokens
      */
     public Token[] getValidTokens(int[] status) throws TrustException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         List<Token> tokens = new ArrayList<Token>();
 
         String query = DBQueries.VALID_TOKENS;
         try {
-            connection = getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setInt(1, Token.ISSUED);
             prepStmt.setInt(2, Token.RENEWED);
@@ -314,7 +281,6 @@ public class DBStsDAO {
             return tokens.toArray(new Token[tokens.size()]);
         } catch (Exception e) {
             String msg = "Failed to get valid tokens";
-            log.error(msg, e);
             throw new TrustException(msg, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rs, prepStmt);
@@ -355,14 +321,13 @@ public class DBStsDAO {
     }
 
     private Token[] getTokens(int status) throws TrustException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         List<Token> tokens = new ArrayList<Token>();
 
         String query = DBQueries.GET_TOKENS_BY_STATE;
         try {
-            connection = getDBConnection();
             prepStmt = connection.prepareStatement(query);
             prepStmt.setInt(1, status);
             rs = prepStmt.executeQuery();
@@ -390,14 +355,13 @@ public class DBStsDAO {
      * @throws TrustException if failed to check the tokens availability
      */
     public boolean isTokensExist() throws TrustException {
-        Connection connection = null;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         boolean tokenExist = false;
 
         String query = DBQueries.TOKENS_EXISTS;
         try {
-            connection = getDBConnection();
             prepStmt = connection.prepareStatement(query);
             rs = prepStmt.executeQuery();
 

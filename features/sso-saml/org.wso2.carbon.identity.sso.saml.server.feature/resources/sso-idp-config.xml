@@ -1,5 +1,5 @@
 <!--
- ~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~ Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  ~
  ~ WSO2 Inc. licenses this file to you under the Apache License,
  ~ Version 2.0 (the "License"); you may not use this file except
@@ -15,27 +15,44 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
+
+<!-- The full ServiceProvider configuration is as follows. -->
+
+  <!--ServiceProvider>
+    <Issuer></Issuer>
+    <AssertionConsumerServiceURLs>
+      <AssertionConsumerServiceURL></AssertionConsumerServiceURL>
+    </AssertionConsumerServiceURLs>
+    <DefaultAssertionConsumerServiceURL></DefaultAssertionConsumerServiceURL>
+    <EnableSingleLogout>true</EnableSingleLogout>
+    <SLOResponseURL></SLOResponseURL>
+    <SLORequestURL></SLORequestURL>
+    <SAMLDefaultSigningAlgorithmURI>http://www.w3.org/2000/09/xmldsig#rsa-sha1</SAMLDefaultSigningAlgorithmURI>
+    <SAMLDefaultDigestAlgorithmURI>http://www.w3.org/2000/09/xmldsig#sha1</SAMLDefaultDigestAlgorithmURI>
+    <SignResponse>true</SignResponse>
+    <ValidateSignatures>true</ValidateSignatures>
+    <EncryptAssertion>true</EncryptAssertion>
+    <CertAlias></CertAlias>
+    <EnableAttributeProfile>true</EnableAttributeProfile>
+    <IncludeAttributeByDefault>true</IncludeAttributeByDefault>
+    <ConsumingServiceIndex></ConsumingServiceIndex>
+    <EnableAudienceRestriction>false</EnableAudienceRestriction>
+    <AudiencesList>
+      <Audience></Audience>
+    </AudiencesList>
+    <EnableRecipients>false</EnableRecipients>
+    <RecipientList>
+      <Recipient></Recipient>
+    </RecipientList>
+    <EnableIdPInitiatedSSO>false</EnableIdPInitiatedSSO>
+    <EnableIdPInitSLO>false</EnableIdPInitSLO>
+    <ReturnToURLList>
+      <ReturnToURL></ReturnToURL>
+    </ReturnToURLList>
+  </ServiceProvider-->
+
 <SSOIdentityProviderConfig>
-	<ServiceProviders>
-       		<!--ServiceProvider>
-          		<Issuer></Issuer>
-                        <AssertionConsumerServiceURLs><AssertionConsumerServiceURL></AssertionConsumerServiceURL></AssertionConsumerServiceURLs>
-                        <DefaultAssertionConsumerServiceURL></DefaultAssertionConsumerServiceURL>
-			<SignAssertion>false</SignAssertion>
-           		<SignResponse>false</SignResponse>
-			<EnableAttributeProfile>false</EnableAttributeProfile>
-			<IncludeAttributeByDefault>false</IncludeAttributeByDefault>
-           		<Claims>
-				<Claim>http://wso2.org/claims/role</Claim>
-				<Claim>http://wso2.org/claims/emailaddress</Claim>
- 			</Claims>
-			<EnableSingleLogout>false</EnableSingleLogout>
-			<SingleLogoutUrl></SingleLogoutUrl>
-			<EnableAudienceRestriction>false</EnableAudienceRestriction>
-			<AudiencesList>
-				<Audience></Audience>
-			</AudiencesList>
-			<ConsumingServiceIndex></ConsumingServiceIndex>           
-       		</ServiceProvider-->  
-	</ServiceProviders> 
+  <ServiceProviders>
+    <!--ServiceProvider></ServiceProvider-->
+  </ServiceProviders>
 </SSOIdentityProviderConfig>

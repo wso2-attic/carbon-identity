@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 /**
  * Request Coordinator
@@ -84,12 +85,14 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                 // Retrieve AuthenticationRequestCache Entry which is stored stored from servlet.
                 if (sessionDataKey != null) {
                     log.debug("retrieving authentication request from cache..");
-                    AuthenticationRequestCacheKey cacheKey = new AuthenticationRequestCacheKey(
-                            sessionDataKey);
-                    authRequest = (AuthenticationRequestCacheEntry) AuthenticationRequestCache
-                            .getInstance(0).getValueFromCache(cacheKey);
-                } else if (request.getParameter(FrameworkConstants.LOGOUT) == null ||
-                           !"true".equals(request.getParameter(FrameworkConstants.LOGOUT))) {
+                    authRequest = FrameworkUtils.getAuthenticationRequestFromCache(sessionDataKey);
+
+                    if (authRequest == null) {
+                        // authRequest cannot be retrieved from cache. Cache
+                        throw new FrameworkException("Invalid authentication request. Session data key : " + sessionDataKey);
+                    }
+
+                } else if (!Boolean.parseBoolean(request.getParameter(FrameworkConstants.LOGOUT))) {
 
                     // sessionDataKey is null and not a logout request
                     if (log.isDebugEnabled()) {
@@ -102,6 +105,7 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                 // if there is a cache entry, wrap the original request with params in cache entry
                 if (authRequest != null) {
                     request = FrameworkUtils.getCommonAuthReqWithParams(request, authRequest);
+                    FrameworkUtils.removeAuthenticationRequestFromCache(sessionDataKey);
                 }
                 context = initializeFlow(request, response);
             } else {
@@ -344,7 +348,8 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         context.setSequenceConfig(sequenceConfig);
     }
 
-    private void buildOutboundQueryString(HttpServletRequest request, AuthenticationContext context) {
+    private void buildOutboundQueryString(HttpServletRequest request, AuthenticationContext context)
+            throws FrameworkException {
 
         // Build the outbound query string that will be sent to the authentication endpoint and
         // federated IdPs
@@ -355,11 +360,15 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
             outboundQueryStringBuilder.append("&");
         }
 
-        outboundQueryStringBuilder.append("sessionDataKey=").append(context.getContextIdentifier())
-                .append("&relyingParty=").append(context.getRelyingParty()).append("&type=")
-                .append(context.getRequestType()).append("&sp=")
-                .append(context.getServiceProviderName()).append("&isSaaSApp=")
-                .append(context.getSequenceConfig().getApplicationConfig().isSaaSApp());
+        try {
+            outboundQueryStringBuilder.append("sessionDataKey=").append(context.getContextIdentifier())
+                    .append("&relyingParty=").append(URLEncoder.encode(context.getRelyingParty(), "UTF-8")).append("&type=")
+                    .append(context.getRequestType()).append("&sp=")
+                    .append(URLEncoder.encode(context.getServiceProviderName(), "UTF-8")).append("&isSaaSApp=")
+                    .append(context.getSequenceConfig().getApplicationConfig().isSaaSApp());
+        } catch (UnsupportedEncodingException e) {
+            throw new FrameworkException("Error while URL Encoding", e);
+        }
 
         if (log.isDebugEnabled()) {
             log.debug("Outbound Query String: " + outboundQueryStringBuilder.toString());

@@ -22,7 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -31,9 +32,11 @@ import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.user.mgt.workflow.util.UserStoreWFConstants;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -43,7 +46,7 @@ import java.util.UUID;
 public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHandler {
 
     private static final String FRIENDLY_NAME = "Update User Claims";
-    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user updates his claims";
+    private static final String FRIENDLY_DESCRIPTION = "Triggered when a user update his/her claims.";
 
     private static final String USERNAME = "Username";
     private static final String USER_STORE_DOMAIN = "User Store Domain";
@@ -64,7 +67,7 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
     public boolean startSetMultipleClaimsWorkflow(String userStoreDomain, String userName, Map<String, String>
             claims, String profileName) throws WorkflowException {
 
-        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
         int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
@@ -83,11 +86,11 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
             entities[i] = new Entity(key, UserStoreWFConstants.ENTITY_TYPE_CLAIM, tenant);
             i++;
         }
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.SET_MULTIPLE_USER_CLAIMS_EVENT) &&
+        if (workflowService.isEventAssociated(UserStoreWFConstants.SET_MULTIPLE_USER_CLAIMS_EVENT) &&
                 !Boolean.TRUE.equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {
             throw new WorkflowException("Operation is not valid.");
         }
-        boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
+        boolean state = startWorkFlow(wfParams, nonWfParams, uuid).getExecutorResultState().state();
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
         // updated
@@ -132,7 +135,8 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().setUserClaimValues(userName, claims, profile);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting setUserClaimValues operation for " + userName, e);
+                // Sending e.getMessage() since it is required to give error message to end user.
+                throw new WorkflowException(e.getMessage(), e);
             }
         } else {
             if (retryNeedAtCallback()) {
@@ -179,13 +183,28 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
     @Override
     public boolean isValidOperation(Entity[] entities) throws WorkflowException {
 
-        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
+        UserRealm userRealm;
+        AbstractUserStoreManager userStoreManager;
+        try {
+            userRealm = realmService.getTenantUserRealm(PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                    .getTenantId());
+            userStoreManager = (AbstractUserStoreManager) userRealm.getUserStoreManager();
+        } catch (UserStoreException e) {
+            throw new WorkflowException("Error while retrieving user realm.", e);
+        }
+
         for (int i = 0; i < entities.length; i++) {
             try {
                 if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_USER_EVENT)) {
 
                     throw new WorkflowException("User has a delete operation pending.");
+                } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && !userStoreManager
+                        .isExistingUser(entities[i].getEntityId())) {
+
+                    throw new WorkflowException("User " + entities[i].getEntityId() + " does not exist.");
                 }
                 if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER) {
                     for (int j = 0; j < entities.length; j++) {
@@ -198,7 +217,7 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
                         }
                     }
                 }
-            } catch (InternalWorkflowException e) {
+            } catch (InternalWorkflowException | org.wso2.carbon.user.core.UserStoreException e) {
                 throw new WorkflowException(e.getMessage(), e);
             }
         }

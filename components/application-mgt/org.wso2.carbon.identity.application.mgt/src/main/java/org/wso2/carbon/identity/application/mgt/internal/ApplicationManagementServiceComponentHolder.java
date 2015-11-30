@@ -17,14 +17,19 @@
  */
 package org.wso2.carbon.identity.application.mgt.internal;
 
+import org.wso2.carbon.identity.application.mgt.AbstractInboundAuthenticatorConfig;
 import org.wso2.carbon.registry.api.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ApplicationManagementServiceComponentHolder {
 
     private static ApplicationManagementServiceComponentHolder instance=new
             ApplicationManagementServiceComponentHolder();
+    private static Map<String, AbstractInboundAuthenticatorConfig> inboundAuthenticatorConfigs = new HashMap<String, AbstractInboundAuthenticatorConfig>();
 
     private RegistryService registryService;
 
@@ -36,6 +41,40 @@ public class ApplicationManagementServiceComponentHolder {
     }
 
     public static ApplicationManagementServiceComponentHolder getInstance(){return instance;}
+
+    /**
+     * Add inbound authenticator configuration
+     * @param inboundAuthenticator
+     */
+    public static void addInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig inboundAuthenticator) {
+        inboundAuthenticatorConfigs.put(inboundAuthenticator.getAuthKey(), inboundAuthenticator);
+    }
+
+    /**
+     * Get inbound authenticator configuration
+     * @param type
+     * @return
+     */
+    public static AbstractInboundAuthenticatorConfig getInboundAuthenticatorConfig(String type) {
+        return inboundAuthenticatorConfigs.get(type);
+    }
+
+    /**
+     * Get inbound authenticator configurations
+     * @return inbound authenticator configs
+     */
+    public static Map<String, AbstractInboundAuthenticatorConfig> getAllInboundAuthenticatorConfig() {
+        return inboundAuthenticatorConfigs;
+    }
+
+    /**
+     * Remove inbound authenticator configuration
+     * @param type
+     */
+    public static void removeInboundAuthenticatorConfig(String type) {
+        inboundAuthenticatorConfigs.remove(type);
+    }
+
 
     public RegistryService getRegistryService() {
         return registryService;

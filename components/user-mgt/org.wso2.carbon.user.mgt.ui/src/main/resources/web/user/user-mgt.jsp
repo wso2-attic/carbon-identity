@@ -19,6 +19,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
@@ -28,6 +29,7 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.PaginatedNamesBean" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
+<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
@@ -40,7 +42,6 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="java.util.Set" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.UserManagementWorkflowServiceClient" %>
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 <script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
@@ -53,7 +54,6 @@
     boolean newFilter = false;
     boolean doUserList = true;
     boolean showFilterMessage = false;
-    boolean multipleUserStores = false;
     String forwardTo = "user-mgt.jsp";
 
     FlaggedName[] datas = null;
@@ -95,13 +95,10 @@
     // retrieve session attributes
     String currentUser = (String) session.getAttribute("logged-user");
     UserRealmInfo userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
-    if (userRealmInfo != null) {
-        multipleUserStores = userRealmInfo.getMultipleUserStore();
-    }
     java.lang.String errorAttribute = (java.lang.String) session.getAttribute(UserAdminUIConstants.DO_USER_LIST);
 
     String claimUri = request.getParameter("claimUri");
-    if (claimUri == null || claimUri.length() == 0) {
+    if (StringUtils.isBlank(claimUri)) {
         claimUri = (java.lang.String) session.getAttribute(UserAdminUIConstants.USER_CLAIM_FILTER);
     }
     session.setAttribute(UserAdminUIConstants.USER_CLAIM_FILTER, claimUri);
@@ -216,7 +213,7 @@
                     activeUserList = new LinkedHashSet<FlaggedName>(preactiveUserList);
 
                     String[] AddPendingUsersList = UserMgtClient.
-                            listAllEntityNames("ADD_USER", "PENDING", "USER");
+                            listAllEntityNames("ADD_USER", "PENDING", "USER", modifiedFilter);
                     workFlowAddPendingUsersList = new LinkedHashSet<String>(Arrays.asList(AddPendingUsersList));
 
                     for (String s : AddPendingUsersList) {
@@ -226,7 +223,7 @@
                         workFlowAddPendingUsers.add(flaggedName);
                     }
                     String[] DeletePendingUsersList = UserMgtClient.
-                            listAllEntityNames("DELETE_USER", "PENDING", "USER");
+                            listAllEntityNames("DELETE_USER", "PENDING", "USER", modifiedFilter);
                     workFlowDeletePendingUsers = new LinkedHashSet<String>(Arrays.asList(DeletePendingUsersList));
 
                     for (Iterator<FlaggedName> iterator = activeUserList.iterator(); iterator.hasNext(); ) {
@@ -316,7 +313,6 @@
         }
 
         $(document).ready(function () {
-            debugger;
             $('form[name=filterForm]').submit(function(){
                 return doValidateForm(this, '<fmt:message key="error.input.validation.msg"/>');
             })
@@ -445,14 +441,14 @@
                                     continue;
                                 }
                                 String userName = users[i].getItemName();
-                                String disPlayName = users[i].getItemDisplayName();
-                                if (disPlayName == null || disPlayName.trim().length() == 0) {
-                                    disPlayName = userName;
+                                String displayName = users[i].getItemDisplayName();
+                                if (displayName == null || displayName.trim().length() == 0) {
+                                    displayName = userName;
                                 }
                                 if (workFlowAddPendingUsersList.contains(userName)) {
                 %>
                 <tr>
-                    <td><%=Encode.forHtml(disPlayName)%>
+                    <td><%=Encode.forHtml(displayName)%>
                         <%if (!users[i].getEditable()) { %> <%="(Read-Only)"%> <% } %>
                         <img src="images/workflow_pending_add.gif" title="Workflow-pending-user-add"
                              alt="Workflow-pending-user-add" height="15" width="15">
@@ -483,18 +479,18 @@
                 } else if (showDeletePendingUsersList.contains(userName)) {
                 %>
                 <tr>
-                    <td><%=Encode.forHtml(disPlayName)%>
+                    <td><%=Encode.forHtml(displayName)%>
                         <%if (!users[i].getEditable()) { %> <%="(Read-Only)"%> <% } %>
                         <img src="images/workflow_pending_remove.gif" title="Workflow-pending-user-delete"
                              alt="Workflow-pending-user-delete" height="15" width="15">
                     </td>
                     <td>
                         <%
-                            if (!Util.getUserStoreInfoForUser(Util.decodeHTMLCharacters(userName), userRealmInfo).getPasswordsExternallyManaged() &&      // TODO
+                            if (!Util.getUserStoreInfoForUser(userName, userRealmInfo).getPasswordsExternallyManaged() &&
                                     CarbonUIUtil.isUserAuthorized(request,
                                             "/permission/admin/configure/security/usermgt/passwords") &&
                                     users[i].getEditable()) { //if passwords are managed externally do not allow to change passwords.
-                                if (Util.decodeHTMLCharacters(userName).equals(currentUser)) {
+                                if (userName.equals(currentUser)) {
                         %>
                         <a href="change-passwd.jsp?isUserChange=true&returnPath=user-mgt.jsp" class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
@@ -504,7 +500,7 @@
                         } else {
                         %>
 
-                        <a href="change-passwd.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
+                        <a href="change-passwd.jsp?username=<%=Encode.forUriComponent(userName)%>&displayName=<%=Encode.forUriComponent(displayName)%>"
                            class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="change.password"/></a>
@@ -520,7 +516,7 @@
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
                         %>
-                        <a href="view-roles.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
+                        <a href="view-roles.jsp?username=<%=Encode.forUriComponent(userName)%>&displayName=<%=Encode.forUriComponent(displayName)%>"
                            class="icon-link"
                            style="background-image:url(images/view.gif);"><fmt:message
                                 key="view.roles"/></a>
@@ -549,7 +545,7 @@
                                     && CarbonUIUtil.isUserAuthorized(request,
                                     "/permission/admin/configure/security/usermgt/profiles")) {
                         %>
-                        <a href="../userprofile/index.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&disPlayName=<%=java.net.URLEncoder.encode(disPlayName,"UTF-8")%>&fromUserMgt=true"
+                        <a href="../userprofile/index.jsp?username=<%=java.net.URLEncoder.encode(userName,"UTF-8")%>&displayName=<%=java.net.URLEncoder.encode(displayName,"UTF-8")%>&fromUserMgt=true"
                            class="icon-link"
                            style="background-image:url(../userprofile/images/my-prof.gif);">User
                             Profile</a>
@@ -562,12 +558,12 @@
                 } else {
                 %>
                 <tr>
-                    <td><%=Encode.forHtml(disPlayName)%>
+                    <td><%=Encode.forHtml(displayName)%>
                         <%if (!users[i].getEditable()) { %> <%="(Read-Only)"%> <% } %>
                     </td>
                     <td>
                         <%
-                            if (userRealmInfo.getAdminUser().equals(Util.decodeHTMLCharacters(userName)) &&
+                            if (userRealmInfo.getAdminUser().equals(userName) &&
                                     !userRealmInfo.getAdminUser().equals(currentUser)) {
                         %>
                         <a href="#" class="icon-link" title="Operation is Disabled"
@@ -594,11 +590,11 @@
                             }
                         %>
                         <%
-                            if (!Util.getUserStoreInfoForUser(Util.decodeHTMLCharacters(userName), userRealmInfo).getPasswordsExternallyManaged() &&      // TODO
+                            if (!Util.getUserStoreInfoForUser(userName, userRealmInfo).getPasswordsExternallyManaged() &&      // TODO
                                     CarbonUIUtil.isUserAuthorized(request,
                                             "/permission/admin/configure/security/usermgt/passwords") &&
                                     users[i].getEditable()) { //if passwords are managed externally do not allow to change passwords.
-                                if (Util.decodeHTMLCharacters(userName).equals(currentUser)) {
+                                if (userName.equals(currentUser)) {
                         %>
                         <a href="change-passwd.jsp?isUserChange=true&returnPath=user-mgt.jsp" class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
@@ -608,7 +604,7 @@
                         } else {
                         %>
 
-                        <a href="change-passwd.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
+                        <a href="change-passwd.jsp?username=<%=Encode.forUriComponent(userName)%>&displayName=<%=Encode.forUriComponent(displayName)%>"
                            class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="change.password"/></a>
@@ -620,7 +616,7 @@
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
                         %>
-                        <a href="edit-user-roles.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
+                        <a href="edit-user-roles.jsp?username=<%=Encode.forUriComponent(userName)%>&displayName=<%=Encode.forUriComponent(displayName)%>"
                            class="icon-link"
                            style="background-image:url(../admin/images/edit.gif);"><fmt:message
                                 key="edit.roles"/></a>
@@ -631,7 +627,7 @@
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request, "/permission/admin/configure/security")) {
                         %>
-                        <a href="view-roles.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>"
+                        <a href="view-roles.jsp?username=<%=Encode.forUriComponent(userName)%>&displayName=<%=Encode.forUriComponent(displayName)%>"
                            class="icon-link"
                            style="background-image:url(images/view.gif);"><fmt:message
                                 key="view.roles"/></a>
@@ -641,8 +637,8 @@
 
                         <%
                             if (CarbonUIUtil.isUserAuthorized(request,
-                                    "/permission/admin/configure/security/usermgt/users") && !Util.decodeHTMLCharacters(userName).equals(currentUser)
-                                    && !Util.decodeHTMLCharacters(userName).equals(userRealmInfo.getAdminUser()) &&
+                                    "/permission/admin/configure/security/usermgt/users") && !userName.equals(currentUser)
+                                    && !userName.equals(userRealmInfo.getAdminUser()) &&
                                     users[i].getEditable()) {
                         %>
                         <a href="#" onclick="deleteUser('<%=Encode.forJavaScriptAttribute(userName)%>')"
@@ -650,8 +646,7 @@
                            style="background-image:url(images/delete.gif);"><fmt:message
                                 key="delete"/></a>
                         <%
-                        } else if (Util.decodeHTMLCharacters(userName).equals(currentUser) ||
-                                Util.decodeHTMLCharacters(userName).equals(userRealmInfo.getAdminUser())) {
+                        } else if (userName.equals(currentUser) || userName.equals(userRealmInfo.getAdminUser())) {
                         %>
                         <a href="#" class="icon-link" title="Operation is Disabled"
                            style="background-image:url(images/delete.gif);color:#CCC;"><fmt:message
@@ -676,7 +671,7 @@
                                     && CarbonUIUtil.isUserAuthorized(request,
                                     "/permission/admin/configure/security/usermgt/profiles")) {
                         %>
-                        <a href="../userprofile/index.jsp?username=<%=Encode.forUriComponent(userName)%>&disPlayName=<%=Encode.forUriComponent(disPlayName)%>&fromUserMgt=true"
+                        <a href="../userprofile/index.jsp?username=<%=Encode.forUriComponent(userName)%>&displayName=<%=Encode.forUriComponent(displayName)%>&fromUserMgt=true"
                            class="icon-link" style="background-image:url(../userprofile/images/my-prof.gif);">User
                             Profile</a>
                         <%
@@ -744,35 +739,6 @@
             <%
                         }
                     }
-                }
-            %>
-
-            <%
-                if ((multipleUserStores || !userRealmInfo.getPrimaryUserStoreInfo().getReadOnly())
-                        && userRealmInfo.getPrimaryUserStoreInfo().getExternalIdP() == null
-                        && CarbonUIUtil.isUserAuthorized(request,
-                        "/permission/admin/configure/security/usermgt/users")) {
-            %>
-            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-top:2px;">
-
-                <%
-                    if (!multipleUserStores && userRealmInfo.getBulkImportSupported()) {
-                %>
-                <tr>
-                    <td class="addNewSecurity">
-                        <a href="bulk-import.jsp" class="icon-link"
-                           style="background-image:url(images/bulk-import.gif);"><fmt:message
-                                key="bulk.import.user"/></a>
-                    </td>
-                </tr>
-
-                <%
-                    }
-                %>
-
-            </table>
-
-            <%
                 }
             %>
 

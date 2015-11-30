@@ -18,9 +18,8 @@
 package org.wso2.carbon.identity.oauth.endpoint.util;
 
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
-import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.dao.OpenIDUserRPDAO;
 import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
-import org.wso2.carbon.identity.provider.openid.dao.OpenIDUserRPDAO;
 
 /**
  * Stores user consent on applications
@@ -51,11 +50,7 @@ public class OpenIDConnectUserRPStore {
         repDO.setTrustedAlways(trustedAlways);
 
         OpenIDUserRPDAO dao = new OpenIDUserRPDAO();
-        try {
-            dao.createOrUpdate(repDO);
-        } catch (IdentityException e) {
-            throw new OAuthSystemException("Error while storing user consent", e);
-        }
+        dao.createOrUpdate(repDO);
     }
 
     /**
@@ -66,13 +61,9 @@ public class OpenIDConnectUserRPStore {
      */
     public synchronized boolean hasUserApproved(String username, String appName) throws OAuthSystemException {
         OpenIDUserRPDAO dao = new OpenIDUserRPDAO();
-        try {
-            OpenIDUserRPDO rpDO = dao.getOpenIDUserRP(username, appName);
-            if (rpDO != null && rpDO.isTrustedAlways()) {
-                return true;
-            }
-        } catch (IdentityException e) {
-            throw new OAuthSystemException("Error while loading user consent", e);
+        OpenIDUserRPDO rpDO = dao.getOpenIDUserRP(username, appName);
+        if (rpDO != null && rpDO.isTrustedAlways()) {
+            return true;
         }
         return false;
     }

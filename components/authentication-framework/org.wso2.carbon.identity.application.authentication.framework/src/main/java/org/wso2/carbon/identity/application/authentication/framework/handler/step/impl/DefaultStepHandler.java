@@ -37,10 +37,13 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
@@ -122,9 +125,10 @@ public class DefaultStepHandler implements StepHandler {
             }
 
             try {
+                request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
                 response.sendRedirect(redirectURL
-                                      + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
-                                      + authenticatorNames + "&hrd=true");
+                        + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
+                        + URLEncoder.encode(authenticatorNames, "UTF-8") + "&hrd=true");
             } catch (IOException e) {
                 throw new FrameworkException(e.getMessage(), e);
             }
@@ -143,8 +147,12 @@ public class DefaultStepHandler implements StepHandler {
                         log.debug("Re-authenticating with " + idp + " IdP");
                     }
 
-                    context.setExternalIdP(ConfigurationFacade.getInstance().getIdPConfigByName(
-                            idp, context.getTenantDomain()));
+                    try {
+                        context.setExternalIdP(ConfigurationFacade.getInstance().getIdPConfigByName(
+                                idp, context.getTenantDomain()));
+                    } catch (IdentityProviderManagementException e) {
+                        log.error("Exception while getting IdP by name", e);
+                    }
                     doAuthentication(request, response, context, authenticatorConfig);
                     return;
                 } else {
@@ -185,9 +193,13 @@ public class DefaultStepHandler implements StepHandler {
                         }
 
                         // set the IdP to be called in the context
-                        context.setExternalIdP(ConfigurationFacade.getInstance()
-                                                       .getIdPConfigByName(authenticatorConfig.getIdpNames().get(0),
-                                                                           context.getTenantDomain()));
+                        try {
+                            context.setExternalIdP(ConfigurationFacade.getInstance()
+                                                           .getIdPConfigByName(authenticatorConfig.getIdpNames().get(0),
+                                                                               context.getTenantDomain()));
+                        } catch (IdentityProviderManagementException e) {
+                            log.error("Exception while getting IdP by name", e);
+                        }
                     }
 
                     doAuthentication(request, response, context, authenticatorConfig);
@@ -207,8 +219,8 @@ public class DefaultStepHandler implements StepHandler {
 
                     try {
                         response.sendRedirect(redirectURL
-                                              + ("?" + context.getContextIdIncludedQueryParams())
-                                              + "&authenticators=" + authenticatorNames + retryParam);
+                                + ("?" + context.getContextIdIncludedQueryParams())
+                                + "&authenticators=" + URLEncoder.encode(authenticatorNames, "UTF-8") + retryParam);
                     } catch (IOException e) {
                         throw new FrameworkException(e.getMessage(), e);
                     }
@@ -244,9 +256,10 @@ public class DefaultStepHandler implements StepHandler {
         if (domain.trim().length() == 0) {
             //SP hasn't specified a domain. We assume it wants to get the domain from the user
             try {
+                request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
                 response.sendRedirect(redirectURL
-                                      + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
-                                      + authenticatorNames + "&hrd=true");
+                        + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
+                        + URLEncoder.encode(authenticatorNames, "UTF-8") + "&hrd=true");
             } catch (IOException e) {
                 throw new FrameworkException(e.getMessage(), e);
             }
@@ -261,8 +274,13 @@ public class DefaultStepHandler implements StepHandler {
         }
 
         // try to find an IdP with the retrieved realm
-        ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
+        ExternalIdPConfig externalIdPConfig = null;
+        try {
+             externalIdPConfig = ConfigurationFacade.getInstance()
                 .getIdPConfigByRealm(homeRealm, context.getTenantDomain());
+        } catch (IdentityProviderManagementException e) {
+            log.error("Exception while getting IdP by realm", e);
+        }
         // if an IdP exists
         if (externalIdPConfig != null) {
             String idpName = externalIdPConfig.getIdPName();
@@ -303,8 +321,8 @@ public class DefaultStepHandler implements StepHandler {
 
         try {
             response.sendRedirect(redirectURL + ("?" + context.getContextIdIncludedQueryParams())
-                                  + "&authenticators=" + authenticatorNames + "&authFailure=true"
-                                  + "&authFailureMsg=" + errorMsg + "&hrd=true");
+                    + "&authenticators=" + URLEncoder.encode(authenticatorNames, "UTF-8") + "&authFailure=true"
+                    + "&authFailureMsg=" + errorMsg + "&hrd=true");
         } catch (IOException e) {
             throw new FrameworkException(e.getMessage(), e);
         }
@@ -331,10 +349,14 @@ public class DefaultStepHandler implements StepHandler {
                 log.debug("User has selected IdP: " + selectedIdp);
             }
 
-            ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
+            try {
+                ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
                     .getIdPConfigByName(selectedIdp, context.getTenantDomain());
-            // TODO [IMPORTANT] validate the idp is inside the step.
-            context.setExternalIdP(externalIdPConfig);
+                // TODO [IMPORTANT] validate the idp is inside the step.
+                context.setExternalIdP(externalIdPConfig);
+            } catch (IdentityProviderManagementException e) {
+                log.error("Exception while getting IdP by name", e);
+            }
         }
 
         for (AuthenticatorConfig authenticatorConfig : stepConfig.getAuthenticatorList()) {
@@ -406,6 +428,7 @@ public class DefaultStepHandler implements StepHandler {
             context.setAuthenticatorProperties(FrameworkUtils.getAuthenticatorPropertyMapFromIdP(
                     context.getExternalIdP(), authenticator.getName()));
             AuthenticatorFlowStatus status = authenticator.process(request, response, context);
+            request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, status);
 
             if (log.isDebugEnabled()) {
                 log.debug(authenticator.getName() + " returned: " + status.toString());

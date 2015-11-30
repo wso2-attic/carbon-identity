@@ -20,9 +20,9 @@ package org.wso2.carbon.idp.mgt.dao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.cache.IdPAuthPropertyCacheKey;
 import org.wso2.carbon.idp.mgt.cache.IdPCacheByAuthProperty;
 import org.wso2.carbon.idp.mgt.cache.IdPCacheByHRI;
@@ -65,10 +65,10 @@ public class CacheBackedIdPMgtDAO {
      * @param tenantId
      * @param tenantDomain
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public List<IdentityProvider> getIdPs(Connection dbConnection, int tenantId,
-                                          String tenantDomain) throws IdentityApplicationManagementException {
+                                          String tenantDomain) throws IdentityProviderManagementException {
 
         return idPMgtDAO.getIdPs(dbConnection, tenantId, tenantDomain);
     }
@@ -79,11 +79,11 @@ public class CacheBackedIdPMgtDAO {
      * @param tenantId
      * @param tenantDomain
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public IdentityProvider getIdPByName(Connection dbConnection, String idPName,
                                          int tenantId, String tenantDomain) throws
-            IdentityApplicationManagementException {
+            IdentityProviderManagementException {
 
         IdPNameCacheKey cacheKey = new IdPNameCacheKey(idPName, tenantDomain);
         IdPCacheEntry entry = (IdPCacheEntry) idPCacheByName.getValueFromCache(cacheKey);
@@ -130,11 +130,11 @@ public class CacheBackedIdPMgtDAO {
      * @param tenantId
      * @param tenantDomain
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public IdentityProvider getIdPByAuthenticatorPropertyValue(Connection dbConnection, String property, String value,
                                                                int tenantId, String tenantDomain)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         IdPAuthPropertyCacheKey cacheKey = new IdPAuthPropertyCacheKey(property, value, tenantDomain);
         IdPCacheEntry entry = (IdPCacheEntry) idPCacheByAuthProperty.getValueFromCache(cacheKey);
@@ -182,10 +182,10 @@ public class CacheBackedIdPMgtDAO {
      * @param tenantId
      * @param tenantDomain
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public IdentityProvider getIdPByRealmId(String realmId, int tenantId,
-                                            String tenantDomain) throws IdentityApplicationManagementException {
+                                            String tenantDomain) throws IdentityProviderManagementException {
 
         IdPHomeRealmIdCacheKey cacheKey = new IdPHomeRealmIdCacheKey(realmId, tenantDomain);
         IdPCacheEntry entry = (IdPCacheEntry) idPCacheByHRI.getValueFromCache(cacheKey);
@@ -225,10 +225,10 @@ public class CacheBackedIdPMgtDAO {
      * @param identityProvider
      * @param tenantId
      * @param tenantDomain
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public void addIdP(IdentityProvider identityProvider, int tenantId, String tenantDomain)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         idPMgtDAO.addIdP(identityProvider, tenantId);
 
@@ -263,11 +263,11 @@ public class CacheBackedIdPMgtDAO {
      * @param currentIdentityProvider
      * @param tenantId
      * @param tenantDomain
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public void updateIdP(IdentityProvider newIdentityProvider,
                           IdentityProvider currentIdentityProvider, int tenantId, String tenantDomain)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         log.debug("Removing entry for Identity Provider "
                 + currentIdentityProvider.getIdentityProviderName() + " from cache");
@@ -322,13 +322,13 @@ public class CacheBackedIdPMgtDAO {
      * @param idPName
      * @param tenantId
      * @param tenantDomain
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public void deleteIdP(String idPName, int tenantId, String tenantDomain)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         if (idPMgtDAO.isIdpReferredBySP(idPName, tenantId)) {
-            throw new IdentityApplicationManagementException("Identitiy Provider '" + idPName + "' " +
+            throw new IdentityProviderManagementException("Identitiy Provider '" + idPName + "' " +
                     "cannot be deleted as it is reffered by Service Providers.");
         }
         log.debug("Removing entry for Identity Provider " + idPName + " from cache");
@@ -354,58 +354,13 @@ public class CacheBackedIdPMgtDAO {
     }
 
     /**
-     * @param dbConnection
-     * @param tenantId
-     * @param tenantDomain
-     * @return
-     * @throws IdentityApplicationManagementException
-     */
-    public IdentityProvider getPrimaryIdP(Connection dbConnection, int tenantId,
-                                          String tenantDomain) throws IdentityApplicationManagementException {
-
-        IdentityProvider identityProvider = primaryIdPs.get(tenantDomain);
-        if (identityProvider != null) {
-            return identityProvider;
-        } else {
-            log.debug("Cache entry not found for primary Identity Provider of tenant "
-                    + tenantDomain + ". Fetching from DB");
-        }
-
-        identityProvider = idPMgtDAO.getPrimaryIdP(dbConnection, tenantId, tenantDomain);
-
-        if (identityProvider != null) {
-            log.debug("Entry fetched from DB for primary Identity Provider of tenant "
-                    + tenantDomain + ". Updating cache");
-            IdPNameCacheKey idPNameCacheKey = new IdPNameCacheKey(
-                    identityProvider.getIdentityProviderName(), tenantDomain);
-            idPCacheByName.addToCache(idPNameCacheKey, new IdPCacheEntry(identityProvider));
-            if (identityProvider.getHomeRealmId() != null) {
-                IdPHomeRealmIdCacheKey idPHomeRealmIdCacheKey = new IdPHomeRealmIdCacheKey(
-                        identityProvider.getHomeRealmId(), tenantDomain);
-                idPCacheByHRI.addToCache(idPHomeRealmIdCacheKey,
-                        new IdPCacheEntry(identityProvider));
-            }
-            primaryIdPs.put(tenantDomain, identityProvider);
-            if (IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME.equals(
-                    identityProvider.getIdentityProviderName())) {
-                residentIdPs.put(tenantDomain, identityProvider);
-            }
-        } else {
-            log.debug("Entry for primary Identity Provider of tenant " + tenantDomain
-                    + " not found in cache or DB");
-        }
-
-        return identityProvider;
-    }
-
-    /**
      * @param tenantId
      * @param role
      * @param tenantDomain
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public void deleteTenantRole(int tenantId, String role, String tenantDomain)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         log.debug("Removing all cached Identity Provider entries for tenant Domain " + tenantDomain);
         List<IdentityProvider> identityProviders = this.getIdPs(null, tenantId,
@@ -434,10 +389,10 @@ public class CacheBackedIdPMgtDAO {
      * @param oldRoleName
      * @param tenantId
      * @param tenantDomain
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public void renameTenantRole(String newRoleName, String oldRoleName, int tenantId,
-                                 String tenantDomain) throws IdentityApplicationManagementException {
+                                 String tenantDomain) throws IdentityProviderManagementException {
 
         log.debug("Removing all cached Identity Provider entries for tenant Domain " + tenantDomain);
         List<IdentityProvider> identityProviders = this.getIdPs(null, tenantId,
@@ -465,10 +420,10 @@ public class CacheBackedIdPMgtDAO {
      * @param tenantId
      * @param claimURI
      * @param tenantDomain
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public void deleteTenantClaimURI(int tenantId, String claimURI, String tenantDomain)
-            throws IdentityApplicationManagementException {
+            throws IdentityProviderManagementException {
 
         log.debug("Removing all cached Identity Provider entries for tenant Domain " + tenantDomain);
         List<IdentityProvider> identityProviders = this.getIdPs(null, tenantId,
@@ -497,10 +452,10 @@ public class CacheBackedIdPMgtDAO {
      * @param oldClaimURI
      * @param tenantId
      * @param tenantDomain
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
     public void renameTenantClaimURI(String newClaimURI, String oldClaimURI, int tenantId,
-                                     String tenantDomain) throws IdentityApplicationManagementException {
+                                     String tenantDomain) throws IdentityProviderManagementException {
 
         log.debug("Removing all cached Identity Provider entries for tenant Domain " + tenantDomain);
         List<IdentityProvider> identityProviders = this.getIdPs(null, tenantId,
@@ -528,12 +483,12 @@ public class CacheBackedIdPMgtDAO {
      * @param idPEntityId
      * @param tenantId
      * @return
-     * @throws IdentityApplicationManagementException
+     * @throws IdentityProviderManagementException
      */
-    public boolean isSimilarIdPEntityIdsAvailble(String idPEntityId, int tenantId)
-            throws IdentityApplicationManagementException {
+    public boolean isIdPAvailableForAuthenticatorProperty(String authenticatorName, String propertyName, String idPEntityId, int tenantId)
+            throws IdentityProviderManagementException {
 
-        return idPMgtDAO.isSimilarIdPEntityIdsAvailble(idPEntityId, tenantId);
+        return idPMgtDAO.isIdPAvailableForAuthenticatorProperty(authenticatorName, propertyName, idPEntityId, tenantId);
     }
 
 }

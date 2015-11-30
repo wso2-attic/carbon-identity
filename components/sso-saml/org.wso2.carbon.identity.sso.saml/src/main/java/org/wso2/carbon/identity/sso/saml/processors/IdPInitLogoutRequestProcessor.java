@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class IdPInitLogoutRequestProcessor {
+public class IdPInitLogoutRequestProcessor implements IdpInitSSOLogoutRequestProcessor{
 
     private static Log log = LogFactory.getLog(IdPInitLogoutRequestProcessor.class);
 
@@ -131,10 +131,10 @@ public class IdPInitLogoutRequestProcessor {
                     } else {
                         logoutReqDTO.setAssertionConsumerURL(value.getAssertionConsumerUrl());
                     }
-                    LogoutRequest logoutReq = logoutMsgBuilder.buildLogoutRequest(
-                            sessionInfoData.getSubject(value.getIssuer()), sessionIndex,
-                            SAMLSSOConstants.SingleLogoutCodes.LOGOUT_USER, logoutReqDTO.getAssertionConsumerURL(),
-                            value.getNameIDFormat(), value.getTenantDomain());
+                    LogoutRequest logoutReq = logoutMsgBuilder.buildLogoutRequest(sessionInfoData.getSubject(value
+                            .getIssuer()), sessionIndex, SAMLSSOConstants.SingleLogoutCodes.LOGOUT_USER, logoutReqDTO
+                            .getAssertionConsumerURL(), value.getNameIDFormat(), value.getTenantDomain(), value
+                            .getSigningAlgorithmUri(), value.getDigestAlgorithmUri());
 
                     String logoutReqString = SAMLSSOUtil.encode(SAMLSSOUtil.marshall(logoutReq));
                     logoutReqDTO.setLogoutResponse(logoutReqString);

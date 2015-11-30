@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class SequenceConfig implements Serializable {
 
-    private static final long serialVersionUID = 3316149796008510127L;
+    private static final long serialVersionUID = 6822366703354668075L;
 
     private String name;
     private boolean isForceAuthn;

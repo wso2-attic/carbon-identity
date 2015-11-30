@@ -22,6 +22,7 @@ package org.wso2.carbon.identity.mgt;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.beans.VerificationBean;
 import org.wso2.carbon.identity.mgt.config.Config;
 import org.wso2.carbon.identity.mgt.config.ConfigBuilder;
@@ -112,7 +113,7 @@ public class RecoveryProcessor {
         String userId = recoveryDTO.getUserId();
         String domainName = recoveryDTO.getTenantDomain();
         int tenantId = recoveryDTO.getTenantId();
-        String userStore = UserCoreUtil.extractDomainFromName(userId);
+        String userStore = IdentityUtil.extractDomainFromName(userId);
         String userName = UserCoreUtil.removeDomainFromName(userId);
         TenantManager tenantManager = IdentityMgtServiceComponent.getRealmService().getTenantManager();
         try {
@@ -239,8 +240,8 @@ public class RecoveryProcessor {
         if (persistData) {
             UserRecoveryDataDO recoveryDataDO =
                     new UserRecoveryDataDO(userId, tenantId, internalCode, secretKey);
+            dataStore.invalidate(userId, tenantId);
             dataStore.store(recoveryDataDO);
-
         }
 
         if (IdentityMgtConfig.getInstance().isNotificationInternallyManaged()) {
@@ -270,6 +271,7 @@ public class RecoveryProcessor {
 
         try {
             dataDO = dataStore.load(confirmationKey);
+            dataStore.invalidate(dataDO);
         } catch (IdentityException e) {
             log.error("Invalid User for confirmation code", e);
             return new VerificationBean(VerificationBean.ERROR_CODE_INVALID_USER);
@@ -307,8 +309,16 @@ public class RecoveryProcessor {
 
         try {
             dataDO = dataStore.load(internalCode);
+            if (dataDO != null && sequence != 2 && sequence != 40) {
+                dataStore.invalidate(dataDO);
+            }
+
         } catch (IdentityException e) {
             throw new IdentityException("Error loading recovery data for user : " + username, e);
+        }
+
+        if (dataDO == null && (sequence == 30 || sequence == 20)) {
+            return new VerificationBean(false);
         }
 
         if (dataDO == null) {
@@ -331,6 +341,9 @@ public class RecoveryProcessor {
         UserRecoveryDataDO recoveryDataDO = new UserRecoveryDataDO(username,
                 tenantId, confirmationKey, secretKey);
 
+        if (sequence != 3 && sequence != 30) {
+            dataStore.invalidate(username, tenantId);
+        }
         dataStore.store(recoveryDataDO);
         String externalCode = null;
         try {
@@ -372,12 +385,10 @@ public class RecoveryProcessor {
                     success = true;
                 }
             } else {
-                if (log.isDebugEnabled()) {
-                    log.error("User with user name : " + userId
-                            + " does not exists in tenant domain : " + userDTO.getTenantDomain());
-                    bean = new VerificationBean(VerificationBean.ERROR_CODE_INVALID_USER + " "
-                            + "User does not exists");
-                }
+                log.error("User with user name : " + userId
+                        + " does not exists in tenant domain : " + userDTO.getTenantDomain());
+                bean = new VerificationBean(VerificationBean.ERROR_CODE_INVALID_USER + " "
+                        + "User does not exists");
             }
 
             if (success) {
@@ -385,6 +396,9 @@ public class RecoveryProcessor {
                 String key = UUID.randomUUID().toString();
                 UserRecoveryDataDO dataDO =
                         new UserRecoveryDataDO(userId, tenantId, internalCode, key);
+                if (sequence != 3) {
+                    dataStore.invalidate(userId, tenantId);
+                }
                 dataStore.store(dataDO);
                 log.info("User verification successful for user : " + userId +
                         " from tenant domain :" + userDTO.getTenantDomain());
@@ -408,6 +422,7 @@ public class RecoveryProcessor {
         String key = UUID.randomUUID().toString();
         UserRecoveryDataDO dataDO =
                 new UserRecoveryDataDO(userDTO.getUserId(), userDTO.getTenantId(), key, code);
+        dataStore.invalidate(userDTO.getUserId(), userDTO.getTenantId());
         dataStore.store(dataDO);
     }
 
@@ -430,7 +445,7 @@ public class RecoveryProcessor {
         String domainName = notificationBean.getTenantDomain();
         int tenantId = notificationBean.getTenantId();
         confirmationKey = notificationBean.getConfirmationCode();
-        String userStore = UserCoreUtil.extractDomainFromName(userId);
+        String userStore = IdentityUtil.extractDomainFromName(userId);
         String userName = UserCoreUtil.removeDomainFromName(userId);
 
         NotificationDataDTO notificationData = new NotificationDataDTO();

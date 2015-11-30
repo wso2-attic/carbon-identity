@@ -154,7 +154,7 @@ public class SCIMCommonUtils {
         if (index > 0) {
             // Using the short-circuit. User name comes with the domain name.
             String domain = groupName.substring(0, index);
-            if (StringUtils.equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME, domain)) {
+            if (UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equals(domain)) {
                 return groupName.substring(index + 1);
             }
         }

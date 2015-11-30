@@ -20,7 +20,7 @@ package org.wso2.carbon.identity.core.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 
 import java.sql.Connection;
@@ -36,19 +36,14 @@ public class IdentityDatabaseUtil {
      * Get a database connection instance from the Identity Persistence Manager
      *
      * @return Database Connection
-     * @throws IdentityException Error when getting an instance of the identity Persistence Manager
+     * @throws IdentityRuntimeException Error when getting a database connection to Identity database
      */
-    public static Connection getDBConnection() throws IdentityException {
-        try {
-            return JDBCPersistenceManager.getInstance().getDBConnection();
-        } catch (IdentityException e) {
-            String errMsg = "Error when getting a database connection from the Identity Persistence Manager";
-            log.error(errMsg, e);
-            throw e;
-        }
+    public static Connection getDBConnection() throws IdentityRuntimeException {
+        return JDBCPersistenceManager.getInstance().getDBConnection();
     }
 
     public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement prepStmt) {
+
         closeResultSet(rs);
         closeStatement(prepStmt);
         closeConnection(dbConnection);
@@ -59,8 +54,7 @@ public class IdentityDatabaseUtil {
             try {
                 dbConnection.close();
             } catch (SQLException e) {
-                log.error("Database error. Could not close statement. Continuing with others. - " +
-                        e.getMessage(), e);
+                log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
             }
         }
     }

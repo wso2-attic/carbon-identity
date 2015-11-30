@@ -24,7 +24,6 @@ import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
-import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
@@ -41,9 +40,6 @@ import java.util.Map;
 
 public class AuthorizationHandlerManager {
 
-    public static final String CODE = "code";
-    public static final String TOKEN = "token";
-    public static final String IMPLICIT = "implicit";
     private static Log log = LogFactory.getLog(AuthorizationHandlerManager.class);
 
     private static AuthorizationHandlerManager instance;
@@ -86,44 +82,31 @@ public class AuthorizationHandlerManager {
         if (!responseHandlers.containsKey(responseType)) {
             log.warn("Unsupported Response Type : " + responseType +
                     " provided  for user : " + authzReqDTO.getUsername());
-            handleErrorRequest(authorizeRespDTO, OAuth2ErrorCodes.UNSUPPORTED_RESP_TYPE,
+            handleErrorRequest(authorizeRespDTO, OAuthError.CodeResponse.UNSUPPORTED_RESPONSE_TYPE,
                     "Unsupported Response Type!");
             authorizeRespDTO.setCallbackURI(authzReqDTO.getCallbackUrl());
             return authorizeRespDTO;
         }
 
-        // loading the stored application data
-        OAuthAppDO oAuthAppDO = getAppInformation(authzReqDTO);
-        // If the application has defined a limited set of grant types, then check the grant
-        if (oAuthAppDO.getGrantTypes() != null) {
-            if (CODE.equals(responseType)) {
-                //Do not change this log format as these logs use by external applications
-                if (!oAuthAppDO.getGrantTypes().contains("authorization_code")) {
-                    log.debug("Unsupported Response Type : " + responseType +
-                            " for client id : " + authzReqDTO.getConsumerKey());
-                    handleErrorRequest(authorizeRespDTO, OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE,
-                            "Unsupported Response Type!");
-                    return authorizeRespDTO;
-                }
-            } else if (TOKEN.equals(responseType) && !oAuthAppDO.getGrantTypes().contains(IMPLICIT)) {
-                //Do not change this log format as these logs use by external applications
-                log.debug("Unsupported Response Type : " + responseType + " for client id : " + authzReqDTO
-                        .getConsumerKey());
-                handleErrorRequest(authorizeRespDTO, OAuthError.TokenResponse.UNSUPPORTED_GRANT_TYPE,
-                        "Unsupported Response Type!");
-                return authorizeRespDTO;
-            }
-        }
-
         ResponseTypeHandler authzHandler = responseHandlers.get(responseType);
         OAuthAuthzReqMessageContext authzReqMsgCtx = new OAuthAuthzReqMessageContext(authzReqDTO);
 
+        // loading the stored application data
+        OAuthAppDO oAuthAppDO = getAppInformation(authzReqDTO);
+
+        authzReqMsgCtx.addProperty("OAuthAppDO", oAuthAppDO);
+
         boolean accessDelegationAuthzStatus = authzHandler.validateAccessDelegation(authzReqMsgCtx);
-        if (!accessDelegationAuthzStatus) {
+        if(authzReqMsgCtx.getProperty("ErrorCode") != null){
+            authorizeRespDTO.setErrorCode((String)authzReqMsgCtx.getProperty("ErrorCode"));
+            authorizeRespDTO.setErrorMsg((String)authzReqMsgCtx.getProperty("ErrorMsg"));
+            authorizeRespDTO.setCallbackURI(authzReqDTO.getCallbackUrl());
+            return authorizeRespDTO;
+        } else if (!accessDelegationAuthzStatus) {
             log.warn("User : " + authzReqDTO.getUsername() +
                     " doesn't have necessary rights to grant access to the resource(s) " +
                     OAuth2Util.buildScopeString(authzReqDTO.getScopes()));
-            handleErrorRequest(authorizeRespDTO, OAuth2ErrorCodes.UNAUTHORIZED_CLIENT,
+            handleErrorRequest(authorizeRespDTO, OAuthError.CodeResponse.UNAUTHORIZED_CLIENT,
                     "Authorization Failure!");
             authorizeRespDTO.setCallbackURI(authzReqDTO.getCallbackUrl());
             return authorizeRespDTO;
@@ -135,7 +118,7 @@ public class AuthorizationHandlerManager {
                     + authzReqDTO.getUsername() + ", for the scope : "
                     + OAuth2Util.buildScopeString(authzReqDTO.getScopes()));
             handleErrorRequest(authorizeRespDTO,
-                    OAuth2ErrorCodes.INVALID_SCOPE, "Invalid Scope!");
+                    OAuthError.CodeResponse.INVALID_SCOPE, "Invalid Scope!");
             authorizeRespDTO.setCallbackURI(authzReqDTO.getCallbackUrl());
             return authorizeRespDTO;
         } else {
@@ -149,17 +132,21 @@ public class AuthorizationHandlerManager {
             }
         }
 
-        authorizeRespDTO = authzHandler.issue(authzReqMsgCtx);
+	try {
+	    // set the authorization request context to be used by downstream handlers. This is introduced as a fix for
+	    // IDENTITY-4111
+	    OAuth2Util.setAuthzRequestContext(authzReqMsgCtx);
+	    authorizeRespDTO = authzHandler.issue(authzReqMsgCtx);
+	} finally {
+	    // clears authorization request context
+	    OAuth2Util.clearAuthzRequestContext();
+	}
+	
         return authorizeRespDTO;
     }
 
-    private void handleErrorRequest(OAuth2AuthorizeRespDTO respDTO, String errorCode,
-                                    String errorMsg) {
-        respDTO.setErrorCode(errorCode);
-        respDTO.setErrorMsg(errorMsg);
-    }
-
-    private OAuthAppDO getAppInformation(OAuth2AuthorizeReqDTO authzReqDTO) throws IdentityOAuth2Exception, InvalidOAuthClientException {
+    private OAuthAppDO getAppInformation(OAuth2AuthorizeReqDTO authzReqDTO) throws IdentityOAuth2Exception,
+            InvalidOAuthClientException {
         OAuthAppDO oAuthAppDO;
         Object obj = appInfoCache.getValueFromCache(authzReqDTO.getConsumerKey());
         if (obj != null) {
@@ -170,5 +157,11 @@ public class AuthorizationHandlerManager {
             appInfoCache.addToCache(authzReqDTO.getConsumerKey(), oAuthAppDO);
             return oAuthAppDO;
         }
+    }
+
+    private void handleErrorRequest(OAuth2AuthorizeRespDTO respDTO, String errorCode,
+                                    String errorMsg) {
+        respDTO.setErrorCode(errorCode);
+        respDTO.setErrorMsg(errorMsg);
     }
 }

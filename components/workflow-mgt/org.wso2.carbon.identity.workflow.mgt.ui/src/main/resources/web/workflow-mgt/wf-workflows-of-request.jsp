@@ -28,7 +28,8 @@
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
-<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestAssociationDTO" %>
+<%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequestAssociation" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
 
@@ -60,13 +61,13 @@
             (ConfigurationContext) config.getServletContext()
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     client = new WorkflowAdminServiceClient(cookie, backendServerURL, configContext);
-    WorkflowRequestAssociationDTO[] workflowRequestAssociationDTOs = client.getWorkflowsOfRequest(requestId);
-    WorkflowRequestAssociationDTO[] workflowsToDisplay;
+    WorkflowRequestAssociation[] workflowRequestAssociationDTOs = client.getWorkflowsOfRequest(requestId);
+    WorkflowRequestAssociation[] workflowsToDisplay;
     numberOfPages = (int) Math.ceil((double) workflowRequestAssociationDTOs.length / WorkflowUIConstants.RESULTS_PER_PAGE);
 
     int startIndex = pageNumberInt * WorkflowUIConstants.RESULTS_PER_PAGE;
     int endIndex = (pageNumberInt + 1) * WorkflowUIConstants.RESULTS_PER_PAGE;
-    workflowsToDisplay = new WorkflowRequestAssociationDTO[WorkflowUIConstants.RESULTS_PER_PAGE];
+    workflowsToDisplay = new WorkflowRequestAssociation[WorkflowUIConstants.RESULTS_PER_PAGE];
 
     for (int i = startIndex, j = 0; i < endIndex && i < workflowRequestAssociationDTOs.length; i++, j++) {
         workflowsToDisplay[j] = workflowRequestAssociationDTOs[i];
@@ -98,16 +99,16 @@
                 </thead>
                 <tbody>
                 <%
-                    for (WorkflowRequestAssociationDTO workflow : workflowRequestAssociationDTOs) {
+                    for (WorkflowRequestAssociation workflow : workflowRequestAssociationDTOs) {
                 %>
                 <tr>
-                    <td><%=workflow.getWorkflowId()%>
+                    <td><%=Encode.forHtmlContent(workflow.getWorkflowId())%>
                     </td>
-                    <td><%=workflow.getWorkflowName()%>
+                    <td><%=Encode.forHtmlContent(workflow.getWorkflowName())%>
                     </td>
-                    <td><%=workflow.getLastUpdatedTime()%>
+                    <td><%=Encode.forHtmlContent(workflow.getLastUpdatedTime())%>
                     </td>
-                    <td><%=workflow.getStatus()%>
+                    <td><%=Encode.forHtmlContent(workflow.getStatus())%>
                     </td>
                 </tr>
                 <%

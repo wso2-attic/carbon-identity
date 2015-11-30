@@ -27,6 +27,7 @@
 
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String serverURL = CarbonUIUtil.getServerURL(config
@@ -95,7 +96,7 @@
                 <tr class="tableOddRow">
                     <td style="width: 30px;">
                         <div style="height:30px;">
-                            <a href="javascript:document.location.href='add-dialect.jsp?extuser=<%=haveExternalUserStore%>'"
+                            <a href="javascript:document.location.href='add-dialect.jsp?extuser=<%=Encode.forUriComponent(String.valueOf(haveExternalUserStore))%>'"
                                class="icon-link"
                                style="background-image:url(../admin/images/add.gif);"><fmt:message
                                     key='add.new.claim.dialect'/></a>

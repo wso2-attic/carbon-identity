@@ -124,4 +124,8 @@ public class UserRecoveryDataDO {
     public String getExpireTime() {
         return expireTime;
     }
+
+    public void setExpireTime(String expireTime) {
+        this.expireTime = expireTime;
+    }
 }

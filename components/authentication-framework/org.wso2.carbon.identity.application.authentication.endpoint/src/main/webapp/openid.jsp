@@ -16,31 +16,40 @@
   ~ under the License.
   --%>
 
-<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.CharacterEncoder" %>
-<div id="loginTable1" class="identity-box">
+<%@ page import="org.owasp.encoder.Encode" %>
+<form action="../commonauth" method="post" id="loginForm" class="form-horizontal">
     <%
-        loginFailed = CharacterEncoder.getSafeText(request.getParameter("loginFailed"));
+        loginFailed = request.getParameter("loginFailed");
         if (loginFailed != null) {
 
     %>
-    <div class="alert alert-error">
-        <fmt:message key='<%=CharacterEncoder.getSafeText(request.getParameter("errorMessage"))%>'/>
+    <div class="alert alert-danger">
+        <fmt:message key='<%=Encode.forHtml(request.getParameter("errorMessage"))%>'/>
     </div>
     <% } %>
 
-    <div class="control-group">
-        <label class="control-label" for="claimed_id">OpenID:</label>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <input class="input-large" type="text" id="claimed_id" name="claimed_id" size='30' placeholder="Open ID"/>
+        <input type="hidden" name="sessionDataKey"
+               value='<%=Encode.forHtmlAttribute(request.getParameter("sessionDataKey"))%>'/>
+    </div>
 
-        <div class="controls">
-            <input class="input-large" type="text" id="claimed_id" name="claimed_id" size='30'/>
-            <input type="hidden" name="sessionDataKey" value='<%=CharacterEncoder.getSafeText(request.getParameter("sessionDataKey"))%>'/>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" id="chkRemember" name="chkRemember"> Remember me on this computer
+            </label>
+        </div>
+        <br>
+
+        <div class="form-actions">
+            <button
+                    class="wr-btn grey-bg col-xs-12 col-md-12 col-lg-12 uppercase font-extra-large"
+                    type="submit">Sign in
+            </button>
         </div>
     </div>
 
-    <div class="form-actions">
-        <input type="submit" value='<fmt:message key='login'/>' class="btn btn-primary">
-    </div>
 
-</div>
-
-
+    <div class="clearfix"></div>
+</form>

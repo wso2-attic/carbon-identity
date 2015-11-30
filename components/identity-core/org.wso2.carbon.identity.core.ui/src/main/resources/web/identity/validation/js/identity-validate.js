@@ -60,6 +60,15 @@ function getPattern(pattern) {
         case "xml-meta-exists":
             regex = /.*[&<>"']+.*/;
             break;
+        case "http-url":
+            regex = /^(http:)([^/?#])?(:)?(([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
+            break;
+        case "https-url":
+            regex = /^(https:)([^/?#])?(:)?(([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
+            break;
+        case "ftp-url":
+            regex = /^(ftp:)([^/?#])?(:)?(([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
+            break;
         default:
             regex = new RegExp(pattern);
             break;
@@ -133,6 +142,31 @@ function getPatternString(patterns) {
 }
 
 /**
+ * Extracts the given validator object and show the confirmation dialog.
+ * Expects handleYes, handleNo, closeCallback as specified in dialog.js
+ * @param validationObj validator object
+ * @param msg   custom message
+ * @param handleYes function to be called upon user clicking yes
+ * @param handleNo  function to be called upon user clicking no
+ * @param closeCallback
+ * @returns {boolean} true if object contains isValid = true
+ */
+function isValidConfirmationDialog(validationObj, msg, handleYes, handleNo, closeCallback){
+    if (validationObj['isValid'] === true) {
+        return true;
+    }
+
+    var label = validationObj['label'];
+    var whiteListPatterns = validationObj['whiteListPatterns'];
+    var blackListPatterns = validationObj['blackListPatterns'];
+
+    var message = msg.replace('{0}', label).replace('{1}', whiteListPatterns === "" ? 'NONE' : whiteListPatterns)
+        .replace('{2}', blackListPatterns === "" ? 'NONE' : blackListPatterns);
+
+    CARBON.showConfirmationDialog(message, handleYes, handleNo, closeCallback);
+    return false;
+}
+/**
  * Extracts the given validator object
  *
  * @param validationObj validator object
@@ -170,7 +204,7 @@ function validateInput(inputElement) {
     var blackListPatternString = "";
     var labelString = "";
 
-    if (value != null && value != 'null' && value != "") {
+    if (value != null && value != 'null') {
         var whiteListPatterns = inputElement.getAttribute('white-list-patterns');
         var blackListPatterns = inputElement.getAttribute('black-list-patterns');
 
@@ -263,6 +297,23 @@ function validateForm(form) {
     };
 }
 
+/**
+ * Validates the given input element against white list or black list patterns and returns true if input is valid
+ * and pops up an confirmation dialog to ask user's confirmation if input is invalid.
+ *
+ * @param inputElement input element to be evaluated
+ * @param msg Message to be popped up if validations fails. If message contains {0}, {1} and {2},
+ * they are replaced by the input label, white list patterns and black list patterns respectively.
+ * @param handleYes function to be called upon user clicking yes
+ * @param handleNo function to be called upon user clicking no
+ * @param closeCallback
+ * @returns {boolean} true if successfully validated
+ */
+
+function doValidateInputToConfirm(inputElement, msg, handleYes, handleNo, closeCallback) {
+
+    return isValidConfirmationDialog(validateInput(inputElement), msg , handleYes, handleNo, closeCallback);
+}
 /**
  * Validates the given input element against white list or black list patterns and returns true if input is valid
  * and pops up an error message if input is invalid.

@@ -27,7 +27,7 @@ import org.wso2.carbon.utils.CarbonUtils;
  * Stores authenticated user attributes and OpenID Connect specific attributes during OIDC Authorization request
  * processing. Those values are later required to serve OIDC Token request and build IDToken.
  */
-public class AuthorizationGrantCache extends BaseCache<String, CacheEntry> {
+public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKey, AuthorizationGrantCacheEntry> {
     private static final String AUTHORIZATION_GRANT_CACHE_NAME = "AuthorizationGrantCache";
 
     private static volatile AuthorizationGrantCache instance;
@@ -53,28 +53,28 @@ public class AuthorizationGrantCache extends BaseCache<String, CacheEntry> {
         return instance;
     }
 
-    public void addToCache(CacheKey key, CacheEntry entry) {
-        String keyValue = ((AuthorizationGrantCacheKey)key).getUserAttributesId();
-        super.addToCache(keyValue, entry);
+    public void addToCache(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
+        String keyValue = key.getUserAttributesId();
+        super.addToCache(key, entry);
         SessionDataStore.getInstance().storeSessionData(keyValue, AUTHORIZATION_GRANT_CACHE_NAME, entry);
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().storeSessionData(keyValue,AUTHORIZATION_GRANT_CACHE_NAME,entry);
+        if (enableRequestScopeCache) {
+            SessionDataStore.getInstance().storeSessionData(keyValue, AUTHORIZATION_GRANT_CACHE_NAME, entry);
         }
     }
 
-    public CacheEntry getValueFromCache(CacheKey key) {
-        String keyValue = ((AuthorizationGrantCacheKey)key).getUserAttributesId();
-        CacheEntry cacheEntry = super.getValueFromCache(keyValue);
-        if(cacheEntry==null){
-            cacheEntry = (CacheEntry) SessionDataStore.getInstance().getSessionData(keyValue,
+    public AuthorizationGrantCacheEntry getValueFromCache(AuthorizationGrantCacheKey key) {
+        String keyValue = key.getUserAttributesId();
+        AuthorizationGrantCacheEntry cacheEntry = super.getValueFromCache(key);
+        if (cacheEntry == null) {
+            cacheEntry = (AuthorizationGrantCacheEntry) SessionDataStore.getInstance().getSessionData(keyValue,
                     AUTHORIZATION_GRANT_CACHE_NAME);
         }
         return cacheEntry;
     }
 
-    public void clearCacheEntry(CacheKey key) {
-        String keyValue = ((AuthorizationGrantCacheKey)key).getUserAttributesId();
-        super.clearCacheEntry(keyValue);
+    public void clearCacheEntry(AuthorizationGrantCacheKey key) {
+        String keyValue = key.getUserAttributesId();
+        super.clearCacheEntry(key);
         SessionDataStore.getInstance().clearSessionData(keyValue, AUTHORIZATION_GRANT_CACHE_NAME);
         if(enableRequestScopeCache){
             SessionDataStore.getInstance().clearSessionData(keyValue,AUTHORIZATION_GRANT_CACHE_NAME);

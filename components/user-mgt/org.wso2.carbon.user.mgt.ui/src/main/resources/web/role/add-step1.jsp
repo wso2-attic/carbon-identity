@@ -87,13 +87,14 @@
         if (allUserStoreInfo != null && allUserStoreInfo.length > 0) {
             for (int i = 0; i < allUserStoreInfo.length; i++) {
                 if (allUserStoreInfo[i] != null) {
-                    if (allUserStoreInfo[i].getDomainName() != null && !allUserStoreInfo[i].getReadOnly()) {
+                    if (allUserStoreInfo[i].getDomainName() != null && allUserStoreInfo[i].getWriteGroupsEnabled()) {
                         domainNames.add(allUserStoreInfo[i].getDomainName());
                     }
                 }
             }
         }
         domainNames.add(UserAdminUIConstants.INTERNAL_DOMAIN.toUpperCase());
+        domainNames.add(UserAdminUIConstants.APPLICATION_DOMAIN);
 
         if (domainNames.size() > 0) {
             if (primaryDomainName == null) {
@@ -284,13 +285,13 @@
                                         %>
                                         <option selected="selected"
                                                 value="<%=Encode.forHtmlAttribute(domainName)%>">
-                                            <%=Encode.forHtmlContent(domainName)%>
+                                            <%=Encode.forHtmlContent(domainName.toUpperCase())%>
                                         </option>
                                         <%
                                         } else {
                                         %>
                                         <option value="<%=Encode.forHtmlAttribute(domainName)%>">
-                                            <%=Encode.forHtmlContent(domainName)%>
+                                            <%=Encode.forHtmlContent(domainName.toUpperCase())%>
                                         </option>
                                         <%
                                                 }

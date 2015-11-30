@@ -133,8 +133,6 @@ public class IdentityMgtConstants {
 
         public static final String TEMPORARY_PASSWORD_EXPIRE_TIME = "Temporary.Password.Expire.Time";
 
-        public static final String TEMPORARY_PASSWORD_DEFAULT = "Temporary.Password.Default.Value";
-
         public static final String AUTH_POLICY_ENABLE = "Authentication.Policy.Enable";
 
         public static final String AUTH_POLICY_PASSWORD_ONE_TIME = "Authentication.Policy.Check.OneTime.Password";
@@ -172,6 +170,8 @@ public class IdentityMgtConstants {
         public static final String PASSWORD_LENGTH_MIN = "Password.policy.min.length";
 
         public static final String PASSWORD_LENGTH_MAX = "Password.policy.max.length";
+
+        public static final String REGISTRY_CLEANUP_PERIOD = "Identity.Mgt.Registry.CleanUpPeriod";
 
         private PropertyConfig(){
         }

@@ -25,7 +25,7 @@ import org.wso2.carbon.identity.application.authentication.framework.Application
 import org.wso2.carbon.identity.application.authenticator.social.facebook.FacebookAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.social.google.GoogleOAuth2Authenticator;
 import org.wso2.carbon.identity.application.authenticator.social.live.WindowsLiveOAuth2Authenticator;
-import org.wso2.carbon.identity.application.authenticator.social.yahoo.YahooOpenIDAuthenticator;
+import org.wso2.carbon.identity.application.authenticator.social.yahoo.YahooOAuth2Authenticator;
 
 /**
  * @scr.component name="identity.application.authenticator.social.component"
@@ -40,23 +40,28 @@ public class SocialAuthenticatorServiceComponent {
 
             FacebookAuthenticator facebookAuthenticator = new FacebookAuthenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
-                    facebookAuthenticator, null);
+                    facebookAuthenticator,
+                    null);
 
             WindowsLiveOAuth2Authenticator windowsLiveOAuth2Authenticator = new WindowsLiveOAuth2Authenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
-                                                    windowsLiveOAuth2Authenticator, null);
+                    windowsLiveOAuth2Authenticator,
+                    null);
 
             GoogleOAuth2Authenticator googleAuthenticator = new GoogleOAuth2Authenticator();
-            ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(), googleAuthenticator,
-                                                    null);
-
-            YahooOpenIDAuthenticator yahooOpenIDAuthenticator = new YahooOpenIDAuthenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
-                                                    yahooOpenIDAuthenticator, null);
+                    googleAuthenticator,
+                    null);
+
+            YahooOAuth2Authenticator yahooOAuth2Authenticator = new YahooOAuth2Authenticator();
+            ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
+                    yahooOAuth2Authenticator,
+                    null);
 
             if (log.isDebugEnabled()) {
                 log.debug("Social Authenticator bundle is activated.");
             }
+
         } catch (Throwable e) {
             log.fatal("Error while activating Social authenticator bundle.", e);
         }

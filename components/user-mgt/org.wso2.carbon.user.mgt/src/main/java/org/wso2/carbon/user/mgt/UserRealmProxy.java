@@ -20,6 +20,7 @@ package org.wso2.carbon.user.mgt;
 
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -131,7 +132,8 @@ public class UserRealmProxy {
                             indexOf(CarbonConstants.DOMAIN_SEPARATOR) : -1;
                     boolean domainProvided = index1 > 0;
                     String domain = domainProvided ? flaggedNames[i].getItemName().substring(0, index1) : null;
-                    if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                    if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) &&
+                            !UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                         UserStoreManager secondaryUM = realm.getUserStoreManager().getSecondaryUserStoreManager(domain);
                         if (secondaryUM != null && secondaryUM.isReadOnly()) {
                             flaggedNames[i].setEditable(false);
@@ -189,7 +191,8 @@ public class UserRealmProxy {
                         ? flaggedNames[i].getItemName().indexOf(CarbonConstants.DOMAIN_SEPARATOR) : -1;
                 boolean domainProvided = index1 > 0;
                 String domain = domainProvided ? flaggedNames[i].getItemName().substring(0, index1) : null;
-                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) &&
+                        !UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                     UserStoreManager secondaryUM =
                             realm.getUserStoreManager().getSecondaryUserStoreManager(domain);
                     if (secondaryUM != null && secondaryUM.isReadOnly()) {
@@ -304,7 +307,8 @@ public class UserRealmProxy {
                         realm.getUserStoreManager()
                                 .getSecondaryUserStoreManager(domain);
 
-                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) &&
+                        !UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                     if (secManager != null &&
                             (secManager.isReadOnly() || (secManager.getRealmConfiguration()
                                     .getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null &&
@@ -410,7 +414,8 @@ public class UserRealmProxy {
                 String domain = domainProvided ? externalRole.substring(0, index) : null;
                 UserStoreManager secManager = realm.getUserStoreManager().getSecondaryUserStoreManager(domain);
 
-                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) &&
+                        !UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                     if (secManager != null && (secManager.isReadOnly() ||
                             (FALSE.equals(secManager.getRealmConfiguration().
                                     getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))))) {
@@ -646,6 +651,13 @@ public class UserRealmProxy {
             UserStoreInfo info = new UserStoreInfo();
 
             info.setReadOnly(manager.isReadOnly());
+
+            boolean readRolesEnabled = Boolean.parseBoolean(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
+            info.setReadGroupsEnabled(readRolesEnabled);
+            boolean writeRolesEnabled = Boolean.parseBoolean(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED));
+            info.setWriteGroupsEnabled(!manager.isReadOnly() && readRolesEnabled && writeRolesEnabled);
             info.setPasswordsExternallyManaged(realmConfig.isPasswordsExternallyManaged());
             info.setPasswordRegEx(realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JS_REG_EX));
@@ -666,7 +678,7 @@ public class UserRealmProxy {
             info.setExternalIdP(realmConfig.
                     getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_EXTERNAL_IDP));
 
-            info.setBulkImportSupported(this.isBulkImportSupported());
+            info.setBulkImportSupported(this.isBulkImportSupported(realmConfig));
             info.setDomainName(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
 
             boolean caseSensitiveUsername = IdentityUtil.isUserStoreCaseSensitive(manager);
@@ -675,7 +687,11 @@ public class UserRealmProxy {
             return info;
         } catch (UserStoreException e) {
             // previously logged so logging not needed
-            throw new UserAdminException(e.getMessage(), e);
+            String domainName = manager.getRealmConfiguration().getUserStoreProperty(UserCoreConstants.RealmConfig
+                    .PROPERTY_DOMAIN_NAME);
+            String errorMsg = "Error while getting user realm information for domain '" + domainName + "' : " + e
+                    .getMessage();
+            throw new UserAdminException(errorMsg, e);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new UserAdminException(e.getMessage(), e);
@@ -683,18 +699,12 @@ public class UserRealmProxy {
     }
 
 
-    private boolean isBulkImportSupported() throws UserAdminException {
-        try {
-            UserStoreManager userStoreManager = this.realm.getUserStoreManager();
-            if (userStoreManager != null) {
-                return userStoreManager.isBulkImportSupported();
+    private boolean isBulkImportSupported(RealmConfiguration realmConfig) throws UserAdminException {
+            if (realmConfig != null) {
+                return Boolean.valueOf(realmConfig.getUserStoreProperties().get("IsBulkImportSupported"));
             } else {
                 throw new UserAdminException("Unable to retrieve user store manager from realm.");
             }
-
-        } catch (UserStoreException e) {
-            throw new UserAdminException("An error occurred while retrieving user store from realm.", e);
-        }
     }
 
     /**
@@ -705,13 +715,12 @@ public class UserRealmProxy {
      */
     private final String addPrimaryDomainIfNotExists(String userName) {
 
-        if ((userName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) < 0) {
+        if (StringUtils.isNotEmpty(userName) && (!userName.contains(UserCoreConstants.DOMAIN_SEPARATOR))) {
             StringBuilder builder = new StringBuilder();
             builder.append(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME).append(CarbonConstants.DOMAIN_SEPARATOR)
                     .append(userName);
             userName = builder.toString();
         }
-
         return userName;
     }
 
@@ -882,7 +891,8 @@ public class UserRealmProxy {
                         Arrays.binarySearch(permissions, "/permission/protected") > -1 ||
                         Arrays.binarySearch(permissions, "/permission/protected/") > -1) {
                     log.warn("An attempt to create role with admin permission by user " + loggedInUserName);
-                    throw new UserStoreException("You have not privilege to create a role with Admin permission");
+                    throw new UserStoreException("You do not have the required privilege to create a role with Admin " +
+                            "permission");
                 }
             }
 
@@ -890,9 +900,7 @@ public class UserRealmProxy {
             UserStoreManager secManager = null;
 
             if (roleName.contains("/")) {
-                secManager = usAdmin.
-                        getSecondaryUserStoreManager(roleName.substring(0, roleName.indexOf("/")));
-
+                secManager = usAdmin.getSecondaryUserStoreManager(roleName.substring(0, roleName.indexOf("/")));
             } else {
                 secManager = usAdmin;
             }
@@ -936,20 +944,31 @@ public class UserRealmProxy {
                         Arrays.binarySearch(permissions, "/permission/protected") > -1 ||
                         Arrays.binarySearch(permissions, "/permission/protected/") > -1) {
                     log.warn("An attempt to create role with admin permission by user " + loggedInUserName);
-                    throw new UserStoreException("You have not privilege to create a role with Admin permission");
+                    throw new UserStoreException("You do not have the required privilege to create a role with Admin " +
+                            "permission");
                 }
             }
 
             UserStoreManager usAdmin = realm.getUserStoreManager();
             if (usAdmin instanceof AbstractUserStoreManager) {
-                ((AbstractUserStoreManager) usAdmin).addRole(UserCoreConstants.INTERNAL_DOMAIN
-                        + UserCoreConstants.DOMAIN_SEPARATOR + roleName, userList, null, false);
+                if ((roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR) && UserMgtConstants.APPLICATION_DOMAIN
+                        .equals(roleName.substring(0, roleName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR))))) {
+                    ((AbstractUserStoreManager) usAdmin).addRole(roleName, userList, null, false);
+                } else {
+                    ((AbstractUserStoreManager) usAdmin).addRole(UserCoreConstants.INTERNAL_DOMAIN
+                            + UserCoreConstants.DOMAIN_SEPARATOR + roleName, userList, null, false);
+                }
             } else {
                 throw new UserStoreException("Internal role can not be created");
             }
             // adding permission with internal domain name
-            ManagementPermissionUtil.updateRoleUIPermission(UserCoreConstants.INTERNAL_DOMAIN
-                    + UserCoreConstants.DOMAIN_SEPARATOR + roleName, permissions);
+            if((roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR) && UserMgtConstants.APPLICATION_DOMAIN.equals
+                    (roleName.substring(0, roleName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR))))) {
+                ManagementPermissionUtil.updateRoleUIPermission(roleName, permissions);
+            } else {
+                ManagementPermissionUtil.updateRoleUIPermission(UserCoreConstants.INTERNAL_DOMAIN
+                        + UserCoreConstants.DOMAIN_SEPARATOR + roleName, permissions);
+            }
         } catch (UserStoreException e) {
             log.error(e.getMessage(), e);
             throw new UserAdminException(e.getMessage(), e);
@@ -1297,7 +1316,8 @@ public class UserRealmProxy {
                     FlaggedName fName = new FlaggedName();
                     mapEntityName(role, fName, admin);
                     fName.setSelected(true);
-                    if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                    if (domain != null && !UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) &&
+                            !UserMgtConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                         if ((admin.getSecondaryUserStoreManager(domain).isReadOnly() ||
                                 (admin.getSecondaryUserStoreManager(domain).getRealmConfiguration().
                                         getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null &&
@@ -2079,14 +2099,20 @@ public class UserRealmProxy {
         }
     }
 
-    public void bulkImportUsers(String fileName, InputStream inStream, String defaultPassword)
+    public void bulkImportUsers(String userStoreDomain, String fileName, InputStream inStream, String defaultPassword)
             throws UserAdminException {
         try {
             BulkImportConfig config = new BulkImportConfig(inStream, fileName);
             if (defaultPassword != null && defaultPassword.trim().length() > 0) {
                 config.setDefaultPassword(defaultPassword.trim());
             }
+            if(StringUtils.isNotEmpty(userStoreDomain)){
+                config.setUserStoreDomain(userStoreDomain);
+            }
+
             UserStoreManager userStore = this.realm.getUserStoreManager();
+            userStore = userStore.getSecondaryUserStoreManager(userStoreDomain);
+
             if (fileName.endsWith("csv")) {
                 CSVUserBulkImport csvAdder = new CSVUserBulkImport(config);
                 csvAdder.addUserList(userStore);

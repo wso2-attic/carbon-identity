@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>sso-saml</artifactId>
-        <version>4.6.0-SNAPSHOT</version>
+        <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -81,6 +81,10 @@
             <groupId>org.wso2.orbit.org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
+            <artifactId>encoder</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -102,7 +106,7 @@
                             javax.cache,
                             javax.crypto.*,
                             javax.net.ssl,
-                            javax.xml.parsers,
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
                             javax.xml.namespace,
                             javax.security.auth.x500,
                             javax.servlet; version="${imp.pkg.version.javax.servlet}",
@@ -120,6 +124,7 @@
 
                             org.apache.commons.codec.binary; version="${commons-codec.wso2.osgi.version.range}",
                             org.apache.commons.httpclient.*; version="${commons-httpclient.wso2.osgi.version}",
+                            org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
 
                             org.osgi.service.http; version="${osgi.service.http.imp.pkg.version.range}",

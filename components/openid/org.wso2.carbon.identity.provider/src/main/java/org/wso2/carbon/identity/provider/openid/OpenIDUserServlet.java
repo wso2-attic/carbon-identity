@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.provider.openid;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.owasp.encoder.Encode;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.provider.dto.OpenIDProviderInfoDTO;
@@ -88,7 +89,6 @@ public class OpenIDUserServlet extends HttpServlet {
         String errorBack = "";
         try {
             user = OpenIDUtil.getUserName(req.getRequestURL().toString());
-            user = CharacterEncoder.getSafeText(user);
             if (log.isDebugEnabled()) {
                 log.debug("OpenID url hit for the user " + user);
             }
@@ -209,7 +209,7 @@ public class OpenIDUserServlet extends HttpServlet {
                + "<td class=\"openid-box-back\">"
                + "<img src=\"" + placeHolder +
                "../carbon/openid-provider/images/openid-biguser.gif\" align=\"middle\" hspace=\"50\" />This is the OpenID Url of user, <span class=\"openid-box-username\">" +
-               user + "</span>"
+                Encode.forHtml(user) + "</span>"
                + "</td>"
                + "<td class=\"openid-box-04\"></td>"
                + "</tr>"

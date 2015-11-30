@@ -38,12 +38,17 @@
     String isUserChange = request.getParameter("isUserChange");
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-    String returnPath = null;
+    String returnPath = request.getParameter("returnPath");
     String username = null;
     String cancelPath = null;
+
+    String trustedReturnPath = "../userstore/index.jsp";
+    if ("user-mgt.jsp".equals(returnPath)) {
+        trustedReturnPath = "user-mgt.jsp";
+    }
+
     if (isUserChange != null) {
-        returnPath = request.getParameter("returnPath");
-        cancelPath = returnPath;
+        cancelPath = trustedReturnPath;
     } else {
         username = request.getParameter("username");
         cancelPath = "user-mgt.jsp?ordinal=1";
@@ -141,14 +146,21 @@
             }
         }
 
-
         function doValidation() {
             var reason = "";
-
             if (!skipPasswordValidation) {
+                if (!(typeof document.getElementsByName("currentPassword")[0] === 'undefined')) {
+                    if (isEmpty("currentPassword")) {
+                        CARBON.showWarningDialog("<fmt:message key="empty.current.password"/>");
+                        return false;
+                    }
+                }
+
                 var pwdRegEX = document.getElementById("pwd_regex").value;
                 reason = validatePasswordOnCreation("newPassword", "checkPassword", pwdRegEX);
+
                 if (reason != "") {
+
                     if (reason == "Empty Password") {
                         CARBON.showWarningDialog("<fmt:message key="enter.the.same.password.twice"/>");
                     } else if (reason == "Min Length") {
@@ -168,9 +180,11 @@
 
                         CARBON.showWarningDialog("<%=Encode.forJavaScriptBlock(Encode.forHtml(passwordErrorMessage))%>");
                     }
+
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -187,9 +201,7 @@
                 <input type="hidden" name="username" value="<%=Encode.forHtmlAttribute(username)%>"/>
                 <% if (isUserChange != null) { %>
                 <input type="hidden" name="isUserChange" value="<%=Encode.forHtmlAttribute(isUserChange)%>"/>
-                <% } %>
-                <% if (returnPath != null) { %>
-                <input type="hidden" name="returnPath" value="<%=Encode.forHtmlAttribute(returnPath)%>"/>
+                <input type="hidden" name="returnPath" value="<%=Encode.forHtmlAttribute(trustedReturnPath)%>"/>
                 <% } %>
                 <table class="styledLeft" id="changePassword" width="60%">
                     <thead>

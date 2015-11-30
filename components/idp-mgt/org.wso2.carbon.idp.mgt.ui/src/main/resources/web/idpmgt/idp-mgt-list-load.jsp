@@ -17,22 +17,24 @@
 -->
 
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
-<%@page import="org.wso2.carbon.CarbonConstants"%>
+<%@page import="org.owasp.encoder.Encode"%>
+<%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
 <%@ page import="org.wso2.carbon.idp.mgt.ui.client.IdentityProviderMgtServiceClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
+<%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
-<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="java.util.UUID" %>
 
 <%
     String BUNDLE = "org.wso2.carbon.idp.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-    String callback = CharacterEncoder.getSafeText(request.getParameter("callback"));
+    String callback = request.getParameter("callback");
     if(callback == null || callback != null && callback.equals("")){
         callback = "idp-mgt-list.jsp";
     }
@@ -43,7 +45,16 @@
                 (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
         List<IdentityProvider> identityProviders = client.getIdPs();
+
+        Map<String, UUID> idpUniqueIdMap = new HashMap<String, UUID>();
+
+        for(IdentityProvider provider : identityProviders) {
+            idpUniqueIdMap.put(provider.getIdentityProviderName(), UUID.randomUUID());
+        }
+
         session.setAttribute("identityProviderList", identityProviders);
+        session.setAttribute("idpUniqueIdMap", idpUniqueIdMap);
+
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("error.loading.idps"),
                 new Object[]{e.getMessage()});
@@ -51,7 +62,7 @@
     }
 %>
 <script type="text/javascript">
-    location.href = "<%=Encode.forJavaScriptBlock(callback)%>";
+    location.href = "<%=Encode.forUriComponent(callback)%>";
 </script>
 
 

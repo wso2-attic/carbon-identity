@@ -19,7 +19,6 @@
 package org.wso2.carbon.identity.mgt.store;
 
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.mgt.dto.IdentityMetadataDO;
@@ -48,7 +47,7 @@ public class UserIdentityMetadataStore {
      * @throws IdentityException
      */
     public void invalidateMetadata(IdentityMetadataDO metadata) throws IdentityException {
-        Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
             prepStmt = connection.prepareStatement(SQLQuery.INVALIDATE_METADATA);
@@ -72,7 +71,7 @@ public class UserIdentityMetadataStore {
      * @throws IdentityException
      */
     public void invalidateMetadataSet(IdentityMetadataDO[] metadataSet) throws IdentityException {
-        Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
             prepStmt = connection.prepareStatement(SQLQuery.INVALIDATE_METADATA);
@@ -102,7 +101,7 @@ public class UserIdentityMetadataStore {
      * @throws IdentityException
      */
     public void storeMetadata(IdentityMetadataDO metadata) throws IdentityException {
-        Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
             prepStmt = connection.prepareStatement(SQLQuery.STORE_META_DATA);
@@ -128,7 +127,7 @@ public class UserIdentityMetadataStore {
      * @throws IdentityException
      */
     public void storeMetadataSet(IdentityMetadataDO[] metadataSet) throws IdentityException {
-        Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         try {
             connection.setAutoCommit(false);
@@ -166,7 +165,7 @@ public class UserIdentityMetadataStore {
      */
     public IdentityMetadataDO loadMetadata(String userName, int tenantId, String metadataType,
                                            String metadata) throws IdentityException {
-        Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet results = null;
         try {
@@ -203,7 +202,7 @@ public class UserIdentityMetadataStore {
      */
     public IdentityMetadataDO[] loadMetadata(String userName, int tenantId)
             throws IdentityException {
-        Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet results = null;
         try {
@@ -241,7 +240,7 @@ public class UserIdentityMetadataStore {
      */
     public IdentityMetadataDO[] loadMetadata(String userName, int tenantId, String metadataType)
             throws IdentityException {
-        Connection connection = JDBCPersistenceManager.getInstance().getDBConnection();
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet results = null;
         try {

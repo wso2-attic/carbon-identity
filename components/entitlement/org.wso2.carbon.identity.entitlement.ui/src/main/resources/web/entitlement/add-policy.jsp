@@ -23,6 +23,7 @@
 <%@ page import="org.wso2.carbon.identity.entitlement.common.PolicyEditorException" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
     String BUNDLE = "org.wso2.carbon.identity.entitlement.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
@@ -43,7 +44,7 @@
             %>
             <script type="text/javascript">
                 function forward() {
-                    location.href = "policy-editor-config-view.jsp?type=" + <%=type%>;
+                    location.href = "policy-editor-config-view.jsp?type=" + <%=Encode.forUriComponent(type)%>;
                 }
             </script>
             <script type="text/javascript">
