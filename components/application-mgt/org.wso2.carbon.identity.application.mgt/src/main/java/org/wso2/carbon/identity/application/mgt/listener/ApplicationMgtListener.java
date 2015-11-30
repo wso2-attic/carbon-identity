@@ -124,7 +124,7 @@ public interface ApplicationMgtListener {
      * @return
      * @throws IdentityApplicationManagementException
      */
-    boolean doPreGetApplication(String applicationName, String tenantDomain)
+    boolean doPreGetServiceProvider(String applicationName, String tenantDomain)
             throws IdentityApplicationManagementException;
 
     /**
@@ -135,12 +135,12 @@ public interface ApplicationMgtListener {
      * @return
      * @throws IdentityApplicationManagementException
      */
-    boolean doPostGetApplication(ServiceProvider serviceProvider, String applicationName, String tenantDomain)
+    boolean doPostGetServiceProvider(ServiceProvider serviceProvider, String applicationName, String tenantDomain)
             throws IdentityApplicationManagementException;
 
-    boolean doPreGetApplicationByClientId(String clientId, String clientType, String tenantDomain)
+    boolean doPreGetServiceProviderByClientId(String clientId, String clientType, String tenantDomain)
             throws IdentityApplicationManagementException;
 
-    boolean doPostGetApplicationByClientId(ServiceProvider serviceprovider, String clientId, String clientType, String tenantDomain)
+    boolean doPostGetServiceProviderByClientId(ServiceProvider serviceprovider, String clientId, String clientType, String tenantDomain)
             throws IdentityApplicationManagementException;
 }

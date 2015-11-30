@@ -60,7 +60,6 @@ import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.config.SecurityServiceAdmin;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.UserStoreException;
@@ -171,11 +170,11 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     @Override
     public ServiceProvider getApplicationExcludingFileBasedSPs(String applicationName, String tenantDomain)
             throws IdentityApplicationManagementException {
-
+        ServiceProvider serviceProvider = null;
         // invoking the listeners
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreGetApplication(applicationName, tenantDomain)) {
+            if (!listener.doPreGetServiceProvider(applicationName, tenantDomain)) {
                 return null;
             }
         }
@@ -185,19 +184,10 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             startTenantFlow(tenantDomain);
 
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
-            ServiceProvider serviceProvider = appDAO.getApplication(applicationName, tenantDomain);
+            serviceProvider = appDAO.getApplication(applicationName, tenantDomain);
             if (serviceProvider != null) {
                 loadApplicationPermissions(applicationName, serviceProvider);
             }
-
-            // invoking the listeners
-            for (ApplicationMgtListener listener : listeners) {
-                if (!listener.doPostGetApplication(serviceProvider, applicationName, tenantDomain)) {
-                    return null;
-                }
-            }
-
-            return serviceProvider;
 
         } catch (Exception e) {
             String error = "Error occurred while retrieving the application, " + applicationName;
@@ -206,6 +196,15 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         } finally {
             endTenantFlow();
         }
+
+        // invoking the listeners
+        for (ApplicationMgtListener listener : listeners) {
+            if (!listener.doPostGetServiceProvider(serviceProvider, applicationName, tenantDomain)) {
+                return null;
+            }
+        }
+
+        return serviceProvider;
     }
 
     @Override
@@ -660,7 +659,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         // invoking the listeners
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreGetApplication(serviceProviderName, tenantDomain)) {
+            if (!listener.doPreGetServiceProvider(serviceProviderName, tenantDomain)) {
                 return null;
             }
         }
@@ -683,7 +682,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
         // invoking the listeners
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostGetApplication(serviceProvider, serviceProviderName, tenantDomain)) {
+            if (!listener.doPostGetServiceProvider(serviceProvider, serviceProviderName, tenantDomain)) {
                 return null;
             }
         }
@@ -704,7 +703,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         // invoking the listeners
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreGetApplicationByClientId(clientId, clientType, tenantDomain)) {
+            if (!listener.doPreGetServiceProviderByClientId(clientId, clientType, tenantDomain)) {
                 return null;
             }
         }
@@ -767,12 +766,6 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
         endTenantFlow();
 
-        for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostGetApplicationByClientId(serviceProvider, clientId, clientType, tenantDomain)) {
-                return null;
-            }
-        }
-
         try {
             startTenantFlow(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
@@ -784,6 +777,13 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         } finally {
             endTenantFlow();
         }
+
+        for (ApplicationMgtListener listener : listeners) {
+            if (!listener.doPostGetServiceProviderByClientId(serviceProvider, clientId, clientType, tenantDomain)) {
+                return null;
+            }
+        }
+
         return serviceProvider;
     }
 

@@ -51,22 +51,22 @@ public abstract class AbstractApplicationMgtListener implements ApplicationMgtLi
         return true;
     }
 
-    public boolean doPreGetApplication(String applicationName, String tenantDomain)
+    public boolean doPreGetServiceProvider(String applicationName, String tenantDomain)
             throws IdentityApplicationManagementException{
         return true;
     }
 
-    public boolean doPostGetApplication(ServiceProvider serviceProvider, String applicationName, String tenantDomain) throws IdentityApplicationManagementException{
+    public boolean doPostGetServiceProvider(ServiceProvider serviceProvider, String applicationName, String tenantDomain) throws IdentityApplicationManagementException{
         return true;
     }
 
-    public boolean doPreGetApplicationByClientId(String clientId, String clientType,
-                                                 String tenantDomain)throws IdentityApplicationManagementException{
+    public boolean doPreGetServiceProviderByClientId(String clientId, String clientType,
+                                                     String tenantDomain)throws IdentityApplicationManagementException{
         return true;
     }
 
-    public boolean doPostGetApplicationByClientId(ServiceProvider serviceProvider, String clientId, String clientType,
-                                                 String tenantDomain)throws IdentityApplicationManagementException{
+    public boolean doPostGetServiceProviderByClientId(ServiceProvider serviceProvider, String clientId, String clientType,
+                                                      String tenantDomain)throws IdentityApplicationManagementException{
         return true;
     }
 

@@ -48,7 +48,7 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
         return true;
     }
 
-    public boolean doPostGetApplication(ServiceProvider serviceProvider, String serviceProviderName, String tenantDomain)
+    public boolean doPostGetServiceProvider(ServiceProvider serviceProvider, String serviceProviderName, String tenantDomain)
             throws IdentityApplicationManagementException {
 
         if (serviceProvider == null) {
@@ -64,8 +64,8 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
         return true;
     }
 
-    public boolean doPostGetApplicationByClientId(ServiceProvider serviceProvider, String clientId, String clientType,
-                                                  String tenantDomain) throws IdentityApplicationManagementException {
+    public boolean doPostGetServiceProviderByClientId(ServiceProvider serviceProvider, String clientId, String clientType,
+                                                      String tenantDomain) throws IdentityApplicationManagementException {
         if (serviceProvider == null) {
             return true; // if service provider is not present no need to add this information
         }
