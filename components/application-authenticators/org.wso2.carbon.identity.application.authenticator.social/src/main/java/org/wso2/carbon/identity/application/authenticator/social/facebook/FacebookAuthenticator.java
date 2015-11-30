@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 
@@ -246,9 +247,6 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
                             code);
             token = sendRequest(tokenRequest.getLocationUri());
             if (token.startsWith("{")) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Received token: " + token + " for code: " + code);
-                }
                 throw new ApplicationAuthenticatorException("Received access token is invalid.");
             }
         } catch (MalformedURLException e) {
@@ -291,7 +289,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
             }
         } catch (MalformedURLException e) {
             if (log.isDebugEnabled()) {
-                log.debug("URL : " + fbAuthUserInfoUrl + token, e);
+                log.debug("URL : " + fbAuthUserInfoUrl, e);
             }
             throw new ApplicationAuthenticatorException(
                     "MalformedURLException while sending user information request.",
@@ -319,7 +317,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
             throws ApplicationAuthenticatorException {
 
         String userInfoString = getUserInfoString(fbAuthUserInfoUrl, userInfoFields, token);
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_ID_TOKEN)) {
             log.debug("UserInfoString : " + userInfoString);
         }
         Map<String, Object> jsonObject = JSONUtils.parseJSON(userInfoString);
@@ -334,7 +332,8 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
             for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
                 claims.put(ClaimMapping.build(entry.getKey(), entry.getKey(), null,
                         false), entry.getValue().toString());
-                if (log.isDebugEnabled()) {
+                if (log.isDebugEnabled() &&
+                        IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)) {
                     log.debug("Adding claim mapping : " + entry.getKey() + " <> " + entry.getKey() + " : "
                             + entry.getValue());
                 }

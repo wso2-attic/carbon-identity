@@ -236,6 +236,20 @@ public class IdentityConstants {
         public final static String OPEN_ID_TOKEN = "OpenIDToken";
     }
 
+    public static class IdentityTokens {
+
+        public static final String FILE_NAME = "identity_log_tokens.properties";
+        public static final String READ_LOG_TOKEN_PROPERTIES = "Read_Log_Token_Properties";
+
+        public static final String USER_CLAIMS = "UserClaims";
+        public static final String USER_ID_TOKEN = "UserIdToken";
+        public static final String XACML_REQUEST = "XACML_Request";
+        public static final String XACML_RESPONSE = "XACML_Response";
+        public static final String NTLM_TOKEN = "NTLM_Token";
+        public static final String SAML_ASSERTION = "SAML_Assertion";
+        public static final String SAML_REQUEST = "SAML_Request";
+    }
+
     /**
      * Common constants related to OpenID.
      */
@@ -317,5 +331,16 @@ public class IdentityConstants {
             public final static String VALUE = "openid.ext1.value.";
             public final static String FETCH_RESPONSE = "fetch_response";
         }
+    }
+
+    public static class CarbonPlaceholders {
+
+       public static final String CARBON_HOST = "${carbon.host}";
+       public static final String CARBON_PORT = "${carbon.management.port}";
+       public static final String CARBON_PROXY_CONTEXT_PATH = "${carbon.proxycontextpath}";
+       public static final String CARBON_WEB_CONTEXT_ROOT = "${carbon.webcontextroot}";
+       public static final String CARBON_PROTOCOL = "${carbon.protocol}";
+       public static final String CARBON_CONTEXT = "${carbon.context}";
+
     }
 }
