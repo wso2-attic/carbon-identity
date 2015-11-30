@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class CommonAuthenticationHandler{
+public class CommonAuthenticationHandler {
 
     public CommonAuthenticationHandler() {
         ConfigurationFacade.getInstance();
@@ -44,7 +44,6 @@ public class CommonAuthenticationHandler{
             FrameworkUtils.setMaxInactiveInterval(request.getSession().getMaxInactiveInterval());
         }
         FrameworkUtils.getRequestCoordinator().handle(request, response);
-
 
     }
 }

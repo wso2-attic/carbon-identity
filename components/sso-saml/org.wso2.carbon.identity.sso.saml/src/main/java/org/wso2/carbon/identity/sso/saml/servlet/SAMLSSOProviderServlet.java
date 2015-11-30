@@ -29,13 +29,13 @@ import org.wso2.carbon.identity.application.authentication.framework.cache.Authe
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthRequestWrapper;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthResponseWrapper;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.identity.sso.saml.DelegatingResponseWrapper;
-import org.wso2.carbon.identity.sso.saml.ParameterDelegatingRequestWrapper;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOService;
 import org.wso2.carbon.identity.sso.saml.cache.SessionDataCache;
@@ -126,6 +126,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      */
     private void handleRequest(HttpServletRequest req, HttpServletResponse resp, boolean isPost)
             throws ServletException, IOException {
+
         String sessionId = null;
         Cookie ssoTokenIdCookie = getTokenIdCookie(req);
 
@@ -337,7 +338,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 sendToFrameworkForAuthentication(req, resp, signInRespDTO, relayState, isPost);
             } else {
                 //TODO send invalid response to SP
-                if (log.isDebugEnabled()) {
+                if (log.isDebugEnabled() &&
+                        IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.SAML_REQUEST)) {
                     log.debug("Invalid SAML SSO Request : " + samlRequest);
                 }
                 String errorResp = signInRespDTO.getResponse();
@@ -349,7 +351,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             if (signInRespDTO.isValid()) {
                 sendToFrameworkForLogout(req, resp, signInRespDTO, relayState, sessionId, false, isPost);
             } else {
-                if (log.isDebugEnabled()) {
+                if (log.isDebugEnabled() &&
+                        IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.SAML_REQUEST)) {
                     log.debug("Invalid SAML SSO Logout Request : " + samlRequest);
                 }
                 if (signInRespDTO.isLogoutFromAuthFramework()) {
@@ -890,16 +893,28 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         return queryParamDTOs.toArray(new QueryParamDTO[queryParamDTOs.size()]);
     }
 
+    /**
+     * This method use to call authentication framework directly via API other than using HTTP redirects.
+     * Sending wrapper request object to doGet method since other original request doesn't exist required parameters
+     * Doesn't check SUCCESS_COMPLETED since taking decision with INCOMPLETE status
+     *
+     * @param request  Http Request
+     * @param response Http Response
+     * @param sessionDataKey Session data key
+     * @param type authenticator type
+     * @throws ServletException
+     * @throws IOException
+     */
     private void forward(HttpServletRequest request, HttpServletResponse response, String sessionDataKey, String type)
             throws ServletException, IOException {
 
         CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
 
-        ParameterDelegatingRequestWrapper requestWrapper = new ParameterDelegatingRequestWrapper(request);
+        CommonAuthRequestWrapper requestWrapper = new CommonAuthRequestWrapper(request);
         requestWrapper.setParameter(FrameworkConstants.SESSION_DATA_KEY, sessionDataKey);
         requestWrapper.setParameter(FrameworkConstants.RequestParams.TYPE, type);
 
-        DelegatingResponseWrapper responseWrapper = new DelegatingResponseWrapper(response);
+        CommonAuthResponseWrapper responseWrapper = new CommonAuthResponseWrapper(response);
         commonAuthenticationHandler.doGet(requestWrapper, responseWrapper);
 
         Object object = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
@@ -908,10 +923,10 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             if (status == AuthenticatorFlowStatus.INCOMPLETE) {
                 response.sendRedirect(responseWrapper.getRedirectURL());
             } else {
-                doGet(requestWrapper, responseWrapper);
+                doGet(requestWrapper, response);
             }
         } else {
-            doGet(requestWrapper, responseWrapper);
+            doGet(requestWrapper, response);
         }
     }
 }

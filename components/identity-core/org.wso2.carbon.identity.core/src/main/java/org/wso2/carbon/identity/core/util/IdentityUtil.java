@@ -35,12 +35,16 @@ import org.opensaml.xml.io.UnmarshallingException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.core.util.Utils;
 import org.wso2.carbon.identity.base.CarbonEntityResolver;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.internal.IdentityCoreServiceComponent;
+import org.wso2.carbon.identity.core.model.IdentityCacheConfig;
+import org.wso2.carbon.identity.core.model.IdentityCacheConfigKey;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.identity.core.model.IdentityEventListener;
 import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
@@ -95,6 +99,7 @@ public class IdentityUtil {
     private static Map<String, Object> configuration = new HashMap<String, Object>();
     private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new
             HashMap<>();
+    private static Map<IdentityCacheConfigKey, IdentityCacheConfig> identityCacheConfigurationHolder = new HashMap<>();
     private static Document importerDoc = null;
     private static ThreadLocal<IdentityErrorMsgContext> IdentityError = new ThreadLocal<IdentityErrorMsgContext>();
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
@@ -134,11 +139,19 @@ public class IdentityUtil {
      * @return Element text value, "text" for the above element.
      */
     public static String getProperty(String key) {
+
         Object value = configuration.get(key);
+        String strValue;
+
         if (value instanceof ArrayList) {
-            return (String) ((ArrayList) value).get(0);
+            strValue = (String) ((ArrayList) value).get(0);
+        } else {
+            strValue = (String) value;
         }
-        return (String) value;
+
+        strValue = fillURLPlaceholders(strValue);
+
+        return strValue;
     }
 
     public static IdentityEventListener readEventListenerProperty(String type, String name) {
@@ -147,9 +160,16 @@ public class IdentityUtil {
         return identityEventListener;
     }
 
+    public static IdentityCacheConfig getIdentityCacheConfig(String cacheManagerName, String cacheName) {
+        IdentityCacheConfigKey configKey = new IdentityCacheConfigKey(cacheManagerName, cacheName);
+        IdentityCacheConfig identityCacheConfig = identityCacheConfigurationHolder.get(configKey);
+        return identityCacheConfig;
+    }
+
     public static void populateProperties() {
         configuration = IdentityConfigParser.getInstance().getConfiguration();
         eventListenerConfiguration = IdentityConfigParser.getInstance().getEventListenerConfiguration();
+        identityCacheConfigurationHolder = IdentityConfigParser.getInstance().getIdentityCacheConfigurationHolder();
     }
 
     public static String getPPIDDisplayValue(String value) throws Exception {
@@ -525,5 +545,115 @@ public class IdentityUtil {
                                                                    Pattern.COMMENTS);
         Matcher matcher = pattern.matcher(fileName);
         return matcher.matches();
+    }
+
+    /**
+     * Replace the placeholders with the related values in the URL.
+     * @param urlWithPlaceholders URL with the placeholders.
+     * @return URL filled with the placeholder values.
+     */
+    public static String fillURLPlaceholders(String urlWithPlaceholders) {
+
+        if (StringUtils.isBlank(urlWithPlaceholders)) {
+            return urlWithPlaceholders;
+        }
+
+        // First replace carbon placeholders and then move on to identity related placeholders.
+        urlWithPlaceholders = Utils.replaceSystemProperty(urlWithPlaceholders);
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_HOST)) {
+
+            String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
+
+            if (hostName == null) {
+                try {
+                    hostName = NetworkUtils.getLocalHostname();
+                } catch (SocketException e) {
+                    throw new IdentityRuntimeException("Error while trying to read hostname.", e);
+                }
+            }
+
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_HOST,
+                    hostName);
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PORT)) {
+
+            String mgtTransport = CarbonUtils.getManagementTransport();
+            AxisConfiguration axisConfiguration = IdentityCoreServiceComponent.getConfigurationContextService().
+                    getServerConfigContext().getAxisConfiguration();
+            int mgtTransportPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
+            if (mgtTransportPort <= 0) {
+                mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
+            }
+
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_PORT,
+                    Integer.toString(mgtTransportPort));
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PROTOCOL)) {
+
+            String mgtTransport = CarbonUtils.getManagementTransport();
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_PROTOCOL,
+                    mgtTransport);
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PROXY_CONTEXT_PATH)) {
+
+            String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
+                    .PROXY_CONTEXT_PATH);
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_PROXY_CONTEXT_PATH,
+                    proxyContextPath);
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_WEB_CONTEXT_ROOT)) {
+
+            String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
+                    .WEB_CONTEXT_ROOT);
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_WEB_CONTEXT_ROOT,
+                    webContextRoot);
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, CarbonConstants.CARBON_HOME_PARAMETER)) {
+
+            String carbonHome = CarbonUtils.getCarbonHome();
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    CarbonConstants.CARBON_HOME_PARAMETER,
+                    carbonHome);
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_CONTEXT)) {
+
+            String carbonContext = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
+                    .WEB_CONTEXT_ROOT);
+
+            if (carbonContext.equals("/")) {
+                carbonContext = "";
+            }
+
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_CONTEXT,
+                    carbonContext);
+        }
+
+        return urlWithPlaceholders;
+    }
+
+    /**
+     * Check whether the given token value is appropriate to log.
+     * @param tokenName Name of the token.
+     * @return True if token is appropriate to log.
+     */
+    public static boolean isTokenLoggable(String tokenName) {
+
+        IdentityLogTokenParser identityLogTokenParser = IdentityLogTokenParser.getInstance();
+        Map<String, String> logTokenMap = identityLogTokenParser.getLogTokenMap();
+
+        return Boolean.valueOf(logTokenMap.get(tokenName));
     }
 }
