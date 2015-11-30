@@ -34,8 +34,8 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
     /**
      * Trigger before adding new BPS profile
      *
-     * @param bpsProfileDTO
-     * @param tenantId
+     * @param bpsProfileDTO Details of BPS profiles to add
+     * @param tenantId      Tenant to add new profile
      * @throws WorkflowImplException
      */
     @Override
@@ -46,8 +46,8 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
     /**
      * Trigger after adding new BPS profile
      *
-     * @param bpsProfileDTO
-     * @param tenantId
+     * @param bpsProfileDTO Details of BPS profiles to add
+     * @param tenantId      Tenant to add new profile
      * @throws WorkflowImplException
      */
     @Override
@@ -58,7 +58,7 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
     /**
      * Trigger before listing BPS profiles
      *
-     * @param tenantId
+     * @param tenantId Tenant ID to list BPS profiles
      * @throws WorkflowImplException
      */
     @Override
@@ -66,10 +66,12 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
 
     }
 
+
     /**
      * Trigger after listing BPS profiles
      *
-     * @param tenantId
+     * @param tenantId Tenant ID to list BPS profiles
+     * @param list     Result returned by  operation
      * @throws WorkflowImplException
      */
     @Override
@@ -80,7 +82,7 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
     /**
      * Trigger before removing a BPS profile
      *
-     * @param profileName
+     * @param profileName Name of the BPS profile to remove
      * @throws WorkflowImplException
      */
     @Override
@@ -91,7 +93,7 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
     /**
      * Trigger after removing a BPS profile
      *
-     * @param profileName
+     * @param profileName Name of the BPS profile to remove
      * @throws WorkflowImplException
      */
     @Override
@@ -102,8 +104,8 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
     /**
      * Trigger before retrieving a BPS profile
      *
-     * @param profileName
-     * @param tenantId
+     * @param profileName Name of profile to retrieve
+     * @param tenantId    Tenant ID
      * @throws WorkflowImplException
      */
     @Override
@@ -114,8 +116,9 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
     /**
      * Trigger after retrieving a BPS profile
      *
-     * @param profileName
-     * @param tenantId
+     * @param profileName Name of profile to retrieve
+     * @param tenantId    Tenant ID
+     * @param result      Current result of the operation
      * @throws WorkflowImplException
      */
     @Override
@@ -126,8 +129,8 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
     /**
      * Trigger before updating a BPS profile
      *
-     * @param bpsProfileDTO
-     * @param tenantId
+     * @param bpsProfileDTO New details of the profile to update
+     * @param tenantId      Tenant ID
      * @throws WorkflowImplException
      */
     @Override
@@ -150,7 +153,7 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
     /**
      * Trigger before deleting a human task
      *
-     * @param workflowRequest
+     * @param workflowRequest Workflow which human task to be deleted
      * @throws WorkflowImplException
      */
     @Override
@@ -161,7 +164,7 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
     /**
      * Trigger after deleting a human task
      *
-     * @param workflowRequest
+     * @param workflowRequest Workflow which human task to be deleted
      * @throws WorkflowImplException
      */
     @Override
@@ -172,7 +175,7 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
     /**
      * Trigger before deleting a BPS package
      *
-     * @param workflow
+     * @param workflow Workflow to delete packages
      * @throws WorkflowImplException
      */
     @Override
@@ -183,7 +186,7 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
     /**
      * Trigger after deleting a BPS package
      *
-     * @param workflow
+     * @param workflow Workflow to delete packages
      * @throws WorkflowImplException
      */
     @Override
@@ -191,6 +194,11 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
 
     }
 
+    /**
+     * Check if listener is enabled or not.
+     *
+     * @return
+     */
     public boolean isEnable() {
         IdentityEventListener workflowImplListener = IdentityUtil.readEventListenerProperty
                 (WorkflowImplServiceListener.class.getName(), this.getClass().getName());

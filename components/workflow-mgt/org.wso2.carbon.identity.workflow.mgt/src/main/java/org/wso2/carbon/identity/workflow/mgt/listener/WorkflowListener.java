@@ -46,14 +46,14 @@ public interface WorkflowListener {
     /**
      * Trigger After Listing Workflow Events
      *
-     * @throws WorkflowException
+     * @param result Result of the original operation
      */
     void doPostListWorkflowEvents(List<WorkflowEvent> result);
 
     /**
      * Trigger before delete the request
      *
-     * @param workflowRequest
+     * @param workflowRequest Request to delete
      * @throws WorkflowException
      */
     void doPreDeleteWorkflowRequest(WorkflowRequest workflowRequest) throws WorkflowException;
@@ -61,7 +61,7 @@ public interface WorkflowListener {
     /**
      * Trigger after deleting the request
      *
-     * @param workflowRequest
+     * @param workflowRequest Request to delete
      * @throws WorkflowException
      */
     void doPostDeleteWorkflowRequest(WorkflowRequest workflowRequest) throws WorkflowException;
@@ -69,7 +69,7 @@ public interface WorkflowListener {
     /**
      * Trigger before delete the workflow
      *
-     * @param workflow
+     * @param workflow Workflow to delete
      * @throws WorkflowException
      */
     void doPreDeleteWorkflow(Workflow workflow) throws WorkflowException;
@@ -77,7 +77,7 @@ public interface WorkflowListener {
     /**
      * Trigger after delete the workflow
      *
-     * @param workflow
+     * @param workflow Workflow to delete
      * @throws WorkflowException
      */
     void doPostDeleteWorkflow(Workflow workflow) throws WorkflowException;
@@ -85,7 +85,7 @@ public interface WorkflowListener {
     /**
      * Trigger before listing workflow Impls
      *
-     * @param templateId
+     * @param templateId Template ID to trigger workflow Impls
      * @throws WorkflowException
      */
     void doPreListWorkflowImpls(String templateId) throws WorkflowException;
@@ -93,7 +93,8 @@ public interface WorkflowListener {
     /**
      * Trigger after listing workflow Impls
      *
-     * @param templateId
+     * @param templateId Template ID to trigger workflow Impls
+     * @param result     Result of the original operation
      * @throws WorkflowException
      */
     void doPostListWorkflowImpls(String templateId, List<WorkflowImpl> result) throws WorkflowException;
@@ -101,7 +102,7 @@ public interface WorkflowListener {
     /**
      * Trigger before retrieving event
      *
-     * @param id
+     * @param id Event ID
      * @throws WorkflowException
      */
     void doPreGetEvent(String id);
@@ -109,8 +110,8 @@ public interface WorkflowListener {
     /**
      * Trigger after retrieving event
      *
-     * @param id
-     * @throws WorkflowException
+     * @param id     Event ID
+     * @param result Event returned by original method
      */
     void doPostGetEvent(String id, WorkflowEvent result);
 
@@ -124,6 +125,7 @@ public interface WorkflowListener {
     /**
      * Trigger after retrieving list of workflow templates
      *
+     * @param result Result returned by original operation
      * @throws WorkflowException
      */
     void doPostListTemplates(List<Template> result) throws WorkflowException;
@@ -131,7 +133,7 @@ public interface WorkflowListener {
     /**
      * Trigger before retrieving workflow template
      *
-     * @param templateId
+     * @param templateId Template ID of template to retrieve
      * @throws WorkflowException
      */
     void doPreGetTemplate(String templateId) throws WorkflowException;
@@ -139,7 +141,8 @@ public interface WorkflowListener {
     /**
      * Trigger after retrieving workflow template
      *
-     * @param templateId
+     * @param templateId Template ID of template to retrieve
+     * @param result     Template object retrieved by original method
      * @throws WorkflowException
      */
     void doPostGetTemplate(String templateId, Template result) throws WorkflowException;
@@ -147,8 +150,8 @@ public interface WorkflowListener {
     /**
      * Trigger before retrieving workflow impl
      *
-     * @param templateId
-     * @param workflowImplId
+     * @param templateId     Template id
+     * @param workflowImplId Workflow impl id
      * @throws WorkflowException
      */
     void doPreGetWorkflowImpl(String templateId, String workflowImplId) throws WorkflowException;
@@ -156,8 +159,9 @@ public interface WorkflowListener {
     /**
      * Trigger after retrieving workflow impl
      *
-     * @param templateId
-     * @param workflowImplId
+     * @param templateId     Template id
+     * @param workflowImplId Workflow impl id
+     * @param result         Result returned by original operation
      * @throws WorkflowException
      */
     void doPostGetWorkflowImpl(String templateId, String workflowImplId, WorkflowImpl result) throws WorkflowException;
@@ -165,9 +169,9 @@ public interface WorkflowListener {
     /**
      * Trigger before adding a workflow
      *
-     * @param workflowDTO
-     * @param parameterList
-     * @param tenantId
+     * @param workflowDTO   Workflow details
+     * @param parameterList List of parameters
+     * @param tenantId      tenant id
      * @throws WorkflowException
      */
     void doPreAddWorkflow(Workflow workflowDTO,
@@ -176,9 +180,9 @@ public interface WorkflowListener {
     /**
      * Trigger after adding a workflow
      *
-     * @param workflowDTO
-     * @param parameterList
-     * @param tenantId
+     * @param workflowDTO   Workflow details
+     * @param parameterList List of parameters
+     * @param tenantId      tenant id
      * @throws WorkflowException
      */
     void doPostAddWorkflow(Workflow workflowDTO,
@@ -187,7 +191,7 @@ public interface WorkflowListener {
     /**
      * Trigger before retrieving a workflow
      *
-     * @param workflowId
+     * @param workflowId Workflow id
      * @throws WorkflowException
      */
     void doPreGetWorkflow(String workflowId) throws WorkflowException;
@@ -195,7 +199,8 @@ public interface WorkflowListener {
     /**
      * Trigger after retrieving a workflow
      *
-     * @param workflowId
+     * @param workflowId Workflow id
+     * @param workflow   Workflow returned by original operation.
      * @throws WorkflowException
      */
     void doPostGetWorkflow(String workflowId, Workflow workflow) throws WorkflowException;
@@ -203,7 +208,7 @@ public interface WorkflowListener {
     /**
      * Trigger before retrieving parameters of a workflow
      *
-     * @param workflowId
+     * @param workflowId Workflow id
      * @throws WorkflowException
      */
     void doPreGetWorkflowParameters(String workflowId) throws WorkflowException;
@@ -211,7 +216,8 @@ public interface WorkflowListener {
     /**
      * Trigger after retrieving parameters of a workflow
      *
-     * @param workflowId
+     * @param workflowId Workflow id
+     * @param result     Workflow parameter list returned by original method
      * @throws WorkflowException
      */
     void doPostGetWorkflowParameters(String workflowId, List<Parameter> result) throws WorkflowException;
@@ -219,10 +225,10 @@ public interface WorkflowListener {
     /**
      * Trigger before adding a association
      *
-     * @param associationName
-     * @param workflowId
-     * @param eventId
-     * @param condition
+     * @param associationName Name for the association
+     * @param workflowId      Workflow to associate
+     * @param eventId         Event to associate
+     * @param condition       Condition to check the event for associating
      * @throws WorkflowException
      */
     void doPreAddAssociation(String associationName, String workflowId, String eventId, String condition) throws
@@ -231,10 +237,10 @@ public interface WorkflowListener {
     /**
      * Trigger after adding a association
      *
-     * @param associationName
-     * @param workflowId
-     * @param eventId
-     * @param condition
+     * @param associationName Name for the association
+     * @param workflowId      Workflow to associate
+     * @param eventId         Event to associate
+     * @param condition       Condition to check the event for associating
      * @throws WorkflowException
      */
     void doPostAddAssociation(String associationName, String workflowId, String eventId, String condition) throws
@@ -243,7 +249,7 @@ public interface WorkflowListener {
     /**
      * Trigger before listing workflows of a tenant
      *
-     * @param tenantId
+     * @param tenantId Tenant ID
      * @throws WorkflowException
      */
     void doPreListWorkflows(int tenantId) throws WorkflowException;
@@ -251,7 +257,8 @@ public interface WorkflowListener {
     /**
      * Trigger after listing workflows of a tenant
      *
-     * @param tenantId
+     * @param tenantId Tenant ID
+     * @param result   List of workflows returned by original method.
      * @throws WorkflowException
      */
     void doPostListWorkflows(int tenantId, List<Workflow> result) throws WorkflowException;
@@ -259,7 +266,7 @@ public interface WorkflowListener {
     /**
      * Trigger before removing an association.
      *
-     * @param associationId
+     * @param associationId ID of association to remove
      * @throws WorkflowException
      */
     void doPreRemoveAssociation(int associationId) throws WorkflowException;
@@ -267,7 +274,7 @@ public interface WorkflowListener {
     /**
      * Trigger after removing an association.
      *
-     * @param associationId
+     * @param associationId ID of association to remove
      * @throws WorkflowException
      */
     void doPostRemoveAssociation(int associationId) throws WorkflowException;
@@ -275,7 +282,7 @@ public interface WorkflowListener {
     /**
      * Trigger before getting associations of a workflow
      *
-     * @param workflowId
+     * @param workflowId Workflow ID
      * @throws WorkflowException
      */
     void doPreGetAssociationsForWorkflow(String workflowId) throws WorkflowException;
@@ -283,7 +290,8 @@ public interface WorkflowListener {
     /**
      * Trigger before getting associations of a workflow
      *
-     * @param workflowId
+     * @param workflowId Workflow ID
+     * @param result     Result of the original operation
      * @throws WorkflowException
      */
     void doPostGetAssociationsForWorkflow(String workflowId, List<Association> result) throws WorkflowException;
@@ -291,7 +299,7 @@ public interface WorkflowListener {
     /**
      * Trigger before listing all associations
      *
-     * @param tenantId
+     * @param tenantId Tenant ID
      * @throws WorkflowException
      */
     void doPreListAllAssociations(int tenantId) throws WorkflowException;
@@ -299,7 +307,8 @@ public interface WorkflowListener {
     /**
      * Trigger after listing all associations
      *
-     * @param tenantId
+     * @param tenantId Tenant ID
+     * @param result   Result of the original operation
      * @throws WorkflowException
      */
     void doPostListAllAssociations(int tenantId, List<Association> result) throws WorkflowException;
@@ -307,8 +316,8 @@ public interface WorkflowListener {
     /**
      * Trigger before changing state of an association
      *
-     * @param associationId
-     * @param isEnable
+     * @param associationId Association ID
+     * @param isEnable      New state
      * @throws WorkflowException
      */
     void doPreChangeAssociationState(String associationId, boolean isEnable) throws WorkflowException;
@@ -316,100 +325,129 @@ public interface WorkflowListener {
     /**
      * Trigger after changing state of an association
      *
-     * @param associationId
-     * @param isEnable
+     * @param associationId Association ID
+     * @param isEnable      New state
      * @throws WorkflowException
      */
     void doPostChangeAssociationState(String associationId, boolean isEnable) throws WorkflowException;
 
     /**
-     * @param requestId
-     * @param entities
+     * Trigger before addEntityRequestEntityRelationships
+     *
+     * @param requestId Request ID
+     * @param entities  Entity list
      * @throws WorkflowException
      */
     void doPreAddRequestEntityRelationships(String requestId, Entity[] entities) throws WorkflowException;
 
     /**
-     * @param requestId
-     * @param entities
-     * @throws WorkflowException
+     * Trigger after addEntityRequestEntityRelationships
+     *
+     * @param requestId Request ID
+     * @param entities  Entity list @throws WorkflowException
      */
     void doPostAddRequestEntityRelationships(String requestId, Entity[] entities) throws WorkflowException;
 
     /**
-     * @param entity
+     * Trigger before checking if entity has pending workflows
+     *
+     * @param entity Entity object to test
      * @throws WorkflowException
      */
     void doPreEntityHasPendingWorkflows(Entity entity) throws WorkflowException;
 
     /**
-     * @param entity
+     * Trigger after checking if entity has pending workflows
+     *
+     * @param entity Entity object to test
      * @throws WorkflowException
      */
     void doPostEntityHasPendingWorkflows(Entity entity) throws WorkflowException;
 
     /**
-     * @param entity
-     * @param requestType
+     * Trigger before checking if an entity has pending relationships of a given type
+     *
+     * @param entity      Entity object to test
+     * @param requestType Type of request, eg:- Add user
      * @throws WorkflowException
      */
     void doPreEntityHasPendingWorkflowsOfType(Entity entity, String requestType) throws WorkflowException;
 
     /**
-     * @param entity
-     * @param requestType
+     * Trigger after checking if an entity has pending relationships of a given type
+     *
+     * @param entity      Entity object to test
+     * @param requestType Type of request, eg:- Add user
      * @throws WorkflowException
      */
     void doPostEntityHasPendingWorkflowsOfType(Entity entity, String requestType) throws WorkflowException;
 
     /**
-     * @param entity1
-     * @param entity2
+     * Trigger before checking if two entities are related
+     *
+     * @param entity1 first entity object to test
+     * @param entity2 second entity object to test
      * @throws WorkflowException
      */
     void doPreAreTwoEntitiesRelated(Entity entity1, Entity entity2) throws WorkflowException;
 
     /**
-     * @param entity1
-     * @param entity2
+     * Trigger after checking if two entities are related
+     *
+     * @param entity1 first entity object to test
+     * @param entity2 second entity object to test
      * @throws WorkflowException
      */
     void doPostAreTwoEntitiesRelated(Entity entity1, Entity entity2) throws WorkflowException;
 
     /**
-     * @param eventType
+     * Trigger before checking if event is associated with a workflow
+     *
+     * @param eventType event type to check
      * @throws WorkflowException
      */
     void doPreIsEventAssociated(String eventType) throws WorkflowException;
 
     /**
-     * @param eventType
+     * Trigger before checking if event is associated with a workflow
+     *
+     * @param eventType event type to check
      * @throws WorkflowException
      */
     void doPostIsEventAssociated(String eventType) throws WorkflowException;
 
     /**
-     * @param user
-     * @param tenantId
+     * Trigger before retrieving requests created by user
+     *
+     * @param user     User name
+     * @param tenantId tenant ID
      * @throws WorkflowException
      */
     void doPreGetRequestsCreatedByUser(String user, int tenantId) throws WorkflowException;
 
     /**
-     * @param user
-     * @param tenantId
+     * Trigger after retrieving requests created by user
+     *
+     * @param user     User name
+     * @param tenantId tenant ID
+     * @param results  Results returned by original operation
      * @throws WorkflowException
      */
     void doPostGetRequestsCreatedByUser(String user, int tenantId, WorkflowRequest[] results) throws WorkflowException;
 
     /**
-     * @param requestId
+     * Trigger before retrieving workflows of request
+     *
+     * @param requestId Request ID of request to get workflows of
      * @throws WorkflowException
      */
     void doPreGetWorkflowsOfRequest(String requestId) throws WorkflowException;
 
     /**
-     * @param requestId
+     * Trigger after retrieving workflows of request
+     *
+     * @param requestId Request ID of request to get workflows of
+     * @param results   Results returned by original request
      * @throws WorkflowException
      */
     void doPostGetWorkflowsOfRequest(String requestId, WorkflowRequestAssociation[] results) throws WorkflowException;
@@ -433,6 +471,7 @@ public interface WorkflowListener {
      * @param dateCategory
      * @param tenantId
      * @param status
+     * @param result
      * @throws WorkflowException
      */
     void doPostGetRequestsFromFilter(String user, String beginDate, String endDate, String
@@ -455,6 +494,7 @@ public interface WorkflowListener {
      * @param entityType
      * @param tenantID
      * @param idFilter
+     * @param result
      * @throws WorkflowException
      */
     void doPostListEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID, String

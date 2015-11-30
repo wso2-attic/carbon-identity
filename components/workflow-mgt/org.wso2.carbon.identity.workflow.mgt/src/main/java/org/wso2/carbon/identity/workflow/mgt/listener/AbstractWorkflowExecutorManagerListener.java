@@ -24,12 +24,12 @@ import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.util.Map;
 
-public abstract class AbstractWorkflowExecutorManagerListener implements WorkflowExecutorManagerListener{
+public abstract class AbstractWorkflowExecutorManagerListener implements WorkflowExecutorManagerListener {
 
     /**
      * Trigger before executing a workflow request
      *
-     * @param workFlowRequest
+     * @param workFlowRequest Details of request to execute
      * @throws WorkflowException
      */
     @Override
@@ -40,7 +40,8 @@ public abstract class AbstractWorkflowExecutorManagerListener implements Workflo
     /**
      * Trigger after executing a workflow request
      *
-     * @param workFlowRequest
+     * @param workFlowRequest Details of request to execute
+     * @param result          Result of the original operation
      * @throws WorkflowException
      */
     @Override
@@ -52,26 +53,28 @@ public abstract class AbstractWorkflowExecutorManagerListener implements Workflo
     /**
      * Trigger before handling a callback
      *
-     * @param uuid
-     * @param status
-     * @param additionalParams
+     * @param uuid             UUID to request which callback received
+     * @param status           Status of call back
+     * @param additionalParams Additional parameters required to execute request
      * @throws WorkflowException
      */
     @Override
-    public void doPreHandleCallback(String uuid, String status, Map<String, Object> additionalParams) throws WorkflowException {
+    public void doPreHandleCallback(String uuid, String status, Map<String, Object> additionalParams) throws
+            WorkflowException {
 
     }
 
     /**
      * Trigger after handling a callback
      *
-     * @param uuid
-     * @param status
-     * @param additionalParams
+     * @param uuid             UUID to request which callback received
+     * @param status           Status of call back
+     * @param additionalParams Additional parameters required to execute request
      * @throws WorkflowException
      */
     @Override
-    public void doPostHandleCallback(String uuid, String status, Map<String, Object> additionalParams) throws WorkflowException {
+    public void doPostHandleCallback(String uuid, String status, Map<String, Object> additionalParams) throws
+            WorkflowException {
 
     }
 }

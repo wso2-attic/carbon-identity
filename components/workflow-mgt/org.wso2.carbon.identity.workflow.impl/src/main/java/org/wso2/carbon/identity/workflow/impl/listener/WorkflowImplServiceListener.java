@@ -30,8 +30,8 @@ public interface WorkflowImplServiceListener {
     /**
      * Trigger before adding new BPS profile
      *
-     * @param bpsProfileDTO
-     * @param tenantId
+     * @param bpsProfileDTO Details of BPS profiles to add
+     * @param tenantId      Tenant to add new profile
      * @throws WorkflowImplException
      */
     void doPreAddBPSProfile(BPSProfile bpsProfileDTO, int tenantId) throws WorkflowImplException;
@@ -39,8 +39,8 @@ public interface WorkflowImplServiceListener {
     /**
      * Trigger after adding new BPS profile
      *
-     * @param bpsProfileDTO
-     * @param tenantId
+     * @param bpsProfileDTO Details of BPS profiles to add
+     * @param tenantId      Tenant to add new profile
      * @throws WorkflowImplException
      */
     void doPostAddBPSProfile(BPSProfile bpsProfileDTO, int tenantId) throws WorkflowImplException;
@@ -48,7 +48,7 @@ public interface WorkflowImplServiceListener {
     /**
      * Trigger before listing BPS profiles
      *
-     * @param tenantId
+     * @param tenantId Tenant ID to list BPS profiles
      * @throws WorkflowImplException
      */
     void doPreListBPSProfiles(int tenantId) throws WorkflowImplException;
@@ -56,7 +56,8 @@ public interface WorkflowImplServiceListener {
     /**
      * Trigger after listing BPS profiles
      *
-     * @param tenantId
+     * @param tenantId Tenant ID to list BPS profiles
+     * @param list     Result returned by  operation
      * @throws WorkflowImplException
      */
     void doPostListBPSProfiles(int tenantId, List<BPSProfile> list) throws WorkflowImplException;
@@ -64,7 +65,7 @@ public interface WorkflowImplServiceListener {
     /**
      * Trigger before removing a BPS profile
      *
-     * @param profileName
+     * @param profileName Name of the BPS profile to remove
      * @throws WorkflowImplException
      */
     void doPreRemoveBPSProfile(String profileName) throws WorkflowImplException;
@@ -72,7 +73,7 @@ public interface WorkflowImplServiceListener {
     /**
      * Trigger after removing a BPS profile
      *
-     * @param profileName
+     * @param profileName Name of the BPS profile to remove
      * @throws WorkflowImplException
      */
     void doPostRemoveBPSProfile(String profileName) throws WorkflowImplException;
@@ -80,8 +81,8 @@ public interface WorkflowImplServiceListener {
     /**
      * Trigger before retrieving a BPS profile
      *
-     * @param profileName
-     * @param tenantId
+     * @param profileName Name of profile to retrieve
+     * @param tenantId    Tenant ID
      * @throws WorkflowImplException
      */
     void doPreGetBPSProfile(String profileName, int tenantId) throws WorkflowImplException;
@@ -89,8 +90,9 @@ public interface WorkflowImplServiceListener {
     /**
      * Trigger after retrieving a BPS profile
      *
-     * @param profileName
-     * @param tenantId
+     * @param profileName Name of profile to retrieve
+     * @param tenantId    Tenant ID
+     * @param result      Current result of the operation
      * @throws WorkflowImplException
      */
     void doPostGetBPSProfile(String profileName, int tenantId, BPSProfile result) throws WorkflowImplException;
@@ -98,8 +100,8 @@ public interface WorkflowImplServiceListener {
     /**
      * Trigger before updating a BPS profile
      *
-     * @param bpsProfileDTO
-     * @param tenantId
+     * @param bpsProfileDTO New details of the profile to update
+     * @param tenantId      Tenant ID
      * @throws WorkflowImplException
      */
     void doPreUpdateBPSProfile(BPSProfile bpsProfileDTO, int tenantId) throws WorkflowImplException;
@@ -116,15 +118,16 @@ public interface WorkflowImplServiceListener {
     /**
      * Trigger before deleting a human task
      *
-     * @param workflowRequest
+     * @param workflowRequest Workflow which human task to be deleted
      * @throws WorkflowImplException
      */
+
     void doPreDeleteHumanTask(WorkflowRequest workflowRequest) throws WorkflowImplException;
 
     /**
      * Trigger after deleting a human task
      *
-     * @param workflowRequest
+     * @param workflowRequest Workflow which human task to be deleted
      * @throws WorkflowImplException
      */
     void doPostDeleteHumanTask(WorkflowRequest workflowRequest) throws WorkflowImplException;
@@ -132,7 +135,7 @@ public interface WorkflowImplServiceListener {
     /**
      * Trigger before deleting a BPS package
      *
-     * @param workflow
+     * @param workflow Workflow to delete packages
      * @throws WorkflowImplException
      */
     void doPreRemoveBPSPackage(Workflow workflow) throws WorkflowImplException;
@@ -140,7 +143,7 @@ public interface WorkflowImplServiceListener {
     /**
      * Trigger after deleting a BPS package
      *
-     * @param workflow
+     * @param workflow Workflow to delete packages
      * @throws WorkflowImplException
      */
     void doPostRemoveBPSPackage(Workflow workflow) throws WorkflowImplException;
