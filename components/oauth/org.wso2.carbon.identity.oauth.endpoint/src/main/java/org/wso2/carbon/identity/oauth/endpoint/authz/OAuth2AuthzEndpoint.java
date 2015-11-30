@@ -751,8 +751,7 @@ public class OAuth2AuthzEndpoint {
 
         Object object = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
         if (object != null) {
-            AuthenticatorFlowStatus status = (AuthenticatorFlowStatus) object;
-            if (status == AuthenticatorFlowStatus.INCOMPLETE) {
+            if (object == AuthenticatorFlowStatus.INCOMPLETE) {
                 return Response.status(HttpServletResponse.SC_FOUND)
                         .location(new URI("../" + responseWrapper.getRedirectURL())).build();
             } else {
