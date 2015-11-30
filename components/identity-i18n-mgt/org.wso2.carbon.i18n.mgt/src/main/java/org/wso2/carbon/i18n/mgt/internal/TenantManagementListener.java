@@ -63,7 +63,7 @@ public class TenantManagementListener implements TenantMgtListener {
 
     @Override
     public void onTenantDelete(int i) {
-        // It is not required to implement this method for IdP mgt.
+        // It is not required to implement this method for I18n mgt.
     }
 
     public void onTenantRename(int tenantId, String oldDomainName,

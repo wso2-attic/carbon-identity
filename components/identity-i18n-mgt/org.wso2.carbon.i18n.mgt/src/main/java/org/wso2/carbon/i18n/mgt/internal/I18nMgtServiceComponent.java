@@ -61,7 +61,9 @@ public class I18nMgtServiceComponent {
     }
 
     protected void setRealmService(RealmService realmService) {
-        log.debug("Setting the Realm Service");
+        if (log.isDebugEnabled()) {
+            log.debug("Setting the Realm Service");
+        }
         I18nMgtServiceComponent.realmService = realmService;
     }
 
@@ -70,7 +72,9 @@ public class I18nMgtServiceComponent {
     }
 
     protected void setRegistryService(RegistryService registryService) {
-        log.debug("Setting the Registry Service");
+        if (log.isDebugEnabled()) {
+            log.debug("Setting the Registry Service");
+        }
         I18nMgtServiceComponent.registryService = registryService;
     }
 
@@ -79,7 +83,9 @@ public class I18nMgtServiceComponent {
     }
 
     protected void setConfigurationContextService(ConfigurationContextService configurationContextService) {
-        log.debug("Setting the ConfigurationContext Service");
+        if (log.isDebugEnabled()) {
+            log.debug("Setting the ConfigurationContext Service");
+        }
         I18nMgtServiceComponent.configurationContextService = configurationContextService;
 
     }
@@ -114,21 +120,29 @@ public class I18nMgtServiceComponent {
     }
 
     protected void deactivate(ComponentContext context) {
-        log.debug("I18n Management bundle is de-activated");
+        if (log.isDebugEnabled()) {
+            log.debug("I18n Management bundle is de-activated");
+        }
     }
 
     protected void unsetRegistryService(RegistryService registryService) {
-        log.debug("UnSetting the Registry Service");
+        if (log.isDebugEnabled()) {
+            log.debug("UnSetting the Registry Service");
+        }
         I18nMgtServiceComponent.registryService = null;
     }
 
     protected void unsetRealmService(RealmService realmService) {
-        log.debug("UnSetting the Realm Service");
+        if (log.isDebugEnabled()) {
+            log.debug("UnSetting the Realm Service");
+        }
         I18nMgtServiceComponent.realmService = null;
     }
 
     protected void unsetConfigurationContextService(ConfigurationContextService configurationContextService) {
-        log.debug("UnSetting the  ConfigurationContext Service");
+        if (log.isDebugEnabled()) {
+            log.debug("UnSetting the  ConfigurationContext Service");
+        }
         I18nMgtServiceComponent.configurationContextService = null;
     }
 
