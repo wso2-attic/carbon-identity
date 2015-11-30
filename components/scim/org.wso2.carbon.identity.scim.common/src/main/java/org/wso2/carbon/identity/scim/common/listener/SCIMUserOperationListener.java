@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.scim.common.group.SCIMGroupHandler;
 import org.wso2.carbon.identity.scim.common.utils.IdentitySCIMException;
 import org.wso2.carbon.identity.scim.common.utils.SCIMCommonUtils;
@@ -361,7 +362,7 @@ public class SCIMUserOperationListener extends AbstractIdentityUserOperationEven
             if (domainName == null) {
                 domainName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
-            String roleNameWithDomain = domainName.toUpperCase() + CarbonConstants.DOMAIN_SEPARATOR + roleName;
+            String roleNameWithDomain = IdentityUtil.addDomainToName(roleName, domainName);
             try {
                 //delete group attributes - no need to check existence here,
                 //since it is checked in below method.
