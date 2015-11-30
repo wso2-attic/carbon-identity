@@ -39,6 +39,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowExecutorManagerListener;
 import org.wso2.carbon.identity.workflow.mgt.util.ExecutorResultState;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestBuilder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
@@ -67,6 +68,12 @@ public class WorkFlowExecutorManager {
     public WorkflowExecutorResult executeWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
+        List<WorkflowExecutorManagerListener> workflowListenerList =
+                WorkflowServiceDataHolder.getInstance().getExecutorListenerList();
+        for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
+            workflowListener.doPreExecuteWorkflow(workFlowRequest);
+        }
+
         if (StringUtils.isBlank(workFlowRequest.getUuid())) {
             workFlowRequest.setUuid(UUID.randomUUID().toString());
         }
@@ -122,7 +129,11 @@ public class WorkFlowExecutorManager {
             //handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null, "");
             return new WorkflowExecutorResult(ExecutorResultState.CONDITION_FAILED);
         }
-        return new WorkflowExecutorResult(ExecutorResultState.STARTED_ASSOCIATION);
+        WorkflowExecutorResult finalResult = new WorkflowExecutorResult(ExecutorResultState.STARTED_ASSOCIATION);
+        for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
+            workflowListener.doPostExecuteWorkflow(workFlowRequest, finalResult);
+        }
+        return finalResult;
     }
 
     private void handleCallback(WorkflowRequest request, String status, Map<String, Object> additionalParams, String
@@ -190,11 +201,23 @@ public class WorkFlowExecutorManager {
     public void handleCallback(String uuid, String status, Map<String, Object> additionalParams)
             throws WorkflowException {
 
+        List<WorkflowExecutorManagerListener> workflowListenerList =
+                WorkflowServiceDataHolder.getInstance().getExecutorListenerList();
+        for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
+            workflowListener.doPreHandleCallback(uuid, status, additionalParams);
+        }
+
         WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
         String requestId = workflowRequestAssociationDAO.getRequestIdOfRelationship(uuid);
         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
         WorkflowRequest request = requestDAO.retrieveWorkflow(requestId);
         handleCallback(request, status, additionalParams, uuid);
+
+        for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
+            workflowListener.doPostHandleCallback(uuid, status, additionalParams);
+        }
+
+
     }
 
     /**
