@@ -170,14 +170,13 @@ public class OAuth2AuthzEndpoint {
                 Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
                 if (attribute != null && attribute == AuthenticatorFlowStatus.SUCCESS_COMPLETED) {
                     try {
-                        return forward(request, response, (String) request.getAttribute(FrameworkConstants.SESSION_DATA_KEY),
+                        return forward(request, response,
+                                (String) request.getAttribute(FrameworkConstants.SESSION_DATA_KEY),
                                 FrameworkConstants.OAUTH2);
-                    } catch (ServletException e) {
-                        //TODO Handle exception
-                    } catch (IOException e) {
-                        //TODO Handle exception
+                    } catch (ServletException | IOException e ) {
+                       log.error("Error occurred while sending request to authentication framework.");
                     }
-                    return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build(); //TODO
+                    return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build();
                 } else {
                     return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
                 }
