@@ -98,39 +98,6 @@ public class OAuthAppDAO {
         }
     }
 
-    public String[] addOAuthConsumer(String username, int tenantId) throws IdentityOAuthAdminException {
-        Connection connection = IdentityDatabaseUtil.getDBConnection();
-        PreparedStatement prepStmt = null;
-        String sqlStmt = null;
-        String consumerKey;
-        String consumerSecret = OAuthUtil.getRandomNumber();
-
-        do {
-            consumerKey = OAuthUtil.getRandomNumber();
-        }
-        while (isDuplicateConsumer(consumerKey));
-
-        try {
-            sqlStmt = SQLQueries.OAuthAppDAOSQLQueries.ADD_OAUTH_CONSUMER;
-            prepStmt = connection.prepareStatement(sqlStmt);
-            prepStmt.setString(1, consumerKey);
-            prepStmt.setString(2, consumerSecret);
-            prepStmt.setString(3, username);
-            prepStmt.setInt(4, tenantId);
-            // it is assumed that the OAuth version is 1.0a because this is required with OAuth 1.0a
-            prepStmt.setString(6, OAuthConstants.OAuthVersions.VERSION_1A);
-            prepStmt.execute();
-
-            connection.commit();
-
-        } catch (SQLException e) {
-            throw new IdentityOAuthAdminException("Error when executing the SQL : " + sqlStmt, e);
-        } finally {
-            IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
-        }
-        return new String[]{consumerKey, consumerSecret};
-    }
-
     public String[] addOAuthConsumer(String username, int tenantId, String userDomain) throws IdentityOAuthAdminException {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;

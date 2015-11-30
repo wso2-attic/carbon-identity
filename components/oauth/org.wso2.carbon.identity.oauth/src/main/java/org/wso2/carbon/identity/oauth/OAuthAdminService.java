@@ -267,7 +267,7 @@ public class OAuthAdminService extends AbstractAdmin {
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         OAuthAppDAO dao = new OAuthAppDAO();
         OAuthAppDO oauthappdo = new OAuthAppDO();
-        oauthappdo.setUserName(tenantAwareUsername);
+        oauthappdo.setUserName(UserCoreUtil.removeDomainFromName(tenantAwareUsername));
         oauthappdo.setTenantId(tenantId);
         oauthappdo.setUserDomain(IdentityUtil.extractDomainFromName(userName));
         oauthappdo.setOauthConsumerKey(consumerAppDTO.getOauthConsumerKey());
