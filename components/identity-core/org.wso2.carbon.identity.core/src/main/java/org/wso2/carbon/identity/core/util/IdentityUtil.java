@@ -656,4 +656,13 @@ public class IdentityUtil {
 
         return Boolean.valueOf(logTokenMap.get(tokenName));
     }
+
+    /**
+     * Get the host name of the server.
+     * @return Hostname
+     */
+    public static String getHostName() {
+
+        return ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
+    }
 }

@@ -29,8 +29,12 @@ import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
+import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
+import org.wso2.carbon.idp.mgt.dao.IdPManagementDAO;
 import org.wso2.carbon.idp.mgt.listener.IdPMgtValidationListener;
 import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
@@ -142,6 +146,14 @@ public class IdPManagementServiceComponent {
             }
 
             setIdentityProviderMgtListenerService(new IdPMgtValidationListener());
+
+            CacheBackedIdPMgtDAO dao = new CacheBackedIdPMgtDAO(new IdPManagementDAO());
+            if (dao.getIdPByName(null,
+                    IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME,
+                    IdentityTenantUtil.getTenantId(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME),
+                    MultitenantConstants.SUPER_TENANT_DOMAIN_NAME) == null) {
+                addSuperTenantIdp();
+            }
 
             buildFileBasedIdPList();
             cleanUpRemovedIdps();
@@ -308,4 +320,17 @@ public class IdPManagementServiceComponent {
         }
     };
 
+    private static void addSuperTenantIdp() {
+
+        try {
+            IdentityProvider identityProvider = new IdentityProvider();
+            identityProvider.setIdentityProviderName(IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME);
+            identityProvider.setHomeRealmId(IdentityUtil.getHostName());
+            identityProvider.setPrimary(true);
+            IdentityProviderManager.getInstance()
+                    .addResidentIdP(identityProvider, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+        } catch (Throwable e) {
+            log.error("Error when adding Resident Identity Provider entry for super tenant ", e);
+        }
+    }
 }
