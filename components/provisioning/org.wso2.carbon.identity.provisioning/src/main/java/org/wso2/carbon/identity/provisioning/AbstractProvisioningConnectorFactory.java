@@ -67,8 +67,7 @@ public abstract class AbstractProvisioningConnectorFactory {
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
             ProvisioningConnectorCacheKey cacheKey = new ProvisioningConnectorCacheKey(identityProviderName, tenantDomain);
-            ProvisioningConnectorCacheEntry entry = (ProvisioningConnectorCacheEntry) ProvisioningConnectorCache
-                    .getInstance().getValueFromCache(cacheKey);
+            ProvisioningConnectorCacheEntry entry = ProvisioningConnectorCache.getInstance().getValueFromCache(cacheKey);
 
             if (entry != null) {
                 if (log.isDebugEnabled()) {
@@ -143,8 +142,7 @@ public abstract class AbstractProvisioningConnectorFactory {
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
             ProvisioningConnectorCacheKey cacheKey = new ProvisioningConnectorCacheKey(identityProviderName, tenantDomain);
-            ProvisioningConnectorCacheEntry entry = (ProvisioningConnectorCacheEntry) ProvisioningConnectorCache
-                    .getInstance().getValueFromCache(cacheKey);
+            ProvisioningConnectorCacheEntry entry = ProvisioningConnectorCache.getInstance().getValueFromCache(cacheKey);
 
             if (entry != null) {
                 ProvisioningConnectorCache.getInstance().clearCacheEntry(cacheKey);
