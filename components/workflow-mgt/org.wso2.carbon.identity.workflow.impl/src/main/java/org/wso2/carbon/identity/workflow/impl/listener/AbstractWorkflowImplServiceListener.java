@@ -27,6 +27,8 @@ import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 
+import java.util.List;
+
 public abstract class AbstractWorkflowImplServiceListener implements WorkflowImplServiceListener {
 
     /**
@@ -71,7 +73,7 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
      * @throws WorkflowImplException
      */
     @Override
-    public void doPostListBPSProfiles(int tenantId) throws WorkflowImplException {
+    public void doPostListBPSProfiles(int tenantId, List<BPSProfile> list) throws WorkflowImplException {
 
     }
 
@@ -117,7 +119,7 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
      * @throws WorkflowImplException
      */
     @Override
-    public void doPostGetBPSProfile(String profileName, int tenantId) throws WorkflowImplException {
+    public void doPostGetBPSProfile(String profileName, int tenantId, BPSProfile result) throws WorkflowImplException {
 
     }
 

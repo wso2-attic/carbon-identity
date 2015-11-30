@@ -210,17 +210,11 @@ public class WorkflowImplServiceComponent {
     }
 
     protected void setWorkflowImplServiceListener(WorkflowImplServiceListener workflowListener) {
-        if(workflowListener !=null) {
-            WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList()
-                    .add(workflowListener);
-        }
+            WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList().add(workflowListener);
     }
 
     protected void unsetWorkflowImplServiceListener(WorkflowImplServiceListener workflowListener) {
-        if(workflowListener !=null) {
-            WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList()
-                    .remove(workflowListener);
-        }
+            WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList().remove(workflowListener);
     }
 
 }

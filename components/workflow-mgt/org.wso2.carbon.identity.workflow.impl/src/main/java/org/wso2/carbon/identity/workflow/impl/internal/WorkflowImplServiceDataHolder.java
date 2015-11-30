@@ -119,9 +119,5 @@ public class WorkflowImplServiceDataHolder {
         return workflowListenerList;
     }
 
-    public void setWorkflowListenerList(
-            List<WorkflowImplServiceListener> workflowListenerList) {
-        this.workflowListenerList = workflowListenerList;
-    }
 }
 

@@ -155,31 +155,23 @@ public class WorkflowMgtServiceComponent {
 
 
     protected void setWorkflowRequestDeleteListener(WorkflowListener workflowListener) {
-        if(workflowListener !=null) {
             WorkflowServiceDataHolder.getInstance().getWorkflowListenerList()
                     .add(workflowListener);
-        }
     }
 
     protected void unsetWorkflowRequestDeleteListener(WorkflowListener workflowListener) {
-        if(workflowListener !=null) {
             WorkflowServiceDataHolder.getInstance().getWorkflowListenerList()
                     .remove(workflowListener);
-        }
     }
 
     protected void setWorkflowExecutorListener(WorkflowExecutorManagerListener workflowListener) {
-        if(workflowListener !=null) {
             WorkflowServiceDataHolder.getInstance().getExecutorListenerList()
                     .add(workflowListener);
-        }
     }
 
     protected void unsetWorkflowExecutorListener(WorkflowExecutorManagerListener workflowListener) {
-        if(workflowListener !=null) {
             WorkflowServiceDataHolder.getInstance().getExecutorListenerList()
                     .remove(workflowListener);
-        }
     }
 
 

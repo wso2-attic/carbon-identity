@@ -71,13 +71,7 @@ public class WorkFlowExecutorManager {
         List<WorkflowExecutorManagerListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getExecutorListenerList();
         for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreExecuteWorkflow(workFlowRequest);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreExecuteWorkflow in WorkflowExecutorManager ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreExecuteWorkflow(workFlowRequest);
         }
 
         if (StringUtils.isBlank(workFlowRequest.getUuid())) {
@@ -135,16 +129,11 @@ public class WorkFlowExecutorManager {
             //handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null, "");
             return new WorkflowExecutorResult(ExecutorResultState.CONDITION_FAILED);
         }
+        WorkflowExecutorResult finalResult = new WorkflowExecutorResult(ExecutorResultState.STARTED_ASSOCIATION);
         for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostExecuteWorkflow(workFlowRequest);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostExecuteWorkflow in WorkflowExecutorManager ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostExecuteWorkflow(workFlowRequest, finalResult);
         }
-        return new WorkflowExecutorResult(ExecutorResultState.STARTED_ASSOCIATION);
+        return finalResult;
     }
 
     private void handleCallback(WorkflowRequest request, String status, Map<String, Object> additionalParams, String
@@ -215,13 +204,7 @@ public class WorkFlowExecutorManager {
         List<WorkflowExecutorManagerListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getExecutorListenerList();
         for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreHandleCallback(uuid, status, additionalParams);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreHandleCallback in WorkflowExecutorManager ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreHandleCallback(uuid, status, additionalParams);
         }
 
         WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
@@ -231,13 +214,7 @@ public class WorkFlowExecutorManager {
         handleCallback(request, status, additionalParams, uuid);
 
         for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostHandleCallback(uuid, status, additionalParams);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostHandleCallback in WorkflowExecutorManager ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostHandleCallback(uuid, status, additionalParams);
         }
 
 

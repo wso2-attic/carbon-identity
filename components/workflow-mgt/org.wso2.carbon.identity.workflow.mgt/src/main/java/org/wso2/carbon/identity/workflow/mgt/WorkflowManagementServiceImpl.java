@@ -65,7 +65,7 @@ import java.util.Map;
  * WorkflowService class provides all the common functionality for the basic workflows.
  */
 public class WorkflowManagementServiceImpl implements WorkflowManagementService {
-    
+
     public static final String DATE_FORMAT_FOR_FILTERING = "MM/dd/yyyy";
     public static final String HT_SERVICES_URL = "services/HumanTaskClientAPIAdmin";
     public static final String HT_PARAMETER_LIST_ELEMENT = "parametersList";
@@ -85,23 +85,11 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreGetWorkflow(workflowId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreGetWorkflow in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreGetWorkflow(workflowId);
         }
         Workflow workflowBean = workflowDAO.getWorkflow(workflowId);
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostGetWorkflow(workflowId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostGetWorkflow in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostGetWorkflow(workflowId, workflowBean);
         }
         return workflowBean;
     }
@@ -111,29 +99,15 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreGetWorkflowParameters(workflowId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreGetWorkflowParameters in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreGetWorkflowParameters(workflowId);
         }
         List<Parameter> workflowParams = workflowDAO.getWorkflowParams(workflowId);
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostGetWorkflowParameters(workflowId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostGetWorkflowParameters in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostGetWorkflowParameters(workflowId, workflowParams);
         }
 
         return workflowParams;
     }
-
-
 
 
     @Override
@@ -142,7 +116,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-                workflowListener.doPreListWorkflowEvents();
+            workflowListener.doPreListWorkflowEvents();
         }
         List<WorkflowRequestHandler> workflowRequestHandlers =
                 WorkflowServiceDataHolder.getInstance().listRequestHandlers();
@@ -171,7 +145,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
             }
         }
         for (WorkflowListener workflowListener : workflowListenerList) {
-            workflowListener.doPostListWorkflowEvents();
+            workflowListener.doPostListWorkflowEvents(eventList);
         }
 
 
@@ -187,8 +161,9 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
             workflowListener.doPreGetEvent(id);
         }
         WorkflowRequestHandler requestHandler = WorkflowServiceDataHolder.getInstance().getRequestHandler(id);
+        WorkflowEvent event = null;
         if (requestHandler != null) {
-            WorkflowEvent event = new WorkflowEvent();
+            event = new WorkflowEvent();
             event.setEventId(requestHandler.getEventId());
             event.setEventFriendlyName(requestHandler.getFriendlyName());
             event.setEventDescription(requestHandler.getDescription());
@@ -205,13 +180,11 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
                 }
                 event.setParameters(parameters);
             }
-
-            for (WorkflowListener workflowListener : workflowListenerList) {
-                workflowListener.doPostGetEvent(id);
-            }
-            return event;
         }
-        return null;
+        for (WorkflowListener workflowListener : workflowListenerList) {
+            workflowListener.doPostGetEvent(id, event);
+        }
+        return event;
     }
 
     @Override
@@ -220,13 +193,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreListTemplates();
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreListTemplates in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreListTemplates();
         }
         Map<String, AbstractTemplate> templateMap = WorkflowServiceDataHolder.getInstance().getTemplates();
         List<AbstractTemplate> templateList = new ArrayList<>(templateMap.values());
@@ -242,13 +209,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
             }
         }
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostListTemplates();
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostListTemplates in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostListTemplates(templates);
         }
 
 
@@ -261,13 +222,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreListWorkflowImpls(templateId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreListWorkflowImpls in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreListWorkflowImpls(templateId);
         }
         Map<String, AbstractWorkflow> abstractWorkflowMap =
                 WorkflowServiceDataHolder.getInstance().getWorkflowImpls().get(templateId);
@@ -284,13 +239,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
             }
         }
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostListWorkflowImpls(templateId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostListWorkflowImpls in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostListWorkflowImpls(templateId, workflowList);
         }
         return workflowList;
     }
@@ -301,13 +250,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreGetTemplate(templateId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreGetTemplate in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreGetTemplate(templateId);
         }
         AbstractTemplate abstractTemplate = WorkflowServiceDataHolder.getInstance().getTemplates().get(templateId);
         Template template = null;
@@ -320,13 +263,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         }
 
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostGetTemplate(templateId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostGetTemplate in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostGetTemplate(templateId, template);
         }
 
         return template;
@@ -339,13 +276,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreGetWorkflowImpl(templateId, workflowImplId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreGetWorkflowImpl in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreGetWorkflowImpl(templateId, workflowImplId);
         }
         WorkflowImpl workflowImpl = null;
         Map<String, AbstractWorkflow> abstractWorkflowMap =
@@ -362,13 +293,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         }
 
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostGetWorkflowImpl(templateId, workflowImplId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostGetWorkflowImpl in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostGetWorkflowImpl(templateId, workflowImplId, workflowImpl);
         }
 
         return workflowImpl;
@@ -381,13 +306,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreAddWorkflow(workflow, parameterList, tenantId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreAddWorkflow in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreAddWorkflow(workflow, parameterList, tenantId);
         }
         //TODO:Workspace Name may contain spaces , so we need to remove spaces and prepare process for that
         Parameter workflowNameParameter =
@@ -422,31 +341,19 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         }
         workflowDAO.addWorkflowParams(parameterList, workflow.getWorkflowId(), tenantId);
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostAddWorkflow(workflow, parameterList, tenantId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostAddWorkflow in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostAddWorkflow(workflow, parameterList, tenantId);
         }
 
     }
 
     @Override
     public void addAssociation(String associationName, String workflowId, String eventId, String condition) throws
-                                                                                                            WorkflowException {
+            WorkflowException {
 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreAddAssociation(associationName, workflowId, eventId, condition);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreAddAssociation in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreAddAssociation(associationName, workflowId, eventId, condition);
         }
 
         if (StringUtils.isBlank(workflowId)) {
@@ -475,13 +382,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
             throw new WorkflowRuntimeException("The condition is not a valid xpath expression.");
         }
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostAddAssociation(associationName, workflowId, eventId, condition);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostAddAssociation in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostAddAssociation(associationName, workflowId, eventId, condition);
         }
     }
 
@@ -491,23 +392,11 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreListWorkflows(tenantId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreListWorkflows in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreListWorkflows(tenantId);
         }
         List<Workflow> workflowList = workflowDAO.listWorkflows(tenantId);
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostListWorkflows(tenantId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostListWorkflows in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostListWorkflows(tenantId, workflowList);
         }
 
         return workflowList;
@@ -523,13 +412,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
                     WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
 
             for (WorkflowListener workflowListener : workflowListenerList) {
-                try {
-                    workflowListener.doPreDeleteWorkflow(workflow);
-                } catch (WorkflowException e) {
-                    throw new WorkflowException(
-                            "Error occurred while calling doPreDeleteWorkflow in WorkflowListener ," +
-                            workflowListener.getClass().getName(), e);
-                }
+                workflowListener.doPreDeleteWorkflow(workflow);
             }
 
             WorkflowManagementUtil.deleteWorkflowRole(StringUtils.deleteWhitespace(workflow.getWorkflowName()));
@@ -537,13 +420,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
             workflowDAO.removeWorkflow(workflowId);
 
             for (WorkflowListener workflowListener : workflowListenerList) {
-                try {
-                    workflowListener.doPostDeleteWorkflow(workflow);
-                } catch (WorkflowException e) {
-                    throw new WorkflowException(
-                            "Error occurred while calling doPreDeleteWorkflow in WorkflowListener ," +
-                            workflowListener.getClass().getName(), e);
-                }
+                workflowListener.doPostDeleteWorkflow(workflow);
             }
 
         }
@@ -555,23 +432,11 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreRemoveAssociation(associationId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreRemoveAssociation in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreRemoveAssociation(associationId);
         }
         associationDAO.removeAssociation(associationId);
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostRemoveAssociation(associationId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostRemoveAssociation in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostRemoveAssociation(associationId);
         }
 
     }
@@ -583,13 +448,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreGetAssociationsForWorkflow(workflowId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreGetAssociationsForWorkflow in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreGetAssociationsForWorkflow(workflowId);
         }
         List<Association> associations = associationDAO.listAssociationsForWorkflow(workflowId);
         for (Iterator<Association> iterator = associations.iterator(); iterator.hasNext(); ) {
@@ -604,13 +463,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
             }
         }
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostGetAssociationsForWorkflow(workflowId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostGetAssociationsForWorkflow in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostGetAssociationsForWorkflow(workflowId, associations);
         }
 
         return associations;
@@ -619,6 +472,11 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     @Override
     public List<Association> listAllAssociations(int tenantId) throws WorkflowException {
 
+        List<WorkflowListener> workflowListenerList =
+                WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
+        for (WorkflowListener workflowListener : workflowListenerList) {
+            workflowListener.doPreListAllAssociations(tenantId);
+        }
         List<Association> associations = associationDAO.listAssociations(tenantId);
         for (Iterator<Association> iterator = associations.iterator(); iterator.hasNext(); ) {
             Association association = iterator.next();
@@ -631,6 +489,9 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
                 iterator.remove();
             }
         }
+        for (WorkflowListener workflowListener : workflowListenerList) {
+            workflowListener.doPostListAllAssociations(tenantId, associations);
+        }
         return associations;
     }
 
@@ -640,25 +501,13 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreChangeAssociationState(associationId,isEnable);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreChangeAssociationState in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreChangeAssociationState(associationId, isEnable);
         }
         Association association = associationDAO.getAssociation(associationId);
         association.setEnabled(isEnable);
         associationDAO.updateAssociation(association);
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostChangeAssociationState(associationId, isEnable);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostChangeAssociationState in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostChangeAssociationState(associationId, isEnable);
         }
 
 
@@ -673,30 +522,18 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      * @throws InternalWorkflowException
      */
     @Override
-    public void addRequestEntityRelationships(String requestId, Entity[] entities) throws InternalWorkflowException {
+    public void addRequestEntityRelationships(String requestId, Entity[] entities) throws WorkflowException {
 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreAddRequestEntityRelationships(requestId, entities);
-            } catch (WorkflowException e) {
-                throw new InternalWorkflowException(
-                        "Error occurred while calling doPreAddRequestEntityRelationships in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreAddRequestEntityRelationships(requestId, entities);
         }
         for (int i = 0; i < entities.length; i++) {
             requestEntityRelationshipDAO.addRelationship(entities[i], requestId);
         }
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostAddRequestEntityRelationships(requestId, entities);
-            } catch (WorkflowException e) {
-                throw new InternalWorkflowException(
-                        "Error occurred while calling doPostAddRequestEntityRelationships in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostAddRequestEntityRelationships(requestId, entities);
         }
 
     }
@@ -709,28 +546,16 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      * @throws InternalWorkflowException
      */
     @Override
-    public boolean entityHasPendingWorkflows(Entity entity) throws InternalWorkflowException {
+    public boolean entityHasPendingWorkflows(Entity entity) throws WorkflowException {
 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreEntityHasPendingWorkflows(entity);
-            } catch (WorkflowException e) {
-                throw new InternalWorkflowException(
-                        "Error occurred while calling doPreEntityHasPendingWorkflows in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreEntityHasPendingWorkflows(entity);
         }
         boolean hasPendingWorkflows = requestEntityRelationshipDAO.entityHasPendingWorkflows(entity);
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostEntityHasPendingWorkflows(entity);
-            } catch (WorkflowException e) {
-                throw new InternalWorkflowException(
-                        "Error occurred while calling doPostEntityHasPendingWorkflows in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostEntityHasPendingWorkflows(entity);
         }
 
         return hasPendingWorkflows;
@@ -746,27 +571,15 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      */
     @Override
     public boolean entityHasPendingWorkflowsOfType(Entity entity, String requestType) throws
-                                                                                      InternalWorkflowException {
+            WorkflowException {
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreEntityHasPendingWorkflowsOfType(entity, requestType);
-            } catch (WorkflowException e) {
-                throw new InternalWorkflowException(
-                        "Error occurred while calling doPreEntityHasPendingWorkflowsOfType in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreEntityHasPendingWorkflowsOfType(entity, requestType);
         }
         boolean hasPendingWorkflows = requestEntityRelationshipDAO.entityHasPendingWorkflowsOfType(entity, requestType);
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostEntityHasPendingWorkflowsOfType(entity, requestType);
-            } catch (WorkflowException e) {
-                throw new InternalWorkflowException(
-                        "Error occurred while calling doPostEntityHasPendingWorkflowsOfType in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostEntityHasPendingWorkflowsOfType(entity, requestType);
         }
 
         return hasPendingWorkflows;
@@ -782,28 +595,16 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      */
     @Override
     public boolean areTwoEntitiesRelated(Entity entity1, Entity entity2) throws
-                                                                         InternalWorkflowException {
+            WorkflowException {
 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreAreTwoEntitiesRelated(entity1, entity2);
-            } catch (WorkflowException e) {
-                throw new InternalWorkflowException(
-                        "Error occurred while calling doPreAreTwoEntitiesRelated in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreAreTwoEntitiesRelated(entity1, entity2);
         }
         boolean twoEntitiesRelated = requestEntityRelationshipDAO.twoEntitiesAreRelated(entity1, entity2);
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostAreTwoEntitiesRelated(entity1, entity2);
-            } catch (WorkflowException e) {
-                throw new InternalWorkflowException(
-                        "Error occurred while calling doPostAreTwoEntitiesRelated in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostAreTwoEntitiesRelated(entity1, entity2);
         }
 
         return twoEntitiesRelated;
@@ -817,29 +618,18 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      * @throws InternalWorkflowException
      */
     @Override
-    public boolean isEventAssociated(String eventType) throws InternalWorkflowException {
+    public boolean isEventAssociated(String eventType) throws WorkflowException {
 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreIsEventAssociated(eventType);
-            } catch (WorkflowException e) {
-                throw new InternalWorkflowException(
-                        "Error occurred while calling doPreIsEventAssociated in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreIsEventAssociated(eventType);
         }
-        List<WorkflowAssociation> associations = workflowRequestAssociationDAO.getWorkflowAssociationsForRequest(eventType, CarbonContext
+        List<WorkflowAssociation> associations = workflowRequestAssociationDAO.getWorkflowAssociationsForRequest
+                (eventType, CarbonContext
                 .getThreadLocalCarbonContext().getTenantId());
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreIsEventAssociated(eventType);
-            } catch (WorkflowException e) {
-                throw new InternalWorkflowException(
-                        "Error occurred while calling doPreIsEventAssociated in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreIsEventAssociated(eventType);
         }
 
         if (associations.size() > 0) {
@@ -864,23 +654,11 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreGetRequestsCreatedByUser(user, tenantId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreGetRequestsCreatedByUser in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreGetRequestsCreatedByUser(user, tenantId);
         }
         WorkflowRequest[] requests = workflowRequestDAO.getRequestsOfUser(user, tenantId);
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostGetRequestsCreatedByUser(user, tenantId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostGetRequestsCreatedByUser in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostGetRequestsCreatedByUser(user, tenantId, requests);
         }
 
         return requests;
@@ -899,23 +677,12 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreGetWorkflowsOfRequest(requestId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreGetWorkflowsOfRequest in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreGetWorkflowsOfRequest(requestId);
         }
-        WorkflowRequestAssociation[] requestAssociations = workflowRequestAssociationDAO.getWorkflowsOfRequest(requestId);
+        WorkflowRequestAssociation[] requestAssociations = workflowRequestAssociationDAO.getWorkflowsOfRequest
+                (requestId);
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostGetWorkflowsOfRequest(requestId);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostGetWorkflowsOfRequest in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostGetWorkflowsOfRequest(requestId, requestAssociations);
         }
 
         return requestAssociations;
@@ -924,26 +691,19 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
 
     @Override
     public void deleteWorkflowRequest(String requestId) throws WorkflowException {
+        List<WorkflowListener> workflowListenerList =
+                WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         String loggedUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
         String createdUser = workflowRequestDAO.retrieveCreatedUserOfRequest(requestId);
         if (!loggedUser.equals(createdUser)) {
             throw new WorkflowException("User not authorized to delete this request");
         }
-        List<WorkflowListener> workflowListenerList =
-                WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
-
         WorkflowRequest workflowRequest = new WorkflowRequest();
         workflowRequest.setRequestId(requestId);
         workflowRequest.setCreatedBy(createdUser);
 
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreDeleteWorkflowRequest(workflowRequest);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreDeleteWorkflowRequest in WorkflowListener ," +
-                        workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreDeleteWorkflowRequest(workflowRequest);
         }
 
         workflowRequestDAO.updateStatusOfRequest(requestId, WorkflowRequestStatus.DELETED.toString());
@@ -952,13 +712,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         requestEntityRelationshipDAO.deleteRelationshipsOfRequest(requestId);
 
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostDeleteWorkflowRequest(workflowRequest);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostDeleteWorkflowRequest in WorkflowListener ," +
-                        workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostDeleteWorkflowRequest(workflowRequest);
         }
     }
 
@@ -984,13 +738,7 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreGetRequestsFromFilter(user, beginDate, endDate, dateCategory, tenantId, status);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPreGetRequestsFromFilter in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreGetRequestsFromFilter(user, beginDate, endDate, dateCategory, tenantId, status);
         }
         try {
             Date parsedBeginDate = dateFormat.parse(beginDate);
@@ -1007,22 +755,21 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
             Date parsedEndDate = new Date();
             endTime = new java.sql.Timestamp(parsedEndDate.getTime());
         }
+
+        WorkflowRequest[] resultList;
+        if (StringUtils.isBlank(user)) {
+            resultList = workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory, tenantId,
+                    status);
+        } else {
+            resultList = workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory,
+                    tenantId, status);
+        }
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostGetRequestsFromFilter(user, beginDate, endDate, dateCategory, tenantId, status);
-            } catch (WorkflowException e) {
-                throw new WorkflowException(
-                        "Error occurred while calling doPostGetRequestsFromFilter in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostGetRequestsFromFilter(user, beginDate, endDate, dateCategory, tenantId, status,
+                    resultList);
         }
 
-        if (StringUtils.isBlank(user)) {
-            return workflowRequestDAO.getRequestsFilteredByTime(beginTime, endTime, dateCategory, tenantId, status);
-        } else {
-            return workflowRequestDAO.getRequestsOfUserFilteredByTime(user, beginTime, endTime, dateCategory,
-                                                                      tenantId, status);
-        }
+        return resultList;
 
     }
 
@@ -1039,29 +786,18 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
      */
     @Override
     public List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID,
-                                        String idFilter) throws InternalWorkflowException {
+                                        String idFilter) throws WorkflowException {
 
         List<WorkflowListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreListEntityNames(wfOperationType, wfStatus, entityType, tenantID, idFilter);
-            } catch (WorkflowException e) {
-                throw new InternalWorkflowException(
-                        "Error occurred while calling doPreListEntityNames in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreListEntityNames(wfOperationType, wfStatus, entityType, tenantID, idFilter);
         }
         List<String> requestEntities = requestEntityRelationshipDAO.getEntityNamesOfRequest(wfOperationType, wfStatus,
                 entityType, idFilter, tenantID);
         for (WorkflowListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostListEntityNames(wfOperationType, wfStatus, entityType, tenantID, idFilter);
-            } catch (WorkflowException e) {
-                throw new InternalWorkflowException(
-                        "Error occurred while calling doPostListEntityNames in WorkflowListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostListEntityNames(wfOperationType, wfStatus, entityType, tenantID, idFilter,
+                    requestEntities);
         }
         return requestEntities;
     }

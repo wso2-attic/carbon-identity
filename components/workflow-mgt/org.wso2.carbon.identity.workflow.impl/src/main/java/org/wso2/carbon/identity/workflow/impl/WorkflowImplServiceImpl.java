@@ -88,23 +88,12 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreAddBPSProfile(bpsProfileDTO, tenantId);
-            } catch (WorkflowImplException e) {
-                throw new WorkflowImplException(
-                        "Error occurred while calling doPreAddBPSProfile in WorkflowImplServiceListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreAddBPSProfile(bpsProfileDTO, tenantId);
+
         }
         bpsProfileDAO.addProfile(bpsProfileDTO, tenantId);
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostAddBPSProfile(bpsProfileDTO, tenantId);
-            } catch (WorkflowImplException e) {
-                throw new WorkflowImplException(
-                        "Error occurred while calling doPreAddBPSProfile in WorkflowImplServiceListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostAddBPSProfile(bpsProfileDTO, tenantId);
         }
 
     }
@@ -115,23 +104,11 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreListBPSProfiles(tenantId);
-            } catch (WorkflowImplException e) {
-                throw new WorkflowImplException(
-                        "Error occurred while calling doPreListBPSProfiles in WorkflowImplServiceListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreListBPSProfiles(tenantId);
         }
         List<BPSProfile> bpsProfiles = bpsProfileDAO.listBPSProfiles(tenantId);
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostListBPSProfiles(tenantId);
-            } catch (WorkflowImplException e) {
-                throw new WorkflowImplException(
-                        "Error occurred while calling doPostListBPSProfiles in WorkflowImplServiceListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostListBPSProfiles(tenantId, bpsProfiles);
         }
 
         return bpsProfiles;
@@ -143,23 +120,11 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreRemoveBPSProfile(profileName);
-            } catch (WorkflowImplException e) {
-                throw new WorkflowImplException(
-                        "Error occurred while calling doPreRemoveBPSProfile in WorkflowImplServiceListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreRemoveBPSProfile(profileName);
         }
         bpsProfileDAO.removeBPSProfile(profileName);
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostRemoveBPSProfile(profileName);
-            } catch (WorkflowImplException e) {
-                throw new WorkflowImplException(
-                        "Error occurred while calling doPostRemoveBPSProfile in WorkflowImplServiceListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostRemoveBPSProfile(profileName);
         }
 
     }
@@ -171,23 +136,11 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreGetBPSProfile(profileName, tenantId);
-            } catch (WorkflowImplException e) {
-                throw new WorkflowImplException(
-                        "Error occurred while calling doPreGetBPSProfile in WorkflowImplServiceListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreGetBPSProfile(profileName, tenantId);
         }
         BPSProfile bpsProfile = bpsProfileDAO.getBPSProfile(profileName, tenantId, true);
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostGetBPSProfile(profileName, tenantId);
-            } catch (WorkflowImplException e) {
-                throw new WorkflowImplException(
-                        "Error occurred while calling doPostGetBPSProfile in WorkflowImplServiceListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostGetBPSProfile(profileName, tenantId, bpsProfile);
         }
         return bpsProfile;
     }
@@ -198,13 +151,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreUpdateBPSProfile(bpsProfileDTO, tenantId);
-            } catch (WorkflowImplException e) {
-                throw new WorkflowImplException(
-                        "Error occurred while calling doPreUpdateBPSProfile in WorkflowImplServiceListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreUpdateBPSProfile(bpsProfileDTO, tenantId);
         }
         BPSProfile currentBpsProfile = bpsProfileDAO.getBPSProfile(bpsProfileDTO.getProfileName(), tenantId, true);
         if (bpsProfileDTO.getPassword() == null || bpsProfileDTO.getPassword().isEmpty()) {
@@ -212,13 +159,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         }
         bpsProfileDAO.updateProfile(bpsProfileDTO, tenantId);
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostUpdateBPSProfile(bpsProfileDTO, tenantId);
-            } catch (WorkflowImplException e) {
-                throw new WorkflowImplException(
-                        "Error occurred while calling doPostUpdateBPSProfile in WorkflowImplServiceListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostUpdateBPSProfile(bpsProfileDTO, tenantId);
         }
 
 
@@ -227,19 +168,12 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
     @Override
     public void deleteHumanTask(WorkflowRequest workflowRequest) throws WorkflowImplException {
         BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
+        List<WorkflowImplServiceListener> workflowListenerList =
+                WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
 
         try {
-
-            List<WorkflowImplServiceListener> workflowListenerList =
-                    WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
             for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-                try {
-                    workflowListener.doPreDeleteHumanTask(workflowRequest);
-                } catch (WorkflowImplException e) {
-                    throw new WorkflowImplException(
-                            "Error occurred while calling doPreDeleteHumanTask in WorkflowImplServiceListener ," +
-                                    workflowListener.getClass().getName(), e);
-                }
+                workflowListener.doPreDeleteHumanTask(workflowRequest);
             }
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             List<BPSProfile> bpsProfiles = bpsProfileDAO.listBPSProfiles(tenantId);
@@ -291,20 +225,13 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
 
                 }
             }
-            for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-                try {
-                    workflowListener.doPostDeleteHumanTask(workflowRequest);
-                } catch (WorkflowImplException e) {
-                    throw new WorkflowImplException(
-                            "Error occurred while calling doPostDeleteHumanTask in WorkflowImplServiceListener ," +
-                                    workflowListener.getClass().getName(), e);
-                }
-            }
-
-
         } catch (MalformedURLException | XMLStreamException | IllegalOperationFault | IllegalAccessFault |
                 RemoteException | IllegalStateFault | IllegalArgumentFault e) {
             throw new WorkflowImplException("Error while deleting the human tasks of the request.");
+        }
+
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPostDeleteHumanTask(workflowRequest);
         }
     }
 
@@ -322,13 +249,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPreRemoveBPSPackage(workflow);
-            } catch (WorkflowImplException e) {
-                throw new WorkflowImplException(
-                        "Error occurred while calling doPreRemoveBPSPackage in WorkflowImplServiceListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPreRemoveBPSPackage(workflow);
         }
         WorkflowImplService workflowImplService = WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
         WorkflowManagementService workflowManagementService = WorkflowImplServiceDataHolder.getInstance().
@@ -434,13 +355,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                     + workflow.getWorkflowName(), e);
         }
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            try {
-                workflowListener.doPostRemoveBPSPackage(workflow);
-            } catch (WorkflowImplException e) {
-                throw new WorkflowImplException(
-                        "Error occurred while calling doPostRemoveBPSPackage in WorkflowImplServiceListener ," +
-                                workflowListener.getClass().getName(), e);
-            }
+            workflowListener.doPostRemoveBPSPackage(workflow);
         }
 
 

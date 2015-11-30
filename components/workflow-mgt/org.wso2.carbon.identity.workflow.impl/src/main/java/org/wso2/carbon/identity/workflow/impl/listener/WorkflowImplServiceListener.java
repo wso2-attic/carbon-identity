@@ -23,6 +23,8 @@ import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 
+import java.util.List;
+
 public interface WorkflowImplServiceListener {
 
     /**
@@ -57,7 +59,7 @@ public interface WorkflowImplServiceListener {
      * @param tenantId
      * @throws WorkflowImplException
      */
-    void doPostListBPSProfiles(int tenantId) throws WorkflowImplException;
+    void doPostListBPSProfiles(int tenantId, List<BPSProfile> list) throws WorkflowImplException;
 
     /**
      * Trigger before removing a BPS profile
@@ -91,7 +93,7 @@ public interface WorkflowImplServiceListener {
      * @param tenantId
      * @throws WorkflowImplException
      */
-    void doPostGetBPSProfile(String profileName, int tenantId) throws WorkflowImplException;
+    void doPostGetBPSProfile(String profileName, int tenantId, BPSProfile result) throws WorkflowImplException;
 
     /**
      * Trigger before updating a BPS profile

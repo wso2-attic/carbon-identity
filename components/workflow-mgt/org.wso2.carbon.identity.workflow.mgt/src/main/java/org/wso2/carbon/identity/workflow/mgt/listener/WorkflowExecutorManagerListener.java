@@ -19,6 +19,7 @@
 
 package org.wso2.carbon.identity.workflow.mgt.listener;
 
+import org.wso2.carbon.identity.workflow.mgt.WorkflowExecutorResult;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
@@ -40,7 +41,7 @@ public interface WorkflowExecutorManagerListener {
      * @param workFlowRequest
      * @throws WorkflowException
      */
-    void doPostExecuteWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException;
+    void doPostExecuteWorkflow(WorkflowRequest workFlowRequest, WorkflowExecutorResult result) throws WorkflowException;
 
     /**
      * Trigger before handling a callback

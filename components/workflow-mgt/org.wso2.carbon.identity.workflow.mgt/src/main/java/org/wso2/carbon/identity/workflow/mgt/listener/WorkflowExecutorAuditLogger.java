@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowExecutorResult;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
@@ -41,7 +42,8 @@ public class WorkflowExecutorAuditLogger extends AbstractWorkflowExecutorManager
      * @throws WorkflowException
      */
     @Override
-    public void doPostExecuteWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
+    public void doPostExecuteWorkflow(WorkflowRequest workFlowRequest, WorkflowExecutorResult result) throws
+            WorkflowException {
         String loggedInUser = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         if (StringUtils.isBlank(loggedInUser)) {
             loggedInUser = CarbonConstants.REGISTRY_SYSTEM_USERNAME;

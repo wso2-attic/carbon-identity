@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.workflow.mgt.listener;
 
+import org.wso2.carbon.identity.workflow.mgt.WorkflowExecutorResult;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
@@ -43,7 +44,8 @@ public abstract class AbstractWorkflowExecutorManagerListener implements Workflo
      * @throws WorkflowException
      */
     @Override
-    public void doPostExecuteWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
+    public void doPostExecuteWorkflow(WorkflowRequest workFlowRequest, WorkflowExecutorResult result) throws
+            WorkflowException {
 
     }
 

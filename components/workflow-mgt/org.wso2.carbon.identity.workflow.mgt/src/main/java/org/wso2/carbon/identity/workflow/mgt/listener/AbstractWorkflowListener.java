@@ -26,6 +26,11 @@ import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
+import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequestAssociation;
+import org.wso2.carbon.identity.workflow.mgt.dto.Association;
+import org.wso2.carbon.identity.workflow.mgt.dto.Template;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowEvent;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowImpl;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.util.List;
@@ -48,7 +53,7 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      * @throws WorkflowException
      */
     @Override
-    public void doPostListWorkflowEvents() {
+    public void doPostListWorkflowEvents(List<WorkflowEvent> result) {
 
     }
 
@@ -114,7 +119,7 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      * @throws WorkflowException
      */
     @Override
-    public void doPostListWorkflowImpls(String templateId) throws WorkflowException {
+    public void doPostListWorkflowImpls(String templateId, List<WorkflowImpl> result) throws WorkflowException {
 
     }
 
@@ -136,7 +141,7 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      * @throws WorkflowException
      */
     @Override
-    public void doPostGetEvent(String id) {
+    public void doPostGetEvent(String id, WorkflowEvent result) {
 
     }
 
@@ -156,7 +161,7 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      * @throws WorkflowException
      */
     @Override
-    public void doPostListTemplates() throws WorkflowException {
+    public void doPostListTemplates(List<Template> result) throws WorkflowException {
 
     }
 
@@ -178,7 +183,7 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      * @throws WorkflowException
      */
     @Override
-    public void doPostGetTemplate(String templateId) throws WorkflowException {
+    public void doPostGetTemplate(String templateId, Template result) throws WorkflowException {
 
     }
 
@@ -202,7 +207,8 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      * @throws WorkflowException
      */
     @Override
-    public void doPostGetWorkflowImpl(String templateId, String workflowImplId) throws WorkflowException {
+    public void doPostGetWorkflowImpl(String templateId, String workflowImplId, WorkflowImpl result) throws
+            WorkflowException {
 
     }
 
@@ -252,7 +258,7 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      * @throws WorkflowException
      */
     @Override
-    public void doPostGetWorkflow(String workflowId) throws WorkflowException {
+    public void doPostGetWorkflow(String workflowId, Workflow result) throws WorkflowException {
 
     }
 
@@ -274,7 +280,7 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      * @throws WorkflowException
      */
     @Override
-    public void doPostGetWorkflowParameters(String workflowId) throws WorkflowException {
+    public void doPostGetWorkflowParameters(String workflowId, List<Parameter> result) throws WorkflowException {
 
     }
 
@@ -326,7 +332,7 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      * @throws WorkflowException
      */
     @Override
-    public void doPostListWorkflows(int tenantId) throws WorkflowException {
+    public void doPostListWorkflows(int tenantId, List<Workflow> result) throws WorkflowException {
 
     }
 
@@ -370,7 +376,7 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      * @throws WorkflowException
      */
     @Override
-    public void doPostGetAssociationsForWorkflow(String workflowId) throws WorkflowException {
+    public void doPostGetAssociationsForWorkflow(String workflowId, List<Association> result) throws WorkflowException {
 
     }
 
@@ -392,7 +398,7 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      * @throws WorkflowException
      */
     @Override
-    public void doPostListAllAssociations(int tenantId) throws WorkflowException {
+    public void doPostListAllAssociations(int tenantId, List<Association> result) throws WorkflowException {
 
     }
 
@@ -532,7 +538,8 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      * @throws WorkflowException
      */
     @Override
-    public void doPostGetRequestsCreatedByUser(String user, int tenantId) throws WorkflowException {
+    public void doPostGetRequestsCreatedByUser(String user, int tenantId, WorkflowRequest[] results) throws
+            WorkflowException {
 
     }
 
@@ -550,7 +557,8 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      * @throws WorkflowException
      */
     @Override
-    public void doPostGetWorkflowsOfRequest(String requestId) throws WorkflowException {
+    public void doPostGetWorkflowsOfRequest(String requestId, WorkflowRequestAssociation[] results) throws
+            WorkflowException {
 
     }
 
@@ -580,7 +588,7 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      */
     @Override
     public void doPostGetRequestsFromFilter(String user, String beginDate, String endDate, String dateCategory, int
-            tenantId, String status) throws WorkflowException {
+            tenantId, String status, WorkflowRequest[] result) throws WorkflowException {
 
     }
 
@@ -608,7 +616,7 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
      */
     @Override
     public void doPostListEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID,
-                                      String idFilter) throws WorkflowException {
+                                      String idFilter, List<String> result) throws WorkflowException {
 
     }
 
