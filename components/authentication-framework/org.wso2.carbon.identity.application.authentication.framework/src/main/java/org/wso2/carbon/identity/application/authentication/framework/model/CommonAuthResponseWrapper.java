@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.oauth.endpoint;
+package org.wso2.carbon.identity.application.authentication.framework.model;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,20 +24,20 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DelegatingResponseWrapper extends HttpServletResponseWrapper {
+public class CommonAuthResponseWrapper extends HttpServletResponseWrapper {
 
     private Map extraParameters;
     private HttpServletRequest request;
     private boolean isRedirect = false;
     private String redirectURL;
 
-    public DelegatingResponseWrapper(HttpServletResponse response) {
+    public CommonAuthResponseWrapper(HttpServletResponse response) {
 
         super(response);
         extraParameters = new HashMap();
     }
 
-    public DelegatingResponseWrapper(HttpServletResponse response, HttpServletRequest request) {
+    public CommonAuthResponseWrapper(HttpServletResponse response, HttpServletRequest request) {
 
         super(response);
         this.request = request;

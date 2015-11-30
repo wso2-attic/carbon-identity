@@ -32,6 +32,8 @@ import org.wso2.carbon.identity.application.authentication.framework.CommonAuthe
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthRequestWrapper;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthResponseWrapper;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -45,9 +47,7 @@ import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
-import org.wso2.carbon.identity.oauth.endpoint.DelegatingResponseWrapper;
 import org.wso2.carbon.identity.oauth.endpoint.OAuthRequestWrapper;
-import org.wso2.carbon.identity.oauth.endpoint.ParameterDelegatingRequestWrapper;
 import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
 import org.wso2.carbon.identity.oauth.endpoint.util.OpenIDConnectUserRPStore;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
@@ -723,24 +723,39 @@ public class OAuth2AuthzEndpoint {
         return authResult;
     }
 
+    /**
+     * This method use to call authentication framework directly via API other than using HTTP redirects.
+     * Sending wrapper request object to doGet method since other original request doesn't exist required parameters
+     * Doesn't check SUCCESS_COMPLETED since taking decision with INCOMPLETE status
+     *
+     * Appending "../" to redirect url since tomcat container redirects to
+     * https://localhost:9443/oauth2/authenticationendpoint/login.do
+     *
+     * @param request  Http Request
+     * @param response Http Response
+     * @param sessionDataKey Session data key
+     * @param type authenticator type
+     * @throws ServletException
+     * @throws IOException
+     */
     private Response forward(HttpServletRequest request, HttpServletResponse response, String sessionDataKey,
             String type) throws ServletException, IOException, URISyntaxException {
 
         CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
 
-        ParameterDelegatingRequestWrapper requestWrapper = new ParameterDelegatingRequestWrapper(request);
+        CommonAuthRequestWrapper requestWrapper = new CommonAuthRequestWrapper(request);
         requestWrapper.setParameter(FrameworkConstants.SESSION_DATA_KEY, sessionDataKey);
         requestWrapper.setParameter(FrameworkConstants.RequestParams.TYPE, type);
 
-        DelegatingResponseWrapper responseWrapper = new DelegatingResponseWrapper(response);
+        CommonAuthResponseWrapper responseWrapper = new CommonAuthResponseWrapper(response);
         commonAuthenticationHandler.doGet(requestWrapper, responseWrapper);
 
         Object object = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
         if (object != null) {
             AuthenticatorFlowStatus status = (AuthenticatorFlowStatus) object;
             if (status == AuthenticatorFlowStatus.INCOMPLETE) {
-                return Response.status(HttpServletResponse.SC_FOUND).location(new URI("../"+ responseWrapper.getRedirectURL())) //TODO
-                        .build();
+                return Response.status(HttpServletResponse.SC_FOUND)
+                        .location(new URI("../" + responseWrapper.getRedirectURL())).build();
             } else {
                 return authorize(requestWrapper, responseWrapper);
             }
