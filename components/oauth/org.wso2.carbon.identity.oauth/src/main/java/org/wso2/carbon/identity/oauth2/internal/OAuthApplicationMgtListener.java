@@ -37,11 +37,6 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
         return 11;
     }
 
-    public boolean doPreCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
-            throws IdentityApplicationManagementException {
-        return true;
-    }
-
     public boolean doPreUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName)
             throws IdentityApplicationManagementException {
         removeClientSecret(serviceProvider);
@@ -103,7 +98,7 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
                     }
                 }
             } else {
-
+                //ignore
             }
         } else {
             //nothing to do
@@ -132,7 +127,7 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
                     }
                 }
             } else {
-
+                //ignore
             }
         } else {
             //nothing to do

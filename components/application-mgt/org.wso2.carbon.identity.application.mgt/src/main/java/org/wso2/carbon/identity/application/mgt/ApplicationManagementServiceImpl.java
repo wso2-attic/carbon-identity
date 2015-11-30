@@ -174,7 +174,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         // invoking the listeners
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreGetServiceProvider(applicationName, tenantDomain)) {
+            if (!listener.doPreGetApplicationExcludingFileBasedSPs(applicationName, tenantDomain)) {
                 return null;
             }
         }
@@ -199,7 +199,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
         // invoking the listeners
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostGetServiceProvider(serviceProvider, applicationName, tenantDomain)) {
+            if (!listener.doPostGetApplicationExcludingFileBasedSPs(serviceProvider, applicationName, tenantDomain)) {
                 return null;
             }
         }
@@ -210,16 +210,34 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     @Override
     public ApplicationBasicInfo[] getAllApplicationBasicInfo(String tenantDomain, String username)
             throws IdentityApplicationManagementException {
+        ApplicationDAO appDAO = null;
+        // invoking the listeners
+        Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
+        for (ApplicationMgtListener listener : listeners) {
+            if (!listener.doPreGetAllApplicationBasicInfo(tenantDomain, username)) {
+                return null;
+            }
+        }
+
         try {
             startTenantFlow(tenantDomain, username);
-            ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
-            return appDAO.getAllApplicationBasicInfo();
+            appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
+
         } catch (Exception e) {
             String error = "Error occurred while retrieving all the applications";
             throw new IdentityApplicationManagementException(error, e);
         } finally {
             endTenantFlow();
         }
+
+        // invoking the listeners
+        for (ApplicationMgtListener listener : listeners) {
+            if (!listener.doPostGetAllApplicationBasicInfo(appDAO, tenantDomain, username)) {
+                return null;
+            }
+        }
+
+        return appDAO.getAllApplicationBasicInfo();
     }
 
     @Override
@@ -520,14 +538,33 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     public String getServiceProviderNameByClientIdExcludingFileBasedSPs(String clientId, String type, String
             tenantDomain)
             throws IdentityApplicationManagementException {
+
+        String name = null;
+
+        // invoking the listeners
+        Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
+        for (ApplicationMgtListener listener : listeners) {
+            if (!listener.doPreGetServiceProviderNameByClientIdExcludingFileBasedSPs(name, clientId, type, tenantDomain)) {
+                return null;
+            }
+        }
+
         try {
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
-            return appDAO.getServiceProviderNameByClientId(clientId, type, tenantDomain);
+            name =  appDAO.getServiceProviderNameByClientId(clientId, type, tenantDomain);
 
         } catch (Exception e) {
             String error = "Error occurred while retrieving the service provider for client id :  " + clientId;
             throw new IdentityApplicationManagementException(error, e);
         }
+
+        for (ApplicationMgtListener listener : listeners) {
+            if (!listener.doPostGetServiceProviderNameByClientIdExcludingFileBasedSPs(name, clientId, type, tenantDomain)) {
+                return null;
+            }
+        }
+
+        return name;
     }
 
     /**
@@ -626,7 +663,15 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
     public String getServiceProviderNameByClientId(String clientId, String clientType,
                                                    String tenantDomain) throws IdentityApplicationManagementException {
 
-        String name;
+        String name = null;
+
+        // invoking the listeners
+        Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
+        for (ApplicationMgtListener listener : listeners) {
+            if (!listener.doPreGetServiceProviderNameByClientId(clientId, clientType, tenantDomain)) {
+                return null;
+            }
+        }
 
         ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
         name = appDAO.getServiceProviderNameByClientId(clientId, clientType, tenantDomain);
@@ -640,6 +685,12 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
             ServiceProvider defaultSP = ApplicationManagementServiceComponent.getFileBasedSPs()
                     .get(IdentityApplicationConstants.DEFAULT_SP_CONFIG);
             name = defaultSP.getApplicationName();
+        }
+
+        for (ApplicationMgtListener listener : listeners) {
+            if (!listener.doPostGetServiceProviderNameByClientId(name, clientId, clientType, tenantDomain)) {
+                return null;
+            }
         }
 
         return name;
