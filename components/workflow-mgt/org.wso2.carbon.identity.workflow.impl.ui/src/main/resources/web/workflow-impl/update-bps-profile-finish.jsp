@@ -52,13 +52,17 @@
         String workerHost = request.getParameter(WorkflowUIConstants.PARAM_BPS_WORKER_HOST);
         String username = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER);
         String password = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD);
+        String[] passwordAsArray = new String[password.length()];
+        for (int i=0;i<password.length();i++) {
+            passwordAsArray[i] = password.charAt(i) + "";
+        }
         try {
             BPSProfile bpsProfile = new BPSProfile();
             bpsProfile.setProfileName(profileName);
             bpsProfile.setManagerHostURL(managerHost);
             bpsProfile.setWorkerHostURL(workerHost);
             bpsProfile.setUsername(username);
-            bpsProfile.setPassword(password);
+            bpsProfile.setPassword(passwordAsArray);
             client.addBPSProfile(bpsProfile);
 
         } catch (WorkflowImplAdminServiceWorkflowImplException e) {
@@ -71,6 +75,10 @@
         String workerHost = request.getParameter(WorkflowUIConstants.PARAM_BPS_WORKER_HOST);
         String username = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER);
         String password = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD);
+        String[] passwordAsArray = new String[password.length()];
+        for (int i=0;i<password.length();i++) {
+            passwordAsArray[i] = password.charAt(i) + "";
+        }
         try {
             BPSProfile bpsProfile = new BPSProfile();
             bpsProfile.setProfileName(profileName);
@@ -79,7 +87,7 @@
             bpsProfile.setUsername(username);
 
             if(password!=null && !password.isEmpty()) {
-                bpsProfile.setPassword(password);
+                bpsProfile.setPassword(passwordAsArray);
             }
 
             client.updateBPSProfile(bpsProfile);

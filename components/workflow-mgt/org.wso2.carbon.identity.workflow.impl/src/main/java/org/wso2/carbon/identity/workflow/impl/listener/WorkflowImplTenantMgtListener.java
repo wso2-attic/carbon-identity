@@ -43,7 +43,7 @@ public class WorkflowImplTenantMgtListener implements TenantMgtListener {
             bpsProfileDTO.setManagerHostURL(url);
             bpsProfileDTO.setWorkerHostURL(url);
             bpsProfileDTO.setUsername(fullName);
-            bpsProfileDTO.setPassword(tenantInfoBean.getAdminPassword());
+            bpsProfileDTO.setPassword(tenantInfoBean.getAdminPassword().toCharArray());
             bpsProfileDTO.setProfileName(WFImplConstant.DEFAULT_BPS_PROFILE_NAME);
 
             WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService()

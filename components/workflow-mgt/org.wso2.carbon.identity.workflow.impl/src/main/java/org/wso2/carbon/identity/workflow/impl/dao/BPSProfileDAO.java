@@ -49,7 +49,7 @@ public class BPSProfileDAO {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_BPS_PROFILE_QUERY;
-        String password = bpsProfileDTO.getPassword();
+        String password = String.copyValueOf(bpsProfileDTO.getPassword());
         String profileName = bpsProfileDTO.getProfileName();
         String encryptedPassword;
 
@@ -90,7 +90,7 @@ public class BPSProfileDAO {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.UPDATE_BPS_PROFILE_QUERY;
-        String password = bpsProfile.getPassword();
+        String password = String.copyValueOf(bpsProfile.getPassword());
         String profileName = bpsProfile.getProfileName();
         String encryptedPassword;
 
@@ -165,7 +165,7 @@ public class BPSProfileDAO {
                         throw new WorkflowImplException("Error while decrypting the password for BPEL Profile"
                                 + " " + profileName, e);
                     }
-                    bpsProfileDTO.setPassword(decryptedPassword);
+                    bpsProfileDTO.setPassword(decryptedPassword.toCharArray());
                 }
 
             }
@@ -227,7 +227,7 @@ public class BPSProfileDAO {
                 profileBean.setWorkerHostURL(workerHostName);
                 profileBean.setProfileName(name);
                 profileBean.setUsername(user);
-                profileBean.setPassword(decryptPassword);
+                profileBean.setPassword(decryptPassword.toCharArray());
                 profiles.add(profileBean);
             }
         } catch (SQLException e) {

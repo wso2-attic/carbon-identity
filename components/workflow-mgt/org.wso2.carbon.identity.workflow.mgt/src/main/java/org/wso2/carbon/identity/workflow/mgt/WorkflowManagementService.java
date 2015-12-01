@@ -26,7 +26,6 @@ import org.wso2.carbon.identity.workflow.mgt.dto.Association;
 import org.wso2.carbon.identity.workflow.mgt.dto.Template;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowEvent;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowImpl;
-import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.util.List;
@@ -178,24 +177,23 @@ public interface WorkflowManagementService {
      */
     void changeAssociationState(String associationId, boolean isEnable) throws WorkflowException;
 
-    void addRequestEntityRelationships(String requestId, Entity[] entities) throws WorkflowException;
-    /**
+     /**
      * Add new relationships for entities
      *
      * @param requestId  Request ID
      * @param entities  Entity list
-     * @throws InternalWorkflowException
+     * @throws WorkflowException
      */
-    void addRequestEntityRelationships(String requestId, Entity[] entities) throws InternalWorkflowException;
+    void addRequestEntityRelationships(String requestId, Entity[] entities) throws WorkflowException;
 
     /**
      * Check if given entity has pending workflow associated with it
      *
      * @param entity  Entity object to test
      * @return
-     * @throws InternalWorkflowException
+     * @throws WorkflowException
      */
-    boolean entityHasPendingWorkflows(Entity entity) throws InternalWorkflowException;
+    boolean entityHasPendingWorkflows(Entity entity) throws WorkflowException;
 
     /**
      * Check if a given entity associated with a given object
@@ -203,7 +201,7 @@ public interface WorkflowManagementService {
      * @param entity  Entity object to test
      * @param requestType  Type of request, eg:- Add user
      * @return
-     * @throws InternalWorkflowException
+     * @throws WorkflowException
      */
     boolean entityHasPendingWorkflowsOfType(Entity entity, String requestType) throws
     WorkflowException;
@@ -214,7 +212,7 @@ public interface WorkflowManagementService {
      * @param entity1  first entity object to test
      * @param entity2  second entity object to test
      * @return
-     * @throws InternalWorkflowException
+     * @throws WorkflowException
      */
     boolean areTwoEntitiesRelated(Entity entity1, Entity entity2) throws
                                                                   WorkflowException;
@@ -224,7 +222,7 @@ public interface WorkflowManagementService {
      *
      * @param eventType  event type to check
      * @return
-     * @throws InternalWorkflowException
+     * @throws WorkflowException
      */
     boolean isEventAssociated(String eventType) throws WorkflowException;
 

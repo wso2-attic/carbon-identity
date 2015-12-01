@@ -26,7 +26,7 @@ public class BPSProfile {
     private String managerHostURL;
     private String workerHostURL;
     private String username;
-    private String password;
+    private char[] password;
 
     public String getProfileName() {
         return profileName;
@@ -44,11 +44,11 @@ public class BPSProfile {
         this.username = username;
     }
 
-    public String getPassword() {
+    public char[] getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(char[] password) {
         this.password = password;
     }
 

@@ -146,7 +146,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             workflowListener.doPreUpdateBPSProfile(bpsProfileDTO, tenantId);
         }
         BPSProfile currentBpsProfile = bpsProfileDAO.getBPSProfile(bpsProfileDTO.getProfileName(), tenantId, true);
-        if (bpsProfileDTO.getPassword() == null || bpsProfileDTO.getPassword().isEmpty()) {
+        if (ArrayUtils.isEmpty(currentBpsProfile.getPassword())) {
             bpsProfileDTO.setPassword(currentBpsProfile.getPassword());
         }
         bpsProfileDAO.updateProfile(bpsProfileDTO, tenantId);
@@ -190,7 +190,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                     client = new HumanTaskClientAPIAdminClient(servicesUrl, bpsProfiles.get(i).getUsername());
                 } else {
                     client = new HumanTaskClientAPIAdminClient(servicesUrl, bpsProfiles.get(i).getUsername(),
-                            bpsProfiles.get(i).getPassword().toCharArray());
+                            bpsProfiles.get(i).getPassword());
                 }
                 TTaskSimpleQueryResultSet results = client.simpleQuery(input);
                 TTaskSimpleQueryResultRow[] arr = results.getRow();
@@ -293,9 +293,9 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             } else {
                 //For external BPS profiles, use password authentication
                 bpsPackageClient = new BPELPackageManagementServiceClient(bpsPackageServicesUrl, bpsProfile
-                        .getUsername(), bpsProfile.getPassword().toCharArray());
+                        .getUsername(), bpsProfile.getPassword());
                 bpsProcessClient = new ProcessManagementServiceClient(bpsPackageServicesUrl, bpsProfile
-                        .getUsername(), bpsProfile.getPassword().toCharArray());
+                        .getUsername(), bpsProfile.getPassword());
             }
 
             DeployedPackagesPaginated deployedPackagesPaginated =

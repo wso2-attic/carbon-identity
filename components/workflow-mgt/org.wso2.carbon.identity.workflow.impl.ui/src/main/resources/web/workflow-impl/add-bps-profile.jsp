@@ -76,8 +76,8 @@
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.manager.host'/></td>
                         <td>
-                            <input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_MANAGER_HOST%>"
-                                   style="width:30%" class="text-box-big"/>
+                            <div><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_MANAGER_HOST%>"
+                                   style="width:30%" class="text-box-big"/></div>
                             <div class="sectionHelp">
                                 <fmt:message key='help.desc.manager'/>
                             </div>
@@ -85,8 +85,8 @@
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.worker.host'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_WORKER_HOST%>"
-                                   style="width:30%" class="text-box-big"/>
+                        <td><div><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_WORKER_HOST%>"
+                                   style="width:30%" class="text-box-big"/></div>
                             <div class="sectionHelp">
                                 <fmt:message key='help.desc.worker'/>
                             </div>

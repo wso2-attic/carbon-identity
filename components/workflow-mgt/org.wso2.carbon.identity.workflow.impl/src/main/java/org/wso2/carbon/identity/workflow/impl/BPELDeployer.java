@@ -146,7 +146,7 @@ public class BPELDeployer implements TemplateInitializer {
                     bpsProfile.getUsername());
         } else {
             workflowDeployerClient = new WorkflowDeployerClient(bpsProfile.getManagerHostURL(),
-                    bpsProfile.getUsername(), bpsProfile.getPassword().toCharArray());
+                    bpsProfile.getUsername(), bpsProfile.getPassword());
         }
         workflowDeployerClient.uploadBPEL(getBPELUploadedFileItem(new DataHandler(bpelDataSource),
                                                                   bpelArchiveName, BPELDeployer.Constants.ZIP_TYPE));

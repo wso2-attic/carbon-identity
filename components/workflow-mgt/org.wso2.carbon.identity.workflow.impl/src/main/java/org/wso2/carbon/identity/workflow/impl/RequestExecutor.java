@@ -145,7 +145,7 @@ public class RequestExecutor implements WorkFlowExecutor {
 
         HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
         auth.setUsername(bpsProfile.getUsername());
-        auth.setPassword(bpsProfile.getPassword());
+        auth.setPassword(String.valueOf(bpsProfile.getPassword()));
         auth.setPreemptiveAuthentication(true);
         List<String> authSchemes = new ArrayList<>();
         authSchemes.add(HttpTransportProperties.Authenticator.BASIC);

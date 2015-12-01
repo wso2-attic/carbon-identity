@@ -46,13 +46,17 @@
             (ConfigurationContext) config.getServletContext()
                     .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     WorkflowImplAdminServiceClient client = new WorkflowImplAdminServiceClient(cookie, backendServerURL, configContext);
+    String[] passwordAsArray = new String[password.length()];
+    for (int i=0;i<password.length();i++) {
+        passwordAsArray[i] = password.charAt(i) + "";
+    }
     try {
         BPSProfile bpsProfile = new BPSProfile();
         bpsProfile.setProfileName(profileName);
         bpsProfile.setManagerHostURL(managerHost);
         bpsProfile.setWorkerHostURL(workerHost);
         bpsProfile.setUsername(username);
-        bpsProfile.setPassword(password);
+        bpsProfile.setPassword(passwordAsArray);
         client.addBPSProfile(bpsProfile);
     } catch (WorkflowImplAdminServiceWorkflowImplException e) {
         String message = resourceBundle.getString("workflow.error.bps.profile.add");
