@@ -418,7 +418,15 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
         /** Provisioning Pattern */
         String provisioningPattern = this.configHolder.getValue(provisioningPatternKey);
+        if (StringUtils.isBlank(provisioningPattern)) {
+            log.info("Provisioning pattern is not defined, hence using default provisioning pattern");
+            provisioningPattern = GoogleConnectorConstants.PropertyConfig.DEFAULT_PROVISIONING_PATTERN;
+        }
         String provisioningSeparator = this.configHolder.getValue(provisioningSeparatorKey);
+        if (StringUtils.isBlank(provisioningSeparator)) {
+            log.info("Provisioning separator is not defined, hence using default provisioning separator");
+            provisioningSeparator = GoogleConnectorConstants.PropertyConfig.DEFAULT_PROVISIONING_SEPERATOR;
+        }
         String idpName = this.configHolder.getValue(idpName_key);
         String userIdClaimURL = this.configHolder.getValue(userIdClaimUriKey);
         String provisioningDomain = this.configHolder.getValue(domainNameKey);

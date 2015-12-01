@@ -49,15 +49,6 @@ public class BaseCache<K extends Serializable, V extends Serializable> {
         this.cacheName = cacheName;
     }
 
-    public BaseCache(String cacheName, int timeout) {
-        this.cacheName = cacheName;
-    }
-
-
-    public BaseCache(String cacheName, int timeout, int capacity) {
-        this.cacheName = cacheName;
-    }
-
     private Cache<K, V> getBaseCache() {
 
         Cache<K, V> cache = null;

@@ -25,56 +25,53 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 // Cache used by Authorization endpoint. This class cannot be in oauth.endpoint component
 // since it needs to be visible to Hazelcast.
-public class SessionDataCache extends BaseCache<String, CacheEntry> {
+public class SessionDataCache extends BaseCache<SessionDataCacheKey, SessionDataCacheEntry> {
 
     private static final String SESSION_DATA_CACHE_NAME = "OAuthSessionDataCache";
 
     private static volatile SessionDataCache instance;
-    private boolean enableRequestScopeCache = false;
+    private boolean isTemporarySessionDataPersistEnabled = false;
 
-    private SessionDataCache(String cacheName, int timeout) {
-        super(cacheName, timeout);
+    private SessionDataCache() {
+        super(SESSION_DATA_CACHE_NAME);
         if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
-            enableRequestScopeCache = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
+            isTemporarySessionDataPersistEnabled = Boolean.parseBoolean(
+                    IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
         }
     }
 
-    public static SessionDataCache getInstance(int timeout) {
+    public static SessionDataCache getInstance() {
         CarbonUtils.checkSecurity();
         if (instance == null) {
             synchronized (SessionDataCache.class) {
                 if (instance == null) {
-                    instance = new SessionDataCache(SESSION_DATA_CACHE_NAME, timeout);
+                    instance = new SessionDataCache();
                 }
             }
         }
         return instance;
     }
 
-    public void addToCache(CacheKey key, CacheEntry entry) {
-        String keyValue = ((SessionDataCacheKey)key).getSessionDataId();
-        super.addToCache(keyValue, entry);
-        SessionDataStore.getInstance().storeSessionData(keyValue, SESSION_DATA_CACHE_NAME, entry);
-        if (enableRequestScopeCache) {
-            SessionDataStore.getInstance().storeSessionData(keyValue, SESSION_DATA_CACHE_NAME, entry);
+    public void addToCache(SessionDataCacheKey key, SessionDataCacheEntry entry) {
+        super.addToCache(key, entry);
+        if (isTemporarySessionDataPersistEnabled) {
+            SessionDataStore.getInstance().storeSessionData(key.getSessionDataId(), SESSION_DATA_CACHE_NAME, entry);
         }
     }
 
-    public CacheEntry getValueFromCache(CacheKey key) {
-        String keyValue = ((SessionDataCacheKey)key).getSessionDataId();
-        CacheEntry cacheEntry = super.getValueFromCache(keyValue);
-        if (cacheEntry == null) {
-            cacheEntry = (CacheEntry) SessionDataStore.getInstance().getSessionData(keyValue, SESSION_DATA_CACHE_NAME);
+    public SessionDataCacheEntry getValueFromCache(SessionDataCacheKey key) {
+        SessionDataCacheEntry cacheEntry = super.getValueFromCache(key);
+        if (cacheEntry == null && isTemporarySessionDataPersistEnabled) {
+            cacheEntry = (SessionDataCacheEntry) SessionDataStore.getInstance().
+                    getSessionData(key.getSessionDataId(), SESSION_DATA_CACHE_NAME);
         }
         return cacheEntry;
     }
 
-    public void clearCacheEntry(CacheKey key) {
-        String keyValue = ((SessionDataCacheKey)key).getSessionDataId();
-        super.clearCacheEntry(keyValue);
-        SessionDataStore.getInstance().clearSessionData(keyValue, SESSION_DATA_CACHE_NAME);
-        if (enableRequestScopeCache) {
-            SessionDataStore.getInstance().clearSessionData(keyValue, SESSION_DATA_CACHE_NAME);
+    public void clearCacheEntry(SessionDataCacheKey key) {
+        super.clearCacheEntry(key);
+        if (isTemporarySessionDataPersistEnabled) {
+            SessionDataStore.getInstance().clearSessionData(key.getSessionDataId(), SESSION_DATA_CACHE_NAME);
         }
     }
 }

@@ -457,8 +457,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
 
         AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
         AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache.
-                getInstance(OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout())
-                                                                                        .getValueFromCacheByToken(cacheKey);
+                getInstance().getValueFromCacheByToken(cacheKey);
         if (cacheEntry == null) {
             return new HashMap<ClaimMapping, String>();
         }

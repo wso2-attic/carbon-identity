@@ -773,8 +773,8 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
             IdentityServiceProviderCacheKey cacheKey = new IdentityServiceProviderCacheKey(
                     tenantDomain, serviceProviderName);
-            IdentityServiceProviderCacheEntry entry = ((IdentityServiceProviderCacheEntry) IdentityServiceProviderCache
-                    .getInstance().getValueFromCache(cacheKey));
+            IdentityServiceProviderCacheEntry entry = IdentityServiceProviderCache.getInstance().
+                    getValueFromCache(cacheKey);
 
             if (entry != null) {
                 return entry.getServiceProvider();

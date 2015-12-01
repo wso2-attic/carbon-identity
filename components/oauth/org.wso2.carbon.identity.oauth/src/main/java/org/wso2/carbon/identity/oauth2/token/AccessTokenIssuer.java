@@ -62,7 +62,7 @@ public class AccessTokenIssuer {
 
         authzGrantHandlers = OAuthServerConfiguration.getInstance().getSupportedGrantTypes();
         clientAuthenticationHandlers = OAuthServerConfiguration.getInstance().getSupportedClientAuthHandlers();
-        appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().getAppInfoCacheTimeout());
+        appInfoCache = AppInfoCache.getInstance();
         if (appInfoCache != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Successfully created AppInfoCache under " + OAuthConstants.OAUTH_CACHE_MANAGER);
@@ -237,19 +237,17 @@ public class AccessTokenIssuer {
         AuthorizationGrantCacheKey oldCacheKey = new AuthorizationGrantCacheKey(tokenReqDTO.getAuthorizationCode());
         //checking getUserAttributesId vale of cacheKey before retrieve entry from cache as it causes to NPE
         if (oldCacheKey.getUserAttributesId() != null) {
-            AuthorizationGrantCacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance(OAuthServerConfiguration.
-                    getInstance().getAuthorizationGrantCacheTimeout())
-                    .getValueFromCacheByCode(oldCacheKey);
+            AuthorizationGrantCacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance().getValueFromCacheByCode(oldCacheKey);
             AuthorizationGrantCacheKey newCacheKey = new AuthorizationGrantCacheKey(tokenRespDTO.getAccessToken());
             int authorizationGrantCacheTimeout = OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout();
 
-            if (AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).getValueFromCacheByToken(newCacheKey) == null) {
+            if (AuthorizationGrantCache.getInstance().getValueFromCacheByToken(newCacheKey) == null) {
                 if(log.isDebugEnabled()){
                    log.debug("No AuthorizationGrantCache entry found for the access token:"+ newCacheKey.getUserAttributesId()+
                    ", hence adding to cache");
                 }
-                AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).addToCacheByToken(newCacheKey, authorizationGrantCacheEntry);
-                AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).clearCacheEntryByCode(oldCacheKey);
+                AuthorizationGrantCache.getInstance().addToCacheByToken(newCacheKey, authorizationGrantCacheEntry);
+                AuthorizationGrantCache.getInstance().clearCacheEntryByCode(oldCacheKey);
             } else{
                 //if the user attributes are already saved for access token, no need to add again.
             }

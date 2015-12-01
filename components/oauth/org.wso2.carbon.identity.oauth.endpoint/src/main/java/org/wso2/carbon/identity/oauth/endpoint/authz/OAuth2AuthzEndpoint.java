@@ -105,17 +105,17 @@ public class OAuth2AuthzEndpoint {
 
         String sessionDataKeyFromLogin = request.getParameter(OAuthConstants.SESSION_DATA_KEY);
         String sessionDataKeyFromConsent = request.getParameter(OAuthConstants.SESSION_DATA_KEY_CONSENT);
-        CacheKey cacheKey = null;
-        Object resultFromLogin = null;
-        Object resultFromConsent = null;
+        SessionDataCacheKey cacheKey = null;
+        SessionDataCacheEntry resultFromLogin = null;
+        SessionDataCacheEntry resultFromConsent = null;
         if (StringUtils.isNotEmpty(sessionDataKeyFromLogin)) {
             cacheKey = new SessionDataCacheKey(sessionDataKeyFromLogin);
-            resultFromLogin = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).getValueFromCache(cacheKey);
+            resultFromLogin = SessionDataCache.getInstance().getValueFromCache(cacheKey);
         }
         if (StringUtils.isNotEmpty(sessionDataKeyFromConsent)) {
             cacheKey = new SessionDataCacheKey(sessionDataKeyFromConsent);
-            resultFromConsent = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).getValueFromCache(cacheKey);
-            SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).clearCacheEntry(cacheKey);
+            resultFromConsent = SessionDataCache.getInstance().getValueFromCache(cacheKey);
+            SessionDataCache.getInstance().clearCacheEntry(cacheKey);
         }
         if (resultFromLogin != null && resultFromConsent != null) {
 
@@ -183,7 +183,7 @@ public class OAuth2AuthzEndpoint {
 
             } else if (resultFromLogin != null) { // Authentication response
 
-                sessionDataCacheEntry = ((SessionDataCacheEntry) resultFromLogin);
+                sessionDataCacheEntry = resultFromLogin;
                 OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
                 AuthenticationResult authnResult = getAuthenticationResultFromCache(sessionDataKeyFromLogin);
                 if (authnResult != null) {
@@ -198,8 +198,7 @@ public class OAuth2AuthzEndpoint {
                         }
                         sessionDataCacheEntry.setLoggedInUser(authenticatedUser);
                         sessionDataCacheEntry.setAuthenticatedIdPs(authnResult.getAuthenticatedIdPs());
-                        SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout
-                                ()).addToCache(cacheKey, sessionDataCacheEntry);
+                        SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntry);
                         redirectURL = doUserAuthz(request, sessionDataKeyFromLogin, sessionDataCacheEntry);
                         return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
 
@@ -418,7 +417,7 @@ public class OAuth2AuthzEndpoint {
                 sessionDataCacheEntry.getLoggedInUser().getUserAttributes());
         authorizationGrantCacheEntry.setNonceValue(sessionDataCacheEntry.getoAuth2Parameters().getNonce());
         AuthorizationGrantCache.getInstance(OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout())
-                .addToCacheByCode(authorizationGrantCacheKey, authorizationGrantCacheEntry);
+                .addToCache(authorizationGrantCacheKey, authorizationGrantCacheEntry);
     }
 
     /**
@@ -566,7 +565,7 @@ public class OAuth2AuthzEndpoint {
         }
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        CacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
+        SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
         SessionDataCacheEntry sessionDataCacheEntryNew = new SessionDataCacheEntry();
         sessionDataCacheEntryNew.setoAuth2Parameters(params);
         sessionDataCacheEntryNew.setQueryString(req.getQueryString());
@@ -574,8 +573,7 @@ public class OAuth2AuthzEndpoint {
         if (req.getParameterMap() != null) {
             sessionDataCacheEntryNew.setParamMap(new ConcurrentHashMap<String, String[]>(req.getParameterMap()));
         }
-        SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).
-                addToCache(cacheKey, sessionDataCacheEntryNew);
+        SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntryNew);
 
         try {
             req.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.SUCCESS_COMPLETED);
@@ -700,12 +698,10 @@ public class OAuth2AuthzEndpoint {
 
     private void clearCacheEntry(String sessionDataKey) {
         if (sessionDataKey != null) {
-            CacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
-            Object result = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().
-                    getSessionDataCacheTimeout()).getValueFromCache(cacheKey);
+            SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
+            SessionDataCacheEntry result = SessionDataCache.getInstance().getValueFromCache(cacheKey);
             if (result != null) {
-                SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout())
-                        .clearCacheEntry(cacheKey);
+                SessionDataCache.getInstance().clearCacheEntry(cacheKey);
             }
         }
     }

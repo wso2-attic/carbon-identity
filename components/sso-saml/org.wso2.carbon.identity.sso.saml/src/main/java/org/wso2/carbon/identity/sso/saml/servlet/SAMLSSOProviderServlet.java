@@ -400,7 +400,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         sessionDTO.setIdPInitSSO(signInRespDTO.isIdPInitSSO());
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        addSessionDataToCache(sessionDataKey, sessionDTO, IdPManagementUtil.getIdleSessionTimeOut(sessionDTO.getTenantDomain()));
+        addSessionDataToCache(sessionDataKey, sessionDTO);
 
         String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
         String selfPath = req.getContextPath();
@@ -459,8 +459,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         }
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        addSessionDataToCache(sessionDataKey, sessionDTO, IdPManagementUtil.getIdleSessionTimeOut
-                (CarbonContext.getThreadLocalCarbonContext().getTenantDomain()));
+        addSessionDataToCache(sessionDataKey, sessionDTO);
 
         String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
 
@@ -803,20 +802,20 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         return acsUrlWithTenantDomain;
     }
 
-    private void addSessionDataToCache(String sessionDataKey, SAMLSSOSessionDTO sessionDTO, int cacheTimeout) {
+    private void addSessionDataToCache(String sessionDataKey, SAMLSSOSessionDTO sessionDTO) {
         SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
         SessionDataCacheEntry cacheEntry = new SessionDataCacheEntry();
         cacheEntry.setSessionDTO(sessionDTO);
-        SessionDataCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+        SessionDataCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
     private SAMLSSOSessionDTO getSessionDataFromCache(String sessionDataKey) {
         SAMLSSOSessionDTO sessionDTO = null;
         SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
-        Object cacheEntryObj = SessionDataCache.getInstance(0).getValueFromCache(cacheKey);
+        SessionDataCacheEntry cacheEntry = SessionDataCache.getInstance().getValueFromCache(cacheKey);
 
-        if (cacheEntryObj != null) {
-            sessionDTO = ((SessionDataCacheEntry) cacheEntryObj).getSessionDTO();
+        if (cacheEntry != null) {
+            sessionDTO = cacheEntry.getSessionDTO();
         }
 
         return sessionDTO;
@@ -825,7 +824,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
     private void removeSessionDataFromCache(String sessionDataKey) {
         if (sessionDataKey != null) {
             SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
-            SessionDataCache.getInstance(0).clearCacheEntry(cacheKey);
+            SessionDataCache.getInstance().clearCacheEntry(cacheKey);
         }
     }
 

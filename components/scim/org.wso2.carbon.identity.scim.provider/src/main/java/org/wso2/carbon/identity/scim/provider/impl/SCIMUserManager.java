@@ -70,13 +70,16 @@ import java.util.Map;
 import java.util.Set;
 
 public class SCIMUserManager implements UserManager {
+
     public static final String USER_NAME_STRING = "userName";
+    public static final String SCIM_ENABLED =  "SCIMEnabled";
+    public static final String APPLICATION_DOMAIN = "Application";
+    public static final String INTERNAL_DOMAIN = "Internal";
     private static Log log = LogFactory.getLog(SCIMUserManager.class);
     private UserStoreManager carbonUM = null;
     private ClaimManager carbonClaimManager = null;
     private String consumerName;
     private boolean isBulkUserAdd = false;
-
 
     public SCIMUserManager(UserStoreManager carbonUserStoreManager, String userName,
                            ClaimManager claimManager) {
@@ -116,6 +119,11 @@ public class SCIMUserManager implements UserManager {
                                      .toString());
         }
 
+        String userStoreDomainName = IdentityUtil.extractDomainFromName(user.getUserName());
+        if(StringUtils.isNotBlank(userStoreDomainName) && !isSCIMEnabled(userStoreDomainName)){
+            throw new CharonException("Cannot add user through scim to user store " + ". SCIM is not " +
+                    "enabled for user store " + userStoreDomainName);
+        }
 
         try {
             //TODO: Start tenant flow at the scim authentication point
@@ -580,6 +588,12 @@ public class SCIMUserManager implements UserManager {
                 } catch (IdentityApplicationManagementException e) {
                     throw new CharonException("Error retrieving User Store name. ", e);
                 }
+
+                if(!isInternalOrApplicationGroup(domainName) && StringUtils.isNotBlank(domainName) && !isSCIMEnabled
+                        (domainName)){
+                    throw new CharonException("Cannot add user through scim to user store " + ". SCIM is not " +
+                            "enabled for user store " + domainName);
+                }
                 group.setDisplayName(roleNameWithDomain);
                 //check if the group already exists
                 if (carbonUM.isExistingRole(group.getDisplayName(), false)) {
@@ -963,8 +977,16 @@ public class SCIMUserManager implements UserManager {
      */
     @Override
     public Group patchGroup(Group oldGroup, Group newGroup) throws CharonException {
-
         //if operating in dumb mode, do not persist the operation, only provision to providers
+
+        String userStoreDomainName = IdentityUtil.extractDomainFromName(oldGroup.getDisplayName());
+        if(!isInternalOrApplicationGroup(userStoreDomainName) && StringUtils.isNotBlank(userStoreDomainName) &&
+                !isSCIMEnabled(userStoreDomainName)){
+            throw new CharonException("Cannot retrieve group through scim to user store " + ". SCIM is not " +
+                    "enabled for user store " + userStoreDomainName);
+        }
+
+
         if (getServiceProvider(isBulkUserAdd).getInboundProvisioningConfig().isDumbMode()) {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
@@ -1214,6 +1236,15 @@ public class SCIMUserManager implements UserManager {
                         throw new CharonException("Group :" + groupName + "is not belong to user store " +
                                                   userStoreDomainFromSP + "Hence group updating fail");
                     }
+
+                    String userStoreDomainName = IdentityUtil.extractDomainFromName(groupName);
+                    if(!isInternalOrApplicationGroup(userStoreDomainName) && StringUtils.isNotBlank(userStoreDomainName)
+                            && !isSCIMEnabled
+                            (userStoreDomainName)){
+                        throw new CharonException("Cannot add user through scim to user store " + ". SCIM is not " +
+                                "enabled for user store " + userStoreDomainName);
+                    }
+
                     //delete group in carbon UM
                     carbonUM.deleteRole(groupName);
 
@@ -1256,8 +1287,14 @@ public class SCIMUserManager implements UserManager {
 
     private User getSCIMUser(String userName, List<String> claimURIList) throws CharonException {
         User scimUser = null;
-        try {
 
+        String userStoreDomainName = IdentityUtil.extractDomainFromName(userName);
+        if(StringUtils.isNotBlank(userStoreDomainName) && !isSCIMEnabled(userStoreDomainName)){
+            throw new CharonException("Cannot add user through scim to user store " + ". SCIM is not " +
+                    "enabled for user store " + userStoreDomainName);
+        }
+
+        try {
             //obtain user claim values
             Map<String, String> attributes = carbonUM.getUserClaimValues(
                     userName, claimURIList.toArray(new String[claimURIList.size()]), null);
@@ -1309,6 +1346,13 @@ public class SCIMUserManager implements UserManager {
     private Group getGroupWithName(String groupName)
             throws CharonException, org.wso2.carbon.user.core.UserStoreException,
             IdentitySCIMException {
+
+        String userStoreDomainName = IdentityUtil.extractDomainFromName(groupName);
+        if(!isInternalOrApplicationGroup(userStoreDomainName) && StringUtils.isNotBlank(userStoreDomainName) &&
+                !isSCIMEnabled(userStoreDomainName)){
+            throw new CharonException("Cannot retrieve group through scim to user store " + ". SCIM is not " +
+                    "enabled for user store " + userStoreDomainName);
+        }
 
         Group group = new Group();
         group.setDisplayName(groupName);
@@ -1537,4 +1581,36 @@ public class SCIMUserManager implements UserManager {
             throw new CharonException("Error retrieving Service Provider. ", e);
         }
     }
+
+    /**
+     * This method will return whether SCIM is enabled or not for a particular userstore. (from SCIMEnabled user
+     * store property)
+     * @param userstoreName user store name
+     * @return whether scim is enabled or not for the particular user store
+     */
+    private boolean isSCIMEnabled(String userstoreName) {
+            UserStoreManager userStoreManager = carbonUM.getSecondaryUserStoreManager(userstoreName);
+        if (userStoreManager != null) {
+            try {
+                return userStoreManager.isSCIMEnabled();
+            } catch (UserStoreException e) {
+                log.error("Error while evaluating isSCIMEnalbed for user store " + userstoreName, e);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * returns whether particular user store domain is application or internal.
+     * @param userstoreDomain user store domain
+     * @return whether passed domain name is "internal" or "application"
+     */
+    private boolean isInternalOrApplicationGroup(String userstoreDomain){
+        if(StringUtils.isNotBlank(userstoreDomain) && (APPLICATION_DOMAIN.equalsIgnoreCase(userstoreDomain) ||
+                INTERNAL_DOMAIN.equalsIgnoreCase(userstoreDomain))){
+            return true;
+        }
+        return false;
+    }
 }
+

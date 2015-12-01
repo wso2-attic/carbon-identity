@@ -76,7 +76,7 @@ public class UserInfoJWTResponse implements UserInfoResponseBuilder {
         AuthorizationGrantCacheKey cacheKey =
                 new AuthorizationGrantCacheKey(tokenResponse.getAuthorizationContextToken().getTokenString());
         AuthorizationGrantCacheEntry cacheEntry =
-                (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance(0).getValueFromCacheByToken(cacheKey);
+                (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance().getValueFromCacheByToken(cacheKey);
         if (cacheEntry != null) {
             claims = cacheEntry.getUserAttributes();
         }
