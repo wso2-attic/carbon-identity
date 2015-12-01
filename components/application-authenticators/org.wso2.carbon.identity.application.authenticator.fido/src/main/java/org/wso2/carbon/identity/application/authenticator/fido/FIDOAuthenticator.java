@@ -159,7 +159,7 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
         return false;
     }
 
-    private AuthenticatedUser getUsername(AuthenticationContext context) {
+    private AuthenticatedUser getUsername(AuthenticationContext context) throws AuthenticationFailedException {
         //username from authentication context.
         AuthenticatedUser authenticatedUser = null;
         for (int i = 1; i <= context.getSequenceConfig().getStepMap().size(); i++) {
@@ -177,6 +177,10 @@ public class FIDOAuthenticator extends AbstractApplicationAuthenticator
                 }
                 break;
             }
+        }
+        if(authenticatedUser == null){
+            throw new AuthenticationFailedException("Could not locate an authenticated username from previous steps " +
+                    "of the sequence. Hence cannot continue with FIDO authentication.");
         }
         return authenticatedUser;
     }

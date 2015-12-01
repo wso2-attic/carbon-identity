@@ -50,7 +50,7 @@ public class AuthorizationHandlerManager {
 
     private AuthorizationHandlerManager() throws IdentityOAuth2Exception {
         responseHandlers = OAuthServerConfiguration.getInstance().getSupportedResponseTypes();
-        appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().getAppInfoCacheTimeout());
+        appInfoCache = AppInfoCache.getInstance();
         if (appInfoCache != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Successfully created AppInfoCache under " + OAuthConstants.OAUTH_CACHE_MANAGER);
@@ -147,10 +147,8 @@ public class AuthorizationHandlerManager {
 
     private OAuthAppDO getAppInformation(OAuth2AuthorizeReqDTO authzReqDTO) throws IdentityOAuth2Exception,
             InvalidOAuthClientException {
-        OAuthAppDO oAuthAppDO;
-        Object obj = appInfoCache.getValueFromCache(authzReqDTO.getConsumerKey());
-        if (obj != null) {
-            oAuthAppDO = (OAuthAppDO) obj;
+        OAuthAppDO oAuthAppDO = appInfoCache.getValueFromCache(authzReqDTO.getConsumerKey());
+        if (oAuthAppDO != null) {
             return oAuthAppDO;
         } else {
             oAuthAppDO = new OAuthAppDAO().getAppInformation(authzReqDTO.getConsumerKey());

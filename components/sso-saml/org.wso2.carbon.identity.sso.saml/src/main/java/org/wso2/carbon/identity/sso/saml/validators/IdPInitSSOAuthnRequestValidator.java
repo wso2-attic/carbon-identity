@@ -25,6 +25,7 @@ import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.dto.QueryParamDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 
 public class IdPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
@@ -79,6 +80,10 @@ public class IdPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator
             // If SP has multiple ACS
             if (StringUtils.isNotBlank(acs)) {
                 validationResponse.setAssertionConsumerURL(acs);
+            }
+
+            if (StringUtils.isBlank(SAMLSSOUtil.getTenantDomainFromThreadLocal())) {
+                SAMLSSOUtil.setTenantDomainInThreadLocal(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             }
 
             validationResponse.setValid(true);
