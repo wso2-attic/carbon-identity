@@ -39,39 +39,33 @@ public class ApplicationMgtAuditLogger extends AbstractApplicationMgtListener {
 
     @Override
     public boolean doPostCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
-        if (isEnable()) {
-            int appId = -1;
-            String name = "Undefined";
-            if (serviceProvider != null ){
-                appId = serviceProvider.getApplicationID();
-                name = serviceProvider.getApplicationName();
-            }
-            audit.info(String.format(AUDIT_MESSAGE, userName, "create", appId,
-                    name, SUCCESS));
+        int appId = -1;
+        String name = "Undefined";
+        if (serviceProvider != null) {
+            appId = serviceProvider.getApplicationID();
+            name = serviceProvider.getApplicationName();
         }
+        audit.info(String.format(AUDIT_MESSAGE, userName, "create", appId,
+                name, SUCCESS));
         return true;
     }
 
     @Override
     public boolean doPostUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
-        if (isEnable()) {
-            int appId = -1;
-            String name = "Undefined";
-            if (serviceProvider != null ){
-                appId = serviceProvider.getApplicationID();
-                name = serviceProvider.getApplicationName();
-            }
-            audit.info(String.format(AUDIT_MESSAGE, userName, "update", appId,
-                    name, SUCCESS));
+        int appId = -1;
+        String name = "Undefined";
+        if (serviceProvider != null) {
+            appId = serviceProvider.getApplicationID();
+            name = serviceProvider.getApplicationName();
         }
+        audit.info(String.format(AUDIT_MESSAGE, userName, "update", appId,
+                name, SUCCESS));
         return true;
     }
 
     @Override
     public boolean doPostDeleteApplication(String applicationName, String tenantDomain, String userName) throws IdentityApplicationManagementException {
-        if (isEnable()) {
-            audit.info(String.format(AUDIT_MESSAGE, userName, "update", applicationName, null, SUCCESS));
-        }
+        audit.info(String.format(AUDIT_MESSAGE, userName, "update", applicationName, null, SUCCESS));
         return true;
     }
 }
