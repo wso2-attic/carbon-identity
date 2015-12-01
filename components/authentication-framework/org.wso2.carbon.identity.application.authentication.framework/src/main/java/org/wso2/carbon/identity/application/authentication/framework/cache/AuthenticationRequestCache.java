@@ -21,14 +21,10 @@ package org.wso2.carbon.identity.application.authentication.framework.cache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceDataHolder;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
-import org.wso2.carbon.identity.application.common.cache.CacheKey;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.user.api.UserStoreException;
 
 /**
  * This cache keeps all parameters and headers which are directed towards authentication
@@ -42,12 +38,13 @@ public class AuthenticationRequestCache extends
     private static Log log = LogFactory.getLog(AuthenticationRequestCache.class);
     private static final String AUTHENTICATION_REQUEST_CACHE_NAME = "AuthenticationRequestCache";
     private static volatile AuthenticationRequestCache instance;
-    private boolean enableRequestScopeCache = false;
+    private boolean isTemporarySessionDataPersistEnabled = false;
 
-    private AuthenticationRequestCache(String cacheName) {
-        super(cacheName);
+    private AuthenticationRequestCache() {
+        super(AUTHENTICATION_REQUEST_CACHE_NAME);
         if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
-            enableRequestScopeCache = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
+            isTemporarySessionDataPersistEnabled = Boolean.parseBoolean(
+                    IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
         }
     }
 
@@ -55,7 +52,7 @@ public class AuthenticationRequestCache extends
         if (instance == null) {
             synchronized (AuthenticationRequestCache.class) {
                 if (instance == null) {
-                    instance = new AuthenticationRequestCache(AUTHENTICATION_REQUEST_CACHE_NAME);
+                    instance = new AuthenticationRequestCache();
                 }
             }
         }
@@ -64,20 +61,20 @@ public class AuthenticationRequestCache extends
 
     public void addToCache(AuthenticationRequestCacheKey key, AuthenticationRequestCacheEntry entry){
         super.addToCache(key,entry);
-        if(enableRequestScopeCache){
+        if(isTemporarySessionDataPersistEnabled){
             int tenantId = MultitenantConstants.INVALID_TENANT_ID;
             String tenantDomain = entry.getAuthenticationRequest().getTenantDomain();
             if (tenantDomain != null) {
                 tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
             }
-            SessionDataStore.getInstance().storeSessionData(key.getResultId(),AUTHENTICATION_REQUEST_CACHE_NAME,
+            SessionDataStore.getInstance().storeSessionData(key.getResultId(), AUTHENTICATION_REQUEST_CACHE_NAME,
                     entry, tenantId);
         }
     }
 
     public AuthenticationRequestCacheEntry getValueFromCache(AuthenticationRequestCacheKey key){
         AuthenticationRequestCacheEntry entry = super.getValueFromCache(key);
-        if(entry == null && enableRequestScopeCache){
+        if(entry == null && isTemporarySessionDataPersistEnabled){
             entry = (AuthenticationRequestCacheEntry) SessionDataStore.getInstance().
                     getSessionData(key.getResultId(), AUTHENTICATION_REQUEST_CACHE_NAME);
         }
@@ -86,7 +83,7 @@ public class AuthenticationRequestCache extends
 
     public void clearCacheEntry(AuthenticationRequestCacheKey key){
         super.clearCacheEntry(key);
-        if (enableRequestScopeCache) {
+        if (isTemporarySessionDataPersistEnabled) {
             SessionDataStore.getInstance().clearSessionData(key.getResultId(), AUTHENTICATION_REQUEST_CACHE_NAME);
         }
     }
