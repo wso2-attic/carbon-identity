@@ -40,40 +40,37 @@ public class IDPMgtAuditLogger extends AbstractIdentityProviderMgtListener {
     @Override
     public boolean doPostAddIdP(IdentityProvider identityProvider, String tenantDomain) throws
             IdentityProviderManagementException {
-        if (isEnable()) {
-            String displayName = "Undefined";
-            String IDPName = "Undefined";
-            if (identityProvider != null) {
-                displayName = identityProvider.getDisplayName();
-                IDPName = identityProvider.getIdentityProviderName();
-            }
-
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "add", UserCoreUtil.addTenantDomainToEntry(displayName,
-                    tenantDomain), IDPName, SUCCESS));
+        String displayName = "Undefined";
+        String IDPName = "Undefined";
+        if (identityProvider != null) {
+            displayName = identityProvider.getDisplayName();
+            IDPName = identityProvider.getIdentityProviderName();
         }
+
+        audit.info(String.format(AUDIT_MESSAGE, getUser(), "add", UserCoreUtil.addTenantDomainToEntry(displayName,
+                tenantDomain), IDPName, SUCCESS));
+
         return true;
     }
 
     @Override
     public boolean doPostUpdateIdP(String oldIdPName, IdentityProvider identityProvider, String tenantDomain) throws
             IdentityProviderManagementException {
-        if (isEnable()) {
-            String displayName = "Undefined";
-            if (identityProvider != null) {
-                displayName = identityProvider.getDisplayName();
-            }
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "update", oldIdPName, UserCoreUtil
-                    .addTenantDomainToEntry(displayName, tenantDomain), SUCCESS));
+        String displayName = "Undefined";
+        if (identityProvider != null) {
+            displayName = identityProvider.getDisplayName();
         }
+        audit.info(String.format(AUDIT_MESSAGE, getUser(), "update", oldIdPName, UserCoreUtil
+                .addTenantDomainToEntry(displayName, tenantDomain), SUCCESS));
+
         return true;
     }
 
     @Override
     public boolean doPostDeleteIdP(String idPName, String tenantDomain) throws IdentityProviderManagementException {
-        if (isEnable()) {
-            audit.info(String.format(AUDIT_MESSAGE, getUser(), "delete", UserCoreUtil.addTenantDomainToEntry
-                    (idPName, tenantDomain), null, SUCCESS));
-        }
+        audit.info(String.format(AUDIT_MESSAGE, getUser(), "delete", UserCoreUtil.addTenantDomainToEntry
+                (idPName, tenantDomain), null, SUCCESS));
+
         return true;
     }
 
