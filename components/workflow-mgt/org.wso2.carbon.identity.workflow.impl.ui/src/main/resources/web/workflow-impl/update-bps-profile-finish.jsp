@@ -27,6 +27,7 @@
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.wso2.carbon.identity.workflow.impl.stub.bean.BPSProfile" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
     String action = request.getParameter(WorkflowUIConstants.PARAM_ACTION);
@@ -52,9 +53,15 @@
         String workerHost = request.getParameter(WorkflowUIConstants.PARAM_BPS_WORKER_HOST);
         String username = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER);
         String password = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD);
-        String[] passwordAsArray = new String[password.length()];
-        for (int i=0;i<password.length();i++) {
-            passwordAsArray[i] = password.charAt(i) + "";
+        String[] passwordAsArray;
+        if (StringUtils.isNotBlank(password)) {
+
+            passwordAsArray = new String[password.length()];
+            for (int i = 0; i < password.length(); i++) {
+                passwordAsArray[i] = password.charAt(i) + "";
+            }
+        } else {
+            passwordAsArray = new String[0];
         }
         try {
             BPSProfile bpsProfile = new BPSProfile();
@@ -75,9 +82,15 @@
         String workerHost = request.getParameter(WorkflowUIConstants.PARAM_BPS_WORKER_HOST);
         String username = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_USER);
         String password = request.getParameter(WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD);
-        String[] passwordAsArray = new String[password.length()];
-        for (int i=0;i<password.length();i++) {
-            passwordAsArray[i] = password.charAt(i) + "";
+        String[] passwordAsArray;
+        if (StringUtils.isNotBlank(password)) {
+
+            passwordAsArray = new String[password.length()];
+            for (int i = 0; i < password.length(); i++) {
+                passwordAsArray[i] = password.charAt(i) + "";
+            }
+        } else {
+            passwordAsArray = new String[0];
         }
         try {
             BPSProfile bpsProfile = new BPSProfile();

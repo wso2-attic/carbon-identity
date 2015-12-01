@@ -146,7 +146,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             workflowListener.doPreUpdateBPSProfile(bpsProfileDTO, tenantId);
         }
         BPSProfile currentBpsProfile = bpsProfileDAO.getBPSProfile(bpsProfileDTO.getProfileName(), tenantId, true);
-        if (ArrayUtils.isEmpty(currentBpsProfile.getPassword())) {
+        if (ArrayUtils.isEmpty(bpsProfileDTO.getPassword())) {
             bpsProfileDTO.setPassword(currentBpsProfile.getPassword());
         }
         bpsProfileDAO.updateProfile(bpsProfileDTO, tenantId);
