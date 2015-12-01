@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -16,15 +16,9 @@
   ~ under the License.
   --%>
 
-<%@page import="org.wso2.carbon.identity.application.authentication.endpoint.util.Constants" %>
-<%@page import="java.util.ArrayList" %>
-<%@page import="java.util.Arrays" %>
-<%@ page import="org.owasp.encoder.Encode" %>
+<%@page import="org.owasp.encoder.Encode" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ page import="java.util.Map" %>
-<%@ page import="java.util.List" %>
-<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.TenantDataManager" %>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
 
