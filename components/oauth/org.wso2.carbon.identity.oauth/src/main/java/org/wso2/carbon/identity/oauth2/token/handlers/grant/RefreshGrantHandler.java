@@ -79,8 +79,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
                         validationDataDO.getRefreshTokenState())) {
             if(log.isDebugEnabled()) {
                 log.debug("Access Token is not in 'ACTIVE' or 'EXPIRED' state for Client with " +
-                        "Client Id : " + tokenReqDTO.getClientId() + " " +
-                        "Refresh Token: " + tokenReqDTO.getRefreshToken());
+                        "Client Id : " + tokenReqDTO.getClientId());
             }
             return false;
         }
@@ -107,8 +106,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             return false;
         }else if(!refreshToken.equals(accessTokenDO.getRefreshToken())){
             if(log.isDebugEnabled()){
-                log.debug("Refresh token : " + refreshToken + " is not the latest. Latest refresh token is : " +
-                        accessTokenDO.getRefreshToken());
+                log.debug("Refresh token is not the latest.");
             }
             return false;
         }
@@ -274,11 +272,11 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
                 cacheKeyString = clientId + ":" + authorizedUser.toLowerCase() + ":" + scope;
             }
 
-            CacheKey oauthCacheKey = new OAuthCacheKey(cacheKeyString);
+            OAuthCacheKey oauthCacheKey = new OAuthCacheKey(cacheKeyString);
             oauthCache.clearCacheEntry(oauthCacheKey);
 
             // Remove the old access token from the AccessTokenCache
-            CacheKey accessTokenCacheKey = new OAuthCacheKey(oldAccessToken.getAccessToken());
+            OAuthCacheKey accessTokenCacheKey = new OAuthCacheKey(oldAccessToken.getAccessToken());
             oauthCache.clearCacheEntry(accessTokenCacheKey);
 
             // Add new access token to the OAuthCache

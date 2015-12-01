@@ -178,6 +178,7 @@ public interface WorkflowManagementService {
      */
     void changeAssociationState(String associationId, boolean isEnable) throws WorkflowException;
 
+    void addRequestEntityRelationships(String requestId, Entity[] entities) throws WorkflowException;
     /**
      * Add new relationships for entities
      *
@@ -205,7 +206,7 @@ public interface WorkflowManagementService {
      * @throws InternalWorkflowException
      */
     boolean entityHasPendingWorkflowsOfType(Entity entity, String requestType) throws
-                                                                               InternalWorkflowException;
+    WorkflowException;
 
     /**
      * Check if two entities are related
@@ -216,7 +217,7 @@ public interface WorkflowManagementService {
      * @throws InternalWorkflowException
      */
     boolean areTwoEntitiesRelated(Entity entity1, Entity entity2) throws
-                                                                  InternalWorkflowException;
+                                                                  WorkflowException;
 
     /**
      * Check if a given event is associated with workflows
@@ -225,10 +226,10 @@ public interface WorkflowManagementService {
      * @return
      * @throws InternalWorkflowException
      */
-    boolean isEventAssociated(String eventType) throws InternalWorkflowException;
+    boolean isEventAssociated(String eventType) throws WorkflowException;
 
     /**
-     * Get arrat of request objects initiated by user
+     * Get array of request objects initiated by user
      *
      * @param user  User name
      * @param tenantId  tenant ID
@@ -251,5 +252,5 @@ public interface WorkflowManagementService {
             dateCategory, int tenantId, String status) throws WorkflowException;
 
     List<String> listEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID, String
-            idFilter) throws InternalWorkflowException;
+            idFilter) throws WorkflowException;
 }

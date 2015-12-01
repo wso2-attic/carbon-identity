@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.idp.mgt;
 
-import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -43,7 +42,6 @@ import org.wso2.carbon.identity.application.common.model.RoleMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
@@ -111,74 +109,28 @@ public class IdentityProviderManager {
         String oauth1AccessTokenUrl = null;
         String oauth2AuthzEPUrl = null;
         String oauth2TokenEPUrl = null;
+        String oauth2RevokeEPUrl = null;
         String oauth2UserInfoEPUrl = null;
         String passiveStsUrl = null;
         String stsUrl = null;
         String scimUserEndpoint = null;
         String scimGroupsEndpoint = null;
 
-        OMElement elem = IdentityConfigParser.getInstance().
-                getConfigElement("OpenID.OpenIDServerUrl");
-        if(elem != null){
-            openIdUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("SSOService.IdentityProviderURL");
-        if(elem != null){
-            samlSSOUrl = elem.getText();
-            samlLogoutUrl = samlSSOUrl;
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("OAuth.OAuth1RequestTokenUrl");
-        if(elem != null){
-            oauth1RequestTokenUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("OAuth.OAuth1AuthorizeUrl");
-        if(elem != null){
-            oauth1AuthorizeUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("OAuth.OAuth1AccessTokenUrl");
-        if(elem != null){
-            oauth1AccessTokenUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("OAuth.OAuth2AuthzEPUrl");
-        if(elem != null){
-            oauth2AuthzEPUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("OAuth.OAuth2TokenEPUrl");
-        if(elem != null){
-            oauth2TokenEPUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("OAuth.OAuth2UserInfoEPUrl");
-        if(elem != null){
-            oauth2UserInfoEPUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("PassiveSTS.IdentityProviderURL");
-        if(elem != null){
-            passiveStsUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("SecurityTokenService.IdentityProviderURL");
-        if(elem != null){
-            stsUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("SCIM.UserEPUrl");
-        if(elem != null){
-            scimUserEndpoint = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("SCIM.GroupEPUrl");
-        if(elem != null){
-            scimGroupsEndpoint = elem.getText();
-        }
-
+        openIdUrl = IdentityUtil.getProperty("OpenID.OpenIDServerUrl");
+        samlSSOUrl = IdentityUtil.getProperty("SSOService.IdentityProviderURL");
+        samlLogoutUrl = samlSSOUrl;
+        oauth1RequestTokenUrl = IdentityUtil.getProperty("OAuth.OAuth1RequestTokenUrl");
+        oauth1AuthorizeUrl = IdentityUtil.getProperty("OAuth.OAuth1AuthorizeUrl");
+        oauth1AccessTokenUrl = IdentityUtil.getProperty("OAuth.OAuth1AccessTokenUrl");
+        oauth2AuthzEPUrl = IdentityUtil.getProperty("OAuth.OAuth2AuthzEPUrl");
+        oauth2TokenEPUrl = IdentityUtil.getProperty("OAuth.OAuth2TokenEPUrl");
+        oauth2UserInfoEPUrl = IdentityUtil.getProperty("OAuth.OAuth2UserInfoEPUrl");
+        passiveStsUrl = IdentityUtil.getProperty("PassiveSTS.IdentityProviderURL");
+        stsUrl = IdentityUtil.getProperty("SecurityTokenService.IdentityProviderURL");
+        scimUserEndpoint = IdentityUtil.getProperty("SCIM.UserEPUrl");
+        scimGroupsEndpoint = IdentityUtil.getProperty("SCIM.GroupEPUrl");
+        oauth2RevokeEPUrl = IdentityUtil.getProperty("OAuth.OAuth2RevokeEPUrl");
+        
         if(StringUtils.isBlank(openIdUrl)){
             openIdUrl = IdentityUtil.getServerURL("openid", true);
         }
@@ -202,6 +154,9 @@ public class IdentityProviderManager {
         }
         if(StringUtils.isBlank(oauth2TokenEPUrl)){
             oauth2TokenEPUrl = IdentityUtil.getServerURL("oauth2/token", false);
+        }
+        if(StringUtils.isBlank(oauth2RevokeEPUrl)){
+            oauth2RevokeEPUrl = IdentityUtil.getServerURL("oauth2/revoke", false);
         }
         if(StringUtils.isBlank(oauth2UserInfoEPUrl)){
             oauth2UserInfoEPUrl = IdentityUtil.getServerURL("oauth2/userinfo", false);
@@ -377,6 +332,13 @@ public class IdentityProviderManager {
             tokenUrlProp.setName(IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL);
             tokenUrlProp.setValue(oauth2TokenEPUrl);
             propertiesList.add(tokenUrlProp);
+        }
+        if (IdentityApplicationManagementUtil.getProperty(oidcFedAuthn.getProperties(),
+                IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_REVOKE_URL) == null) {
+            Property revokeUrlProp = new Property();
+            revokeUrlProp.setName(IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_REVOKE_URL);
+            revokeUrlProp.setValue(oauth2RevokeEPUrl);
+            propertiesList.add(revokeUrlProp);
         }
         if (IdentityApplicationManagementUtil.getProperty(oidcFedAuthn.getProperties(),
                 IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_USER_INFO_EP_URL) == null) {

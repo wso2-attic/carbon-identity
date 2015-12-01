@@ -43,7 +43,6 @@ import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
-import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -423,10 +422,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         String authorizationCode = (String) request.getProperty(AUTHORIZATION_CODE);
         AuthorizationGrantCacheKey authorizationGrantCacheKey = new AuthorizationGrantCacheKey(authorizationCode);
 
-        AuthorizationGrantCacheEntry authorizationGrantCacheEntry =
-                (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance(OAuthServerConfiguration.
-                                                                    getInstance().getAuthorizationGrantCacheTimeout()).
-                                                                        getValueFromCache(authorizationGrantCacheKey);
+        AuthorizationGrantCacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance().
+                getValueFromCache(authorizationGrantCacheKey);
         return authorizationGrantCacheEntry;
     }
 
@@ -436,14 +433,14 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         AccessTokenDO accessTokenDO = null;
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
-        OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
+        OAuthCache oauthCache = OAuthCache.getInstance();
         String authorizedUser = request.getAuthorizedUser().toString();
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
         if (!isUsernameCaseSensitive){
             authorizedUser = authorizedUser.toLowerCase();
         }
 
-        CacheKey cacheKey = new OAuthCacheKey(
+        OAuthCacheKey cacheKey = new OAuthCacheKey(
                 request.getOauth2AccessTokenReqDTO().getClientId() + ":" + authorizedUser +
                         ":" + OAuth2Util.buildScopeString(request.getScope()));
         CacheEntry result = oauthCache.getValueFromCache(cacheKey);
@@ -472,14 +469,14 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         AccessTokenDO accessTokenDO = null;
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
-        OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
+        OAuthCache oauthCache = OAuthCache.getInstance();
         String authorizedUser = request.getAuthorizationReqDTO().getUsername();
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
         if (!isUsernameCaseSensitive){
             authorizedUser = authorizedUser.toLowerCase();
         }
 
-        CacheKey cacheKey = new OAuthCacheKey(
+        OAuthCacheKey cacheKey = new OAuthCacheKey(
                 request.getAuthorizationReqDTO().getConsumerKey() + ":" + authorizedUser +
                         ":" + OAuth2Util.buildScopeString(request.getApprovedScope()));
         CacheEntry result = oauthCache.getValueFromCache(cacheKey);

@@ -21,14 +21,10 @@ package org.wso2.carbon.identity.application.authentication.framework.cache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.identity.application.authentication.framework.internal.FrameworkServiceDataHolder;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
-import org.wso2.carbon.identity.application.common.cache.CacheKey;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.user.api.UserStoreException;
 
 public class AuthenticationContextCache extends
         BaseCache<AuthenticationContextCacheKey, AuthenticationContextCacheEntry> {
@@ -36,14 +32,13 @@ public class AuthenticationContextCache extends
     private static Log log = LogFactory.getLog(AuthenticationContextCache.class);
     private static final String AUTHENTICATION_CONTEXT_CACHE_NAME = "AuthenticationContextCache";
     private static volatile AuthenticationContextCache instance;
-    private boolean useCache = true;
-    private boolean enableRequestScopeCache = false;
+    private boolean isTemporarySessionDataPersistEnabled = false;
 
-    private AuthenticationContextCache(String cacheName) {
-        super(cacheName);
-        useCache = !Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Only"));
+    private AuthenticationContextCache() {
+        super(AUTHENTICATION_CONTEXT_CACHE_NAME);
         if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
-            enableRequestScopeCache = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
+            isTemporarySessionDataPersistEnabled = Boolean.parseBoolean(
+                    IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
         }
     }
 
@@ -51,7 +46,7 @@ public class AuthenticationContextCache extends
         if (instance == null) {
             synchronized (AuthenticationContextCache.class) {
                 if (instance == null) {
-                    instance = new AuthenticationContextCache(AUTHENTICATION_CONTEXT_CACHE_NAME);
+                    instance = new AuthenticationContextCache();
                 }
             }
         }
@@ -59,10 +54,8 @@ public class AuthenticationContextCache extends
     }
 
     public void addToCache(AuthenticationContextCacheKey key, AuthenticationContextCacheEntry entry) {
-        if (useCache) {
-            super.addToCache(key, entry);
-        }
-        if (enableRequestScopeCache) {
+        super.addToCache(key, entry);
+        if (isTemporarySessionDataPersistEnabled) {
             int tenantId = MultitenantConstants.INVALID_TENANT_ID;
             String tenantDomain = entry.getContext().getTenantDomain();
             if (tenantDomain != null) {
@@ -74,11 +67,8 @@ public class AuthenticationContextCache extends
     }
 
     public AuthenticationContextCacheEntry getValueFromCache(AuthenticationContextCacheKey key) {
-        AuthenticationContextCacheEntry entry = null;
-        if (useCache) {
-            entry = super.getValueFromCache(key);
-        }
-        if (entry == null) {
+        AuthenticationContextCacheEntry entry = super.getValueFromCache(key);
+        if (entry == null && isTemporarySessionDataPersistEnabled) {
             entry = (AuthenticationContextCacheEntry) SessionDataStore.getInstance().
                     getSessionData(key.getContextId(), AUTHENTICATION_CONTEXT_CACHE_NAME);
         }
@@ -86,10 +76,8 @@ public class AuthenticationContextCache extends
     }
 
     public void clearCacheEntry(AuthenticationContextCacheKey key) {
-        if (useCache) {
-            super.clearCacheEntry(key);
-        }
-        if (enableRequestScopeCache) {
+        super.clearCacheEntry(key);
+        if (isTemporarySessionDataPersistEnabled) {
             SessionDataStore.getInstance().clearSessionData(key.getContextId(), AUTHENTICATION_CONTEXT_CACHE_NAME);
         }
     }
