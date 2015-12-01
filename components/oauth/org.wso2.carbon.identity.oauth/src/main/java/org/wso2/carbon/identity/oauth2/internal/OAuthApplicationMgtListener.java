@@ -45,34 +45,38 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
 
     public boolean doPostGetServiceProvider(ServiceProvider serviceProvider, String serviceProviderName, String tenantDomain)
             throws IdentityApplicationManagementException {
-
-        if (serviceProvider == null) {
-            return true; // if service provider is not present no need to add this information
-        }
-
-        try {
-            addClientSecret(serviceProvider, serviceProviderName, tenantDomain);
-        } catch (IdentityOAuthAdminException e) {
-            throw new IdentityApplicationManagementException("Injecting client secret failed.", e);
-        }
-
+        addClientSecret(serviceProvider);
         return true;
     }
 
     public boolean doPostGetServiceProviderByClientId(ServiceProvider serviceProvider, String clientId, String clientType,
                                                       String tenantDomain) throws IdentityApplicationManagementException {
-        if (serviceProvider == null) {
-            return true; // if service provider is not present no need to add this information
-        }
-
-        try {
-            addClientSecret(serviceProvider, clientType, tenantDomain);
-        } catch (IdentityOAuthAdminException e) {
-            throw new IdentityApplicationManagementException("Injecting client secret failed.", e);
-        }
-
+        addClientSecret(serviceProvider);
         return true;
     }
+
+
+    public boolean doPreCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
+        removeClientSecret(serviceProvider);
+        return true;
+    }
+
+    public boolean doPostCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
+        addClientSecret(serviceProvider);
+        return true;
+    }
+
+    public boolean doPostUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
+        addClientSecret(serviceProvider);
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetApplicationExcludingFileBasedSPs(ServiceProvider serviceProvider, String applicationName, String tenantDomain) throws IdentityApplicationManagementException {
+        addClientSecret(serviceProvider);
+        return true;
+    }
+
 
     private void removeClientSecret(ServiceProvider serviceProvider) {
         InboundAuthenticationConfig inboundAuthenticationConfig = serviceProvider.getInboundAuthenticationConfig();
@@ -105,34 +109,43 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
         }
     }
 
-    private ServiceProvider addClientSecret(ServiceProvider serviceProvider, String clientType,
-                                            String tenantDomain) throws IdentityOAuthAdminException {
+    private void addClientSecret(ServiceProvider serviceProvider) throws IdentityApplicationManagementException {
 
-        InboundAuthenticationConfig inboundAuthenticationConfig = serviceProvider.getInboundAuthenticationConfig();
-        if (inboundAuthenticationConfig != null) {
-            InboundAuthenticationRequestConfig[] inboundRequestConfigs = inboundAuthenticationConfig.
-                    getInboundAuthenticationRequestConfigs();
-            if (inboundRequestConfigs != null) {
-                for (InboundAuthenticationRequestConfig inboundRequestConfig : inboundRequestConfigs) {
-                    if (inboundRequestConfig.getInboundAuthType().equals(OAUTH2)) {
-                        Property[] props = inboundRequestConfig.getProperties();
-                        Property property = new Property();
-                        property.setName(OAUTH2_CONSUMER_SECRET);
-                        property.setValue(getClientSecret(inboundRequestConfig.getInboundAuthKey()));
-                        props = (Property[]) ArrayUtils.add(props, property);
-                        inboundRequestConfig.setProperties(props);
-                        continue;// we are interested only on oauth2 config. Only one will be present.
-                    } else {
-                        //ignore
+        if (serviceProvider == null) {
+            return ; // if service provider is not present no need to add this information
+        }
+
+        try {
+            InboundAuthenticationConfig inboundAuthenticationConfig = serviceProvider.getInboundAuthenticationConfig();
+            if (inboundAuthenticationConfig != null) {
+                InboundAuthenticationRequestConfig[] inboundRequestConfigs = inboundAuthenticationConfig.
+                        getInboundAuthenticationRequestConfigs();
+                if (inboundRequestConfigs != null) {
+                    for (InboundAuthenticationRequestConfig inboundRequestConfig : inboundRequestConfigs) {
+                        if (inboundRequestConfig.getInboundAuthType().equals(OAUTH2)) {
+                            Property[] props = inboundRequestConfig.getProperties();
+                            Property property = new Property();
+                            property.setName(OAUTH2_CONSUMER_SECRET);
+                            property.setValue(getClientSecret(inboundRequestConfig.getInboundAuthKey()));
+                            props = (Property[]) ArrayUtils.add(props, property);
+                            inboundRequestConfig.setProperties(props);
+                            continue;// we are interested only on oauth2 config. Only one will be present.
+                        } else {
+                            //ignore
+                        }
                     }
+                } else {
+                    //ignore
                 }
             } else {
-                //ignore
+                //nothing to do
             }
-        } else {
-            //nothing to do
+        } catch (IdentityOAuthAdminException e) {
+            throw new IdentityApplicationManagementException("Injecting client secret failed.", e);
         }
-        return serviceProvider;
+
+
+        return;
     }
 
     private String getClientSecret(String inboundAuthKey) throws IdentityOAuthAdminException {
