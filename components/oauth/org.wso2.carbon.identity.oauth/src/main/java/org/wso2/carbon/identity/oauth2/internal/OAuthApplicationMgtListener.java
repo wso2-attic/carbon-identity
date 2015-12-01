@@ -55,12 +55,6 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
         return true;
     }
 
-
-    public boolean doPreCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
-        removeClientSecret(serviceProvider);
-        return true;
-    }
-
     public boolean doPostCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
         addClientSecret(serviceProvider);
         return true;
