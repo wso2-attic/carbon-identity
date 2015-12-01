@@ -1564,6 +1564,10 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
                 InboundAuthenticationRequestConfig inbountAuthRequest = null;
                 String authKey = resultSet.getString(1);
+                //this is done to handle empty string added to oracle database as null.
+                if (authKey == null){
+                    authKey = "";
+                }
                 String authType = resultSet.getString(2);
                 String mapKey = authType + ":" + authKey;
                 boolean isCustomAuthenticator = isCustomInboundAuthType(authType);
