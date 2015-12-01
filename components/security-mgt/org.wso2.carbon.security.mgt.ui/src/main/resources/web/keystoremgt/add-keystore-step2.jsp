@@ -75,6 +75,7 @@
                     }
                 }
 
+
                 String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
                 String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
                 ConfigurationContext configContext =
@@ -88,19 +89,20 @@
 
                 session.setAttribute("org.wso2.carbon.security.content", content);
                 session.setAttribute("org.wso2.carbon.security.fileName", fileName);
-                session.setAttribute("org.wso2.carbon.security.ksPassword", ksPassword);
                 session.setAttribute("org.wso2.carbon.security.provider", provider);
                 session.setAttribute("org.wso2.carbon.security.keystoreType", keystoreType);
+                session.setAttribute("org.wso2.carbon.security.ksPassword", ksPassword); //keystore password
+
 
                 if (!isGetPrivateKey) {
-                    String message = resourceBundle.getString("keystore.doesnt.contain.private.key");
-                    // We are not gonna allow users to
-                    // upload keystores that do not contain private key
-                    forwardTo = "add-keystore-step1.jsp?ordinal=1";
-                    CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.WARNING, request);
-                    session.setAttribute("add-keystore-error", "true");
+                    // Trust stores are assumed to contain only public keys, hence we do not expect a private key
+                    // password for trust stores.
+                    session.setAttribute("org.wso2.carbon.security.isTrustStore", true);
+                    forwardTo= "add-keystore-finish.jsp";
+                } else {
+                    //add-keystore-finish.jsp will use this to invoke the correct function and confirmation message
+                    session.setAttribute("org.wso2.carbon.security.isTrustStore", false);
                 }
-
             }
         } catch (Exception e) {
             forwardTo = "add-keystore-step1.jsp?ordinal=1";

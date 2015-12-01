@@ -26,20 +26,10 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
-import org.wso2.carbon.security.mgt.stub.keystore.AddKeyStore;
-import org.wso2.carbon.security.mgt.stub.keystore.DeleteStore;
-import org.wso2.carbon.security.mgt.stub.keystore.GetKeyStoresResponse;
-import org.wso2.carbon.security.mgt.stub.keystore.GetKeystoreInfo;
-import org.wso2.carbon.security.mgt.stub.keystore.GetKeystoreInfoResponse;
-import org.wso2.carbon.security.mgt.stub.keystore.GetPaginatedKeystoreInfo;
-import org.wso2.carbon.security.mgt.stub.keystore.GetPaginatedKeystoreInfoResponse;
-import org.wso2.carbon.security.mgt.stub.keystore.GetStoreEntries;
-import org.wso2.carbon.security.mgt.stub.keystore.GetStoreEntriesResponse;
-import org.wso2.carbon.security.mgt.stub.keystore.ImportCertToStore;
-import org.wso2.carbon.security.mgt.stub.keystore.KeyStoreAdminServiceStub;
-import org.wso2.carbon.security.mgt.stub.keystore.RemoveCertFromStore;
+import org.wso2.carbon.security.mgt.stub.keystore.*;
 import org.wso2.carbon.security.mgt.stub.keystore.xsd.KeyStoreData;
 import org.wso2.carbon.security.mgt.stub.keystore.xsd.PaginatedKeyStoreData;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -54,6 +44,7 @@ public class KeyStoreAdminClient {
     private static Log log = LogFactory.getLog(KeyStoreAdminClient.class);
     private String serviceEndPoint = null;
     private KeyStoreAdminServiceStub stub = null;
+    
 
     public KeyStoreAdminClient(String cookie, String url, ConfigurationContext configContext)
             throws java.lang.Exception {
@@ -98,7 +89,23 @@ public class KeyStoreAdminClient {
             throw e;
         }
     }
+    public void addTrustStore(byte[] content, String filename, String password, String provider,
+                            String type) throws java.lang.Exception {
+        try {
+            String data = Base64.encode(content);
+            AddTrustStore request = new AddTrustStore();
 
+            request.setFileData(data);
+            request.setFilename(filename);
+            request.setPassword(password);
+            request.setProvider(provider);
+            request.setType(type);
+            stub.addTrustStore(request);
+        } catch (java.lang.Exception e) {
+            log.error("Error in adding keystore", e);
+            throw e;
+        }
+    }
     public void deleteStore(String keyStoreName) throws java.lang.Exception {
         try {
             DeleteStore request = new DeleteStore();

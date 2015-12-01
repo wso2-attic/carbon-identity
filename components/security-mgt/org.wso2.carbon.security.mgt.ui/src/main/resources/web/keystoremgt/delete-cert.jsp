@@ -24,6 +24,7 @@
 <%@page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.security.ui.SecurityUIConstants" %>
 
 <jsp:include page="../dialog/display_messages.jsp"/>
 
@@ -42,6 +43,7 @@
 		client.removeCertificateFromKeyStore(keyStore, certificateAlias);
         String message = resourceBundle.getString("cert.delete");
         forwardTo = "view-keystore.jsp?keyStore=" + Encode.forUriComponent(keyStore);
+        session.removeAttribute(SecurityUIConstants.PAGINATED_KEY_STORE_DATA);
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
     } catch (Exception e) {
         String message = MessageFormat.format(resourceBundle.getString("cert.cannot.delete"),

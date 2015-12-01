@@ -29,6 +29,7 @@
 <%@page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.security.ui.SecurityUIConstants" %>
 
 <%
     String forwardTo = null;
@@ -60,6 +61,7 @@
             KeyStoreAdminClient client = new KeyStoreAdminClient(cookie, backendServerURL, configContext);
             client.importCertToStore(fileName, content, keyStore);
             String message = resourceBundle.getString("cert.import");
+            session.removeAttribute(SecurityUIConstants.PAGINATED_KEY_STORE_DATA);
             forwardTo = "view-keystore.jsp?keyStore=" + Encode.forUriComponent(keyStore);
             CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
         }
