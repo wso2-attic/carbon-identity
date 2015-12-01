@@ -35,6 +35,7 @@ import org.wso2.carbon.identity.application.common.IdentityApplicationManagement
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
+import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
@@ -43,7 +44,6 @@ import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
-import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.authz.OAuthAuthzReqMessageContext;
 import org.wso2.carbon.identity.oauth2.internal.OAuth2ServiceComponentHolder;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
@@ -330,7 +330,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 String value = userClaims.get(entry.getValue());
                 if (value != null) {
                     mappedAppClaims.put(entry.getKey(), value);
-                    if (log.isDebugEnabled()) {
+                    if (log.isDebugEnabled() &&
+                            IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)) {
                         log.debug("Mapped claim: key -  " + entry.getKey() + " value -" + value);
                     }
                 }
@@ -425,7 +426,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 String value = userClaims.get(entry.getValue());
                 if (value != null) {
                     mappedAppClaims.put(entry.getKey(), value);
-                    if (log.isDebugEnabled()) {
+                    if (log.isDebugEnabled() &&
+                            IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)) {
                         log.debug("Mapped claim: key -  " + entry.getKey() + " value -" + value);
                     }
                 }
@@ -453,9 +455,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
     private Map<ClaimMapping, String> getUserAttributesFromCache(String accessToken) {
 
         AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
-        AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache.
-                getInstance(OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout())
-                                                                                        .getValueFromCache(cacheKey);
+        AuthorizationGrantCacheEntry cacheEntry = AuthorizationGrantCache.getInstance().getValueFromCache(cacheKey);
         if (cacheEntry == null) {
             return new HashMap<ClaimMapping, String>();
         }

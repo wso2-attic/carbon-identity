@@ -20,57 +20,44 @@ package org.wso2.carbon.identity.sso.saml.cache;
 
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 
-public class SAMLSSOParticipantCache extends BaseCache<String, CacheEntry> {
+public class SAMLSSOParticipantCache extends BaseCache<SAMLSSOParticipantCacheKey, SAMLSSOParticipantCacheEntry> {
 
     private static final String CACHE_NAME = "SAMLSSOParticipantCache";
     private static volatile SAMLSSOParticipantCache instance;
-    private boolean useCache = true;
 
-    private SAMLSSOParticipantCache(String cacheName, int timeout) {
-        super(cacheName, timeout);
-        useCache = !Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Only"));
+    private SAMLSSOParticipantCache() {
+        super(CACHE_NAME);
     }
 
-    public static SAMLSSOParticipantCache getInstance(int timeout) {
+    public static SAMLSSOParticipantCache getInstance() {
         if (instance == null) {
             synchronized (SAMLSSOParticipantCache.class) {
                 if (instance == null) {
-                    instance = new SAMLSSOParticipantCache(CACHE_NAME, timeout);
+                    instance = new SAMLSSOParticipantCache();
                 }
             }
         }
         return instance;
     }
 
-    public void addToCache(CacheKey key, CacheEntry entry) {
-        if (useCache) {
-            super.addToCache(((SAMLSSOParticipantCacheKey) key).getSessionIndex(), entry);
-        }
-        String keyValue = ((SAMLSSOParticipantCacheKey) key).getSessionIndex();
-        SessionDataStore.getInstance().storeSessionData(keyValue, CACHE_NAME, entry);
+    public void addToCache(SAMLSSOParticipantCacheKey key, SAMLSSOParticipantCacheEntry entry) {
+        super.addToCache(key, entry);
+        SessionDataStore.getInstance().storeSessionData(key.getSessionIndex(), CACHE_NAME, entry);
     }
 
-    public CacheEntry getValueFromCache(CacheKey key) {
-        CacheEntry cacheEntry = null;
-        if (useCache) {
-            cacheEntry = super.getValueFromCache(((SAMLSSOParticipantCacheKey) key).getSessionIndex());
-        }
+    public SAMLSSOParticipantCacheEntry getValueFromCache(SAMLSSOParticipantCacheKey key) {
+        SAMLSSOParticipantCacheEntry cacheEntry = super.getValueFromCache(key);
         if (cacheEntry == null) {
-            String keyValue = ((SAMLSSOParticipantCacheKey) key).getSessionIndex();
             cacheEntry = (SAMLSSOParticipantCacheEntry) SessionDataStore.getInstance().
-                    getSessionData(keyValue, CACHE_NAME);
+                    getSessionData(key.getSessionIndex(), CACHE_NAME);
         }
         return cacheEntry;
     }
 
-    public void clearCacheEntry(CacheKey key) {
-        if (useCache) {
-            super.clearCacheEntry(((SAMLSSOParticipantCacheKey) key).getSessionIndex());
-        }
-        String keyValue = ((SAMLSSOParticipantCacheKey) key).getSessionIndex();
-        SessionDataStore.getInstance().clearSessionData(keyValue, CACHE_NAME);
+    public void clearCacheEntry(SAMLSSOParticipantCacheKey key) {
+        super.clearCacheEntry(key);
+        SessionDataStore.getInstance().clearSessionData(key.getSessionIndex(), CACHE_NAME);
     }
 
 }

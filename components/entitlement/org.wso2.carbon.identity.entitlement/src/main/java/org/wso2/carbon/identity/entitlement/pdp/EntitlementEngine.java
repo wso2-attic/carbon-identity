@@ -36,6 +36,8 @@ import org.wso2.balana.finder.ResourceFinderModule;
 import org.wso2.balana.finder.impl.CurrentEnvModule;
 import org.wso2.balana.finder.impl.SelectorModule;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.entitlement.EntitlementException;
 import org.wso2.carbon.identity.entitlement.EntitlementUtil;
 import org.wso2.carbon.identity.entitlement.PDPConstants;
@@ -245,13 +247,13 @@ public class EntitlementEngine {
      */
     public String test(String xacmlRequest) {
 
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.XACML_REQUEST)) {
             log.debug("XACML Request : " + xacmlRequest);
         }
 
         String xacmlResponse = pdpTest.evaluate(xacmlRequest);
 
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.XACML_RESPONSE)) {
             log.debug("XACML Response : " + xacmlResponse);
         }
 
@@ -271,14 +273,14 @@ public class EntitlementEngine {
 
     public String evaluate(String xacmlRequest) throws EntitlementException, ParsingException {
 
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.XACML_REQUEST)) {
             log.debug("XACML Request : " + xacmlRequest);
         }
 
         String xacmlResponse;
 
         if ((xacmlResponse = getFromCache(xacmlRequest, false)) != null) {
-            if (log.isDebugEnabled()) {
+            if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.XACML_RESPONSE)) {
                 log.debug("XACML Response : " + xacmlResponse);
             }
             return xacmlResponse;
@@ -304,7 +306,7 @@ public class EntitlementEngine {
 
         addToCache(xacmlRequest, xacmlResponse, false);
 
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.XACML_RESPONSE)) {
             log.debug("XACML Response : " + xacmlResponse);
         }
 
@@ -348,11 +350,11 @@ public class EntitlementEngine {
                          (action != null ? action : "") + (environmentValue != null ? environmentValue : "");
 
         if ((response = getFromCache(request, true)) != null) {
-            if (log.isDebugEnabled()) {
+            if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.XACML_REQUEST)) {
                 log.debug("XACML Request : " + EntitlementUtil.
                         createSimpleXACMLRequest(subject, resource, action, environmentValue));
             }
-            if (log.isDebugEnabled()) {
+            if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.XACML_RESPONSE)) {
                 log.debug("XACML Response : " + response);
             }
             return response;
@@ -360,7 +362,7 @@ public class EntitlementEngine {
 
         String requestAsString = EntitlementUtil.createSimpleXACMLRequest(subject, resource, action, environmentValue);
 
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.XACML_REQUEST)) {
             log.debug("XACML Request : " + requestAsString);
         }
 
@@ -368,7 +370,7 @@ public class EntitlementEngine {
 
         addToCache(request, response, true);
 
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.XACML_RESPONSE)) {
             log.debug("XACML Response : " + response);
         }
 

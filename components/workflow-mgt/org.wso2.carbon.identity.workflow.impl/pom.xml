@@ -132,6 +132,7 @@
                             org.wso2.carbon.stratos.common.*; version="${carbon.commons.imp.pkg.version}",
                             org.wso2.carbon.identity.workflow.mgt.*; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.humantask.deployer; resolution:=optional,
+                            org.wso2.carbon; version="${carbon.kernel.package.import.version.range}",
                             org.apache.axiom.om.util
                         </Import-Package>
                         <Export-Package>

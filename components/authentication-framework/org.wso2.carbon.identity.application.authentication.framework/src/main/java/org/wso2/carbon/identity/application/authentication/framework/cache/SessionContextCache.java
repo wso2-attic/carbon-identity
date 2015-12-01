@@ -18,19 +18,14 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionContextDO;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
-import org.wso2.carbon.identity.application.common.cache.CacheKey;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 
-import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
 
 public class SessionContextCache extends BaseCache<SessionContextCacheKey, SessionContextCacheEntry> {
@@ -39,34 +34,16 @@ public class SessionContextCache extends BaseCache<SessionContextCacheKey, Sessi
     private static final Log log = LogFactory.getLog(SessionContextCache.class);
 
     private static volatile SessionContextCache instance;
-    private boolean useCache = true;
 
-    private SessionContextCache(String cacheName, int capacity) {
-        super(cacheName, 0, capacity);
-        useCache = !Boolean.parseBoolean(IdentityUtil.getProperty(
-                "JDBCPersistenceManager.SessionDataPersist.Only"));
-        if (IdentityUtil.getProperty("SessionContextCache.Enable") != null) {
-            useCache = Boolean.parseBoolean(IdentityUtil.getProperty("SessionContextCache.Enable"));
-        }
+    private SessionContextCache() {
+        super(SESSION_CONTEXT_CACHE_NAME);
     }
 
     public static SessionContextCache getInstance() {
         if (instance == null) {
             synchronized (SessionContextCache.class) {
                 if (instance == null) {
-                    int capacity = 2000;
-                    try {
-                        String capacityConfigValue = IdentityUtil.getProperty("SessionContextCache.Capacity");
-                        if (StringUtils.isNotBlank(capacityConfigValue)) {
-                            capacity = Integer.parseInt(capacityConfigValue);
-                        }
-                    } catch (NumberFormatException e) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Ignoring Exception.", e);
-                        }
-                        log.warn("Session context cache capacity size is not configured. Using default value.");
-                    }
-                    instance = new SessionContextCache(SESSION_CONTEXT_CACHE_NAME, capacity);
+                    instance = new SessionContextCache();
                 }
             }
         }
@@ -75,18 +52,12 @@ public class SessionContextCache extends BaseCache<SessionContextCacheKey, Sessi
 
     public void addToCache(SessionContextCacheKey key, SessionContextCacheEntry entry) {
         entry.setAccessedTime();
-
-        if (useCache) {
-            super.addToCache(key, entry);
-        }
+        super.addToCache(key, entry);
         SessionDataStore.getInstance().storeSessionData(key.getContextId(), SESSION_CONTEXT_CACHE_NAME, entry);
     }
 
     public SessionContextCacheEntry getValueFromCache(SessionContextCacheKey key) {
-        SessionContextCacheEntry cacheEntry = null;
-        if (useCache) {
-            cacheEntry = super.getValueFromCache(key);
-        }
+        SessionContextCacheEntry cacheEntry = super.getValueFromCache(key);
 
         // Retrieve session from the database if its not in cache
         if (cacheEntry == null) {
@@ -100,7 +71,7 @@ public class SessionContextCache extends BaseCache<SessionContextCacheKey, Sessi
 
         if (cacheEntry == null) {
             if(log.isDebugEnabled()) {
-                log.debug("Session corresponding to the key : " + key.getContextId()+ " cannot be found.");
+                log.debug("Session corresponding to the key : " + key.getContextId() + " cannot be found.");
             }
             return null;
         } else if (isValidIdleSession(key, cacheEntry) || isValidRememberMeSession(key, cacheEntry)) {
@@ -119,9 +90,7 @@ public class SessionContextCache extends BaseCache<SessionContextCacheKey, Sessi
     }
 
     public void clearCacheEntry(SessionContextCacheKey key) {
-        if (useCache) {
-            super.clearCacheEntry(key);
-        }
+        super.clearCacheEntry(key);
         SessionDataStore.getInstance().clearSessionData(key.getContextId(), SESSION_CONTEXT_CACHE_NAME);
     }
 

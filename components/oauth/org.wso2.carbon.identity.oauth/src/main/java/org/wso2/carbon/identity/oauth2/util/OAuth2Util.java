@@ -124,7 +124,7 @@ public class OAuth2Util {
     
     private static Log log = LogFactory.getLog(OAuth2Util.class);
     private static boolean cacheEnabled = OAuthServerConfiguration.getInstance().isCacheEnabled();
-    private static OAuthCache cache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
+    private static OAuthCache cache = OAuthCache.getInstance();
     private static long timestampSkew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
     private static ThreadLocal<Integer> clientTenatId = new ThreadLocal<>();
     private static ThreadLocal<OAuthTokenReqMessageContext> tokenRequestContext = new ThreadLocal<OAuthTokenReqMessageContext>();
@@ -274,8 +274,8 @@ public class OAuth2Util {
         if (cacheEnabled) {
             CacheEntry cacheResult = cache.getValueFromCache(new OAuthCacheKey(clientId));
             if (cacheResult != null && cacheResult instanceof ClientCredentialDO) {
-                // cache hit
-                clientSecret = ((ClientCredentialDO) cacheResult).getClientSecret();
+                ClientCredentialDO clientCredentialDO = (ClientCredentialDO) cacheResult;
+                clientSecret = clientCredentialDO.getClientSecret();
                 cacheHit = true;
                 if (log.isDebugEnabled()) {
                     log.debug("Client credentials were available in the cache for client id : " +
@@ -556,7 +556,7 @@ public class OAuth2Util {
         long refreshTokenValidityPeriodMillis = accessTokenDO.getRefreshTokenValidityPeriodInMillis();
 
         if (refreshTokenValidityPeriodMillis < 0) {
-            log.debug("Refresh Token : " + accessTokenDO.getRefreshToken() + " has infinite lifetime");
+            log.debug("Refresh Token has infinite lifetime");
             return -1;
         }
 
@@ -579,7 +579,7 @@ public class OAuth2Util {
         long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
 
         if (validityPeriodMillis < 0) {
-            log.debug("Access Token : " + accessTokenDO.getAccessToken() + " has infinite lifetime");
+            log.debug("Access Token has infinite lifetime");
             return -1;
         }
 

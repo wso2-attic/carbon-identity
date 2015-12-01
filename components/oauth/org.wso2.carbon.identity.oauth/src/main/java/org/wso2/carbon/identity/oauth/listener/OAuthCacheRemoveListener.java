@@ -24,7 +24,6 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
-import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 
@@ -32,13 +31,13 @@ import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryRemovedListener;
 
-public class OAuthCacheRemoveListener extends AbstractCacheListener<String, CacheEntry>
-        implements CacheEntryRemovedListener<String, CacheEntry> {
+public class OAuthCacheRemoveListener extends AbstractCacheListener<OAuthCacheKey, CacheEntry>
+        implements CacheEntryRemovedListener<OAuthCacheKey, CacheEntry> {
 
     private static Log log = LogFactory.getLog(OAuthCacheRemoveListener.class);
 
     @Override
-    public void entryRemoved(CacheEntryEvent<? extends String, ? extends CacheEntry> cacheEntryEvent)
+    public void entryRemoved(CacheEntryEvent<? extends OAuthCacheKey, ? extends CacheEntry> cacheEntryEvent)
             throws CacheEntryListenerException {
 
         CacheEntry cacheEntry = cacheEntryEvent.getValue();
@@ -66,8 +65,7 @@ public class OAuthCacheRemoveListener extends AbstractCacheListener<String, Cach
             }
 
             OAuthCacheKey oauthcacheKey = new OAuthCacheKey(cacheKeyString);
-            OAuthCache oauthCache = OAuthCache
-                    .getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
+            OAuthCache oauthCache = OAuthCache.getInstance();
 
             oauthCache.clearCacheEntry(oauthcacheKey);
             oauthcacheKey = new OAuthCacheKey(accessTokenDO.getAccessToken());

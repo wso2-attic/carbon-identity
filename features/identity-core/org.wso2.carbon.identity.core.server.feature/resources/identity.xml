@@ -65,9 +65,9 @@
             https://<HostName>:<MgtTrpProxyPort except 443>/<ProxyContextPath>/<context>
             If above format doesn't satisfy uncomment the following configs and explicitly configure the values
          -->
-        <!--OpenIDServerUrl>https://localhost:9443/openidserver</OpenIDServerUrl-->
-        <!--OpenIDUserPattern>https://localhost:9443/openid/</OpenIDUserPattern-->
-        <!--OpenIDLoginUrl>https://localhost:9443/authenticationendpoint/openid_login.do</OpenIDLoginUrl-->
+        <OpenIDServerUrl>${carbon.protocol}://${carbon.host}:${carbon.management.port}/openidserver</OpenIDServerUrl>
+        <OpenIDUserPattern>${carbon.protocol}://${carbon.host}:${carbon.management.port}/openid</OpenIDUserPattern>
+        <OpenIDLoginUrl>${carbon.protocol}://${carbon.host}:${carbon.management.port}/authenticationendpoint/openid_login.do</OpenIDLoginUrl>
 
         <!-- If the users must be prompted for approval -->
         <OpenIDSkipUserConsent>false</OpenIDSkipUserConsent>
@@ -89,7 +89,7 @@
 		<OpenIDPrivateAssociationStoreClass>org.wso2.carbon.identity.provider.openid.PrivateAssociationCryptoStore</OpenIDPrivateAssociationStoreClass>
 	-->
 
-        <!-- The exiration time (in minutes) for the OpenID association -->
+        <!-- The expiration time (in minutes) for the OpenID association -->
         <!--
 		<OpenIDAssociationExpiryTime>15</OpenIDAssociationExpiryTime>
 	-->
@@ -123,15 +123,15 @@
             https://<HostName>:<MgtTrpProxyPort except 443>/<ProxyContextPath>/<context>/<path>
             If above format doesn't satisfy uncomment the following configs and explicitly configure the values
          -->
-        <!--OAuth1RequestTokenUrl>https://localhost:9443/oauth/request-token</OAuth1RequestTokenUrl-->
-        <!--OAuth1AuthorizeUrl>https://localhost:9443/oauth/authorize-url</OAuth1AuthorizeUrl-->
-        <!--OAuth1AccessTokenUrl>https://localhost:9443/oauth/access-token</OAuth1AccessTokenUrl-->
-        <!--OAuth2AuthzEPUrl>https://localhost:9443/oauth2/authorize</OAuth2AuthzEPUrl-->
-        <!--OAuth2TokenEPUrl>https://localhost:9443/oauth2/token</OAuth2TokenEPUrl-->
-        <!--OAuth2UserInfoEPUrl>https://localhost:9443/oauth2/userinfo</OAuth2UserInfoEPUrl-->
-        <!--OIDCConsentPage>https://localhost:9443/authenticationendpoint/oauth2_consent.do</OIDCConsentPage-->
-        <!--OAuth2ConsentPage>https://localhost:9443/authenticationendpoint/oauth2_authz.do</OAuth2ConsentPage-->
-        <!--OAuth2ErrorPage>https://localhost:9443/authenticationendpoint/oauth2_error.do</OAuth2ErrorPage-->
+        <OAuth1RequestTokenUrl>${carbon.protocol}://${carbon.host}:${carbon.management.port}/oauth/request-token</OAuth1RequestTokenUrl>
+        <OAuth1AuthorizeUrl>${carbon.protocol}://${carbon.host}:${carbon.management.port}/oauth/authorize-url</OAuth1AuthorizeUrl>
+        <OAuth1AccessTokenUrl>${carbon.protocol}://${carbon.host}:${carbon.management.port}/oauth/access-token</OAuth1AccessTokenUrl>
+        <OAuth2AuthzEPUrl>${carbon.protocol}://${carbon.host}:${carbon.management.port}/oauth2/authorize</OAuth2AuthzEPUrl>
+        <OAuth2TokenEPUrl>${carbon.protocol}://${carbon.host}:${carbon.management.port}/oauth2/token</OAuth2TokenEPUrl>
+        <OAuth2UserInfoEPUrl>${carbon.protocol}://${carbon.host}:${carbon.management.port}/oauth2/userinfo</OAuth2UserInfoEPUrl>
+        <OIDCConsentPage>${carbon.protocol}://${carbon.host}:${carbon.management.port}/authenticationendpoint/oauth2_consent.do</OIDCConsentPage>
+        <OAuth2ConsentPage>${carbon.protocol}://${carbon.host}:${carbon.management.port}/authenticationendpoint/oauth2_authz.do</OAuth2ConsentPage>
+        <OAuth2ErrorPage>${carbon.protocol}://${carbon.host}:${carbon.management.port}/authenticationendpoint/oauth2_error.do</OAuth2ErrorPage>
 
         <!-- Default validity period for Authorization Code in seconds -->
         <AuthorizationCodeDefaultValidityPeriod>300</AuthorizationCodeDefaultValidityPeriod>
@@ -239,7 +239,7 @@
                 Default value for IDTokenIssuerID, is OAuth2TokenEPUrl.
                 If that doesn't satisfy uncomment the following config and explicitly configure the value
             -->
-            <!--IDTokenIssuerID>https://localhost:9443/oauth2/token</IDTokenIssuerID-->
+            <IDTokenIssuerID>${carbon.protocol}://${carbon.host}:${carbon.management.port}/oauth2/token</IDTokenIssuerID>
             <IDTokenSubjectClaim>http://wso2.org/claims/givenname</IDTokenSubjectClaim>
             <IDTokenCustomClaimsCallBackHandler>org.wso2.carbon.identity.openidconnect.SAMLAssertionClaimsCallback</IDTokenCustomClaimsCallBackHandler>
             <IDTokenExpiration>3600</IDTokenExpiration>
@@ -269,15 +269,15 @@
     <SSOService>
         <PersistanceCacheTimeout>157680000</PersistanceCacheTimeout>
         <SessionIndexCacheTimeout>157680000</SessionIndexCacheTimeout>
-        <EntityId>localhost</EntityId>
+        <EntityId>${carbon.host}</EntityId>
         <!--
             Default value for IdentityProviderURL is  built in following format
             https://<HostName>:<MgtTrpProxyPort except 443>/<ProxyContextPath>/samlsso
             If that doesn't satisfy uncomment the following config and explicitly configure the value
         -->
-        <!--IdentityProviderURL>https://localhost:9443/samlsso</IdentityProviderURL-->
-        <!--DefaultLogoutEndpoint>https://localhost:9443/authenticationendpoint/samlsso_logout.do</DefaultLogoutEndpoint-->
-        <!--NotificationEndpoint>https://localhost:9443/authenticationendpoint/samlsso_notification.do</NotificationEndpoint-->
+        <IdentityProviderURL>${carbon.protocol}://${carbon.host}:${carbon.management.port}/samlsso</IdentityProviderURL>
+        <DefaultLogoutEndpoint>${carbon.protocol}://${carbon.host}:${carbon.management.port}/authenticationendpoint/samlsso_logout.do</DefaultLogoutEndpoint>
+        <NotificationEndpoint>${carbon.protocol}://${carbon.host}:${carbon.management.port}/authenticationendpoint/samlsso_notification.do</NotificationEndpoint>
         <SingleLogoutRetryCount>5</SingleLogoutRetryCount>
         <SingleLogoutRetryInterval>60000</SingleLogoutRetryInterval>
         <!-- in milli seconds -->
@@ -302,7 +302,7 @@
             https://<HostName>:<MgtTrpProxyPort except 443>/<ProxyContextPath>/services/wso2carbon-sts
             If that doesn't satisfy uncomment the following config and explicitly configure the value
         -->
-        <!--IdentityProviderURL>https://localhost:9443/services/wso2carbon-sts</IdentityProviderURL-->
+        <IdentityProviderURL>${carbon.protocol}://${carbon.host}:${carbon.management.port}/services/wso2carbon-sts</IdentityProviderURL>
     </SecurityTokenService>
 
     <PassiveSTS>
@@ -311,8 +311,8 @@
             https://<HostName>:<MgtTrpProxyPort except 443>/<ProxyContextPath>/passivests
             If that doesn't satisfy uncomment the following config and explicitly configure the value
         -->
-        <!--IdentityProviderURL>https://localhost:9443/passivests</IdentityProviderURL-->
-        <!--RetryURL>https://localhost:9443/authenticationendpoint/retry.do</RetryURL-->
+        <IdentityProviderURL>${carbon.protocol}://${carbon.host}:${carbon.management.port}/passivests</IdentityProviderURL>
+        <RetryURL>${carbon.protocol}://${carbon.host}:${carbon.management.port}/authenticationendpoint/retry.do</RetryURL>
     </PassiveSTS>
 
     <EntitlementSettings>
@@ -325,7 +325,7 @@
                 <Password>wso2carbon</Password>
             </KeyStore>
             <!-- Enable this element to mention the host-name of your IS machine -->
-            <ThriftHostName>localhost</ThriftHostName>
+            <ThriftHostName>${carbon.host}</ThriftHostName>
         </ThirftBasedEntitlementConfig>
     </EntitlementSettings>
 
@@ -335,8 +335,8 @@
             https://<HostName>:<MgtTrpProxyPort except 443>/<ProxyContextPath>/<context>/<path>
             If that doesn't satisfy uncomment the following config and explicitly configure the value
         -->
-        <!--UserEPUrl>https://localhost:9443/wso2/scim/Users</UserEPUrl-->
-        <!--GroupEPUrl>https://localhost:9443/wso2/scim/Groups</GroupEPUrl-->
+        <UserEPUrl>${carbon.protocol}://${carbon.host}:${carbon.management.port}/wso2/scim/Users</UserEPUrl>
+        <GroupEPUrl>${carbon.protocol}://${carbon.host}:${carbon.management.port}/wso2/scim/Groups</GroupEPUrl>
         <SCIMAuthenticators>
             <Authenticator class="org.wso2.carbon.identity.scim.provider.auth.BasicAuthHandler">
                 <Property name="Priority">5</Property>
@@ -344,7 +344,7 @@
             <Authenticator class="org.wso2.carbon.identity.scim.provider.auth.OAuthHandler">
                 <Property name="Priority">10</Property>
                 <Property name="AuthorizationServer">local://services</Property>
-                <!--Property name="AuthorizationServer">https://localhost:9443/services</Property>
+                <!--Property name="AuthorizationServer">${carbon.protocol}://${carbon.host}:${carbon.management.port}/services</Property>
                 <Property name="UserName">admin</Property>
                 <Property name="Password">admin</Property-->
             </Authenticator>
@@ -367,4 +367,10 @@
         <EventListener type="org.wso2.carbon.user.core.listener.UserOperationEventListener" name="org.wso2.carbon.identity.provider.openid.listener.IdentityOpenIDUserEventListener"
                        orderId="70" enable="false"/>
     </EventListeners>
+
+    <CacheConfig>
+        <CacheManager name="IdentityApplicationManagementCacheManager">
+            <!--<Cache name="AppAuthFrameworkSessionContextCache" enable="false" timeout="1" capacity="5000"/>-->
+        </CacheManager>
+    </CacheConfig>
 </Server>
