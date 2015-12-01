@@ -40,8 +40,14 @@ public class ApplicationMgtAuditLogger extends AbstractApplicationMgtListener {
     @Override
     public boolean doPostCreateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
         if (isEnable()) {
-            audit.info(String.format(AUDIT_MESSAGE, userName, "create", serviceProvider.getApplicationID(),
-                    serviceProvider.getApplicationName(), SUCCESS));
+            int appId = -1;
+            String name = "Undefined";
+            if (serviceProvider != null ){
+                appId = serviceProvider.getApplicationID();
+                name = serviceProvider.getApplicationName();
+            }
+            audit.info(String.format(AUDIT_MESSAGE, userName, "create", appId,
+                    name, SUCCESS));
         }
         return true;
     }
@@ -49,8 +55,14 @@ public class ApplicationMgtAuditLogger extends AbstractApplicationMgtListener {
     @Override
     public boolean doPostUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
         if (isEnable()) {
-            audit.info(String.format(AUDIT_MESSAGE, userName, "update", serviceProvider.getApplicationID(),
-                    serviceProvider.getApplicationName(), SUCCESS));
+            int appId = -1;
+            String name = "Undefined";
+            if (serviceProvider != null ){
+                appId = serviceProvider.getApplicationID();
+                name = serviceProvider.getApplicationName();
+            }
+            audit.info(String.format(AUDIT_MESSAGE, userName, "update", appId,
+                    name, SUCCESS));
         }
         return true;
     }
