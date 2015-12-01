@@ -35,23 +35,18 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
     private static final String AUTHORIZATION_GRANT_CACHE_NAME = "AuthorizationGrantCache";
 
     private static volatile AuthorizationGrantCache instance;
-    private boolean enableRequestScopeCache = false;
     private static final Log log = LogFactory.getLog(AuthorizationGrantCache.class);
 
-    private AuthorizationGrantCache(String cacheName, int timeout) {
-        super(cacheName, timeout);
-        if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
-            enableRequestScopeCache = Boolean.
-                    parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
-        }
+    private AuthorizationGrantCache() {
+        super(AUTHORIZATION_GRANT_CACHE_NAME);
     }
 
-    public static AuthorizationGrantCache getInstance(int timeout) {
+    public static AuthorizationGrantCache getInstance() {
         CarbonUtils.checkSecurity();
         if (instance == null) {
             synchronized (AuthorizationGrantCache.class) {
                 if (instance == null) {
-                    instance = new AuthorizationGrantCache(AUTHORIZATION_GRANT_CACHE_NAME, timeout);
+                    instance = new AuthorizationGrantCache();
                 }
             }
         }
@@ -59,10 +54,8 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
     }
 
     public void addToCacheByToken(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
-        String tokenId = null;
         super.addToCache(key, entry);
         storeToSessionStore(replaceFromTokenId(key.getUserAttributesId()), entry);
-
     }
 
 
@@ -75,7 +68,6 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
     }
 
     public void clearCacheEntryByToken(AuthorizationGrantCacheKey key) {
-        String tokenId = null;
         super.clearCacheEntry(key);
         clearFromSessionStore(replaceFromTokenId(key.getUserAttributesId()));
     }
@@ -97,10 +89,8 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
 
 
     public void clearCacheEntryByCode(AuthorizationGrantCacheKey key) {
-        String codeId = null;
         super.clearCacheEntry(key);
         clearFromSessionStore(replaceFromCodeId(key.getUserAttributesId()));
-
     }
 
 
