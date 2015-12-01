@@ -50,6 +50,7 @@
     String oauth1AccessTokenUrl = null;
     String authzUrl = null;
     String tokenUrl = null;
+    String revokeUrl = null;
     String userInfoUrl = null;
     String passiveSTSUrl = null;
     String passivestsIdPEntityId = null;
@@ -88,6 +89,8 @@
                     IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_AUTHZ_URL).getValue();
             tokenUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL).getValue();
+            revokeUrl = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_REVOKE_URL).getValue();
             userInfoUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_USER_INFO_EP_URL).getValue();
         } else if(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME.equals(federatedAuthenticator.getName())){
@@ -456,6 +459,10 @@ jQuery(document).ready(function(){
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='token.endpoint'/>:</td>
                             <td><%=Encode.forHtmlContent(tokenUrl)%></td>
+                        </tr>
+                        <tr>
+                            <td class="leftCol-med labelField"><fmt:message key='revoke.endpoint'/>:</td>
+                            <td><%=Encode.forHtmlContent(revokeUrl)%></td>
                         </tr>
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='user.endpoint'/>:</td>

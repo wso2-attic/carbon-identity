@@ -48,9 +48,6 @@ public class PrivateAssociationCryptoStore extends InMemoryServerAssociationStor
         String serverKey = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_PRIVATE_ASSOCIATION_SERVER_KEY);
         if(StringUtils.isNotBlank(serverKey)){
             this.serverKey = serverKey;
-            if(log.isDebugEnabled()){
-                log.debug("Private Association Crypto Server Key : " + serverKey);
-            }
         }
     }
 
@@ -71,9 +68,7 @@ public class PrivateAssociationCryptoStore extends InMemoryServerAssociationStor
 //        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 //        PBEKeySpec spec = new PBEKeySpec(serverKey.toCharArray(), handle.getBytes(), 1, 256);
 //        SecretKey secretKey = factory.generateSecret(spec);
-        if(log.isDebugEnabled()){
-            log.debug("Crypto key : " + serverKey + handle);
-        }
+
         return Association.createHmacSha256(handle, (serverKey + handle).getBytes(), expireDate);
     }
 
@@ -110,9 +105,6 @@ public class PrivateAssociationCryptoStore extends InMemoryServerAssociationStor
 //        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 //        PBEKeySpec spec = new PBEKeySpec(serverKey.toCharArray(), handle.getBytes(), 1, 256);
 //        SecretKey secretKey = factory.generateSecret(spec);
-        if(log.isDebugEnabled()){
-            log.debug("Crypto key : " + serverKey + handle);
-        }
 
         Association association = Association.createHmacSha256(handle, (serverKey + handle).getBytes(), expireDate);
         OpenIDServerManager.setThreadLocalAssociation(association);

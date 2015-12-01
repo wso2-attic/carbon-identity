@@ -194,8 +194,10 @@
                                     </div>
                                 </a>
                                 <%} else { %>
-                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpName)%>',
-                                        '<%=Encode.forJavaScriptAttribute(idpEntry.getValue())%>')" href="#">
+                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(Encode.
+                                forUriComponent(idpName))%>',
+                                        '<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(idpEntry.getValue()))%>')"
+                                   href="#">
                                     <img class="idp-image" src="images/login-icon.png" data-toggle="tooltip"
                                          data-placement="top" title="Sign in with <%=Encode.forHtmlContent(idpName)%>"/>
                                 </a>
@@ -204,7 +206,8 @@
                                 } else if (localAuthenticatorNames.size() > 0) {
                                     if (localAuthenticatorNames.contains("IWAAuthenticator")) {
                                 %>
-                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpEntry.getKey())%>',
+                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(Encode.
+                                forUriComponent(idpEntry.getKey()))%>',
                                         'IWAAuthenticator')" class="main-link" style="cursor:pointer">
                                     <img class="idp-image" src="images/login-icon.png" data-toggle="tooltip"
                                          data-placement="top" title="Sign in with IWA"/>
@@ -213,7 +216,8 @@
                                     }
                                     if (localAuthenticatorNames.contains("FIDOAuthenticator")) {
                                 %>
-                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(idpEntry.getKey())%>',
+                                <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(Encode.
+                                forUriComponent(idpEntry.getKey()))%>',
                                         'FIDOAuthenticator')" class="main-link" style="cursor:pointer">
                                     <img class="idp-image" src="images/login-icon.png" data-toggle="tooltip"
                                          data-placement="top" title="Sign in with FIDO"/>

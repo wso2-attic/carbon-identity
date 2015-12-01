@@ -54,6 +54,7 @@ import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalStateFault;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.dao.BPSProfileDAO;
 import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHolder;
+import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplServiceListener;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
@@ -84,42 +85,96 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
     public void addBPSProfile(BPSProfile bpsProfileDTO, int tenantId)
             throws WorkflowImplException {
 
+        List<WorkflowImplServiceListener> workflowListenerList =
+                WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPreAddBPSProfile(bpsProfileDTO, tenantId);
+
+        }
         bpsProfileDAO.addProfile(bpsProfileDTO, tenantId);
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPostAddBPSProfile(bpsProfileDTO, tenantId);
+        }
+
     }
 
     @Override
     public List<BPSProfile> listBPSProfiles(int tenantId) throws WorkflowImplException {
 
-        return bpsProfileDAO.listBPSProfiles(tenantId);
+        List<WorkflowImplServiceListener> workflowListenerList =
+                WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPreListBPSProfiles(tenantId);
+        }
+        List<BPSProfile> bpsProfiles = bpsProfileDAO.listBPSProfiles(tenantId);
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPostListBPSProfiles(tenantId, bpsProfiles);
+        }
+
+        return bpsProfiles;
     }
 
     @Override
     public void removeBPSProfile(String profileName) throws WorkflowImplException {
 
+        List<WorkflowImplServiceListener> workflowListenerList =
+                WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPreRemoveBPSProfile(profileName);
+        }
         bpsProfileDAO.removeBPSProfile(profileName);
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPostRemoveBPSProfile(profileName);
+        }
+
     }
 
 
     @Override
     public BPSProfile getBPSProfile(String profileName, int tenantId) throws WorkflowImplException {
 
-        return bpsProfileDAO.getBPSProfile(profileName, tenantId, true);
+        List<WorkflowImplServiceListener> workflowListenerList =
+                WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPreGetBPSProfile(profileName, tenantId);
+        }
+        BPSProfile bpsProfile = bpsProfileDAO.getBPSProfile(profileName, tenantId, true);
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPostGetBPSProfile(profileName, tenantId, bpsProfile);
+        }
+        return bpsProfile;
     }
 
     @Override
     public void updateBPSProfile(BPSProfile bpsProfileDTO, int tenantId) throws WorkflowImplException {
+
+        List<WorkflowImplServiceListener> workflowListenerList =
+                WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPreUpdateBPSProfile(bpsProfileDTO, tenantId);
+        }
         BPSProfile currentBpsProfile = bpsProfileDAO.getBPSProfile(bpsProfileDTO.getProfileName(), tenantId, true);
         if (bpsProfileDTO.getPassword() == null || bpsProfileDTO.getPassword().isEmpty()) {
             bpsProfileDTO.setPassword(currentBpsProfile.getPassword());
         }
         bpsProfileDAO.updateProfile(bpsProfileDTO, tenantId);
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPostUpdateBPSProfile(bpsProfileDTO, tenantId);
+        }
+
+
     }
 
     @Override
     public void deleteHumanTask(WorkflowRequest workflowRequest) throws WorkflowImplException {
         BPSProfileDAO bpsProfileDAO = new BPSProfileDAO();
+        List<WorkflowImplServiceListener> workflowListenerList =
+                WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
 
         try {
+            for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+                workflowListener.doPreDeleteHumanTask(workflowRequest);
+            }
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             List<BPSProfile> bpsProfiles = bpsProfileDAO.listBPSProfiles(tenantId);
             HumanTaskClientAPIAdminStub stub = null;
@@ -174,6 +229,10 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                 RemoteException | IllegalStateFault | IllegalArgumentFault e) {
             throw new WorkflowImplException("Error while deleting the human tasks of the request.");
         }
+
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPostDeleteHumanTask(workflowRequest);
+        }
     }
 
     /**
@@ -187,6 +246,11 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
     @Override
     public void removeBPSPackage(Workflow workflow) throws WorkflowImplException {
 
+        List<WorkflowImplServiceListener> workflowListenerList =
+                WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPreRemoveBPSPackage(workflow);
+        }
         WorkflowImplService workflowImplService = WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
         WorkflowManagementService workflowManagementService = WorkflowImplServiceDataHolder.getInstance().
                 getWorkflowManagementService();
@@ -290,6 +354,11 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             throw new WorkflowImplException("Error while deleting the BPS Artifacts of the Workflow "
                     + workflow.getWorkflowName(), e);
         }
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPostRemoveBPSPackage(workflow);
+        }
+
+
     }
 
     /*
@@ -306,8 +375,8 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
     private void checkMatchingTaskAndDelete(String requestId, HumanTaskClientAPIAdminStub stub,
                                             TTaskSimpleQueryResultRow[] resultsList, int resultIndex, OMElementImpl
                                                     taskElement) throws RemoteException, IllegalStateFault,
-                                                                        IllegalOperationFault, IllegalArgumentFault,
-                                                                        IllegalAccessFault {
+            IllegalOperationFault, IllegalArgumentFault,
+            IllegalAccessFault {
         if (taskElement.getLocalName().equals(WFImplConstant.HT_PARAMETER_LIST_ELEMENT)) {
             Iterator<OMElementImpl> parameters = taskElement.getChildElements();
             while (parameters.hasNext()) {
@@ -316,8 +385,8 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                 while (attributes.hasNext()) {
                     OMAttribute currentAttribute = attributes.next();
                     if (currentAttribute.getLocalName().equals(WFImplConstant.HT_ITEM_NAME_ATTRIBUTE) &&
-                        currentAttribute
-                                .getAttributeValue().equals(WFImplConstant.HT_REQUEST_ID_ATTRIBUTE_VALUE)) {
+                            currentAttribute
+                                    .getAttributeValue().equals(WFImplConstant.HT_REQUEST_ID_ATTRIBUTE_VALUE)) {
                         Iterator<OMElementImpl> itemValues = parameter.getChildElements();
                         if (itemValues.hasNext()) {
                             String taskRequestId = itemValues.next().getText();

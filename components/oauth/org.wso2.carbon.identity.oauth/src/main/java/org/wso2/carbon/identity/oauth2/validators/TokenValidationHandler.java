@@ -463,9 +463,8 @@ public class TokenValidationHandler {
 	AccessTokenDO accessTokenDO = null;
 	// check the cache, if caching is enabled.
 	if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-	    OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance()
-		    .getOAuthCacheTimeout());
-	    CacheKey cacheKey = new OAuthCacheKey(tokenIdentifier);
+	    OAuthCache oauthCache = OAuthCache.getInstance();
+        OAuthCacheKey cacheKey = new OAuthCacheKey(tokenIdentifier);
 	    CacheEntry result = oauthCache.getValueFromCache(cacheKey);
 	    // cache hit, do the type check.
 	    if (result instanceof AccessTokenDO) {
@@ -484,9 +483,8 @@ public class TokenValidationHandler {
 
 	// add the token back to the cache in the case of a cache miss
 	if (OAuthServerConfiguration.getInstance().isCacheEnabled() && !cacheHit) {
-	    OAuthCache oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance()
-		    .getOAuthCacheTimeout());
-	    CacheKey cacheKey = new OAuthCacheKey(tokenIdentifier);
+	    OAuthCache oauthCache = OAuthCache.getInstance();
+        OAuthCacheKey cacheKey = new OAuthCacheKey(tokenIdentifier);
 	    oauthCache.addToCache(cacheKey, accessTokenDO);
 	    if (log.isDebugEnabled()) {
 		log.debug("Access Token Info object was added back to the cache.");

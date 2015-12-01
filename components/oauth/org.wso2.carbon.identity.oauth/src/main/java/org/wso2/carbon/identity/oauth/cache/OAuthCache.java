@@ -20,43 +20,29 @@ package org.wso2.carbon.identity.oauth.cache;
 
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.oauth.listener.OAuthCacheRemoveListener;
+import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.utils.CarbonUtils;
 
-public class OAuthCache extends BaseCache<String, CacheEntry> {
+public class OAuthCache extends BaseCache<OAuthCacheKey, CacheEntry> {
 
     private static final String OAUTH_CACHE_NAME = "OAuthCache";
 
     private static volatile OAuthCache instance;
 
-    private OAuthCache(String cacheName, int timeout) {
-        super(cacheName,timeout);
+    private OAuthCache() {
+        super(OAUTH_CACHE_NAME);
         super.addListener(new OAuthCacheRemoveListener());
     }
 
-    public static OAuthCache getInstance(int timeout) {
+    public static OAuthCache getInstance() {
         CarbonUtils.checkSecurity();
         if (instance == null) {
-            synchronized (SessionDataCache.class) {
+            synchronized (OAuthCache.class) {
                 if (instance == null) {
-                    instance = new OAuthCache(OAUTH_CACHE_NAME, timeout);
+                    instance = new OAuthCache();
                 }
             }
         }
         return instance;
-    }
-
-    public void addToCache(CacheKey key, CacheEntry entry) {
-        String keyValue = ((OAuthCacheKey)key).getCacheKeyString();
-        super.addToCache(keyValue, entry);
-    }
-
-    public CacheEntry getValueFromCache(CacheKey key) {
-        String keyValue = ((OAuthCacheKey)key).getCacheKeyString();
-        return super.getValueFromCache(keyValue);
-    }
-
-    public void clearCacheEntry(CacheKey key) {
-        String keyValue = ((OAuthCacheKey)key).getCacheKeyString();
-        super.clearCacheEntry(keyValue);
     }
 }
