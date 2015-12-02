@@ -38,6 +38,7 @@ import org.wso2.carbon.identity.user.registration.dto.PasswordRegExDTO;
 import org.wso2.carbon.identity.user.registration.dto.TenantRegistrationConfig;
 import org.wso2.carbon.identity.user.registration.dto.UserDTO;
 import org.wso2.carbon.identity.user.registration.dto.UserFieldDTO;
+import org.wso2.carbon.identity.user.registration.util.CarbonEntityResolver;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -49,7 +50,6 @@ import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-import org.wso2.carbon.identity.user.registration.util.CarbonEntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -71,6 +71,7 @@ public class UserRegistrationService {
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+    public static final String EXTERNAL_GENERAL_ENTITIES_URI = "http://xml.org/sax/features/external-general-entities";
 
     /**
      * This service method will return back all available password validation regular expressions
@@ -414,6 +415,7 @@ public class UserRegistrationService {
         documentBuilderFactory.setNamespaceAware(true);
         documentBuilderFactory.setExpandEntityReferences(false);
         documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        documentBuilderFactory.setFeature(EXTERNAL_GENERAL_ENTITIES_URI, false);
         SecurityManager securityManager = new SecurityManager();
         securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
         documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);

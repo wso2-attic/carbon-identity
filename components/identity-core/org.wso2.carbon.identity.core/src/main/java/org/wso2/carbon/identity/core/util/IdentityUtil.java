@@ -236,7 +236,7 @@ public class IdentityUtil {
 
             // random number
             String randomNum = Integer.toString(prng.nextInt());
-            MessageDigest sha = MessageDigest.getInstance("SHA-1");
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
             byte[] digest = sha.digest(randomNum.getBytes());
 
             // Hexadecimal encoding
