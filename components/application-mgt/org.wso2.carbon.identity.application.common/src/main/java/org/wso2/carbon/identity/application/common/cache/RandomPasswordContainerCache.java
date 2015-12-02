@@ -25,15 +25,15 @@ public class RandomPasswordContainerCache extends BaseCache<RandomPasswordContai
 
     private static volatile RandomPasswordContainerCache instance;
 
-    private RandomPasswordContainerCache(String cacheName) {
-        super(cacheName);
+    private RandomPasswordContainerCache() {
+        super(RANDOM_PASSWORD_CACHE_NAME);
     }
 
     public static RandomPasswordContainerCache getInstance() {
         if (instance == null) {
             synchronized (RandomPasswordContainerCache.class) {
                 if (instance == null) {
-                    instance = new RandomPasswordContainerCache(RANDOM_PASSWORD_CACHE_NAME);
+                    instance = new RandomPasswordContainerCache();
                 }
             }
         }
