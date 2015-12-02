@@ -440,6 +440,8 @@ public class FrameworkUtils {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals(FrameworkConstants.COMMONAUTH_COOKIE)) {
                     cookie.setMaxAge(0);
+                    cookie.setHttpOnly(true);
+                    cookie.setSecure(true);
                     resp.addCookie(cookie);
                     break;
                 }
