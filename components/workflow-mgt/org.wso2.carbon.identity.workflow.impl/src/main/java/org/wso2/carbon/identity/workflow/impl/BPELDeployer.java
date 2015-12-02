@@ -411,8 +411,8 @@ public class BPELDeployer implements TemplateInitializer {
         private static final String TEMPLATE_RESOURCE_LOCATION = "templates";
         private static final String BPEL_RESOURCE_LOCATION = "bpel";
         private static final String HT_RESOURCE_LOCATION = "humantask";
-        private static final String APPROVAL_SERVICE_RESOURCE_LOCATION = "SimpleApprovalService";
-        private static final String APPROVAL_HT_RESOURCE_LOCATION = "SimpleApprovalTask";
+        private static final String APPROVAL_SERVICE_RESOURCE_LOCATION = "MultiStepApprovalService";
+        private static final String APPROVAL_HT_RESOURCE_LOCATION = "MultiStepApprovalTask";
         private static final String APPROVAL_JSP_LOCATION = "web";
         private static final String SERVICE_TXT = "Service";
 
