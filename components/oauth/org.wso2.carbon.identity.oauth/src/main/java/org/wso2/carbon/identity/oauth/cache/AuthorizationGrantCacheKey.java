@@ -46,4 +46,5 @@ public class AuthorizationGrantCacheKey extends CacheKey {
     public int hashCode() {
         return userAttributesId.hashCode();
     }
+
 }

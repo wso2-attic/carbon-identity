@@ -43,6 +43,7 @@ import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
+import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -421,9 +422,9 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
 
         String authorizationCode = (String) request.getProperty(AUTHORIZATION_CODE);
         AuthorizationGrantCacheKey authorizationGrantCacheKey = new AuthorizationGrantCacheKey(authorizationCode);
-
-        AuthorizationGrantCacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance().
-                getValueFromCache(authorizationGrantCacheKey);
+        AuthorizationGrantCacheEntry authorizationGrantCacheEntry =
+                (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance().
+                        getValueFromCacheByCode(authorizationGrantCacheKey);
         return authorizationGrantCacheEntry;
     }
 

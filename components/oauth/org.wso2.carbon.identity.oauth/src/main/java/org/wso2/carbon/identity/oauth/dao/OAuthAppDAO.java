@@ -67,17 +67,19 @@ public class OAuthAppDAO {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
-        if (!isDuplicateApplication(consumerAppDO.getUserName(), consumerAppDO.getTenantId(), consumerAppDO)) {
+        if (!isDuplicateApplication(consumerAppDO.getUserName(), consumerAppDO.getTenantId(), consumerAppDO.getUserDomain(),
+                consumerAppDO)) {
             try {
                 prepStmt = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.ADD_OAUTH_APP);
                 prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerAppDO.getOauthConsumerKey()));
                 prepStmt.setString(2, persistenceProcessor.getProcessedClientSecret(consumerAppDO.getOauthConsumerSecret()));
                 prepStmt.setString(3, consumerAppDO.getUserName());
                 prepStmt.setInt(4, consumerAppDO.getTenantId());
-                prepStmt.setString(5, consumerAppDO.getApplicationName());
-                prepStmt.setString(6, consumerAppDO.getOauthVersion());
-                prepStmt.setString(7, consumerAppDO.getCallbackUrl());
-                prepStmt.setString(8, consumerAppDO.getGrantTypes());
+                prepStmt.setString(5, consumerAppDO.getUserDomain());
+                prepStmt.setString(6, consumerAppDO.getApplicationName());
+                prepStmt.setString(7, consumerAppDO.getOauthVersion());
+                prepStmt.setString(8, consumerAppDO.getCallbackUrl());
+                prepStmt.setString(9, consumerAppDO.getGrantTypes());
                 prepStmt.execute();
                 connection.commit();
 
@@ -96,7 +98,7 @@ public class OAuthAppDAO {
         }
     }
 
-    public String[] addOAuthConsumer(String username, int tenantId) throws IdentityOAuthAdminException {
+    public String[] addOAuthConsumer(String username, int tenantId, String userDomain) throws IdentityOAuthAdminException {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String sqlStmt = null;
@@ -115,8 +117,9 @@ public class OAuthAppDAO {
             prepStmt.setString(2, consumerSecret);
             prepStmt.setString(3, username);
             prepStmt.setInt(4, tenantId);
+            prepStmt.setString(5, userDomain);
             // it is assumed that the OAuth version is 1.0a because this is required with OAuth 1.0a
-            prepStmt.setString(5, OAuthConstants.OAuthVersions.VERSION_1A);
+            prepStmt.setString(6, OAuthConstants.OAuthVersions.VERSION_1A);
             prepStmt.execute();
 
             connection.commit();
@@ -219,8 +222,9 @@ public class OAuthAppDAO {
                     oauthApp.setOauthVersion(rSet.getString(4));
                     oauthApp.setCallbackUrl(rSet.getString(5));
                     oauthApp.setTenantId(rSet.getInt(6));
-                    oauthApp.setGrantTypes(rSet.getString(7));
-                    oauthApp.setId(rSet.getInt(8));
+                    oauthApp.setUserDomain(rSet.getString(7));
+                    oauthApp.setGrantTypes(rSet.getString(8));
+                    oauthApp.setId(rSet.getInt(9));
                     oauthApps.add(oauthApp);
                 }
             }
@@ -271,11 +275,12 @@ public class OAuthAppDAO {
                 if (rSet.getString(4) != null && rSet.getString(4).length() > 0) {
                     oauthApp.setOauthConsumerSecret(persistenceProcessor.getPreprocessedClientSecret(rSet.getString(1)));
                     oauthApp.setUserName(rSet.getString(2));
-                    oauthApp.setOauthConsumerKey(persistenceProcessor.getPreprocessedClientSecret(rSet.getString(3)));
-                    oauthApp.setOauthVersion(rSet.getString(4));
-                    oauthApp.setCallbackUrl(rSet.getString(5));
-                    oauthApp.setGrantTypes(rSet.getString(6));
-                    oauthApp.setId(rSet.getInt(7));
+                    oauthApp.setUserDomain(rSet.getString(3));
+                    oauthApp.setOauthConsumerKey(persistenceProcessor.getPreprocessedClientId(rSet.getString(4)));
+                    oauthApp.setOauthVersion(rSet.getString(5));
+                    oauthApp.setCallbackUrl(rSet.getString(6));
+                    oauthApp.setGrantTypes(rSet.getString(7));
+                    oauthApp.setId(rSet.getInt(8));
                     oauthApps.add(oauthApp);
                 }
             }
@@ -346,13 +351,14 @@ public class OAuthAppDAO {
         }
     }
 
-    private boolean isDuplicateApplication(String username, int tenantId, OAuthAppDO consumerAppDTO) throws IdentityOAuthAdminException {
+    private boolean isDuplicateApplication(String username, int tenantId, String userDomain, OAuthAppDO consumerAppDTO)
+            throws IdentityOAuthAdminException {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rSet = null;
 
         boolean isDuplicateApp = false;
-        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(username);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(username, tenantId);
 
         try {
             String sql = SQLQueries.OAuthAppDAOSQLQueries.CHECK_EXISTING_APPLICATION;
@@ -366,7 +372,8 @@ public class OAuthAppDAO {
                 prepStmt.setString(1, username.toLowerCase());
             }
             prepStmt.setInt(2, tenantId);
-            prepStmt.setString(3, consumerAppDTO.getApplicationName());
+            prepStmt.setString(3, userDomain);
+            prepStmt.setString(4, consumerAppDTO.getApplicationName());
 
             rSet = prepStmt.executeQuery();
             if (rSet.next()) {
