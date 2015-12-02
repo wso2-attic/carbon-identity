@@ -164,32 +164,31 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
 
 
-            for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-                workflowListener.doPreDeleteHumanTask(workflowRequest);
-            }
-            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-            List<BPSProfile> bpsProfiles = bpsProfileDAO.listBPSProfiles(tenantId);
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPreDeleteHumanTask(workflowRequest);
+        }
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        List<BPSProfile> bpsProfiles = bpsProfileDAO.listBPSProfiles(tenantId);
         HumanTaskClientAPIAdminClient client = null;
-            TSimpleQueryInput input = new TSimpleQueryInput();
-            TStatus reservedState = new TStatus();
-            reservedState.setTStatus(WFImplConstant.HT_STATE_RESERVED);
-            input.addStatus(reservedState);
-            TStatus readyState = new TStatus();
-            readyState.setTStatus(WFImplConstant.HT_STATE_READY);
-            input.addStatus(readyState);
-            input.setPageSize(100000);
-            input.setPageNumber(0);
-            input.setSimpleQueryCategory(TSimpleQueryCategory.ALL_TASKS);
-            for (int i = 0; i < bpsProfiles.size(); i++) {
-                try {
+        TSimpleQueryInput input = new TSimpleQueryInput();
+        TStatus reservedState = new TStatus();
+        reservedState.setTStatus(WFImplConstant.HT_STATE_RESERVED);
+        input.addStatus(reservedState);
+        TStatus readyState = new TStatus();
+        readyState.setTStatus(WFImplConstant.HT_STATE_READY);
+        input.addStatus(readyState);
+        input.setPageSize(100000);
+        input.setPageNumber(0);
+        input.setSimpleQueryCategory(TSimpleQueryCategory.ALL_TASKS);
+        for (int i = 0; i < bpsProfiles.size(); i++) {
+            try {
                 String host = bpsProfiles.get(i).getWorkerHostURL();
-                String servicesUrl = host + WFImplConstant.HT_SERVICES_URL;
 
                 if (bpsProfiles.get(i).getProfileName().equals(WFImplConstant.DEFAULT_BPS_PROFILE_NAME)) {
 
-                    client = new HumanTaskClientAPIAdminClient(servicesUrl, bpsProfiles.get(i).getUsername());
+                    client = new HumanTaskClientAPIAdminClient(host, bpsProfiles.get(i).getUsername());
                 } else {
-                    client = new HumanTaskClientAPIAdminClient(servicesUrl, bpsProfiles.get(i).getUsername(),
+                    client = new HumanTaskClientAPIAdminClient(host, bpsProfiles.get(i).getUsername(),
                             bpsProfiles.get(i).getPassword());
                 }
                 TTaskSimpleQueryResultSet results = client.simpleQuery(input);
@@ -218,13 +217,13 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                     }
                 }
 
-        }catch(IllegalArgumentFault | RemoteException | IllegalStateFault e){
+            } catch (IllegalArgumentFault | RemoteException | IllegalStateFault e) {
                 //If exception throws at one iteration of loop, which is testing 1 BPS profile, it will continue with
                 // other profiles without terminating.
                 log.info("Failed to delete human task associated for this request in BPS profile : " + bpsProfiles.get
                         (i).getProfileName());
             }
-            }
+        }
 
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
             workflowListener.doPostDeleteHumanTask(workflowRequest);
@@ -277,24 +276,22 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                 log.debug("Removing BPS Artifacts of " + bpsProfileName + " " + "for Tenant ID : " + tenantId);
             }
 
-            BPELPackageManagementServiceClient bpsPackageClient = null;
-            ProcessManagementServiceClient bpsProcessClient = null;
+            BPELPackageManagementServiceClient bpsPackageClient;
+            ProcessManagementServiceClient bpsProcessClient;
 
             //Authorizing BPS Package Management & BPS Process Management Stubs.
             String host = bpsProfile.getManagerHostURL();
-            String bpsPackageServicesUrl = host + WFImplConstant.BPS_PACKAGE_SERVICES_URL;
-            String bpsProcessServicesUrl = host + WFImplConstant.BPS_PROCESS_SERVICES_URL;
             if (bpsProfileName.equals(WFImplConstant.DEFAULT_BPS_PROFILE_NAME)) {
                 //If emebeded_bps, use mutual ssl authentication
-                bpsPackageClient = new BPELPackageManagementServiceClient(bpsPackageServicesUrl, bpsProfile
+                bpsPackageClient = new BPELPackageManagementServiceClient(host, bpsProfile
                         .getUsername());
-                bpsProcessClient = new ProcessManagementServiceClient(bpsPackageServicesUrl, bpsProfile
+                bpsProcessClient = new ProcessManagementServiceClient(host, bpsProfile
                         .getUsername());
             } else {
                 //For external BPS profiles, use password authentication
-                bpsPackageClient = new BPELPackageManagementServiceClient(bpsPackageServicesUrl, bpsProfile
+                bpsPackageClient = new BPELPackageManagementServiceClient(host, bpsProfile
                         .getUsername(), bpsProfile.getPassword());
-                bpsProcessClient = new ProcessManagementServiceClient(bpsPackageServicesUrl, bpsProfile
+                bpsProcessClient = new ProcessManagementServiceClient(host, bpsProfile
                         .getUsername(), bpsProfile.getPassword());
             }
 
