@@ -30,6 +30,7 @@ import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementServiceImpl;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationIdentityProviderMgtListener;
+import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtAuditLogger;
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtValidationListener;
 import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
@@ -82,6 +83,8 @@ public class ApplicationManagementServiceComponent {
             bundleContext.registerService(IdentityProviderMgtListener.class.getName(), new ApplicationIdentityProviderMgtListener(), null);
             bundleContext.registerService(ApplicationMgtListener.class.getName(), new ApplicationMgtValidationListener(), null);
             ApplicationMgtSystemConfig.getInstance();
+            bundleContext.registerService(ApplicationMgtListener.class.getName(), new ApplicationMgtAuditLogger(),
+                    null);
             buildFileBasedSPList();
 
             if (log.isDebugEnabled()) {

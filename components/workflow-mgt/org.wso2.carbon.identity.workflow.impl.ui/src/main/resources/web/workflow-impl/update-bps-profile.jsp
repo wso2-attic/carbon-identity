@@ -105,7 +105,8 @@
                     <tbody>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.name'/></td>
-                        <td><input readonly type="text" name="<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>" value="<%=bpsProfile.getProfileName()%>"/></td>
+                        <td><input readonly type="text" name="<%=WorkflowUIConstants.PARAM_BPS_PROFILE_NAME%>"
+                                   value="<%=bpsProfile.getProfileName()%>"  style="width:30%" class="text-box-big"/></td>
                     </tr>
                     </tbody>
                 </table>
@@ -118,20 +119,32 @@
                     <tbody>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.manager.host'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_MANAGER_HOST%>" value="<%=bpsProfile.getManagerHostURL()%>"/></td>
-                    </tr>
+                        <td>
+                            <input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_MANAGER_HOST%>" value="<%=bpsProfile.getManagerHostURL()%>"
+                                   style="width:30%" class="text-box-big"/>
+                            <div class="sectionHelp">
+                                <fmt:message key='help.desc.manager'/>
+                            </div>
+                        </td></tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.worker.host'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_WORKER_HOST%>" value="<%=bpsProfile.getWorkerHostURL()%>"/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_WORKER_HOST%>" value="<%=bpsProfile.getWorkerHostURL()%>"
+                                   style="width:30%" class="text-box-big"/>
+                            <div class="sectionHelp">
+                                <fmt:message key='help.desc.worker'/>
+                            </div>
+                        </td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.auth.user'/></td>
-                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>" value="<%=bpsProfile.getUsername()%>"/></td>
+                        <td><input type="text" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_USER%>" value="<%=bpsProfile.getUsername()%>"
+                                   style="width:30%" class="text-box-big"/></td>
                     </tr>
                     <tr>
                         <td width="30%"><fmt:message key='workflow.bps.profile.auth.password'/></td>
                         <td>
-                            <input disabled type="password" id="id_<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>" placeholder="**********" autocomplete="off"/>
+                            <input disabled type="password" id="id_<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>" name="<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>" placeholder="**********" autocomplete="off"
+                                   style="width:30%" class="text-box-big"/>
                             <input onclick="editBPSAuthPassword();" type="checkbox" id="chkbox_<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>" />
                             <label class="control-label" for="chkbox_<%=WorkflowUIConstants.PARAM_BPS_AUTH_PASSWORD%>">Edit Password</label>
                         </td>

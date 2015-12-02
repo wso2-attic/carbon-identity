@@ -23,7 +23,6 @@ import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
 import org.wso2.carbon.identity.workflow.mgt.bean.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.listener.AbstractWorkflowListener;
-import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
 
 
 public class WorkflowListenerImpl extends AbstractWorkflowListener {

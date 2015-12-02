@@ -28,6 +28,11 @@ public class WFConstant {
     public static final String HT_STATE_SKIPPED = "SKIPPED";
     public static final String HT_STATE_PENDING = "PENDING";
 
+    public static final String KEYSTORE_SYSTEM_PROPERTY_ID = "javax.net.ssl.keyStore";
+    public static final String KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID = "javax.net.ssl.keyStorePassword";
+    public static final String KEYSTORE_CARBON_CONFIG_PATH = "Security.KeyStore.Location";
+    public static final String KEYSTORE_PASSWORD_CARBON_CONFIG_PATH = "Security.KeyStore.Password";
+
 
     public static final Set<Class> NUMERIC_CLASSES;
 

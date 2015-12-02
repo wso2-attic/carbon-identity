@@ -92,6 +92,13 @@ public class WorkflowRequestBuilder {
     private Map<String, Map<String, Object>> mapTypeParams;
     private List<Parameter> parameterList;
 
+    /**
+     * Create OM Element with workflow object
+     *
+     * @param workFlowRequest Request to be converted to OM Element
+     * @return
+     * @throws WorkflowException
+     */
     public static OMElement buildXMLRequest(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
@@ -122,6 +129,14 @@ public class WorkflowRequestBuilder {
         return requestBuilder.buildRequest();
     }
 
+    /**
+     * Create OM Element with workflow object
+     *
+     * @param workFlowRequest Request to be converted to OM Element
+     * @param parameterList   Workflow parameter list
+     * @return
+     * @throws WorkflowException
+     */
     public static OMElement buildXMLRequest(WorkflowRequest workFlowRequest, List<Parameter> parameterList)
             throws WorkflowException {
 
@@ -144,7 +159,8 @@ public class WorkflowRequestBuilder {
                         requestBuilder.addListTypeParam(parameter.getName(), (List<Object>) parameter.getValue());
                         break;
                     case WorkflowDataType.STRING_STRING_MAP_TYPE:
-                        requestBuilder.addMapTypeParam(parameter.getName(), (Map<String, Object>) parameter.getValue());
+                        requestBuilder.addMapTypeParam(parameter.getName(), (Map<String, Object>) parameter.getValue
+                                ());
                         break;
                     //ignoring the other types
                 }

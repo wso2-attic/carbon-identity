@@ -28,11 +28,9 @@ import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.template.TemplateConstant;
 import org.wso2.carbon.identity.workflow.template.MultiStepApprovalTemplate;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 /**
  * @scr.component name="org.wso2.carbon.identity.workflow.template" immediate="true"

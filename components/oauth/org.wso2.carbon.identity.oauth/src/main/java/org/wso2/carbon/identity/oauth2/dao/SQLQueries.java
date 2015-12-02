@@ -272,6 +272,10 @@ public class SQLQueries {
             ".SCOPE=IDN_OAUTH2_AUTHORIZATION_CODE.SCOPE JOIN IDN_OAUTH_CONSUMER_APPS ON IDN_OAUTH2_AUTHORIZATION_CODE" +
             ".CONSUMER_KEY_ID = ID WHERE STATE='ACTIVE'";
 
+
+    public static final String RETRIEVE_ROLES_OF_SCOPE = "SELECT IOS.ROLES FROM IDN_OAUTH2_SCOPE IOS WHERE SCOPE_KEY" +
+                                                        " = ?";
+
     private SQLQueries() {
 
     }
