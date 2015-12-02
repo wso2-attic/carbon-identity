@@ -139,7 +139,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             log.debug("Query string : " + queryString);
         }
         // if an openid authentication or password authentication
-        String authMode = req.getParameter("authMode");
+        String authMode = req.getParameter(SAMLSSOConstants.AUTH_MODE);
         if (!SAMLSSOConstants.AuthnModes.OPENID.equals(authMode)) {
             authMode = SAMLSSOConstants.AuthnModes.USERNAME_PASSWORD;
         }
