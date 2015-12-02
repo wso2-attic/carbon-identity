@@ -74,8 +74,8 @@ public class EmailConfigTransformer {
             String footer = emailTemplateContent[2];
 
             if (log.isDebugEnabled()) {
-                log.debug("Template info - name:" + key + "locale: " +
-                        emailTemplateLanguage + "subject: " + subject +
+                log.debug("Template info - name: " + key + " locale: " +
+                        emailTemplateLanguage + " subject: " + subject +
                         " body: " + body + " footer: " + footer + " displayName:" + emailTemplateDisplayType);
             }
 
