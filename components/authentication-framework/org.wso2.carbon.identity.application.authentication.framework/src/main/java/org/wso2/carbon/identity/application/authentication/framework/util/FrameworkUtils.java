@@ -423,7 +423,7 @@ public class FrameworkUtils {
             throws IOException {
         // TODO read the URL from framework config file rather than carbon.xml
         response.sendRedirect(IdentityUtil.getServerURL(ConfigurationFacade.getInstance()
-                .getAuthenticationEndpointRetryURL(), false));
+                .getAuthenticationEndpointRetryURL(), false, false));
     }
 
     /**

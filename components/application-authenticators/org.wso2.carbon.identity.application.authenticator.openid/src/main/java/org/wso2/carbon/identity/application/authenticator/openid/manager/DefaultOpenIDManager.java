@@ -79,7 +79,7 @@ public class DefaultOpenIDManager implements OpenIDManager {
             request.getSession().setAttribute("openid-disc", discovered);
 
 
-            String realm = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+            String realm = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true, true);
             String returnToURL = realm + "?sessionDataKey=" + context.getContextIdentifier();
 
             AuthRequest authReq = consumerManager.authenticate(discovered, returnToURL);
@@ -133,8 +133,8 @@ public class DefaultOpenIDManager implements OpenIDManager {
             // Previously discovered information
             DiscoveryInformation discovered = (DiscoveryInformation) request.getSession().getAttribute("openid-disc");
 
-            String returnToURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true) + "?sessionDataKey=" +
-                                 contextIdentifier;
+            String returnToURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true, true) +
+                    "?sessionDataKey=" + contextIdentifier;
 
             // Verify return-to, discoveries, nonce & signature
             // Signature will be verified using the shared secret

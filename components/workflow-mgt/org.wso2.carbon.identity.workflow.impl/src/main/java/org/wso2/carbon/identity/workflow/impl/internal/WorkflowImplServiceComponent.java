@@ -144,7 +144,7 @@ public class WorkflowImplServiceComponent {
                     WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
             BPSProfile currentBpsProfile = workflowImplService.getBPSProfile(WFImplConstant.DEFAULT_BPS_PROFILE_NAME,
                     MultitenantConstants.SUPER_TENANT_ID);
-            String url = IdentityUtil.getServerURL("", true);
+            String url = IdentityUtil.getServerURL("", true, true);
             String userName = WorkflowImplServiceDataHolder.getInstance().getRealmService()
                     .getBootstrapRealmConfiguration().getAdminUserName();
             if (currentBpsProfile == null || !currentBpsProfile.getWorkerHostURL().equals(url) || !currentBpsProfile
