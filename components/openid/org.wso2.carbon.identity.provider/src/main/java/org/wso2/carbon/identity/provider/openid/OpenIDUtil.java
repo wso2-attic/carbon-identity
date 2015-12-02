@@ -216,7 +216,7 @@ public class OpenIDUtil {
         String openIDServerURL = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SERVER_URL);
         // If configuration are not defined,  build URL from server configurations.
         if (StringUtils.isBlank(openIDServerURL)) {
-            openIDServerURL = IdentityUtil.getServerURL(OpenIDServerConstants.OPENID_SERVER, true);
+            openIDServerURL = IdentityUtil.getServerURL(OpenIDServerConstants.OPENID_SERVER, true, true);
         }
         return openIDServerURL;
     }
@@ -226,7 +226,7 @@ public class OpenIDUtil {
         String openIDServerURL = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_LOGIN_PAGE_URL);
         // If configuration are not defined,  build URL from server configurations.
         if (StringUtils.isBlank(openIDServerURL)) {
-            openIDServerURL = IdentityUtil.getServerURL("/authenticationendpoint/openid_login.do", false);
+            openIDServerURL = IdentityUtil.getServerURL("/authenticationendpoint/openid_login.do", false, false);
         }
         return openIDServerURL;
     }
@@ -236,7 +236,7 @@ public class OpenIDUtil {
         String openIDUserPattern = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_USER_PATTERN);
         // If configuration are not defined,  build URL from server configurations.
         if (StringUtils.isBlank(openIDUserPattern)) {
-            openIDUserPattern = IdentityUtil.getServerURL(OpenIDServerConstants.OPENID, true);
+            openIDUserPattern = IdentityUtil.getServerURL(OpenIDServerConstants.OPENID, true, true);
         }
         return openIDUserPattern;
     }

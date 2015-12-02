@@ -294,7 +294,8 @@ public class IdentityUtil {
         return CarbonUtils.getCarbonConfigDirPath() + File.separator + "identity";
     }
 
-    public static String getServerURL(String endpoint, boolean addWebContextRoot) throws IdentityRuntimeException {
+    public static String getServerURL(String endpoint, boolean addProxyContextPath, boolean addWebContextRoot)
+            throws IdentityRuntimeException {
         String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
 
         try {
@@ -317,19 +318,23 @@ public class IdentityUtil {
         if (mgtTransportPort != IdentityCoreConstants.DEFAULT_HTTPS_PORT) {
             serverUrl.append(":").append(mgtTransportPort);
         }
-        // If ProxyContextPath is defined then append it
 
-        String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
-                .PROXY_CONTEXT_PATH);
-        if (StringUtils.isNotBlank(proxyContextPath)) {
-            if (!serverUrl.toString().endsWith("/") && proxyContextPath.trim().charAt(0) != '/') {
-                serverUrl.append("/").append(proxyContextPath.trim());
-            } else if (serverUrl.toString().endsWith("/") && proxyContextPath.trim().charAt(0) == '/') {
-                serverUrl.append(proxyContextPath.trim().substring(1));
-            } else {
-                serverUrl.append(proxyContextPath.trim());
+        // If ProxyContextPath is defined then append it
+        if(addProxyContextPath) {
+            // If ProxyContextPath is defined then append it
+            String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
+                    .PROXY_CONTEXT_PATH);
+            if (StringUtils.isNotBlank(proxyContextPath)) {
+                if (!serverUrl.toString().endsWith("/") && proxyContextPath.trim().charAt(0) != '/') {
+                    serverUrl.append("/").append(proxyContextPath.trim());
+                } else if (serverUrl.toString().endsWith("/") && proxyContextPath.trim().charAt(0) == '/') {
+                    serverUrl.append(proxyContextPath.trim().substring(1));
+                } else {
+                    serverUrl.append(proxyContextPath.trim());
+                }
             }
         }
+
         // If webContextRoot is defined then append it
         if (addWebContextRoot) {
             String webContextRoot = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants
