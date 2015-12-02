@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.idp.mgt.listener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
@@ -43,7 +44,9 @@ public class IDPMgtAuditLogger extends AbstractIdentityProviderMgtListener {
         String displayName = "Undefined";
         String idpName = "Undefined";
         if (identityProvider != null) {
-            displayName = identityProvider.getDisplayName();
+            if(StringUtils.isNotEmpty(identityProvider.getDisplayName())){
+                displayName = identityProvider.getDisplayName();
+            }
             idpName = identityProvider.getIdentityProviderName();
         }
         audit.info(String.format(AUDIT_MESSAGE, getUser(), "add", UserCoreUtil.addTenantDomainToEntry(displayName,
@@ -56,7 +59,7 @@ public class IDPMgtAuditLogger extends AbstractIdentityProviderMgtListener {
     public boolean doPostUpdateIdP(String oldIdPName, IdentityProvider identityProvider, String tenantDomain) throws
             IdentityProviderManagementException {
         String displayName = "Undefined";
-        if (identityProvider != null) {
+        if (identityProvider != null && StringUtils.isNotEmpty(identityProvider.getDisplayName())) {
             displayName = identityProvider.getDisplayName();
         }
         audit.info(String.format(AUDIT_MESSAGE, getUser(), "update", oldIdPName, UserCoreUtil
@@ -66,6 +69,9 @@ public class IDPMgtAuditLogger extends AbstractIdentityProviderMgtListener {
 
     @Override
     public boolean doPostDeleteIdP(String idPName, String tenantDomain) throws IdentityProviderManagementException {
+        if(StringUtils.isEmpty(idPName)){
+            idPName = "Undefined";
+        }
         audit.info(String.format(AUDIT_MESSAGE, getUser(), "delete", UserCoreUtil.addTenantDomainToEntry
                 (idPName, tenantDomain), null, SUCCESS));
         return true;
