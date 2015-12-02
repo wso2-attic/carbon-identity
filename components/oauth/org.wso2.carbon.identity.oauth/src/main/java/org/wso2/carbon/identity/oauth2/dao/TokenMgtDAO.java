@@ -1396,4 +1396,40 @@ public class TokenMgtDAO {
         }
     }
 
+    /**
+     * Get the list of roles associated for a given scope.
+     * @param scopeKey - The Scope Key.
+     * @return - The Set of roles associated with the given scope.
+     * @throws IdentityOAuth2Exception - If an SQL error occurs while retrieving the roles.
+     */
+    public Set<String> getRolesOfScopeByScopeKey(String scopeKey) throws IdentityOAuth2Exception {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Set<String> roles = null;
+
+        try {
+            String sql = SQLQueries.RETRIEVE_ROLES_OF_SCOPE;
+
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, scopeKey);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                String rolesString = rs.getString("ROLES");
+                if(!rolesString.isEmpty()){
+                    roles = new HashSet<>(new ArrayList<>(Arrays.asList(rolesString.replaceAll(" ", "").split(","))));
+                }
+            }
+            connection.commit();
+            return roles;
+        } catch (SQLException e) {
+            String errorMsg = "Error getting roles of scope - " + scopeKey + " : " + e.getMessage();
+            throw new IdentityOAuth2Exception(errorMsg, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, rs, ps);
+        }
+    }
+
 }
