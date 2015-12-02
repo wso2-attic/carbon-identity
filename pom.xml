@@ -83,7 +83,6 @@
         <module>features/directory-server-manager</module>
         <module>features/sts</module>
         <module>features/user-mgt</module>
-        <module>features/user-mgt-workflow</module>
         <module>features/workflow-mgt</module>
         <module>features/agents</module>
     </modules>

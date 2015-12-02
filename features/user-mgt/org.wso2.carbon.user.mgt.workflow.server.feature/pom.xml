@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <!--
   ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
@@ -17,31 +17,30 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
-        <artifactId>user-mgt-workflow-feature</artifactId>
+        <artifactId>user-mgt-feature</artifactId>
         <version>5.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.user.mgt.workflow.ui.feature</artifactId>
+    <artifactId>org.wso2.carbon.user.mgt.workflow.server.feature</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - User Management Workflow UI Feature</name>
+    <name>WSO2 Carbon - User Management Workflow Core Feature</name>
     <url>http://wso2.org</url>
-    <description>This feature contains the core bundles required for Front-end User Management Workflow
+    <description>This feature contains the core bundles required for Back-end User Management Workflow
         functionality
     </description>
 
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.user.mgt.workflow.ui</artifactId>
+            <artifactId>org.wso2.carbon.identity.workflow.mgt</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -56,19 +55,19 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.user.mgt.workflow.ui</id>
+                            <id>org.wso2.carbon.user.mgt.workflow.server</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
-                                    <propertyDef>org.wso2.carbon.p2.category.type:console</propertyDef>
+                                    <propertyDef>org.wso2.carbon.p2.category.type:server</propertyDef>
                                     <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.user.mgt.workflow.ui</bundleDef>
+                                <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.user.mgt.workflow</bundleDef>
                             </bundles>
                             <importFeatures>
-                                <importFeatureDef>org.wso2.carbon.core.ui:${carbon.kernel.version}</importFeatureDef>
+                                <importFeatureDef>org.wso2.carbon.identity.workflow.mgt.server:${carbon.identity.version}</importFeatureDef>
                             </importFeatures>
                         </configuration>
                     </execution>
