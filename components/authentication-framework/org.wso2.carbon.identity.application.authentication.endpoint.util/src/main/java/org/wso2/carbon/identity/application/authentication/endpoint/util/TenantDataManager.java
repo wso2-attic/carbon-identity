@@ -53,6 +53,7 @@ public class TenantDataManager {
 
     private static final Log log = LogFactory.getLog(TenantDataManager.class);
 
+    private static final String SECRET_ALIAS = "secretAlias:";
     private static Properties prop;
     private static String carbonLogin = "";
     private static String serviceURL;
@@ -84,8 +85,12 @@ public class TenantDataManager {
                     inputStream = new FileInputStream(configFile);
 
                     prop.load(inputStream);
-                    // Resolve encrypted properties with secure vault
-                    resolveSecrets(prop);
+
+                    if (isSecuredPropertyAvailable(prop)) {
+                        // Resolve encrypted properties with secure vault
+                        resolveSecrets(prop);
+                    }
+
                 } else {
                     log.info(Constants.TenantConstants.CONFIG_FILE_NAME + " file loaded from authentication endpoint " +
                             "webapp");
@@ -368,5 +373,23 @@ public class TenantDataManager {
             log.warn("Secret Resolver is not present. Will not resolve encryptions in " + Constants.TenantConstants
                     .CONFIG_RELATIVE_PATH + " file");
         }
+    }
+
+    /**
+     * Get status of the availability of secured (with secure vault) properties
+     *
+     * @return availability of secured properties
+     */
+    private static boolean isSecuredPropertyAvailable(Properties properties) {
+
+        Enumeration propertyNames = properties.propertyNames();
+
+        while (propertyNames.hasMoreElements()) {
+            String key = (String) propertyNames.nextElement();
+            if (StringUtils.startsWith(properties.getProperty(key), SECRET_ALIAS)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
