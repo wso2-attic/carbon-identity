@@ -65,7 +65,13 @@ public class KeyStoreAdmin {
     private int tenantId;
     private boolean includeCert = false;
 
+    private static String TRUST_STORE_LOCATION;
+    private static String TRUST_STORE_PASSWORD;
     public KeyStoreAdmin(int tenantId, Registry registry) {
+        ServerConfiguration config = ServerConfiguration.getInstance();
+        TRUST_STORE_LOCATION = config.getFirstProperty("Security.TrustStore.Location");
+        TRUST_STORE_PASSWORD = config.getFirstProperty("Security.TrustStore.Password");
+
         this.registry = registry;
         this.tenantId = tenantId;
     }
@@ -920,18 +926,18 @@ public class KeyStoreAdmin {
 
     }
     private void updateKeyStore(String name, KeyStore keyStore) throws Exception  {
-        ServerConfiguration config = ServerConfiguration.getInstance();
+
         FileOutputStream resource1;
         String outputStream1;
         String path;
         //TODO: Move trust store update functionality to org.wso2.carbon.core.util.KeyStoreManager
         if(isTrustStore(name)) {
-            path = (new File(config.getFirstProperty("Security.TrustStore.Location"))).getAbsolutePath();
+            path = (new File(TRUST_STORE_LOCATION)).getAbsolutePath();
             resource1 = null;
 
             try {
                 resource1 = new FileOutputStream(path);
-                outputStream1 = config.getFirstProperty("Security.TrustStore.Password");
+                outputStream1 = TRUST_STORE_PASSWORD;
                 keyStore.store(resource1, outputStream1.toCharArray());
             } finally {
                 if(resource1 != null) {
