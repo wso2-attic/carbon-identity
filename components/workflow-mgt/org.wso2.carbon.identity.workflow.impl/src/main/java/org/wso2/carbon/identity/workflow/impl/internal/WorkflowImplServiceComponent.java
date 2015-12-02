@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplAuditLogger;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplServiceListener;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplTenantMgtListener;
+import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplValidationListener;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowListenerImpl;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -90,6 +91,8 @@ public class WorkflowImplServiceComponent {
                     RequestExecutor.class, metaDataXML), null);
             bundleContext.registerService(WorkflowListener.class, new WorkflowListenerImpl(), null);
             bundleContext.registerService(WorkflowImplServiceListener.class, new WorkflowImplAuditLogger(), null);
+            bundleContext.registerService(WorkflowImplServiceListener.class, new WorkflowImplValidationListener(),
+                    null);
             WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
 
             WorkflowImplTenantMgtListener workflowTenantMgtListener = new WorkflowImplTenantMgtListener();
