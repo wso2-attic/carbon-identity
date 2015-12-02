@@ -219,8 +219,8 @@ public class BPSProfileDAO {
                     byte[] decryptedPasswordBytes = cryptoUtil.base64DecodeAndDecrypt(password);
                     decryptPassword = new String(decryptedPasswordBytes, "UTF-8");
                 } catch (CryptoException | UnsupportedEncodingException e) {
-                    throw new WorkflowImplException("Error while decrypting the password for BPEL Profile" + " " +
-                                                    name, e);
+                    throw new WorkflowImplException("Error while decrypting the password for BPEL Profile " +
+                            name, e);
                 }
                 BPSProfile profileBean = new BPSProfile();
                 profileBean.setManagerHostURL(managerHostName);

@@ -189,10 +189,10 @@ public class PassiveSTS extends HttpServlet {
         String pageWithReplyActionResult = pageWithReplyAction.replace("$result",
                 Encode.forHtml(String.valueOf(respToken.getResults())));
         String pageWithReplyActionResultContext;
-        if(respToken.getContext() !=null) {
+        if (respToken.getContext() != null) {
             pageWithReplyActionResultContext = pageWithReplyActionResult.replace(
                     "<!--$additionalParams-->", "<!--$additionalParams-->" + "<input type='hidden' name='wctx' value='"
-                            + Encode.forHtmlAttribute(respToken.getContext())+ "'>");
+                            + Encode.forHtmlAttribute(respToken.getContext()) + "'>");
         } else {
             pageWithReplyActionResultContext = pageWithReplyActionResult;
         }
