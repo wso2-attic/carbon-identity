@@ -102,9 +102,9 @@ public class IdentityApplicationConstants {
             public static final String IDP_ENTITY_ID = "IdPEntityId";
             public static final String SP_ENTITY_ID = "SPEntityId";
             public static final String SSO_URL = "SSOUrl";
-            public static final String IS_AUTHN_REQ_SIGNED = "ISAuthnReqSigned";
+            public static final String IS_AUTHN_REQ_SIGNED = "IsAuthnReqSigned";
             public static final String IS_ENABLE_ASSERTION_ENCRYPTION = "IsAssertionEncrypted";
-            public static final String IS_ENABLE_ASSERTION_SIGNING = "isAssertionSigned";
+            public static final String IS_ENABLE_ASSERTION_SIGNING = "IsAssertionSigned";
             public static final String IS_LOGOUT_ENABLED = "IsLogoutEnabled";
             public static final String LOGOUT_REQ_URL = "LogoutReqUrl";
             public static final String IS_LOGOUT_REQ_SIGNED = "IsLogoutReqSigned";

@@ -27,6 +27,8 @@ public class Claim implements Serializable {
 
     private static final long serialVersionUID = 7311770592520078910L;
 
+    public static final String CLAIM_URI = "ClaimURI";
+
     private String claimUri;
     private int claimId;
 
@@ -47,7 +49,7 @@ public class Claim implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if ("ClaimUri".equals(elementName)) {
+            if (CLAIM_URI.equals(elementName)) {
                 claim.setClaimUri(element.getText());
             }
 

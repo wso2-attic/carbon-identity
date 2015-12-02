@@ -38,6 +38,24 @@ public class IdentityProvider implements Serializable {
 
     private static final Log log = LogFactory.getLog(IdentityProvider.class);
 
+    private static final String IDP_NAME = "IdentityProviderName";
+    private static final String IDP_DESCRIPTION = "IdentityProviderDescription";
+    private static final String ALIAS = "IdentityProviderDescription";
+    private static final String IS_PRIMARY = "IsPrimary";
+    private static final String IS_ENABLED = "IsEnabled";
+    private static final String IS_FEDERATION_HUB = "IsFederationHub";
+    private static final String HOME_REALM_ID = "HomeRealmId";
+    private static final String PROVISIONING_ROLE = "ProvisioningRole";
+    private static final String FEDERATED_AUTHENTICATOR_CONFIGS = "FederatedAuthenticatorConfigs";
+    private static final String DEFAULT_AUTHENTICATOR_CONFIG = "DefaultAuthenticatorConfig";
+    private static final String PROVISIONING_CONNECTOR_CONFIGS = "ProvisioningConnectorConfigs";
+    private static final String DEFAULT_PROVISIONING_CONNECTOR_CONFIG = "DefaultProvisioningConnectorConfig";
+    private static final String CLAIM_CONFIG = "ClaimConfig";
+    private static final String CERTIFICATE = "Certificate";
+    private static final String PERMISSION_AND_ROLE_CONFIG = "PermissionAndRoleConfig";
+    private static final String JIT_PROVISIONING_CONFIG = "JustInTimeProvisioningConfig";
+    private static final String DISPLAY_NAME = "DisplayName";
+
     private String identityProviderName;
     private String identityProviderDescription;
     private String alias;
@@ -66,35 +84,37 @@ public class IdentityProvider implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("IdentityProviderName")) {
+            if (elementName.equals(IDP_NAME)) {
                 if (element.getText() != null) {
                     identityProvider.setIdentityProviderName(element.getText());
                 } else {
-                    log.error("Identity provider not loaded from the file system. Identity provider name must be " +
-                            "not null.");
+                    log.error("Identity provider not loaded from the file system. Identity provider name must not be " +
+                            "null.");
                     return null;
                 }
-            } else if ("IdentityProviderDescription".equals(elementName)) {
+            } else if (IDP_DESCRIPTION.equals(elementName)) {
                 identityProvider.setIdentityProviderDescription(element.getText());
-            } else if ("Alias".equals(elementName)) {
+            } else if (DISPLAY_NAME.equals(elementName)) {
+                identityProvider.setDisplayName(element.getText());
+            } else if (ALIAS.equals(elementName)) {
                 identityProvider.setAlias(element.getText());
-            } else if ("IsPrimary".equals(elementName)) {
+            } else if (IS_PRIMARY.equals(elementName)) {
                 if (element.getText() != null && element.getText().trim().length() > 0) {
                     identityProvider.setPrimary(Boolean.parseBoolean(element.getText()));
                 }
-            } else if ("IsEnabled".equals(elementName)) {
+            } else if (IS_ENABLED.equals(elementName)) {
                 if (element.getText() != null && element.getText().trim().length() > 0) {
                     identityProvider.setEnable((Boolean.parseBoolean(element.getText())));
                 }
-            } else if ("IsFederationHub".equals(elementName)) {
+            } else if (IS_FEDERATION_HUB.equals(elementName)) {
                 if (element.getText() != null && element.getText().trim().length() > 0) {
                     identityProvider.setFederationHub(Boolean.parseBoolean(element.getText()));
                 }
-            } else if ("HomeRealmId".equals(elementName)) {
+            } else if (HOME_REALM_ID.equals(elementName)) {
                 identityProvider.setHomeRealmId(element.getText());
-            } else if ("ProvisioningRole".equals(elementName)) {
+            } else if (PROVISIONING_ROLE.equals(elementName)) {
                 identityProvider.setProvisioningRole(element.getText());
-            } else if ("FederatedAuthenticatorConfigs".equals(elementName)) {
+            } else if (FEDERATED_AUTHENTICATOR_CONFIGS.equals(elementName)) {
 
                 Iterator<?> federatedAuthenticatorConfigsIter = element.getChildElements();
 
@@ -123,10 +143,10 @@ public class IdentityProvider implements Serializable {
                     identityProvider
                             .setFederatedAuthenticatorConfigs(federatedAuthenticatorConfigsArr);
                 }
-            } else if ("DefaultAuthenticatorConfig".equals(elementName)) {
+            } else if (DEFAULT_AUTHENTICATOR_CONFIG.equals(elementName)) {
                 identityProvider.setDefaultAuthenticatorConfig(FederatedAuthenticatorConfig
                         .build(element.getFirstElement()));
-            } else if ("ProvisioningConnectorConfigs".equals(elementName)) {
+            } else if (PROVISIONING_CONNECTOR_CONFIGS.equals(elementName)) {
 
                 Iterator<?> provisioningConnectorConfigsIter = element.getChildElements();
 
@@ -161,7 +181,7 @@ public class IdentityProvider implements Serializable {
                     identityProvider
                             .setProvisioningConnectorConfigs(provisioningConnectorConfigsArr);
                 }
-            } else if ("DefaultProvisioningConnectorConfig".equals(elementName)) {
+            } else if (DEFAULT_PROVISIONING_CONNECTOR_CONFIG.equals(elementName)) {
                 try {
                     identityProvider.setDefaultProvisioningConnectorConfig(ProvisioningConnectorConfig
                             .build(element));
@@ -170,14 +190,13 @@ public class IdentityProvider implements Serializable {
                             .getIdentityProviderName() + ". Cause : " + e.getMessage() + ". Building rest of the " +
                             "IDP configs");
                 }
-            } else if ("ClaimConfig".equals(elementName)) {
+            } else if (CLAIM_CONFIG.equals(elementName)) {
                 identityProvider.setClaimConfig(ClaimConfig.build(element));
-            } else if ("Certificate".equals(elementName)) {
+            } else if (CERTIFICATE.equals(elementName)) {
                 identityProvider.setCertificate(element.getText());
-            } else if ("PermissionAndRoleConfig".equals(elementName)) {
-                identityProvider
-                        .setPermissionAndRoleConfig(PermissionsAndRoleConfig.build(element));
-            } else if ("JustInTimeProvisioningConfig".equals(elementName)) {
+            } else if (PERMISSION_AND_ROLE_CONFIG.equals(elementName)) {
+                identityProvider.setPermissionAndRoleConfig(PermissionsAndRoleConfig.build(element));
+            } else if (JIT_PROVISIONING_CONFIG.equals(elementName)) {
                 identityProvider.setJustInTimeProvisioningConfig(JustInTimeProvisioningConfig
                         .build(element));
             }

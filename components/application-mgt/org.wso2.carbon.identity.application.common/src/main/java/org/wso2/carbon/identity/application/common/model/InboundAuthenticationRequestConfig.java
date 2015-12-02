@@ -33,6 +33,11 @@ public class InboundAuthenticationRequestConfig implements Serializable {
 
     private static final long serialVersionUID = -62766721187073002L;
 
+    private static final String INBOUND_AUTH_KEY = "InboundAuthKey";
+    private static final String INBOUND_AUTH_TYPE = "InboundAuthType";
+    private static final String FRIENDLY_NAME = "FriendlyName";
+    private static final String PROPERTIES = "Properties";
+
     private String inboundAuthKey;
     private String inboundAuthType;
     private String friendlyName;
@@ -58,13 +63,13 @@ public class InboundAuthenticationRequestConfig implements Serializable {
         while (members.hasNext()) {
             OMElement member = (OMElement) members.next();
 
-            if ("InboundAuthKey".equalsIgnoreCase(member.getLocalName())) {
+            if (INBOUND_AUTH_KEY.equalsIgnoreCase(member.getLocalName())) {
                 inboundAuthenticationRequestConfig.setInboundAuthKey(member.getText());
-            } else if ("InboundAuthType".equalsIgnoreCase(member.getLocalName())) {
+            } else if (INBOUND_AUTH_TYPE.equalsIgnoreCase(member.getLocalName())) {
                 inboundAuthenticationRequestConfig.setInboundAuthType(member.getText());
-            } else if ("friendlyName".equalsIgnoreCase(member.getLocalName())) {
+            } else if (FRIENDLY_NAME.equalsIgnoreCase(member.getLocalName())) {
                 inboundAuthenticationRequestConfig.setFriendlyName(member.getText());
-            } else if ("Properties".equalsIgnoreCase(member.getLocalName())) {
+            } else if (PROPERTIES.equalsIgnoreCase(member.getLocalName())) {
                 Iterator<?> propertiesIter = member.getChildElements();
                 List<Property> propertiesArrList = new ArrayList<Property>();
 
