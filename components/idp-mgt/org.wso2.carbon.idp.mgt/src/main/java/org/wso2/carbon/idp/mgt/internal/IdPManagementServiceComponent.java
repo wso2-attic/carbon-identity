@@ -35,6 +35,7 @@ import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
 import org.wso2.carbon.idp.mgt.dao.IdPManagementDAO;
+import org.wso2.carbon.idp.mgt.listener.IDPMgtAuditLogger;
 import org.wso2.carbon.idp.mgt.listener.IdPMgtValidationListener;
 import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
@@ -145,6 +146,14 @@ public class IdPManagementServiceComponent {
                 log.error("Identity Provider Management - UserOperationEventListener could not be registered");
             }
 
+            ServiceRegistration auditLoggerSR = bundleCtx.registerService(IdentityProviderMgtListener.class.getName()
+                    , new IDPMgtAuditLogger(), null);
+
+            if(auditLoggerSR != null) {
+                log.debug("Identity Provider Management - Audit Logger registered");
+            } else {
+                log.error("Identity Provider Management - Error while registering Audit Logger");
+            }
             setIdentityProviderMgtListenerService(new IdPMgtValidationListener());
 
             CacheBackedIdPMgtDAO dao = new CacheBackedIdPMgtDAO(new IdPManagementDAO());
