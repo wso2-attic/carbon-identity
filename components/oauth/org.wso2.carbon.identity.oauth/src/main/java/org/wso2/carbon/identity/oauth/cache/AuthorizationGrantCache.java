@@ -31,22 +31,22 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
     private static final String AUTHORIZATION_GRANT_CACHE_NAME = "AuthorizationGrantCache";
 
     private static volatile AuthorizationGrantCache instance;
-    private boolean enableRequestScopeCache = false;
+    private boolean isTemporarySessionDataPersistEnabled = false;
 
-    private AuthorizationGrantCache(String cacheName, int timeout) {
-        super(cacheName, timeout);
+    private AuthorizationGrantCache() {
+        super(AUTHORIZATION_GRANT_CACHE_NAME);
         if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
-            enableRequestScopeCache = Boolean.
+            isTemporarySessionDataPersistEnabled = Boolean.
                     parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
         }
     }
 
-    public static AuthorizationGrantCache getInstance(int timeout) {
+    public static AuthorizationGrantCache getInstance() {
         CarbonUtils.checkSecurity();
         if (instance == null) {
-            synchronized (SessionDataCache.class) {
+            synchronized (AuthorizationGrantCache.class) {
                 if (instance == null) {
-                    instance = new AuthorizationGrantCache(AUTHORIZATION_GRANT_CACHE_NAME, timeout);
+                    instance = new AuthorizationGrantCache();
                 }
             }
         }
@@ -54,30 +54,26 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
     }
 
     public void addToCache(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
-        String keyValue = key.getUserAttributesId();
         super.addToCache(key, entry);
-        SessionDataStore.getInstance().storeSessionData(keyValue, AUTHORIZATION_GRANT_CACHE_NAME, entry);
-        if (enableRequestScopeCache) {
-            SessionDataStore.getInstance().storeSessionData(keyValue, AUTHORIZATION_GRANT_CACHE_NAME, entry);
+        if (isTemporarySessionDataPersistEnabled) {
+            SessionDataStore.getInstance().storeSessionData(key.getUserAttributesId(),
+                    AUTHORIZATION_GRANT_CACHE_NAME, entry);
         }
     }
 
     public AuthorizationGrantCacheEntry getValueFromCache(AuthorizationGrantCacheKey key) {
-        String keyValue = key.getUserAttributesId();
         AuthorizationGrantCacheEntry cacheEntry = super.getValueFromCache(key);
-        if (cacheEntry == null) {
-            cacheEntry = (AuthorizationGrantCacheEntry) SessionDataStore.getInstance().getSessionData(keyValue,
-                    AUTHORIZATION_GRANT_CACHE_NAME);
+        if (cacheEntry == null && isTemporarySessionDataPersistEnabled) {
+            cacheEntry = (AuthorizationGrantCacheEntry) SessionDataStore.getInstance().
+                    getSessionData(key.getUserAttributesId(), AUTHORIZATION_GRANT_CACHE_NAME);
         }
         return cacheEntry;
     }
 
     public void clearCacheEntry(AuthorizationGrantCacheKey key) {
-        String keyValue = key.getUserAttributesId();
         super.clearCacheEntry(key);
-        SessionDataStore.getInstance().clearSessionData(keyValue, AUTHORIZATION_GRANT_CACHE_NAME);
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().clearSessionData(keyValue,AUTHORIZATION_GRANT_CACHE_NAME);
+        if(isTemporarySessionDataPersistEnabled){
+            SessionDataStore.getInstance().clearSessionData(key.getUserAttributesId(), AUTHORIZATION_GRANT_CACHE_NAME);
         }
     }
 }

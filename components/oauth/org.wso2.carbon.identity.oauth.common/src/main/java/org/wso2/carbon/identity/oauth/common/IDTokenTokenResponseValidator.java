@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.oauth.common;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.oltu.oauth2.as.validator.TokenValidator;
+import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
 
@@ -36,5 +37,18 @@ public class IDTokenTokenResponseValidator extends TokenValidator {
             throw OAuthProblemException.error(OAuthError.TokenResponse.INVALID_REQUEST)
                     .description("\'response_type\' contains \'id_token\'; but \'nonce\' parameter not found");
         }
+    }
+
+    @Override
+    public void validateMethod(HttpServletRequest request) throws OAuthProblemException {
+        String method = request.getMethod();
+        if (!OAuth.HttpMethod.GET.equals(method) && !OAuth.HttpMethod.POST.equals(method)) {
+            throw OAuthProblemException.error(OAuthError.CodeResponse.INVALID_REQUEST)
+                                       .description("Method not correct.");
+        }
+    }
+
+    @Override
+    public void validateContentType(HttpServletRequest request) throws OAuthProblemException {
     }
 }

@@ -207,7 +207,7 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
 
         try {
             if (log.isDebugEnabled()) {
-                log.debug("Decrypting the password of user " + " " + userName);
+                log.debug("Decrypting the password of user " + userName);
             }
             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
             byte[] decryptedBytes = cryptoUtil.base64DecodeAndDecrypt(credential.toString());
@@ -215,7 +215,7 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
             credential = decryptedCredentials;
 
         } catch (CryptoException | UnsupportedEncodingException e) {
-            throw new WorkflowException("Error while decrypting the Credential for user" + " " + userName, e);
+            throw new WorkflowException("Error while decrypting the Credential for user " + userName, e);
         }
 
         List<String> roleList = ((List<String>) requestParams.get(ROLE_LIST));

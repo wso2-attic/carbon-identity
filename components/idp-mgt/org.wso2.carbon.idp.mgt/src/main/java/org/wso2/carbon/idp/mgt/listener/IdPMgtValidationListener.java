@@ -66,15 +66,10 @@ public class IdPMgtValidationListener extends AbstractIdentityProviderMgtListene
     public boolean doPreAddIdP(IdentityProvider identityProvider, String tenantDomain) throws
             IdentityProviderManagementException {
 
-
         if (identityProvider == null) {
             throw new IllegalArgumentException("Identity provider cannot be null when adding an IdP");
         } else if (StringUtils.isEmpty(identityProvider.getIdentityProviderName())) {
             throw new IllegalArgumentException("Invalid argument: Identity Provider Name value is empty");
-        } else if (identityProvider.getIdentityProviderName() != null &&
-                identityProvider.getIdentityProviderName().startsWith(IdPManagementConstants.SHARED_IDP_PREFIX)) {
-            throw new IdentityProviderManagementException("Identity provider name cannot have " +
-                    IdPManagementConstants.SHARED_IDP_PREFIX + " as prefix.");
         }
         return true;
     }

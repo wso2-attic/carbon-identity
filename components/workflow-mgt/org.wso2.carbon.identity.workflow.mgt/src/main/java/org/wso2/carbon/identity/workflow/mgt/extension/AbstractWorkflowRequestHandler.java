@@ -52,17 +52,23 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
 
         AbstractWorkflowRequestHandler.workFlowCompleted.remove();
     }
-
     public static Boolean getWorkFlowCompleted() {
 
         return workFlowCompleted.get();
     }
-
     public static void setWorkFlowCompleted(Boolean workFlowCompleted) {
 
         AbstractWorkflowRequestHandler.workFlowCompleted.set(workFlowCompleted);
     }
 
+    /**
+     * Start a new workflow.
+     *
+     * @param wfParams    Parameters related to workflow
+     * @param nonWfParams Other parameters
+     * @return
+     * @throws WorkflowException
+     */
     public WorkflowExecutorResult startWorkFlow(Map<String, Object> wfParams, Map<String, Object> nonWfParams)
             throws WorkflowException {
 
@@ -72,9 +78,9 @@ public abstract class AbstractWorkflowRequestHandler implements WorkflowRequestH
     /**
      * Start a new workflow.
      *
-     * @param wfParams
-     * @param nonWfParams
-     * @param uuid
+     * @param wfParams    Parameters related to workflow
+     * @param nonWfParams Other parameters
+     * @param uuid        Unique ID of request
      * @return
      * @throws WorkflowException
      */

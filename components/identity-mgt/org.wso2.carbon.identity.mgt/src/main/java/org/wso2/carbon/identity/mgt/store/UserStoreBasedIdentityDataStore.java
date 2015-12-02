@@ -180,9 +180,10 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
         String domainName= store.getRealmConfiguration().getUserStoreProperty(
                 UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
-        Cache<String, UserIdentityClaimsDO> cache = getCache();
-        if (cache != null) {
-            cache.put(domainName+tenantId + userName, userIdentityDTO);
+        try {
+            super.store(userIdentityDTO, userStoreManager);
+        } catch (IdentityException e) {
+            log.error("Error while reading user identity data", e);
         }
         return userIdentityDTO;
     }

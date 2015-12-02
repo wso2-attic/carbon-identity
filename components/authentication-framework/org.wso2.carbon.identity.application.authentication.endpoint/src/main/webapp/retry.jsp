@@ -15,47 +15,112 @@
   ~ specific language governing permissions and limitations
   ~ under the License.
   --%>
+
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page import="org.owasp.encoder.Encode" %>
 
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
 
-<%
-    String stat = request.getParameter("status");
-    String statusMessage = request.getParameter("statusMsg");
-    if (stat == null || statusMessage == null) {
-        stat = "Authentication Error !";
-        statusMessage = "Something went wrong during the authentication process. Please try signing in again.";
-    }
-    session.invalidate();
-%>
-<style>
-    .info-box {
-        background-color: #EEF3F6;
-        border: 1px solid #ABA7A7;
-        font-size: 13px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        padding: 10px;
-    }
-</style>
+    <%
+        String stat = request.getParameter("status");
+        String statusMessage = request.getParameter("statusMsg");
+        if (stat == null || statusMessage == null) {
+            stat = "Authentication Error !";
+            statusMessage = "Something went wrong during the authentication process. Please try signing in again.";
+        }
+        session.invalidate();
+    %>
 
-<div id="middle">
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WSO2 Identity Server</title>
 
-    <div id="workArea">
-        <div class="info-box">
-            <%=Encode.forHtml(stat)%>
+        <link rel="icon" href="images/favicon.png" type="image/x-icon"/>
+        <link href="libs/bootstrap_3.3.5/css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/Roboto.css" rel="stylesheet">
+        <link href="css/custom-common.css" rel="stylesheet">
+
+
+        <!--[if lt IE 9]>
+        <script src="js/html5shiv.min.js"></script>
+        <script src="js/respond.min.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+    <!-- header -->
+    <header class="header header-default">
+        <div class="container-fluid"><br></div>
+        <div class="container-fluid">
+            <div class="pull-left brand float-remove-xs text-center-xs">
+                <a href="#">
+                    <img src="images/logo-inverse.svg" alt="wso2" title="wso2" class="logo">
+
+                    <h1><em>Identity Server</em></h1>
+                </a>
+            </div>
         </div>
-        <table class="styledLeft">
-            <tbody>
-            <tr>
-                <td><%=Encode.forHtmlContent(statusMessage)%>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    </header>
+
+    <!-- page content -->
+    <div class="row">
+        <div class="col-md-12">
+            <!-- content -->
+            <div class="container col-xs-7 col-sm-5 col-md-4 col-lg-3 col-centered wr-content wr-login col-centered">
+                <div>
+                    <h2 class="wr-title uppercase blue-bg padding-double white boarder-bottom-blue margin-none"><%=Encode.forHtmlContent(stat)%> </h2>
+                </div>
+
+                <div class="boarder-all col-lg-12 padding-top-double padding-bottom-double error-alert  ">
+                    <div class="font-medium"><strong>Attention:</strong> </div>
+                    <div class="padding-bottom-double">
+                        <%=Encode.forHtmlContent(statusMessage)%>
+                    </div>
+                </div>
+            </div>
+            <!-- /content -->
+
+        </div>
     </div>
-</div>
+
+    <!-- footer -->
+    <footer class="footer">
+        <div class="container-fluid">
+            <p>WSO2 Identity Server | &copy;
+                <script>document.write(new Date().getFullYear());</script>
+                <a href="http://wso2.com/" target="_blank"><i class="icon fw fw-wso2"></i> Inc</a>. All Rights Reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script src="libs/jquery_1.11.3/jquery-1.11.3.js"></script>
+    <script src="libs/bootstrap_3.3.5/js/bootstrap.min.js"></script>
+
+    <script>
 
 
+        $('#popover').popover({
+            html: true,
+            title: function () {
+                return $("#popover-head").html();
+            },
+            content: function () {
+                return $("#popover-content").html();
+            }
+        });
 
+    </script>
+
+    <script type="text/javascript" src="js/u2f-api.js"></script>
+
+    </body>
+    </html>
+
+
+</fmt:bundle>
 

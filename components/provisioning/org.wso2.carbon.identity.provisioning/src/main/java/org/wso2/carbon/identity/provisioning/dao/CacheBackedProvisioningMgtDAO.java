@@ -92,7 +92,7 @@ public class CacheBackedProvisioningMgtDAO {
 
         ProvisioningEntityCacheKey cacheKey = new ProvisioningEntityCacheKey(identityProviderName, connectorType,
                 provisioningEntity, tenantDomain);
-        ProvisioningEntityCacheEntry entry = (ProvisioningEntityCacheEntry) provisioningEntityCache.getValueFromCache(cacheKey);
+        ProvisioningEntityCacheEntry entry = provisioningEntityCache.getValueFromCache(cacheKey);
 
         if (entry != null) {
             if (log.isDebugEnabled()) {
@@ -161,7 +161,7 @@ public class CacheBackedProvisioningMgtDAO {
 
         ProvisioningEntityCacheKey cacheKey = new ProvisioningEntityCacheKey(identityProviderName, connectorType,
                 provisioningEntity, tenantDomain);
-        ProvisioningEntityCacheEntry entry = (ProvisioningEntityCacheEntry) provisioningEntityCache.getValueFromCache(cacheKey);
+        ProvisioningEntityCacheEntry entry = provisioningEntityCache.getValueFromCache(cacheKey);
         if (entry != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Cache entry found for Provisioning Entity : " +

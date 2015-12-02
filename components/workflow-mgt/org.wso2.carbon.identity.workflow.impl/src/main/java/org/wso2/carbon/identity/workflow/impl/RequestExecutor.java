@@ -40,10 +40,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.workflow.WorkFlowExecutor;
-import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,9 +133,9 @@ public class RequestExecutor implements WorkFlowExecutor {
 
         String endpoint;
         if (tenantDomain != null && !tenantDomain.equals(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME)) {
-            endpoint = host + "/services/t/" + tenantDomain + "/" + serviceName + WFConstant.TemplateConstants.SERVICE_SUFFIX;
+            endpoint = host + "/t/" + tenantDomain + "/" + serviceName + WFConstant.TemplateConstants.SERVICE_SUFFIX;
         } else {
-            endpoint = host + "/services/" + serviceName + WFConstant.TemplateConstants.SERVICE_SUFFIX;
+            endpoint = host + "/" + serviceName + WFConstant.TemplateConstants.SERVICE_SUFFIX;
         }
 
         options.setTo(new EndpointReference(endpoint));
@@ -148,7 +145,7 @@ public class RequestExecutor implements WorkFlowExecutor {
 
         HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
         auth.setUsername(bpsProfile.getUsername());
-        auth.setPassword(bpsProfile.getPassword());
+        auth.setPassword(String.valueOf(bpsProfile.getPassword()));
         auth.setPreemptiveAuthentication(true);
         List<String> authSchemes = new ArrayList<>();
         authSchemes.add(HttpTransportProperties.Authenticator.BASIC);

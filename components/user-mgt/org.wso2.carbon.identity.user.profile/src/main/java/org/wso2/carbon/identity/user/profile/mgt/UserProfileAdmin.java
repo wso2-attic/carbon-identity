@@ -127,9 +127,7 @@ public class UserProfileAdmin extends AbstractAdmin {
             UserStoreManager admin = realm.getUserStoreManager();
 
             // User store manager expects tenant aware username
-            admin.setUserClaimValues(MultitenantUtils.getTenantAwareUsername(username),
-                    map,
-                    profile.getProfileName());
+            admin.setUserClaimValues(username, map, profile.getProfileName());
 
         } catch (UserStoreException e) {
             // Not logging. Already logged.
@@ -155,8 +153,6 @@ public class UserProfileAdmin extends AbstractAdmin {
             ClaimManager claimManager = realm.getClaimManager();
             String[] claims = claimManager.getAllClaimUris();
 
-            // User store manager expects tenant aware username
-            username = MultitenantUtils.getTenantAwareUsername(username);
             UserStoreManager admin = realm.getUserStoreManager();
             admin.deleteUserClaimValues(username, claims, profileName);
             admin.deleteUserClaimValue(username, UserCoreConstants.PROFILE_CONFIGURATION,
@@ -211,8 +207,6 @@ public class UserProfileAdmin extends AbstractAdmin {
                 availableProfileConfigurations = getAvailableProfileConfiguration(profileAdmin);
             }
 
-            // User store manager expects tenant aware username
-            username = MultitenantUtils.getTenantAwareUsername(username);
             String[] profileNames = null;
 
             if (secUserStoreManager != null) {
@@ -383,8 +377,6 @@ public class UserProfileAdmin extends AbstractAdmin {
             ProfileConfigurationManager profileAdmin = realm
                     .getProfileConfigurationManager();
 
-            // User store manager expects tenant aware username
-            username = MultitenantUtils.getTenantAwareUsername(username);
             String[] profileNames = null;
 
             if (secUserStoreManager != null) {

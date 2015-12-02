@@ -39,6 +39,7 @@ import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.extension.WorkflowRequestHandler;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
+import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowExecutorManagerListener;
 import org.wso2.carbon.identity.workflow.mgt.util.ExecutorResultState;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestBuilder;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
@@ -64,9 +65,24 @@ public class WorkFlowExecutorManager {
         return instance;
     }
 
+    /**
+     * Called when initiate a request that can be engaged with a workflow. Here it determine if operation has engaged
+     * with a workflow or not. If workflows engaged this will deploy communicate with relevant workflow engine and
+     * return false which will stop continuation of operation. Otherwise this will return true.
+     *
+     * @param workFlowRequest Workflow request object with request attributes.
+     * @return
+     * @throws WorkflowException
+     */
     public WorkflowExecutorResult executeWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException {
 
         WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
+        List<WorkflowExecutorManagerListener> workflowListenerList =
+                WorkflowServiceDataHolder.getInstance().getExecutorListenerList();
+        for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
+            workflowListener.doPreExecuteWorkflow(workFlowRequest);
+        }
+
         if (StringUtils.isBlank(workFlowRequest.getUuid())) {
             workFlowRequest.setUuid(UUID.randomUUID().toString());
         }
@@ -122,7 +138,11 @@ public class WorkFlowExecutorManager {
             //handleCallback(workFlowRequest, WorkflowRequestStatus.SKIPPED.toString(), null, "");
             return new WorkflowExecutorResult(ExecutorResultState.CONDITION_FAILED);
         }
-        return new WorkflowExecutorResult(ExecutorResultState.STARTED_ASSOCIATION);
+        WorkflowExecutorResult finalResult = new WorkflowExecutorResult(ExecutorResultState.STARTED_ASSOCIATION);
+        for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
+            workflowListener.doPostExecuteWorkflow(workFlowRequest, finalResult);
+        }
+        return finalResult;
     }
 
     private void handleCallback(WorkflowRequest request, String status, Map<String, Object> additionalParams, String
@@ -187,14 +207,34 @@ public class WorkFlowExecutorManager {
         return true;
     }
 
+    /**
+     * Called when callback received for a pending operation.
+     *
+     * @param uuid             Unique ID of request
+     * @param status           Status of approval/disapproval
+     * @param additionalParams Additional parameters required to execute operation.
+     * @throws WorkflowException
+     */
     public void handleCallback(String uuid, String status, Map<String, Object> additionalParams)
             throws WorkflowException {
+
+        List<WorkflowExecutorManagerListener> workflowListenerList =
+                WorkflowServiceDataHolder.getInstance().getExecutorListenerList();
+        for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
+            workflowListener.doPreHandleCallback(uuid, status, additionalParams);
+        }
 
         WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
         String requestId = workflowRequestAssociationDAO.getRequestIdOfRelationship(uuid);
         WorkflowRequestDAO requestDAO = new WorkflowRequestDAO();
         WorkflowRequest request = requestDAO.retrieveWorkflow(requestId);
         handleCallback(request, status, additionalParams, uuid);
+
+        for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
+            workflowListener.doPostHandleCallback(uuid, status, additionalParams);
+        }
+
+
     }
 
     /**

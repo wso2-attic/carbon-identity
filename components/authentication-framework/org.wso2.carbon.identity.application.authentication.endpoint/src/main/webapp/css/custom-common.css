@@ -120,3 +120,38 @@ button.font-extra-large {
 img.idp-image {
     padding: 3px 2px;
 }
+
+
+.padding-left {padding-left:10px;}
+.padding-right {padding-right:10px;}
+.padding-top {padding-top:10px;}
+.padding-bottom {padding-bottom:10px;}
+.padding{padding:10px;}
+.padding-none{ padding:0px !important;}
+
+.padding-left-double {padding-left:20px;}
+.padding-right-double {padding-right:20px;}
+.padding-top-double {padding-top:20px;}
+.padding-bottom-double {padding-bottom:20px;}
+.padding-double{padding:20px;}
+
+.margin-left {margin-left:10px;}
+.margin-right {margin-right:10px;}
+.margin-top {margin-top:10px;}
+.margin-bottom {margin-bottom:10px;}
+.margin{margin:10px;}
+.margin-none{margin: 0px !important;}
+
+.margin-left-double {margin-left:20px;}
+.margin-right-double {margin-right:20px;}
+.margin-top-double {margin-top:20px;}
+.margin-bottom-double {margin-bottom:20px;}
+.margin-double{margin:20px;}
+.font-small{font-size:12px;}
+.font-medium{font-size:16px;}
+.font-large{font-size:1.3em;}
+.font-extra-large{font-size:20px !important;}
+
+.error-alert{
+    background-color: #FFE7E8;
+}

@@ -102,6 +102,13 @@ public class WorkflowRequestBuilder {
         this.initParams = new HashMap<String, Object>();
     }
 
+    /**
+     * Create OM Element from workflow request parameters.
+     *
+     * @param workFlowRequest Workflow parameters
+     * @return
+     * @throws WorkflowRuntimeException
+     */
     public static OMElement buildXMLRequest(WorkflowRequest workFlowRequest) throws WorkflowRuntimeException {
 
         WorkflowRequestBuilder requestBuilder = new WorkflowRequestBuilder(workFlowRequest.getUuid(),
@@ -132,6 +139,14 @@ public class WorkflowRequestBuilder {
         return requestBuilder.buildRequest();
     }
 
+    /**
+     * Create OM Element from workflow request parameters.
+     *
+     * @param workFlowRequest Workflow parameters
+     * @param initParams      Non workflow parameters
+     * @return
+     * @throws WorkflowRuntimeException
+     */
     public static OMElement buildXMLRequest(WorkflowRequest workFlowRequest, Map<String, Object> initParams) throws
                                                                                                              WorkflowRuntimeException {
 

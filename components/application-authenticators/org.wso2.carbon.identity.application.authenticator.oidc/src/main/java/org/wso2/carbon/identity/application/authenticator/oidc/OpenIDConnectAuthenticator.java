@@ -43,6 +43,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authenticator.oidc.internal.OpenIDConnectAuthenticatorServiceComponent;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.api.UserRealm;
@@ -196,7 +197,8 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
                 claims.put(ClaimMapping.build(key, key, null, false), jsonObject.get(key).toString());
 
-                if (log.isDebugEnabled()) {
+                if (log.isDebugEnabled() &&
+                        IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)) {
                     log.debug("Adding claims from end-point data mapping : " + key + " - " +
                             jsonObject.get(key).toString());
                 }
@@ -372,10 +374,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 throw new AuthenticationFailedException("Id token is required and is missing");
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug("Retrieved the Access Token: " + accessToken + " and Id Token: " + idToken);
-            }
-
             context.setProperty(OIDCAuthenticatorConstants.ACCESS_TOKEN, accessToken);
 
             AuthenticatedUser authenticatedUserObj;
@@ -401,7 +399,8 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                     throw new AuthenticationFailedException("Decoded json object is null");
                 }
 
-                if (log.isDebugEnabled()) {
+                if (log.isDebugEnabled() &&
+                        IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_ID_TOKEN)) {
                     log.debug("Retrieved the User Information:" + jsonObject);
                 }
 
@@ -509,7 +508,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
         }
 
         claims.put(ClaimMapping.build(entry.getKey(), entry.getKey(), null, false), claimValue);
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)) {
             log.debug("Adding claim mapping : " + entry.getKey() + " <> " + entry.getKey() + " : " + claimValue);
         }
 
@@ -622,7 +621,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             throws IOException {
 
         if (log.isDebugEnabled()) {
-            log.debug("Claim URL: " + url + " & Access-Token : " + accessToken);
+            log.debug("Claim URL: " + url);
         }
 
         if (url == null) {
@@ -647,7 +646,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
         reader.close();
 
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_ID_TOKEN)) {
             log.debug("response: " + builder.toString());
         }
 

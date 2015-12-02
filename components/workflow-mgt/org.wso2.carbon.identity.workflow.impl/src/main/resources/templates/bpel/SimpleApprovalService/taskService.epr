@@ -17,5 +17,5 @@
   -->
 
 <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
-    <wsa:Address>${bpsURL}/services/${tenantContext}${htServiceName}Service</wsa:Address>
+    <wsa:Address>${bpsURL}/${tenantContext}${htServiceName}Service</wsa:Address>
 </wsa:EndpointReference>
