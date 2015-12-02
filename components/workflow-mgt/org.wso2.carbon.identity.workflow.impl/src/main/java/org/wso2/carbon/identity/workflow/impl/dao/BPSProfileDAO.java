@@ -162,8 +162,8 @@ public class BPSProfileDAO {
                         decryptedPassword = decryptPassword(password);
 
                     } catch (CryptoException | UnsupportedEncodingException e) {
-                        throw new WorkflowImplException("Error while decrypting the password for BPEL Profile"
-                                + " " + profileName, e);
+                        throw new WorkflowImplException("Error while decrypting the password for BPEL Profile "
+                                + profileName, e);
                     }
                     bpsProfileDTO.setPassword(decryptedPassword.toCharArray());
                 }
