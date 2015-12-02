@@ -26,12 +26,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
-import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.user.registration.dto.PasswordRegExDTO;
@@ -47,7 +47,6 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.wso2.carbon.identity.user.registration.util.CarbonEntityResolver;
@@ -117,6 +116,7 @@ public class UserRegistrationService {
 
     public UserFieldDTO[] readUserFieldsForUserRegistration(String dialect)
             throws IdentityException {
+
         IdentityClaimManager claimManager = null;
         Claim[] claims = null;
         List<UserFieldDTO> claimList = null;
@@ -141,7 +141,8 @@ public class UserRegistrationService {
                 if (!claim.isReadOnly()) {
                     claimList.add(getUserFieldDTO(claim.getClaimUri(),
                             claim.getDisplayTag(), claim.isRequired(),
-                            claim.getDisplayOrder(), claim.getRegEx()));
+                            claim.getDisplayOrder(), claim.getRegEx(),
+                            claim.isSupportedByDefault()));
                 }
             }
         }
@@ -193,14 +194,32 @@ public class UserRegistrationService {
         return false;
     }
 
+    /**
+     * Check whether the user exist.
+     * @param username Username of the user.
+     * @return True if exist.
+     * @throws Exception
+     */
+    public boolean isUserExist(String username) throws Exception {
+
+        try {
+            return CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+                    getUserStoreManager().isExistingUser(username);
+        } catch (UserStoreException e) {
+            throw new Exception("User registration exception", e);
+        }
+    }
+
     private UserFieldDTO getUserFieldDTO(String claimUri, String displayName, boolean isRequired,
-                                         int displayOrder, String regex) {
+                                         int displayOrder, String regex, boolean isSupportedByDefault) {
+
         UserFieldDTO fieldDTO = null;
         fieldDTO = new UserFieldDTO();
         fieldDTO.setClaimUri(claimUri);
         fieldDTO.setFieldName(displayName);
         fieldDTO.setRequired(isRequired);
         fieldDTO.setDisplayOrder(displayOrder);
+        fieldDTO.setSupportedByDefault(isSupportedByDefault);
         fieldDTO.setRegEx(regex);
         return fieldDTO;
     }

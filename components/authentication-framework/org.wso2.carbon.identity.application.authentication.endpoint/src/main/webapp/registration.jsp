@@ -1,4 +1,4 @@
-<!--
+<% /**
 * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 * WSO2 Inc. licenses this file to you under the Apache License,
@@ -14,47 +14,50 @@
 * KIND, either express or implied. See the License for the
 * specific language governing permissions and limitations
 * under the License.
--->
+*/ %>
 <%@ page
         import="org.wso2.carbon.identity.application.authentication.endpoint.util.UserRegistrationAdminServiceClient" %>
-<%@ page import="java.util.Map" %>
-<%@ page import="java.util.HashMap" %>
 <%@ page import="org.owasp.encoder.Encode" %>
-<%@ page import="org.wso2.carbon.context.CarbonContext" %>
+<%@ page import="org.wso2.carbon.identity.user.registration.stub.dto.UserFieldDTO" %>
+<%@ page import="java.util.List" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
     String forwardTo;
-    int errorCode = 0;
     try {
+
         UserRegistrationAdminServiceClient registrationClient = new UserRegistrationAdminServiceClient();
-        boolean isExistingUser = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
-                getUserStoreManager().isExistingUser(request.getParameter("reg-username"));
-        if (isExistingUser){
-            errorCode = 1;
-            throw new Exception();
+        boolean isExistingUser = registrationClient.isUserExist(request.getParameter("reg_username"));
+
+        if (StringUtils.equals(request.getParameter("is_validation"), "true")) {
+            if (isExistingUser) {
+                out.write("User Exist");
+            } else {
+                out.write("Ok");
+            }
+            return;
         }
-        if (!request.getParameter("reg-password").equals(request.getParameter("reg-password2"))) {
-            errorCode = 2;
-            throw new Exception();
+
+        if (isExistingUser) {
+            throw new Exception("User exist");
         }
-        Map<String, String> registrationParameters = new HashMap<String, String>();
-        registrationParameters.put("reg-username", request.getParameter("reg-username"));
-        registrationParameters.put("reg-first-name", request.getParameter("reg-first-name"));
-        registrationParameters.put("reg-last-name", request.getParameter("reg-last-name"));
-        registrationParameters.put("reg-password", request.getParameter("reg-password"));
-        registrationParameters.put("reg-email", request.getParameter("reg-email"));
-        registrationClient.addUser(registrationParameters);
+
+        List<UserFieldDTO> fields = (List<UserFieldDTO>) session.getAttribute("fields");
+
+        for(UserFieldDTO userFieldDTO : fields) {
+            userFieldDTO.setFieldValue(request.getParameter(userFieldDTO.getFieldName()));
+        }
+
+        String username = request.getParameter("reg_username");
+        char [] password = request.getParameter("reg_password").toCharArray();
+        registrationClient.addUser(username, password, fields);
+
         forwardTo = "../dashboard/index.jag";
 
     } catch (Exception e) {
-        if (errorCode == 0) {
-            errorCode = 3;
-        }
         forwardTo = "create-account.jsp?sessionDataKey=" + request.getParameter("sessionDataKey") +
-                "&failedPrevious=true&errorCode=" + errorCode;
+                "&failedPrevious=true&errorCode=" + e.getMessage();
     }
-
-
 %>
 <script type="text/javascript">
     function forward() {
