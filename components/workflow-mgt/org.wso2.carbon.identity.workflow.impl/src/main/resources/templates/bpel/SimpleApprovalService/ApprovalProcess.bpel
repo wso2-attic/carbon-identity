@@ -85,13 +85,13 @@
               <!-- Variable to hold event type -->
         <bpel:variable name="event" type="xsd:string">
             <bpel:from>
-                <bpel:literal xml:space="preserve">NULL</bpel:literal>
+                <bpel:literal>NULL</bpel:literal>
             </bpel:from>
         </bpel:variable>
         
         <bpel:variable name="paramString" type="xsd:string">
             <bpel:from>
-                <bpel:literal xml:space="preserve"></bpel:literal>
+                <bpel:literal></bpel:literal>
             </bpel:from>
         </bpel:variable>
         
@@ -111,7 +111,8 @@
 		</bpel:variable>
         <bpel:variable name="approvalOutput" messageType="htw:ApprovalResponse">
             <bpel:from>
-                <bpel:literal xml:space="preserve"><tns:ApprovalCBData xmlns:tns="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <bpel:literal><tns:ApprovalCBData xmlns:tns="http://ht.bpel.mgt.workflow.identity.carbon.wso2
+                .org/wsdl/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   				<approvalStatus>approvalStatus</approvalStatus>
   				<params>params</params>
 				</tns:ApprovalCBData>
@@ -135,7 +136,7 @@
         </bpel:variable>
         <bpel:variable name="parameterElement" type="hsch:HTParameter">
             <bpel:from>
-                <bpel:literal xml:space="preserve">
+                <bpel:literal>
                 	<tns:item itemName="name" xmlns:tns="http://ht.bpel.mgt.workflow.identity.carbon.wso2.org/wsdl/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                			<tns:itemValue>val</tns:itemValue>
             		</tns:item>
@@ -221,7 +222,7 @@
             </bpel:copy>
             <bpel:copy>
                 <bpel:from>
-                    <bpel:literal xml:space="preserve"></bpel:literal>
+                    <bpel:literal></bpel:literal>
                 </bpel:from>
                 <bpel:to variable="paramString"></bpel:to>
             </bpel:copy>
