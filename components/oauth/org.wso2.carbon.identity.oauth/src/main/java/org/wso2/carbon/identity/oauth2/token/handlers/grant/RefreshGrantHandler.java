@@ -272,11 +272,11 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
                 cacheKeyString = clientId + ":" + authorizedUser.toLowerCase() + ":" + scope;
             }
 
-            CacheKey oauthCacheKey = new OAuthCacheKey(cacheKeyString);
+            OAuthCacheKey oauthCacheKey = new OAuthCacheKey(cacheKeyString);
             oauthCache.clearCacheEntry(oauthCacheKey);
 
             // Remove the old access token from the AccessTokenCache
-            CacheKey accessTokenCacheKey = new OAuthCacheKey(oldAccessToken.getAccessToken());
+            OAuthCacheKey accessTokenCacheKey = new OAuthCacheKey(oldAccessToken.getAccessToken());
             oauthCache.clearCacheEntry(accessTokenCacheKey);
 
             // Add new access token to the OAuthCache

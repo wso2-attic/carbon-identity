@@ -23,10 +23,14 @@ import org.apache.commons.logging.LogFactory;
 import org.owasp.encoder.Encode;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
+import org.wso2.carbon.identity.application.authentication.framework.CommonAuthenticationHandler;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthRequestWrapper;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthResponseWrapper;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.base.IdentityConstants;
@@ -396,7 +400,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         sessionDTO.setIdPInitSSO(signInRespDTO.isIdPInitSSO());
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        addSessionDataToCache(sessionDataKey, sessionDTO, IdPManagementUtil.getIdleSessionTimeOut(sessionDTO.getTenantDomain()));
+        addSessionDataToCache(sessionDataKey, sessionDTO);
 
         String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
         String selfPath = req.getContextPath();
@@ -427,18 +431,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                 (authenticationRequest);
         FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
-        StringBuilder queryStringBuilder = new StringBuilder();
-        queryStringBuilder.append(commonAuthURL).
-                append("?").
-                append(SAMLSSOConstants.SESSION_DATA_KEY).
-                append("=").
-                append(sessionDataKey).
-                append("&").
-                append(FrameworkConstants.RequestParams.TYPE).
-                append("=").
-                append(FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
         FrameworkUtils.setRequestPathCredentials(req);
-        resp.sendRedirect(queryStringBuilder.toString());
+        forward(req, resp, sessionDataKey, FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
     }
 
     private void sendToFrameworkForLogout(HttpServletRequest request, HttpServletResponse response,
@@ -465,8 +459,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         }
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        addSessionDataToCache(sessionDataKey, sessionDTO, IdPManagementUtil.getIdleSessionTimeOut
-                (CarbonContext.getThreadLocalCarbonContext().getTenantDomain()));
+        addSessionDataToCache(sessionDataKey, sessionDTO);
 
         String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
 
@@ -498,7 +491,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String queryParams = "?" + SAMLSSOConstants.SESSION_DATA_KEY + "=" + sessionDataKey
                              + "&" + "type" + "=" + "samlsso";
 
-        response.sendRedirect(commonAuthURL + queryParams);
+        forward(request, response, sessionDataKey, FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
     }
 
     /**
@@ -809,20 +802,20 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         return acsUrlWithTenantDomain;
     }
 
-    private void addSessionDataToCache(String sessionDataKey, SAMLSSOSessionDTO sessionDTO, int cacheTimeout) {
+    private void addSessionDataToCache(String sessionDataKey, SAMLSSOSessionDTO sessionDTO) {
         SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
         SessionDataCacheEntry cacheEntry = new SessionDataCacheEntry();
         cacheEntry.setSessionDTO(sessionDTO);
-        SessionDataCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+        SessionDataCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
     private SAMLSSOSessionDTO getSessionDataFromCache(String sessionDataKey) {
         SAMLSSOSessionDTO sessionDTO = null;
         SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
-        Object cacheEntryObj = SessionDataCache.getInstance(0).getValueFromCache(cacheKey);
+        SessionDataCacheEntry cacheEntry = SessionDataCache.getInstance().getValueFromCache(cacheKey);
 
-        if (cacheEntryObj != null) {
-            sessionDTO = ((SessionDataCacheEntry) cacheEntryObj).getSessionDTO();
+        if (cacheEntry != null) {
+            sessionDTO = cacheEntry.getSessionDTO();
         }
 
         return sessionDTO;
@@ -831,7 +824,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
     private void removeSessionDataFromCache(String sessionDataKey) {
         if (sessionDataKey != null) {
             SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
-            SessionDataCache.getInstance(0).clearCacheEntry(cacheKey);
+            SessionDataCache.getInstance().clearCacheEntry(cacheKey);
         }
     }
 
@@ -897,5 +890,42 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         }
 
         return queryParamDTOs.toArray(new QueryParamDTO[queryParamDTOs.size()]);
+    }
+
+    /**
+     * This method use to call authentication framework directly via API other than using HTTP redirects.
+     * Sending wrapper request object to doGet method since other original request doesn't exist required parameters
+     * Doesn't check SUCCESS_COMPLETED since taking decision with INCOMPLETE status
+     *
+     * @param request  Http Request
+     * @param response Http Response
+     * @param sessionDataKey Session data key
+     * @param type authenticator type
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void forward(HttpServletRequest request, HttpServletResponse response, String sessionDataKey, String type)
+            throws ServletException, IOException {
+
+        CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
+
+        CommonAuthRequestWrapper requestWrapper = new CommonAuthRequestWrapper(request);
+        requestWrapper.setParameter(FrameworkConstants.SESSION_DATA_KEY, sessionDataKey);
+        requestWrapper.setParameter(FrameworkConstants.RequestParams.TYPE, type);
+
+        CommonAuthResponseWrapper responseWrapper = new CommonAuthResponseWrapper(response);
+        commonAuthenticationHandler.doGet(requestWrapper, responseWrapper);
+
+        Object object = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+        if (object != null) {
+            AuthenticatorFlowStatus status = (AuthenticatorFlowStatus) object;
+            if (status == AuthenticatorFlowStatus.INCOMPLETE) {
+                response.sendRedirect(responseWrapper.getRedirectURL());
+            } else {
+                doGet(requestWrapper, response);
+            }
+        } else {
+            doGet(requestWrapper, response);
+        }
     }
 }

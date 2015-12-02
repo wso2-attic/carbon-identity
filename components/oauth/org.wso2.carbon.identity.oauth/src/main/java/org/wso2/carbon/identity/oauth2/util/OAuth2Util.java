@@ -124,7 +124,7 @@ public class OAuth2Util {
     
     private static Log log = LogFactory.getLog(OAuth2Util.class);
     private static boolean cacheEnabled = OAuthServerConfiguration.getInstance().isCacheEnabled();
-    private static OAuthCache cache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
+    private static OAuthCache cache = OAuthCache.getInstance();
     private static long timestampSkew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
     private static ThreadLocal<Integer> clientTenatId = new ThreadLocal<>();
     private static ThreadLocal<OAuthTokenReqMessageContext> tokenRequestContext = new ThreadLocal<OAuthTokenReqMessageContext>();
@@ -274,8 +274,8 @@ public class OAuth2Util {
         if (cacheEnabled) {
             CacheEntry cacheResult = cache.getValueFromCache(new OAuthCacheKey(clientId));
             if (cacheResult != null && cacheResult instanceof ClientCredentialDO) {
-                // cache hit
-                clientSecret = ((ClientCredentialDO) cacheResult).getClientSecret();
+                ClientCredentialDO clientCredentialDO = (ClientCredentialDO) cacheResult;
+                clientSecret = clientCredentialDO.getClientSecret();
                 cacheHit = true;
                 if (log.isDebugEnabled()) {
                     log.debug("Client credentials were available in the cache for client id : " +

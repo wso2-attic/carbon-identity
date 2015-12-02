@@ -44,7 +44,6 @@ import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
-import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.authz.OAuthAuthzReqMessageContext;
 import org.wso2.carbon.identity.oauth2.internal.OAuth2ServiceComponentHolder;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
@@ -456,9 +455,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
     private Map<ClaimMapping, String> getUserAttributesFromCache(String accessToken) {
 
         AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
-        AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache.
-                getInstance(OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout())
-                                                                                        .getValueFromCache(cacheKey);
+        AuthorizationGrantCacheEntry cacheEntry = AuthorizationGrantCache.getInstance().getValueFromCache(cacheKey);
         if (cacheEntry == null) {
             return new HashMap<ClaimMapping, String>();
         }

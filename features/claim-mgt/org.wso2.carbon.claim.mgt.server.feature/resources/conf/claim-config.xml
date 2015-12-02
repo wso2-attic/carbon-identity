@@ -172,9 +172,9 @@
 		    </Claim>
             <Claim>
                 <ClaimURI>http://wso2.org/claims/username</ClaimURI>
-                <DisplayName>User Name</DisplayName>
+                <DisplayName>Username</DisplayName>
                 <AttributeID>uid</AttributeID>
-                <Description>User Name</Description>
+                <Description>Username</Description>
             </Claim>
 
 
@@ -209,10 +209,10 @@
 		    </Claim>
 			<Claim>
 				<ClaimURI>http://wso2.org/claims/identity/failedLoginAttempts</ClaimURI>
-				<DisplayName>Failed Logging Attempts</DisplayName>
+				<DisplayName>Failed Login Attempts</DisplayName>
 				<!-- Proper attribute Id in your user store must be configured for this -->
 				<AttributeID>failedLoginAttempts</AttributeID>
-				<Description>Failed Logging Attempts</Description>
+				<Description>Failed Login Attempts</Description>
 			</Claim>
 			<Claim>
 				<ClaimURI>http://wso2.org/claims/identity/unlockTime</ClaimURI>
