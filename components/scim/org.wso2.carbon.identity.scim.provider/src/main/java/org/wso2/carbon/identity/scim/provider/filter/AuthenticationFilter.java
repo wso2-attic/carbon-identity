@@ -35,7 +35,7 @@ import org.wso2.charon.core.protocol.endpoints.AbstractResourceEndpoint;
 
 import javax.ws.rs.core.Response;
 
-public class AuthenticationFilter implements RequestHandler, ResponseHandler {
+public class AuthenticationFilter implements RequestHandler {
 
     private static Log log = LogFactory.getLog(AuthenticationFilter.class);
 
@@ -66,11 +66,4 @@ public class AuthenticationFilter implements RequestHandler, ResponseHandler {
         return new JAXRSResponseBuilder().buildResponse(
                 AbstractResourceEndpoint.encodeSCIMException(new JSONEncoder(), unauthorizedException));
     }
-
-    @Override
-    public Response handleResponse(Message message, OperationResourceInfo operationResourceInfo, Response response) {
-        IdentityApplicationManagementUtil.resetThreadLocalProvisioningServiceProvider();
-        return null;
-    }
-
 }
