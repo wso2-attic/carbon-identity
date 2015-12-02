@@ -20,7 +20,6 @@ package org.wso2.carbon.security.keystore;
 
 import org.apache.axiom.om.util.Base64;
 import org.apache.axis2.context.MessageContext;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonException;
@@ -38,17 +37,15 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.SecurityConstants;
-import org.wso2.carbon.security.keystore.service.CertData;
-import org.wso2.carbon.security.keystore.service.CertDataDetail;
-import org.wso2.carbon.security.keystore.service.KeyStoreData;
-import org.wso2.carbon.security.keystore.service.PaginatedCertData;
-import org.wso2.carbon.security.keystore.service.PaginatedKeyStoreData;
+import org.wso2.carbon.security.keystore.service.*;
 import org.wso2.carbon.security.util.KeyStoreMgtUtil;
 import org.wso2.carbon.utils.CarbonUtils;
+
 
 import java.io.*;
 import java.security.Key;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -345,8 +342,8 @@ public class KeyStoreAdmin {
             if (keyStoreName == null) {
                 throw new SecurityConfigException("Key Store name can't be null");
             }
-
-            KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
+            //TODO:re use keyman when truststore support is added to org.wso2.carbon.core.util.KeyStoreManager
+            //KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
             KeyStore ks = getKeyStore(keyStoreName);
 
             byte[] bytes = Base64.decode(certData);
@@ -391,8 +388,8 @@ public class KeyStoreAdmin {
             if (keyStoreName == null) {
                 throw new SecurityConfigException("Key Store name can't be null");
             }
-
-            KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
+            //TODO:re use keyman when truststore support is added to org.wso2.carbon.core.util.KeyStoreManager
+            //KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
             KeyStore ks = getKeyStore(keyStoreName);
 
             byte[] bytes = Base64.decode(certData);
@@ -823,9 +820,9 @@ public class KeyStoreAdmin {
      * Load the default trust store (allowed only for super tennant)
      *
      * @return trust store object
-     * @throws Exception
+     * @throws KeyStoreException
      */
-    public KeyStore getTrustStore() throws Exception{
+    public KeyStore getTrustStore() throws Exception {
         //Allow only the super tennant to access the default trust store.
         if(tenantId != MultitenantConstants.SUPER_TENANT_ID)
             throw new CarbonException("Permission denied for accessing trust store");
@@ -849,10 +846,14 @@ public class KeyStoreAdmin {
             store.load(in, password.toCharArray());
             trustStore = store;
         } catch (Exception e) {
-            e.printStackTrace();
+            throw e;
         } finally {
             if (in != null) {
-                in.close();
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    throw e;
+                }
             }
         }
         return trustStore;
@@ -939,7 +940,8 @@ public class KeyStoreAdmin {
 
             }
         } else {
-
+            KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
+            keyStoreManager.updateKeyStore(name, keyStore);
         }
     }
 }
