@@ -55,16 +55,46 @@
         forwardTo = "../dashboard/index.jag";
 
     } catch (Exception e) {
-        forwardTo = "create-account.jsp?sessionDataKey=" + request.getParameter("sessionDataKey") +
-                "&failedPrevious=true&errorCode=" + e.getMessage();
+        response.sendRedirect("create-account.jsp?sessionDataKey=" + request.getParameter("sessionDataKey") +
+                "&failedPrevious=true&errorCode=" + e.getMessage());
+        return;
     }
 %>
-<script type="text/javascript">
-    function forward() {
-        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
-    }
+<html>
+<head>
+    <link href="libs/bootstrap_3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/Roboto.css" rel="stylesheet">
+    <link href="css/custom-common.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div id="infoModel" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Information</h4>
+                </div>
+                <div class="modal-body">
+                    <p>User details successfully submitted</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="libs/jquery_1.11.3/jquery-1.11.3.js"></script>
+<script src="libs/bootstrap_3.3.5/js/bootstrap.min.js"></script>
+<script type="application/javascript" >
+    $(document).ready(function () {
+        var infoModel = $("#infoModel");
+        infoModel.modal("show");
+        infoModel.on('hidden.bs.modal', function() {
+            location.href = "<%= Encode.forJavaScriptBlock(forwardTo) %>";
+        })
+    });
 </script>
-
-<script type="text/javascript">
-    forward();
-</script>
+</body>
+</html>

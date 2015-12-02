@@ -23,6 +23,7 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.Constants" %>
 
 <%
     String errorCode = request.getParameter("errorCode");
@@ -30,7 +31,6 @@
 
     UserRegistrationAdminServiceClient registrationClient = new UserRegistrationAdminServiceClient();
     UserFieldDTO[] userFields = new UserFieldDTO[0];
-    String forwardTo = null;
     List<UserFieldDTO> fields = new ArrayList<UserFieldDTO>();
 
     boolean isFirstNameInClaims = false;
@@ -41,17 +41,18 @@
     boolean isEmailRequired = false;
 
     try {
-        userFields = registrationClient.readUserFieldsForUserRegistration("http://wso2.org/claims");
+        userFields = registrationClient
+                .readUserFieldsForUserRegistration(Constants.UserRegistrationConstants.WSO2_DIALECT);
         for(UserFieldDTO userFieldDTO : userFields) {
-            if (StringUtils.equals(userFieldDTO.getFieldName(), "First Name")) {
+            if (StringUtils.equals(userFieldDTO.getFieldName(), Constants.UserRegistrationConstants.FIRST_NAME)) {
                 isFirstNameInClaims = true;
                 isFirstNameRequired = userFieldDTO.getRequired();
             }
-            if (StringUtils.equals(userFieldDTO.getFieldName(), "Last Name")) {
+            if (StringUtils.equals(userFieldDTO.getFieldName(), Constants.UserRegistrationConstants.LAST_NAME)) {
                 isLastNameInClaims = true;
                 isLastNameRequired = userFieldDTO.getRequired();
             }
-            if (StringUtils.equals(userFieldDTO.getFieldName(), "Email")) {
+            if (StringUtils.equals(userFieldDTO.getFieldName(), Constants.UserRegistrationConstants.EMAIL_ADDRESS)) {
                 isEmailInClaims = true;
                 isEmailRequired = userFieldDTO.getRequired();
             }
@@ -271,11 +272,6 @@
                 return true;
             });
         });
-
-        function forward() {
-            location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
-        }
-
     </script>
     </body>
     </html>

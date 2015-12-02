@@ -81,17 +81,11 @@ public class Constants {
     }
 
     public static class UserRegistrationConstants {
-        public static final String USERNAME_ELEMENT_ID = "reg-username";
-        public static final String PASSWORD_ELEMENT_ID = "reg-password";
-        public static final String FIRST_NAME_ELEMENT_ID = "reg-first-name";
-        public static final String FIRST_NAME_CLAIM_URI = "http://wso2.org/claims/givenname";
+
+        public static final String WSO2_DIALECT = "http://wso2.org/claims";
         public static final String FIRST_NAME = "First Name";
-        public static final String LAST_NAME_ELEMENT_ID = "reg-last-name";
-        public static final String LAST_NAME_CLAIM_URI = "http://wso2.org/claims/lastname";
         public static final String LAST_NAME = "Last Name";
-        public static final String EMAIL_ELEMENT_ID = "reg-email";
-        public static final String EMAIL_CLAIM_URI = "http://wso2.org/claims/emailaddress";
-        public static final String EMAIL_ADDRESS = "Email Address";
+        public static final String EMAIL_ADDRESS = "Email";
         public static final String USER_REGISTRATION_SERVICE = "/services/UserRegistrationAdminService" +
                 ".UserRegistrationAdminServiceHttpsSoap11Endpoint/";
 
