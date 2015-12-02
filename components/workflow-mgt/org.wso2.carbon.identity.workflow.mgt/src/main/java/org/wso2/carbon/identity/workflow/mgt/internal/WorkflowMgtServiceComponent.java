@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementServiceImpl;
@@ -32,6 +33,7 @@ import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowExecutorAuditLogge
 import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowExecutorManagerListener;
 import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
+import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -98,6 +100,14 @@ public class WorkflowMgtServiceComponent {
             }
         } else {
             log.error("Workflow Audit Logger could not be registered.");
+        }
+        if (System.getProperty(WFConstant.KEYSTORE_SYSTEM_PROPERTY_ID) == null) {
+            System.setProperty(WFConstant.KEYSTORE_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
+                    .getFirstProperty(WFConstant.KEYSTORE_CARBON_CONFIG_PATH));
+        }
+        if (System.getProperty(WFConstant.KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID) == null) {
+            System.setProperty(WFConstant.KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
+                    .getFirstProperty(WFConstant.KEYSTORE_PASSWORD_CARBON_CONFIG_PATH));
         }
     }
 

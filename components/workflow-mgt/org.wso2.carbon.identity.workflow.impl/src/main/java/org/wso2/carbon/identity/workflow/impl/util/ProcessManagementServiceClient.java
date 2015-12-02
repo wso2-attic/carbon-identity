@@ -24,26 +24,27 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.wso2.carbon.bpel.stub.upload.BPELUploaderStub;
-import org.wso2.carbon.bpel.stub.upload.types.UploadedFileItem;
-import org.wso2.carbon.humantask.stub.upload.HumanTaskUploaderStub;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.bpel.stub.mgt.ProcessManagementException;
+import org.wso2.carbon.bpel.stub.mgt.ProcessManagementServiceStub;
 import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorkflowDeployerClient {
-    private static final String BPEL_UPLOADER_SERVICE = "/BPELUploader";
-    private final static String HT_UPLOADER_SERVICE = "/HumanTaskUploader";
+public class ProcessManagementServiceClient {
 
-    private BPELUploaderStub bpelUploaderStub;
-    private HumanTaskUploaderStub humanTaskUploaderStub;
+    private static final Log log = LogFactory.getLog(ProcessManagementServiceClient.class);
 
-    public WorkflowDeployerClient(String bpsURL, String username, char[] password) throws AxisFault {
-        bpelUploaderStub = new BPELUploaderStub(bpsURL + BPEL_UPLOADER_SERVICE);
-        ServiceClient serviceClient = bpelUploaderStub._getServiceClient();
+    private ProcessManagementServiceStub stub;
+
+    public ProcessManagementServiceClient(String bpsURL, String username, char[] password) throws AxisFault {
+        stub = new ProcessManagementServiceStub(bpsURL + WFImplConstant.BPS_PACKAGE_SERVICES_URL);
+        ServiceClient serviceClient = stub._getServiceClient();
         Options options = serviceClient.getOptions();
         HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
         auth.setUsername(username);
@@ -54,18 +55,12 @@ public class WorkflowDeployerClient {
         auth.setAuthSchemes(authSchemes);
         options.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
         serviceClient.setOptions(options);
-
-        humanTaskUploaderStub = new HumanTaskUploaderStub(bpsURL + HT_UPLOADER_SERVICE);
-        ServiceClient htServiceClient = humanTaskUploaderStub._getServiceClient();
-        Options htOptions = htServiceClient.getOptions();
-        htOptions.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
-        htServiceClient.setOptions(htOptions);
     }
 
-    public WorkflowDeployerClient(String bpsURL, String username) throws AxisFault {
+    public ProcessManagementServiceClient(String bpsURL, String username) throws AxisFault {
 
-        bpelUploaderStub = new BPELUploaderStub(bpsURL + BPEL_UPLOADER_SERVICE);
-        ServiceClient serviceClient = bpelUploaderStub._getServiceClient();
+        stub = new ProcessManagementServiceStub(bpsURL + WFImplConstant.BPS_PACKAGE_SERVICES_URL);
+        ServiceClient serviceClient = stub._getServiceClient();
         OMElement mutualSSLHeader;
         try {
             String headerString = WFImplConstant.MUTUAL_SSL_HEADER.replaceAll("\\$username", username);
@@ -76,33 +71,23 @@ public class WorkflowDeployerClient {
         }
         Options options = serviceClient.getOptions();
         serviceClient.setOptions(options);
-
-        humanTaskUploaderStub = new HumanTaskUploaderStub(bpsURL + HT_UPLOADER_SERVICE);
-        ServiceClient htServiceClient = humanTaskUploaderStub._getServiceClient();
-        Options htOptions = htServiceClient.getOptions();
-        htServiceClient.setOptions(htOptions);
-        htServiceClient.addHeader(mutualSSLHeader);
     }
 
     /**
-     * Upload BPEL artifacts
+     * This method retires a process deployed in a BPS.
      *
-     * @param fileItems Artifacts todeploy
-     * @throws RemoteException
+     * @param pid  ProcessID
+     * @throws Exception
      */
-    public void uploadBPEL(UploadedFileItem[] fileItems) throws RemoteException {
-        bpelUploaderStub.uploadService(fileItems);
-    }
+    public void retireProcess(QName pid) throws RemoteException, ProcessManagementException {
 
-    /**
-     * Upload human task artifacts
-     *
-     * @param fileItems Artifacts to deploy
-     * @throws RemoteException
-     */
-    public void uploadHumanTask(org.wso2.carbon.humantask.stub.upload.types.UploadedFileItem[] fileItems)
-            throws RemoteException {
-        humanTaskUploaderStub.uploadHumanTask(fileItems);
+        try {
+            stub.retireProcess(pid);
+        } catch (RemoteException | ProcessManagementException e) {
+            log.error("retireProcess operation failed", e);
+            throw e;
+        }
+
     }
 
 }

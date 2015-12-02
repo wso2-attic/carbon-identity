@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.identity.workflow.impl.internal;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -37,17 +36,15 @@ import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplAuditLogger;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplServiceListener;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplTenantMgtListener;
+import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplValidationListener;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowListenerImpl;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
-import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
-import org.wso2.carbon.identity.workflow.mgt.workflow.TemplateInitializer;
-import org.wso2.carbon.identity.workflow.mgt.workflow.WorkFlowExecutor;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -94,6 +91,8 @@ public class WorkflowImplServiceComponent {
                     RequestExecutor.class, metaDataXML), null);
             bundleContext.registerService(WorkflowListener.class, new WorkflowListenerImpl(), null);
             bundleContext.registerService(WorkflowImplServiceListener.class, new WorkflowImplAuditLogger(), null);
+            bundleContext.registerService(WorkflowImplServiceListener.class, new WorkflowImplValidationListener(),
+                    null);
             WorkflowImplServiceDataHolder.getInstance().setWorkflowImplService(new WorkflowImplServiceImpl());
 
             WorkflowImplTenantMgtListener workflowTenantMgtListener = new WorkflowImplTenantMgtListener();
@@ -152,7 +151,7 @@ public class WorkflowImplServiceComponent {
                     WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
             BPSProfile currentBpsProfile = workflowImplService.getBPSProfile(WFImplConstant.DEFAULT_BPS_PROFILE_NAME,
                     MultitenantConstants.SUPER_TENANT_ID);
-            String url = IdentityUtil.getServerURL("", true);
+            String url = IdentityUtil.getServerURL("services", true);
             String userName = WorkflowImplServiceDataHolder.getInstance().getRealmService()
                     .getBootstrapRealmConfiguration().getAdminUserName();
             if (currentBpsProfile == null || !currentBpsProfile.getWorkerHostURL().equals(url) || !currentBpsProfile
@@ -161,7 +160,7 @@ public class WorkflowImplServiceComponent {
                 bpsProfileDTO.setManagerHostURL(url);
                 bpsProfileDTO.setWorkerHostURL(url);
                 bpsProfileDTO.setUsername(userName);
-                bpsProfileDTO.setPassword("");
+                bpsProfileDTO.setPassword("".toCharArray());
                 bpsProfileDTO.setProfileName(WFImplConstant.DEFAULT_BPS_PROFILE_NAME);
                 if (currentBpsProfile == null) {
                     workflowImplService.addBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);

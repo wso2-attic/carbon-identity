@@ -22,7 +22,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.bpel.stub.upload.types.UploadedFileItem;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -114,7 +113,11 @@ public class BPELDeployer implements TemplateInitializer {
         return true;
     }
 
-
+    /**
+     * Generate and deploy artifacts
+     *
+     * @throws WorkflowImplException
+     */
     public void generateAndDeployArtifacts() throws WorkflowImplException {
 
         try {
@@ -143,7 +146,7 @@ public class BPELDeployer implements TemplateInitializer {
                     bpsProfile.getUsername());
         } else {
             workflowDeployerClient = new WorkflowDeployerClient(bpsProfile.getManagerHostURL(),
-                    bpsProfile.getUsername(), bpsProfile.getPassword().toCharArray());
+                    bpsProfile.getUsername(), bpsProfile.getPassword());
         }
         workflowDeployerClient.uploadBPEL(getBPELUploadedFileItem(new DataHandler(bpelDataSource),
                                                                   bpelArchiveName, BPELDeployer.Constants.ZIP_TYPE));
@@ -386,10 +389,6 @@ public class BPELDeployer implements TemplateInitializer {
         private static final String BPS_HOST_NAME = "${bpsURL}";
         private static final String URL_TENANT_CONTEXT = "${tenantContext}";
         private static final String CARBON_HOST_NAME = "${carbonHostName}";
-        private static final String CARBON_CALLBACK_AUTH_USER = "${carbonUserName}";
-        private static final String CARBON_CALLBACK_AUTH_PASSWORD = "${carbonUserPassword}";
-        private static final String HT_SUBJECT = "${htSubject}";
-        private static final String HT_DESCRIPTION = "${htDescription}";
         private static final String HT_OWNER_ROLE = "${htOwnerRole}";
         private static final String HT_ADMIN_ROLE = "${htAdminRole}";
 

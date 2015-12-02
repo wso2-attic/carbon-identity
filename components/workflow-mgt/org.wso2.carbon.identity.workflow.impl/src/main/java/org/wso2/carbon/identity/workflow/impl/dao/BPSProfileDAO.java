@@ -32,17 +32,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class BPSProfileDAO {
 
     /**
+     * Add a new BPS profile
      *
-     *
-     * @param bpsProfileDTO
-     * @param tenantId
+     * @param bpsProfileDTO Details of profile to add
+     * @param tenantId      ID of tenant domain
      * @throws WorkflowImplException
      */
     public void addProfile(BPSProfile bpsProfileDTO, int tenantId)
@@ -51,7 +49,7 @@ public class BPSProfileDAO {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_BPS_PROFILE_QUERY;
-        String password = bpsProfileDTO.getPassword();
+        String password = String.copyValueOf(bpsProfileDTO.getPassword());
         String profileName = bpsProfileDTO.getProfileName();
         String encryptedPassword;
 
@@ -80,10 +78,10 @@ public class BPSProfileDAO {
 
 
     /**
+     * Update existing BPS Profile
      *
-     *
-     * @param bpsProfile
-     * @param tenantId
+     * @param bpsProfile BPS profile object with new details
+     * @param tenantId   ID of tenant domain
      * @throws WorkflowImplException
      */
     public void updateProfile(BPSProfile bpsProfile, int tenantId)
@@ -92,7 +90,7 @@ public class BPSProfileDAO {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.UPDATE_BPS_PROFILE_QUERY;
-        String password = bpsProfile.getPassword();
+        String password = String.copyValueOf(bpsProfile.getPassword());
         String profileName = bpsProfile.getProfileName();
         String encryptedPassword;
 
@@ -121,11 +119,11 @@ public class BPSProfileDAO {
     }
 
     /**
+     * Retrieve details of a BPS profile
      *
-     *
-     * @param profileName
-     * @param tenantId
-     * @param isWithPasswords
+     * @param profileName     Name of profile to retrieve
+     * @param tenantId        Id of tenant domain
+     * @param isWithPasswords Whether password to be retrieved or not
      * @return
      * @throws WorkflowImplException
      */
@@ -135,13 +133,10 @@ public class BPSProfileDAO {
         BPSProfile bpsProfileDTO = null;
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
-        ;
         PreparedStatement prepStmt = null;
         ResultSet rs;
-        Map<String, Object> profileParams = new HashMap<>();
         String query = SQLConstants.GET_BPS_PROFILE_FOR_TENANT_QUERY;
         String decryptedPassword;
-        String decryptedCallBackPassword;
 
         try {
             prepStmt = connection.prepareStatement(query);
@@ -170,7 +165,7 @@ public class BPSProfileDAO {
                         throw new WorkflowImplException("Error while decrypting the password for BPEL Profile"
                                 + " " + profileName, e);
                     }
-                    bpsProfileDTO.setPassword(decryptedPassword);
+                    bpsProfileDTO.setPassword(decryptedPassword.toCharArray());
                 }
 
             }
@@ -184,9 +179,9 @@ public class BPSProfileDAO {
 
 
     /**
+     * Retrieve list of existing BPS profiles
      *
-     *
-     * @param tenantId
+     * @param tenantId  Id of tenant domain to retrieve BPS profiles
      * @return
      * @throws WorkflowImplException
      */
@@ -200,18 +195,20 @@ public class BPSProfileDAO {
         String decryptPassword;
         CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
         try {
-            Object classCheckresult = null;
+            Object classCheckResult = null;
+            //Checks if IS has BPS features installed with it
             try {
-                classCheckresult = Class.forName("org.wso2.carbon.humantask.deployer.HumanTaskDeployer");
+                classCheckResult = Class.forName("org.wso2.carbon.humantask.deployer.HumanTaskDeployer");
             } catch (ClassNotFoundException e) {
-
+                //If BPS features are not installed, it will throw a ClassNotFoundException, no actionto be executed
+                // here
             }
             prepStmt = connection.prepareStatement(query);
             prepStmt.setInt(1, tenantId);
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 String name = rs.getString(SQLConstants.PROFILE_NAME_COLUMN);
-                if (classCheckresult == null && name.equals("embeded_bps")) {
+                if (classCheckResult == null && name.equals("embeded_bps")) {
                     continue;
                 }
                 String managerHostName = rs.getString(SQLConstants.HOST_URL_MANAGER_COLUMN);
@@ -230,7 +227,7 @@ public class BPSProfileDAO {
                 profileBean.setWorkerHostURL(workerHostName);
                 profileBean.setProfileName(name);
                 profileBean.setUsername(user);
-                profileBean.setPassword(decryptPassword);
+                profileBean.setPassword(decryptPassword.toCharArray());
                 profiles.add(profileBean);
             }
         } catch (SQLException e) {
@@ -243,8 +240,9 @@ public class BPSProfileDAO {
 
 
     /**
+     * Delete a BPS profile
      *
-     * @param profileName
+     * @param profileName Name of the profile to retrieve
      * @throws WorkflowImplException
      */
     public void removeBPSProfile(String profileName) throws WorkflowImplException {

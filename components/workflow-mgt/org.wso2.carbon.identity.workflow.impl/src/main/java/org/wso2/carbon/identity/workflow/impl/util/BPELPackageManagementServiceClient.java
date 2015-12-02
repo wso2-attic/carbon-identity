@@ -24,9 +24,11 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-import org.wso2.carbon.bpel.stub.upload.BPELUploaderStub;
-import org.wso2.carbon.bpel.stub.upload.types.UploadedFileItem;
-import org.wso2.carbon.humantask.stub.upload.HumanTaskUploaderStub;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.bpel.stub.mgt.BPELPackageManagementServiceStub;
+import org.wso2.carbon.bpel.stub.mgt.PackageManagementException;
+import org.wso2.carbon.bpel.stub.mgt.types.DeployedPackagesPaginated;
 import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
 
 import javax.xml.stream.XMLStreamException;
@@ -34,16 +36,15 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorkflowDeployerClient {
-    private static final String BPEL_UPLOADER_SERVICE = "/BPELUploader";
-    private final static String HT_UPLOADER_SERVICE = "/HumanTaskUploader";
+public class BPELPackageManagementServiceClient {
 
-    private BPELUploaderStub bpelUploaderStub;
-    private HumanTaskUploaderStub humanTaskUploaderStub;
+    private static final Log log = LogFactory.getLog(BPELPackageManagementServiceClient.class);
 
-    public WorkflowDeployerClient(String bpsURL, String username, char[] password) throws AxisFault {
-        bpelUploaderStub = new BPELUploaderStub(bpsURL + BPEL_UPLOADER_SERVICE);
-        ServiceClient serviceClient = bpelUploaderStub._getServiceClient();
+    private BPELPackageManagementServiceStub stub;
+
+    public BPELPackageManagementServiceClient(String bpsURL, String username, char[] password) throws AxisFault {
+        stub = new BPELPackageManagementServiceStub(bpsURL + WFImplConstant.BPS_PACKAGE_SERVICES_URL);
+        ServiceClient serviceClient = stub._getServiceClient();
         Options options = serviceClient.getOptions();
         HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
         auth.setUsername(username);
@@ -54,18 +55,12 @@ public class WorkflowDeployerClient {
         auth.setAuthSchemes(authSchemes);
         options.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
         serviceClient.setOptions(options);
-
-        humanTaskUploaderStub = new HumanTaskUploaderStub(bpsURL + HT_UPLOADER_SERVICE);
-        ServiceClient htServiceClient = humanTaskUploaderStub._getServiceClient();
-        Options htOptions = htServiceClient.getOptions();
-        htOptions.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
-        htServiceClient.setOptions(htOptions);
     }
 
-    public WorkflowDeployerClient(String bpsURL, String username) throws AxisFault {
+    public BPELPackageManagementServiceClient(String bpsURL, String username) throws AxisFault {
 
-        bpelUploaderStub = new BPELUploaderStub(bpsURL + BPEL_UPLOADER_SERVICE);
-        ServiceClient serviceClient = bpelUploaderStub._getServiceClient();
+        stub = new BPELPackageManagementServiceStub(bpsURL + WFImplConstant.BPS_PACKAGE_SERVICES_URL);
+        ServiceClient serviceClient = stub._getServiceClient();
         OMElement mutualSSLHeader;
         try {
             String headerString = WFImplConstant.MUTUAL_SSL_HEADER.replaceAll("\\$username", username);
@@ -76,33 +71,28 @@ public class WorkflowDeployerClient {
         }
         Options options = serviceClient.getOptions();
         serviceClient.setOptions(options);
-
-        humanTaskUploaderStub = new HumanTaskUploaderStub(bpsURL + HT_UPLOADER_SERVICE);
-        ServiceClient htServiceClient = humanTaskUploaderStub._getServiceClient();
-        Options htOptions = htServiceClient.getOptions();
-        htServiceClient.setOptions(htOptions);
-        htServiceClient.addHeader(mutualSSLHeader);
     }
 
     /**
-     * Upload BPEL artifacts
+     * This method list deployed BPS packages
      *
-     * @param fileItems Artifacts todeploy
+     * @param page
+     * @param packageSearchString
+     * @return
+     * @throws PackageManagementException
      * @throws RemoteException
      */
-    public void uploadBPEL(UploadedFileItem[] fileItems) throws RemoteException {
-        bpelUploaderStub.uploadService(fileItems);
-    }
-
-    /**
-     * Upload human task artifacts
-     *
-     * @param fileItems Artifacts to deploy
-     * @throws RemoteException
-     */
-    public void uploadHumanTask(org.wso2.carbon.humantask.stub.upload.types.UploadedFileItem[] fileItems)
-            throws RemoteException {
-        humanTaskUploaderStub.uploadHumanTask(fileItems);
+    public DeployedPackagesPaginated listDeployedPackagesPaginated(int page, String packageSearchString)
+            throws PackageManagementException, RemoteException {
+        try {
+            return stub.listDeployedPackagesPaginated(page, packageSearchString);
+        } catch (RemoteException e) {
+            log.error("listDeployedPackagesPaginated operation invocation failed.", e);
+            throw e;
+        } catch (PackageManagementException e) {
+            log.error("listDeployedPackagesPaginated operation failed.", e);
+            throw e;
+        }
     }
 
 }
