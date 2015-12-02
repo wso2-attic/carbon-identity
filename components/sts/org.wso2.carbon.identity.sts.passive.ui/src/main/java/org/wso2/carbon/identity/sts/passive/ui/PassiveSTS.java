@@ -432,7 +432,7 @@ public class PassiveSTS extends HttpServlet {
 
         String sessionDataKey = UUIDGenerator.generateUUID();
         addSessionDataToCache(sessionDataKey, sessionDTO);
-        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
 
         String selfPath = request.getRequestURI();
         AuthenticationRequest authenticationRequest = new AuthenticationRequest();
