@@ -84,7 +84,7 @@ public class RegistryConfigWriter implements ConfigWriter {
 				}
 
 				if (log.isDebugEnabled()) {
-					log.debug("Default email template added to :" + " " + resourcePath + "successfully.");
+					log.debug("Default email template added to : " + resourcePath + "successfully.");
 				}
 
 			} else {
@@ -102,8 +102,8 @@ public class RegistryConfigWriter implements ConfigWriter {
 				userReg.put(emailTemplateFileResourcePath, resource);
 
 				if (log.isDebugEnabled()) {
-					log.debug("Email template : " + emailTemplateFilename + " " +
-							"saved successfully to path " + " " + emailTemplateFileResourcePath);
+					log.debug("Email template : " + emailTemplateFilename +
+							" saved successfully to path " + emailTemplateFileResourcePath);
 				}
 
 			}

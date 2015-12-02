@@ -76,7 +76,7 @@ public class RegistryConfigAdd implements ConfigWriter {
 
             if (log.isDebugEnabled()) {
                 log.debug("Adding email template : " +
-                        emailTemplateFilename + " " + "to resource location : " + " " + emailTemplateFileResourcePath);
+                        emailTemplateFilename + " to resource location : " + emailTemplateFileResourcePath);
             }
 
             if (!userReg.resourceExists(emailTemplateFileResourcePath)) {
@@ -100,12 +100,12 @@ public class RegistryConfigAdd implements ConfigWriter {
 
                 if (log.isDebugEnabled()) {
                     log.debug(" Successfully added email template : " + emailTemplateFilename
-                            + " " + "to resource location : " + " " + emailTemplateFileResourcePath);
+                            + " to resource location : " + emailTemplateFileResourcePath);
                 }
 
             } else {
                 throw new I18nMgtEmailConfigException("Resource duplication error while adding email template : "
-                        + " " + emailTemplateFilename);
+                        + emailTemplateFilename);
             }
         } catch (RegistryException e) {
             throw new I18nMgtEmailConfigException("Error occurred while adding email template to registry path : "
