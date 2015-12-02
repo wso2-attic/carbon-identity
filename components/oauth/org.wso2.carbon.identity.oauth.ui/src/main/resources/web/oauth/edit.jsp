@@ -300,34 +300,6 @@
                                     </td>
                                 </tr>
                             <% } %>
-		                    <!--<tr>
-		                        <td class="leftCol-small"><fmt:message key='accesstoken'/></td>
-                                 <%if (OAuthConstants.OAuthVersions.VERSION_2.equals(app.getOAuthVersion())){ %>
-                                   <td><%=OAuthUIUtil.getAbsoluteEndpointURL(
-                                        OAuthConstants.OAuth20Endpoints.OAUTH20_ACCESS_TOKEN_URL, app.getOAuthVersion(), request)%></td>
-                                 <%} else { %>
-                                 <td><%=OAuthUIUtil.getAbsoluteEndpointURL(
-                                        OAuthConstants.OAuth10AEndpoints.ACCESS_TOKEN_URL, app.getOAuthVersion(), request)%></td>
-                                 <%}%>
-                                        
-		                    </tr>
-	                    	<tr>
-		                        <td class="leftCol-small"><fmt:message key='authorizeurl'/></td>
-		                        <%if (OAuthConstants.OAuthVersions.VERSION_2.equals(app.getOAuthVersion())){ %>
-		                        <td><%=OAuthUIUtil.getAbsoluteEndpointURL(
-                                        OAuthConstants.OAuth20Endpoints.OAUTH20_AUTHORIZE_TOKEN_URL, app.getOAuthVersion(), request)%></td>
-                                <%} else { %>
-                                 <td><%=OAuthUIUtil.getAbsoluteEndpointURL(
-                                        OAuthConstants.OAuth10AEndpoints.AUTHORIZE_TOKEN_URL, app.getOAuthVersion(), request)%></td>
-                                 <%}%>
-		                    </tr>
-		                       <%if (OAuthConstants.OAuthVersions.VERSION_1A.equals(app.getOAuthVersion())){ %>		                    
-		                      <tr>
-		                        <td class="leftCol-small"><fmt:message key='requesttokenurl'/></td>
-		                        <td><%=OAuthUIUtil.getAbsoluteEndpointURL(
-                                        OAuthConstants.OAuth10AEndpoints.REQUEST_TOKEN_URL, app.getOAuthVersion(), request)%></td>
-		                    </tr> -->
-		                    <% } %>
 				</table>
 			</td>
 		    </tr>
