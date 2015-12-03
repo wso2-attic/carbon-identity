@@ -909,7 +909,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    private void sendRequestToFramework(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void sendRequestToFramework(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
         CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
 
