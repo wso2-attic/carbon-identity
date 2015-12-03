@@ -29,7 +29,6 @@ import org.wso2.carbon.identity.user.registration.stub.dto.UserFieldDTO;
 
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 public class UserRegistrationAdminServiceClient {
@@ -41,9 +40,11 @@ public class UserRegistrationAdminServiceClient {
     public UserRegistrationAdminServiceClient() throws AxisFault {
 
         StringBuilder builder = new StringBuilder();
-        String serviceURL = builder.append(Constants.HTTPS_URL).append(TenantDataManager.getPropertyValue(Constants
-                .HOST)).append(Constants.COLON).append(TenantDataManager.getPropertyValue(Constants.PORT)).append
-                (Constants.UserRegistrationConstants.USER_REGISTRATION_SERVICE).toString();
+        String serviceURL = null;
+
+        serviceURL = builder.append(TenantDataManager.getPropertyValue(Constants.SERVICES_URL)).append
+                (Constants.UserRegistrationConstants.USER_REGISTRATION_SERVICE).toString().replaceAll("(?<!(http:|https:))//", "/");
+
         stub = new UserRegistrationAdminServiceStub(serviceURL);
 
         ServiceClient client = stub._getServiceClient();
