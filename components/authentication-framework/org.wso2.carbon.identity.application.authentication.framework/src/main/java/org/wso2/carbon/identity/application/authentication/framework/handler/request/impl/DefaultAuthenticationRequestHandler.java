@@ -41,6 +41,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultAuthenticationRequestHandler implements AuthenticationRequestHandler {
@@ -49,6 +50,12 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
     private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
     private static volatile DefaultAuthenticationRequestHandler instance;
 
+    private static List<String> cacheDisabledAuthenticators = new ArrayList<String>();
+
+    private DefaultAuthenticationRequestHandler() {
+        cacheDisabledAuthenticators.add(FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
+        cacheDisabledAuthenticators.add(FrameworkConstants.OAUTH2);
+    }
     public static DefaultAuthenticationRequestHandler getInstance() {
 
         if (instance == null) {
@@ -301,8 +308,13 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                     "ApplicationAuthenticationFramework", auditData, FrameworkConstants.AUDIT_SUCCESS));
         }
 
-        //Set the result as request attribute
-        addAuthenticationResultToRequest(request, authenticationResult);
+        // Checking weather inbound protocol is an already cache removed one
+        if(cacheDisabledAuthenticators.contains(context.getRequestType())) {
+            //Set the result as request attribute
+            addAuthenticationResultToRequest(request, authenticationResult);
+        }else{
+            FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
+        }
         /*
          * TODO Cache retaining is a temporary fix. Remove after Google fixes
          * http://code.google.com/p/gdata-issues/issues/detail?id=6628
@@ -315,6 +327,8 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
         sendResponse(request, response, context);
     }
+
+
 
     /**
      * Add authentication request as request attribute
