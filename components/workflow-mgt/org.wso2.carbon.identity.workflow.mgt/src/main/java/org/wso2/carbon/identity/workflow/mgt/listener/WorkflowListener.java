@@ -500,4 +500,18 @@ public interface WorkflowListener {
     void doPostListEntityNames(String wfOperationType, String wfStatus, String entityType, int tenantID, String
             idFilter, List<String> result) throws WorkflowException;
 
+    /**
+     * Check if listener is enabled or not.
+     *
+     * @return
+     */
+    boolean isEnable();
+
+    /**
+     * get order ID (priority of current listener)
+     *
+     * @return
+     */
+    int getOrderId();
+
 }

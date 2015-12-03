@@ -66,5 +66,19 @@ public interface WorkflowExecutorManagerListener {
     void doPostHandleCallback(String uuid, String status, Map<String, Object> additionalParams)
             throws WorkflowException;
 
+    /**
+     * Check if listener is enabled or not.
+     *
+     * @return
+     */
+    boolean isEnable();
+
+    /**
+     * get order ID (priority of current listener)
+     *
+     * @return
+     */
+    int getOrderId();
+
 
 }

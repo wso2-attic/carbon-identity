@@ -18,6 +18,10 @@
 
 package org.wso2.carbon.identity.workflow.mgt.listener;
 
+import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowExecutorResult;
 import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -76,5 +80,39 @@ public abstract class AbstractWorkflowExecutorManagerListener implements Workflo
     public void doPostHandleCallback(String uuid, String status, Map<String, Object> additionalParams) throws
             WorkflowException {
 
+    }
+
+    /**
+     * Check if listener is enabled or not.
+     *
+     * @return
+     */
+    public boolean isEnable() {
+        IdentityEventListenerConfig listenerConfig = IdentityUtil.readEventListenerProperty
+                (WorkflowExecutorManagerListener.class.getName(), this.getClass().getName());
+
+        if (listenerConfig == null) {
+            return true;
+        }
+
+        if (StringUtils.isNotBlank(listenerConfig.getEnable())) {
+            return Boolean.parseBoolean(listenerConfig.getEnable());
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * get order ID (priority of current listener)
+     *
+     * @return
+     */
+    public int getOrderId() {
+        IdentityEventListenerConfig listenerConfig = IdentityUtil.readEventListenerProperty
+                (WorkflowExecutorManagerListener.class.getName(), this.getClass().getName());
+        if (listenerConfig == null) {
+            return IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
+        }
+        return listenerConfig.getOrder();
     }
 }

@@ -18,7 +18,7 @@
 package org.wso2.carbon.identity.core;
 
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.core.common.AbstractUserOperationEventListener;
@@ -26,26 +26,26 @@ import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 
 public class AbstractIdentityUserOperationEventListener extends AbstractUserOperationEventListener {
     public boolean isEnable() {
-        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+        IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
                 (UserOperationEventListener.class.getName(), this.getClass().getName());
 
-        if (identityEventListener == null) {
+        if (identityEventListenerConfig == null) {
             return true;
         }
 
-        if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
-            return Boolean.parseBoolean(identityEventListener.getEnable());
+        if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+            return Boolean.parseBoolean(identityEventListenerConfig.getEnable());
         } else {
             return true;
         }
     }
 
     public int getOrderId() {
-        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+        IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
                 (UserOperationEventListener.class.getName(), this.getClass().getName());
-        if (identityEventListener == null) {
+        if (identityEventListenerConfig == null) {
             return IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
         }
-        return identityEventListener.getOrder();
+        return identityEventListenerConfig.getOrder();
     }
 }

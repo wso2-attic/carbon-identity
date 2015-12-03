@@ -19,7 +19,7 @@
 package org.wso2.carbon.identity.workflow.impl.listener;
 
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplException;
@@ -200,7 +200,7 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
      * @return
      */
     public boolean isEnable() {
-        IdentityEventListener workflowImplListener = IdentityUtil.readEventListenerProperty
+        IdentityEventListenerConfig workflowImplListener = IdentityUtil.readEventListenerProperty
                 (WorkflowImplServiceListener.class.getName(), this.getClass().getName());
 
         if (workflowImplListener == null) {
@@ -214,8 +214,13 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
         }
     }
 
+    /**
+     * get order ID (priority of current listener)
+     *
+     * @return
+     */
     public int getOrderId() {
-        IdentityEventListener workflowImplListener = IdentityUtil.readEventListenerProperty
+        IdentityEventListenerConfig workflowImplListener = IdentityUtil.readEventListenerProperty
                 (WorkflowImplServiceListener.class.getName(), this.getClass().getName());
         if (workflowImplListener == null) {
             return IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;

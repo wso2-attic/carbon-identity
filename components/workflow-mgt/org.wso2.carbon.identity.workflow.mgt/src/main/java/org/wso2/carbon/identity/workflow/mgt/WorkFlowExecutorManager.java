@@ -80,7 +80,9 @@ public class WorkFlowExecutorManager {
         List<WorkflowExecutorManagerListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getExecutorListenerList();
         for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
-            workflowListener.doPreExecuteWorkflow(workFlowRequest);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPreExecuteWorkflow(workFlowRequest);
+            }
         }
 
         if (StringUtils.isBlank(workFlowRequest.getUuid())) {
@@ -118,17 +120,18 @@ public class WorkFlowExecutorManager {
                     List<Parameter> parameterList = workflowDAO.getWorkflowParams(association.getWorkflowId());
                     templateImplementation.execute(requestToSend, parameterList);
                     workflowRequestAssociationDAO.addNewRelationship(relationshipId, association.getWorkflowId(),
-                                                                     workFlowRequest
-                                                                             .getUuid(), WorkflowRequestStatus.PENDING
-                                                                             .toString(), workFlowRequest.getTenantId());
+                            workFlowRequest
+                                    .getUuid(), WorkflowRequestStatus.PENDING
+                                    .toString(), workFlowRequest.getTenantId());
                 }
             } catch (JaxenException e) {
-                String errorMsg = "Error when executing the xpath expression:" + association.getAssociationCondition() + " , on " +
-                                  xmlRequest ;
-                log.error( errorMsg, e);
+                String errorMsg = "Error when executing the xpath expression:" + association.getAssociationCondition
+                        () + " , on " +
+                        xmlRequest;
+                log.error(errorMsg, e);
                 return new WorkflowExecutorResult(ExecutorResultState.FAILED, errorMsg);
             } catch (CloneNotSupportedException e) {
-                String errorMsg = "Error while cloning workflowRequest object at executor manager." ;
+                String errorMsg = "Error while cloning workflowRequest object at executor manager.";
                 log.error(errorMsg, e);
                 return new WorkflowExecutorResult(ExecutorResultState.FAILED, errorMsg);
             }
@@ -140,7 +143,9 @@ public class WorkFlowExecutorManager {
         }
         WorkflowExecutorResult finalResult = new WorkflowExecutorResult(ExecutorResultState.STARTED_ASSOCIATION);
         for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
-            workflowListener.doPostExecuteWorkflow(workFlowRequest, finalResult);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPostExecuteWorkflow(workFlowRequest, finalResult);
+            }
         }
         return finalResult;
     }
@@ -155,7 +160,7 @@ public class WorkFlowExecutorManager {
             workflowRequestAssociationDAO.updateStatusOfRelationship(requestWorkflowId, status);
             workflowRequestDAO.updateLastUpdatedTimeOfRequest(requestId);
             if (StringUtils.isNotBlank(requestWorkflowId) && workflowRequestDAO.retrieveStatusOfWorkflow(request
-                                                                                                                 .getUuid())
+                    .getUuid())
                     .equals(WorkflowRequestStatus.DELETED.toString())) {
                 log.info("Callback received for request " + requestId + " which is already deleted by user. ");
                 return;
@@ -221,7 +226,9 @@ public class WorkFlowExecutorManager {
         List<WorkflowExecutorManagerListener> workflowListenerList =
                 WorkflowServiceDataHolder.getInstance().getExecutorListenerList();
         for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
-            workflowListener.doPreHandleCallback(uuid, status, additionalParams);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPreHandleCallback(uuid, status, additionalParams);
+            }
         }
 
         WorkflowRequestAssociationDAO workflowRequestAssociationDAO = new WorkflowRequestAssociationDAO();
@@ -231,7 +238,9 @@ public class WorkFlowExecutorManager {
         handleCallback(request, status, additionalParams, uuid);
 
         for (WorkflowExecutorManagerListener workflowListener : workflowListenerList) {
-            workflowListener.doPostHandleCallback(uuid, status, additionalParams);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPostHandleCallback(uuid, status, additionalParams);
+            }
         }
 
 
