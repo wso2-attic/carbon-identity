@@ -52,6 +52,8 @@ import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.wso2.charon.core.attributes.Attribute;
+import org.wso2.charon.core.attributes.MultiValuedAttribute;
+import org.wso2.charon.core.attributes.SimpleAttribute;
 import org.wso2.charon.core.exceptions.CharonException;
 import org.wso2.charon.core.exceptions.DuplicateResourceException;
 import org.wso2.charon.core.exceptions.NotFoundException;
@@ -60,6 +62,7 @@ import org.wso2.charon.core.objects.Group;
 import org.wso2.charon.core.objects.SCIMObject;
 import org.wso2.charon.core.objects.User;
 import org.wso2.charon.core.schema.SCIMConstants;
+import org.wso2.charon.core.util.AttributeUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1518,6 +1521,14 @@ public class SCIMUserManager implements UserManager {
         return null;
     }
 
+    /**
+     * This is used to add domain name to the members of a group
+     *
+     * @param group
+     * @param userStoreDomain
+     * @return
+     * @throws CharonException
+     */
     private Group addDomainToUserMembers(Group group, String userStoreDomain) throws CharonException {
         List<String> membersId = group.getMembers();
 
@@ -1525,18 +1536,23 @@ public class SCIMUserManager implements UserManager {
             return group;
         }
 
-        Map<String, String> userMembers = mergeSCIMIDsWithDisplayNames(group);
+        if (group.isAttributeExist(SCIMConstants.GroupSchemaConstants.MEMBERS)) {
+            MultiValuedAttribute members = (MultiValuedAttribute) group.getAttributeList().get(
+                    SCIMConstants.GroupSchemaConstants.MEMBERS);
+            List<Attribute> attributeValues = members.getValuesAsSubAttributes();
 
-        //remove all existing user members to add user members with user store domain
-        for (String memberId : membersId) {
-            group.removeMember(memberId);
+            if (attributeValues != null && !attributeValues.isEmpty()) {
+                for (Attribute attributeValue : attributeValues) {
+                    SimpleAttribute displayNameAttribute = (SimpleAttribute) attributeValue.getSubAttribute(
+                            SCIMConstants.CommonSchemaConstants.DISPLAY);
+                    String displayName =
+                            AttributeUtil.getStringValueOfAttribute(displayNameAttribute.getValue(),
+                                    displayNameAttribute.getDataType());
+                    displayNameAttribute.setValue(UserCoreUtil.addDomainToName(
+                            UserCoreUtil.removeDomainFromName(displayName), userStoreDomain));
+                }
+            }
         }
-
-        //add user members with user store domain
-        for (Map.Entry<String, String> entry : userMembers.entrySet()) {
-            group.setMember(entry.getKey(), UserCoreUtil.addDomainToName(UserCoreUtil.removeDomainFromName(entry.getValue()), userStoreDomain));
-        }
-
         return group;
     }
 
