@@ -43,7 +43,7 @@ public class ProcessManagementServiceClient {
     private ProcessManagementServiceStub stub;
 
     public ProcessManagementServiceClient(String bpsURL, String username, char[] password) throws AxisFault {
-        stub = new ProcessManagementServiceStub(bpsURL + WFImplConstant.BPS_PACKAGE_SERVICES_URL);
+        stub = new ProcessManagementServiceStub(bpsURL + WFImplConstant.BPS_PROCESS_SERVICES_URL);
         ServiceClient serviceClient = stub._getServiceClient();
         Options options = serviceClient.getOptions();
         HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
@@ -59,7 +59,7 @@ public class ProcessManagementServiceClient {
 
     public ProcessManagementServiceClient(String bpsURL, String username) throws AxisFault {
 
-        stub = new ProcessManagementServiceStub(bpsURL + WFImplConstant.BPS_PACKAGE_SERVICES_URL);
+        stub = new ProcessManagementServiceStub(bpsURL + WFImplConstant.BPS_PROCESS_SERVICES_URL);
         ServiceClient serviceClient = stub._getServiceClient();
         OMElement mutualSSLHeader;
         try {
@@ -76,7 +76,7 @@ public class ProcessManagementServiceClient {
     /**
      * This method retires a process deployed in a BPS.
      *
-     * @param pid  ProcessID
+     * @param pid ProcessID
      * @throws Exception
      */
     public void retireProcess(QName pid) throws RemoteException, ProcessManagementException {

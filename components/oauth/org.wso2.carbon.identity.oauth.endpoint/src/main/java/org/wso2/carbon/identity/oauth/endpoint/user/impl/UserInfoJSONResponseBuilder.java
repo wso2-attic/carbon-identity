@@ -68,7 +68,8 @@ public class UserInfoJSONResponseBuilder implements UserInfoResponseBuilder {
     private Map<ClaimMapping, String> getUserAttributesFromCache(OAuth2TokenValidationResponseDTO tokenResponse) {
         AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(tokenResponse.getAuthorizationContextToken()
                 .getTokenString());
-        AuthorizationGrantCacheEntry cacheEntry = AuthorizationGrantCache.getInstance().getValueFromCache(cacheKey);
+        AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance()
+                .getValueFromCacheByToken(cacheKey);
 
         if (cacheEntry == null) {
             return new HashMap<ClaimMapping, String>();

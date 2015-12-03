@@ -104,4 +104,5 @@ public class OAuth2AuthorizeReqDTO {
     public Object getProperty(Object propName) {
         return properties.get(propName);
     }
+
 }

@@ -18,9 +18,13 @@
 
 package org.wso2.carbon.identity.oauth.cache;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
+import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.utils.CarbonUtils;
 
 /**
@@ -31,14 +35,10 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
     private static final String AUTHORIZATION_GRANT_CACHE_NAME = "AuthorizationGrantCache";
 
     private static volatile AuthorizationGrantCache instance;
-    private boolean isTemporarySessionDataPersistEnabled = false;
+    private static final Log log = LogFactory.getLog(AuthorizationGrantCache.class);
 
     private AuthorizationGrantCache() {
         super(AUTHORIZATION_GRANT_CACHE_NAME);
-        if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
-            isTemporarySessionDataPersistEnabled = Boolean.
-                    parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
-        }
     }
 
     public static AuthorizationGrantCache getInstance() {
@@ -53,27 +53,81 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
         return instance;
     }
 
-    public void addToCache(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
+    public void addToCacheByToken(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
         super.addToCache(key, entry);
-        if (isTemporarySessionDataPersistEnabled) {
-            SessionDataStore.getInstance().storeSessionData(key.getUserAttributesId(),
-                    AUTHORIZATION_GRANT_CACHE_NAME, entry);
-        }
+        storeToSessionStore(replaceFromTokenId(key.getUserAttributesId()), entry);
     }
 
-    public AuthorizationGrantCacheEntry getValueFromCache(AuthorizationGrantCacheKey key) {
+
+    public AuthorizationGrantCacheEntry getValueFromCacheByToken(AuthorizationGrantCacheKey key) {
         AuthorizationGrantCacheEntry cacheEntry = super.getValueFromCache(key);
-        if (cacheEntry == null && isTemporarySessionDataPersistEnabled) {
-            cacheEntry = (AuthorizationGrantCacheEntry) SessionDataStore.getInstance().
-                    getSessionData(key.getUserAttributesId(), AUTHORIZATION_GRANT_CACHE_NAME);
+        if (cacheEntry == null) {
+            cacheEntry = getFromSessionStore(replaceFromTokenId(key.getUserAttributesId()));
         }
         return cacheEntry;
     }
 
-    public void clearCacheEntry(AuthorizationGrantCacheKey key) {
+    public void clearCacheEntryByToken(AuthorizationGrantCacheKey key) {
         super.clearCacheEntry(key);
-        if(isTemporarySessionDataPersistEnabled){
-            SessionDataStore.getInstance().clearSessionData(key.getUserAttributesId(), AUTHORIZATION_GRANT_CACHE_NAME);
-        }
+        clearFromSessionStore(replaceFromTokenId(key.getUserAttributesId()));
     }
+
+
+    public void addToCacheByCode(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
+        super.addToCache(key, entry);
+        storeToSessionStore(replaceFromCodeId(key.getUserAttributesId()), entry);
+    }
+
+
+    public AuthorizationGrantCacheEntry getValueFromCacheByCode(AuthorizationGrantCacheKey key) {
+        AuthorizationGrantCacheEntry cacheEntry = super.getValueFromCache(key);
+        if (cacheEntry == null) {
+            getFromSessionStore(replaceFromCodeId(key.getUserAttributesId()));
+        }
+        return cacheEntry;
+    }
+
+
+    public void clearCacheEntryByCode(AuthorizationGrantCacheKey key) {
+        super.clearCacheEntry(key);
+        clearFromSessionStore(replaceFromCodeId(key.getUserAttributesId()));
+    }
+
+
+    private String replaceFromCodeId(String authzCode) {
+        TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
+        try {
+            return tokenMgtDAO.getCodeIdByAuthorizationCode(authzCode);
+        } catch (IdentityOAuth2Exception e) {
+            log.error("Failed to retrieve authorization code id by authorization code from store for - ." + authzCode, e);
+        }
+        return authzCode;
+    }
+
+
+    private String replaceFromTokenId(String keyValue) {
+        TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
+        try {
+            return tokenMgtDAO.getTokenIdByToken(keyValue);
+        } catch (IdentityOAuth2Exception e) {
+            log.error("Failed to retrieve token id by token from store for - ." + keyValue, e);
+        }
+        return keyValue;
+    }
+
+
+    private void clearFromSessionStore(String id) {
+        SessionDataStore.getInstance().clearSessionData(id, AUTHORIZATION_GRANT_CACHE_NAME);
+    }
+
+
+    private AuthorizationGrantCacheEntry getFromSessionStore(String id) {
+        return (AuthorizationGrantCacheEntry) SessionDataStore.getInstance().getSessionData(id, AUTHORIZATION_GRANT_CACHE_NAME);
+    }
+
+
+    private void storeToSessionStore(String id, AuthorizationGrantCacheEntry entry) {
+        SessionDataStore.getInstance().storeSessionData(id, AUTHORIZATION_GRANT_CACHE_NAME, entry);
+    }
+
 }

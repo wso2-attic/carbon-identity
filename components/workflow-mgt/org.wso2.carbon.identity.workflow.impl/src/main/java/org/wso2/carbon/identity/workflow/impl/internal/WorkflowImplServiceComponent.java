@@ -41,7 +41,6 @@ import org.wso2.carbon.identity.workflow.impl.listener.WorkflowListenerImpl;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
-import org.wso2.carbon.identity.workflow.mgt.internal.WorkflowServiceDataHolder;
 import org.wso2.carbon.identity.workflow.mgt.listener.WorkflowListener;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowManagementUtil;
 import org.wso2.carbon.identity.workflow.mgt.workflow.AbstractWorkflow;
@@ -151,7 +150,7 @@ public class WorkflowImplServiceComponent {
                     WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
             BPSProfile currentBpsProfile = workflowImplService.getBPSProfile(WFImplConstant.DEFAULT_BPS_PROFILE_NAME,
                     MultitenantConstants.SUPER_TENANT_ID);
-            String url = IdentityUtil.getServerURL("services", true);
+            String url = IdentityUtil.getServerURL("services", true, true);
             String userName = WorkflowImplServiceDataHolder.getInstance().getRealmService()
                     .getBootstrapRealmConfiguration().getAdminUserName();
             if (currentBpsProfile == null || !currentBpsProfile.getWorkerHostURL().equals(url) || !currentBpsProfile

@@ -195,7 +195,7 @@ public class BPELDeployer implements TemplateInitializer {
         }
         placeHolderValues.put(BPELDeployer.Constants.BPS_HOST_NAME, url);
         placeHolderValues.put(Constants.URL_TENANT_CONTEXT, tenantContext);
-        placeHolderValues.put(BPELDeployer.Constants.CARBON_HOST_NAME, IdentityUtil.getServerURL("", true));
+        placeHolderValues.put(BPELDeployer.Constants.CARBON_HOST_NAME, IdentityUtil.getServerURL("", true, true));
         placeHolderValues.put(BPELDeployer.Constants.HT_OWNER_ROLE, role);
         placeHolderValues.put(BPELDeployer.Constants.HT_ADMIN_ROLE, role);
         return placeHolderValues;
@@ -411,8 +411,8 @@ public class BPELDeployer implements TemplateInitializer {
         private static final String TEMPLATE_RESOURCE_LOCATION = "templates";
         private static final String BPEL_RESOURCE_LOCATION = "bpel";
         private static final String HT_RESOURCE_LOCATION = "humantask";
-        private static final String APPROVAL_SERVICE_RESOURCE_LOCATION = "SimpleApprovalService";
-        private static final String APPROVAL_HT_RESOURCE_LOCATION = "SimpleApprovalTask";
+        private static final String APPROVAL_SERVICE_RESOURCE_LOCATION = "MultiStepApprovalService";
+        private static final String APPROVAL_HT_RESOURCE_LOCATION = "MultiStepApprovalTask";
         private static final String APPROVAL_JSP_LOCATION = "web";
         private static final String SERVICE_TXT = "Service";
 

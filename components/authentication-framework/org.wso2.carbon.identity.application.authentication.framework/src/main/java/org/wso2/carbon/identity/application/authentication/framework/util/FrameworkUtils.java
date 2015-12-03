@@ -425,7 +425,7 @@ public class FrameworkUtils {
         // TODO read the URL from framework config file rather than carbon.xml
         request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
         response.sendRedirect(IdentityUtil.getServerURL(ConfigurationFacade.getInstance()
-                .getAuthenticationEndpointRetryURL(), false));
+                .getAuthenticationEndpointRetryURL(), false, false));
     }
 
     /**
@@ -440,6 +440,8 @@ public class FrameworkUtils {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals(FrameworkConstants.COMMONAUTH_COOKIE)) {
                     cookie.setMaxAge(0);
+                    cookie.setHttpOnly(true);
+                    cookie.setSecure(true);
                     resp.addCookie(cookie);
                     break;
                 }
