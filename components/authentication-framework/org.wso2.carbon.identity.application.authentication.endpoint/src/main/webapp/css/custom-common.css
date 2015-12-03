@@ -155,3 +155,8 @@ img.idp-image {
 .error-alert{
     background-color: #FFE7E8;
 }
+
+.form-group.required .control-label:after {
+    content:" *";
+    color:red;
+}
