@@ -88,7 +88,6 @@ public class ConfigBuilder {
 				}
 				break;
 			case DB:
-				break;
 			case FILE:
 				break;
 			default:
@@ -127,9 +126,7 @@ public class ConfigBuilder {
 				}
 				break;
 			case DB:
-				break;
 			case FILE:
-				break;
 			default:
 				throw new I18nMgtEmailConfigException("Configuration storage type not supported");
 		}
@@ -156,7 +153,6 @@ public class ConfigBuilder {
 				}
 				break;
 			case DB:
-				break;
 			case FILE:
 				break;
 			default:
@@ -186,7 +182,6 @@ public class ConfigBuilder {
 				}
 				break;
 			case DB:
-				break;
 			case FILE:
 				break;
 			default:

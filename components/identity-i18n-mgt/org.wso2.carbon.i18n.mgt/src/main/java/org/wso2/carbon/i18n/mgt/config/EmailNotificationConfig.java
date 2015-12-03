@@ -31,7 +31,6 @@ public class EmailNotificationConfig implements Config {
 
     @Override
     public String getProperty(String key) {
-
         return properties.getProperty(key);
     }
 
