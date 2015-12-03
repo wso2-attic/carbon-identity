@@ -45,6 +45,11 @@ public class DynamicX509TrustManager implements X509TrustManager {
     private static Log log = LogFactory.getLog(DynamicX509TrustManager.class);
     private X509TrustManager trustManager;
     private static DynamicX509TrustManager instance;
+
+    //Configuration Options
+    private static final ServerConfiguration config = ServerConfiguration.getInstance();
+    private static final String TRUSTSTORE_LOCATION = config.getFirstProperty("Security.TrustStore.Location");
+    private static final String TRUSTSTORE_TYPE = config.getFirstProperty("Security.TrustStore.Type");
     //System Properties
     public static final String PROP_TRUST_STORE_UPDATE_REQUIRED = "org.wso2.carbon.identity.core.util.DynamicX509TrustManager.TRUST_STORE_UPDATE_REQUIRED";
 
@@ -94,12 +99,10 @@ public class DynamicX509TrustManager implements X509TrustManager {
      * @throws Exception
      */
     private void setupTrustManager() throws Exception{
-        ServerConfigurationService config = ServerConfiguration.getInstance();
         TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         InputStream trustStoreInputStream = null;
         KeyStore clientTrustStore = null;
-        String trustStoreFile = config.getFirstProperty("Security.TrustStore.Location");
-        String TRUSTSTORE_TYPE = config.getFirstProperty("Security.TrustStore.Type");
+
 
         //TODO: Use org.wso2.carbon.core.util.KeyStoreManager to get trust store once implemented
         try {
@@ -109,7 +112,7 @@ public class DynamicX509TrustManager implements X509TrustManager {
         }
 
         try {
-            trustStoreInputStream = new FileInputStream(trustStoreFile);
+            trustStoreInputStream = new FileInputStream(TRUSTSTORE_LOCATION);
         } catch (FileNotFoundException e) {
             throw e;
         }
