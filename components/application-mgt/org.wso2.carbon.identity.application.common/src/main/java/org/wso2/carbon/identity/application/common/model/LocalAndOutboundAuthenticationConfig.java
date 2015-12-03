@@ -30,15 +30,6 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
 
     private static final long serialVersionUID = 6552125621314155291L;
 
-    private static final String AUTHENTICATION_STEPS = "AuthenticationSteps";
-    private static final String AUTHENTICATION_TYPE = "AuthenticationType";
-    private static final String AUTHENTICATION_STEP_FOR_SUBJECT = "AuthenticationStepForSubject";
-    private static final String AUTHENTICATION_STEP_FOR_ATTRIBUTES = "AuthenticationStepForAttributes";
-    private static final String ALWAYS_SEND_BACK_AUTHENTICATED_LIST_OF_IDPS = "AlwaysSendBackAuthenticatedListOfIdPs";
-    private static final String USE_USERSTORE_DOMAIN_IN_USERNAME = "UseUserstoreDomainInUsername";
-    private static final String USE_TENANT_DOMAIN_IN_USERNAME = "UseTenantDomainInUsername";
-    private static final String SUBJECT_CLAIM_URI = "SubjectClaimURI";
-
     private AuthenticationStep[] authenticationSteps = new AuthenticationStep[0];
     private String authenticationType;
     private AuthenticationStep authenticationStepForSubject;
@@ -70,7 +61,7 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
         while (iter.hasNext()) {
             OMElement member = (OMElement) iter.next();
 
-            if (AUTHENTICATION_STEPS.equals(member.getLocalName())) {
+            if ("AuthenticationSteps".equals(member.getLocalName())) {
 
                 Iterator<?> authenticationStepsIter = member.getChildElements();
                 List<AuthenticationStep> authenticationStepsArrList = new ArrayList<AuthenticationStep>();
@@ -95,32 +86,32 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
                 }
 
 
-            } else if (AUTHENTICATION_TYPE.equals(member.getLocalName())) {
+            } else if ("AuthenticationType".equals(member.getLocalName())) {
                 localAndOutboundAuthenticationConfig.setAuthenticationType(member.getText());
-            } else if (AUTHENTICATION_STEP_FOR_SUBJECT.equals(member.getLocalName())) {
+            } else if ("AuthenticationStepForSubject".equals(member.getLocalName())) {
                 AuthenticationStep authStep = AuthenticationStep.build(member);
                 if (authStep != null) {
                     localAndOutboundAuthenticationConfig.setAuthenticationStepForSubject(authStep);
                 }
-            } else if (AUTHENTICATION_STEP_FOR_ATTRIBUTES.equals(member.getLocalName())) {
+            } else if ("AuthenticationStepForAttributes".equals(member.getLocalName())) {
                 AuthenticationStep authStep = AuthenticationStep.build(member);
                 if (authStep != null) {
                     localAndOutboundAuthenticationConfig
                             .setAuthenticationStepForAttributes(authStep);
                 }
-            } else if (ALWAYS_SEND_BACK_AUTHENTICATED_LIST_OF_IDPS.equals(member.getLocalName())) {
+            } else if ("alwaysSendBackAuthenticatedListOfIdPs".equals(member.getLocalName())) {
                 if (member.getText() != null && "true".equals(member.getText())) {
                     localAndOutboundAuthenticationConfig.setAlwaysSendBackAuthenticatedListOfIdPs(true);
                 }
-            } else if (USE_USERSTORE_DOMAIN_IN_USERNAME.equals(member.getLocalName())) {
+            } else if ("UseUserstoreDomainInUsername".equals(member.getLocalName())) {
                 if (member.getText() != null && "false".equals(member.getText())) {
                     localAndOutboundAuthenticationConfig.setUseUserstoreDomainInLocalSubjectIdentifier(false);
                 }
-            } else if (USE_TENANT_DOMAIN_IN_USERNAME.equals(member.getLocalName())) {
+            } else if ("UseTenantDomainInUsername".equals(member.getLocalName())) {
                 if (member.getText() != null && "false".equals(member.getText())) {
                     localAndOutboundAuthenticationConfig.setUseTenantDomainInLocalSubjectIdentifier(false);
                 }
-            } else if (SUBJECT_CLAIM_URI.equals(member.getLocalName())) {
+            } else if ("subjectClaimUri".equals(member.getLocalName())) {
                 localAndOutboundAuthenticationConfig.setSubjectClaimUri(member.getText());
             }
         }
@@ -136,7 +127,7 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
     }
 
     /**
-     * @param authenticationSteps
+     * @param authSteps
      */
     public void setAuthenticationSteps(AuthenticationStep[] authenticationSteps) {
         this.authenticationSteps = authenticationSteps;

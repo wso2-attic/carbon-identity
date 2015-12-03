@@ -29,13 +29,6 @@ public class ClaimConfig implements Serializable {
 
     private static final long serialVersionUID = 94689128465184610L;
 
-    private static final String ROLE_CLAIM_URI = "RoleClaimURI";
-    private static final String LOCAL_CLAIM_DIALECT = "LocalClaimDialect";
-    private static final String USER_CLAIM_URI = "UserClaimURI";
-    private static final String ALWAYS_SEND_MAPPED_LOCAL_SUBJECT_ID = "AlwaysSendMappedLocalSubjectId";
-    private static final String IDP_CLAIMS = "IdPClaims";
-    private static final String CLAIM_MAPPINGS = "ClaimMappings";
-
     private String roleClaimURI;
     private String userClaimURI;
     private boolean localClaimDialect;
@@ -58,19 +51,19 @@ public class ClaimConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (ROLE_CLAIM_URI.equals(elementName)) {
+            if ("RoleClaimURI".equals(elementName)) {
                 claimConfig.setRoleClaimURI(element.getText());
-            } else if (LOCAL_CLAIM_DIALECT.equals(elementName)) {
+            } else if ("LocalClaimDialect".equals(elementName)) {
                 if (element.getText() != null) {
                     claimConfig.setLocalClaimDialect(Boolean.parseBoolean(element.getText()));
                 }
-            } else if (USER_CLAIM_URI.equals(elementName)) {
+            } else if ("UserClaimURI".equals(elementName)) {
                 claimConfig.setUserClaimURI(element.getText());
-            } else if (ALWAYS_SEND_MAPPED_LOCAL_SUBJECT_ID.equals(elementName)) {
+            } else if ("AlwaysSendMappedLocalSubjectId".equals(elementName)) {
                 if ("true".equals(element.getText())) {
                     claimConfig.setAlwaysSendMappedLocalSubjectId(true);
                 }
-            } else if (IDP_CLAIMS.equals(elementName)) {
+            } else if ("IdpClaims".equals(elementName)) {
                 Iterator<?> idpClaimsIter = element.getChildElements();
                 List<Claim> idpClaimsArrList = new ArrayList<Claim>();
 
@@ -87,7 +80,7 @@ public class ClaimConfig implements Serializable {
                     Claim[] idpClaimsArr = idpClaimsArrList.toArray(new Claim[0]);
                     claimConfig.setIdpClaims(idpClaimsArr);
                 }
-            } else if (CLAIM_MAPPINGS.equals(elementName)) {
+            } else if ("ClaimMappings".equals(elementName)) {
 
                 Iterator<?> claimMappingsIter = element.getChildElements();
                 List<ClaimMapping> claimMappingsArrList = new ArrayList<ClaimMapping>();

@@ -32,20 +32,6 @@ public class ServiceProvider implements Serializable {
     private static final long serialVersionUID = 4754526832588478582L;
     private static final Log log = LogFactory.getLog(ServiceProvider.class);
 
-    private static final String APPLICATION_ID = "ApplicationID";
-    private static final String APPLICATION_NAME = "ApplicationName";
-    private static final String DESCRIPTION = "Description";
-    private static final String IS_SAAS_APP = "IsSaaSApp";
-    private static final String OWNER = "Owner";
-    private static final String INBOUND_AUTHENTICATION_CONFIG = "InboundAuthenticationConfig";
-    private static final String LOCAL_AND_OUTBOUND_AUTHENTICATION_CONFIG = "LocalAndOutboundAuthenticationConfig";
-    private static final String REQUEST_PATH_AUTHENTICATOR_CONFIG = "RequestPathAuthenticatorConfig";
-    private static final String INBOUND_PROVISIONING_CONFIG = "InboundProvisioningConfig";
-    private static final String OUTBOUND_PROVISIONING_CONFIG = "OutboundProvisioningConfig";
-    private static final String CLAIM_CONFIG = "ClaimConfig";
-    private static final String PERMISSION_AND_ROLE_CONFIG = "PermissionAndRoleConfig";
-
-
     private int applicationID = 0;
     private String applicationName;
     private String description;
@@ -84,38 +70,38 @@ public class ServiceProvider implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (APPLICATION_ID.equals(elementName)) {
+            if ("ApplicationID".equals(elementName)) {
                 if (element.getText() != null) {
                     serviceProvider.setApplicationID(Integer.parseInt(element.getText()));
                 }
-            } else if (APPLICATION_NAME.equals(elementName)) {
+            } else if ("ApplicationName".equals(elementName)) {
                 if (element.getText() != null) {
                     serviceProvider.setApplicationName(element.getText());
                 } else {
                     log.error("Service provider not loaded from the file. Application Name is null.");
                     return null;
                 }
-            } else if (DESCRIPTION.equals(elementName)) {
+            } else if ("Description".equals(elementName)) {
                 serviceProvider.setDescription(element.getText());
-            } else if (IS_SAAS_APP.equals(elementName)) {
+            } else if ("IsSaaSApp".equals(elementName)) {
                 if (element.getText() != null && "true".equals(element.getText())) {
                     serviceProvider.setSaasApp(true);
                 } else {
                     serviceProvider.setSaasApp(false);
                 }
-            } else if (OWNER.equals(elementName)) {
+            } else if ("Owner".equals(elementName)) {
                 // build service provider owner.
                 serviceProvider.setOwner(User.build(element));
-            } else if (INBOUND_AUTHENTICATION_CONFIG.equals(elementName)) {
+            } else if ("InboundAuthenticationConfig".equals(elementName)) {
                 // build in-bound authentication configuration.
                 serviceProvider.setInboundAuthenticationConfig(InboundAuthenticationConfig
                         .build(element));
-            } else if (LOCAL_AND_OUTBOUND_AUTHENTICATION_CONFIG.equals(elementName)) {
+            } else if ("LocalAndOutBoundAuthenticationConfig".equals(elementName)) {
                 // build local and out-bound authentication configuration.
                 serviceProvider
                         .setLocalAndOutBoundAuthenticationConfig(LocalAndOutboundAuthenticationConfig
                                 .build(element));
-            } else if (REQUEST_PATH_AUTHENTICATOR_CONFIG.equals(elementName)) {
+            } else if ("RequestPathAuthenticatorConfigs".equals(elementName)) {
                 // build request-path authentication configurations.
                 Iterator<?> requestPathAuthenticatorConfigsIter = element.getChildElements();
 
@@ -147,18 +133,18 @@ public class ServiceProvider implements Serializable {
                             .setRequestPathAuthenticatorConfigs(requestPathAuthenticatorConfigsArr);
                 }
 
-            } else if (INBOUND_PROVISIONING_CONFIG.equals(elementName)) {
+            } else if ("InboundProvisioningConfig".equals(elementName)) {
                 // build in-bound provisioning configuration.
                 serviceProvider.setInboundProvisioningConfig(InboundProvisioningConfig
                         .build(element));
-            } else if (OUTBOUND_PROVISIONING_CONFIG.equals(elementName)) {
+            } else if ("OutboundProvisioningConfig".equals(elementName)) {
                 // build out-bound provisioning configuration.
                 serviceProvider.setOutboundProvisioningConfig(OutboundProvisioningConfig
                         .build(element));
-            } else if (CLAIM_CONFIG.equals(elementName)) {
+            } else if ("ClaimConfig".equals(elementName)) {
                 // build claim configuration.
                 serviceProvider.setClaimConfig(ClaimConfig.build(element));
-            } else if (PERMISSION_AND_ROLE_CONFIG.equals(elementName)) {
+            } else if ("PermissionAndRoleConfig".equals(elementName)) {
                 // build permission and role configuration.
                 serviceProvider.setPermissionAndRoleConfig(PermissionsAndRoleConfig.build(element));
             }
