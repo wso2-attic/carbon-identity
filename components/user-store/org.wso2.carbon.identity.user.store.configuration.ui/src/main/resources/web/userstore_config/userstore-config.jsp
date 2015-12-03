@@ -122,9 +122,11 @@
     UserStoreDTO[] userStoreDTOs;
     Map<String, Map<String, String>> userStoreManagers = new HashMap<String, Map<String, String>>();
     userStoreDTOs = userStoreConfigAdminServiceClient.getActiveDomains();
-    if (userStoreDTOs[0] != null) {
+    if (userStoreDTOs != null) {
         for (UserStoreDTO userStoreDTO : userStoreDTOs) {
-            userStoreManagers.put(userStoreDTO.getDomainId(), convertArrayToMap(userStoreDTO.getProperties()));
+            if (userStoreDTO != null) {
+                userStoreManagers.put(userStoreDTO.getDomainId(), convertArrayToMap(userStoreDTO.getProperties()));
+            }
         }
     }
     Iterator<String> iterator = userStoreManagers.keySet().iterator();
