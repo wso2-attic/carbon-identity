@@ -46,8 +46,4 @@ public class CommonAuthRequestWrapper extends HttpServletRequestWrapper {
         extraParameters.put(name, value);
     }
 
-    public void removeParameter(String name) {
-
-        extraParameters.remove(name);
-    }
 }

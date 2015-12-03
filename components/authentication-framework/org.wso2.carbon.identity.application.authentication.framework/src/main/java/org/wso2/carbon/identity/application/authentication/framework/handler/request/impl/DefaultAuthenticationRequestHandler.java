@@ -300,10 +300,8 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                     "Login",
                     "ApplicationAuthenticationFramework", auditData, FrameworkConstants.AUDIT_SUCCESS));
         }
-        // Put the result in the cache using calling servlet's sessionDataKey as the cache key Once
-        // the redirect is done to that servlet, it will retrieve the result from the cache using
-        // that key.
-//        FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
+
+        //Set the result in the request attribute
         addAuthenticationResultToRequest(request, authenticationResult);
         /*
          * TODO Cache retaining is a temporary fix. Remove after Google fixes
@@ -318,7 +316,13 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         sendResponse(request, response, context);
     }
 
-    private void addAuthenticationResultToRequest(HttpServletRequest request, AuthenticationResult authenticationResult){
+    /**
+     * Add authentication request as request attribute
+     * @param request
+     * @param authenticationResult
+     */
+    private void addAuthenticationResultToRequest(HttpServletRequest request,
+            AuthenticationResult authenticationResult) {
         request.setAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT, authenticationResult);
     }
 
@@ -377,13 +381,12 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
         // redirect to the caller
         String redirectURL = context.getCallerPath() + "?sessionDataKey="
-                             + context.getCallerSessionKey() + rememberMeParam;
+                + context.getCallerSessionKey() + rememberMeParam;
         request.setAttribute("sessionDataKey", context.getCallerSessionKey());
-//        try {
-//            request.setAttribute("sessionDataKey", context.getCallerSessionKey());
-//            response.sendRedirect(redirectURL);
-//        } catch (IOException e) {
-//            throw new FrameworkException(e.getMessage(), e);
-//        }
+        try {
+            response.sendRedirect(redirectURL);
+        } catch (IOException e) {
+            throw new FrameworkException(e.getMessage(), e);
+        }
     }
 }

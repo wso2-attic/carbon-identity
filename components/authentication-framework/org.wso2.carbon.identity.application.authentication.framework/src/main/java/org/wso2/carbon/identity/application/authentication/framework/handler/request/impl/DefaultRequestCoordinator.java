@@ -66,6 +66,11 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         return instance;
     }
 
+    /**
+     * Get authentication request cache entry
+     * @param request Http servlet request
+     * @return Authentication request cache entry
+     */
     private AuthenticationRequestCacheEntry getAuthenticationRequestFromRequest(HttpServletRequest request) {
 
         return (AuthenticationRequestCacheEntry) request.getAttribute(FrameworkConstants.RequestAttribute.AUTH_REQUEST);
