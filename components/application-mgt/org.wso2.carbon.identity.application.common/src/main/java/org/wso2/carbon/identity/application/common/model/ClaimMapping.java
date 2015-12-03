@@ -28,11 +28,6 @@ public class ClaimMapping implements Serializable {
 
     private static final long serialVersionUID = -5329129991600888989L;
 
-    private static final String LOCAL_CLAIM = "LocalClaim";
-    private static final String REMOTE_CLAIM = "RemoteClaim";
-    private static final String DEFAULT_VALUE = "DefaultValue";
-    private static final String REQUEST_CLAIM = "RequestClaim";
-
     private Claim localClaim;
     private Claim remoteClaim;
     private String defaultValue;
@@ -75,25 +70,25 @@ public class ClaimMapping implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (LOCAL_CLAIM.equals(elementName)) {
+            if ("LocalClaim".equals(elementName)) {
                 Claim claim = Claim.build(element);
                 if (claim != null) {
                     claimMapping.setLocalClaim(claim);
                 }
             }
 
-            if (REMOTE_CLAIM.equals(elementName)) {
+            if ("RemoteClaim".equals(elementName)) {
                 Claim claim = Claim.build(element);
                 if (claim != null) {
                     claimMapping.setRemoteClaim(Claim.build(element));
                 }
             }
 
-            if (DEFAULT_VALUE.equals(elementName)) {
+            if ("DefaultValue".equals(elementName)) {
                 claimMapping.setDefaultValue(element.getText());
             }
 
-            if (REQUEST_CLAIM.equals(elementName)) {
+            if ("RequestClaim".equals(elementName)) {
                 claimMapping.setRequested(Boolean.parseBoolean(element.getText()));
             }
 

@@ -30,8 +30,6 @@ public class InboundAuthenticationConfig implements Serializable {
 
     private static final long serialVersionUID = 2768674144259414077L;
 
-    public static final String INBOUND_AUTHENTICATION_REQUEST_CONFIGS = "InboundAuthenticationRequestConfigs";
-
     private transient InboundAuthenticationRequestConfig[] inboundAuthenticationRequestConfigs = new
             InboundAuthenticationRequestConfig[0];
 
@@ -55,7 +53,7 @@ public class InboundAuthenticationConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (INBOUND_AUTHENTICATION_REQUEST_CONFIGS.equals(elementName)) {
+            if ("InboundAuthenticationRequestConfigs".equals(elementName)) {
 
                 Iterator<?> inboundAuthenticationRequestConfigsIter = element.getChildElements();
 

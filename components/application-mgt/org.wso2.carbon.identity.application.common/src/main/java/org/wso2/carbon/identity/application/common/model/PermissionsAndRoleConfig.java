@@ -30,10 +30,6 @@ public class PermissionsAndRoleConfig implements Serializable {
 
     private static final long serialVersionUID = 784509684062361809L;
 
-    private static final String PERMISSIONS = "Permissions";
-    private static final String ROLE_MAPPINGS = "RoleMappings";
-    private static final String IDP_ROLES = "IdPRoles";
-
     private ApplicationPermission[] permissions = new ApplicationPermission[0];
     private RoleMapping[] roleMappings = new RoleMapping[0];
     private String[] idpRoles = new String[0];
@@ -56,7 +52,7 @@ public class PermissionsAndRoleConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (PERMISSIONS.equals(elementName)) {
+            if ("Permissions".equals(elementName)) {
                 Iterator<?> permissionsIter = element.getChildElements();
                 List<ApplicationPermission> permissionsArrList = new ArrayList<ApplicationPermission>();
 
@@ -78,7 +74,7 @@ public class PermissionsAndRoleConfig implements Serializable {
                 }
             }
 
-            if (ROLE_MAPPINGS.equals(elementName)) {
+            if ("RoleMappings".equals(elementName)) {
                 Iterator<?> roleMappingsIter = element.getChildElements();
                 ArrayList<RoleMapping> roleMappingsArrList = new ArrayList<RoleMapping>();
 
@@ -99,7 +95,7 @@ public class PermissionsAndRoleConfig implements Serializable {
 
             }
 
-            if (IDP_ROLES.equals(elementName)) {
+            if ("IdpRoles".equals(elementName)) {
                 Iterator<?> idpRolesIter = element.getChildElements();
                 List<String> roleMappingsArrList = new ArrayList<String>();
 

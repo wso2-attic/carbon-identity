@@ -33,11 +33,6 @@ public class FederatedAuthenticatorConfig implements Serializable {
 
     private static final long serialVersionUID = -2361107623257323257L;
 
-    private static final String NAME = "Name";
-    private static final String DISPLAY_NAME = "DisplayName";
-    private static final String IS_ENABLED = "IsEnabled";
-    private static final String PROPERTIES = "Properties";
-
     protected String name;
     protected String displayName;
     protected boolean enabled;
@@ -57,13 +52,13 @@ public class FederatedAuthenticatorConfig implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (NAME.equals(elementName)) {
+            if ("Name".equals(elementName)) {
                 federatedAuthenticatorConfig.setName(element.getText());
-            } else if (DISPLAY_NAME.equals(elementName)) {
+            } else if ("DisplayName".equals(elementName)) {
                 federatedAuthenticatorConfig.setDisplayName(element.getText());
-            } else if (IS_ENABLED.equals(elementName)) {
+            } else if ("IsEnabled".equals(elementName)) {
                 federatedAuthenticatorConfig.setEnabled(Boolean.parseBoolean(element.getText()));
-            } else if (PROPERTIES.equals(elementName)) {
+            } else if ("Properties".equals(elementName)) {
                 Iterator<?> propertiesIter = element.getChildElements();
                 List<Property> propertiesArrList = new ArrayList<Property>();
 
