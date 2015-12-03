@@ -22,6 +22,8 @@ public class IdPManagementConstants {
 
     public static final String SHARED_IDP_PREFIX = "SHARED_";
     public static final String MULTI_VALUED_PROPERTY_CHARACTER = ".";
+    public static final String IS_TRUE_VALUE = "1";
+    public static final String IS_FALSE_VALUE = "0";
     public static final String MULTI_VALUED_PROPERT_IDENTIFIER_PATTERN = ".*\\" + MULTI_VALUED_PROPERTY_CHARACTER +
             "[0-9]+";
     public static class SQLQueries {
