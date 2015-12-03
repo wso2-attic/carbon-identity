@@ -26,6 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 import org.xml.sax.InputSource;
@@ -60,6 +61,7 @@ public class TenantDataManager {
     private static List<String> tenantDomainList = new ArrayList<String>();
     private static boolean initialized = false;
     private static boolean initAttempted = false;
+    private static boolean identityAvailable;
 
     private TenantDataManager() {
     }
@@ -79,6 +81,7 @@ public class TenantDataManager {
                 File configFile = new File(configFilePath);
 
                 if (configFile.exists()) {
+                    identityAvailable = true;
                     log.info(Constants.TenantConstants.CONFIG_FILE_NAME + " file loaded from " + Constants
                             .TenantConstants.CONFIG_RELATIVE_PATH);
                     inputStream = new FileInputStream(configFile);
@@ -87,6 +90,7 @@ public class TenantDataManager {
                     // Resolve encrypted properties with secure vault
                     resolveSecrets(prop);
                 } else {
+                    identityAvailable = false;
                     log.info(Constants.TenantConstants.CONFIG_FILE_NAME + " file loaded from authentication endpoint " +
                             "webapp");
 
@@ -126,9 +130,7 @@ public class TenantDataManager {
 
                 // Build the service URL of tenant management admin service
                 StringBuilder builder = new StringBuilder();
-                serviceURL = builder.append(Constants.HTTPS_URL).append(getPropertyValue(Constants.HOST)).append
-                        (Constants.COLON)
-                        .append(getPropertyValue(Constants.PORT)).append(Constants.TenantConstants
+                serviceURL = builder.append(getPropertyValue(Constants.SERVICES_URL)).append(Constants.TenantConstants
                                 .TENANT_MGT_ADMIN_SERVICE_URL).toString();
 
                 initialized = true;
@@ -177,7 +179,11 @@ public class TenantDataManager {
      * @return Property value
      */
     protected static String getPropertyValue(String key) {
-        return prop.getProperty(key);
+        if (key == Constants.SERVICES_URL && identityAvailable) {
+            return IdentityUtil.getServerURL(prop.getProperty(key),true, true);
+        } else {
+            return prop.getProperty(key);
+        }
     }
 
     /**
