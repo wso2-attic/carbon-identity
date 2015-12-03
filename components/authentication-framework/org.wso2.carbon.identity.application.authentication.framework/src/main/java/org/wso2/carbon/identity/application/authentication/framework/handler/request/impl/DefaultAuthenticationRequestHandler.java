@@ -303,8 +303,8 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         // Put the result in the cache using calling servlet's sessionDataKey as the cache key Once
         // the redirect is done to that servlet, it will retrieve the result from the cache using
         // that key.
-        FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
-
+//        FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
+        addAuthenticationResultToRequest(request, authenticationResult);
         /*
          * TODO Cache retaining is a temporary fix. Remove after Google fixes
          * http://code.google.com/p/gdata-issues/issues/detail?id=6628
@@ -316,6 +316,10 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         }
 
         sendResponse(request, response, context);
+    }
+
+    private void addAuthenticationResultToRequest(HttpServletRequest request, AuthenticationResult authenticationResult){
+        request.setAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT, authenticationResult);
     }
 
     private void setAuthCookie(HttpServletRequest request, HttpServletResponse response, AuthenticationContext context,
@@ -374,10 +378,12 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         // redirect to the caller
         String redirectURL = context.getCallerPath() + "?sessionDataKey="
                              + context.getCallerSessionKey() + rememberMeParam;
-        try {
-            response.sendRedirect(redirectURL);
-        } catch (IOException e) {
-            throw new FrameworkException(e.getMessage(), e);
-        }
+        request.setAttribute("sessionDataKey", context.getCallerSessionKey());
+//        try {
+//            request.setAttribute("sessionDataKey", context.getCallerSessionKey());
+//            response.sendRedirect(redirectURL);
+//        } catch (IOException e) {
+//            throw new FrameworkException(e.getMessage(), e);
+//        }
     }
 }

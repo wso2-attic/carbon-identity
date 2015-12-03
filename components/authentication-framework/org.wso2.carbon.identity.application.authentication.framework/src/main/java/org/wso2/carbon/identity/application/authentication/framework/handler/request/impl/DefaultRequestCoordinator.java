@@ -66,6 +66,11 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         return instance;
     }
 
+    private AuthenticationRequestCacheEntry getAuthenticationRequestFromRequest(HttpServletRequest request) {
+
+        return (AuthenticationRequestCacheEntry) request.getAttribute(FrameworkConstants.RequestAttribute.AUTH_REQUEST);
+    }
+
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
@@ -83,7 +88,11 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                 // Retrieve AuthenticationRequestCache Entry which is stored stored from servlet.
                 if (sessionDataKey != null) {
                     log.debug("retrieving authentication request from cache..");
-                    authRequest = FrameworkUtils.getAuthenticationRequestFromCache(sessionDataKey);
+
+                    authRequest = getAuthenticationRequestFromRequest(request);
+                    if (authRequest == null) {
+                        authRequest = FrameworkUtils.getAuthenticationRequestFromCache(sessionDataKey);
+                    }
 
                     if (authRequest == null) {
                         // authRequest cannot be retrieved from cache. Cache

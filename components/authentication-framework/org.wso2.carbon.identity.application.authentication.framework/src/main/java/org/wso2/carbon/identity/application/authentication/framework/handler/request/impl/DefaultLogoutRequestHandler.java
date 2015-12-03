@@ -189,7 +189,8 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
             }
 
             // Put the result in the
-            FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
+//            FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
+            addAuthenticationResultToRequest(request, authenticationResult);
 
             redirectURL = context.getCallerPath() + "?sessionDataKey=" + context.getCallerSessionKey();
         } else {
@@ -214,5 +215,9 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
 
         // redirect to the caller
         response.sendRedirect(redirectURL);
+    }
+
+    private void addAuthenticationResultToRequest(HttpServletRequest request, AuthenticationResult authenticationResult){
+        request.setAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT, authenticationResult);
     }
 }

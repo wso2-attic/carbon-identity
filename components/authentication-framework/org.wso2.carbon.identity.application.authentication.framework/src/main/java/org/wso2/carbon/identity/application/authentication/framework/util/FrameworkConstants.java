@@ -170,4 +170,14 @@ public abstract class FrameworkConstants {
         private RequestType() {
         }
     }
+
+    public static class RequestAttribute {
+
+        public static final String SESSION_DATA = "sessionData";
+        public static final String AUTH_RESULT = "authResult";
+        public static final String AUTH_REQUEST = "authRequest";
+
+        private RequestAttribute() {
+        }
+    }
 }
