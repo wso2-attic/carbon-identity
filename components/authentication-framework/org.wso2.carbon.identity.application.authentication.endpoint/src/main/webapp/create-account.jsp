@@ -125,8 +125,8 @@
                             <div id="regFormSuc" class="alert alert-success" style="display:none"></div>
 
                             <% if(isFirstNameInClaims) { %>
-                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group">
-                                <label>First Name</label>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group required">
+                                <label class="control-label">First Name</label>
                                 <input type="text" name="First Name"
                                        data-claim-uri="http://wso2.org/claims/givenname"
                                        class="form-control"
@@ -135,35 +135,35 @@
                             <%}%>
 
                             <% if(isLastNameInClaims) { %>
-                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group">
-                                <label>Last Name</label>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group required">
+                                <label class="control-label">Last Name</label>
                                 <input type="text" name="Last Name" data-claim-uri="http://wso2.org/claims/lastname"
                                        class="form-control  required null"
                                        <% if (isLastNameRequired) {%> required <%}%>>
                             </div>
                             <%}%>
 
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
-                                <label>Username</label>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group required">
+                                <label class="control-label">Username</label>
                                 <input id="reg-username" name="reg_username" type="text"
                                        class="form-control required usrName usrNameLength" required>
                             </div>
 
-                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group">
-                                <label>Password</label>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group required">
+                                <label class="control-label">Password</label>
                                 <input id="reg-password" name="reg_password" type="password"
                                        class="form-control" required>
                             </div>
 
-                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group">
-                                <label>Confirm password</label>
+                            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 form-group required">
+                                <label class="control-label">Confirm password</label>
                                 <input id="reg-password2" name="reg-password2" type="password" class="form-control"
                                        data-match="reg-password" required>
                             </div>
 
                             <% if(isEmailInClaims) { %>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
-                                <label>Email</label>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group required">
+                                <label <% if (isEmailRequired) {%> class="control-label" <%}%>>Email</label>
                                 <input type="email" name="Email" data-claim-uri="http://wso2.org/claims/emailaddress"
                                        class="form-control" data-validate="email"
                                        <% if (isEmailRequired) {%> required <%}%>>
@@ -177,8 +177,8 @@
                                         !StringUtils.equals(userFieldDTO.getFieldName(), "First Name") &&
                                         !StringUtils.equals(userFieldDTO.getFieldName(), "Email")) {
                             %>
-                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group">
-                                            <label><%= Encode.forHtmlContent(userFieldDTO.getFieldName()) %></label>
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 form-group required">
+                                            <label <% if (userFieldDTO.getRequired()) {%> class="control-label" <%}%>><%= Encode.forHtmlContent(userFieldDTO.getFieldName()) %></label>
                                             <input name="<%= Encode.forHtmlAttribute(userFieldDTO.getFieldName()) %>"
                                              data-claim-uri="<%= Encode.forHtmlAttribute(userFieldDTO.getClaimUri()) %>"
                                              class="form-control"
