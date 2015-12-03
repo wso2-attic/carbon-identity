@@ -46,8 +46,10 @@ public class AuthzCodeDO extends CacheEntry {
 
     private String oauthTokenId;
 
+    private String authzCodeId;
+
     public AuthzCodeDO(User authorizedUser, String[] scope, Timestamp issuedTime, long validityPeriod, String
-            callbackUrl, String consumerKey, String authorizationCode) {
+            callbackUrl, String consumerKey, String authorizationCode, String authzCodeId) {
         this.authorizedUser = authorizedUser;
         this.scope = scope;
         this.issuedTime = issuedTime;
@@ -55,6 +57,7 @@ public class AuthzCodeDO extends CacheEntry {
         this.callbackUrl = callbackUrl;
         this.consumerKey = consumerKey;
         this.authorizationCode = authorizationCode;
+        this.authzCodeId = authzCodeId;
     }
 
     public AuthzCodeDO() {
@@ -94,6 +97,14 @@ public class AuthzCodeDO extends CacheEntry {
 
     public void setOauthTokenId(String oauthTokenId) {
         this.oauthTokenId = oauthTokenId;
+    }
+
+    public String getAuthzCodeId() {
+        return authzCodeId;
+    }
+
+    public void setAuthzCodeId(String authzCodeId) {
+        this.authzCodeId = authzCodeId;
     }
 
     public void setAuthorizationCode(String authorizationCode) {

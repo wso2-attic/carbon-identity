@@ -67,10 +67,6 @@ import java.util.Map;
 public class WorkflowManagementServiceImpl implements WorkflowManagementService {
 
     public static final String DATE_FORMAT_FOR_FILTERING = "MM/dd/yyyy";
-    public static final String HT_SERVICES_URL = "services/HumanTaskClientAPIAdmin";
-    public static final String HT_PARAMETER_LIST_ELEMENT = "parametersList";
-    public static final String HT_ITEM_NAME_ATTRIBUTE = "itemName";
-    public static final String HT_REQUEST_ID_ATTRIBUTE_VALUE = "REQUEST ID";
     private static Log log = LogFactory.getLog(WorkflowManagementServiceImpl.class);
 
     WorkflowDAO workflowDAO = new WorkflowDAO();

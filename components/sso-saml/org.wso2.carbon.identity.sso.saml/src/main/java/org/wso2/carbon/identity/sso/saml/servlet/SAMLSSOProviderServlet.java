@@ -139,21 +139,21 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             log.debug("Query string : " + queryString);
         }
         // if an openid authentication or password authentication
-        String authMode = req.getParameter("authMode");
+        String authMode = req.getParameter(SAMLSSOConstants.AUTH_MODE);
         if (!SAMLSSOConstants.AuthnModes.OPENID.equals(authMode)) {
             authMode = SAMLSSOConstants.AuthnModes.USERNAME_PASSWORD;
         }
         String relayState = req.getParameter(SAMLSSOConstants.RELAY_STATE);
         String spEntityID = req.getParameter(SAMLSSOConstants.QueryParameter
                 .SP_ENTITY_ID.toString());
-        String samlRequest = req.getParameter("SAMLRequest");
-        String sessionDataKey = req.getParameter("sessionDataKey");
+        String samlRequest = req.getParameter(SAMLSSOConstants.SAML_REQUEST);
+        String sessionDataKey = req.getParameter(SAMLSSOConstants.SESSION_DATA_KEY);
         String slo = req.getParameter(SAMLSSOConstants.QueryParameter.SLO.toString());
 
         boolean isExpFired = false;
         try {
 
-            String tenantDomain = req.getParameter("tenantDomain");
+            String tenantDomain = req.getParameter(MultitenantConstants.TENANT_DOMAIN);
             SAMLSSOUtil.setTenantDomainInThreadLocal(tenantDomain);
 
             if (sessionDataKey != null) { //Response from common authentication framework.
@@ -402,7 +402,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String sessionDataKey = UUIDGenerator.generateUUID();
         addSessionDataToCache(sessionDataKey, sessionDTO);
 
-        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
         String selfPath = req.getContextPath();
         // Setting authentication request context
         AuthenticationRequest authenticationRequest = new AuthenticationRequest();
@@ -461,7 +461,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String sessionDataKey = UUIDGenerator.generateUUID();
         addSessionDataToCache(sessionDataKey, sessionDTO);
 
-        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
 
         String selfPath = request.getContextPath();
 
@@ -600,7 +600,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                                                           String sessionId, SAMLSSOSessionDTO sessionDTO)
             throws UserStoreException, IdentityException, IOException, ServletException {
 
-        String sessionDataKey = req.getParameter("sessionDataKey");
+        String sessionDataKey = req.getParameter(SAMLSSOConstants.SESSION_DATA_KEY);
         AuthenticationResult authResult = getAuthenticationResultFromCache(sessionDataKey);
 
         if (log.isDebugEnabled() && authResult == null) {
@@ -670,7 +670,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             if (authRespDTO.isSessionEstablished()) { // authenticated
 
                 storeTokenIdCookie(sessionId, req, resp, authnReqDTO.getTenantDomain());
-                removeSessionDataFromCache(req.getParameter("sessionDataKey"));
+                removeSessionDataFromCache(req.getParameter(SAMLSSOConstants.SESSION_DATA_KEY));
 
                 sendResponse(req, resp, relayState, authRespDTO.getRespString(),
                         authRespDTO.getAssertionConsumerURL(), authRespDTO.getSubject().getAuthenticatedSubjectIdentifier(),
@@ -694,7 +694,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             // sending LogoutRequests to other session participants
             LogoutRequestSender.getInstance().sendLogoutRequests(validationResponseDTO.getLogoutRespDTO());
             SAMLSSOUtil.removeSession(sessionDTO.getSessionId(), validationResponseDTO.getIssuer());
-            removeSessionDataFromCache(request.getParameter("sessionDataKey"));
+            removeSessionDataFromCache(request.getParameter(SAMLSSOConstants.SESSION_DATA_KEY));
 
             if (validationResponseDTO.isIdPInitSLO()) {
                 // redirecting to the return URL or IS logout page

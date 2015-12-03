@@ -20,25 +20,15 @@ package org.wso2.carbon.identity.workflow.impl.listener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.base.CarbonBaseConstants;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplException;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHolder;
-import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 import org.wso2.carbon.stratos.common.exception.StratosException;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
 import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.carbon.utils.NetworkUtils;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
-
-import java.net.SocketException;
 
 public class WorkflowImplTenantMgtListener implements TenantMgtListener {
 
@@ -48,12 +38,12 @@ public class WorkflowImplTenantMgtListener implements TenantMgtListener {
     public void onTenantCreate(TenantInfoBean tenantInfoBean) throws StratosException {
         String fullName = tenantInfoBean.getAdmin() + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantInfoBean.getTenantDomain() ;
         BPSProfile bpsProfileDTO = new BPSProfile();
-        String url = IdentityUtil.getServerURL("", true);
+        String url = IdentityUtil.getServerURL("", true, true);
         try {
             bpsProfileDTO.setManagerHostURL(url);
             bpsProfileDTO.setWorkerHostURL(url);
             bpsProfileDTO.setUsername(fullName);
-            bpsProfileDTO.setPassword(tenantInfoBean.getAdminPassword());
+            bpsProfileDTO.setPassword(tenantInfoBean.getAdminPassword().toCharArray());
             bpsProfileDTO.setProfileName(WFImplConstant.DEFAULT_BPS_PROFILE_NAME);
 
             WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService()

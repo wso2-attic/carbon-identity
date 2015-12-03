@@ -23,20 +23,12 @@ import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
-import org.apache.axiom.om.util.AXIOMUtil;
-import org.apache.axis2.AxisFault;
-import org.apache.axis2.client.Options;
-import org.apache.axis2.client.ServiceClient;
-import org.apache.axis2.databinding.types.NCName;
-import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.bpel.stub.mgt.BPELPackageManagementServiceStub;
 import org.wso2.carbon.bpel.stub.mgt.PackageManagementException;
 import org.wso2.carbon.bpel.stub.mgt.ProcessManagementException;
-import org.wso2.carbon.bpel.stub.mgt.ProcessManagementServiceStub;
 import org.wso2.carbon.bpel.stub.mgt.types.DeployedPackagesPaginated;
 import org.wso2.carbon.bpel.stub.mgt.types.PackageType;
 import org.wso2.carbon.bpel.stub.mgt.types.Version_type0;
@@ -46,7 +38,6 @@ import org.wso2.carbon.humantask.stub.types.TSimpleQueryInput;
 import org.wso2.carbon.humantask.stub.types.TStatus;
 import org.wso2.carbon.humantask.stub.types.TTaskSimpleQueryResultRow;
 import org.wso2.carbon.humantask.stub.types.TTaskSimpleQueryResultSet;
-import org.wso2.carbon.humantask.stub.ui.task.client.api.HumanTaskClientAPIAdminStub;
 import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalAccessFault;
 import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalArgumentFault;
 import org.wso2.carbon.humantask.stub.ui.task.client.api.IllegalOperationFault;
@@ -55,6 +46,9 @@ import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.impl.dao.BPSProfileDAO;
 import org.wso2.carbon.identity.workflow.impl.internal.WorkflowImplServiceDataHolder;
 import org.wso2.carbon.identity.workflow.impl.listener.WorkflowImplServiceListener;
+import org.wso2.carbon.identity.workflow.impl.util.BPELPackageManagementServiceClient;
+import org.wso2.carbon.identity.workflow.impl.util.HumanTaskClientAPIAdminClient;
+import org.wso2.carbon.identity.workflow.impl.util.ProcessManagementServiceClient;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.bean.Parameter;
 import org.wso2.carbon.identity.workflow.mgt.bean.Workflow;
@@ -67,8 +61,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.rmi.RemoteException;
 import java.util.Iterator;
@@ -154,7 +146,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             workflowListener.doPreUpdateBPSProfile(bpsProfileDTO, tenantId);
         }
         BPSProfile currentBpsProfile = bpsProfileDAO.getBPSProfile(bpsProfileDTO.getProfileName(), tenantId, true);
-        if (bpsProfileDTO.getPassword() == null || bpsProfileDTO.getPassword().isEmpty()) {
+        if (ArrayUtils.isEmpty(bpsProfileDTO.getPassword())) {
             bpsProfileDTO.setPassword(currentBpsProfile.getPassword());
         }
         bpsProfileDAO.updateProfile(bpsProfileDTO, tenantId);
@@ -171,63 +163,66 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
 
-        try {
-            for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-                workflowListener.doPreDeleteHumanTask(workflowRequest);
-            }
-            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-            List<BPSProfile> bpsProfiles = bpsProfileDAO.listBPSProfiles(tenantId);
-            HumanTaskClientAPIAdminStub stub = null;
-            TSimpleQueryInput input = new TSimpleQueryInput();
-            TStatus reservedState = new TStatus();
-            reservedState.setTStatus(WFImplConstant.HT_STATE_RESERVED);
-            input.addStatus(reservedState);
-            TStatus readyState = new TStatus();
-            readyState.setTStatus(WFImplConstant.HT_STATE_READY);
-            input.addStatus(readyState);
-            input.setPageSize(100000);
-            input.setPageNumber(0);
-            input.setSimpleQueryCategory(TSimpleQueryCategory.ALL_TASKS);
-            for (int i = 0; i < bpsProfiles.size(); i++) {
-                String host = bpsProfiles.get(i).getWorkerHostURL();
-                URL servicesUrl = new URL(new URL(host), WFImplConstant.HT_SERVICES_URL);
-                stub = new HumanTaskClientAPIAdminStub(servicesUrl.toString());
-                ServiceClient client = stub._getServiceClient();
-                if (bpsProfiles.get(i).getProfileName().equals(WFImplConstant.DEFAULT_BPS_PROFILE_NAME)) {
-                    System.setProperty(WFImplConstant.KEYSTORE_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
-                            .getFirstProperty(WFImplConstant.KEYSTORE_CARBON_CONFIG_PATH));
-                    System.setProperty(WFImplConstant.KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID, ServerConfiguration
-                            .getInstance()
-                            .getFirstProperty(WFImplConstant.KEYSTORE_PASSWORD_CARBON_CONFIG_PATH));
-                    OMElement mutualSSLHeader;
-                    try {
-                        String headerString = WFImplConstant.MUTUAL_SSL_HEADER.replaceAll("\\$username", bpsProfiles
-                                .get(i).getUsername());
-                        mutualSSLHeader = AXIOMUtil.stringToOM(headerString);
-                        client.addHeader(mutualSSLHeader);
-                    } catch (XMLStreamException e) {
-                        throw new AxisFault("Error while creating mutualSSLHeader XML Element.", e);
-                    }
-                } else {
-                    authenticate(client, bpsProfiles.get(i).getUsername(), bpsProfiles.get(i).getPassword());
-                }
-                TTaskSimpleQueryResultSet results = stub.simpleQuery(input);
-                TTaskSimpleQueryResultRow[] arr = results.getRow();
-                for (int j = 0; j < arr.length; j++) {
-                    Object task = stub.getInput(arr[j].getId(), new NCName(""));
-                    InputStream stream = new ByteArrayInputStream(task.toString().getBytes(StandardCharsets.UTF_8));
-                    OMElement taskXML = new StAXOMBuilder(stream).getDocumentElement();
-                    Iterator<OMElementImpl> iterator = taskXML.getChildElements();
-                    while (iterator.hasNext()) {
-                        OMElementImpl child = iterator.next();
-                        checkMatchingTaskAndDelete(workflowRequest.getRequestId(), stub, arr, j, child);
-                    }
 
+        for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
+            workflowListener.doPreDeleteHumanTask(workflowRequest);
+        }
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        List<BPSProfile> bpsProfiles = bpsProfileDAO.listBPSProfiles(tenantId);
+        HumanTaskClientAPIAdminClient client = null;
+        TSimpleQueryInput input = new TSimpleQueryInput();
+        TStatus reservedState = new TStatus();
+        reservedState.setTStatus(WFImplConstant.HT_STATE_RESERVED);
+        input.addStatus(reservedState);
+        TStatus readyState = new TStatus();
+        readyState.setTStatus(WFImplConstant.HT_STATE_READY);
+        input.addStatus(readyState);
+        input.setPageSize(100000);
+        input.setPageNumber(0);
+        input.setSimpleQueryCategory(TSimpleQueryCategory.ALL_TASKS);
+        for (int i = 0; i < bpsProfiles.size(); i++) {
+            try {
+                String host = bpsProfiles.get(i).getWorkerHostURL();
+
+                if (bpsProfiles.get(i).getProfileName().equals(WFImplConstant.DEFAULT_BPS_PROFILE_NAME)) {
+
+                    client = new HumanTaskClientAPIAdminClient(host, bpsProfiles.get(i).getUsername());
+                } else {
+                    client = new HumanTaskClientAPIAdminClient(host, bpsProfiles.get(i).getUsername(),
+                            bpsProfiles.get(i).getPassword());
                 }
+                TTaskSimpleQueryResultSet results = client.simpleQuery(input);
+                TTaskSimpleQueryResultRow[] arr = results.getRow();
+                if (ArrayUtils.isNotEmpty(arr)) {
+                    for (int j = 0; j < arr.length; j++) {
+                        try {
+                            Object task = client.getInput(arr[j].getId());
+                            InputStream stream = new ByteArrayInputStream(task.toString().getBytes(StandardCharsets
+                                    .UTF_8));
+
+
+                            OMElement taskXML = new StAXOMBuilder(stream).getDocumentElement();
+                            Iterator<OMElementImpl> iterator = taskXML.getChildElements();
+                            while (iterator.hasNext()) {
+                                OMElementImpl child = iterator.next();
+                                checkMatchingTaskAndDelete(workflowRequest.getRequestId(), client, arr, j, child);
+                            }
+                        } catch (IllegalStateFault | XMLStreamException | IllegalArgumentFault | RemoteException |
+                                IllegalOperationFault | IllegalAccessFault e) {
+                            //If exception throws when retrieving and deleting a specific task, it will continue with
+                            // other tasks without terminating.
+                            log.info("Failed to check human task.");
+                        }
+
+                    }
+                }
+
+            } catch (IllegalArgumentFault | RemoteException | IllegalStateFault e) {
+                //If exception throws at one iteration of loop, which is testing 1 BPS profile, it will continue with
+                // other profiles without terminating.
+                log.info("Failed to delete human task associated for this request in BPS profile : " + bpsProfiles.get
+                        (i).getProfileName());
             }
-        } catch (MalformedURLException | XMLStreamException | IllegalOperationFault | IllegalAccessFault |
-                RemoteException | IllegalStateFault | IllegalArgumentFault e) {
-            throw new WorkflowImplException("Error while deleting the human tasks of the request.");
         }
 
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
@@ -281,41 +276,27 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                 log.debug("Removing BPS Artifacts of " + bpsProfileName + " " + "for Tenant ID : " + tenantId);
             }
 
-            BPELPackageManagementServiceStub bpsPackagestub = null;
-            ProcessManagementServiceStub bpsProcessStub = null;
+            BPELPackageManagementServiceClient bpsPackageClient;
+            ProcessManagementServiceClient bpsProcessClient;
 
             //Authorizing BPS Package Management & BPS Process Management Stubs.
             String host = bpsProfile.getManagerHostURL();
-            URL bpsPackageServicesUrl = new URL(new URL(host), WFImplConstant.BPS_PACKAGE_SERVICES_URL);
-            bpsPackagestub = new BPELPackageManagementServiceStub(bpsPackageServicesUrl.toString());
-            ServiceClient bpsPackageClient = bpsPackagestub._getServiceClient();
-
-            URL bpsProcessServicesUrl = new URL(new URL(host), WFImplConstant.BPS_PROCESS_SERVICES_URL);
-            bpsProcessStub = new ProcessManagementServiceStub(bpsProcessServicesUrl.toString());
-            ServiceClient bpsProcessClient = bpsProcessStub._getServiceClient();
             if (bpsProfileName.equals(WFImplConstant.DEFAULT_BPS_PROFILE_NAME)) {
-                System.setProperty(WFImplConstant.KEYSTORE_SYSTEM_PROPERTY_ID, ServerConfiguration.getInstance()
-                        .getFirstProperty(WFImplConstant.KEYSTORE_CARBON_CONFIG_PATH));
-                System.setProperty(WFImplConstant.KEYSTORE_PASSWORD_SYSTEM_PROPERTY_ID, ServerConfiguration
-                        .getInstance()
-                        .getFirstProperty(WFImplConstant.KEYSTORE_PASSWORD_CARBON_CONFIG_PATH));
-                OMElement mutualSSLHeader;
-                try {
-                    String headerString = WFImplConstant.MUTUAL_SSL_HEADER.replaceAll("\\$username", bpsProfile
-                            .getUsername());
-                    mutualSSLHeader = AXIOMUtil.stringToOM(headerString);
-                    bpsProcessClient.addHeader(mutualSSLHeader);
-                    bpsPackageClient.addHeader(mutualSSLHeader);
-                } catch (XMLStreamException e) {
-                    throw new AxisFault("Error while creating mutualSSLHeader XML Element.", e);
-                }
+                //If emebeded_bps, use mutual ssl authentication
+                bpsPackageClient = new BPELPackageManagementServiceClient(host, bpsProfile
+                        .getUsername());
+                bpsProcessClient = new ProcessManagementServiceClient(host, bpsProfile
+                        .getUsername());
             } else {
-                authenticate(bpsProcessClient, bpsProfile.getUsername(), bpsProfile.getPassword());
-                authenticate(bpsPackageClient, bpsProfile.getUsername(), bpsProfile.getPassword());
+                //For external BPS profiles, use password authentication
+                bpsPackageClient = new BPELPackageManagementServiceClient(host, bpsProfile
+                        .getUsername(), bpsProfile.getPassword());
+                bpsProcessClient = new ProcessManagementServiceClient(host, bpsProfile
+                        .getUsername(), bpsProfile.getPassword());
             }
 
             DeployedPackagesPaginated deployedPackagesPaginated =
-                    bpsPackagestub.listDeployedPackagesPaginated(0, workflow.getWorkflowName());
+                    bpsPackageClient.listDeployedPackagesPaginated(0, workflow.getWorkflowName());
             PackageType[] packageTypes = deployedPackagesPaginated.get_package();
             if (packageTypes == null || packageTypes.length == 0) {
                 throw new WorkflowImplException("Error while deleting the BPS artifacts of: " +
@@ -335,11 +316,19 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                                     workflow.getWorkflowName());
                         }
                         for (int k = 0; k < numberOfProcesses; k++) {
-                            String processStatus = versionType.getProcesses().getProcess()[k].getStatus().getValue();
-                            if (StringUtils.equals(processStatus, WFImplConstant.BPS_STATUS_ACTIVE)) {
-                                String processID = versionType.getProcesses().getProcess()[k].getPid();
-                                QName pid = QName.valueOf(processID);
-                                bpsProcessStub.retireProcess(pid);
+                            QName pid = null;
+                            try {
+                                String processStatus = versionType.getProcesses().getProcess()[k].getStatus()
+                                        .getValue();
+                                if (StringUtils.equals(processStatus, WFImplConstant.BPS_STATUS_ACTIVE)) {
+                                    String processID = versionType.getProcesses().getProcess()[k].getPid();
+                                    pid = QName.valueOf(processID);
+                                    bpsProcessClient.retireProcess(pid);
+                                }
+                            } catch (RemoteException | ProcessManagementException e) {
+                                //If exception throws at retiring one process, it will continue with
+                                // other processes without terminating.
+                                log.info("Failed to retire BPS process : " + pid);
                             }
                         }
                     }
@@ -349,8 +338,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                 log.debug("BPS Artifacts Successfully removed for Workflow : " + workflow.getWorkflowName());
             }
 
-        } catch (WorkflowException | MalformedURLException | PackageManagementException | RemoteException |
-                ProcessManagementException e) {
+        } catch (WorkflowException | PackageManagementException | RemoteException e) {
             throw new WorkflowImplException("Error while deleting the BPS Artifacts of the Workflow "
                     + workflow.getWorkflowName(), e);
         }
@@ -372,11 +360,11 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
      * @throws RemoteException
      */
 
-    private void checkMatchingTaskAndDelete(String requestId, HumanTaskClientAPIAdminStub stub,
+    private void checkMatchingTaskAndDelete(String requestId, HumanTaskClientAPIAdminClient client,
                                             TTaskSimpleQueryResultRow[] resultsList, int resultIndex, OMElementImpl
                                                     taskElement) throws RemoteException, IllegalStateFault,
-            IllegalOperationFault, IllegalArgumentFault,
-            IllegalAccessFault {
+            IllegalOperationFault, IllegalArgumentFault, IllegalAccessFault {
+
         if (taskElement.getLocalName().equals(WFImplConstant.HT_PARAMETER_LIST_ELEMENT)) {
             Iterator<OMElementImpl> parameters = taskElement.getChildElements();
             while (parameters.hasNext()) {
@@ -394,7 +382,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                                 taskRequestId = taskRequestId.replaceAll(",", "");
                             }
                             if (taskRequestId.equals(requestId)) {
-                                stub.skip(resultsList[resultIndex].getId());
+                                client.skip(resultsList[resultIndex].getId());
                             }
                         }
 
@@ -405,20 +393,4 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
 
     }
 
-    private void authenticate(ServiceClient client, String accessUsername, String accessPassword)
-            throws WorkflowImplException {
-
-        if (accessUsername != null && accessPassword != null) {
-            Options option = client.getOptions();
-            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
-            auth.setUsername(accessUsername);
-            auth.setPassword(accessPassword);
-            auth.setPreemptiveAuthentication(true);
-            option.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
-            option.setManageSession(true);
-
-        } else {
-            throw new WorkflowImplException("Authentication username or password not set");
-        }
-    }
 }
