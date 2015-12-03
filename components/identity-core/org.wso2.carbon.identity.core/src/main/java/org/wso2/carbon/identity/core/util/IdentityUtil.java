@@ -46,7 +46,7 @@ import org.wso2.carbon.identity.core.internal.IdentityCoreServiceComponent;
 import org.wso2.carbon.identity.core.model.IdentityCacheConfig;
 import org.wso2.carbon.identity.core.model.IdentityCacheConfigKey;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -97,7 +97,7 @@ public class IdentityUtil {
                                                          "[^<>:\"/\\\\|?*\\x00-\\x1F]*[^<>:\"/\\\\|?*\\x00-\\x1F\\ .]$";
     private static Log log = LogFactory.getLog(IdentityUtil.class);
     private static Map<String, Object> configuration = new HashMap<String, Object>();
-    private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new
+    private static Map<IdentityEventListenerConfigKey, IdentityEventListenerConfig> eventListenerConfiguration = new
             HashMap<>();
     private static Map<IdentityCacheConfigKey, IdentityCacheConfig> identityCacheConfigurationHolder = new HashMap<>();
     private static Document importerDoc = null;
@@ -154,10 +154,10 @@ public class IdentityUtil {
         return strValue;
     }
 
-    public static IdentityEventListener readEventListenerProperty(String type, String name) {
+    public static IdentityEventListenerConfig readEventListenerProperty(String type, String name) {
         IdentityEventListenerConfigKey identityEventListenerConfigKey = new IdentityEventListenerConfigKey(type, name);
-        IdentityEventListener identityEventListener = eventListenerConfiguration.get(identityEventListenerConfigKey);
-        return identityEventListener;
+        IdentityEventListenerConfig identityEventListenerConfig = eventListenerConfiguration.get(identityEventListenerConfigKey);
+        return identityEventListenerConfig;
     }
 
     public static IdentityCacheConfig getIdentityCacheConfig(String cacheManagerName, String cacheName) {

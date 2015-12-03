@@ -20,7 +20,7 @@ package org.wso2.carbon.user.mgt.ui;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.mgt.stub.types.carbon.FlaggedName;
@@ -50,10 +50,10 @@ public class Util {
         InputStream is = null;
         try {
             boolean identityMgtListenerEnabled = true;
-            IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty(
+            IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty(
                     UserOperationEventListener.class.getName(), "org.wso2.carbon.identity.mgt.IdentityMgtEventListener");
-            if (identityEventListener != null) {
-                identityMgtListenerEnabled = Boolean.parseBoolean(identityEventListener.getEnable());
+            if (identityEventListenerConfig != null) {
+                identityMgtListenerEnabled = Boolean.parseBoolean(identityEventListenerConfig.getEnable());
             }
             if(identityMgtListenerEnabled){
                 File file = new File(IdentityUtil.getIdentityConfigDirPath() + "/identity-mgt.properties");
