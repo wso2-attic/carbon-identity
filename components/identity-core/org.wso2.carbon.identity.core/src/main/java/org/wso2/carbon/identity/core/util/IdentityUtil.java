@@ -603,6 +603,22 @@ public class IdentityUtil {
                     Integer.toString(mgtTransportPort));
         }
 
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTP)) {
+
+            String httpPort = System.getProperty(IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTP_PROPERTY);
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTP,
+                    httpPort);
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTPS)) {
+
+            String httpsPort = System.getProperty(IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTPS_PROPERTY);
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTPS,
+                    httpsPort);
+        }
+
         if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PROTOCOL)) {
 
             String mgtTransport = CarbonUtils.getManagementTransport();
