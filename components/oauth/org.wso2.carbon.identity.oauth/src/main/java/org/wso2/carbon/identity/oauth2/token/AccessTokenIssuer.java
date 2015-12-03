@@ -237,17 +237,16 @@ public class AccessTokenIssuer {
         AuthorizationGrantCacheKey oldCacheKey = new AuthorizationGrantCacheKey(tokenReqDTO.getAuthorizationCode());
         //checking getUserAttributesId vale of cacheKey before retrieve entry from cache as it causes to NPE
         if (oldCacheKey.getUserAttributesId() != null) {
-            AuthorizationGrantCacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance()
-                    .getValueFromCache(oldCacheKey);
+            AuthorizationGrantCacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance().getValueFromCacheByCode(oldCacheKey);
             AuthorizationGrantCacheKey newCacheKey = new AuthorizationGrantCacheKey(tokenRespDTO.getAccessToken());
 
-            if (AuthorizationGrantCache.getInstance().getValueFromCache(newCacheKey) == null) {
+            if (AuthorizationGrantCache.getInstance().getValueFromCacheByToken(newCacheKey) == null) {
                 if(log.isDebugEnabled()){
                    log.debug("No AuthorizationGrantCache entry found for the access token:"+ newCacheKey.getUserAttributesId()+
                    ", hence adding to cache");
                 }
-                AuthorizationGrantCache.getInstance().addToCache(newCacheKey, authorizationGrantCacheEntry);
-                AuthorizationGrantCache.getInstance().clearCacheEntry(oldCacheKey);
+                AuthorizationGrantCache.getInstance().addToCacheByToken(newCacheKey, authorizationGrantCacheEntry);
+                AuthorizationGrantCache.getInstance().clearCacheEntryByCode(oldCacheKey);
             } else{
                 //if the user attributes are already saved for access token, no need to add again.
             }

@@ -28,6 +28,7 @@ public class UserFieldDTO {
     private int minLength;
     private int maxLength;
     private boolean required;
+    private boolean supportedByDefault;
     private int displayOrder;
     private String regEx;
 
@@ -116,4 +117,11 @@ public class UserFieldDTO {
         this.displayOrder = displayOrder;
     }
 
+    public boolean getSupportedByDefault() {
+        return supportedByDefault;
+    }
+
+    public void setSupportedByDefault(boolean isSupportedByDefault) {
+        this.supportedByDefault = isSupportedByDefault;
+    }
 }

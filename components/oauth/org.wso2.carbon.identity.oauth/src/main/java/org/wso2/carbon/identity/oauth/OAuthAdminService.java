@@ -28,6 +28,7 @@ import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
@@ -79,8 +80,9 @@ public class OAuthAdminService extends AbstractAdmin {
 
         String tenantUser = MultitenantUtils.getTenantAwareUsername(loggedInUser);
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        String userDomain = IdentityUtil.extractDomainFromName(loggedInUser);
         OAuthAppDAO dao = new OAuthAppDAO();
-        return dao.addOAuthConsumer(tenantUser, tenantId);
+        return dao.addOAuthConsumer(UserCoreUtil.removeDomainFromName(tenantUser), tenantId, userDomain);
     }
 
     /**
@@ -223,8 +225,9 @@ public class OAuthAdminService extends AbstractAdmin {
                     }
 
                 }
-                app.setUserName(tenantUser);
+                app.setUserName(UserCoreUtil.removeDomainFromName(tenantUser));
                 app.setTenantId(tenantId);
+                app.setUserDomain(IdentityUtil.extractDomainFromName(userName));
                 if (application.getOAuthVersion() != null) {
                     app.setOauthVersion(application.getOAuthVersion());
                 } else {   // by default, assume OAuth 2.0, if it is not set.
@@ -263,8 +266,9 @@ public class OAuthAdminService extends AbstractAdmin {
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         OAuthAppDAO dao = new OAuthAppDAO();
         OAuthAppDO oauthappdo = new OAuthAppDO();
-        oauthappdo.setUserName(tenantAwareUsername);
+        oauthappdo.setUserName(UserCoreUtil.removeDomainFromName(tenantAwareUsername));
         oauthappdo.setTenantId(tenantId);
+        oauthappdo.setUserDomain(IdentityUtil.extractDomainFromName(userName));
         oauthappdo.setOauthConsumerKey(consumerAppDTO.getOauthConsumerKey());
         oauthappdo.setOauthConsumerSecret(consumerAppDTO.getOauthConsumerSecret());
         oauthappdo.setCallbackUrl(consumerAppDTO.getCallbackUrl());

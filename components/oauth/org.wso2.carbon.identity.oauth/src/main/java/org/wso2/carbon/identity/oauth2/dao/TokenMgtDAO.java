@@ -155,17 +155,18 @@ public class TokenMgtDAO {
         PreparedStatement prepStmt = null;
         try {
             prepStmt = connection.prepareStatement(SQLQueries.STORE_AUTHORIZATION_CODE);
-            prepStmt.setString(1, persistenceProcessor.getProcessedAuthzCode(authzCode));
-            prepStmt.setString(2, callbackUrl);
-            prepStmt.setString(3, OAuth2Util.buildScopeString(authzCodeDO.getScope()));
-            prepStmt.setString(4, authzCodeDO.getAuthorizedUser().getUserName());
-            prepStmt.setString(5, authzCodeDO.getAuthorizedUser().getUserStoreDomain());
+            prepStmt.setString(1, authzCodeDO.getAuthzCodeId());
+            prepStmt.setString(2, persistenceProcessor.getProcessedAuthzCode(authzCode));
+            prepStmt.setString(3, callbackUrl);
+            prepStmt.setString(4, OAuth2Util.buildScopeString(authzCodeDO.getScope()));
+            prepStmt.setString(5, authzCodeDO.getAuthorizedUser().getUserName());
+            prepStmt.setString(6, authzCodeDO.getAuthorizedUser().getUserStoreDomain());
             int tenantId = OAuth2Util.getTenantId(authzCodeDO.getAuthorizedUser().getTenantDomain());
-            prepStmt.setInt(6, tenantId);
-            prepStmt.setTimestamp(7, authzCodeDO.getIssuedTime(),
+            prepStmt.setInt(7, tenantId);
+            prepStmt.setTimestamp(8, authzCodeDO.getIssuedTime(),
                                   Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-            prepStmt.setLong(8, authzCodeDO.getValidityPeriod());
-            prepStmt.setString(9, persistenceProcessor.getProcessedClientId(consumerKey));
+            prepStmt.setLong(9, authzCodeDO.getValidityPeriod());
+            prepStmt.setString(10, persistenceProcessor.getProcessedClientId(consumerKey));
             prepStmt.execute();
             connection.commit();
         } catch (SQLException e) {
@@ -532,6 +533,7 @@ public class TokenMgtDAO {
                     String callbackUrl = resultSet.getString(5);
                     Timestamp issuedTime = resultSet.getTimestamp(6, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
                     long validityPeriod = resultSet.getLong(7);
+                    String codeId = resultSet.getString(11);
 
                     User user = new User();
                     user.setUserName(authorizedUser);
@@ -539,7 +541,7 @@ public class TokenMgtDAO {
                     user.setUserStoreDomain(userstoreDomain);
 
                     return new AuthzCodeDO(user, OAuth2Util.buildScopeArray(scopeString), issuedTime, validityPeriod,
-                            callbackUrl, consumerKey, authorizationKey);
+                            callbackUrl, consumerKey, authorizationKey, codeId);
                 } else {
                     String authorizedUser = resultSet.getString(1);
                     String userStoreDomain = resultSet.getString(2);
@@ -1279,21 +1281,22 @@ public class TokenMgtDAO {
             ps.setInt(1, tenantId);
             rs = ps.executeQuery();
             while (rs.next()){
-                String authzCode = rs.getString(1);
-                String consumerKey = rs.getString(2);
-                String authzUser = rs.getString(3);
-                String[] scope = OAuth2Util.buildScopeArray(rs.getString(4));
-                Timestamp issuedTime = rs.getTimestamp(5, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-                long validityPeriodInMillis = rs.getLong(6);
-                String callbackUrl = rs.getString(7);
-                String userStoreDomain = rs.getString(8);
+                String authzCodeId = rs.getString(1);
+                String authzCode = rs.getString(2);
+                String consumerKey = rs.getString(3);
+                String authzUser = rs.getString(4);
+                String[] scope = OAuth2Util.buildScopeArray(rs.getString(5));
+                Timestamp issuedTime = rs.getTimestamp(6, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+                long validityPeriodInMillis = rs.getLong(7);
+                String callbackUrl = rs.getString(8);
+                String userStoreDomain = rs.getString(9);
 
                 User user = new User();
                 user.setUserName(authzUser);
                 user.setUserStoreDomain(userStoreDomain);
                 user.setTenantDomain(OAuth2Util.getTenantDomain(tenantId));
                 latestAuthzCodes.add(new AuthzCodeDO(user, scope, issuedTime, validityPeriodInMillis, callbackUrl,
-                        consumerKey, authzCode));
+                        consumerKey, authzCode, authzCodeId));
             }
             connection.commit();
         } catch (SQLException e) {
@@ -1322,20 +1325,21 @@ public class TokenMgtDAO {
             ps.setString(2, userStorDomain.toUpperCase());
             rs = ps.executeQuery();
             while (rs.next()){
-                String authzCode = rs.getString(1);
-                String consumerKey = rs.getString(2);
-                String authzUser = rs.getString(3);
-                String[] scope = OAuth2Util.buildScopeArray(rs.getString(4));
-                Timestamp issuedTime = rs.getTimestamp(5, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
-                long validityPeriodInMillis = rs.getLong(6);
-                String callbackUrl = rs.getString(7);
+                String authzCodeId = rs.getString(1);
+                String authzCode = rs.getString(2);
+                String consumerKey = rs.getString(3);
+                String authzUser = rs.getString(4);
+                String[] scope = OAuth2Util.buildScopeArray(rs.getString(5));
+                Timestamp issuedTime = rs.getTimestamp(6, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+                long validityPeriodInMillis = rs.getLong(7);
+                String callbackUrl = rs.getString(8);
 
                 User user = new User();
                 user.setUserName(authzUser);
                 user.setUserStoreDomain(userStorDomain);
                 user.setTenantDomain(OAuth2Util.getTenantDomain(tenantId));
                 latestAuthzCodes.add(new AuthzCodeDO(user, scope, issuedTime, validityPeriodInMillis, callbackUrl,
-                        consumerKey, authzCode));
+                        consumerKey, authzCode, authzCodeId));
             }
             connection.commit();
         } catch (SQLException e) {
@@ -1373,6 +1377,125 @@ public class TokenMgtDAO {
             IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }
     }
+
+    public String getCodeIdByAuthorizationCode(String authzCode) throws IdentityOAuth2Exception {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+        try {
+            String sql = SQLQueries.RETRIEVE_CODE_ID_BY_AUTHORIZATION_CODE;
+
+            prepStmt = connection.prepareStatement(sql);
+            prepStmt.setString(1, persistenceProcessor.getProcessedAuthzCode(authzCode));
+            resultSet = prepStmt.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getString("CODE_ID");
+            }
+            connection.commit();
+            return null;
+
+        } catch (SQLException e) {
+            String errorMsg = "Error occurred while retrieving 'Code ID' for " +
+                    "authorization code : " + authzCode;
+            throw new IdentityOAuth2Exception(errorMsg, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+        }
+
+    }
+
+    public String getAuthzCodeByCodeId(String codeId) throws IdentityOAuth2Exception {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+        try {
+            String sql = SQLQueries.RETRIEVE_AUTHZ_CODE_BY_CODE_ID;
+
+            prepStmt = connection.prepareStatement(sql);
+            prepStmt.setString(1, codeId);
+            resultSet = prepStmt.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getString("AUTHORIZATION_CODE");
+            }
+            connection.commit();
+            return null;
+
+        } catch (SQLException e) {
+            String errorMsg = "Error occurred while retrieving 'Authorization Code' for " +
+                    "authorization code : " + codeId;
+            throw new IdentityOAuth2Exception(errorMsg, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+        }
+
+    }
+
+
+    public String getTokenIdByToken(String token) throws IdentityOAuth2Exception {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+        try {
+            String sql = SQLQueries.RETRIEVE_TOKEN_ID_BY_TOKEN;
+
+            prepStmt = connection.prepareStatement(sql);
+            prepStmt.setString(1, persistenceProcessor.getProcessedAccessTokenIdentifier(token));
+            resultSet = prepStmt.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getString("TOKEN_ID");
+            }
+            connection.commit();
+            return null;
+
+        } catch (SQLException e) {
+            String errorMsg = "Error occurred while retrieving 'Token ID' for " +
+                    "token : " + token;
+            throw new IdentityOAuth2Exception(errorMsg, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+        }
+
+    }
+
+
+    public String getTokenByTokenId(String tokenId) throws IdentityOAuth2Exception {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+        try {
+            String sql = SQLQueries.RETRIEVE_TOKEN_BY_TOKEN_ID;
+
+            prepStmt = connection.prepareStatement(sql);
+            prepStmt.setString(1, tokenId);
+            resultSet = prepStmt.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getString("ACCESS_TOKEN");
+            }
+            connection.commit();
+            return null;
+
+        } catch (SQLException e) {
+            String errorMsg = "Error occurred while retrieving 'Access Token' for " +
+                    "token id : " + tokenId;
+            throw new IdentityOAuth2Exception(errorMsg, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
+        }
+
+    }
+
 
     private void updateTokenIdIfAutzCodeGrantType(String oldAccessTokenId, String newAccessTokenId, Connection
             connection) throws IdentityOAuth2Exception {

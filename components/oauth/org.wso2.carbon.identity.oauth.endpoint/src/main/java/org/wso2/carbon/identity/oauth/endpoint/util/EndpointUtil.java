@@ -239,7 +239,7 @@ public class EndpointUtil {
             if (scopes != null && scopes.contains("openid")) {
                 type = "oidc";
             }
-            String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+            String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
             String selfPath = "/oauth2/authorize";
             AuthenticationRequest authenticationRequest = new AuthenticationRequest();
 

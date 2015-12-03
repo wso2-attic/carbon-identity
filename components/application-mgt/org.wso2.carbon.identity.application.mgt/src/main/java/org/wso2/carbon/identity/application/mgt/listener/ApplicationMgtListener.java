@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.application.mgt.listener;
 
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
 
 public interface ApplicationMgtListener {
 
@@ -116,4 +117,146 @@ public interface ApplicationMgtListener {
     public boolean doPostDeleteApplication(String applicationName, String tenantDomain, String userName)
             throws IdentityApplicationManagementException;
 
+    /**
+     * Define any additional actions before getting a service provider
+     *
+     * @param applicationName
+     * @param tenantDomain
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    boolean doPreGetServiceProvider(String applicationName, String tenantDomain)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions after getting a service provider
+     *
+     * @param applicationName
+     * @param tenantDomain
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    boolean doPostGetServiceProvider(ServiceProvider serviceProvider, String applicationName, String tenantDomain)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions before getting a service provider by client id
+     *
+     * @param clientId
+     * @param clientType
+     * @param tenantDomain
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    boolean doPreGetServiceProviderByClientId(String clientId, String clientType, String tenantDomain)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions after getting a service provider by client id
+     *
+     * @param serviceprovider
+     * @param clientId
+     * @param clientType
+     * @param tenantDomain
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    boolean doPostGetServiceProviderByClientId(ServiceProvider serviceprovider, String clientId, String clientType, String tenantDomain)
+            throws IdentityApplicationManagementException;
+
+
+    /**
+     * Define any additional actions before getting all applications' basic information
+     *
+     * @param tenantDomain
+     * @param username
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    boolean doPreGetAllApplicationBasicInfo(String tenantDomain, String username)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions after getting all applications' basic information
+     *
+     * @param appDAO
+     * @param tenantDomain
+     * @param username
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    boolean doPostGetAllApplicationBasicInfo(ApplicationDAO appDAO, String tenantDomain, String username)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions before getting an application excluding file based SPs.
+     *
+     * @param applicationName
+     * @param tenantDomain
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    boolean doPreGetApplicationExcludingFileBasedSPs(String applicationName, String tenantDomain)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions after getting an application excluding file based SPs.
+     *
+     * @param serviceProvider
+     * @param applicationName
+     * @param tenantDomain
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    boolean doPostGetApplicationExcludingFileBasedSPs(ServiceProvider serviceProvider, String applicationName,
+                                                      String tenantDomain) throws IdentityApplicationManagementException;
+
+    /**
+     *  Define any additional actions before getting service provider name by client id.
+     *
+     * @param clientId
+     * @param clientType
+     * @param tenantDomain
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    boolean doPreGetServiceProviderNameByClientId(String clientId, String clientType, String tenantDomain)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions after getting service provider name by client id
+     *
+     * @param name
+     * @param clientId
+     * @param clientType
+     * @param tenantDomain
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    boolean doPostGetServiceProviderNameByClientId(String name, String clientId, String clientType, String tenantDomain)
+            throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions before getting service provider name by client id, excluding file based ones.
+     *
+     * @param name
+     * @param clientId
+     * @param type
+     * @param tenantDomain
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    boolean doPreGetServiceProviderNameByClientIdExcludingFileBasedSPs(String name, String clientId, String type,
+                                                                       String tenantDomain) throws IdentityApplicationManagementException;
+
+    /**
+     * Define any additional actions after getting service provider name by client id, excluding file based ones.
+     *
+     * @param name
+     * @param clientId
+     * @param type
+     * @param tenantDomain
+     * @return
+     */
+    boolean doPostGetServiceProviderNameByClientIdExcludingFileBasedSPs(String name, String clientId, String type, String tenantDomain);
 }

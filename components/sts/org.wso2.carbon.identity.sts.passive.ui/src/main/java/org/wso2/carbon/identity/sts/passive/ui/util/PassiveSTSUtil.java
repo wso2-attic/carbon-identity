@@ -28,7 +28,7 @@ public class PassiveSTSUtil {
     public static String getRetryUrl(){
         String retryUrl = IdentityUtil.getProperty(IdentityConstants.ServerConfig.PASSIVE_STS_RETRY);
         if (StringUtils.isBlank(retryUrl)){
-            IdentityUtil.getServerURL( ConfigurationFacade.getInstance().getAuthenticationEndpointRetryURL(), false);
+            retryUrl = ConfigurationFacade.getInstance().getAuthenticationEndpointRetryURL();
         }
 
         return retryUrl;

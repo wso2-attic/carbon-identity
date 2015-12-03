@@ -855,7 +855,7 @@
         oidcQueryParam = "";
     }
     if (StringUtils.isBlank(idPAlias)) {
-        idPAlias = IdentityUtil.getServerURL("/oauth2/token", false);
+        idPAlias = IdentityUtil.getServerURL("/oauth2/token", true, false);
     }
     String provisionStaticDropdownDisabled = "";
     String provisionDynamicDropdownDisabled = "";
@@ -1055,7 +1055,7 @@
     }
 
     if(StringUtils.isBlank(callBackUrl)){
-        callBackUrl = IdentityUtil.getServerURL(IdentityApplicationConstants.COMMONAUTH, true);
+        callBackUrl = IdentityUtil.getServerURL(IdentityApplicationConstants.COMMONAUTH, true, true);
     }
 
     String passiveSTSEnabledChecked = "";
