@@ -44,7 +44,7 @@ public interface Config {
     /**
      * This loads all the property values of the email notification configuration object.
      *
-     * @return Property values of the email email notification configuration object.
+     * @return Property values of the email notification configuration object.
      */
     Properties getProperties();
 
