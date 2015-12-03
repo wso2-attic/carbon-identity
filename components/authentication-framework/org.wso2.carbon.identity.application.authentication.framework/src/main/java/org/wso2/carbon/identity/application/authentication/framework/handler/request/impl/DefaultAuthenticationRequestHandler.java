@@ -301,7 +301,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                     "ApplicationAuthenticationFramework", auditData, FrameworkConstants.AUDIT_SUCCESS));
         }
 
-        //Set the result in the request attribute
+        //Set the result as request attribute
         addAuthenticationResultToRequest(request, authenticationResult);
         /*
          * TODO Cache retaining is a temporary fix. Remove after Google fixes
