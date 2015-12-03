@@ -191,7 +191,8 @@ public class PassiveSTS extends HttpServlet {
         String pageWithReplyActionResultContext;
         if (respToken.getContext() != null) {
             pageWithReplyActionResultContext = pageWithReplyActionResult.replace(
-                    "<!--$additionalParams-->", "<!--$additionalParams-->" + "<input type='hidden' name='wctx' value='"
+                    PassiveRequestorConstants.PASSIVE_ADDITIONAL_PARAMETER,
+                    PassiveRequestorConstants.PASSIVE_ADDITIONAL_PARAMETER + "<input type='hidden' name='wctx' value='"
                             + Encode.forHtmlAttribute(respToken.getContext()) + "'>");
         } else {
             pageWithReplyActionResultContext = pageWithReplyActionResult;
@@ -200,7 +201,7 @@ public class PassiveSTS extends HttpServlet {
         if (authenticatedIdPs == null || authenticatedIdPs.isEmpty()) {
             finalPage = pageWithReplyActionResultContext;
         } else {
-            finalPage = pageWithReplyActionResultContext.replace("<!--$additionalParams-->",
+            finalPage = pageWithReplyActionResultContext.replace(PassiveRequestorConstants.PASSIVE_ADDITIONAL_PARAMETER,
                     "<input type='hidden' name='AuthenticatedIdPs' value='" +
                             Encode.forHtmlAttribute(authenticatedIdPs) + "'>");
         }
