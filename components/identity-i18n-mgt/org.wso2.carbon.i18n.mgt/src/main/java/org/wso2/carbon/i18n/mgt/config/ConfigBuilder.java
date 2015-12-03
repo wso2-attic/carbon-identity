@@ -127,6 +127,7 @@ public class ConfigBuilder {
 				break;
 			case DB:
 			case FILE:
+				break;
 			default:
 				throw new I18nMgtEmailConfigException("Configuration storage type not supported");
 		}
