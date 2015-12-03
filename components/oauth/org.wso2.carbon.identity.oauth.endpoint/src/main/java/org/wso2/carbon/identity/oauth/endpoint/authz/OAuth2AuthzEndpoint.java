@@ -29,7 +29,6 @@ import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.CommonAuthenticationHandler;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthRequestWrapper;
@@ -196,7 +195,7 @@ public class OAuth2AuthzEndpoint {
 
                 sessionDataCacheEntry = resultFromLogin;
                 OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
-                AuthenticationResult authnResult = getAuthenticationResultFromCache(request, sessionDataKeyFromLogin);
+                AuthenticationResult authnResult = getAuthenticationResultFromRequest(request);
                 if (authnResult != null) {
                     FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKeyFromLogin);
 
@@ -716,18 +715,15 @@ public class OAuth2AuthzEndpoint {
         }
     }
 
-    private AuthenticationResult getAuthenticationResultFromCache(HttpServletRequest request, String sessionDataKey) {
-//        AuthenticationResult authResult = null;
-//        AuthenticationResultCacheEntry authResultCacheEntry = FrameworkUtils
-//                .getAuthenticationResultFromCache(sessionDataKey);
-//        if (authResultCacheEntry != null) {
-//            authResult = authResultCacheEntry.getResult();
-//        } else {
-//            log.error("Cannot find AuthenticationResult from the cache");
-//        }
-//
-//        return authResult;
-        return (AuthenticationResult)request.getAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT);
+    /**
+     * Get authentication result from request
+     *
+     * @param request  Http servlet request
+     * @return
+     */
+    private AuthenticationResult getAuthenticationResultFromRequest(HttpServletRequest request) {
+
+        return (AuthenticationResult) request.getAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT);
     }
 
     /**
