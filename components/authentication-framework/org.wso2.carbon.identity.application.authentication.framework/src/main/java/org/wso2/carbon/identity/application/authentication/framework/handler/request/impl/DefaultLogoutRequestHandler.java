@@ -188,8 +188,12 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                 authenticationResult.setSaaSApp(sequenceConfig.getApplicationConfig().isSaaSApp());
             }
 
-            //Set authentication result as request attribute
-            addAuthenticationResultToRequest(request, authenticationResult);
+            if(FrameworkUtils.getCacheDisabledAuthenticators().contains(context.getRequestType())) {
+                //Set authentication result as request attribute
+                addAuthenticationResultToRequest(request, authenticationResult);
+            }else{
+                FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
+            }
 
             redirectURL = context.getCallerPath() + "?sessionDataKey=" + context.getCallerSessionKey();
         } else {

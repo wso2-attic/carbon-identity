@@ -50,12 +50,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
     private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
     private static volatile DefaultAuthenticationRequestHandler instance;
 
-    private static List<String> cacheDisabledAuthenticators = new ArrayList<String>();
 
-    private DefaultAuthenticationRequestHandler() {
-        cacheDisabledAuthenticators.add(FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
-        cacheDisabledAuthenticators.add(FrameworkConstants.OAUTH2);
-    }
     public static DefaultAuthenticationRequestHandler getInstance() {
 
         if (instance == null) {
@@ -309,7 +304,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         }
 
         // Checking weather inbound protocol is an already cache removed one
-        if(cacheDisabledAuthenticators.contains(context.getRequestType())) {
+        if(FrameworkUtils.getCacheDisabledAuthenticators().contains(context.getRequestType())) {
             //Set the result as request attribute
             addAuthenticationResultToRequest(request, authenticationResult);
         }else{

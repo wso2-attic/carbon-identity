@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.util;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -87,6 +88,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -103,8 +105,17 @@ public class FrameworkUtils {
     private static final Log log = LogFactory.getLog(FrameworkUtils.class);
     private static int maxInactiveInterval;
     private static final String EMAIL = "email";
+    private static List<String> cacheDisabledAuthenticators = new ArrayList<String>();
 
     private FrameworkUtils() {
+    }
+
+    public static List<String> getCacheDisabledAuthenticators() {
+        if (CollectionUtils.isEmpty(cacheDisabledAuthenticators)) {
+            cacheDisabledAuthenticators.add(FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
+            cacheDisabledAuthenticators.add(FrameworkConstants.OAUTH2);
+        }
+        return cacheDisabledAuthenticators;
     }
 
     /**
