@@ -80,12 +80,16 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPreAddBPSProfile(bpsProfileDTO, tenantId);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPreAddBPSProfile(bpsProfileDTO, tenantId);
+            }
 
         }
         bpsProfileDAO.addProfile(bpsProfileDTO, tenantId);
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPostAddBPSProfile(bpsProfileDTO, tenantId);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPostAddBPSProfile(bpsProfileDTO, tenantId);
+            }
         }
 
     }
@@ -96,11 +100,15 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPreListBPSProfiles(tenantId);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPreListBPSProfiles(tenantId);
+            }
         }
         List<BPSProfile> bpsProfiles = bpsProfileDAO.listBPSProfiles(tenantId);
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPostListBPSProfiles(tenantId, bpsProfiles);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPostListBPSProfiles(tenantId, bpsProfiles);
+            }
         }
 
         return bpsProfiles;
@@ -112,11 +120,15 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPreRemoveBPSProfile(profileName);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPreRemoveBPSProfile(profileName);
+            }
         }
         bpsProfileDAO.removeBPSProfile(profileName);
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPostRemoveBPSProfile(profileName);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPostRemoveBPSProfile(profileName);
+            }
         }
 
     }
@@ -128,11 +140,15 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPreGetBPSProfile(profileName, tenantId);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPreGetBPSProfile(profileName, tenantId);
+            }
         }
         BPSProfile bpsProfile = bpsProfileDAO.getBPSProfile(profileName, tenantId, true);
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPostGetBPSProfile(profileName, tenantId, bpsProfile);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPostGetBPSProfile(profileName, tenantId, bpsProfile);
+            }
         }
         return bpsProfile;
     }
@@ -143,7 +159,9 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPreUpdateBPSProfile(bpsProfileDTO, tenantId);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPreUpdateBPSProfile(bpsProfileDTO, tenantId);
+            }
         }
         BPSProfile currentBpsProfile = bpsProfileDAO.getBPSProfile(bpsProfileDTO.getProfileName(), tenantId, true);
         if (ArrayUtils.isEmpty(bpsProfileDTO.getPassword())) {
@@ -151,7 +169,9 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         }
         bpsProfileDAO.updateProfile(bpsProfileDTO, tenantId);
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPostUpdateBPSProfile(bpsProfileDTO, tenantId);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPostUpdateBPSProfile(bpsProfileDTO, tenantId);
+            }
         }
 
 
@@ -163,9 +183,10 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
 
-
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPreDeleteHumanTask(workflowRequest);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPreDeleteHumanTask(workflowRequest);
+            }
         }
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         List<BPSProfile> bpsProfiles = bpsProfileDAO.listBPSProfiles(tenantId);
@@ -226,7 +247,9 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         }
 
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPostDeleteHumanTask(workflowRequest);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPostDeleteHumanTask(workflowRequest);
+            }
         }
     }
 
@@ -244,7 +267,9 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         List<WorkflowImplServiceListener> workflowListenerList =
                 WorkflowImplServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPreRemoveBPSPackage(workflow);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPreRemoveBPSPackage(workflow);
+            }
         }
         WorkflowImplService workflowImplService = WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService();
         WorkflowManagementService workflowManagementService = WorkflowImplServiceDataHolder.getInstance().
@@ -343,7 +368,9 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                     + workflow.getWorkflowName(), e);
         }
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
-            workflowListener.doPostRemoveBPSPackage(workflow);
+            if (workflowListener.isEnable()) {
+                workflowListener.doPostRemoveBPSPackage(workflow);
+            }
         }
 
 

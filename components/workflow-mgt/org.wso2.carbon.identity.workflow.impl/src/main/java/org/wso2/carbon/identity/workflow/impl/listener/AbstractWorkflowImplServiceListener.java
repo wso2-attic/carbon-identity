@@ -214,6 +214,11 @@ public abstract class AbstractWorkflowImplServiceListener implements WorkflowImp
         }
     }
 
+    /**
+     * get order ID (priority of current listener)
+     *
+     * @return
+     */
     public int getOrderId() {
         IdentityEventListener workflowImplListener = IdentityUtil.readEventListenerProperty
                 (WorkflowImplServiceListener.class.getName(), this.getClass().getName());

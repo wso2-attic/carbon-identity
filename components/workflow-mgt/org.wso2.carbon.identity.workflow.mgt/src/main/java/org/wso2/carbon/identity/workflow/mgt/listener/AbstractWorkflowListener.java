@@ -661,6 +661,11 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
 
     }
 
+    /**
+     * Check if listener is enabled or not.
+     *
+     * @return
+     */
     public boolean isEnable() {
         IdentityEventListener workflowListener = IdentityUtil.readEventListenerProperty
                 (WorkflowListener.class.getName(), this.getClass().getName());
@@ -676,6 +681,11 @@ public abstract class AbstractWorkflowListener implements WorkflowListener {
         }
     }
 
+    /**
+     * get order ID (priority of current listener)
+     *
+     * @return
+     */
     public int getOrderId() {
         IdentityEventListener workflowListener = IdentityUtil.readEventListenerProperty
                 (WorkflowListener.class.getName(), this.getClass().getName());
