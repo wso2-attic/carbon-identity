@@ -560,8 +560,15 @@ public class IdentityApplicationManagementUtil {
 
     public static Property getProperty(Property[] properties, String propertyName) {
 
+        if (ArrayUtils.isEmpty(properties) || StringUtils.isBlank(propertyName)) {
+            return null;
+        }
+
         for (Property property : properties) {
-            if (property.getName().equals(propertyName)) {
+            if (property == null) {
+                continue;
+            }
+            if (propertyName.equals(property.getName())) {
                 return property;
             }
         }
@@ -744,17 +751,10 @@ public class IdentityApplicationManagementUtil {
 
     public static String getPropertyValue(Property[] properties, String propertyName) {
 
-        if (ArrayUtils.isEmpty(properties) || StringUtils.isBlank(propertyName)) {
-            return null;
-        }
-        for (Property property : properties) {
-            if (property == null || StringUtils.isBlank(property.getName())) {
-                continue;
-            }
-            if (property.getName().equals(propertyName)) {
-                if (StringUtils.isNotBlank(property.getValue())){
-                    return property.getValue();
-                }
+        Property property = getProperty(properties, propertyName);
+        if (property != null) {
+            if (StringUtils.isNotBlank(property.getValue())) {
+                return property.getValue();
             }
         }
         return null;
