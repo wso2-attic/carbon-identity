@@ -93,6 +93,9 @@ public class PassiveSTS extends HttpServlet {
     private static final long serialVersionUID = 1927253892844132565L;
 
     private String stsRedirectPage = null;
+    private String redirectHtmlFilePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
+            + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File.separator +
+            "sts_response.html";
 
     /**
      * This method reads Passive STS Html Redirect file content.
@@ -101,9 +104,6 @@ public class PassiveSTS extends HttpServlet {
      * @return Passive STS Html Redirect Page File Content
      */
     private String readPassiveSTSHtmlRedirectPage() {
-        String redirectHtmlFilePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
-                + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File.separator +
-                "sts_response.html";
         FileInputStream fileInputStream = null;
         String fileContent = null;
         try {
