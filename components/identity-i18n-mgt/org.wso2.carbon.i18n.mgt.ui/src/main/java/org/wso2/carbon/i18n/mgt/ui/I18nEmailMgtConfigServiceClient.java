@@ -42,7 +42,7 @@ public class I18nEmailMgtConfigServiceClient {
         try {
             stub = new I18NEmailMgtConfigServiceStub(configContext, url
                     + "I18nEmailMgtConfigService");
-        } catch (java.lang.Exception e) {
+        } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
     }
@@ -63,7 +63,7 @@ public class I18nEmailMgtConfigServiceClient {
             option.setProperty(
                     org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING,
                     cookie);
-        } catch (java.lang.Exception e) {
+        } catch (Exception e) {
             handleException(e.getMessage(), e);
         }
     }

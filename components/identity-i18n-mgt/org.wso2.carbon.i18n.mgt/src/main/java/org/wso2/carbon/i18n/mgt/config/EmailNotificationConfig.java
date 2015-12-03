@@ -25,7 +25,6 @@ public class EmailNotificationConfig implements Config {
 
     private Properties properties;
 
-
     public EmailNotificationConfig() {
         properties = new Properties();
     }
@@ -50,6 +49,5 @@ public class EmailNotificationConfig implements Config {
     public void setProperties(Properties props) {
         this.properties = props;
     }
-
 
 }
