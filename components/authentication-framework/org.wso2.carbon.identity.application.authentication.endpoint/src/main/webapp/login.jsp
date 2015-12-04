@@ -232,7 +232,7 @@
                                     <img class="idp-image" src="images/login-icon.png" data-toggle="tooltip"
                                          data-placement="top" title="Sign in with FIDO"/>
                                 </a>
-                                <label for="icon-<%=iconId%>">IWA</label>
+                                <label for="icon-<%=iconId%>">FIDO</label>
 
                                 </div>
                                 <%
