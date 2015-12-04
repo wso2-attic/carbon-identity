@@ -813,12 +813,8 @@ public class OAuth2AuthzEndpoint {
                 if (responseWrapper.getRedirectURL()
                         .contains(ConfigurationFacade.getInstance().getAuthenticationEndpointURL())) {
                     response.sendRedirect(responseWrapper.getRedirectURL());
-//                    return Response.status(HttpServletResponse.SC_FOUND)
-//                            .location(new URI("../" + responseWrapper.getRedirectURL())).build();
                 } else {
                     response.sendRedirect(responseWrapper.getRedirectURL());
-//                    return Response.status(HttpServletResponse.SC_FOUND)
-//                            .location(new URI(responseWrapper.getRedirectURL())).build();
                 }
             } else {
                 return authorize(request, response);
@@ -828,7 +824,6 @@ public class OAuth2AuthzEndpoint {
             return authorize(request, response);
         }
         return null;
-
     }
 
     /**
@@ -836,8 +831,6 @@ public class OAuth2AuthzEndpoint {
      * Sending wrapper request object to doGet method since other original request doesn't exist required parameters
      * Doesn't check SUCCESS_COMPLETED since taking decision with INCOMPLETE status
      *
-     * Appending "../" to redirect url since tomcat container redirects to
-     * https://localhost:9443/oauth2/authenticationendpoint/login.do
      *
      * @param request  Http Request
      * @param response Http Response
@@ -865,12 +858,8 @@ public class OAuth2AuthzEndpoint {
                 if (responseWrapper.getRedirectURL()
                         .contains(ConfigurationFacade.getInstance().getAuthenticationEndpointURL())) {
                     response.sendRedirect(responseWrapper.getRedirectURL());
-//                    return Response.status(HttpServletResponse.SC_FOUND)
-//                            .location(new URI("../" + responseWrapper.getRedirectURL())).build();
                 } else {
                     response.sendRedirect(responseWrapper.getRedirectURL());
-//                    return Response.status(HttpServletResponse.SC_FOUND)
-//                            .location(new URI(responseWrapper.getRedirectURL())).build();
                 }
             } else {
                 return authorize(requestWrapper, responseWrapper);
