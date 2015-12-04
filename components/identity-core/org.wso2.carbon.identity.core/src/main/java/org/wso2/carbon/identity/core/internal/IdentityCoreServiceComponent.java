@@ -97,10 +97,26 @@ public class IdentityCoreServiceComponent {
                 jdbcPersistenceManager.initializeDatabase();
             }
 
+            String value = System.getProperty("migrate");
+            try{
+                if (Boolean.parseBoolean(value)) {
+                    Class<?> c = Class.forName("org.wso2.carbon.is.migration.client.MigrateFrom5to510");
+                    c.getMethod("databaseMigration").invoke(c.newInstance());
+                    if (log.isDebugEnabled()){
+                        log.debug("Migrated the identity and user management databases");
+                    }
+                }
+            }catch (Exception e){
+                if (log.isDebugEnabled()){
+                    log.debug("Migration client is not available");
+                }
+            }
+
             // Register initialize service To guarantee the activation order. Component which is referring this
             // service will wait until this component activated.
             ctxt.getBundleContext().registerService(IdentityCoreInitializedEvent.class.getName(),
-                                                    new IdentityCoreInitializedEventImpl(), null);
+                    new IdentityCoreInitializedEventImpl(), null);
+
 
         } catch (Throwable e) {
             log.error("Error occurred while populating identity configuration properties", e);
