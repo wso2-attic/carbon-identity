@@ -118,7 +118,7 @@ public class FileBasedConfigManager {
             List<String> assertionConsumerUrls = new ArrayList<>();
             for(String assertionConsumerUrl : getTextValueList(elem, SAMLSSOConstants
                     .FileBasedSPConfig.ASSERTION_CONSUMER_URL)) {
-                assertionConsumerUrls.add(IdentityUtil.fillURLPlaceholders(assertionConsumerUrl));
+                assertionConsumerUrls.add(IdentityUtil.fillURLPlaceholders(assertionConsumerUrl.trim()));
             }
             spDO.setAssertionConsumerUrls(assertionConsumerUrls);
 
