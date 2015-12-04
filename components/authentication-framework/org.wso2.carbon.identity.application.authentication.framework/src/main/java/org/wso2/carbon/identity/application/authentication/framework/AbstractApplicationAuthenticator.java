@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.framework;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -63,6 +64,17 @@ public abstract class AbstractApplicationAuthenticator implements ApplicationAut
             } else {
                 try {
                     processAuthenticationResponse(request, response, context);
+                    if (this instanceof LocalApplicationAuthenticator) {
+                        if (!context.getSequenceConfig().getApplicationConfig().isSaaSApp()) {
+                            String userDomain = (String) context.getProperty("user-tenant-domain");
+                            String tenantDomain = context.getTenantDomain();
+                            if (!StringUtils.equals(userDomain, tenantDomain)) {
+                                context.setProperty("InvalidDomains", true);
+                                throw new AuthenticationFailedException("Service Provider tenant domain must be " +
+                                        "equal to user tenant domain for non-SaaS applications");
+                            }
+                        }
+                    }
                     request.setAttribute(FrameworkConstants.REQ_ATTR_HANDLED, true);
                     return AuthenticatorFlowStatus.SUCCESS_COMPLETED;
                 } catch (AuthenticationFailedException e) {

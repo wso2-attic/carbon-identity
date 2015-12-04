@@ -21,9 +21,7 @@
 <form action="../commonauth" method="post" id="loginForm">
 
     <% if (Boolean.parseBoolean(loginFailed)) { %>
-    <div class="alert alert-danger" id="error-msg">Username or password is
-        invalid
-    </div>
+    <div class="alert alert-danger" id="error-msg"><%= Encode.forHtml(errorMessage) %></div>
     <%}else if((Boolean.TRUE.toString()).equals(request.getParameter("authz_failure"))){%>
     <div class="alert alert-danger" id="error-msg">You are not authorized to login
     </div>
