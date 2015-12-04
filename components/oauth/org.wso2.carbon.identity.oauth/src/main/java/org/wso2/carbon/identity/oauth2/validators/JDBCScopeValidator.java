@@ -151,8 +151,8 @@ public class JDBCScopeValidator extends OAuth2ScopeValidator {
                 //If this is a tenant user
                 if(tenantId != MultitenantConstants.SUPER_TENANT_ID){
                     PrivilegedCarbonContext.startTenantFlow();
-                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(authzUser.getTenantDomain(),
-                            true);
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
+                                                            realmService.getTenantManager().getDomain(tenantId),true);
                     tenantFlowStarted = true;
                 }
 
