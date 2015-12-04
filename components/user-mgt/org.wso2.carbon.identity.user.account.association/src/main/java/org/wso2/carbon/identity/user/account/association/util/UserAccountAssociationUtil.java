@@ -87,14 +87,6 @@ public class UserAccountAssociationUtil {
         return true;
     }
 
-    public static String getDomainName(String username) {
-        int index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-        if (index < 0) {
-            return UserAccountAssociationConstants.PRIMARY_USER_DOMAIN;
-        }
-        return username.substring(0, index);
-    }
-
     public static String getUsernameWithoutDomain(String username) {
         int index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
         if (index < 0) {
