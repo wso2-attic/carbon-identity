@@ -104,9 +104,10 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
                 retryParam = "&authFailure=true&authFailureMsg=login.fail.message";
             }
 
-            if (context.getProperty("InvalidDomains") != null && context.getProperty("InvalidDomains") == true) {
-                retryParam = "&authFailure=true&authFailureMsg=invalid.domain.message";
-                context.setProperty("InvalidDomains", false);
+            if (context.getProperty("UserTenantDomainMismatch") != null &&
+                    context.getProperty("UserTenantDomainMismatch") == true) {
+                retryParam = "&authFailure=true&authFailureMsg=user.tenant.domain.mismatch.message";
+                context.setProperty("UserTenantDomainMismatch", false);
             }
 
             IdentityErrorMsgContext errorContext = IdentityUtil.getIdentityErrorMsg();
