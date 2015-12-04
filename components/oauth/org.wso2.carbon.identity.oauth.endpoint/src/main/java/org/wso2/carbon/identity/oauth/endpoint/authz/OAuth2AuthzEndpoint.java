@@ -812,11 +812,13 @@ public class OAuth2AuthzEndpoint {
             if (attribute == AuthenticatorFlowStatus.INCOMPLETE) {
                 if (responseWrapper.getRedirectURL()
                         .contains(ConfigurationFacade.getInstance().getAuthenticationEndpointURL())) {
-                    return Response.status(HttpServletResponse.SC_FOUND)
-                            .location(new URI("../" + responseWrapper.getRedirectURL())).build();
-                }else{
-                    return Response.status(HttpServletResponse.SC_FOUND)
-                            .location(new URI(responseWrapper.getRedirectURL())).build();
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+//                    return Response.status(HttpServletResponse.SC_FOUND)
+//                            .location(new URI("../" + responseWrapper.getRedirectURL())).build();
+                } else {
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+//                    return Response.status(HttpServletResponse.SC_FOUND)
+//                            .location(new URI(responseWrapper.getRedirectURL())).build();
                 }
             } else {
                 return authorize(request, response);
@@ -825,6 +827,7 @@ public class OAuth2AuthzEndpoint {
             request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
             return authorize(request, response);
         }
+        return null;
 
     }
 
@@ -861,11 +864,13 @@ public class OAuth2AuthzEndpoint {
 
                 if (responseWrapper.getRedirectURL()
                         .contains(ConfigurationFacade.getInstance().getAuthenticationEndpointURL())) {
-                    return Response.status(HttpServletResponse.SC_FOUND)
-                            .location(new URI("../" + responseWrapper.getRedirectURL())).build();
-                }else{
-                    return Response.status(HttpServletResponse.SC_FOUND)
-                            .location(new URI(responseWrapper.getRedirectURL())).build();
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+//                    return Response.status(HttpServletResponse.SC_FOUND)
+//                            .location(new URI("../" + responseWrapper.getRedirectURL())).build();
+                } else {
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+//                    return Response.status(HttpServletResponse.SC_FOUND)
+//                            .location(new URI(responseWrapper.getRedirectURL())).build();
                 }
             } else {
                 return authorize(requestWrapper, responseWrapper);
@@ -874,5 +879,7 @@ public class OAuth2AuthzEndpoint {
             requestWrapper.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
             return authorize(requestWrapper, responseWrapper);
         }
+        return null;
     }
+
 }
