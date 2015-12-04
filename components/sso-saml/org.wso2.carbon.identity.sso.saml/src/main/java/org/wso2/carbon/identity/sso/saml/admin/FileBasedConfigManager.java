@@ -47,7 +47,6 @@ public class FileBasedConfigManager {
     private static volatile FileBasedConfigManager instance = null;
 
     private static List<String> issuerList = new ArrayList<>();
-
     private FileBasedConfigManager() {
 
     }

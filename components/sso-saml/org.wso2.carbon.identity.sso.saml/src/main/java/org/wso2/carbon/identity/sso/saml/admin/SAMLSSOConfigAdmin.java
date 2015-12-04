@@ -30,8 +30,8 @@ import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderInfoDTO;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.session.UserRegistry;
-
 import java.util.List;
+
 
 /**
  * This class is used for managing SAML SSO providers. Adding, retrieving and removing service
