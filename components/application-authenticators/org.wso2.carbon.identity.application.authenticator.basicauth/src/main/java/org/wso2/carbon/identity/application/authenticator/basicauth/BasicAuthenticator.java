@@ -105,7 +105,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
             }
 
             if (context.getProperty("UserTenantDomainMismatch") != null &&
-                    context.getProperty("UserTenantDomainMismatch") == true) {
+                    (Boolean)context.getProperty("UserTenantDomainMismatch")) {
                 retryParam = "&authFailure=true&authFailureMsg=user.tenant.domain.mismatch.message";
                 context.setProperty("UserTenantDomainMismatch", false);
             }
