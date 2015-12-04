@@ -898,15 +898,13 @@ function clearAll() {
 
 <!-- Certificate Alias -->
 
-<% if (isEditSP &&
-        ((provider.isDoEnableEncryptedAssertionSpecified() && provider.getDoEnableEncryptedAssertion())
-                || (provider.isDoValidateSignatureInRequestsSpecified() && provider.getDoValidateSignatureInRequests()))) {
+<% if (isEditSP) {
 %>
 <tr>
-    <td style="padding-left: 33px ! important;padding-bottom: 25px">
+    <td>
         <fmt:message key="sp.certAlias"/>
     </td>
-    <td style="padding-left: 33px ! important;padding-bottom: 25px">
+    <td>
         <select id="alias" name="alias">
             <%
                 if (aliasSet != null) {
@@ -932,11 +930,11 @@ function clearAll() {
 </tr>
 <% } else {%>
 <tr>
-    <td style="padding-left: 33px ! important;padding-bottom: 25px">
+    <td>
         <fmt:message key="sp.certAlias"/>
     </td>
-    <td style="padding-left: 33px ! important;padding-bottom: 25px">
-        <select id="alias" name="alias" disabled="disabled">
+    <td>
+        <select id="alias" name="alias" >
             <%
                 if (aliasSet != null) {
                     for (String alias : aliasSet) {
