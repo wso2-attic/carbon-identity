@@ -391,7 +391,11 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         // redirect to the caller
         String redirectURL = context.getCallerPath() + "?sessionDataKey="
                 + context.getCallerSessionKey() + rememberMeParam;
-        request.setAttribute("sessionDataKey", context.getCallerSessionKey());
+
+        // When redirects and cache removed sessionDataKey keep as request attribute
+        if(FrameworkUtils.getCacheDisabledAuthenticators().contains(context.getRequestType())) {
+            request.setAttribute("sessionDataKey", context.getCallerSessionKey());
+        }
         try {
             response.sendRedirect(redirectURL);
         } catch (IOException e) {

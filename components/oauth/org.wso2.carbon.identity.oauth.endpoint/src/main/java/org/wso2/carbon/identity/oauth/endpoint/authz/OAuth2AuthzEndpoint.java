@@ -107,9 +107,9 @@ public class OAuth2AuthzEndpoint {
         SessionDataCacheEntry resultFromConsent = null;
 
         Object flowStatus = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
-        String isCommonauth = request.getParameter("commonauth");
+        String isToCommonOauth = request.getParameter(FrameworkConstants.RequestParams.TO_COMMONAUTH);
 
-        if ("true".equals(isCommonauth) & flowStatus == null) {
+        if ("true".equals(isToCommonOauth) && flowStatus == null) {
             try {
                 return sendRequestToFramework(request, response);
             } catch (ServletException | IOException e) {
@@ -728,7 +728,8 @@ public class OAuth2AuthzEndpoint {
 
     /**
      * In SAML there is no redirection from authentication endpoint to  commonauth and it send a post request to samlsso
-     * servlet and sending the request to authentication framework from here
+     * servlet and sending the request to authentication framework from here, this overload method not sending
+     * sessionDataKey and type to commonauth that's why overloaded the method here
      *
      * @param request Http servlet request
      * @param response Http servlet response
@@ -742,7 +743,20 @@ public class OAuth2AuthzEndpoint {
 
         CommonAuthResponseWrapper responseWrapper = new CommonAuthResponseWrapper(response);
         commonAuthenticationHandler.doGet(request, responseWrapper);
-        return authorize(request, response);
+
+        Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+        if (attribute != null) {
+            if (attribute == AuthenticatorFlowStatus.INCOMPLETE) {
+                return Response.status(HttpServletResponse.SC_FOUND)
+                        .location(new URI("../" + responseWrapper.getRedirectURL())).build();
+            } else {
+                return authorize(request, response);
+            }
+        } else {
+            request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
+            return authorize(request, response);
+        }
+
     }
 
     /**
@@ -781,6 +795,7 @@ public class OAuth2AuthzEndpoint {
                 return authorize(requestWrapper, responseWrapper);
             }
         } else {
+            requestWrapper.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
             return authorize(requestWrapper, responseWrapper);
         }
     }

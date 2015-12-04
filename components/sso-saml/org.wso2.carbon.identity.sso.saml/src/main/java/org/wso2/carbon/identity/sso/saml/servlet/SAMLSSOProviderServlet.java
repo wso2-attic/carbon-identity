@@ -149,12 +149,10 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String slo = req.getParameter(SAMLSSOConstants.QueryParameter.SLO.toString());
         Object flowStatus = req.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
 
-
-        boolean isExpFired = false;
         try {
 
-            String isCommonauth = req.getParameter("commonauth");
-            if ("true".equals(isCommonauth) & flowStatus == null) {
+            String isToCommonOauth = req.getParameter(FrameworkConstants.RequestParams.TO_COMMONAUTH);
+            if ("true".equals(isToCommonOauth) & flowStatus == null) {
                 sendRequestToFramework(req, resp);
                 return;
             }
@@ -498,9 +496,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                 (authenticationRequest);
-        //FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
         addAuthenticationRequestToRequest(request, authRequest);
-
         sendRequestToFramework(request, response, sessionDataKey, FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
     }
 
@@ -611,7 +607,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             throws UserStoreException, IdentityException, IOException, ServletException {
 
         String sessionDataKey = (String)req.getAttribute(SAMLSSOConstants.SESSION_DATA_KEY);
-        AuthenticationResult authResult = getAuthenticationResultFromCache(req);
+        AuthenticationResult authResult = getAuthenticationResultFromRequest(req);
 
         if (log.isDebugEnabled() && authResult == null) {
             log.debug("Session data is not found for key : " + sessionDataKey);
@@ -843,7 +839,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      * @param req Http servlet request
      * @return Authentication result
      */
-    private AuthenticationResult getAuthenticationResultFromCache(HttpServletRequest req) {
+    private AuthenticationResult getAuthenticationResultFromRequest(HttpServletRequest req) {
 
         return (AuthenticationResult) req.getAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT);
     }
@@ -902,7 +898,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
     /**
      * In SAML there is no redirection from authentication endpoint to  commonauth and it send a post request to samlsso
-     * servlet and sending the request to authentication framework from here
+     * servlet and sending the request to authentication framework from here, this overload method not sending
+     * sessionDataKey and type to commonauth that's why overloaded the method here
      *
      * @param request Http servlet request
      * @param response Http servlet response
@@ -916,7 +913,19 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
         CommonAuthResponseWrapper responseWrapper = new CommonAuthResponseWrapper(response);
         commonAuthenticationHandler.doGet(request, responseWrapper);
-        doGet(request, response);
+
+        Object object = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+        if (object != null) {
+            AuthenticatorFlowStatus status = (AuthenticatorFlowStatus) object;
+            if (status == AuthenticatorFlowStatus.INCOMPLETE) {
+                response.sendRedirect(responseWrapper.getRedirectURL());
+            } else {
+                doGet(request, response);
+            }
+        } else {
+            request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
+            doGet(request, response);
+        }
     }
 
     /**
@@ -953,6 +962,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 doGet(requestWrapper, response);
             }
         } else {
+            requestWrapper.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
             doGet(requestWrapper, response);
         }
     }

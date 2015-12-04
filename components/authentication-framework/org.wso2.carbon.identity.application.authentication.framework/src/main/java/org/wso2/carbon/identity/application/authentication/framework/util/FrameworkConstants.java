@@ -56,6 +56,7 @@ public abstract class FrameworkConstants {
     public static final String AUDIT_SUCCESS = "Success";
     public static final String AUDIT_FAILED = "Failed";
 
+
     private FrameworkConstants() {
 
     }
@@ -144,6 +145,7 @@ public abstract class FrameworkConstants {
         public static final String IDP = "idp";
         public static final String AUTHENTICATOR = "authenticator";
         public static final String FLOW_STATUS = "authenticatorFlowStatus";
+        public static final String TO_COMMONAUTH = "tocommonauth";
         private RequestParams() {
         }
     }

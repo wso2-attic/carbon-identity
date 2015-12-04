@@ -24,12 +24,12 @@
 
 %>
 <form action="/samlsso" method="post" id="loginForm">
-    <input id="commonauth" name="commonauth" type="hidden" value="true">
+    <input id="tocommonauth" name="tocommonauth" type="hidden" value="true">
 <%
     } else if ("oauth2".equals(type)){
 %>
     <form action="/oauth2/authorize" method="post" id="loginForm">
-        <input id="commonauth" name="commonauth" type="hidden" value="true">
+        <input id="tocommonauth" name="tocommonauth" type="hidden" value="true">
 
 <%
     } else {
