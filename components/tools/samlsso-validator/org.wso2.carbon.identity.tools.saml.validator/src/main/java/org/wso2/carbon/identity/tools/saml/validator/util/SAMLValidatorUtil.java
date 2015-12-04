@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 import org.wso2.carbon.registry.core.session.UserRegistry;
+import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -143,12 +144,14 @@ public class SAMLValidatorUtil {
     public static Map<String, String> getUserClaimValues(String username, String[] requestedClaims, String profile)
             throws IdentityException {
         try {
-            UserStoreManager userStroreManager =
-                    AnonymousSessionUtil.getRealmByUserName(SAMLSSOUtil.getRegistryService(),
-                            SAMLSSOUtil.getRealmService(),
-                            username).getUserStoreManager();
             username = MultitenantUtils.getTenantAwareUsername(username);
-            return userStroreManager.getUserClaimValues(username, requestedClaims, profile);
+            UserRealm userRealm = AnonymousSessionUtil.getRealmByUserName(SAMLSSOUtil.getRegistryService(),
+                    SAMLSSOUtil.getRealmService(), username);
+            if(userRealm == null){
+                 throw new IdentityException("User realm is not present for this user name:" + username);
+             }
+            UserStoreManager userStoreManager = userRealm.getUserStoreManager();
+            return userStoreManager.getUserClaimValues(username, requestedClaims, profile);
         } catch (UserStoreException e) {
             log.error("Error while retrieving claims values", e);
             throw new IdentityException(
