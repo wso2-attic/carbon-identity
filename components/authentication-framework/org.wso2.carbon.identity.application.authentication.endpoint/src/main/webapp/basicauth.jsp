@@ -45,7 +45,7 @@
     <div class="alert alert-danger" id="error-msg">Username or password is
         invalid
     </div>
-    <%}else if((Boolean.TRUE.toString()).equals(request.getParameter("authzFailure"))){%>
+    <%}else if((Boolean.TRUE.toString()).equals(request.getParameter("authz_failure"))){%>
     <div class="alert alert-danger" id="error-msg">You are not authorized to login
     </div>
     <%}%>

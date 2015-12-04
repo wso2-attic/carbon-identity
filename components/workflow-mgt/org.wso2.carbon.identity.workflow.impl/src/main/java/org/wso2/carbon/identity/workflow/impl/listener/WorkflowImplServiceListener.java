@@ -148,4 +148,18 @@ public interface WorkflowImplServiceListener {
      */
     void doPostRemoveBPSPackage(Workflow workflow) throws WorkflowImplException;
 
+    /**
+     * Check if listener is enabled or not.
+     *
+     * @return
+     */
+    boolean isEnable();
+
+    /**
+     * get order ID (priority of current listener)
+     *
+     * @return
+     */
+    int getOrderId();
+
 }

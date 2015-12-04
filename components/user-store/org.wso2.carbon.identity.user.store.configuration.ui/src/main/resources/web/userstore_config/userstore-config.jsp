@@ -23,13 +23,15 @@
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.api.Property" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.UserStoreUIConstants" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.client.UserStoreConfigAdminServiceClient" %>
-<%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.utils.UserStoreMgtDataKeeper" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.utils.UserStoreUIUtils" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.dto.UserStoreDTO" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.dto.PropertyDTO" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
@@ -71,6 +73,15 @@
         return i;
     }
 
+    private static Map<String, String> convertArrayToMap(PropertyDTO[] properties) {
+        Map<String, String> propertyMap = new HashMap<String, String>();
+        for (PropertyDTO propertyDTO : properties) {
+            if (propertyDTO.getValue() != null) {
+                propertyMap.put(propertyDTO.getName(), propertyDTO.getValue());
+            }
+        }
+        return propertyMap;
+    }
 %><%
     domain = "0";
     className = "0";
@@ -108,7 +119,18 @@
             (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     UserStoreConfigAdminServiceClient userStoreConfigAdminServiceClient = new UserStoreConfigAdminServiceClient(cookie, backendServerURL, configContext);
     classApplies = userStoreConfigAdminServiceClient.getAvailableUserStoreClasses();
-    Iterator<String> iterator = UserStoreMgtDataKeeper.getAvailableDomainNames().iterator();
+    UserStoreDTO[] userStoreDTOs;
+    Map<String, Map<String, String>> userStoreManagers = new HashMap<String, Map<String, String>>();
+    userStoreDTOs = userStoreConfigAdminServiceClient.getActiveDomains();
+    if (userStoreDTOs != null) {
+        for (UserStoreDTO userStoreDTO : userStoreDTOs) {
+            if (userStoreDTO != null) {
+                userStoreManagers.put(userStoreDTO.getDomainId(), convertArrayToMap(userStoreDTO.getProperties()));
+            }
+        }
+    }
+    Iterator<String> iterator = userStoreManagers.keySet().iterator();
+
     existingDomains = "";
     while (iterator.hasNext()) {
         existingDomains = existingDomains + "\"" + iterator.next().toUpperCase() + "\",";
@@ -118,7 +140,7 @@
     if (!"0".equals(domain)) {
 
         //Get the defined properties of user store manager
-        Map<String, String> tempProperties = UserStoreMgtDataKeeper.getUserStoreManager(domain);
+        Map<String, String> tempProperties = userStoreManagers.get(domain);
         className = tempProperties.get(UserStoreUIConstants.CLASS);
         description = tempProperties.get(UserStoreUIConstants.DESCRIPTION);
 

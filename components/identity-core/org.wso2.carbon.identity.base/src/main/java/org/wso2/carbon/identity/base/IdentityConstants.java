@@ -335,12 +335,16 @@ public class IdentityConstants {
 
     public static class CarbonPlaceholders {
 
-       public static final String CARBON_HOST = "${carbon.host}";
-       public static final String CARBON_PORT = "${carbon.management.port}";
-       public static final String CARBON_PROXY_CONTEXT_PATH = "${carbon.proxycontextpath}";
-       public static final String CARBON_WEB_CONTEXT_ROOT = "${carbon.webcontextroot}";
-       public static final String CARBON_PROTOCOL = "${carbon.protocol}";
-       public static final String CARBON_CONTEXT = "${carbon.context}";
+        public static final String CARBON_HOST = "${carbon.host}";
+        public static final String CARBON_PORT = "${carbon.management.port}";
+        public static final String CARBON_PORT_HTTP = "${mgt.transport.http.port}";
+        public static final String CARBON_PORT_HTTPS = "${mgt.transport.https.port}";
+        public static final String CARBON_PROXY_CONTEXT_PATH = "${carbon.proxycontextpath}";
+        public static final String CARBON_WEB_CONTEXT_ROOT = "${carbon.webcontextroot}";
+        public static final String CARBON_PROTOCOL = "${carbon.protocol}";
+        public static final String CARBON_CONTEXT = "${carbon.context}";
 
+        public static final String CARBON_PORT_HTTP_PROPERTY = "mgt.transport.http.port";
+        public static final String CARBON_PORT_HTTPS_PROPERTY = "mgt.transport.https.port";
     }
 }

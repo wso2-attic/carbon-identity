@@ -28,7 +28,7 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
@@ -810,14 +810,14 @@ public class UserInformationRecoveryService {
                         new String[]{userName});
             }
 
-            IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+            IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
                     (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
 
             boolean isListenerEnable = true;
 
-            if (identityEventListener != null) {
-                if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
-                    isListenerEnable = Boolean.parseBoolean(identityEventListener.getEnable());
+            if (identityEventListenerConfig != null) {
+                if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+                    isListenerEnable = Boolean.parseBoolean(identityEventListenerConfig.getEnable());
                 }
             }
 
@@ -915,14 +915,14 @@ public class UserInformationRecoveryService {
         }
 
         try {
-            IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+            IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
                     (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
 
             boolean isListenerEnable = true;
 
-            if (identityEventListener != null) {
-                if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
-                    isListenerEnable = Boolean.parseBoolean(identityEventListener.getEnable());
+            if (identityEventListenerConfig != null) {
+                if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+                    isListenerEnable = Boolean.parseBoolean(identityEventListenerConfig.getEnable());
                 }
             }
 
