@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.user.account.association.dao;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.user.account.association.dto.UserAccountAssociationDTO;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationServerException;
@@ -230,7 +231,7 @@ public class UserAccountAssociationDAO {
             preparedStatement.setString(2, domainName);
             preparedStatement.setString(3, userName);
             preparedStatement.setInt(4, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            preparedStatement.setString(5, UserAccountAssociationUtil.getDomainName(CarbonContext
+            preparedStatement.setString(5, IdentityUtil.extractDomainFromName(CarbonContext
                     .getThreadLocalCarbonContext()
                     .getUsername()));
             preparedStatement.setString(6, UserAccountAssociationUtil.getUsernameWithoutDomain(CarbonContext

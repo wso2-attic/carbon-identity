@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.user.account.association.dao.UserAccountAssociationDAO;
 import org.wso2.carbon.identity.user.account.association.dto.UserAccountAssociationDTO;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException;
@@ -83,6 +84,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
         try {
             userRealm = realmService.getTenantUserRealm(tenantId);
             authentic = userRealm.getUserStoreManager().authenticate(tenantAwareUsername, String.valueOf(password));
+            userName = UserCoreUtil.addDomainToName(userName, UserCoreUtil.getDomainFromThreadLocal());
         } catch (UserStoreException e) {
             throw new UserAccountAssociationClientException(UserAccountAssociationConstants.ErrorMessages
                     .ERROR_WHILE_AUTHENTICATING_USER
@@ -260,7 +262,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
                     .ERROR_WHILE_LOADING_REALM_SERVICE
                     .getDescription(), e);
         }
-        String domainName = UserAccountAssociationUtil.getDomainName(tenantAwareUsername);
+        String domainName = IdentityUtil.extractDomainFromName(tenantAwareUsername);
         tenantAwareUsername = UserAccountAssociationUtil.getUsernameWithoutDomain(tenantAwareUsername);
         try {
             if (!UserAccountAssociationDAO.getInstance().isValidUserAssociation(domainName, tenantId,
@@ -352,9 +354,9 @@ public class UserAccountAssociationService extends AbstractAdmin {
                     .ERROR_WHILE_LOADING_REALM_SERVICE
                     .getDescription(), e);
         }
-        String domainName = UserAccountAssociationUtil.getDomainName(tenantAwareUsername);
+        String domainName = IdentityUtil.extractDomainFromName(tenantAwareUsername);
         tenantAwareUsername = UserAccountAssociationUtil.getUsernameWithoutDomain(tenantAwareUsername);
-        String domainNameOfInitiator = UserAccountAssociationUtil.getDomainName(initiator);
+        String domainNameOfInitiator = IdentityUtil.extractDomainFromName(initiator);
         initiator = UserAccountAssociationUtil.getUsernameWithoutDomain(initiator);
         boolean authentic;
         org.wso2.carbon.user.api.UserRealm userRealm;
