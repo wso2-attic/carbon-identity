@@ -71,9 +71,11 @@ public class SAMLSSOConfigServiceClient {
         try {
             SAMLSSOServiceProviderInfoDTO dto = stub.getServiceProviders();
             SAMLSSOServiceProviderDTO[] sps = dto.getServiceProviders();
-            for (SAMLSSOServiceProviderDTO sp : sps) {
-                if (sp.getIssuer().equals(issuer)) {
-                    return sp;
+            if (sps != null) {
+                for (SAMLSSOServiceProviderDTO sp : sps) {
+                    if (sp.getIssuer().equals(issuer)) {
+                        return sp;
+                    }
                 }
             }
         } catch (Exception e) {

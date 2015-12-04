@@ -51,7 +51,7 @@
     String spName = (String) session.getAttribute("application-sp-name");
     session.removeAttribute("application-sp-name");
     boolean status = false;
-    String attributeConsumingServiceIndex;
+    String attributeConsumingServiceIndex = null;
 
     backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
     configContext = (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
@@ -228,8 +228,9 @@
             client.removeServiceProvier(serviceProviderDTO.getIssuer());
         }
         status = client.addServiceProvider(serviceProviderDTO);
-        attributeConsumingServiceIndex = client.getServiceProvider(serviceProviderDTO.getIssuer()).getAttributeConsumingServiceIndex();
-
+        if((client.getServiceProvider(serviceProviderDTO.getIssuer())!=null)){
+            attributeConsumingServiceIndex = client.getServiceProvider(serviceProviderDTO.getIssuer()).getAttributeConsumingServiceIndex();
+        }
         samlSsoServuceProviderConfigBean.clearBean();
 
         String message;
@@ -255,17 +256,29 @@
 
     if (applicationComponentFound) {
         if (status) {
+        if(attributeConsumingServiceIndex!=null){
     %>
     location.href = '../application/configure-service-provider.jsp?action=update&display=samlIssuer&spName=' +
-            '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&samlIssuer='+
-            '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(serviceProviderDTO.getIssuer()))%>' +
-            '&attrConServIndex=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(attributeConsumingServiceIndex))%>';
-    <% } else { %>
-    location.href = '../application/configure-service-provider.jsp?action=delete&display=samlIssuer&spName=' +
-            '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&samlIssuer='+
-    '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(serviceProviderDTO.getIssuer()))%>&attrConServIndex=' +
-            '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(attributeConsumingServiceIndex))%>';
+    '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&samlIssuer=' +
+    '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(serviceProviderDTO.getIssuer()))%>' +
+    '&attrConServIndex=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(attributeConsumingServiceIndex))%>';
+    <%} else {%>
+    location.href = '../application/configure-service-provider.jsp?action=update&display=samlIssuer&spName=' +
+    '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&samlIssuer=' +
+    '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(serviceProviderDTO.getIssuer()))%>';
+    <%}%>
 
+    <% } else { if(attributeConsumingServiceIndex!=null){ %>
+    location.href = '../application/configure-service-provider.jsp?action=delete&display=samlIssuer&spName=' +
+    '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&samlIssuer=' +
+    '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(serviceProviderDTO.getIssuer()))%>&attrConServIndex=' +
+    '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(attributeConsumingServiceIndex))%>';
+
+    <%}else{%>
+    location.href = '../application/configure-service-provider.jsp?action=delete&display=samlIssuer&spName=' +
+    '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&samlIssuer=' +
+    '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(serviceProviderDTO.getIssuer()))%>';
+    <%}%>
     <% } } else { %>
     location.href = 'manage_service_providers.jsp?region=region1&item=manage_saml_sso';
     <% } %>

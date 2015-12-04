@@ -46,6 +46,8 @@ public class FileBasedConfigManager {
 
     private static volatile FileBasedConfigManager instance = null;
 
+    private static List<String> issuerList = new ArrayList<>();
+
     private FileBasedConfigManager() {
 
     }
@@ -59,6 +61,14 @@ public class FileBasedConfigManager {
             }
         }
         return instance;
+    }
+
+    /**
+     *Get the list of issuers which has been added through the file
+     * @return a String list of file based issuers
+     */
+    public static List<String> getIssuerList() {
+        return issuerList;
     }
 
     /**
@@ -114,7 +124,7 @@ public class FileBasedConfigManager {
             Element elem = (Element) nodeSet.item(i);
             SAMLSSOServiceProviderDO spDO = new SAMLSSOServiceProviderDO();
             spDO.setIssuer(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ISSUER));
-
+            issuerList.add(getTextValue(elem, SAMLSSOConstants.FileBasedSPConfig.ISSUER));
             List<String> assertionConsumerUrls = new ArrayList<>();
             for(String assertionConsumerUrl : getTextValueList(elem, SAMLSSOConstants
                     .FileBasedSPConfig.ASSERTION_CONSUMER_URL)) {

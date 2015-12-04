@@ -31,6 +31,8 @@ import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderInfoDTO;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 
+import java.util.List;
+
 /**
  * This class is used for managing SAML SSO providers. Adding, retrieving and removing service
  * providers are supported here.
@@ -122,6 +124,13 @@ public class SAMLSSOConfigAdmin {
         IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
                 .getPersistanceManager();
         try {
+            List<String> issuerListFromFile = FileBasedConfigManager.getIssuerList();
+            if (issuerListFromFile.contains(serviceProviderDTO.getIssuer())) {
+                String message = "Service Provider with the same issuer name loaded from the file system."
+                        + serviceProviderDO.getIssuer();
+                log.error(message);
+                return false;
+            }
             return persistenceManager.addServiceProvider(registry, serviceProviderDO);
         } catch (IdentityException e) {
             log.error("Error obtaining a registry for adding a new service provider", e);
