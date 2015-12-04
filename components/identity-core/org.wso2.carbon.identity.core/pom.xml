@@ -138,7 +138,8 @@
 
                             org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
 
-                            org.xml.sax
+                            org.xml.sax,
+                            org.wso2.carbon.is.migration.client; resolution:=optional,
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.core.internal,
