@@ -71,6 +71,9 @@ public class DeleteMultipleClaimsWFRequestHandler extends AbstractWorkflowReques
 
         WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
+        if (claims == null) {
+            claims = new String[0];
+        }
         int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
 
