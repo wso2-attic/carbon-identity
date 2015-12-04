@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.F
 import org.wso2.carbon.identity.application.authentication.framework.handler.request.AuthenticationRequestHandler;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthResponseWrapper;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
@@ -303,9 +304,12 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                     "ApplicationAuthenticationFramework", auditData, FrameworkConstants.AUDIT_SUCCESS));
         }
 
-        // Checking weather inbound protocol is an already cache removed one
-        if(FrameworkUtils.getCacheDisabledAuthenticators().contains(context.getRequestType())) {
+        // Checking weather inbound protocol is an already cache removed one, request come from federated or other
+        // authenticator in multi steps scenario. Ex. Fido
+        if (FrameworkUtils.getCacheDisabledAuthenticators().contains(context.getRequestType())
+                && (response instanceof CommonAuthResponseWrapper)) {
             //Set the result as request attribute
+            request.setAttribute("sessionDataKey", context.getCallerSessionKey());
             addAuthenticationResultToRequest(request, authenticationResult);
         }else{
             FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
@@ -391,11 +395,6 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         // redirect to the caller
         String redirectURL = context.getCallerPath() + "?sessionDataKey="
                 + context.getCallerSessionKey() + rememberMeParam;
-
-        // When redirects and cache removed sessionDataKey keep as request attribute
-        if(FrameworkUtils.getCacheDisabledAuthenticators().contains(context.getRequestType())) {
-            request.setAttribute("sessionDataKey", context.getCallerSessionKey());
-        }
         try {
             response.sendRedirect(redirectURL);
         } catch (IOException e) {

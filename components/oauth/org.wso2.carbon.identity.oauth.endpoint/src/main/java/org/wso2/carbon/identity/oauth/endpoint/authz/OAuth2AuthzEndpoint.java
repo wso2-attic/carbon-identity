@@ -29,6 +29,8 @@ import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.CommonAuthenticationHandler;
+import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthRequestWrapper;
@@ -84,6 +86,7 @@ public class OAuth2AuthzEndpoint {
 
     private static final Log log = LogFactory.getLog(OAuth2AuthzEndpoint.class);
     public static final String APPROVE = "approve";
+    private boolean isCacheAvailable = false;
 
     @GET
     @Path("/")
@@ -100,7 +103,7 @@ public class OAuth2AuthzEndpoint {
 
         String clientId = request.getParameter("client_id");
 
-        String sessionDataKeyFromLogin = (String)request.getAttribute(OAuthConstants.SESSION_DATA_KEY);
+        String sessionDataKeyFromLogin = getSessionDataKey(request);
         String sessionDataKeyFromConsent = request.getParameter(OAuthConstants.SESSION_DATA_KEY_CONSENT);
         SessionDataCacheKey cacheKey = null;
         SessionDataCacheEntry resultFromLogin = null;
@@ -195,9 +198,9 @@ public class OAuth2AuthzEndpoint {
 
                 sessionDataCacheEntry = resultFromLogin;
                 OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
-                AuthenticationResult authnResult = getAuthenticationResultFromRequest(request);
+                AuthenticationResult authnResult = getAuthenticationResult(request, sessionDataKeyFromLogin);
                 if (authnResult != null) {
-                    FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKeyFromLogin);
+                    removeAuthenticationResult(request, sessionDataKeyFromLogin);
 
                     String redirectURL = null;
                     if (authnResult.isAuthenticated()) {
@@ -334,6 +337,35 @@ public class OAuth2AuthzEndpoint {
 
             PrivilegedCarbonContext.endTenantFlow();
         }
+    }
+
+    /**
+     * Remove authentication result from request
+     * @param req
+     */
+    private void removeAuthenticationResult(HttpServletRequest req, String sessionDataKey) {
+
+        if(isCacheAvailable){
+            FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKey);
+        }else {
+            req.removeAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT);
+        }
+    }
+
+
+    /**
+     * In federated and multi steps scenario there is a redirection from commonauth to samlsso so have to get
+     * session data key from query parameter
+     *
+     * @param req Http servlet request
+     * @return Session data key
+     */
+    private String getSessionDataKey(HttpServletRequest req) {
+        String sessionDataKey = (String) req.getAttribute(OAuthConstants.SESSION_DATA_KEY);
+        if (sessionDataKey == null) {
+            sessionDataKey = req.getParameter(OAuthConstants.SESSION_DATA_KEY);
+        }
+        return sessionDataKey;
     }
 
     @POST
@@ -716,6 +748,37 @@ public class OAuth2AuthzEndpoint {
     }
 
     /**
+     * Get authentication result
+     * When using federated or multiple steps authenticators, there is a redirection from commonauth to samlsso,
+     * So in that case we cannot use request attribute and have to get the result from cache
+     *
+     * @param req Http servlet request
+     * @param sessionDataKey Session data key
+     * @return
+     */
+    private AuthenticationResult getAuthenticationResult(HttpServletRequest req, String sessionDataKey) {
+
+        AuthenticationResult result = getAuthenticationResultFromRequest(req);
+        if (result == null) {
+            isCacheAvailable = true;
+            result = getAuthenticationResultFromCache(sessionDataKey);
+        }
+        return result;
+    }
+
+    private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
+        AuthenticationResult authResult = null;
+        AuthenticationResultCacheEntry authResultCacheEntry = FrameworkUtils
+                .getAuthenticationResultFromCache(sessionDataKey);
+        if (authResultCacheEntry != null) {
+            authResult = authResultCacheEntry.getResult();
+        } else {
+            log.error("Cannot find AuthenticationResult from the cache");
+        }
+        return authResult;
+    }
+
+    /**
      * Get authentication result from request
      *
      * @param request  Http servlet request
@@ -747,8 +810,14 @@ public class OAuth2AuthzEndpoint {
         Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
         if (attribute != null) {
             if (attribute == AuthenticatorFlowStatus.INCOMPLETE) {
-                return Response.status(HttpServletResponse.SC_FOUND)
-                        .location(new URI("../" + responseWrapper.getRedirectURL())).build();
+                if (responseWrapper.getRedirectURL()
+                        .contains(ConfigurationFacade.getInstance().getAuthenticationEndpointURL())) {
+                    return Response.status(HttpServletResponse.SC_FOUND)
+                            .location(new URI("../" + responseWrapper.getRedirectURL())).build();
+                }else{
+                    return Response.status(HttpServletResponse.SC_FOUND)
+                            .location(new URI(responseWrapper.getRedirectURL())).build();
+                }
             } else {
                 return authorize(request, response);
             }
@@ -789,8 +858,15 @@ public class OAuth2AuthzEndpoint {
         Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
         if (attribute != null) {
             if (attribute == AuthenticatorFlowStatus.INCOMPLETE) {
-                return Response.status(HttpServletResponse.SC_FOUND)
-                        .location(new URI("../" + responseWrapper.getRedirectURL())).build();
+
+                if (responseWrapper.getRedirectURL()
+                        .contains(ConfigurationFacade.getInstance().getAuthenticationEndpointURL())) {
+                    return Response.status(HttpServletResponse.SC_FOUND)
+                            .location(new URI("../" + responseWrapper.getRedirectURL())).build();
+                }else{
+                    return Response.status(HttpServletResponse.SC_FOUND)
+                            .location(new URI(responseWrapper.getRedirectURL())).build();
+                }
             } else {
                 return authorize(requestWrapper, responseWrapper);
             }
