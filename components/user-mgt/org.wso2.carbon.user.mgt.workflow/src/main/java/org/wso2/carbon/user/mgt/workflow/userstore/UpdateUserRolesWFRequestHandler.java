@@ -70,6 +70,12 @@ public class UpdateUserRolesWFRequestHandler extends AbstractWorkflowRequestHand
             newRoles) throws WorkflowException {
 
         WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        if (deletedRoles == null) {
+            deletedRoles = new String[0];
+        }
+        if (newRoles == null) {
+            newRoles = new String[0];
+        }
 
         int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
