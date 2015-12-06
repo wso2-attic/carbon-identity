@@ -67,6 +67,7 @@ public class AuthenticationFilter implements RequestHandler, ResponseHandler {
                 AbstractResourceEndpoint.encodeSCIMException(new JSONEncoder(), unauthorizedException));
     }
 
+    // To clear the ThreadLocalProvisioningServiceProvider in a non faulty case
     @Override
     public Response handleResponse(Message message, OperationResourceInfo operationResourceInfo, Response response) {
         IdentityApplicationManagementUtil.resetThreadLocalProvisioningServiceProvider();
