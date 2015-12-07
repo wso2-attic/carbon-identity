@@ -265,7 +265,7 @@ public class OpenIDUtil {
             tenant = null;
         }
 
-        String frontEndUrl = IdentityUtil.getServerURL("/carbon/", true) + relativeUrl;
+        String frontEndUrl = IdentityUtil.getServerURL("/carbon/", false, true) + relativeUrl;
 
         if (tenant != null && tenant.trim().length() > 0) {
             return frontEndUrl.replace("/carbon/", "/t/" + tenant + "/carbon/");

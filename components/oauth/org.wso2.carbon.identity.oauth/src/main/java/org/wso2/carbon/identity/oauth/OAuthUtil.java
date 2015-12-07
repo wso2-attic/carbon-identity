@@ -22,16 +22,13 @@ import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xml.security.utils.Base64;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -101,21 +98,10 @@ public final class OAuthUtil {
     }
 
     public static void clearOAuthCache(String oauthCacheKey) {
-        OAuthCache oauthCache;
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
-                    .getThreadLocalCarbonContext();
-            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-
-            CacheKey cacheKey = new OAuthCacheKey(oauthCacheKey);
-            if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-                oauthCache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
-                oauthCache.clearCacheEntry(cacheKey);
-            }
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
+        if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
+            OAuthCache oauthCache = OAuthCache.getInstance();
+            OAuthCacheKey cacheKey = new OAuthCacheKey(oauthCacheKey);
+            oauthCache.clearCacheEntry(cacheKey);
         }
     }
 

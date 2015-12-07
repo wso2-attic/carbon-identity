@@ -22,12 +22,13 @@ import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.wso2.carbon.identity.user.registration.stub.UserRegistrationAdminServiceException;
+import org.wso2.carbon.identity.user.registration.stub.UserRegistrationAdminServiceIdentityException;
 import org.wso2.carbon.identity.user.registration.stub.UserRegistrationAdminServiceStub;
 import org.wso2.carbon.identity.user.registration.stub.dto.UserDTO;
 import org.wso2.carbon.identity.user.registration.stub.dto.UserFieldDTO;
 
 import java.rmi.RemoteException;
-import java.util.Map;
+import java.util.List;
 import java.util.Properties;
 
 public class UserRegistrationAdminServiceClient {
@@ -39,9 +40,11 @@ public class UserRegistrationAdminServiceClient {
     public UserRegistrationAdminServiceClient() throws AxisFault {
 
         StringBuilder builder = new StringBuilder();
-        String serviceURL = builder.append(Constants.HTTPS_URL).append(TenantDataManager.getPropertyValue(Constants
-                .HOST)).append(Constants.COLON).append(TenantDataManager.getPropertyValue(Constants.PORT)).append
-                (Constants.UserRegistrationConstants.USER_REGISTRATION_SERVICE).toString();
+        String serviceURL = null;
+
+        serviceURL = builder.append(TenantDataManager.getPropertyValue(Constants.SERVICES_URL)).append
+                (Constants.UserRegistrationConstants.USER_REGISTRATION_SERVICE).toString().replaceAll("(?<!(http:|https:))//", "/");
+
         stub = new UserRegistrationAdminServiceStub(serviceURL);
 
         ServiceClient client = stub._getServiceClient();
@@ -50,43 +53,47 @@ public class UserRegistrationAdminServiceClient {
     }
 
     /**
-     * Register new user.
-     *
-     * @param registrationProperties - properties of user to be registered
+     * Add new user.
+     * @param username Username of the user.
+     * @param password Password of the user.
+     * @param userFields User fields to be updated.
      * @throws RemoteException
      * @throws UserRegistrationAdminServiceException
      */
-    public void addUser(Map<String, String> registrationProperties) throws RemoteException,
+    public void addUser(String username, char[] password, List<UserFieldDTO> userFields) throws RemoteException,
             UserRegistrationAdminServiceException {
+
         UserDTO userDTO = new UserDTO();
-        userDTO.setUserName(registrationProperties.get(Constants.UserRegistrationConstants.USERNAME_ELEMENT_ID));
-        userDTO.setPassword(registrationProperties.get(Constants.UserRegistrationConstants.PASSWORD_ELEMENT_ID));
-        UserFieldDTO[] claims = new UserFieldDTO[3];
-        int i = 0;
-        for (Map.Entry<String, String> claim : registrationProperties.entrySet()) {
-            UserFieldDTO userFieldDTO = new UserFieldDTO();
-            if (claim.getKey().equals(Constants.UserRegistrationConstants.FIRST_NAME_ELEMENT_ID)) {
-                userFieldDTO.setClaimUri(Constants.UserRegistrationConstants.FIRST_NAME_CLAIM_URI);
-                userFieldDTO.setFieldName(Constants.UserRegistrationConstants.FIRST_NAME);
-                userFieldDTO.setFieldValue(claim.getValue());
-                claims[i] = userFieldDTO;
-                i++;
-            } else if (claim.getKey().equals(Constants.UserRegistrationConstants.LAST_NAME_ELEMENT_ID)) {
-                userFieldDTO.setClaimUri(Constants.UserRegistrationConstants.LAST_NAME_CLAIM_URI);
-                userFieldDTO.setFieldName(Constants.UserRegistrationConstants.LAST_NAME);
-                userFieldDTO.setFieldValue(claim.getValue());
-                claims[i] = userFieldDTO;
-                i++;
-            } else if (claim.getKey().equals(Constants.UserRegistrationConstants.EMAIL_ELEMENT_ID)) {
-                userFieldDTO.setClaimUri(Constants.UserRegistrationConstants.EMAIL_CLAIM_URI);
-                userFieldDTO.setFieldName(Constants.UserRegistrationConstants.EMAIL_ADDRESS);
-                userFieldDTO.setFieldValue(claim.getValue());
-                claims[i] = userFieldDTO;
-                i++;
-            }
-        }
-        userDTO.setUserFields(claims);
+        userDTO.setUserName(username);
+        userDTO.setPassword(new String(password));
+
+        userDTO.setUserFields(userFields.toArray(new UserFieldDTO[userFields.size()]));
         stub.addUser(userDTO);
+    }
+
+    /**
+     * Get the user fields for given dialect.
+     * @param dialect Dialect to use.
+     * @return User fields.
+     * @throws UserRegistrationAdminServiceIdentityException
+     * @throws RemoteException
+     */
+    public UserFieldDTO[] readUserFieldsForUserRegistration(String dialect)
+            throws UserRegistrationAdminServiceIdentityException, RemoteException {
+
+        return stub.readUserFieldsForUserRegistration(dialect);
+    }
+
+    /**
+     * Check whether the user exists.
+     * @param username Username of the user.
+     * @return True if user exists.
+     * @throws RemoteException
+     * @throws UserRegistrationAdminServiceException
+     */
+    public boolean isUserExist(String username) throws RemoteException, UserRegistrationAdminServiceException {
+
+        return stub.isUserExist(username);
     }
 
 }

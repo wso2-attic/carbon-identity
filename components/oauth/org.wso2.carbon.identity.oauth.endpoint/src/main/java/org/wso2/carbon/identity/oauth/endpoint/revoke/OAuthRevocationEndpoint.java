@@ -69,9 +69,6 @@ public class OAuthRevocationEndpoint {
 
             HttpServletRequestWrapper httpRequest = new OAuthRequestWrapper(request, paramMap);
 
-            if (log.isDebugEnabled()) {
-                logAccessTokenRevocationRequest(httpRequest);
-            }
             String token = httpRequest.getParameter("token");
             if (StringUtils.isBlank(token) && paramMap.get("token") != null && !paramMap.isEmpty()) {
                 token = paramMap.get("token").get(0);
@@ -275,23 +272,6 @@ public class OAuthRevocationEndpoint {
                     .header("Content-Type", "application/javascript")
                     .entity(callback + "(" + response.getBody() + ");").build();
         }
-    }
-
-    private void logAccessTokenRevocationRequest(HttpServletRequest request) {
-        log.debug("Received a access token revocation request : " + request.getRequestURI());
-        // log the headers.
-        log.debug("----------logging request headers.----------");
-        Enumeration headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = (String) headerNames.nextElement();
-            Enumeration headers = request.getHeaders(headerName);
-            while (headers.hasMoreElements()) {
-                log.debug(headerName + " : " + headers.nextElement());
-            }
-        }
-        // log the parameters.
-        log.debug("----------logging request parameters.----------");
-        log.debug("token - " + request.getParameter("token"));
     }
 
     private OAuthRevocationResponseDTO revokeTokens(OAuthRevocationRequestDTO oauthRequest)

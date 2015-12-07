@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
@@ -138,14 +138,14 @@ public class UserIdentityManagementUtil {
     }
 
     private static boolean isIdentityMgtListenerEnable() {
-        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+        IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
                 (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
-        if (identityEventListener == null) {
+        if (identityEventListenerConfig == null) {
             return true;
         }
 
-        if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
-            return Boolean.parseBoolean(identityEventListener.getEnable());
+        if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+            return Boolean.parseBoolean(identityEventListenerConfig.getEnable());
         } else {
             return true;
         }

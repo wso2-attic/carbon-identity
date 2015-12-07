@@ -73,13 +73,13 @@
 
             <!-- content -->
             <div class="container col-xs-10 col-sm-6 col-md-6 col-lg-3 col-centered wr-content wr-login col-centered">
-                <div class="boarder-all ">
+                <div>
                     <div class="clearfix"></div>
 
                     <div class="container">
                         <div class="row">
                             <div class="span12">
-                                <h1>You have successfully logged out.</h1>
+                                <h1 style="margin-left: -100;">You have successfully logged out.</h1>
                             </div>
                         </div>
                     </div>

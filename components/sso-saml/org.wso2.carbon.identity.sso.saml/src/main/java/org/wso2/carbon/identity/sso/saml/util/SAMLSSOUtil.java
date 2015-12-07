@@ -531,7 +531,7 @@ public class SAMLSSOUtil {
         if (destinationURLs.size() == 0) {
             String configDestination = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
             if (StringUtils.isBlank(configDestination)) {
-                configDestination = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL,true);
+                configDestination = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL, true, true);
             }
             destinationURLs.add(configDestination);
         }
@@ -1303,7 +1303,7 @@ public class SAMLSSOUtil {
         String redirectURL = IdentityUtil.getProperty(IdentityConstants.ServerConfig
                 .NOTIFICATION_ENDPOINT);
         if (StringUtils.isBlank(redirectURL)){
-            redirectURL = IdentityUtil.getServerURL(SAMLSSOConstants.NOTIFICATION_ENDPOINT, false);
+            redirectURL = IdentityUtil.getServerURL(SAMLSSOConstants.NOTIFICATION_ENDPOINT, false, false);
         }
         return redirectURL;
     }
@@ -1313,7 +1313,7 @@ public class SAMLSSOUtil {
                 .DEFAULT_LOGOUT_ENDPOINT);
         if (StringUtils.isBlank(defaultLogoutLocation)){
             defaultLogoutLocation = IdentityUtil.getServerURL(SAMLSSOConstants
-                    .DEFAULT_LOGOUT_ENDPOINT, false);
+                    .DEFAULT_LOGOUT_ENDPOINT, false, false);
         }
         return defaultLogoutLocation;
     }

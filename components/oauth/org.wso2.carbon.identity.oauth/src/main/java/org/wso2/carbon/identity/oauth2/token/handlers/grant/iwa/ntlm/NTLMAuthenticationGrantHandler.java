@@ -21,6 +21,8 @@ package org.wso2.carbon.identity.oauth2.token.handlers.grant.iwa.ntlm;
 import com.sun.jna.platform.win32.Sspi;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.token.handlers.grant.AbstractAuthorizationGrantHandler;
@@ -70,7 +72,7 @@ public class NTLMAuthenticationGrantHandler extends AbstractAuthorizationGrantHa
         if (token != null) {
 
             // Logging the windows authentication object
-            if (log.isDebugEnabled()) {
+            if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.NTLM_TOKEN)) {
                 log.debug("Received NTLM Token : " +
                           tokReqMsgCtx.getOauth2AccessTokenReqDTO().getWindowsToken()
                 );

@@ -62,7 +62,7 @@ public class AccessTokenIssuer {
 
         authzGrantHandlers = OAuthServerConfiguration.getInstance().getSupportedGrantTypes();
         clientAuthenticationHandlers = OAuthServerConfiguration.getInstance().getSupportedClientAuthHandlers();
-        appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().getAppInfoCacheTimeout());
+        appInfoCache = AppInfoCache.getInstance();
         if (appInfoCache != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Successfully created AppInfoCache under " + OAuthConstants.OAUTH_CACHE_MANAGER);
@@ -150,13 +150,22 @@ public class AccessTokenIssuer {
             tokReqMsgCtx.getAuthorizedUser().setTenantDomain(IdentityTenantUtil.getTenantDomain(oAuthAppDO.getTenantId()));
         }
 
-        boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
+        boolean isValidGrant = false;
+        String error = "Provided Authorization Grant is invalid";
+        try {
+            isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
+        } catch (IdentityOAuth2Exception e) {
+            if(log.isDebugEnabled()){
+                log.debug("Error occurred while validating grant", e);
+            }
+            error = e.getMessage();
+        }
+
         if (!isValidGrant) {
             if (log.isDebugEnabled()) {
                 log.debug("Invalid Grant provided by the client Id: " + tokenReqDTO.getClientId());
             }
-            tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_GRANT,
-                    "Provided Authorization Grant is invalid.", tokenReqDTO);
+            tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_GRANT, error, tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
@@ -182,7 +191,16 @@ public class AccessTokenIssuer {
             return tokenRespDTO;
         }
 
-        tokenRespDTO = authzGrantHandler.issue(tokReqMsgCtx);
+	try {
+	    // set the token request context to be used by downstream handlers. This is introduced as a fix for
+	    // IDENTITY-4111.
+	    OAuth2Util.setTokenRequestContext(tokReqMsgCtx);
+	    tokenRespDTO = authzGrantHandler.issue(tokReqMsgCtx);
+	} finally {
+	    // clears the token request context.
+	    OAuth2Util.clearTokenRequestContext();
+	}
+	
         tokenRespDTO.setCallbackURI(oAuthAppDO.getCallbackUrl());
 
         String[] scopes = tokReqMsgCtx.getScope();
@@ -219,19 +237,16 @@ public class AccessTokenIssuer {
         AuthorizationGrantCacheKey oldCacheKey = new AuthorizationGrantCacheKey(tokenReqDTO.getAuthorizationCode());
         //checking getUserAttributesId vale of cacheKey before retrieve entry from cache as it causes to NPE
         if (oldCacheKey.getUserAttributesId() != null) {
-            AuthorizationGrantCacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance(OAuthServerConfiguration.
-                    getInstance().getAuthorizationGrantCacheTimeout())
-                    .getValueFromCache(oldCacheKey);
+            AuthorizationGrantCacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance().getValueFromCacheByCode(oldCacheKey);
             AuthorizationGrantCacheKey newCacheKey = new AuthorizationGrantCacheKey(tokenRespDTO.getAccessToken());
-            int authorizationGrantCacheTimeout = OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout();
 
-            if (AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).getValueFromCache(newCacheKey) == null) {
+            if (AuthorizationGrantCache.getInstance().getValueFromCacheByToken(newCacheKey) == null) {
                 if(log.isDebugEnabled()){
                    log.debug("No AuthorizationGrantCache entry found for the access token:"+ newCacheKey.getUserAttributesId()+
                    ", hence adding to cache");
                 }
-                AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).addToCache(newCacheKey, authorizationGrantCacheEntry);
-                AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).clearCacheEntry(oldCacheKey);
+                AuthorizationGrantCache.getInstance().addToCacheByToken(newCacheKey, authorizationGrantCacheEntry);
+                AuthorizationGrantCache.getInstance().clearCacheEntryByCode(oldCacheKey);
             } else{
                 //if the user attributes are already saved for access token, no need to add again.
             }

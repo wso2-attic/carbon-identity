@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.F
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.handler.request.LogoutRequestHandler;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthResponseWrapper;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
@@ -188,8 +189,13 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                 authenticationResult.setSaaSApp(sequenceConfig.getApplicationConfig().isSaaSApp());
             }
 
-            // Put the result in the
-            FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
+            if (FrameworkUtils.getCacheDisabledAuthenticators().contains(context.getRequestType())
+                    && (response instanceof CommonAuthResponseWrapper)) {
+                //Set authentication result as request attribute
+                addAuthenticationResultToRequest(request, authenticationResult);
+            }else{
+                FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
+            }
 
             redirectURL = context.getCallerPath() + "?sessionDataKey=" + context.getCallerSessionKey();
         } else {
@@ -214,5 +220,16 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
 
         // redirect to the caller
         response.sendRedirect(redirectURL);
+    }
+
+    /**
+     * Add authentication result into request attribute
+     *
+     * @param request Http servlet request
+     * @param authenticationResult Authentication result
+     */
+    private void addAuthenticationResultToRequest(HttpServletRequest request,
+            AuthenticationResult authenticationResult) {
+        request.setAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT, authenticationResult);
     }
 }

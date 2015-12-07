@@ -10,6 +10,6 @@ carbon-identity
 
 ---
 
-This contains the source code of modules uses for Idenity Server. Some of these modules uses by other products of the platfrom too. 
+This repository contains the source code of modules used for WSO2 Idenity Server. Some of these modules are used by other products of the the platform as well. 
 
-Service Stubs, Components and Features of each module contains in this repo.
+Service Stubs, Components and Features of each module is contained in this repository.
