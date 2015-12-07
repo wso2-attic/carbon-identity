@@ -97,9 +97,10 @@ public class IdentityCoreServiceComponent {
                 jdbcPersistenceManager.initializeDatabase();
             }
 
-            String value = System.getProperty("migrate");
+            String migrate = System.getProperty("migrate");
+            String component = System.getProperty("component");
             try{
-                if (Boolean.parseBoolean(value)) {
+                if (Boolean.parseBoolean(migrate) && "identity".equalsIgnoreCase(component)) {
                     Class<?> c = Class.forName("org.wso2.carbon.is.migration.client.MigrateFrom5to510");
                     c.getMethod("databaseMigration").invoke(c.newInstance());
                     if (log.isDebugEnabled()){
