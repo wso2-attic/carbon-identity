@@ -144,12 +144,12 @@ public class SAMLValidatorUtil {
     public static Map<String, String> getUserClaimValues(String username, String[] requestedClaims, String profile)
             throws IdentityException {
         try {
-            username = MultitenantUtils.getTenantAwareUsername(username);
             UserRealm userRealm = AnonymousSessionUtil.getRealmByUserName(SAMLSSOUtil.getRegistryService(),
                     SAMLSSOUtil.getRealmService(), username);
             if(userRealm == null){
-                 throw new IdentityException("User realm is not present for this user name:" + username);
-             }
+                throw new IdentityException("User realm is not present for this user name:" + username);
+            }
+            username = MultitenantUtils.getTenantAwareUsername(username);
             UserStoreManager userStoreManager = userRealm.getUserStoreManager();
             return userStoreManager.getUserClaimValues(username, requestedClaims, profile);
         } catch (UserStoreException e) {
