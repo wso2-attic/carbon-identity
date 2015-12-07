@@ -249,6 +249,8 @@ public class OAuth2AuthzEndpoint {
                 if (consent != null) {
 
                     if (OAuthConstants.Consent.DENY.equals(consent)) {
+                        OpenIDConnectUserRPStore.getInstance().putUserRPToStore(resultFromConsent.getLoggedInUser().toString(),
+                                resultFromConsent.getoAuth2Parameters().getApplicationName(), false);
                         // return an error if user denied
                         String denyResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
                                 .setError(OAuth2ErrorCodes.ACCESS_DENIED)
