@@ -19,11 +19,12 @@
 package org.wso2.carbon.identity.application.authentication.framework.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 public class AuthenticationResult implements Serializable {
 
-    private static final long serialVersionUID = 7468735345445470413L;
+    private static final long serialVersionUID = 462700737456383154L;
 
     private boolean authenticated;
     private AuthenticatedUser subject;
@@ -32,6 +33,7 @@ public class AuthenticationResult implements Serializable {
     private boolean isSaaSApp;
     private boolean loggedOut;
     private Map<String, String> claimMapping;
+    private Map<String, Object> properties = new HashMap<>();
 
     public AuthenticationResult() {
     }
@@ -99,5 +101,11 @@ public class AuthenticationResult implements Serializable {
         this.isSaaSApp = isSaaSApp;
     }
 
+    public void addProperty(String key, Object value) {
+        properties.put(key, value);
+    }
 
+    public Object getProperty(String key) {
+        return properties.get(key);
+    }
 }

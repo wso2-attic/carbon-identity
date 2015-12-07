@@ -27,11 +27,12 @@ import java.util.Map;
 
 public class SessionContext implements Serializable {
 
-    private static final long serialVersionUID = -1217614650620644670L;
+    private static final long serialVersionUID = -2381634092699961017L;
 
-    private Map<String, SequenceConfig> authenticatedSequences = new HashMap<String, SequenceConfig>();
-    private Map<String, AuthenticatedIdPData> authenticatedIdPs = new HashMap<String, AuthenticatedIdPData>();
+    private Map<String, SequenceConfig> authenticatedSequences = new HashMap<>();
+    private Map<String, AuthenticatedIdPData> authenticatedIdPs = new HashMap<>();
     private boolean isRememberMe = false;
+    Map<String,Object> properties = new HashMap<>();
 
     public Map<String, SequenceConfig> getAuthenticatedSequences() {
         return authenticatedSequences;
@@ -57,5 +58,13 @@ public class SessionContext implements Serializable {
 
     public void setRememberMe(boolean isRememberMe) {
         this.isRememberMe = isRememberMe;
+    }
+
+    public void addProperty(String key, Object value) {
+        properties.put(key, value);
+    }
+
+    public Object getProperty(String key) {
+        return properties.get(key);
     }
 }
