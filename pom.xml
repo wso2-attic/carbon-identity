@@ -1894,9 +1894,9 @@
         <org.apache.axis2.transport.mail.version.range>[0.0.0,1.0.0)</org.apache.axis2.transport.mail.version.range>
 
         <!-- Axiom Version -->
-        <axiom.version>1.2.11-wso2v6</axiom.version>
-        <axiom.wso2.version>1.2.11.wso2v6</axiom.wso2.version>
-        <axiom.osgi.version.range>[1.2.11.wso2v6, 2.0.0)</axiom.osgi.version.range>
+        <axiom.version>1.2.11-wso2v9</axiom.version>
+        <axiom.wso2.version>1.2.11.wso2v9</axiom.wso2.version>
+        <axiom.osgi.version.range>[1.2.11, 2.0.0)</axiom.osgi.version.range>
         <axiom.javax.mail.imp.pkg.version.range>[1.4.0, 2.0.0)</axiom.javax.mail.imp.pkg.version.range>
         <axiom.org.jaxen.imp.pkg.version.range>[1.1.1, 2.0.0)</axiom.org.jaxen.imp.pkg.version.range>
 
