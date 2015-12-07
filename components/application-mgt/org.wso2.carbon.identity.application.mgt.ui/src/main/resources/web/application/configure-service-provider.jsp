@@ -288,7 +288,10 @@ var roleMappinRowID = -1;
 		if( spName == '') {
 			CARBON.showWarningDialog('<fmt:message key="alert.please.provide.service.provider.id"/>');
 			location.href = '#';
-		} else {
+		} else if (!validateTextForIllegal(spName)) {
+                        CARBON.showWarningDialog('Provided Service Provider name is invalid.');
+                        location.href = '#';
+                } else {
 			if($('input:radio[name=claim_dialect]:checked').val() == "custom")
 			{
 				var isValied = true;
@@ -701,6 +704,15 @@ var roleMappinRowID = -1;
     function disable() {
         document.getElementById("scim-inbound-userstore").disabled =!document.getElementById("scim-inbound-userstore").disabled;
         document.getElementById("dumb").value = document.getElementById("scim-inbound-userstore").disabled;
+    }
+
+    function validateTextForIllegal(fld) {
+        var illegalChars = /^[a-zA-Z0-9._|-]*$/;
+        if (illegalChars.test(fld)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 </script>
 
