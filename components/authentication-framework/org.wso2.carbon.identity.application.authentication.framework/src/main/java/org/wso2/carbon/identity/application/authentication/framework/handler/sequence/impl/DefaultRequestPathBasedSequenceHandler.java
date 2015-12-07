@@ -90,8 +90,8 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
                 }
 
                 try {
-                    AuthenticatorFlowStatus status = authenticator.process(request, response,
-                                                                           context);
+                    AuthenticatorFlowStatus status = authenticator.process(request, response, context);
+                    request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, status);
 
                     if (log.isDebugEnabled()) {
                         log.debug(authenticator.getName() + ".authenticate() returned: "

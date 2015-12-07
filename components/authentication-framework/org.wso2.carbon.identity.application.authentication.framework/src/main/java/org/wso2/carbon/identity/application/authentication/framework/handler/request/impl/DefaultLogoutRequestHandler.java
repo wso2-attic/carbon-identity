@@ -111,6 +111,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                     context.setStateInfo(authenticatorConfig.getAuthenticatorStateInfo());
 
                     AuthenticatorFlowStatus status = authenticator.process(request, response, context);
+                    request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, status);
 
                     if (!status.equals(AuthenticatorFlowStatus.INCOMPLETE)) {
                         // TODO what if logout fails. this is an edge case
