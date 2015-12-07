@@ -87,6 +87,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -103,8 +104,14 @@ public class FrameworkUtils {
     private static final Log log = LogFactory.getLog(FrameworkUtils.class);
     private static int maxInactiveInterval;
     private static final String EMAIL = "email";
+    private static List<String> cacheDisabledAuthenticators = Arrays
+            .asList(new String[] { FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO, FrameworkConstants.OAUTH2 });
 
     private FrameworkUtils() {
+    }
+
+    public static List<String> getCacheDisabledAuthenticators() {
+        return cacheDisabledAuthenticators;
     }
 
     /**

@@ -30,6 +30,7 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.CommonAuthenticationHandler;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
 import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthRequestWrapper;
@@ -40,13 +41,11 @@ import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
-import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCache;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
-import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.endpoint.OAuthRequestWrapper;
 import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
 import org.wso2.carbon.identity.oauth.endpoint.util.OpenIDConnectUserRPStore;
@@ -87,6 +86,7 @@ public class OAuth2AuthzEndpoint {
 
     private static final Log log = LogFactory.getLog(OAuth2AuthzEndpoint.class);
     public static final String APPROVE = "approve";
+    private boolean isCacheAvailable = false;
 
     @GET
     @Path("/")
@@ -103,11 +103,24 @@ public class OAuth2AuthzEndpoint {
 
         String clientId = request.getParameter("client_id");
 
-        String sessionDataKeyFromLogin = request.getParameter(OAuthConstants.SESSION_DATA_KEY);
+        String sessionDataKeyFromLogin = getSessionDataKey(request);
         String sessionDataKeyFromConsent = request.getParameter(OAuthConstants.SESSION_DATA_KEY_CONSENT);
         SessionDataCacheKey cacheKey = null;
         SessionDataCacheEntry resultFromLogin = null;
         SessionDataCacheEntry resultFromConsent = null;
+
+        Object flowStatus = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+        String isToCommonOauth = request.getParameter(FrameworkConstants.RequestParams.TO_COMMONAUTH);
+
+        if ("true".equals(isToCommonOauth) && flowStatus == null) {
+            try {
+                return sendRequestToFramework(request, response);
+            } catch (ServletException | IOException e) {
+                log.error("Error occurred while sending request to authentication framework.");
+                return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build();
+            }
+        }
+
         if (StringUtils.isNotEmpty(sessionDataKeyFromLogin)) {
             cacheKey = new SessionDataCacheKey(sessionDataKeyFromLogin);
             resultFromLogin = SessionDataCache.getInstance().getValueFromCache(cacheKey);
@@ -170,7 +183,7 @@ public class OAuth2AuthzEndpoint {
                 Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
                 if (attribute != null && attribute == AuthenticatorFlowStatus.SUCCESS_COMPLETED) {
                     try {
-                        return forward(request, response,
+                        return sendRequestToFramework(request, response,
                                 (String) request.getAttribute(FrameworkConstants.SESSION_DATA_KEY),
                                 FrameworkConstants.OAUTH2);
                     } catch (ServletException | IOException e ) {
@@ -185,9 +198,9 @@ public class OAuth2AuthzEndpoint {
 
                 sessionDataCacheEntry = resultFromLogin;
                 OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
-                AuthenticationResult authnResult = getAuthenticationResultFromCache(sessionDataKeyFromLogin);
+                AuthenticationResult authnResult = getAuthenticationResult(request, sessionDataKeyFromLogin);
                 if (authnResult != null) {
-                    FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKeyFromLogin);
+                    removeAuthenticationResult(request, sessionDataKeyFromLogin);
 
                     String redirectURL = null;
                     if (authnResult.isAuthenticated()) {
@@ -324,6 +337,35 @@ public class OAuth2AuthzEndpoint {
 
             PrivilegedCarbonContext.endTenantFlow();
         }
+    }
+
+    /**
+     * Remove authentication result from request
+     * @param req
+     */
+    private void removeAuthenticationResult(HttpServletRequest req, String sessionDataKey) {
+
+        if(isCacheAvailable){
+            FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKey);
+        }else {
+            req.removeAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT);
+        }
+    }
+
+
+    /**
+     * In federated and multi steps scenario there is a redirection from commonauth to samlsso so have to get
+     * session data key from query parameter
+     *
+     * @param req Http servlet request
+     * @return Session data key
+     */
+    private String getSessionDataKey(HttpServletRequest req) {
+        String sessionDataKey = (String) req.getAttribute(OAuthConstants.SESSION_DATA_KEY);
+        if (sessionDataKey == null) {
+            sessionDataKey = req.getParameter(OAuthConstants.SESSION_DATA_KEY);
+        }
+        return sessionDataKey;
     }
 
     @POST
@@ -705,16 +747,83 @@ public class OAuth2AuthzEndpoint {
         }
     }
 
+    /**
+     * Get authentication result
+     * When using federated or multiple steps authenticators, there is a redirection from commonauth to samlsso,
+     * So in that case we cannot use request attribute and have to get the result from cache
+     *
+     * @param req Http servlet request
+     * @param sessionDataKey Session data key
+     * @return
+     */
+    private AuthenticationResult getAuthenticationResult(HttpServletRequest req, String sessionDataKey) {
+
+        AuthenticationResult result = getAuthenticationResultFromRequest(req);
+        if (result == null) {
+            isCacheAvailable = true;
+            result = getAuthenticationResultFromCache(sessionDataKey);
+        }
+        return result;
+    }
+
     private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
         AuthenticationResult authResult = null;
-        AuthenticationResultCacheEntry authResultCacheEntry = FrameworkUtils.getAuthenticationResultFromCache(sessionDataKey);
+        AuthenticationResultCacheEntry authResultCacheEntry = FrameworkUtils
+                .getAuthenticationResultFromCache(sessionDataKey);
         if (authResultCacheEntry != null) {
             authResult = authResultCacheEntry.getResult();
         } else {
             log.error("Cannot find AuthenticationResult from the cache");
         }
-
         return authResult;
+    }
+
+    /**
+     * Get authentication result from request
+     *
+     * @param request  Http servlet request
+     * @return
+     */
+    private AuthenticationResult getAuthenticationResultFromRequest(HttpServletRequest request) {
+
+        return (AuthenticationResult) request.getAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT);
+    }
+
+    /**
+     * In SAML there is no redirection from authentication endpoint to  commonauth and it send a post request to samlsso
+     * servlet and sending the request to authentication framework from here, this overload method not sending
+     * sessionDataKey and type to commonauth that's why overloaded the method here
+     *
+     * @param request Http servlet request
+     * @param response Http servlet response
+     * @throws ServletException
+     * @throws IOException
+     */
+    private Response sendRequestToFramework(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException,IOException,URISyntaxException {
+
+        CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
+
+        CommonAuthResponseWrapper responseWrapper = new CommonAuthResponseWrapper(response);
+        commonAuthenticationHandler.doGet(request, responseWrapper);
+
+        Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+        if (attribute != null) {
+            if (attribute == AuthenticatorFlowStatus.INCOMPLETE) {
+                if (responseWrapper.getRedirectURL()
+                        .contains(ConfigurationFacade.getInstance().getAuthenticationEndpointURL())) {
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+                } else {
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+                }
+            } else {
+                return authorize(request, response);
+            }
+        } else {
+            request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
+            return authorize(request, response);
+        }
+        return null;
     }
 
     /**
@@ -722,8 +831,6 @@ public class OAuth2AuthzEndpoint {
      * Sending wrapper request object to doGet method since other original request doesn't exist required parameters
      * Doesn't check SUCCESS_COMPLETED since taking decision with INCOMPLETE status
      *
-     * Appending "../" to redirect url since tomcat container redirects to
-     * https://localhost:9443/oauth2/authenticationendpoint/login.do
      *
      * @param request  Http Request
      * @param response Http Response
@@ -732,8 +839,8 @@ public class OAuth2AuthzEndpoint {
      * @throws ServletException
      * @throws IOException
      */
-    private Response forward(HttpServletRequest request, HttpServletResponse response, String sessionDataKey,
-            String type) throws ServletException, IOException, URISyntaxException {
+    private Response sendRequestToFramework(HttpServletRequest request, HttpServletResponse response,
+            String sessionDataKey, String type) throws ServletException, IOException, URISyntaxException {
 
         CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
 
@@ -747,13 +854,21 @@ public class OAuth2AuthzEndpoint {
         Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
         if (attribute != null) {
             if (attribute == AuthenticatorFlowStatus.INCOMPLETE) {
-                return Response.status(HttpServletResponse.SC_FOUND)
-                        .location(new URI("../" + responseWrapper.getRedirectURL())).build();
+
+                if (responseWrapper.getRedirectURL()
+                        .contains(ConfigurationFacade.getInstance().getAuthenticationEndpointURL())) {
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+                } else {
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+                }
             } else {
                 return authorize(requestWrapper, responseWrapper);
             }
         } else {
+            requestWrapper.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
             return authorize(requestWrapper, responseWrapper);
         }
+        return null;
     }
+
 }

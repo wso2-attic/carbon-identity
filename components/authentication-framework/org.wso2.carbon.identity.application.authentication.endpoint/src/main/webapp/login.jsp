@@ -25,10 +25,13 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.List" %>
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.TenantDataManager" %>
+<%@ page import="java.util.ResourceBundle" %>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
 
     <%
+        String BUNDLE = "org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources";
+        ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
 
         request.getSession().invalidate();
         String queryString = request.getQueryString();
@@ -42,13 +45,8 @@
 
         if (Boolean.parseBoolean(request.getParameter(Constants.AUTH_FAILURE))) {
             loginFailed = "true";
-
             if (request.getParameter(Constants.AUTH_FAILURE_MSG) != null) {
-                errorMessage = request.getParameter(Constants.AUTH_FAILURE_MSG);
-
-                if (errorMessage.equalsIgnoreCase("login.fail.message")) {
-                    errorMessage = "Authentication Failed! Please Retry";
-                }
+                errorMessage = resourceBundle.getString(request.getParameter(Constants.AUTH_FAILURE_MSG));
             }
         }
     %>
@@ -234,7 +232,7 @@
                                     <img class="idp-image" src="images/login-icon.png" data-toggle="tooltip"
                                          data-placement="top" title="Sign in with FIDO"/>
                                 </a>
-                                <label for="icon-<%=iconId%>">IWA</label>
+                                <label for="icon-<%=iconId%>">FIDO</label>
 
                                 </div>
                                 <%

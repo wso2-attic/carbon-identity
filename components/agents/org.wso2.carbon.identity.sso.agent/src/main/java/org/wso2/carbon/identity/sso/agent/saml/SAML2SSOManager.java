@@ -176,6 +176,11 @@ public class SAML2SSOManager {
             }
         }
 
+        if (ssoAgentConfig.getSAML2().isRequestSigned()) {
+            SSOAgentUtils.addDeflateSignatureToHTTPQueryString(httpQueryString,
+                    new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
+        }
+
         if (ssoAgentConfig.getQueryParams() != null && !ssoAgentConfig.getQueryParams().isEmpty()) {
             StringBuilder builder = new StringBuilder();
             for (Map.Entry<String, String[]> entry : ssoAgentConfig.getQueryParams().entrySet()) {
@@ -188,10 +193,7 @@ public class SAML2SSOManager {
             httpQueryString.append(builder);
         }
 
-        if (ssoAgentConfig.getSAML2().isRequestSigned()) {
-            SSOAgentUtils.addDeflateSignatureToHTTPQueryString(httpQueryString,
-                    new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
-        }
+
 
         if (ssoAgentConfig.getSAML2().getIdPURL().indexOf("?") > -1) {
             idpUrl = ssoAgentConfig.getSAML2().getIdPURL().concat("&").concat(httpQueryString.toString());

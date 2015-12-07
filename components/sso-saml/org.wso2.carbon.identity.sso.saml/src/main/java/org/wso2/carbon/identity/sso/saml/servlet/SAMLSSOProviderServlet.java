@@ -21,7 +21,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.owasp.encoder.Encode;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.CommonAuthenticationHandler;
@@ -87,6 +86,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
     private static Log log = LogFactory.getLog(SAMLSSOProviderServlet.class);
 
     private SAMLSSOService samlSsoService = new SAMLSSOService();
+    private boolean isCacheAvailable = false;
 
     @Override
     protected void doGet(HttpServletRequest httpServletRequest,
@@ -147,11 +147,17 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String spEntityID = req.getParameter(SAMLSSOConstants.QueryParameter
                 .SP_ENTITY_ID.toString());
         String samlRequest = req.getParameter(SAMLSSOConstants.SAML_REQUEST);
-        String sessionDataKey = req.getParameter(SAMLSSOConstants.SESSION_DATA_KEY);
+        String sessionDataKey = getSessionDataKey(req);
         String slo = req.getParameter(SAMLSSOConstants.QueryParameter.SLO.toString());
+        Object flowStatus = req.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
 
-        boolean isExpFired = false;
         try {
+
+            String isToCommonOauth = req.getParameter(FrameworkConstants.RequestParams.TO_COMMONAUTH);
+            if ("true".equals(isToCommonOauth) & flowStatus == null) {
+                sendRequestToFramework(req, resp);
+                return;
+            }
 
             String tenantDomain = req.getParameter(MultitenantConstants.TENANT_DOMAIN);
             SAMLSSOUtil.setTenantDomainInThreadLocal(tenantDomain);
@@ -171,7 +177,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                         handleAuthenticationReponseFromFramework(req, resp, sessionId, sessionDTO);
                     }
 
-                    removeAuthenticationResultFromCache(sessionDataKey);
+                    removeAuthenticationResult(req, sessionDataKey);
 
                 } else {
                     log.error("Failed to retrieve sessionDTO from the cache for key " + sessionDataKey);
@@ -227,6 +233,21 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             sendNotification(errorResp, SAMLSSOConstants.Notification.EXCEPTION_STATUS,
                     SAMLSSOConstants.Notification.EXCEPTION_MESSAGE, null, req, resp);
         }
+    }
+
+    /**
+     * In federated and multi steps scenario there is a redirection from commonauth to samlsso so have to get
+     * session data key from query parameter
+     *
+     * @param req Http servlet request
+     * @return Session data key
+     */
+    private String getSessionDataKey(HttpServletRequest req) {
+        String sessionDataKey = (String) req.getAttribute(SAMLSSOConstants.SESSION_DATA_KEY);
+        if (sessionDataKey == null) {
+            sessionDataKey = req.getParameter(SAMLSSOConstants.SESSION_DATA_KEY);
+        }
+        return sessionDataKey;
     }
 
     /**
@@ -430,9 +451,13 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         // Creating cache entry and adding entry to the cache before calling to commonauth
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                 (authenticationRequest);
-        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
+        addAuthenticationRequestToRequest(req, authRequest);
         FrameworkUtils.setRequestPathCredentials(req);
-        forward(req, resp, sessionDataKey, FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
+        sendRequestToFramework(req, resp, sessionDataKey, FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
+    }
+
+    private void addAuthenticationRequestToRequest(HttpServletRequest request,AuthenticationRequestCacheEntry authRequest){
+        request.setAttribute(FrameworkConstants.RequestAttribute.AUTH_REQUEST, authRequest);
     }
 
     private void sendToFrameworkForLogout(HttpServletRequest request, HttpServletResponse response,
@@ -461,6 +486,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         String sessionDataKey = UUIDGenerator.generateUUID();
         addSessionDataToCache(sessionDataKey, sessionDTO);
 
+
         String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
 
         String selfPath = request.getContextPath();
@@ -487,11 +513,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
         AuthenticationRequestCacheEntry authRequest = new AuthenticationRequestCacheEntry
                 (authenticationRequest);
-        FrameworkUtils.addAuthenticationRequestToCache(sessionDataKey, authRequest);
-        String queryParams = "?" + SAMLSSOConstants.SESSION_DATA_KEY + "=" + sessionDataKey
-                             + "&" + "type" + "=" + "samlsso";
-
-        forward(request, response, sessionDataKey, FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
+        addAuthenticationRequestToRequest(request, authRequest);
+        sendRequestToFramework(request, response, sessionDataKey, FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO);
     }
 
     /**
@@ -600,8 +623,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                                                           String sessionId, SAMLSSOSessionDTO sessionDTO)
             throws UserStoreException, IdentityException, IOException, ServletException {
 
-        String sessionDataKey = req.getParameter(SAMLSSOConstants.SESSION_DATA_KEY);
-        AuthenticationResult authResult = getAuthenticationResultFromCache(sessionDataKey);
+        String sessionDataKey = getSessionDataKey(req);
+        AuthenticationResult authResult = getAuthenticationResult(req, sessionDataKey);
 
         if (log.isDebugEnabled() && authResult == null) {
             log.debug("Session data is not found for key : " + sessionDataKey);
@@ -828,25 +851,67 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Get authentication result
+     * When using federated or multiple steps authenticators, there is a redirection from commonauth to samlsso,
+     * So in that case we cannot use request attribute and have to get the result from cache
+     *
+     * @param req Http servlet request
+     * @param sessionDataKey Session data key
+     * @return
+     */
+    private AuthenticationResult getAuthenticationResult(HttpServletRequest req, String sessionDataKey) {
+
+        AuthenticationResult result = getAuthenticationResultFromRequest(req);
+        if (result == null) {
+            isCacheAvailable = true;
+            result = getAuthenticationResultFromCache(sessionDataKey);
+        }
+        return result;
+    }
+
     private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
         AuthenticationResult authResult = null;
-        AuthenticationResultCacheEntry authResultCacheEntry = FrameworkUtils.getAuthenticationResultFromCache(sessionDataKey);
+        AuthenticationResultCacheEntry authResultCacheEntry = FrameworkUtils
+                .getAuthenticationResultFromCache(sessionDataKey);
         if (authResultCacheEntry != null) {
             authResult = authResultCacheEntry.getResult();
         } else {
             log.error("Cannot find AuthenticationResult from the cache");
         }
-
         return authResult;
     }
 
     /**
-     * @param sessionDataKey
+     * Get authentication result attribute from request
+     * @param req Http servlet request
+     * @return Authentication result
      */
-    private void removeAuthenticationResultFromCache(String sessionDataKey) {
-        if (sessionDataKey != null) {
+    private AuthenticationResult getAuthenticationResultFromRequest(HttpServletRequest req) {
+
+        return (AuthenticationResult) req.getAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT);
+    }
+
+    /**
+     * Remove authentication result from request
+     * @param req
+     */
+    private void removeAuthenticationResult(HttpServletRequest req, String sessionDataKey) {
+
+        if(isCacheAvailable){
             FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKey);
+        }else {
+            req.removeAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT);
         }
+    }
+
+    /**
+     * Remove authentication result from request and cache
+     * @param req
+     */
+    private void removeAuthenticationResultFromRequest(HttpServletRequest req) {
+
+        req.removeAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT);
     }
 
     private void startTenantFlow(String tenantDomain) throws IdentityException {
@@ -893,6 +958,38 @@ public class SAMLSSOProviderServlet extends HttpServlet {
     }
 
     /**
+     * In SAML there is no redirection from authentication endpoint to  commonauth and it send a post request to samlsso
+     * servlet and sending the request to authentication framework from here, this overload method not sending
+     * sessionDataKey and type to commonauth that's why overloaded the method here
+     *
+     * @param request Http servlet request
+     * @param response Http servlet response
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void sendRequestToFramework(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
+
+        CommonAuthResponseWrapper responseWrapper = new CommonAuthResponseWrapper(response);
+        commonAuthenticationHandler.doGet(request, responseWrapper);
+
+        Object object = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+        if (object != null) {
+            AuthenticatorFlowStatus status = (AuthenticatorFlowStatus) object;
+            if (status == AuthenticatorFlowStatus.INCOMPLETE) {
+                response.sendRedirect(responseWrapper.getRedirectURL());
+            } else {
+                doGet(request, response);
+            }
+        } else {
+            request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
+            doGet(request, response);
+        }
+    }
+
+    /**
      * This method use to call authentication framework directly via API other than using HTTP redirects.
      * Sending wrapper request object to doGet method since other original request doesn't exist required parameters
      * Doesn't check SUCCESS_COMPLETED since taking decision with INCOMPLETE status
@@ -904,7 +1001,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    private void forward(HttpServletRequest request, HttpServletResponse response, String sessionDataKey, String type)
+    private void sendRequestToFramework(HttpServletRequest request, HttpServletResponse response, String sessionDataKey,
+            String type)
             throws ServletException, IOException {
 
         CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
@@ -925,6 +1023,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                 doGet(requestWrapper, response);
             }
         } else {
+            requestWrapper.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
             doGet(requestWrapper, response);
         }
     }
