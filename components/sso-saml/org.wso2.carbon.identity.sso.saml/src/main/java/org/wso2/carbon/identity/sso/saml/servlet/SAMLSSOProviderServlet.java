@@ -153,8 +153,9 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
         try {
 
+            //TODO add debug log istocommonth and flowstatus
             String isToCommonOauth = req.getParameter(FrameworkConstants.RequestParams.TO_COMMONAUTH);
-            if ("true".equals(isToCommonOauth) & flowStatus == null) {
+            if ("true".equals(isToCommonOauth) && flowStatus == null) {
                 sendRequestToFramework(req, resp);
                 return;
             }
@@ -898,11 +899,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      */
     private void removeAuthenticationResult(HttpServletRequest req, String sessionDataKey) {
 
-        if(isCacheAvailable){
             FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKey);
-        }else {
             req.removeAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT);
-        }
     }
 
     /**
