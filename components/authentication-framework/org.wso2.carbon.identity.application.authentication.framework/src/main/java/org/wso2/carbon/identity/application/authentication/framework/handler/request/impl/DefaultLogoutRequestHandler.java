@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.F
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.handler.request.LogoutRequestHandler;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthResponseWrapper;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
@@ -188,7 +189,8 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                 authenticationResult.setSaaSApp(sequenceConfig.getApplicationConfig().isSaaSApp());
             }
 
-            if(FrameworkUtils.getCacheDisabledAuthenticators().contains(context.getRequestType())) {
+            if (FrameworkUtils.getCacheDisabledAuthenticators().contains(context.getRequestType())
+                    && (response instanceof CommonAuthResponseWrapper)) {
                 //Set authentication result as request attribute
                 addAuthenticationResultToRequest(request, authenticationResult);
             }else{
