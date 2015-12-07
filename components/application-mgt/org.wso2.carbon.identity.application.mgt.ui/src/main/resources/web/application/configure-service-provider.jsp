@@ -47,7 +47,7 @@
 
 
 <script type="text/javascript" src="../admin/js/main.js"></script>
-
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 
 
 <%
@@ -707,7 +707,7 @@ var roleMappinRowID = -1;
     }
 
     function validateTextForIllegal(fld) {
-        var illegalChars = /^[a-zA-Z0-9._|-]*$/;
+        var illegalChars = getPattern("alphanumerics-with-special-characters");
         if (illegalChars.test(fld)) {
             return true;
         } else {
