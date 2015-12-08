@@ -288,9 +288,8 @@ var roleMappinRowID = -1;
 		if( spName == '') {
 			CARBON.showWarningDialog('<fmt:message key="alert.please.provide.service.provider.id"/>');
 			location.href = '#';
-		} else if (!validateTextForIllegal(spName)) {
-                        CARBON.showWarningDialog('Provided Service Provider name is invalid.');
-                        location.href = '#';
+		} else if (!validateTextForIllegal(document.getElementById("spName"))) {
+                return false;
                 } else {
 			if($('input:radio[name=claim_dialect]:checked').val() == "custom")
 			{
@@ -707,8 +706,8 @@ var roleMappinRowID = -1;
     }
 
     function validateTextForIllegal(fld) {
-        var illegalChars = getPattern("alphanumerics-with-special-characters");
-        if (illegalChars.test(fld)) {
+        var isValid = doValidateInput(fld, "Provided Service Provider name is invalid.");
+        if (isValid) {
             return true;
         } else {
             return false;
@@ -731,7 +730,7 @@ var roleMappinRowID = -1;
                     <tr>
                         <td style="width:15%" class="leftCol-med labelField"><fmt:message key='config.application.info.basic.name'/>:<span class="required">*</span></td>
                         <td>
-                            <input style="width:50%" id="spName" name="spName" type="text" value="<%=Encode.forHtmlAttribute(spName)%>" autofocus/>
+                            <input style="width:50%" id="spName" name="spName" type="text" value="<%=Encode.forHtmlAttribute(spName)%>" white-list-patterns="/^[a-zA-Z0-9._|-]*$/" autofocus/>
                             <div class="sectionHelp">
                                 <fmt:message key='help.name'/>
                             </div>
