@@ -25,6 +25,7 @@
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 <jsp:include page="../dialog/display_messages.jsp" />
 
 <script type="text/javascript">
@@ -34,17 +35,16 @@ function createAppOnclick() {
 	if( spName == '') {
 		CARBON.showWarningDialog('Please provide Service Provider ID');
 		location.href = '#';
-    } else if (!validateTextForIllegal(spName)) {
-        CARBON.showWarningDialog('Provided Service Provider name is invalid.');
-        location.href = '#';
+    } else if (!validateTextForIllegal(document.getElementById("spName"))) {
+        return false;
     }else {
 		location.href='add-service-provider-finish.jsp?spName=' + spName+'&sp-description='+description;
 	}
 }
 
 function validateTextForIllegal(fld) {
-    var illegalChars = /^[a-zA-Z0-9._|-]*$/;
-    if (illegalChars.test(fld)) {
+    var isValid = doValidateInput(fld, "Provided Service Provider name is invalid.");
+    if (isValid) {
         return true;
     } else {
         return false;
@@ -66,7 +66,7 @@ function validateTextForIllegal(fld) {
                     <tr>
                         <td style="width:15%" class="leftCol-med labelField"><fmt:message key='config.application.info.basic.name'/>:<span class="required">*</span></td>
                         <td>
-                            <input id="spName" name="spName" type="text" value="" autofocus/>
+                            <input id="spName" name="spName" type="text" value="" white-list-patterns="/^[a-zA-Z0-9._|-]*$/" autofocus/>
                             <div class="sectionHelp">
                                 <fmt:message key='help.name'/>
                             </div>
