@@ -26,11 +26,11 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderInfoDTO;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.session.UserRegistry;
-import java.util.List;
 
 
 /**
@@ -124,8 +124,11 @@ public class SAMLSSOConfigAdmin {
         IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
                 .getPersistanceManager();
         try {
-            List<String> issuerListFromFile = FileBasedConfigManager.getIssuerList();
-            if (issuerListFromFile.contains(serviceProviderDTO.getIssuer())) {
+
+            SAMLSSOServiceProviderDO samlssoServiceProviderDO = SSOServiceProviderConfigManager.getInstance().
+                    getServiceProvider(serviceProviderDO.getIssuer());
+
+            if (samlssoServiceProviderDO != null) {
                 String message = "Service Provider with the same issuer name loaded from the file system."
                         + serviceProviderDO.getIssuer();
                 log.error(message);

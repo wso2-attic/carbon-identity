@@ -228,7 +228,7 @@
             client.removeServiceProvier(serviceProviderDTO.getIssuer());
         }
         status = client.addServiceProvider(serviceProviderDTO);
-        if((client.getServiceProvider(serviceProviderDTO.getIssuer())!=null)){
+        if ((client.getServiceProvider(serviceProviderDTO.getIssuer()) != null)) {
             attributeConsumingServiceIndex = client.getServiceProvider(serviceProviderDTO.getIssuer()).getAttributeConsumingServiceIndex();
         }
         samlSsoServuceProviderConfigBean.clearBean();
@@ -256,7 +256,7 @@
 
     if (applicationComponentFound) {
         if (status) {
-        if(attributeConsumingServiceIndex!=null){
+        if(attributeConsumingServiceIndex != null){
     %>
     location.href = '../application/configure-service-provider.jsp?action=update&display=samlIssuer&spName=' +
     '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&samlIssuer=' +
@@ -268,7 +268,7 @@
     '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(serviceProviderDTO.getIssuer()))%>';
     <%}%>
 
-    <% } else { if(attributeConsumingServiceIndex!=null){ %>
+    <% } else { if(attributeConsumingServiceIndex != null){ %>
     location.href = '../application/configure-service-provider.jsp?action=delete&display=samlIssuer&spName=' +
     '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(spName))%>&samlIssuer=' +
     '<%=Encode.forJavaScriptBlock(Encode.forUriComponent(serviceProviderDTO.getIssuer()))%>&attrConServIndex=' +
