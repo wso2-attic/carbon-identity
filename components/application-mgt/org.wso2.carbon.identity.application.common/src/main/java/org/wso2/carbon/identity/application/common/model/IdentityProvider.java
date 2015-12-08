@@ -185,16 +185,19 @@ public class IdentityProvider implements Serializable {
         }
         FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = identityProvider
                 .getFederatedAuthenticatorConfigs();
+        boolean foundDefaultAuthenticator = false;
         for (int i = 0; i < federatedAuthenticatorConfigs.length ; i++) {
             if (StringUtils.equals(defaultAuthenticatorConfigName, federatedAuthenticatorConfigs[i].getName())) {
                 identityProvider.setDefaultAuthenticatorConfig(federatedAuthenticatorConfigs[i]);
+                foundDefaultAuthenticator = true;
                 break;
-            } else if (i == federatedAuthenticatorConfigs.length - 1) {
-                log.warn("No matching federated authentication config found with default authentication config name :" +
-                        " " + defaultAuthenticatorConfigName + " in identity provider : " + identityProvider
-                        .displayName + ".");
-                identityProvider = null;
             }
+        }
+        if (!foundDefaultAuthenticator) {
+            log.warn("No matching federated authentication config found with default authentication config name :  "
+                    + defaultAuthenticatorConfigName + " in identity provider : " + identityProvider .displayName +
+                    ".");
+            identityProvider = null;
         }
 
         return identityProvider;
