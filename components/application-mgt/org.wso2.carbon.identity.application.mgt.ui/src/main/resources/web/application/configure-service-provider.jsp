@@ -289,7 +289,7 @@ var roleMappinRowID = -1;
 			CARBON.showWarningDialog('<fmt:message key="alert.please.provide.service.provider.id"/>');
 			location.href = '#';
 		} else if (!validateTextForIllegal(document.getElementById("spName"))) {
-                return false;
+                        return false;
                 } else {
 			if($('input:radio[name=claim_dialect]:checked').val() == "custom")
 			{

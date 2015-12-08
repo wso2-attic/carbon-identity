@@ -39,9 +39,6 @@ function getPattern(pattern) {
         case "alphanumerics-only":
             regex = /^[a-zA-Z0-9]+/;
             break;
-        case "alphanumerics-with-special-characters":
-            regex = /^[a-zA-Z0-9._|-]*$/;
-            break;
         case "url":
             regex = /^(([^:/?#]+):)?(([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
             break;

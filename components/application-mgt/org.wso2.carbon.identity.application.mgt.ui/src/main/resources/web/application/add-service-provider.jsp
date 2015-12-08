@@ -35,8 +35,8 @@ function createAppOnclick() {
 	if( spName == '') {
 		CARBON.showWarningDialog('Please provide Service Provider ID');
 		location.href = '#';
-    } else if (!validateTextForIllegal(document.getElementById("spName"))) {
-        return false;
+        } else if (!validateTextForIllegal(document.getElementById("spName"))) {
+                return false;
     }else {
 		location.href='add-service-provider-finish.jsp?spName=' + spName+'&sp-description='+description;
 	}
