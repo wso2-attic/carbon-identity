@@ -73,8 +73,8 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
     /**
      * Create new user account association
      *
-     * @param userName1
-     * @param userName2
+     * @param userName1 Username of account 1
+     * @param userName2 Username of account 2
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException
      */
     @Override
@@ -179,7 +179,7 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
     /**
      * Delete an existing user account association
      *
-     * @param userName
+     * @param userName Username of account to delete associations of.
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException
      */
     @Override
@@ -231,8 +231,9 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
     /**
      * Get all associated accounts of the logged in user
      *
+     * @param userName Username to get account list of
      * @return
-     * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException
+     * @throws UserAccountAssociationException
      */
     @Override
     public UserAccountAssociationDTO[] getAccountAssociationsOfUser(String userName) throws
@@ -269,7 +270,7 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
     /**
      * Switch logged in user account to the required associated user account
      *
-     * @param userName
+     * @param userName Username of associated account to switch
      * @return
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException
      */

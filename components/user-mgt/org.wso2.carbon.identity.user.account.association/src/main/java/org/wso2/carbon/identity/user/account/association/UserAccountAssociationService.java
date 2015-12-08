@@ -45,8 +45,8 @@ public class UserAccountAssociationService extends AbstractAdmin {
     /**
      * Create new user account association
      *
-     * @param userName
-     * @param password
+     * @param userName Username of account to associate
+     * @param password Password of account to associate
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
      */
     public void createUserAccountAssociation(String userName, char[] password) throws
@@ -58,7 +58,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
         org.wso2.carbon.user.api.UserRealm userRealm;
         RealmService realmService;
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
-        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+        int tenantId;
         try {
             realmService = IdentityAccountAssociationServiceComponent.getRealmService();
             tenantId = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(userName));
@@ -113,14 +113,14 @@ public class UserAccountAssociationService extends AbstractAdmin {
     /**
      * Create new user account association as admin
      *
-     * @param userName1
-     * @param userName2
+     * @param userName1 Username of first account to associate.
+     * @param userName2 Username of second account to associate.
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
      */
     public void asssociateTwoAccounts(String userName1, String userName2) throws UserAccountAssociationClientException {
 
         RealmService realmService;
-        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+        int tenantId;
         try {
             realmService = IdentityAccountAssociationServiceComponent.getRealmService();
             tenantId = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(userName2));
@@ -156,10 +156,10 @@ public class UserAccountAssociationService extends AbstractAdmin {
     /**
      * Create new user account association without login
      *
-     * @param userName1
-     * @param password1
-     * @param userName2
-     * @param password2
+     * @param userName1 Username of first account to associate.
+     * @param password1 Password of first account to associate.
+     * @param userName2 Username of second account to associate.
+     * @param password2 Password of second account to associate.
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
      */
     public void associateMyAccounts(String userName1, char[] password1, String userName2, char[] password2) throws
@@ -169,8 +169,8 @@ public class UserAccountAssociationService extends AbstractAdmin {
         RealmService realmService;
         String tenantAwareUsername1 = MultitenantUtils.getTenantAwareUsername(userName1);
         String tenantAwareUsername2 = MultitenantUtils.getTenantAwareUsername(userName2);
-        int tenantId1 = MultitenantConstants.INVALID_TENANT_ID;
-        int tenantId2 = MultitenantConstants.INVALID_TENANT_ID;
+        int tenantId1;
+        int tenantId2;
         try {
             realmService = IdentityAccountAssociationServiceComponent.getRealmService();
             tenantId1 = realmService.getTenantManager().getTenantId(MultitenantUtils.getTenantDomain(userName1));
@@ -241,13 +241,13 @@ public class UserAccountAssociationService extends AbstractAdmin {
     /**
      * Delete an existing user account association
      *
-     * @param userName
+     * @param userName Username of account to delete associations.
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
      */
     public void deleteUserAccountAssociation(String userName) throws UserAccountAssociationClientException {
 
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
-        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+        int tenantId;
         RealmService realmService;
 
         try {
@@ -307,7 +307,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
     /**
      * Delete an existing user account association as admin
      *
-     * @param userName
+     * @param userName Username of account to delete associations of.
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
      */
     public void deleteAssociationsOfUser(String userName) throws UserAccountAssociationClientException {
@@ -326,9 +326,9 @@ public class UserAccountAssociationService extends AbstractAdmin {
     /**
      * Delete an existing user account association of user without login
      *
-     * @param initiateUser
-     * @param password
-     * @param userName
+     * @param initiateUser As whom to delete associations of a user
+     * @param password     Password to authenticate
+     * @param userName     Username of account to delete associations of
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
      */
     public void deleteMyAssociationsWithoutLogin(String initiateUser, char[] password, String userName) throws
@@ -336,8 +336,8 @@ public class UserAccountAssociationService extends AbstractAdmin {
 
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
         String initiator = MultitenantUtils.getTenantAwareUsername(initiateUser);
-        int tenantId = MultitenantConstants.INVALID_TENANT_ID;
-        int tenantIdOfInitiateUser = MultitenantConstants.INVALID_TENANT_ID;
+        int tenantId;
+        int tenantIdOfInitiateUser;
         RealmService realmService;
 
         try {
@@ -441,7 +441,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
      * Get all associated accounts for a not logged in user
      *
      * @param userName username of user
-     * @param password passwd
+     * @param password password
      * @return
      * @throws UserAccountAssociationClientException
      */
@@ -474,7 +474,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
     /**
      * Switch logged in user account to the required associated user account
      *
-     * @param userName
+     * @param userName Username of the account to switch to.
      * @return
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
      */
