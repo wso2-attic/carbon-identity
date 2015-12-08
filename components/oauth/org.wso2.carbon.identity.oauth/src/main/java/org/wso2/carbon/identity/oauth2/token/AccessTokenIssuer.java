@@ -148,6 +148,7 @@ public class AccessTokenIssuer {
         if (!authzGrantHandler.isOfTypeApplicationUser()) {
             tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(oAuthAppDO.getUserName()));
             tokReqMsgCtx.getAuthorizedUser().setTenantDomain(IdentityTenantUtil.getTenantDomain(oAuthAppDO.getTenantId()));
+            tokReqMsgCtx.getAuthorizedUser().setUserStoreDomain(oAuthAppDO.getUserDomain());
         }
 
         boolean isValidGrant = false;
