@@ -100,7 +100,7 @@ public class IdentityCoreServiceComponent {
             String migrate = System.getProperty("migrate");
             String component = System.getProperty("component");
             try{
-                if (Boolean.parseBoolean(migrate) && "identity".equalsIgnoreCase(component)) {
+                if (Boolean.parseBoolean(migrate) && component != null && component.contains("identity")) {
                     Class<?> c = Class.forName("org.wso2.carbon.is.migration.client.MigrateFrom5to510");
                     c.getMethod("databaseMigration").invoke(c.newInstance());
                     if (log.isDebugEnabled()){
