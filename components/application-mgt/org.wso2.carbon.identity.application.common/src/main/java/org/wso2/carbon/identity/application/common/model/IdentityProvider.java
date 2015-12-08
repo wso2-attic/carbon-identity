@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
@@ -61,7 +62,7 @@ public class IdentityProvider implements Serializable {
         IdentityProvider identityProvider = new IdentityProvider();
 
         Iterator<?> iter = identityProviderOM.getChildElements();
-
+        String defaultAuthenticatorConfigName = null;
         while (iter.hasNext()) {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
@@ -124,9 +125,7 @@ public class IdentityProvider implements Serializable {
                             .setFederatedAuthenticatorConfigs(federatedAuthenticatorConfigsArr);
                 }
             } else if ("DefaultAuthenticatorConfig".equals(elementName)) {
-                FederatedAuthenticatorConfig defaultAuthenticatorConfig = new FederatedAuthenticatorConfig();
-                defaultAuthenticatorConfig.setName(element.getText());
-                identityProvider.setDefaultAuthenticatorConfig(defaultAuthenticatorConfig);
+                defaultAuthenticatorConfigName = element.getText();
             } else if ("ProvisioningConnectorConfigs".equals(elementName)) {
 
                 Iterator<?> provisioningConnectorConfigsIter = element.getChildElements();
@@ -183,6 +182,19 @@ public class IdentityProvider implements Serializable {
                         .build(element));
             }
 
+        }
+        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = identityProvider
+                .getFederatedAuthenticatorConfigs();
+        for (int i = 0; i < federatedAuthenticatorConfigs.length ; i++) {
+            if (StringUtils.equals(defaultAuthenticatorConfigName, federatedAuthenticatorConfigs[i].getName())) {
+                identityProvider.setDefaultAuthenticatorConfig(federatedAuthenticatorConfigs[i]);
+                break;
+            } else if (i == federatedAuthenticatorConfigs.length - 1) {
+                log.warn("No matching federated authentication config found with default authentication config name :" +
+                        " " + defaultAuthenticatorConfigName + " in identity provider : " + identityProvider
+                        .displayName + ".");
+                identityProvider = null;
+            }
         }
 
         return identityProvider;
