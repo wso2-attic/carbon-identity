@@ -63,6 +63,7 @@ public class IdentityProvider implements Serializable {
 
         Iterator<?> iter = identityProviderOM.getChildElements();
         String defaultAuthenticatorConfigName = null;
+        
         while (iter.hasNext()) {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
@@ -186,7 +187,7 @@ public class IdentityProvider implements Serializable {
         FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = identityProvider
                 .getFederatedAuthenticatorConfigs();
         boolean foundDefaultAuthenticator = false;
-        for (int i = 0; i < federatedAuthenticatorConfigs.length ; i++) {
+        for (int i = 0; i < federatedAuthenticatorConfigs.length; i++) {
             if (StringUtils.equals(defaultAuthenticatorConfigName, federatedAuthenticatorConfigs[i].getName())) {
                 identityProvider.setDefaultAuthenticatorConfig(federatedAuthenticatorConfigs[i]);
                 foundDefaultAuthenticator = true;
