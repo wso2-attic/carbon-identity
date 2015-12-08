@@ -127,8 +127,8 @@ public class SAMLSSOConfigAdmin {
                     getServiceProvider(serviceProviderDO.getIssuer());
 
             if (samlssoServiceProviderDO != null) {
-                String message = "Service Provider with the same issuer name loaded from the file system."
-                        + serviceProviderDO.getIssuer();
+                String message = "A Service Provider with the name " + serviceProviderDO.getIssuer() + " is already loaded" +
+                        " from the file system.";
                 log.error(message);
                 return false;
             }
