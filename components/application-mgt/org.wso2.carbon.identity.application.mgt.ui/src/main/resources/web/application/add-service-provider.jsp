@@ -30,16 +30,16 @@
 
 <script type="text/javascript">
 function createAppOnclick() {
-	var spName = document.getElementById("spName").value;
-	var description = document.getElementById("sp-description").value;
-	if( spName == '') {
-		CARBON.showWarningDialog('Please provide Service Provider ID');
-		location.href = '#';
-        } else if (!validateTextForIllegal(document.getElementById("spName"))) {
-                return false;
+    var spName = document.getElementById("spName").value;
+    var description = document.getElementById("sp-description").value;
+    if( spName == '') {
+        CARBON.showWarningDialog('Please provide Service Provider ID');
+        location.href = '#';
+    } else if (!validateTextForIllegal(document.getElementById("spName"))) {
+        return false;
     }else {
-		location.href='add-service-provider-finish.jsp?spName=' + spName+'&sp-description='+description;
-	}
+        location.href='add-service-provider-finish.jsp?spName=' + spName+'&sp-description='+description;
+    }
 }
 
 function validateTextForIllegal(fld) {
@@ -70,10 +70,10 @@ function validateTextForIllegal(fld) {
                             <div class="sectionHelp">
                                 <fmt:message key='help.name'/>
                             </div>
-                        </td>                     
+                        </td>
                     </tr>
                     <tr>
-                       <td class="leftCol-med labelField">Description:</td>                   
+                       <td class="leftCol-med labelField">Description:</td>
                      <td>
                         <textarea style="width:50%" type="text" name="sp-description" id="sp-description" class="text-box-big"></textarea>
                         <div class="sectionHelp">
