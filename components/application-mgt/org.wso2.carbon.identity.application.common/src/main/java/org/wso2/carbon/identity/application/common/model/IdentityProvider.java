@@ -124,8 +124,9 @@ public class IdentityProvider implements Serializable {
                             .setFederatedAuthenticatorConfigs(federatedAuthenticatorConfigsArr);
                 }
             } else if ("DefaultAuthenticatorConfig".equals(elementName)) {
-                identityProvider.setDefaultAuthenticatorConfig(FederatedAuthenticatorConfig
-                        .build(element.getFirstElement()));
+                FederatedAuthenticatorConfig defaultAuthenticatorConfig = new FederatedAuthenticatorConfig();
+                defaultAuthenticatorConfig.setName(element.getText());
+                identityProvider.setDefaultAuthenticatorConfig(defaultAuthenticatorConfig);
             } else if ("ProvisioningConnectorConfigs".equals(elementName)) {
 
                 Iterator<?> provisioningConnectorConfigsIter = element.getChildElements();
