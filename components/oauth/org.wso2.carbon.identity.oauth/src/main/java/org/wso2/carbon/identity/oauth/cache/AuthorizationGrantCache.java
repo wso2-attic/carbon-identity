@@ -75,7 +75,7 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
 
     public void addToCacheByCode(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
         super.addToCache(key, entry);
-        storeToSessionStore(key.getCodeId(), entry);
+        storeToSessionStore(entry.getCodeId(), entry);
     }
 
 

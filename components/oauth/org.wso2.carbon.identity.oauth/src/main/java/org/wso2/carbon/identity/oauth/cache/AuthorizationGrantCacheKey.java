@@ -26,7 +26,6 @@ public class AuthorizationGrantCacheKey extends CacheKey {
     //todo:variable name userAttributesId should be change later because userAttributesId = authorizationCode
     private static final long serialVersionUID = -844782144516604351L;
     private String userAttributesId;
-    private String codeId;
 
     public AuthorizationGrantCacheKey(String userAttributesId) {
         this.userAttributesId = userAttributesId;
@@ -34,14 +33,6 @@ public class AuthorizationGrantCacheKey extends CacheKey {
 
     public String getUserAttributesId() {
         return userAttributesId;
-    }
-
-    public String getCodeId(){
-        return codeId;
-    }
-
-    public void setCodeId(String codeId){
-        this.codeId = codeId;
     }
 
     @Override
