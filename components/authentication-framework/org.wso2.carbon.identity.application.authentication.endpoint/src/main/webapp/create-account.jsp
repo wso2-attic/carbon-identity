@@ -47,14 +47,17 @@
             if (StringUtils.equals(userFieldDTO.getFieldName(), Constants.UserRegistrationConstants.FIRST_NAME)) {
                 isFirstNameInClaims = true;
                 isFirstNameRequired = userFieldDTO.getRequired();
+                fields.add(userFieldDTO);
             }
             if (StringUtils.equals(userFieldDTO.getFieldName(), Constants.UserRegistrationConstants.LAST_NAME)) {
                 isLastNameInClaims = true;
                 isLastNameRequired = userFieldDTO.getRequired();
+                fields.add(userFieldDTO);
             }
             if (StringUtils.equals(userFieldDTO.getFieldName(), Constants.UserRegistrationConstants.EMAIL_ADDRESS)) {
                 isEmailInClaims = true;
                 isEmailRequired = userFieldDTO.getRequired();
+                fields.add(userFieldDTO);
             }
         }
     } catch (Exception e) {
