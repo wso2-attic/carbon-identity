@@ -19,7 +19,6 @@ package org.wso2.carbon.identity.sts.passive.processors;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axis2.context.MessageContext;
-import org.apache.axis2.util.URL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.RahasConstants;
@@ -32,8 +31,6 @@ import org.apache.ws.security.WSSecurityEngineResult;
 import org.apache.ws.security.WSUsernameTokenPrincipal;
 import org.apache.ws.security.handler.WSHandlerConstants;
 import org.apache.ws.security.handler.WSHandlerResult;
-import org.wso2.carbon.identity.sts.passive.ClaimDTO;
-import org.wso2.carbon.identity.sts.passive.PassiveSTSService;
 import org.wso2.carbon.identity.sts.passive.RequestToken;
 import org.wso2.carbon.identity.sts.passive.ResponseToken;
 
@@ -69,36 +66,6 @@ public class SigningRequestProcessor extends RequestProcessor {
 
         MessageContext.getCurrentMessageContext().setProperty(WSHandlerConstants.RECV_RESULTS,
                 handlerResultsVector);
-
-        // no claim attributes are requested, not included in request. So add the default claim
-        // attributes if they are available for the realm in request. The request may contain realm or wreply value,
-        // so extract the realm value from wreply. In registry we have a mapping of realms to claims.
-        // Claims are stored as comma separated values.
-        if (request.getAttributes() == null || request.getAttributes().length() == 0) {
-            String realm = request.getRealm();
-            if (realm == null) {
-                log.warn("Realm is not set in request token.");
-                String replyTo = request.getReplyTo();
-                URL url = new URL(replyTo);
-                realm = url.getHost();
-            }
-            if (realm != null) {
-                try {
-                    ClaimDTO claimDTO = new PassiveSTSService().getTrustedServiceClaims(realm);
-                    StringBuffer claims = new StringBuffer();
-                    request.setDialect(claimDTO.getClaimDialect());
-                    if (claimDTO.getDefaultClaims() != null) {
-                        for (String claim : claimDTO.getDefaultClaims()) {
-                            claims.append(claim).append(",");
-                        }
-                        request.setAttributes(claims.toString());
-                        log.debug("Default claims were added to request.");
-                    }
-                } catch (Exception e) {
-                    log.error("Failed to get default claims for trusted service realm " + realm, e);
-                }
-            }
-        }
 
 
         try {
