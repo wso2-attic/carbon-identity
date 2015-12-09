@@ -475,13 +475,13 @@
     </wsdl:binding>
     <wsdl:service name="UserRegistrationAdminService">
         <wsdl:port name="UserRegistrationAdminServiceHttpsSoap11Endpoint" binding="tns:UserRegistrationAdminServiceSoap11Binding">
-            <soap:address location="https://jayanga.com:443/services/UserRegistrationAdminService.UserRegistrationAdminServiceHttpsSoap11Endpoint/"/>
+            <soap:address location="https://localhost:9443/services/UserRegistrationAdminService.UserRegistrationAdminServiceHttpsSoap11Endpoint/"/>
         </wsdl:port>
         <wsdl:port name="UserRegistrationAdminServiceHttpsSoap12Endpoint" binding="tns:UserRegistrationAdminServiceSoap12Binding">
-            <soap12:address location="https://jayanga.com:443/services/UserRegistrationAdminService.UserRegistrationAdminServiceHttpsSoap12Endpoint/"/>
+            <soap12:address location="https://localhost:9443/services/UserRegistrationAdminService.UserRegistrationAdminServiceHttpsSoap12Endpoint/"/>
         </wsdl:port>
         <wsdl:port name="UserRegistrationAdminServiceHttpsEndpoint" binding="tns:UserRegistrationAdminServiceHttpBinding">
-            <http:address location="https://jayanga.com:443/services/UserRegistrationAdminService.UserRegistrationAdminServiceHttpsEndpoint/"/>
+            <http:address location="https://localhost:9443/services/UserRegistrationAdminService.UserRegistrationAdminServiceHttpsEndpoint/"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>
