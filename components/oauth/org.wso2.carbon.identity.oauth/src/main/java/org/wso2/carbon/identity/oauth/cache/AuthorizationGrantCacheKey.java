@@ -23,6 +23,7 @@ package org.wso2.carbon.identity.oauth.cache;
  * attributes are stored against cache key.
  */
 public class AuthorizationGrantCacheKey extends CacheKey {
+    private static final long serialVersionUID = -2846349295093760488L;
     //todo:variable name userAttributesId should be change later because userAttributesId = authorizationCode
     private String userAttributesId;
 
