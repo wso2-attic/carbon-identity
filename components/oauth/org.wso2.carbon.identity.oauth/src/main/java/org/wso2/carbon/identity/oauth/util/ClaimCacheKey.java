@@ -25,7 +25,6 @@ import java.util.Arrays;
 
 public class ClaimCacheKey extends CacheKey {
 
-    private static final long serialVersionUID = -34482148764013782L;
     private String endUserName;
     private String[] requiredClaims;
 

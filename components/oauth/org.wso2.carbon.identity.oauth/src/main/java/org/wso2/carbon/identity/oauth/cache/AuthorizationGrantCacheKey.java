@@ -24,7 +24,6 @@ package org.wso2.carbon.identity.oauth.cache;
  */
 public class AuthorizationGrantCacheKey extends CacheKey {
     //todo:variable name userAttributesId should be change later because userAttributesId = authorizationCode
-    private static final long serialVersionUID = -844782144516604351L;
     private String userAttributesId;
 
     public AuthorizationGrantCacheKey(String userAttributesId) {
