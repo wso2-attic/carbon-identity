@@ -45,7 +45,7 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
@@ -201,13 +201,14 @@ public class UserRegistrationService {
      * @return True if exist.
      * @throws Exception
      */
-    public boolean isUserExist(String username) throws Exception {
+    public boolean isUserExist(String username) throws UserRegistrationException {
 
         try {
             return CarbonContext.getThreadLocalCarbonContext().getUserRealm().
                     getUserStoreManager().isExistingUser(username);
         } catch (UserStoreException e) {
-            throw new Exception("User registration exception", e);
+            log.error("User store exception", e);
+            throw new UserRegistrationException("User store exception", e);
         }
     }
 
