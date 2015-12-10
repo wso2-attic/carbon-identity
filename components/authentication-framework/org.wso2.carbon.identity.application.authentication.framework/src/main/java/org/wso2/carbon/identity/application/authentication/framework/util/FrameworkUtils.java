@@ -476,6 +476,7 @@ public class FrameworkUtils {
         Cookie authCookie = new Cookie(FrameworkConstants.COMMONAUTH_COOKIE, id);
         authCookie.setSecure(true);
         authCookie.setHttpOnly(true);
+        authCookie.setPath("/");
 
         if (age != null) {
             authCookie.setMaxAge(age.intValue() * 60);
