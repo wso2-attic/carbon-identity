@@ -56,9 +56,9 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
     public void addToCacheByToken(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
         super.addToCache(key, entry);
         String tokenId = entry.getTokenId();
-        if(tokenId != null){
+        if (tokenId != null) {
             storeToSessionStore(tokenId, entry);
-        }else{
+        } else {
             storeToSessionStore(replaceFromTokenId(key.getUserAttributesId()), entry);
         }
 
