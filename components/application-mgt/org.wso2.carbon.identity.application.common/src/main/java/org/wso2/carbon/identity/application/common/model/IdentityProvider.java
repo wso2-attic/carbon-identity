@@ -188,7 +188,7 @@ public class IdentityProvider implements Serializable {
                 break;
             }
         }
-        if (!foundDefaultAuthenticator && StringUtils.isNotBlank(defaultAuthenticatorConfigName)) {
+        if (!foundDefaultAuthenticator && federatedAuthenticatorConfigs.length > 0) {
             log.warn("No matching federated authentication config found with default authentication config name :  "
                     + defaultAuthenticatorConfigName + " in identity provider : " + identityProvider .displayName +
                     ".");
@@ -205,7 +205,7 @@ public class IdentityProvider implements Serializable {
                 break;
             }
         }
-        if (!foundDefaultProvisioningConfig && StringUtils.isNotBlank(defaultProvisioningConfigName)) {
+        if (!foundDefaultProvisioningConfig && provisioningConnectorConfigs.length > 0) {
             log.warn("No matching provisioning config found with default provisioning config name :  "
                     + defaultProvisioningConfigName + " in identity provider : " + identityProvider .displayName +
                     ".");
