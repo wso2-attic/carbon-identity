@@ -38,7 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.security.Principal;
+import java.util.StringTokenizer;
 
 /**
  * Username Password based Authenticator
@@ -70,25 +70,19 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
     @Override
     protected void processAuthenticationResponse(HttpServletRequest request, HttpServletResponse response,
                                                  AuthenticationContext context) throws AuthenticationFailedException {
-        //Get the authenticated user principle
-        Principal principal = request.getUserPrincipal();
-        if (principal == null) {
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                principal = (Principal) session
-                        .getAttribute(IWAServelet.PRINCIPAL_SESSION_KEY);
-            }
-        }
 
-        if (principal == null || principal.getName() == null) {
+        HttpSession session = request.getSession(false);
+        String username = session.getAttribute(IWAConstants.SUBJECT_ATTRIBUTE).toString();
+        if (username.equals(null)) {
             if (log.isDebugEnabled()) {
-                log.debug("Authenticated principal is null. Therefore authentication is failed.");
+                log.debug("User name is null. Therefore authentication is failed.");
             }
             throw new AuthenticationFailedException("Authentication Failed");
         }
 
-        String username = principal.getName();
-        username = username.substring(username.indexOf("\\") + 1);
+
+        StringTokenizer stringTokenizer = new StringTokenizer(username, "@");
+        username = stringTokenizer.nextToken();
 
         if (log.isDebugEnabled()) {
             log.debug("Authenticate request received : AuthType - " + request.getAuthType() + ", User - " + username);
