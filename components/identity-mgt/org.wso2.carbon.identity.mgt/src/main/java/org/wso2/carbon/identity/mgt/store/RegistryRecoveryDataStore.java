@@ -49,7 +49,8 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
             resource.setProperty(USER_ID, recoveryDataDO.getUserName());
             resource.setProperty(EXPIRE_TIME, recoveryDataDO.getExpireTime());
             resource.setVersionableChange(false);
-            String confirmationKeyPath = IdentityMgtConstants.IDENTITY_MANAGEMENT_DATA + "/" + recoveryDataDO.getCode();
+            String confirmationKeyPath = IdentityMgtConstants.IDENTITY_MANAGEMENT_DATA + "/" + recoveryDataDO.getCode
+                    ().toLowerCase();
             registry.put(confirmationKeyPath, resource);
         } catch (RegistryException e) {
             log.error(e);
@@ -85,7 +86,7 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
 
             registry.beginTransaction();
             String secretKeyPath = IdentityMgtConstants.IDENTITY_MANAGEMENT_DATA +
-                    RegistryConstants.PATH_SEPARATOR + code;
+                    RegistryConstants.PATH_SEPARATOR + code.toLowerCase();
             if (registry.resourceExists(secretKeyPath)) {
                 Resource resource = registry.get(secretKeyPath);
                 Properties props = resource.getProperties();
@@ -195,8 +196,8 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
 
     private void deleteOldResourcesIfFound(Registry registry, String userName, String secretKeyPath) {
         try {
-            if (registry.resourceExists(secretKeyPath)) {
-                Collection collection = (Collection) registry.get(secretKeyPath);
+            if (registry.resourceExists(secretKeyPath.toLowerCase())) {
+                Collection collection = (Collection) registry.get(secretKeyPath.toLowerCase());
                 String[] resources = collection.getChildren();
                 for (String resource : resources) {
                     String[] splittedResource = resource.split("___");
