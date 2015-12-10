@@ -456,6 +456,11 @@ public class IdentityUtil {
      */
     public static boolean isUserStoreCaseSensitive(UserStoreManager userStoreManager) {
 
+        if (userStoreManager == null) {
+            //this is done to handle federated scenarios. For federated scenarios, there is no user store manager for
+            // the user
+            return true;
+        }
         String caseInsensitiveUsername = userStoreManager.getRealmConfiguration()
                 .getUserStoreProperty(IdentityCoreConstants.CASE_INSENSITIVE_USERNAME);
         if (caseInsensitiveUsername == null && log.isDebugEnabled()) {
