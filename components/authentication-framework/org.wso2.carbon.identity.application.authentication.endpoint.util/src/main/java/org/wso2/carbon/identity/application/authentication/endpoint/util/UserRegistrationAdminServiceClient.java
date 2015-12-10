@@ -24,6 +24,7 @@ import org.apache.axis2.client.ServiceClient;
 import org.wso2.carbon.identity.user.registration.stub.UserRegistrationAdminServiceException;
 import org.wso2.carbon.identity.user.registration.stub.UserRegistrationAdminServiceIdentityException;
 import org.wso2.carbon.identity.user.registration.stub.UserRegistrationAdminServiceStub;
+import org.wso2.carbon.identity.user.registration.stub.UserRegistrationAdminServiceUserRegistrationException;
 import org.wso2.carbon.identity.user.registration.stub.dto.UserDTO;
 import org.wso2.carbon.identity.user.registration.stub.dto.UserFieldDTO;
 
@@ -91,7 +92,8 @@ public class UserRegistrationAdminServiceClient {
      * @throws RemoteException
      * @throws UserRegistrationAdminServiceException
      */
-    public boolean isUserExist(String username) throws RemoteException, UserRegistrationAdminServiceException {
+    public boolean isUserExist(String username) throws RemoteException,
+            UserRegistrationAdminServiceUserRegistrationException {
 
         return stub.isUserExist(username);
     }
