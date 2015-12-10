@@ -86,7 +86,7 @@ public class WorkflowManagementUtil {
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .updateRoleName(oldRoleName, newRoleName);
         } catch (UserStoreException e) {
-            throw new WorkflowException("Error while creating workflow", e);
+            throw new WorkflowException("Error while updating workflow role name.", e);
         }
 
     }
