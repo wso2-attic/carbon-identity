@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import org.wso2.carbon.identity.provisioning.OutboundProvisioningManager;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
@@ -142,6 +143,9 @@ public class SCIMUserManager implements UserManager {
                     log.debug("This instance is operating in dumb mode. " +
                               "Hence, operation is not persisted, it will only be provisioned."
                               + "provisioned user : " + user.getUserName());
+                }
+                if (user.getUserName() != null) {
+                    user.setUserName(UserCoreUtil.removeDomainFromName(user.getUserName()));
                 }
                 this.provision(ProvisioningOperation.POST, user);
             }else {
