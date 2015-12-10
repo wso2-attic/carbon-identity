@@ -26,6 +26,7 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.ServiceContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
@@ -46,7 +47,8 @@ public class OAuthService {
     private static final String OAUTH_LATEST_TIMESTAMP = "OAUTH_LATEST_TIMESTAMP";
     private static final String OAUTH_NONCE_STORE = "OAUTH_NONCE_STORE";
     private static Log log = LogFactory.getLog(OAuthService.class);
-
+    private static final Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String AUDIT_MESSAGE = "User : %s , Action : Authenticate , Result : %s";
     /**
      * Checks whether the given consumer is valid or not. This is done by validating the signature,
      * signed by this particular consumer.
@@ -153,8 +155,14 @@ public class OAuthService {
             isAuthenticated = IdentityTenantUtil
                     .getRealm(domainName, params.getAuthorizedbyUserName()).getUserStoreManager()
                     .authenticate(tenantUser, params.getAuthorizedbyUserPassword());
+            if(isAuthenticated){
+                audit.info(String.format(AUDIT_MESSAGE, tenantUser, "SUCCESS"));
+            } else {
+                audit.info(String.format(AUDIT_MESSAGE, tenantUser, "FAILURE"));
+            }
         } catch (UserStoreException e) {
             log.error("Error while authenticating the user", e);
+            audit.info(String.format(AUDIT_MESSAGE, tenantUser, "FAILURE"));
             throw new IdentityException("Error while authenticating the user", e);
         }
         if (isAuthenticated) {

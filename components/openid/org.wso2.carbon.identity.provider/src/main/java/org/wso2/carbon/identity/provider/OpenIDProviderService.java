@@ -35,6 +35,7 @@ import org.openid4java.message.MessageExtension;
 import org.openid4java.message.ParameterList;
 import org.openid4java.server.ServerException;
 import org.openid4java.server.ServerManager;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityConstants.ServerConfig;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -90,6 +91,8 @@ public class OpenIDProviderService {
 
     private static final Log log = LogFactory.getLog(OpenIDProviderService.class);
     private String userAttributeSeparator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
+    private static final Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String AUDIT_MESSAGE = "User : %s , Action : Authenticate , Result : %s";
 
     public static int getOpenIDSessionTimeout() {
         if (StringUtils.isNotBlank(IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SESSION_TIMEOUT))) {
@@ -139,6 +142,10 @@ public class OpenIDProviderService {
         }
 
         if (multiFactAuthnStatus && isAutheticated) {
+            // audit log must be here since it will be misleading for a reader if the user was only authenticated with
+            // the user store manager.
+            audit.info(String.format(AUDIT_MESSAGE, userName, "SUCCESS"));
+
             MessageContext msgContext = MessageContext.getCurrentMessageContext();
             if (msgContext != null) {
                 HttpServletRequest request =
@@ -148,6 +155,8 @@ public class OpenIDProviderService {
                     httpSession.setAttribute(OpenIDServerConstants.OPENID_LOGGEDIN_USER, userName);
                 }
             }
+        } else {
+            audit.info(String.format(AUDIT_MESSAGE, userName, "FAILURE"));
         }
 
         return multiFactAuthnStatus && isAutheticated;

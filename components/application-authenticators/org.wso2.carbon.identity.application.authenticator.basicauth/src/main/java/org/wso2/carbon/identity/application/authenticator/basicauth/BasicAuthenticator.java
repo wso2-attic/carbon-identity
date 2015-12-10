@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.application.authenticator.basicauth;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.LocalApplicationAuthenticator;
@@ -56,6 +57,8 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
 
     private static final long serialVersionUID = 4438354156955223654L;
     private static final Log log = LogFactory.getLog(BasicAuthenticator.class);
+    private static final Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String AUDIT_MESSAGE = "User : %s , Action : Authenticate , Result : %s";
 
     @Override
     public boolean canHandle(HttpServletRequest request) {
@@ -195,18 +198,24 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
             if (userRealm != null) {
                 userStoreManager = (UserStoreManager) userRealm.getUserStoreManager();
                 isAuthenticated = userStoreManager.authenticate(MultitenantUtils.getTenantAwareUsername(username), password);
+                if(isAuthenticated){
+                    audit.info(String.format(AUDIT_MESSAGE, username, "SUCCESS"));
+                }
             } else {
+                audit.info(String.format(AUDIT_MESSAGE, username, "FAILURE"));
                 throw new AuthenticationFailedException("Cannot find the user realm for the given tenant: " + tenantId);
             }
         } catch (IdentityRuntimeException e) {
             if(log.isDebugEnabled()){
                 log.debug("BasicAuthentication failed while trying to get the tenant ID of the user " + username, e);
             }
+            audit.info(String.format(AUDIT_MESSAGE, username, "FAILURE"));
             throw new AuthenticationFailedException(e.getMessage(), e);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             if(log.isDebugEnabled()){
                 log.debug("BasicAuthentication failed while trying to authenticate", e);
             }
+            audit.info(String.format(AUDIT_MESSAGE, username, "FAILURE"));
             throw new AuthenticationFailedException(e.getMessage(), e);
         }
 
@@ -214,7 +223,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
             if (log.isDebugEnabled()) {
                 log.debug("user authentication failed due to invalid credentials.");
             }
-
+            audit.info(String.format(AUDIT_MESSAGE, username, "FAILURE"));
             throw new InvalidCredentialsException();
         }
 

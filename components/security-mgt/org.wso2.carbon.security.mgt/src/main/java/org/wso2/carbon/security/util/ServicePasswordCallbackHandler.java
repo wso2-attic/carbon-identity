@@ -21,6 +21,7 @@ package org.wso2.carbon.security.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ws.security.WSPasswordCallback;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
@@ -55,7 +56,8 @@ import java.security.KeyStore;
  */
 public class ServicePasswordCallbackHandler implements CallbackHandler {
     private static final Log log = LogFactory.getLog(ServicePasswordCallbackHandler.class);
-
+    private static final Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String AUDIT_MESSAGE = "Authenticate : %s , Result : %s";
     private String serviceGroupId = null;
     private String serviceId = null;
     private Registry registry = null;
@@ -244,7 +246,7 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                     tenantAwareUserName, password);
 
             if (isAuthenticated) {
-
+                audit.info(String.format(AUDIT_MESSAGE, tenantAwareUserName, "SUCCESS"));
                 int index = tenantAwareUserName.indexOf("/");
                 if (index < 0) {
                     String domain = UserCoreUtil.getDomainFromThreadLocal();
@@ -257,6 +259,8 @@ public class ServicePasswordCallbackHandler implements CallbackHandler {
                         .isUserAuthorized(tenantAwareUserName,
                                 serviceGroupId + "/" + serviceId,
                                 UserCoreConstants.INVOKE_SERVICE_PERMISSION);
+            } else {
+                audit.info(String.format(AUDIT_MESSAGE, tenantAwareUserName, "FAILURE"));
             }
 
             return isAuthorized;

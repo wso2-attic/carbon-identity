@@ -21,6 +21,7 @@ import org.apache.axiom.om.util.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.RequestPathApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
@@ -46,6 +47,8 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
     private static final String BASIC_AUTH_SCHEMA = "Basic";
     private static final String AUTHENTICATOR_NAME = "BasicAuthRequestPathAuthenticator";
     private static Log log = LogFactory.getLog(BasicAuthRequestPathAuthenticator.class);
+    private static final Log audit = CarbonConstants.AUDIT_LOG;
+    private static final String AUDIT_MESSAGE = "User : %s , Action : Authenticate , Result : %s";
 
     @Override
     public boolean canHandle(HttpServletRequest request) {
@@ -96,7 +99,10 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
                     getRealmService().getTenantUserRealm(tenantId).getUserStoreManager();
             boolean isAuthenticated = userStoreManager.authenticate(
                     MultitenantUtils.getTenantAwareUsername(username), password);
-            if (!isAuthenticated) {
+            if(isAuthenticated){
+                audit.info(String.format(AUDIT_MESSAGE, username, "SUCCESS"));
+            } else {
+                audit.info(String.format(AUDIT_MESSAGE, username, "FAILURE"));
                 throw new AuthenticationFailedException("Authentication Failed");
             }
             if (log.isDebugEnabled()) {
@@ -121,6 +127,7 @@ public class BasicAuthRequestPathAuthenticator extends AbstractApplicationAuthen
             if(log.isDebugEnabled()){
                 log.debug("BasicAuthentication failed while trying to get the tenant ID of the user " + username, e);
             }
+            audit.info(String.format(AUDIT_MESSAGE, username, "FAILURE"));
             throw new AuthenticationFailedException(e.getMessage(), e);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
