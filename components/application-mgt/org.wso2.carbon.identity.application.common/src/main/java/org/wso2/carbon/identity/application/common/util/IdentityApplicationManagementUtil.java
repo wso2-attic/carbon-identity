@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.application.common.util;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.Base64;
 import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -559,8 +560,15 @@ public class IdentityApplicationManagementUtil {
 
     public static Property getProperty(Property[] properties, String propertyName) {
 
+        if (ArrayUtils.isEmpty(properties) || StringUtils.isBlank(propertyName)) {
+            return null;
+        }
+
         for (Property property : properties) {
-            if (property.getName().equals(propertyName)) {
+            if (property == null) {
+                continue;
+            }
+            if (propertyName.equals(property.getName())) {
                 return property;
             }
         }
@@ -739,5 +747,16 @@ public class IdentityApplicationManagementUtil {
             }
         }
         return propValueSet;
+    }
+
+    public static String getPropertyValue(Property[] properties, String propertyName) {
+
+        Property property = getProperty(properties, propertyName);
+        if (property != null) {
+            if (StringUtils.isNotBlank(property.getValue())) {
+                return property.getValue();
+            }
+        }
+        return null;
     }
 }

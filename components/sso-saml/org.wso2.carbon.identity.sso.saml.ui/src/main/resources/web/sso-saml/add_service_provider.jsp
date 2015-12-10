@@ -134,14 +134,7 @@ function showHideTxtBox(radioBtn) {
         nameIdRow.style.display = "none";
     }
 }
-function disableCertAlias(chkbx) {
-    document.addServiceProvider.alias.disabled = (chkbx.checked||document.addServiceProvider.enableEncAssertion.checked) ? false
-            : true;
-}
-function disableEncCertAlias(chkbx) {
-    document.addServiceProvider.alias.disabled = (chkbx.checked||document.addServiceProvider.enableSigValidation.checked) ? false
-            : true;
-}
+
 
 function disableLogoutUrl(chkbx) {
     if($(chkbx).is(':checked')) {
@@ -903,6 +896,70 @@ function clearAll() {
 <%		}
 	}%>
 
+<!-- Certificate Alias -->
+
+<% if (isEditSP) {
+%>
+<tr>
+    <td>
+        <fmt:message key="sp.certAlias"/>
+    </td>
+    <td>
+        <select id="alias" name="alias">
+            <%
+                if (aliasSet != null) {
+                    for (String alias : aliasSet) {
+                        if (alias != null) {
+                            if (alias.equals(provider.getCertAlias())) {
+            %>
+            <option selected="selected"
+                    value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
+            </option>
+            <%
+            } else {
+            %>
+            <option value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
+            </option>
+            <%
+                            }
+                        }
+                    }
+                }
+            %>
+        </select></td>
+</tr>
+<% } else {%>
+<tr>
+    <td>
+        <fmt:message key="sp.certAlias"/>
+    </td>
+    <td>
+        <select id="alias" name="alias" >
+            <%
+                if (aliasSet != null) {
+                    for (String alias : aliasSet) {
+                        if (alias != null) {
+                            if (alias.equals(samlSsoServuceProviderConfigBean.getCertificateAlias())) {
+            %>
+            <option selected="selected"
+                    value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
+            </option>
+            <%
+            } else {
+            %>
+            <option value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
+            </option>
+            <%
+                            }
+                        }
+                    }
+                }
+            %>
+        </select></td>
+</tr>
+<%}%>
+
+
 <!--selectResponseSignAlgo-->
 <tr id="defaultSigningAlgorithmRow">
     <td>
@@ -996,8 +1053,7 @@ function clearAll() {
 <tr>
     <td colspan="2">
         <input type="checkbox" id="enableSigValidation"
-               name="enableSigValidation" value="true" checked="checked"
-               onclick="disableCertAlias(this);"/>
+               name="enableSigValidation" value="true" checked="checked"/>
         <fmt:message
                 key='validate.signature'/>
     </td>
@@ -1006,8 +1062,7 @@ function clearAll() {
 <tr>
     <td colspan="2">
         <input type="checkbox" id="enableSigValidation"
-               name="enableSigValidation" value="true"
-               onclick="disableCertAlias(this);"/>
+               name="enableSigValidation" value="true"/>
         <fmt:message
                 key='validate.signature'/>
     </td>
@@ -1020,8 +1075,7 @@ function clearAll() {
 <tr>
     <td colspan="2">
         <input type="checkbox" id="enableEncAssertion"
-               name="enableEncAssertion" value="true" checked="checked"
-               onclick="disableEncCertAlias(this);"/>
+               name="enableEncAssertion" value="true" checked="checked"/>
         <fmt:message
                 key='encrypted.assertion'/>
     </td>
@@ -1030,76 +1084,14 @@ function clearAll() {
 <tr>
     <td colspan="2">
         <input type="checkbox" id="enableEncAssertion"
-               name="enableEncAssertion" value="true"
-               onclick="disableEncCertAlias(this);"/>
+               name="enableEncAssertion" value="true"/>
         <fmt:message
                 key='encrypted.assertion'/>
     </td>
 </tr>
 <%}%>
 
-<!-- Certificate Alias -->
 
-<% if (isEditSP &&
-		((provider.isDoEnableEncryptedAssertionSpecified() && provider.getDoEnableEncryptedAssertion())
-		||(provider.isDoValidateSignatureInRequestsSpecified() && provider.getDoValidateSignatureInRequests()))) {
-%>
-<tr>
-    <td  style="padding-left: 33px ! important;padding-bottom: 25px">
-        <fmt:message key="sp.certAlias"/>
-    </td>
-    <td style="padding-left: 33px ! important;padding-bottom: 25px">
-    <select id="alias" name="alias">
-        <%
-            if (aliasSet != null) {
-                for (String alias : aliasSet) {
-                    if (alias != null) {
-                        if (alias.equals(provider.getCertAlias())) {
-        %>
-        <option selected="selected" value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
-        </option>
-        <%
-        } else {
-        %>
-        <option value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
-        </option>
-        <%
-                        }
-                    }
-                }
-            }
-        %>
-    </select></td>
-</tr>
-<% } else {%>
-<tr>
-    <td  style="padding-left: 33px ! important;padding-bottom: 25px">
-        <fmt:message key="sp.certAlias"/>
-    </td>
-    <td style="padding-left: 33px ! important;padding-bottom: 25px">
-    <select id="alias" name="alias" disabled="disabled">
-        <%
-            if (aliasSet != null) {
-                for (String alias : aliasSet) {
-                    if (alias != null) {
-                        if (alias.equals(samlSsoServuceProviderConfigBean.getCertificateAlias())) {
-        %>
-        <option selected="selected" value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
-        </option>
-        <%
-        } else {
-        %>
-        <option value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
-        </option>
-        <%
-                        }
-                    }
-                }
-            }
-        %>
-    </select></td>
-</tr>
-<%}%>
 <!-- EnableSingleLogout -->
 <tr>
     <td colspan="2"><input type="checkbox"

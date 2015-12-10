@@ -47,15 +47,14 @@ public class OAuthUIUtil {
      */
     public static String getAbsoluteEndpointURL(String endpointType, String oauthVersion, HttpServletRequest request) {
 
-        String endpointURL = IdentityUtil.getServerURL("", false);
-
-        // get the servlet context from the OAuth version.
-        String oauthServletContext = "/oauth2";
-        if (oauthVersion.equals(OAuthConstants.OAuthVersions.VERSION_1A)) {
-            oauthServletContext = "/oauth";
-            endpointURL = IdentityUtil.getServerURL("", true);
+        String endpointURL = null;
+        if(oauthVersion.equals(OAuthConstants.OAuthVersions.VERSION_1A)){
+            endpointURL = IdentityUtil.getServerURL("/oauth" + endpointType, true, true);
+        } else {
+            endpointURL = IdentityUtil.getServerURL("/oauth2" + endpointType, true, false);
         }
-        return endpointURL + oauthServletContext + endpointType;
+
+        return endpointURL;
     }
 
     public static OAuthConsumerAppDTO[] doPaging(int pageNumber, OAuthConsumerAppDTO[] oAuthConsumerAppDTOSet) {

@@ -22,59 +22,52 @@ import org.wso2.carbon.identity.application.authentication.framework.store.Sessi
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
-public class SessionDataCache extends BaseCache<String, CacheEntry> {
+public class SessionDataCache extends BaseCache<SessionDataCacheKey, SessionDataCacheEntry> {
 
     private static final String SESSION_DATA_CACHE_NAME = "SAMLSSOSessionDataCache";
     private static volatile SessionDataCache instance;
-    private boolean useCache = true;
+    private boolean isTemporarySessionDataPersistEnabled = false;
 
-    private SessionDataCache(String cacheName) {
-        super(cacheName);
+    private SessionDataCache() {
+        super(SESSION_DATA_CACHE_NAME);
+        if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
+            isTemporarySessionDataPersistEnabled = Boolean.parseBoolean(
+                    IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
+        }
     }
 
-    private SessionDataCache(String cacheName, int timeout) {
-        super(cacheName, timeout);
-        useCache = !Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Only"));
-    }
-
-    public static SessionDataCache getInstance(int timeout) {
+    public static SessionDataCache getInstance() {
         if (instance == null) {
             synchronized (SessionDataCache.class) {
                 if (instance == null) {
-                    instance = new SessionDataCache(SESSION_DATA_CACHE_NAME, timeout);
+                    instance = new SessionDataCache();
                 }
             }
         }
         return instance;
     }
 
-    public void addToCache(CacheKey key, CacheEntry entry) {
-        if (useCache) {
-            super.addToCache(((SessionDataCacheKey) key).getSessionDataKey(), entry);
+    public void addToCache(SessionDataCacheKey key, SessionDataCacheEntry entry) {
+        super.addToCache(key, entry);
+        if (isTemporarySessionDataPersistEnabled) {
+            SessionDataStore.getInstance().storeSessionData(key.getSessionDataKey(), SESSION_DATA_CACHE_NAME, entry);
         }
-        String keyValue = ((SessionDataCacheKey) key).getSessionDataKey();
-        SessionDataStore.getInstance().storeSessionData(keyValue, SESSION_DATA_CACHE_NAME, entry);
     }
 
-    public CacheEntry getValueFromCache(CacheKey key) {
-        CacheEntry cacheEntry = null;
-        if (useCache) {
-            cacheEntry = super.getValueFromCache(((SessionDataCacheKey) key).getSessionDataKey());
-        }
-        if (cacheEntry == null) {
-            String keyValue = ((SessionDataCacheKey) key).getSessionDataKey();
-            cacheEntry = (SessionDataCacheEntry) SessionDataStore.getInstance().
-                    getSessionData(keyValue, SESSION_DATA_CACHE_NAME);
+    public SessionDataCacheEntry getValueFromCache(SessionDataCacheKey key) {
+        SessionDataCacheEntry cacheEntry = super.getValueFromCache(key);
+        if (cacheEntry == null && isTemporarySessionDataPersistEnabled) {
+            cacheEntry = (SessionDataCacheEntry) SessionDataStore.getInstance().getSessionData(key.getSessionDataKey(),
+                    SESSION_DATA_CACHE_NAME);
         }
         return cacheEntry;
     }
 
-    public void clearCacheEntry(CacheKey key) {
-        if (useCache) {
-            super.clearCacheEntry(((SessionDataCacheKey) key).getSessionDataKey());
+    public void clearCacheEntry(SessionDataCacheKey key) {
+        super.clearCacheEntry(key);
+        if (isTemporarySessionDataPersistEnabled) {
+            SessionDataStore.getInstance().clearSessionData(key.getSessionDataKey(), SESSION_DATA_CACHE_NAME);
         }
-        String keyValue = ((SessionDataCacheKey) key).getSessionDataKey();
-        SessionDataStore.getInstance().clearSessionData(keyValue, SESSION_DATA_CACHE_NAME);
     }
 
 }

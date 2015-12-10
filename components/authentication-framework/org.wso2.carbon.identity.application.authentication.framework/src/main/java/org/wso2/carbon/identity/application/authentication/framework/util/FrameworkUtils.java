@@ -25,6 +25,7 @@ import org.wso2.carbon.claim.mgt.ClaimManagementException;
 import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationContextCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationContextCacheEntry;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationContextCacheKey;
@@ -86,6 +87,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -102,8 +104,14 @@ public class FrameworkUtils {
     private static final Log log = LogFactory.getLog(FrameworkUtils.class);
     private static int maxInactiveInterval;
     private static final String EMAIL = "email";
+    private static List<String> cacheDisabledAuthenticators = Arrays
+            .asList(new String[] { FrameworkConstants.RequestType.CLAIM_TYPE_SAML_SSO, FrameworkConstants.OAUTH2 });
 
     private FrameworkUtils() {
+    }
+
+    public static List<String> getCacheDisabledAuthenticators() {
+        return cacheDisabledAuthenticators;
     }
 
     /**
@@ -422,8 +430,9 @@ public class FrameworkUtils {
     public static void sendToRetryPage(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         // TODO read the URL from framework config file rather than carbon.xml
+        request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
         response.sendRedirect(IdentityUtil.getServerURL(ConfigurationFacade.getInstance()
-                .getAuthenticationEndpointRetryURL(), false));
+                .getAuthenticationEndpointRetryURL(), false, false));
     }
 
     /**
@@ -438,6 +447,8 @@ public class FrameworkUtils {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals(FrameworkConstants.COMMONAUTH_COOKIE)) {
                     cookie.setMaxAge(0);
+                    cookie.setHttpOnly(true);
+                    cookie.setSecure(true);
                     resp.addCookie(cookie);
                     break;
                 }

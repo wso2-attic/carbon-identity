@@ -18,10 +18,8 @@
 package org.wso2.carbon.identity.application.common.listener;
 
 import org.apache.commons.lang.StringUtils;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
-import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 
 import javax.cache.event.CacheEntryListener;
 
@@ -33,15 +31,15 @@ public abstract class AbstractCacheListener<K, V> implements CacheEntryListener<
      * @return enable/disable
      */
     public boolean isEnable() {
-        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+        IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
                 (AbstractCacheListener.class.getName(), this.getClass().getName());
 
-        if (identityEventListener == null) {
+        if (identityEventListenerConfig == null) {
             return true;
         }
 
-        if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
-            return Boolean.parseBoolean(identityEventListener.getEnable());
+        if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+            return Boolean.parseBoolean(identityEventListenerConfig.getEnable());
         } else {
             return true;
         }

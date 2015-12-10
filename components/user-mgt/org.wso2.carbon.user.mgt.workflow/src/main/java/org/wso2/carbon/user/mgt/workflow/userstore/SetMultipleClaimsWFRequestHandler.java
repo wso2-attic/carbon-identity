@@ -69,6 +69,10 @@ public class SetMultipleClaimsWFRequestHandler extends AbstractWorkflowRequestHa
 
         WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
+        if (claims == null) {
+            claims = new HashMap<>();
+        }
+
         int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String fullyQualifiedName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
 

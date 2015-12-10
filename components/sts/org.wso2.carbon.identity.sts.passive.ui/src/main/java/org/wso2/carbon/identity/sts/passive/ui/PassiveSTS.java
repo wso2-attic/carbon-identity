@@ -189,10 +189,10 @@ public class PassiveSTS extends HttpServlet {
         String pageWithReplyActionResult = pageWithReplyAction.replace("$result",
                 Encode.forHtml(String.valueOf(respToken.getResults())));
         String pageWithReplyActionResultContext;
-        if(respToken.getContext() !=null) {
+        if (respToken.getContext() != null) {
             pageWithReplyActionResultContext = pageWithReplyActionResult.replace(
                     "<!--$additionalParams-->", "<!--$additionalParams-->" + "<input type='hidden' name='wctx' value='"
-                            + Encode.forHtmlAttribute(respToken.getContext())+ "'>");
+                            + Encode.forHtmlAttribute(respToken.getContext()) + "'>");
         } else {
             pageWithReplyActionResultContext = pageWithReplyActionResult;
         }
@@ -290,7 +290,7 @@ public class PassiveSTS extends HttpServlet {
     private void sendToAuthenticationFramework(HttpServletRequest request, HttpServletResponse response,
                                                String sessionDataKey, SessionDTO sessionDTO) throws IOException {
 
-        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
 
         String selfPath = request.getRequestURI();
         //Authentication context keeps data which should be sent to commonAuth endpoint
@@ -431,9 +431,8 @@ public class PassiveSTS extends HttpServlet {
         sessionDTO.setReqQueryString(request.getQueryString());
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        addSessionDataToCache(sessionDataKey, sessionDTO, IdPManagementUtil.getIdleSessionTimeOut
-                (CarbonContext.getThreadLocalCarbonContext().getTenantDomain()));
-        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+        addSessionDataToCache(sessionDataKey, sessionDTO);
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
 
         String selfPath = request.getRequestURI();
         AuthenticationRequest authenticationRequest = new AuthenticationRequest();
@@ -476,26 +475,25 @@ public class PassiveSTS extends HttpServlet {
         sessionDTO.setReqQueryString(request.getQueryString());
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        addSessionDataToCache(sessionDataKey, sessionDTO, IdPManagementUtil.getIdleSessionTimeOut
-                                                    (CarbonContext.getThreadLocalCarbonContext().getTenantDomain()));
+        addSessionDataToCache(sessionDataKey, sessionDTO);
 
         sendToAuthenticationFramework(request, response, sessionDataKey, sessionDTO);
     }
 
-    private void addSessionDataToCache(String sessionDataKey, SessionDTO sessionDTO, int cacheTimeout) {
+    private void addSessionDataToCache(String sessionDataKey, SessionDTO sessionDTO) {
         SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
         SessionDataCacheEntry cacheEntry = new SessionDataCacheEntry();
         cacheEntry.setSessionDTO(sessionDTO);
-        SessionDataCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+        SessionDataCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
     private SessionDTO getSessionDataFromCache(String sessionDataKey) {
         SessionDTO sessionDTO = null;
         SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
-        Object cacheEntryObj = SessionDataCache.getInstance(0).getValueFromCache(cacheKey);
+        SessionDataCacheEntry cacheEntry = SessionDataCache.getInstance().getValueFromCache(cacheKey);
 
-        if (cacheEntryObj != null) {
-            sessionDTO = ((SessionDataCacheEntry) cacheEntryObj).getSessionDTO();
+        if (cacheEntry != null) {
+            sessionDTO = cacheEntry.getSessionDTO();
         } else {
             log.error("SessionDTO does not exist. Probably due to cache timeout");
         }

@@ -23,6 +23,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
@@ -57,8 +58,9 @@ public class ChallengeQuestionProcessor {
 
         List<ChallengeQuestionDTO> questionDTOs = new ArrayList<ChallengeQuestionDTO>();
         try {
+            int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
             Registry registry = IdentityMgtServiceComponent.getRegistryService().
-                    getConfigSystemRegistry();
+                    getConfigSystemRegistry(tenantId);
             if (registry.resourceExists(IdentityMgtConstants.IDENTITY_MANAGEMENT_QUESTIONS)) {
                 Collection collection = (Collection) registry.
                         get(IdentityMgtConstants.IDENTITY_MANAGEMENT_QUESTIONS);
@@ -96,8 +98,13 @@ public class ChallengeQuestionProcessor {
     public void setChallengeQuestions(ChallengeQuestionDTO[] questionDTOs) throws IdentityException {
         Registry registry = null;
         try {
-            registry = IdentityMgtServiceComponent.getRegistryService().getConfigSystemRegistry();
+            int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+            registry = IdentityMgtServiceComponent.getRegistryService().getConfigSystemRegistry(tenantId);
 
+            if (!registry.resourceExists(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH)) {
+                Collection securityQuestionResource = registry.newCollection();
+                registry.put(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH, securityQuestionResource);
+            }
             Resource identityMgtResource = registry.get(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH);
             if (identityMgtResource != null) {
                 String questionCollectionPath = IdentityMgtConstants.IDENTITY_MANAGEMENT_QUESTIONS;

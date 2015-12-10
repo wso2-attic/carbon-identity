@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.user.account.association.dao;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.user.account.association.dto.UserAccountAssociationDTO;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationServerException;
@@ -47,6 +48,15 @@ public class UserAccountAssociationDAO {
         return LazyHolder.INSTANCE;
     }
 
+    /**
+     * Add new user association
+     *
+     * @param associationKey  Association Key
+     * @param domainName  Domain name of ser
+     * @param tenantId  Tenant ID of user
+     * @param userName  Username
+     * @throws UserAccountAssociationException
+     */
     public void createUserAssociation(String associationKey, String domainName, int tenantId,
                                       String userName) throws UserAccountAssociationException {
 
@@ -75,6 +85,14 @@ public class UserAccountAssociationDAO {
         }
     }
 
+    /**
+     * Delete account association
+     *
+     * @param domainName  User store domain of user
+     * @param tenantId  Tenant ID of user
+     * @param userName  User name
+     * @throws UserAccountAssociationException
+     */
     public void deleteUserAssociation(String domainName, int tenantId,
                                       String userName) throws UserAccountAssociationException {
 
@@ -102,6 +120,15 @@ public class UserAccountAssociationDAO {
         }
     }
 
+    /**
+     * List accounts associated with a account
+     *
+     * @param domainName  User store domain of user
+     * @param tenantId  Tenant ID of user
+     * @param userName  User name
+     * @return
+     * @throws UserAccountAssociationException
+     */
     public List<UserAccountAssociationDTO> getAssociationsOfUser(String domainName, int tenantId,
                                                                  String userName)
             throws UserAccountAssociationException {
@@ -155,6 +182,15 @@ public class UserAccountAssociationDAO {
         return accountAssociations;
     }
 
+    /**
+     * Retrieve association key of a user
+     *
+     * @param domainName  User store domain of user
+     * @param tenantId  Tenant ID of user
+     * @param userName  User name
+     * @return
+     * @throws UserAccountAssociationException
+     */
     public String getAssociationKeyOfUser(String domainName, int tenantId,
                                           String userName) throws UserAccountAssociationException {
 
@@ -188,6 +224,13 @@ public class UserAccountAssociationDAO {
         return associationKey;
     }
 
+    /**
+     * Update an association key
+     *
+     * @param oldAssociationKey  Old association key
+     * @param newAssociationKey  New association key
+     * @throws UserAccountAssociationException
+     */
     public void updateUserAssociationKey(String oldAssociationKey, String newAssociationKey) throws
             UserAccountAssociationException {
 
@@ -214,6 +257,15 @@ public class UserAccountAssociationDAO {
         }
     }
 
+    /**
+     * Check if logged user can be associated with a given user
+     *
+     * @param domainName  User store domain of user
+     * @param tenantId  Tenant ID of user
+     * @param userName  User name
+     * @return
+     * @throws UserAccountAssociationException
+     */
     public boolean isValidUserAssociation(String domainName, int tenantId,
                                           String userName) throws UserAccountAssociationException {
 
@@ -230,7 +282,7 @@ public class UserAccountAssociationDAO {
             preparedStatement.setString(2, domainName);
             preparedStatement.setString(3, userName);
             preparedStatement.setInt(4, CarbonContext.getThreadLocalCarbonContext().getTenantId());
-            preparedStatement.setString(5, UserAccountAssociationUtil.getDomainName(CarbonContext
+            preparedStatement.setString(5, IdentityUtil.extractDomainFromName(CarbonContext
                     .getThreadLocalCarbonContext()
                     .getUsername()));
             preparedStatement.setString(6, UserAccountAssociationUtil.getUsernameWithoutDomain(CarbonContext
@@ -301,6 +353,12 @@ public class UserAccountAssociationDAO {
         return valid;
     }
 
+    /**
+     * Delete all associations of a tenant
+     *
+     * @param tenantId  tenant ID
+     * @throws UserAccountAssociationException
+     */
     public void deleteUserAssociationsFromTenantId(int tenantId) throws UserAccountAssociationException {
 
         Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
@@ -325,6 +383,14 @@ public class UserAccountAssociationDAO {
         }
     }
 
+    /**
+     * Update domain name of association
+     *
+     * @param tenantId  Tenant ID
+     * @param currentDomainName  Old domain name
+     * @param newDomainName  New domain name
+     * @throws UserAccountAssociationException
+     */
     public void updateDomainNameOfAssociations(int tenantId, String currentDomainName, String newDomainName) throws
             UserAccountAssociationException {
 
@@ -353,6 +419,13 @@ public class UserAccountAssociationDAO {
         }
     }
 
+    /**
+     * Delete all associations of a domain
+     *
+     * @param tenantId  Tenant ID
+     * @param domainName  Domain name
+     * @throws UserAccountAssociationException
+     */
     public void deleteAssociationsFromDomain(int tenantId, String domainName) throws
             UserAccountAssociationException {
 

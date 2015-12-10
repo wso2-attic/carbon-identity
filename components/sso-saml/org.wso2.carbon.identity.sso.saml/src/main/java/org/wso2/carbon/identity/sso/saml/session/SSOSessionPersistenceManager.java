@@ -21,7 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOParticipantCache;
 import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOParticipantCacheEntry;
 import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOParticipantCacheKey;
@@ -50,7 +49,7 @@ public class SSOSessionPersistenceManager {
         SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
         SAMLSSOParticipantCacheEntry cacheEntry = new SAMLSSOParticipantCacheEntry();
         cacheEntry.setSessionInfoData(sessionInfoData);
-        SAMLSSOParticipantCache.getInstance(CACHE_TIME_OUT).addToCache(cacheKey, cacheEntry);
+        SAMLSSOParticipantCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
     public static void addSessionIndexToCache(String key, String sessionIndex) {
@@ -58,17 +57,17 @@ public class SSOSessionPersistenceManager {
         SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
         SAMLSSOSessionIndexCacheEntry cacheEntry = new SAMLSSOSessionIndexCacheEntry();
         cacheEntry.setSessionIndex(sessionIndex);
-        SAMLSSOSessionIndexCache.getInstance(CACHE_TIME_OUT).addToCache(cacheKey, cacheEntry);
+        SAMLSSOSessionIndexCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
     public static SessionInfoData getSessionInfoDataFromCache(String key) {
 
         SessionInfoData sessionInfoData = null;
         SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
-        Object cacheEntryObj = SAMLSSOParticipantCache.getInstance(CACHE_TIME_OUT).getValueFromCache(cacheKey);
+        SAMLSSOParticipantCacheEntry cacheEntry = SAMLSSOParticipantCache.getInstance().getValueFromCache(cacheKey);
 
-        if (cacheEntryObj != null) {
-            sessionInfoData = ((SAMLSSOParticipantCacheEntry) cacheEntryObj).getSessionInfoData();
+        if (cacheEntry != null) {
+            sessionInfoData = cacheEntry.getSessionInfoData();
         }
 
         return sessionInfoData;
@@ -78,10 +77,10 @@ public class SSOSessionPersistenceManager {
 
         String sessionIndex = null;
         SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
-        Object cacheEntryObj = SAMLSSOSessionIndexCache.getInstance(CACHE_TIME_OUT).getValueFromCache(cacheKey);
+        SAMLSSOSessionIndexCacheEntry cacheEntry = SAMLSSOSessionIndexCache.getInstance().getValueFromCache(cacheKey);
 
-        if (cacheEntryObj != null) {
-            sessionIndex = ((SAMLSSOSessionIndexCacheEntry) cacheEntryObj).getSessionIndex();
+        if (cacheEntry != null) {
+            sessionIndex = cacheEntry.getSessionIndex();
         }
 
         return sessionIndex;
@@ -91,7 +90,7 @@ public class SSOSessionPersistenceManager {
 
         if (key != null) {
             SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
-            SAMLSSOParticipantCache.getInstance(CACHE_TIME_OUT).clearCacheEntry(cacheKey);
+            SAMLSSOParticipantCache.getInstance().clearCacheEntry(cacheKey);
         }
     }
 
@@ -99,7 +98,7 @@ public class SSOSessionPersistenceManager {
 
         if (key != null) {
             SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
-            SAMLSSOSessionIndexCache.getInstance(CACHE_TIME_OUT).clearCacheEntry(cacheKey);
+            SAMLSSOSessionIndexCache.getInstance().clearCacheEntry(cacheKey);
         }
     }
 

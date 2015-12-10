@@ -576,7 +576,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         }
 
         if(acsUrl == null) {
-            acsUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+            acsUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true, true);
         }
 
         authRequest.setAssertionConsumerServiceURL(acsUrl);

@@ -178,7 +178,7 @@ public class SAMLAuthnRequestValidator {
             // Validate Destination
             String idPUrl = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
             if(StringUtils.isBlank(idPUrl)) {
-                idPUrl = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL, true);
+                idPUrl = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL, true, true);
             }
 
             if (authnRequest.getDestination() != null &&

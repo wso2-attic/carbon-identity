@@ -147,8 +147,7 @@ public class OutboundProvisioningManager {
             // reading from the cache
             key = new ServiceProviderProvisioningConnectorCacheKey(serviceProvider.getApplicationName(), tenantDomain);
 
-            entry = (ServiceProviderProvisioningConnectorCacheEntry) ServiceProviderProvisioningConnectorCache.getInstance()
-                    .getValueFromCache(key);
+            entry = ServiceProviderProvisioningConnectorCache.getInstance().getValueFromCache(key);
 
             // cache hit
             if (entry != null) {

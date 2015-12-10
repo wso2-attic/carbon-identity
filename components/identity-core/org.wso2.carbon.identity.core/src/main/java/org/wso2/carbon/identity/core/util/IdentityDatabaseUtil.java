@@ -20,8 +20,11 @@ package org.wso2.carbon.identity.core.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -89,6 +92,25 @@ public class IdentityDatabaseUtil {
         } catch (SQLException e1) {
             log.error("An error occurred while rolling back transactions. ", e1);
         }
+    }
+
+    /**
+     * Get a database connection instance for the User DB
+     *
+     * @return Database Connection
+     * @throws IdentityRuntimeException Error when getting a database connection to Identity database
+     */
+    public static Connection getUserDBConnection() throws IdentityRuntimeException {
+        Connection connection;
+        try {
+            connection = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+                    getRealmConfiguration()).getConnection();
+        } catch (SQLException e) {
+            throw new IdentityRuntimeException("Database error. Could not get a connection", e);
+        } catch (UserStoreException e) {
+            throw new IdentityRuntimeException("Could not receive user realm properly to make a connection", e);
+        }
+        return connection;
     }
 
 }

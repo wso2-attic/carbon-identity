@@ -56,7 +56,7 @@ public class WorkflowImplAdminServiceClient {
     /**
      * Add new BPS profile
      *
-     * @param bpsProfile
+     * @param bpsProfile  Details of new profile to add
      * @throws RemoteException
      * @throws WorkflowImplAdminServiceWorkflowImplException
      */
@@ -86,7 +86,7 @@ public class WorkflowImplAdminServiceClient {
     /**
      * Get BPS Profile detail for given profile name
      *
-     * @param profileName
+     * @param profileName  Name of the profile
      * @return
      * @throws RemoteException
      * @throws WorkflowImplAdminServiceWorkflowImplException
@@ -101,7 +101,7 @@ public class WorkflowImplAdminServiceClient {
     /**
      * Update BPS Profile
      *
-     * @param bpsProfileDTO
+     * @param bpsProfileDTO  BPS profile object with new details
      * @throws RemoteException
      * @throws WorkflowImplAdminServiceWorkflowImplException
      */
@@ -111,6 +111,13 @@ public class WorkflowImplAdminServiceClient {
         stub.updateBPSProfile(bpsProfileDTO);
     }
 
+    /**
+     * Remove a BPS profile
+     *
+     * @param profileName  Name of profile
+     * @throws RemoteException
+     * @throws WorkflowImplAdminServiceWorkflowImplException
+     */
     public void deleteBPSProfile(String profileName) throws RemoteException, WorkflowImplAdminServiceWorkflowImplException {
 
         stub.removeBPSProfile(profileName);

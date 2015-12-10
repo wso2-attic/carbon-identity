@@ -206,7 +206,7 @@ public class EndpointUtil {
             throws IdentityOAuth2Exception {
 
         try {
-            SessionDataCacheEntry entry = (SessionDataCacheEntry) SessionDataCache.getInstance(0)
+            SessionDataCacheEntry entry = SessionDataCache.getInstance()
                     .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
 
             return getLoginPageURL(clientId, sessionDataKey, forceAuthenticate,
@@ -239,7 +239,7 @@ public class EndpointUtil {
             if (scopes != null && scopes.contains("openid")) {
                 type = "oidc";
             }
-            String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+            String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
             String selfPath = "/oauth2/authorize";
             AuthenticationRequest authenticationRequest = new AuthenticationRequest();
 
@@ -291,9 +291,8 @@ public class EndpointUtil {
                 log.debug("Received OAuth2 params are Null for UserConsentURL");
             }
         }
-        SessionDataCache sessionDataCache = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout());
-        SessionDataCacheEntry entry = (SessionDataCacheEntry) sessionDataCache.getValueFromCache
-                (new SessionDataCacheKey(sessionDataKey));
+        SessionDataCache sessionDataCache = SessionDataCache.getInstance();
+        SessionDataCacheEntry entry = sessionDataCache.getValueFromCache(new SessionDataCacheKey(sessionDataKey));
         String consentPage = null;
         String sessionDataKeyConsent = UUID.randomUUID().toString();
         try {

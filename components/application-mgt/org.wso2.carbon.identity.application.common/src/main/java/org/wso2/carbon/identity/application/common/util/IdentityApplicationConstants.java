@@ -65,6 +65,9 @@ public class IdentityApplicationConstants {
     public static final String TIME_CONFIG = "TimeConfig";
     public static final String COMMONAUTH = "commonauth";
     public static final String MULTIVALUED_PROPERTY_CHARACTER = ".";
+    public static final String UNIQUE_ID_CONSTANT = "UniqueID";
+    public static final String PASSWORD = "password";
+    public static final String RANDOM_PHRASE_PREFIX = "random-password-generated!@#$%^&*(0)+_";
 
     public static class ConfigElements {
         public static final String PROPERTIES = "Properties";
@@ -201,6 +204,7 @@ public class IdentityApplicationConstants {
         public static final String CLIENT_SECRET = "ClientSecret";
         public static final String OAUTH2_AUTHZ_URL = "OAuth2AuthzEPUrl";
         public static final String OAUTH2_TOKEN_URL = "OAuth2TokenEPUrl";
+        public static final String OAUTH2_REVOKE_URL = "OAuth2RevokeEPUrl";
         public static final String OAUTH2_USER_INFO_EP_URL = "OAuth2UserInfoEPUrl";
         public static final String CALLBACK_URL = "callbackUrl";
 

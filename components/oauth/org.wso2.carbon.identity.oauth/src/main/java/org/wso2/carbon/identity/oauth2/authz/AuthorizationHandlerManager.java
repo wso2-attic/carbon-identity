@@ -50,7 +50,7 @@ public class AuthorizationHandlerManager {
 
     private AuthorizationHandlerManager() throws IdentityOAuth2Exception {
         responseHandlers = OAuthServerConfiguration.getInstance().getSupportedResponseTypes();
-        appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().getAppInfoCacheTimeout());
+        appInfoCache = AppInfoCache.getInstance();
         if (appInfoCache != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Successfully created AppInfoCache under " + OAuthConstants.OAUTH_CACHE_MANAGER);
@@ -132,16 +132,23 @@ public class AuthorizationHandlerManager {
             }
         }
 
-        authorizeRespDTO = authzHandler.issue(authzReqMsgCtx);
+	try {
+	    // set the authorization request context to be used by downstream handlers. This is introduced as a fix for
+	    // IDENTITY-4111
+	    OAuth2Util.setAuthzRequestContext(authzReqMsgCtx);
+	    authorizeRespDTO = authzHandler.issue(authzReqMsgCtx);
+	} finally {
+	    // clears authorization request context
+	    OAuth2Util.clearAuthzRequestContext();
+	}
+	
         return authorizeRespDTO;
     }
 
     private OAuthAppDO getAppInformation(OAuth2AuthorizeReqDTO authzReqDTO) throws IdentityOAuth2Exception,
             InvalidOAuthClientException {
-        OAuthAppDO oAuthAppDO;
-        Object obj = appInfoCache.getValueFromCache(authzReqDTO.getConsumerKey());
-        if (obj != null) {
-            oAuthAppDO = (OAuthAppDO) obj;
+        OAuthAppDO oAuthAppDO = appInfoCache.getValueFromCache(authzReqDTO.getConsumerKey());
+        if (oAuthAppDO != null) {
             return oAuthAppDO;
         } else {
             oAuthAppDO = new OAuthAppDAO().getAppInformation(authzReqDTO.getConsumerKey());
