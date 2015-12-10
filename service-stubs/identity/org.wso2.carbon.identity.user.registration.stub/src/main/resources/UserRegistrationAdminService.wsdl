@@ -1,5 +1,5 @@
 
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://registration.user.identity.carbon.wso2.org" xmlns:ax2381="http://base.identity.carbon.wso2.org/xsd" xmlns:ax2383="http://dto.registration.user.identity.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://registration.user.identity.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax2385="http://dto.registration.user.identity.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:ax2381="http://registration.user.identity.carbon.wso2.org/xsd" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:tns="http://registration.user.identity.carbon.wso2.org" xmlns:ax2383="http://base.identity.carbon.wso2.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://registration.user.identity.carbon.wso2.org">
     <wsdl:documentation>UserRegistrationAdminService</wsdl:documentation>
     <wsdl:types>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.registration.user.identity.carbon.wso2.org/xsd">
@@ -28,26 +28,22 @@
                 <xs:sequence>
                     <xs:element minOccurs="0" name="openID" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="password" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="userFields" nillable="true" type="ax2383:UserFieldDTO"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="userFields" nillable="true" type="ax2385:UserFieldDTO"/>
                     <xs:element minOccurs="0" name="userName" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax2384="http://dto.registration.user.identity.carbon.wso2.org/xsd" xmlns:ns="http://org.apache.axis2/xsd" xmlns:ax2382="http://base.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
+        <xs:schema xmlns:ax2384="http://base.identity.carbon.wso2.org/xsd" xmlns:ax2386="http://dto.registration.user.identity.carbon.wso2.org/xsd" xmlns:ns="http://org.apache.axis2/xsd" xmlns:ax2382="http://registration.user.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
+            <xs:import namespace="http://registration.user.identity.carbon.wso2.org/xsd"/>
             <xs:import namespace="http://base.identity.carbon.wso2.org/xsd"/>
             <xs:import namespace="http://dto.registration.user.identity.carbon.wso2.org/xsd"/>
-            <xs:element name="UserRegistrationAdminServiceException">
+            <xs:element name="UserRegistrationAdminServiceUserRegistrationException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="UserRegistrationAdminServiceException" nillable="true" type="ns1:Exception"/>
+                        <xs:element minOccurs="0" name="UserRegistrationException" nillable="true" type="ax2381:UserRegistrationException"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:complexType name="Exception">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string"/>
-                </xs:sequence>
-            </xs:complexType>
             <xs:element name="isUserExist">
                 <xs:complexType>
                     <xs:sequence>
@@ -65,7 +61,7 @@
             <xs:element name="UserRegistrationAdminServiceIdentityException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="IdentityException" nillable="true" type="ax2381:IdentityException"/>
+                        <xs:element minOccurs="0" name="IdentityException" nillable="true" type="ax2384:IdentityException"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -77,7 +73,7 @@
             <xs:element name="getPasswordRegularExpressionsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2384:PasswordRegExDTO"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2385:PasswordRegExDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -91,10 +87,22 @@
             <xs:element name="readUserFieldsForUserRegistrationResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2384:UserFieldDTO"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2385:UserFieldDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="UserRegistrationAdminServiceException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="UserRegistrationAdminServiceException" nillable="true" type="ns1:Exception"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="Exception">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="isAddUserEnabled">
                 <xs:complexType>
                     <xs:sequence/>
@@ -134,13 +142,18 @@
             <xs:element name="addUser">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="user" nillable="true" type="ax2384:UserDTO"/>
+                        <xs:element minOccurs="0" name="user" nillable="true" type="ax2385:UserDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
         </xs:schema>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://base.identity.carbon.wso2.org/xsd">
             <xs:complexType name="IdentityException">
+                <xs:sequence/>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://registration.user.identity.carbon.wso2.org/xsd">
+            <xs:complexType name="UserRegistrationException">
                 <xs:sequence/>
             </xs:complexType>
         </xs:schema>
@@ -174,6 +187,9 @@
     </wsdl:message>
     <wsdl:message name="isUserExistResponse">
         <wsdl:part name="parameters" element="ns1:isUserExistResponse"/>
+    </wsdl:message>
+    <wsdl:message name="UserRegistrationAdminServiceUserRegistrationException">
+        <wsdl:part name="parameters" element="ns1:UserRegistrationAdminServiceUserRegistrationException"/>
     </wsdl:message>
     <wsdl:message name="getPasswordRegularExpressionsRequest">
         <wsdl:part name="parameters" element="ns1:getPasswordRegularExpressions"/>
@@ -209,7 +225,7 @@
         <wsdl:operation name="isUserExist">
             <wsdl:input message="tns:isUserExistRequest" wsaw:Action="urn:isUserExist"/>
             <wsdl:output message="tns:isUserExistResponse" wsaw:Action="urn:isUserExistResponse"/>
-            <wsdl:fault message="tns:UserRegistrationAdminServiceException" name="UserRegistrationAdminServiceException" wsaw:Action="urn:isUserExistUserRegistrationAdminServiceException"/>
+            <wsdl:fault message="tns:UserRegistrationAdminServiceUserRegistrationException" name="UserRegistrationAdminServiceUserRegistrationException" wsaw:Action="urn:isUserExistUserRegistrationAdminServiceUserRegistrationException"/>
         </wsdl:operation>
         <wsdl:operation name="getPasswordRegularExpressions">
             <wsdl:input message="tns:getPasswordRegularExpressionsRequest" wsaw:Action="urn:getPasswordRegularExpressions"/>
@@ -272,8 +288,8 @@
             <wsdl:output>
                 <soap:body use="literal"/>
             </wsdl:output>
-            <wsdl:fault name="UserRegistrationAdminServiceException">
-                <soap:fault use="literal" name="UserRegistrationAdminServiceException"/>
+            <wsdl:fault name="UserRegistrationAdminServiceUserRegistrationException">
+                <soap:fault use="literal" name="UserRegistrationAdminServiceUserRegistrationException"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getPasswordRegularExpressions">
@@ -356,8 +372,8 @@
             <wsdl:output>
                 <soap12:body use="literal"/>
             </wsdl:output>
-            <wsdl:fault name="UserRegistrationAdminServiceException">
-                <soap12:fault use="literal" name="UserRegistrationAdminServiceException"/>
+            <wsdl:fault name="UserRegistrationAdminServiceUserRegistrationException">
+                <soap12:fault use="literal" name="UserRegistrationAdminServiceUserRegistrationException"/>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getPasswordRegularExpressions">
