@@ -788,6 +788,7 @@ public class TokenMgtDAO {
                     dataDO.setRefreshToken(refreshToken);
                     dataDO.setTokenId(tokenId);
                     dataDO.setGrantType(grantType);
+                    dataDO.setTenantID(tenantId);
 
                 } else {
                     scopes.add(resultSet.getString(5));
