@@ -17,7 +17,6 @@
  */
 package org.wso2.carbon.identity.sts.passive.ui;
 
-import com.apple.eawt.ApplicationBeanInfo;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
