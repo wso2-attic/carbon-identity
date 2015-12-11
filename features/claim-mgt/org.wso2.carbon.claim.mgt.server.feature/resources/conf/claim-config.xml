@@ -249,7 +249,30 @@
                 <AttributeID>displayName</AttributeID>
                 <Description>Display Name</Description>
             </Claim>
-
+            <Claim>
+                <ClaimURI>http://wso2.org/claims/identity/unlockTime</ClaimURI>
+                <DisplayName>Unlock Time</DisplayName>
+                <AttributeID>unlockTime</AttributeID>
+                <Description>Unlock Time</Description>
+            </Claim>
+            <Claim>
+                <ClaimURI>http://wso2.org/claims/identity/failedLoginAttempts</ClaimURI>
+                <DisplayName>Failed Login Attempts</DisplayName>
+                <AttributeID>failedLoginAttempts</AttributeID>
+                <Description>Failed Login Attempts</Description>
+            </Claim>
+            <Claim>
+                <ClaimURI>http://wso2.org/claims/identity/passwordUseFrequency</ClaimURI>
+                <DisplayName>Password Use Frequency</DisplayName>
+                <AttributeID>country</AttributeID>
+                <Description>Password Use Frequency</Description>
+            </Claim>
+            <Claim>
+                <ClaimURI>http://wso2.org/claims/identity/passwordTimestamp</ClaimURI>
+                <DisplayName>Identity Password Timestamp</DisplayName>
+                <AttributeID>facsimileTelephoneNumber</AttributeID>
+                <Description>Identity Password Timestamp</Description>
+            </Claim>
 		</Dialect>
 
 		<Dialect dialectURI="http://schemas.xmlsoap.org/ws/2005/05/identity">
