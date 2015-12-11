@@ -781,6 +781,13 @@ public class UserInformationRecoveryService {
 
         try {
 
+            if (IdentityMgtConfig.getInstance().isSaasEnabled()) {
+                PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                carbonContext.setTenantId(tenantId);
+                carbonContext.setTenantDomain(tenantDomain);
+            }
+
             if (userStoreManager == null) {
                 vBean = new VerificationBean();
                 vBean.setVerified(false);
@@ -858,6 +865,10 @@ public class UserInformationRecoveryService {
             }
 
             return vBean;
+        } finally {
+            if (IdentityMgtConfig.getInstance().isSaasEnabled()) {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
         }
 
         return vBean;
