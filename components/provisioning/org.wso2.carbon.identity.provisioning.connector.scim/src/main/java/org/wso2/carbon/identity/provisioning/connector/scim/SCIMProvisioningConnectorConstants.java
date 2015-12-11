@@ -28,4 +28,7 @@ public class SCIMProvisioningConnectorConstants {
     public static final String SCIM_PASSWORD = "scim-password";
     public static final String SCIM_USERSTORE_DOMAIN = "scim-user-store-domain";
     public static final String DEFAULT_SCIM_DIALECT = "urn:scim:schemas:core:1.0";
+
+    public static final String SCIM_ENABLE_PASSWORD_PROVISIONING = "scim-enable-pwd-provisioning";
+    public static final String SCIM_DEFAULT_PASSWORD = "scim-default-pwd";
 }

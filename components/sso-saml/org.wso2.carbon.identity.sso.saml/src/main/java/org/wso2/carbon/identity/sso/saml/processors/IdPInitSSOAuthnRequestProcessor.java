@@ -40,7 +40,7 @@ import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IdPInitSSOAuthnRequestProcessor {
+public class IdPInitSSOAuthnRequestProcessor implements SSOAuthnRequestProcessor{
 
     private static Log log = LogFactory.getLog(IdPInitSSOAuthnRequestProcessor.class);
 
@@ -127,6 +127,8 @@ public class IdPInitSSOAuthnRequestProcessor {
                     spDO.setIdPInitSLOEnabled(authnReqDTO.isIdPInitSLOEnabled());
                     spDO.setAssertionConsumerUrls(authnReqDTO.getAssertionConsumerURLs());
                     spDO.setIdpInitSLOReturnToURLs(authnReqDTO.getIdpInitSLOReturnToURLs());
+                    spDO.setSigningAlgorithmUri(authnReqDTO.getSigningAlgorithmUri());
+                    spDO.setDigestAlgorithmUri(authnReqDTO.getDigestAlgorithmUri());
                     sessionPersistenceManager.persistSession(sessionIndexId,
                             authnReqDTO.getUser().getAuthenticatedSubjectIdentifier(), spDO,
                             authnReqDTO.getRpSessionId(), authnReqDTO.getIssuer(),
@@ -150,10 +152,11 @@ public class IdPInitSSOAuthnRequestProcessor {
                 samlssoRespDTO.setSubject(authnReqDTO.getUser());
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug(samlssoRespDTO.getRespString());
+            if (samlssoRespDTO.getRespString() != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug(samlssoRespDTO.getRespString());
+                }
             }
-
             return samlssoRespDTO;
         } catch (Exception e) {
             log.error("Error processing the authentication request", e);
@@ -230,6 +233,8 @@ public class IdPInitSSOAuthnRequestProcessor {
         authnReqDTO.setIdPInitSLOEnabled(ssoIdpConfigs.isIdPInitSLOEnabled());
         authnReqDTO.setAssertionConsumerURLs(ssoIdpConfigs.getAssertionConsumerUrls());
         authnReqDTO.setIdpInitSLOReturnToURLs(ssoIdpConfigs.getIdpInitSLOReturnToURLs());
+        authnReqDTO.setSigningAlgorithmUri(ssoIdpConfigs.getSigningAlgorithmUri());
+        authnReqDTO.setDigestAlgorithmUri(ssoIdpConfigs.getDigestAlgorithmUri());
     }
 
     /**

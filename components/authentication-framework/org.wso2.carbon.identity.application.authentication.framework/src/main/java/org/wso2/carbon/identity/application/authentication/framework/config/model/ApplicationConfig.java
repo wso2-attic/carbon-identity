@@ -31,10 +31,7 @@ import java.util.Map;
 
 public class ApplicationConfig implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 8082478632322393384L;
 
     private ServiceProvider serviceProvider = null;
 

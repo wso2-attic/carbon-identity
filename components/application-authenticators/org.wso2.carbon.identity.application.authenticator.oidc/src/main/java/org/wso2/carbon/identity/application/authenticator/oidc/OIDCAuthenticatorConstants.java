@@ -35,8 +35,8 @@ public class OIDCAuthenticatorConstants {
 
     public static final String CLIENT_ID = "ClientId";
     public static final String CLIENT_SECRET = "ClientSecret";
-    public static final String OAUTH2_AUTHZ_URL = "OAuth2AuthzUrl";
-    public static final String OAUTH2_TOKEN_URL = "OAUTH2TokenUrl";
+    public static final String OAUTH2_AUTHZ_URL = "OAuth2AuthzEPUrl";
+    public static final String OAUTH2_TOKEN_URL = "OAuth2TokenEPUrl";
 
     public class AuthenticatorConfParams {
         private AuthenticatorConfParams() {

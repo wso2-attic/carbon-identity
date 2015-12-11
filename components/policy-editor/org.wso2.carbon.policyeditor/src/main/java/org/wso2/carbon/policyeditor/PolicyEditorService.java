@@ -23,12 +23,18 @@ import org.apache.axis2.AxisFault;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
+import org.wso2.carbon.policyeditor.util.CarbonEntityResolver;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -41,7 +47,9 @@ import java.net.URL;
 public class PolicyEditorService {
 
     private static final Log log = LogFactory.getLog(PolicyEditorService.class);
-
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX + Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
+    public static final String EXTERNAL_GENERAL_ENTITIES_URI = "http://xml.org/sax/features/external-general-entities";
     // The location of the XSD file resources
     private static final String ORG_WSO2_CARBON_POLICYEDITOR_XSD =
             "/org/wso2/carbon/policyeditor/xsd/";
@@ -126,24 +134,23 @@ public class PolicyEditorService {
         String fileList = "";
 
         StringBuilder fBuf = null;
+        BufferedReader dis = null;
         try {
             InputStream in = PolicyEditorService.class.getResourceAsStream(
                     ORG_WSO2_CARBON_POLICYEDITOR_XSD + "policies.xml");
 
-            BufferedReader dis =
-                    new BufferedReader(new InputStreamReader(in, Charsets.UTF_8));
+            dis = new BufferedReader(new InputStreamReader(in, Charsets.UTF_8));
             fBuf = new StringBuilder();
 
             String line = "";
             while ((line = dis.readLine()) != null) {
                 fBuf.append(line).append("\n");
             }
-            in.close();
-
             fileList = fBuf.toString();
-            dis.close();
         } catch (IOException e) {
             throw new AxisFault("Axis fault while getting schemas.", e);
+        } finally {
+            IdentityIOStreamUtils.closeReader(dis);
         }
 
         return "<![CDATA[" + fileList + "]]>";
@@ -159,9 +166,24 @@ public class PolicyEditorService {
     public String formatXML(String xml) {
 
         try {
+            // create the factory
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            Document xmlDoc = docBuilder.parse(new ByteArrayInputStream(xml.getBytes(Charsets.UTF_8)));
+            docFactory.setIgnoringComments(true);
+            docFactory.setNamespaceAware(true);
+            docFactory.setExpandEntityReferences(false);
+            SecurityManager securityManager = new SecurityManager();
+            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+            docFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+            DocumentBuilder docBuilder;
+            Document xmlDoc;
+
+            // now use the factory to create the document builder
+            docFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            docFactory.setFeature(EXTERNAL_GENERAL_ENTITIES_URI, false);
+            docBuilder = docFactory.newDocumentBuilder();
+            docBuilder.setEntityResolver(new CarbonEntityResolver());
+            xmlDoc = docBuilder.parse(new ByteArrayInputStream(xml.getBytes(Charsets.UTF_8)));
+
 
             OutputFormat format = new OutputFormat(xmlDoc);
             format.setLineWidth(0);
@@ -173,6 +195,8 @@ public class PolicyEditorService {
 
             xml = baos.toString("UTF-8");
 
+        } catch (ParserConfigurationException pce) {
+            throw new IllegalArgumentException("Failed to setup repository: ");
         } catch (Exception e) {
             log.error(e);
         }

@@ -17,12 +17,12 @@
 -->
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthRevocationRequestDTO" %>
 <%@ page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthRevocationResponseDTO" %>
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthAdminClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 
 <%@ page import="java.text.MessageFormat" %>
@@ -38,7 +38,7 @@
 <jsp:include page="../dialog/display_messages.jsp" />
 
 <%
-    String appName = CharacterEncoder.getSafeText(request.getParameter("appName"));
+    String appName = request.getParameter("appName");
     OAuthRevocationRequestDTO revokeReqDTO = new OAuthRevocationRequestDTO();
     revokeReqDTO.setApps(new String[]{appName});
     String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";
@@ -57,14 +57,14 @@
             String message = MessageFormat.format(resourceBundle.getString("revocation.success"),appName);
 %>
             <script language="javascript">
-                CARBON.showInfoDialog('<%=message%>',function(){window.location.href="../oauth/my-oauth-apps-index.jsp"})
+                CARBON.showInfoDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>',function(){window.location.href="../oauth/my-oauth-apps-index.jsp"})
             </script>
 <%
         }else{
             String message = MessageFormat.format(resourceBundle.getString("error.while.revoking.authorization"),appName);
 %>
             <script language="javascript">
-                CARBON.showErrorDialog('<%=message%>',function(){window.location.href="../oauth/my-oauth-apps-index.jsp"})
+                CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>',function(){window.location.href="../oauth/my-oauth-apps-index.jsp"})
             </script>
 <%
         }
@@ -73,7 +73,7 @@
         String message = MessageFormat.format(resourceBundle.getString("error.while.revoking.authorization"),appName);
 %>
         <script language="javascript">
-            CARBON.showErrorDialog('<%=message%>',function(){window.location.href="../oauth/my-oauth-apps-index.jsp"})
+            CARBON.showErrorDialog('<%=Encode.forJavaScript(Encode.forHtml(message))%>',function(){window.location.href="../oauth/my-oauth-apps-index.jsp"})
         </script>
 <%
     }

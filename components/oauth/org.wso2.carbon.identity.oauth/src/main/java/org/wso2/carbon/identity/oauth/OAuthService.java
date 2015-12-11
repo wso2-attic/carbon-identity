@@ -201,7 +201,8 @@ public class OAuthService {
      * @return oauth_token, oauth_token_secret
      * @throws Exception
      */
-    public Parameters getAccessToken(Parameters params) throws IdentityOAuthAdminException, AuthenticationException {
+    public Parameters getAccessToken(Parameters params) throws IdentityOAuthAdminException, AuthenticationException,
+            IdentityException {
 
         boolean isValidSignature = false;
         String secretKey = null;

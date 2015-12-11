@@ -25,6 +25,8 @@ import java.io.Serializable;
  */
 public class SAMLSSOServiceProviderInfoDTO implements Serializable {
 
+    private static final long serialVersionUID = 734702495756927187L;
+
     private SAMLSSOServiceProviderDTO[] serviceProviders;
     private String pubCertFilePath;
     private boolean isTenantZero;

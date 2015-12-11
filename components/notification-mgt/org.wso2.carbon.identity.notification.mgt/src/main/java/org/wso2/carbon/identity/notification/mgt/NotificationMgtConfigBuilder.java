@@ -257,7 +257,9 @@ public class NotificationMgtConfigBuilder {
                 }
             }
         } else {
-            log.warn("Secret Resolver is not present. Will not resolve encryptions in config file");
+            if(log.isDebugEnabled()){
+                log.debug("Secret Resolver is not present. Will not resolve encryptions in config file");
+            }
         }
     }
 }

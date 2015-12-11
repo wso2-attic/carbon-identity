@@ -28,7 +28,7 @@
     String forwardTo;
     String BUNDLE = "org.wso2.carbon.identity.user.store.configuration.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-    String[] orders = CharacterEncoder.getSafeText(request.getParameter("orderList")).split(",");
+    String[] orders = request.getParameter("orderList").split(",");
     try{
         UserStoreUIUtils userStoreUIUtils = new UserStoreUIUtils();
         userStoreUIUtils.saveConfigurationToFile(orders);

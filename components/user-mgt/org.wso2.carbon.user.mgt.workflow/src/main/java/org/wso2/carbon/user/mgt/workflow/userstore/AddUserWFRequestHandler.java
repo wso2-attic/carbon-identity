@@ -22,9 +22,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
-import org.wso2.carbon.identity.workflow.mgt.WorkflowService;
+import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
@@ -33,9 +34,11 @@ import org.wso2.carbon.identity.workflow.mgt.util.WorkflowDataType;
 import org.wso2.carbon.identity.workflow.mgt.util.WorkflowRequestStatus;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.workflow.internal.IdentityWorkflowDataHolder;
+import org.wso2.carbon.user.mgt.workflow.util.UserStoreWFConstants;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -86,11 +89,11 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     public boolean startAddUserFlow(String userStoreDomain, String userName, Object credential, String[] roleList,
                                     Map<String, String> claims, String profile) throws WorkflowException {
 
-        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
         Map<String, Object> wfParams = new HashMap<>();
         Map<String, Object> nonWfParams = new HashMap<>();
-        String encryptedCredentials=null;
+        String encryptedCredentials = null;
 
         if (roleList == null) {
             roleList = new String[0];
@@ -125,12 +128,10 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
             fullyQualifiedName = UserCoreUtil.addDomainToName(roleList[i], userStoreDomain);
             entities[i + 1] = new Entity(fullyQualifiedName, UserStoreWFConstants.ENTITY_TYPE_ROLE, tenant);
         }
-        if (workflowService.eventEngagedWithWorkflows(UserStoreWFConstants.ADD_USER_EVENT) && !Boolean.TRUE.equals
-                (getWorkFlowCompleted()) && !isValidOperation(entities)) {
+        if (!Boolean.TRUE.equals(getWorkFlowCompleted()) && !isValidOperation(entities)) {
             throw new WorkflowException("Operation is not valid.");
         }
-
-        boolean state = startWorkFlow(wfParams, nonWfParams, uuid);
+        boolean state = startWorkFlow(wfParams, nonWfParams, uuid).getExecutorResultState().state();
 
         //WF_REQUEST_ENTITY_RELATIONSHIP table has foreign key to WF_REQUEST, so need to run this after WF_REQUEST is
         // updated
@@ -206,7 +207,7 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
 
         try {
             if (log.isDebugEnabled()) {
-                log.debug("Decrypting the password of user " + " " + userName);
+                log.debug("Decrypting the password of user " + userName);
             }
             CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
             byte[] decryptedBytes = cryptoUtil.base64DecodeAndDecrypt(credential.toString());
@@ -214,7 +215,7 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
             credential = decryptedCredentials;
 
         } catch (CryptoException | UnsupportedEncodingException e) {
-            throw new WorkflowException("Error while decrypting the Credential for user" + " " + userName, e);
+            throw new WorkflowException("Error while decrypting the Credential for user " + userName, e);
         }
 
         List<String> roleList = ((List<String>) requestParams.get(ROLE_LIST));
@@ -235,7 +236,8 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
                 userRealm.getUserStoreManager().addUser(userName, credential, roles, claims, profile);
             } catch (UserStoreException e) {
-                throw new WorkflowException("Error when re-requesting addUser operation for " + userName, e);
+                // Sending e.getMessage() since it is required to give error message to end user.
+                throw new WorkflowException(e.getMessage(), e);
             }
         } else {
             if (retryNeedAtCallback()) {
@@ -252,23 +254,44 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     @Override
     public boolean isValidOperation(Entity[] entities) throws WorkflowException {
 
-        WorkflowService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
+        boolean eventEngaged = workflowService.isEventAssociated(UserStoreWFConstants.ADD_USER_EVENT);
+        RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
+        UserRealm userRealm;
+        AbstractUserStoreManager userStoreManager;
+        try {
+            userRealm = realmService.getTenantUserRealm(PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                    .getTenantId());
+            userStoreManager = (AbstractUserStoreManager) userRealm.getUserStoreManager();
+        } catch (UserStoreException e) {
+            throw new WorkflowException("Error while retrieving user realm.", e);
+        }
         for (int i = 0; i < entities.length; i++) {
             try {
-                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
-                        .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.ADD_USER_EVENT)) {
+                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && (workflowService
+                        .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.ADD_USER_EVENT) ||
+                        userStoreManager.isExistingUser(entities[i].getEntityId()))) {
+
                     throw new WorkflowException("Username already exists in the system. Please pick another username.");
-                } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
+
+                } else if (eventEngaged &&
+                        entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_ROLE_EVENT) ||
-                        workflowService
-                                .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
-                                        .UPDATE_ROLE_NAME_EVENT))) {
+                        workflowService.entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
+                                .UPDATE_ROLE_NAME_EVENT))) {
 
                     throw new WorkflowException("One or more roles assigned has pending workflows which " +
                             "blocks this operation.");
 
+                } else if (eventEngaged && (entities[i].getEntityType() == UserStoreWFConstants
+                        .ENTITY_TYPE_ROLE && !userStoreManager.isExistingRole(entities[i].getEntityId()))) {
+
+                    //Check condition only when event engaged to workflow since failure at populating users for tests.
+                    throw new WorkflowException("Role " + entities[i].getEntityId() + " does not exist.");
+
                 }
-            } catch (InternalWorkflowException e) {
+
+            } catch (InternalWorkflowException | org.wso2.carbon.user.core.UserStoreException e) {
                 throw new WorkflowException(e.getMessage(), e);
             }
         }

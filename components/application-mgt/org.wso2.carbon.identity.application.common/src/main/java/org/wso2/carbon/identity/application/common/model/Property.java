@@ -25,10 +25,7 @@ import java.util.Iterator;
 
 public class Property implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 3014011808515883129L;
+    private static final long serialVersionUID = 2423059969331364604L;
 
     private String name;
     private String value;
@@ -38,6 +35,7 @@ public class Property implements Serializable {
     private boolean required;
     private String description;
     private String type;
+    private int displayOrder;
 
     public Property() {
 
@@ -80,8 +78,9 @@ public class Property implements Serializable {
                 }
             } else if ("Description".equals(elementName)) {
                 property.setDescription(element.getText());
+            } else if ("DisplayOrder".equals(elementName)) {
+                property.setDisplayOrder(Integer.parseInt(element.getText()));
             }
-
         }
 
         return property;
@@ -197,6 +196,14 @@ public class Property implements Serializable {
      */
     public void setType(String type) {
         this.type = type;
+    }
+
+    public int getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(int displayOrder) {
+        this.displayOrder = displayOrder;
     }
 
     @Override

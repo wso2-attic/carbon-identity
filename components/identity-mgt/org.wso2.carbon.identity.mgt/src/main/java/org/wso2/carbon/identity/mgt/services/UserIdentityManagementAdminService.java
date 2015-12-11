@@ -123,9 +123,9 @@ public class UserIdentityManagementAdminService {
             if (notificationType != null && isNotificationSending) {
                 UserRecoveryDTO dto;
                 if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
-                    dto = new UserRecoveryDTO(userNameWithoutDomain);
+                    dto = new UserRecoveryDTO(userName);
                 } else {
-                    UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userNameWithoutDomain, tenantDomain));
+                    UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
                     userDTO.setTenantId(tenantID);
                     dto = new UserRecoveryDTO(userDTO);
                 }

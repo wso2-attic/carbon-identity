@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.mgt.util;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.neethi.Policy;
@@ -186,8 +187,11 @@ public class Utils {
         }
         try {
             if (userStoreManager != null) {
-                claimValue = userStoreManager.getUserClaimValue(userName, claim,
-                        UserCoreConstants.DEFAULT_PROFILE);
+                Map<String, String> claimsMap = userStoreManager
+                        .getUserClaimValues(userName, new String[]{claim}, UserCoreConstants.DEFAULT_PROFILE);
+                if (claimsMap != null && !claimsMap.isEmpty()) {
+                    claimValue = claimsMap.get(claim);
+                }
             }
             return claimValue;
         } catch (Exception e) {
@@ -196,7 +200,6 @@ public class Utils {
             throw new IdentityException(msg, e);
         }
     }
-
 
     /**
      * get email address from user store
@@ -342,7 +345,7 @@ public class Utils {
         return userDomain;
     }
 
-    
+
     public static String[] getChallengeUris() {
         //TODO
         return new String[]{IdentityMgtConstants.DEFAULT_CHALLENGE_QUESTION_URI01,

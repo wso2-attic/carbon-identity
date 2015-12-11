@@ -57,8 +57,8 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
     public boolean canHandle(HttpServletRequest request) {
         //check whether the OS is windows. IWA works only with windows
         String osName = System.getProperty(IWAConstants.OS_NAME_PROPERTY);
-        return StringUtils.isNotEmpty(osName) && osName.contains(IWAConstants.WINDOWS_OS_MATCH_STRING) && request
-                .getParameter(IWA_PROCESSED) != null;
+        return StringUtils.isNotEmpty(osName) && osName.toLowerCase().contains(IWAConstants.WINDOWS_OS_MATCH_STRING) &&
+                request.getParameter(IWA_PROCESSED) != null;
     }
 
     @Override
@@ -118,8 +118,8 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
             throws AuthenticationFailedException {
         String iwaURL = null;
         try {
-            iwaURL = IdentityUtil.getServerURL(IWAConstants.IWA_AUTH_EP) + "?" + IWAConstants.IWA_PARAM_STATE + "=" +
-                     URLEncoder.encode(ctx, IWAConstants.UTF_8);
+            iwaURL = IdentityUtil.getServerURL(IWAConstants.IWA_AUTH_EP, false, true) +
+                    "?" + IWAConstants.IWA_PARAM_STATE + "=" +URLEncoder.encode(ctx, IWAConstants.UTF_8);
             response.sendRedirect(response.encodeRedirectURL(iwaURL));
         } catch (IOException e) {
             log.error("Error when sending to the login page :" + iwaURL, e);

@@ -17,13 +17,13 @@
   --%>
 
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
-<%@page import="org.wso2.carbon.CarbonConstants" %>
+<%@page import="org.owasp.encoder.Encode" %>
+<%@page import="org.wso2.carbon.CarbonConstants"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
-<%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
-<%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
-<%@page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
+<%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.text.MessageFormat" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Arrays" %>
@@ -52,7 +52,7 @@
     if(request.getParameter("viewUsers") != null){
         viewUsers = Boolean.parseBoolean(request.getParameter("viewUsers"));
     }
-    String roleName = CharacterEncoder.getSafeText(request.getParameter("roleName"));
+    String roleName = request.getParameter("roleName");
     try {
 
         String cookie = (String)session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -100,9 +100,11 @@
         } else if(finish) {          
         	forwardTo = "role-mgt.jsp";
         } else if (viewUsers){
-            forwardTo = "view-users.jsp?roleName=" + roleName +"&pageNumber=" + pageNumber;
+            forwardTo = "view-users.jsp?roleName=" + Encode.forUriComponent(roleName) + "&pageNumber=" +
+                        Encode.forUriComponent(pageNumber);
         } else {
-            forwardTo = "edit-users.jsp?roleName=" + roleName +"&pageNumber=" + pageNumber;
+            forwardTo = "edit-users.jsp?roleName=" + Encode.forUriComponent(roleName) + "&pageNumber=" +
+                        Encode.forUriComponent(pageNumber);
         }
 
     } catch(InstantiationException e){
@@ -114,9 +116,9 @@
                 roleName, e.getMessage());
 	    CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
         if (viewUsers){
-	        forwardTo = "view-users.jsp?roleName=" + roleName;
+	        forwardTo = "view-users.jsp?roleName=" + Encode.forUriComponent(roleName);
         } else {
-            forwardTo = "edit-users.jsp?roleName=" + roleName;
+            forwardTo = "edit-users.jsp?roleName=" + Encode.forUriComponent(roleName);
         }
     }
 %>

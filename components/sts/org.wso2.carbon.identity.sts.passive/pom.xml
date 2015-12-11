@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>sts</artifactId>
-        <version>4.5.5-SNAPSHOT</version>
+        <version>5.0.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -64,10 +64,6 @@
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.security.mgt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openid4java.wso2</groupId>
-            <artifactId>openid4java-nodeps</artifactId>
         </dependency>
         <dependency>
             <groupId>opensaml.wso2</groupId>
@@ -121,6 +117,8 @@
                             org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",
                             org.wso2.carbon.registry.api;version="${carbon.kernel.registry.imp.pkg.version}",
                             org.wso2.carbon.registry.core.*;version="${carbon.kernel.registry.imp.pkg.version}",
+
+                            org.wso2.carbon.idp.mgt; version="${carbon.identity.package.import.version.range}",
 
                             org.wso2.carbon.identity.provider;
                             version="${carbon.identity.package.import.version.range}",

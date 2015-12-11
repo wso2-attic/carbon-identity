@@ -25,7 +25,6 @@
 <%@page import="org.wso2.carbon.identity.user.profile.ui.client.UserProfileCient" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@page import="org.wso2.carbon.user.mgt.ui.Util" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@page import="java.net.URLEncoder"%><script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -34,12 +33,13 @@
 
 <jsp:include page="../dialog/display_messages.jsp"/>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     boolean readOnlyUserStore = false;
-    String username = CharacterEncoder.getSafeText((String) request.getParameter("username"));
-    String profile = CharacterEncoder.getSafeText((String) request.getParameter("profile"));
-    String fromUserMgt = (String) request.getParameter("fromUserMgt");
+    String username = request.getParameter("username");
+    String profile = request.getParameter("profile");
+    String fromUserMgt = request.getParameter("fromUserMgt");
     String noOfProfiles = request.getParameter("noOfProfiles");
     if (noOfProfiles == null) {
         noOfProfiles = "0";
@@ -63,7 +63,7 @@
                 .getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
         UserProfileCient client = new UserProfileCient(cookie, backendServerURL,
                 configContext);
-        userProfile = client.getUserProfile(Util.decodeHTMLCharacters(username), profile);
+        userProfile = client.getUserProfile(username, profile);
         
         if ("readonly".equals(userProfile.getProfileConifuration())){
         	readOnlyUserStore = true;
@@ -124,11 +124,11 @@
             <%
                 if (!readOnlyUserStore) {
             %>
-                <h2><fmt:message key='update.profile1'/><%=username%></h2>
+                <h2><fmt:message key='update.profile1'/><%=Encode.forHtml(username)%></h2>
             <%
                 } else {
             %>
-                <h2><fmt:message key='view.profile1'/><%=username%></h2>
+                <h2><fmt:message key='view.profile1'/><%=Encode.forHtml(username)%></h2>
             <%
                 }
                     } else {
@@ -155,15 +155,17 @@
                         var value = document.getElementsByName("<%=userFields[i].getClaimUri()%>")[0].value;
                         <%if (userFields[i].getRequired() && userFields[i].getDisplayName()!=null) {%>
                             if (validateEmpty("<%=userFields[i].getClaimUri()%>").length > 0) {
-                                CARBON.showWarningDialog("<%=CharacterEncoder.getSafeText(userFields[i].getDisplayName())%>" + " <fmt:message key='is.required'/>");
+                                CARBON.showWarningDialog("<%=Encode.forJavaScript(Encode.forHtml(userFields[i].
+                                                           getDisplayName()))%>" + " <fmt:message key='is.required'/>");
                                 return false;
                             }
                         <%} 
                           if(userFields[i].getRegEx() != null){ %>
-                            var reg = new RegExp("<%=userFields[i].getRegEx()%>");
+                            var reg = new RegExp("<%=Encode.forJavaScript(userFields[i].getRegEx())%>");
                             var valid = reg.test(value);
                             if (value != '' && !valid) {
-                                CARBON.showWarningDialog("<%=CharacterEncoder.getSafeText(userFields[i].getDisplayName())%>" + " <fmt:message key='is.not.valid'/>");
+                                CARBON.showWarningDialog("<%=Encode.forJavaScript(Encode.forHtml(userFields[i].
+                                                          getDisplayName()))%>" + " <fmt:message key='is.not.valid'/>");
                                 return false;
                             }
                         <%}
@@ -187,9 +189,9 @@
             </script>
 
             <form method="post" name="updateProfileform"
-                  action="edit-finish.jsp?profile=<%=CharacterEncoder.getSafeText(userProfile.getProfileName())%>&fromUserMgt=<%=fromUserMgt%>&noOfProfiles=<%=noOfProfiles%>"
+                  action="edit-finish.jsp?profile=<%=Encode.forUriComponent(userProfile.getProfileName())%>&fromUserMgt=<%=Encode.forUriComponent(fromUserMgt)%>&noOfProfiles=<%=Encode.forUriComponent(noOfProfiles)%>"
                   target="_self">
-                <input type="hidden" name="username" value="<%=username%>"/>
+                <input type="hidden" name="username" value="<%=Encode.forHtmlAttribute(username)%>"/>
                 <table style="width: 100%" class="styledLeft">
                     <thead>
                     <tr>
@@ -202,7 +204,7 @@
 				<table class="normal" cellspacing="0">
 				    <tr>
 		                        <td class="leftCol-small"><fmt:message key='profile.name'/>&nbsp;<span class="required">*</span></td>
-		                        <td><%=CharacterEncoder.getSafeText(userProfile.getProfileName())%>
+		                        <td><%=Encode.forHtmlContent(userProfile.getProfileName())%>
 		                        </td>
 		                    </tr>
 		                    <%
@@ -219,12 +221,14 @@
 		                                <%
 		                                    if (userProfile.getProfileConifuration().equals(profileConfigs[i])) {
 		                                %>
-		                                <option value="<%=profileConfigs[i]%>" selected="selected"><%=profileConfigs[i]%>
+		                                <option value="<%=Encode.forHtmlAttribute(profileConfigs[i])%>" selected="selected">
+                                            <%=Encode.forHtmlContent(profileConfigs[i])%>
 		                                </option>
 		                                <%
 		                                    } else {
 		                                %>
-		                                <option value="<%=profileConfigs[i]%>"><%=profileConfigs[i]%>
+		                                <option value="<%=Encode.forHtmlAttribute(profileConfigs[i])%>">
+                                            <%=Encode.forHtmlContent(profileConfigs[i])%>
 		                                </option>
 		                                <%
 		                                    }
@@ -244,7 +248,7 @@
 		                        if (userFields[i].getDisplayName() != null) {
 		                    %>
 		                    <tr>
-		                        <td class="leftCol-small"><%=userFields[i].getDisplayName()%> <%
+		                        <td class="leftCol-small"><%=Encode.forHtmlContent(userFields[i].getDisplayName())%> <%
                                     if (userFields[i].getRequired()) {
                                     %>
 		                            &nbsp;<span class="required">*</span>
@@ -263,20 +267,24 @@
                                 <td>
                                     <input class="text-box-big" type="checkbox" onclick="setBooleanValueToTextBox(this)"
                                             <%if (Boolean.parseBoolean(value)) {%> checked="checked" <%}%>
-                                           value="<%=userFields[i].getClaimUri()%>"/>
-                                    <input id="<%=userFields[i].getClaimUri()%>" name="<%=userFields[i].getClaimUri()%>"
-                                           type="hidden" value="<%=value%>"/>
+                                           value="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>"/>
+                                    <input id="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>"
+                                           name="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>"
+                                           type="hidden" value="<%=Encode.forHtmlAttribute(value)%>"/>
                                 </td>
 		                         <%
                                         } else {
                                  %>
-                                            <td><input id="<%=userFields[i].getClaimUri()%>" name="<%=userFields[i].getClaimUri()%>"
-                                             class="text-box-big" type="text" value="<%=userFields[i].getFieldValue()%>"  ></td>
+                                            <td><input id="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>"
+                                                       name="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>"
+                                             class="text-box-big" type="text"
+                                                       value="<%=Encode.forHtmlAttribute(userFields[i].getFieldValue())%>">
+                                            </td>
 		                         <%
                                         }
                                     } else {
 		                         %>
-		                              <td><%=CharacterEncoder.getSafeText(userFields[i].getFieldValue())%></td>
+		                              <td><%=Encode.forHtmlContent(userFields[i].getFieldValue())%></td>
 		                          <%
 		                              }
                                   } else {
@@ -285,12 +293,14 @@
 		                                if (!readOnlyUserStore && !userFields[i].getReadOnly()) {
 		                            %>
 
-		                                 <td><input id="<%=userFields[i].getClaimUri()%>" name="<%=userFields[i].getClaimUri()%>"
+		                                 <td><input id="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>"
+                                                    name="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>"
 		                                   class="text-box-big" type="text"></td>
                                     <%
                                             } else {
                                     %>
-                                         <td><input id="<%=userFields[i].getClaimUri()%>" name="<%=userFields[i].getClaimUri()%>"
+                                         <td><input id="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>"
+                                                    name="<%=Encode.forHtmlAttribute(userFields[i].getClaimUri())%>"
 		                                   class="text-box-big" type="text" readonly="true"></td>
                                     <%
                                             }
@@ -316,7 +326,8 @@
                                 }
                             %>
                             <input type="button" class="button"
-                                              onclick="javascript:location.href='index.jsp?username=<%=URLEncoder.encode(username)%>&fromUserMgt=<%=fromUserMgt%>&editCancel=true'"
+                                   onclick="javascript:location.href='index.jsp?username=<%=Encode.forUriComponent(username)%>' +
+                                           '&fromUserMgt=<%=Encode.forUriComponent(fromUserMgt)%>&editCancel=true'"
                                           value="<fmt:message key='cancel'/>"/></td>
                     </tr>
                     </tbody>

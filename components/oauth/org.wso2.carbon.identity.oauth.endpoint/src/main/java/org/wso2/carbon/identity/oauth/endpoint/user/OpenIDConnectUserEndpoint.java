@@ -18,11 +18,11 @@
 
 package org.wso2.carbon.identity.oauth.endpoint.user;
 
-import org.apache.amber.oauth2.as.response.OAuthASResponse;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.OAuthResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.as.response.OAuthASResponse;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.endpoint.user.impl.UserInfoEndpointConfig;
@@ -78,7 +78,10 @@ public class OpenIDConnectUserEndpoint {
                         .header(OAuthConstants.HTTP_RESP_HEADER_PRAGMA,
                                 OAuthConstants.HTTP_RESP_HEADER_VAL_PRAGMA_NO_CACHE);
 
-        return respBuilder.entity(response).build();
+        if(response != null) {
+            return respBuilder.entity(response).build();
+        }
+        return respBuilder.build();
     }
 
     /**

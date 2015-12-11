@@ -29,6 +29,7 @@
 <%@ page import="org.wso2.carbon.utils.CarbonUtils" %>
 <%@ page import="org.wso2.carbon.utils.NetworkUtils" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -138,7 +139,7 @@
             	if (qpplicationComponentFound) {
 %> 
 <script>
-   location.href = '../application/configure-service-provider.jsp?action=update&display=serviceName&spName=<%=spName%>&serviceName=<%=address%>';
+   location.href = '../application/configure-service-provider.jsp?action=update&display=serviceName&spName=<%=Encode.forUriComponent(spName)%>&serviceName=<%=Encode.forUriComponent(address)%>';
 </script>
 <% 
             }
@@ -216,13 +217,13 @@
                         for (TrustedServiceData service : services) {
                 %>
                 <tr>
-                    <td width="40%"><%=service.getServiceAddress()%>
+                    <td width="40%"><%=Encode.forHtmlContent(service.getServiceAddress())%>
                     </td>
-                    <td width="40%">&nbsp;&nbsp;<%=service.getCertAlias()%>
+                    <td width="40%">&nbsp;&nbsp;<%=Encode.forHtmlContent(service.getCertAlias())%>
                     </td>
                     <td width="20%">
                         <a title="Remove Trusted RP"
-                           onclick="itemRemove('<%=service.getServiceAddress()%>');return false;"
+                           onclick="itemRemove('<%=Encode.forJavaScriptAttribute(service.getServiceAddress())%>');return false;"
                            href="#" class="icon-link"
                            style="background-image:url(../admin/images/delete.gif)">Delete
                         </a>
@@ -263,7 +264,7 @@
                                         color="red">*</font></td>
                             <%if (spAudience!=null) { %>
                              <td><input type="text" id="endpointaddrs" name="endpointaddrs"
-                                           class="text-box-big" value="<%=spAudience %>"  /></td>
+                                           class="text-box-big" value="<%=Encode.forHtmlAttribute(spAudience)%>"  /></td>
                             <% } else { %>
                              <td><input type="text" id="endpointaddrs" name="endpointaddrs"
                                            class="text-box-big"/></td>
@@ -272,7 +273,7 @@
                             </tr>
                             <tr>
                                 <td><fmt:message key="sts.certificate.alias"/>
-                                <input type="hidden" name="spName" value="<%=spName%>" >
+                                <input type="hidden" name="spName" value="<%=Encode.forHtmlAttribute(spName)%>" >
                                 <input type="hidden" name="spAction" value="returnToSp" >
                                 
                                 </td>
@@ -284,10 +285,10 @@
                                                     if (alias != null) {
                                                     	if (keyAlias != null && keyAlias.equals(alias)){
                                         %>
-                                                          <option value="<%=alias%>" selected="selected"><%=alias%></option>
+                                                          <option value="<%=Encode.forHtmlAttribute(alias)%>" selected="selected"><%=Encode.forHtmlContent(alias)%></option>
                                         
                                                        <%} else { %>
-                                                          <option value="<%=alias%>"><%=alias%></option>
+                                                          <option value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%></option>
                                         <%
                                                          }
                                                      }

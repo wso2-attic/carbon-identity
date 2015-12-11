@@ -1,4 +1,3 @@
-
 <!--
 ~ Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 ~
@@ -17,6 +16,7 @@
 ~ under the License.
 -->
 
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
 <%@ page import="java.util.List" %>
 
@@ -31,7 +31,9 @@
 
 <%
     List<IdentityProvider> identityProvidersList = (List<IdentityProvider>)session.getAttribute("identityProviderList");
-    if(identityProvidersList == null){
+    String identityProvider = "identityProvider";
+    session.removeAttribute(identityProvider);
+    if (identityProvidersList == null) {
 %>
         <script type="text/javascript">
             location.href = "idp-mgt-list-load.jsp?callback=idp-mgt-list.jsp";
@@ -87,17 +89,17 @@
                          }
                          %>
                             <tr>
-                                <td><%=identityProvidersList.get(i).getIdentityProviderName()%></td>
-                                <td><%=description%></td>
+                                <td><%=Encode.forHtmlContent(identityProvidersList.get(i).getIdentityProviderName())%></td>
+                                <td><%=Encode.forHtmlContent(description)%></td>
                                 <td>
                                  	<% if (enable) { %>
                     						<a title="<fmt:message key='disable.policy'/>"
-                       						onclick="disable('<%=identityProvidersList.get(i).getIdentityProviderName()%>');return false;"
+                       						onclick="disable('<%=Encode.forJavaScriptAttribute(identityProvidersList.get(i).getIdentityProviderName())%>');return false;"
                        						href="#" style="background-image: url(images/disable.gif);" class="icon-link">
                         					<fmt:message key='disable.policy'/></a>
                     				<% } else { %>
                     						<a title="<fmt:message key='enable.policy'/>"
-                       						onclick="enable('<%=identityProvidersList.get(i).getIdentityProviderName()%>');return false;"
+                       						onclick="enable('<%=Encode.forJavaScriptAttribute(identityProvidersList.get(i).getIdentityProviderName())%>');return false;"
                        						href="#" style="background-image: url(images/enable2.gif);" class="icon-link">
                        						 <fmt:message key='enable.policy'/></a>
                    				   <% } %>

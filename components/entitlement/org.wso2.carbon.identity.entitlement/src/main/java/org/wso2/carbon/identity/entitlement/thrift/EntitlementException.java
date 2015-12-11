@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EntitlementException extends Exception implements org.apache.thrift.TBase<EntitlementException, EntitlementException._Fields>, java.io.Serializable, Cloneable {
+
+    private static final long serialVersionUID = 4946371706608936612L;
+
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
         Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);

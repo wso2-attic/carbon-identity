@@ -42,6 +42,7 @@ import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntityType;
 import org.wso2.carbon.identity.provisioning.ProvisioningOperation;
+import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -127,15 +128,17 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
 
         boolean isDebugEnabled = log.isDebugEnabled();
 
-        String provisioningPatternKey = "sf-prov-pattern";
-        String provisioningSeparatorKey = "sf-prov-separator";
-        String idpName_key = "identityProviderName";
-        String userIdClaimUriKey = "userIdClaimUri";
-        String provisioningDomainKey = "sf-prov-domainName";
-
-        String provisioningPattern = this.configHolder.getValue(provisioningPatternKey);
-        String provisioningSeparator = this.configHolder.getValue(provisioningSeparatorKey);
-        String idpName = this.configHolder.getValue(idpName_key);
+        String provisioningPattern = this.configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.PROVISIONING_PATTERN_KEY);
+        if (StringUtils.isBlank(provisioningPattern)) {
+            log.info("Provisioning pattern is not defined, hence using default provisioning pattern");
+            provisioningPattern = SalesforceConnectorConstants.PropertyConfig.DEFAULT_PROVISIONING_PATTERN;
+        }
+        String provisioningSeparator = this.configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.PROVISIONING_SEPERATOR_KEY);
+        if (StringUtils.isBlank(provisioningSeparator)) {
+            log.info("Provisioning separator is not defined, hence using default provisioning separator");
+            provisioningSeparator = SalesforceConnectorConstants.PropertyConfig.DEFAULT_PROVISIONING_SEPERATOR;
+        }
+        String idpName = this.configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.IDP_NAME_KEY);
 
         JSONObject user = new JSONObject();
 
@@ -151,8 +154,8 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             Map<String, String> requiredAttributes = getSingleValuedClaims(provisioningEntity
                     .getAttributes());
 
-            String userIdClaimURL = this.configHolder.getValue(userIdClaimUriKey);
-            String provisioningDomain = this.configHolder.getValue(provisioningDomainKey);
+            String userIdClaimURL = this.configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.USER_ID_CLAIM_URI_KEY);
+            String provisioningDomain = this.configHolder.getValue(SalesforceConnectorConstants.PropertyConfig.PROVISIONING_DOMAIN_KEY);
             String userId = provisioningEntity.getEntityName();
 
             if (StringUtils.isNotBlank(requiredAttributes.get(userIdClaimURL))) {
@@ -168,6 +171,11 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
             if (StringUtils.isNotBlank(userIdFromPattern)) {
                 userId = userIdFromPattern;
             }
+
+            if (StringUtils.isBlank(userId)) {
+                throw new IdentityProvisioningException("Cannot Find Username Attribute for Provisioning");
+            }
+
             if (StringUtils.isNotBlank(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
                 userId = userId.replaceAll("@", ".").concat("@").concat(provisioningDomain);
             }
@@ -292,6 +300,7 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         JSONObject entity = new JSONObject();
         try {
             entity.put(SalesforceConnectorConstants.IS_ACTIVE, false);
+            entity.put(SalesforceConnectorConstants.USERNAME_ATTRIBUTE, alterUsername(provisioningEntity));
             update(provisioningEntity.getIdentifier().getIdentifier(), entity);
         } catch (JSONException e) {
             log.error("Error while creating JSON body");
@@ -560,4 +569,26 @@ public class SalesforceProvisioningConnector extends AbstractOutboundProvisionin
         return sb.toString();
     }
 
+    /**
+     * Alter username while changing user to active state to inactive state. This is necessary when adding previously
+     * deleted users.
+     *
+     * @param provisioningEntity
+     * @return
+     * @throws IdentityProvisioningException
+     */
+    protected String alterUsername(ProvisioningEntity provisioningEntity) throws IdentityProvisioningException {
+
+        if (StringUtils.isBlank(provisioningEntity.getEntityName())) {
+            throw new IdentityProvisioningException("Could Not Find Entity Name from Provisioning Entity");
+        }
+        String alteredUsername = SalesforceConnectorConstants.SALESFORCE_OLD_USERNAME_PREFIX +
+                                    UUIDGenerator.generateUUID() + provisioningEntity.getEntityName();
+
+        if (log.isDebugEnabled()) {
+            log.debug("Alter username: " + provisioningEntity.getEntityName() + " to: " + alteredUsername +
+                      "while deleting user");
+        }
+        return alteredUsername;
+    }
 }

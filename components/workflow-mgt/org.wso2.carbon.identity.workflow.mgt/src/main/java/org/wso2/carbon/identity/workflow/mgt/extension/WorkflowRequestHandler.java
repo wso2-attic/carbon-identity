@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.identity.workflow.mgt.extension;
 
-import org.wso2.carbon.identity.workflow.mgt.bean.WorkFlowRequest;
+import org.wso2.carbon.identity.workflow.mgt.dto.WorkflowRequest;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 
 import java.util.Map;
@@ -31,7 +31,7 @@ public interface WorkflowRequestHandler {
      * @param workFlowRequest
      * @throws WorkflowException
      */
-    void engageWorkflow(WorkFlowRequest workFlowRequest) throws WorkflowException;
+    void engageWorkflow(WorkflowRequest workFlowRequest) throws WorkflowException;
 
     /**
      * Gets the event that this handler is subscribed, used when handling the callback
@@ -45,11 +45,11 @@ public interface WorkflowRequestHandler {
      *
      * @param status          The workflow status
      * @param originalRequest The original request that was made by
-     *                        {@link #engageWorkflow(WorkFlowRequest)}
+     *                        {@link #engageWorkflow(WorkflowRequest)}
      * @param responseParams  Additional data returned from workflow
      * @throws WorkflowException
      */
-    void onWorkflowCompletion(String status, WorkFlowRequest originalRequest, Map<String, Object> responseParams) throws
+    void onWorkflowCompletion(String status, WorkflowRequest originalRequest, Map<String, Object> responseParams) throws
             WorkflowException;
 
     /**

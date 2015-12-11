@@ -20,8 +20,11 @@ package org.wso2.carbon.identity.core.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,19 +39,14 @@ public class IdentityDatabaseUtil {
      * Get a database connection instance from the Identity Persistence Manager
      *
      * @return Database Connection
-     * @throws IdentityException Error when getting an instance of the identity Persistence Manager
+     * @throws IdentityRuntimeException Error when getting a database connection to Identity database
      */
-    public static Connection getDBConnection() throws IdentityException {
-        try {
-            return JDBCPersistenceManager.getInstance().getDBConnection();
-        } catch (IdentityException e) {
-            String errMsg = "Error when getting a database connection from the Identity Persistence Manager";
-            log.error(errMsg, e);
-            throw e;
-        }
+    public static Connection getDBConnection() throws IdentityRuntimeException {
+        return JDBCPersistenceManager.getInstance().getDBConnection();
     }
 
     public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement prepStmt) {
+
         closeResultSet(rs);
         closeStatement(prepStmt);
         closeConnection(dbConnection);
@@ -59,8 +57,7 @@ public class IdentityDatabaseUtil {
             try {
                 dbConnection.close();
             } catch (SQLException e) {
-                log.error("Database error. Could not close statement. Continuing with others. - " +
-                        e.getMessage(), e);
+                log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
             }
         }
     }
@@ -95,6 +92,25 @@ public class IdentityDatabaseUtil {
         } catch (SQLException e1) {
             log.error("An error occurred while rolling back transactions. ", e1);
         }
+    }
+
+    /**
+     * Get a database connection instance for the User DB
+     *
+     * @return Database Connection
+     * @throws IdentityRuntimeException Error when getting a database connection to Identity database
+     */
+    public static Connection getUserDBConnection() throws IdentityRuntimeException {
+        Connection connection;
+        try {
+            connection = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+                    getRealmConfiguration()).getConnection();
+        } catch (SQLException e) {
+            throw new IdentityRuntimeException("Database error. Could not get a connection", e);
+        } catch (UserStoreException e) {
+            throw new IdentityRuntimeException("Could not receive user realm properly to make a connection", e);
+        }
+        return connection;
     }
 
 }

@@ -25,10 +25,7 @@ import java.util.Iterator;
 
 public class ApplicationPermission implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -5921176623905192883L;
+    private static final long serialVersionUID = -2607860389906543495L;
 
     private String value;
 

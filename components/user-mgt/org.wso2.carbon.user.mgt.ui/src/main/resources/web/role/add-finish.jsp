@@ -18,10 +18,10 @@
 
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
+<%@page import="org.wso2.carbon.identity.core.util.IdentityUtil" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
-<%@page import="org.wso2.carbon.user.core.UserCoreConstants" %>
+<%@ page import="org.wso2.carbon.user.core.UserCoreConstants" %>
 <%@ page import="org.wso2.carbon.user.core.util.UserCoreUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
@@ -40,11 +40,14 @@
     String BUNDLE = "org.wso2.carbon.userstore.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
     try {
-        roleName = CharacterEncoder.getSafeText(roleBean.getRoleName());
+        roleName = roleBean.getRoleName();
         roleType = roleBean.getRoleType();
         if ((roleType == null || "null".equals(roleType)) &&
-                UserCoreConstants.INTERNAL_USERSTORE.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))) {
-            roleType = UserCoreConstants.INTERNAL_USERSTORE;
+                UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(IdentityUtil.extractDomainFromName(roleName))) {
+            roleType = UserCoreConstants.INTERNAL_DOMAIN;
+        } else if ((roleType == null || "null".equals(roleType)) &&
+                UserAdminUIConstants.APPLICATION_DOMAIN.equalsIgnoreCase(IdentityUtil.extractDomainFromName(roleName))){
+            roleType = UserAdminUIConstants.APPLICATION_DOMAIN;
         }
         boolean isSharedRole = roleBean.getSharedRole() != null && !roleBean.getSharedRole().isEmpty(); 
         String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
@@ -58,6 +61,8 @@
         if(UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)){
             client.addInternalRole(UserCoreUtil.removeDomainFromName(roleName), roleBean.getRoleUsers(),
                                                                 roleBean.getSelectedPermissions());
+        } else if(UserAdminUIConstants.APPLICATION_DOMAIN.equalsIgnoreCase(roleType)) {
+            client.addInternalRole(roleName, roleBean.getRoleUsers(), roleBean.getSelectedPermissions());
         } else {
             client.addRole(roleName, roleBean.getRoleUsers(), roleBean.getSelectedPermissions(), isSharedRole);
         }
@@ -75,7 +80,7 @@
         String message = MessageFormat.format(resourceBundle.getString("role.cannot.add"),
                 new Object[] { roleName, e.getMessage() });
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        if(UserAdminUIConstants.INTERNAL_ROLE.equals(roleType)){
+        if(UserAdminUIConstants.INTERNAL_ROLE.equalsIgnoreCase(roleType)){
             forwardTo = "add-step1.jsp?roleType=" + UserAdminUIConstants.INTERNAL_ROLE ; 
         } else {
             forwardTo = "add-step1.jsp";

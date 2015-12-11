@@ -27,6 +27,8 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
@@ -43,6 +45,7 @@ import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
@@ -57,8 +60,7 @@ public class OAuthAdminService extends AbstractAdmin {
     public static final String AUTHORIZATION_CODE = "authorization_code";
     private static List<String> allowedGrants = null;
     protected Log log = LogFactory.getLog(OAuthAdminService.class);
-    private AppInfoCache appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().
-                                                                                            getAppInfoCacheTimeout());
+    private AppInfoCache appInfoCache = AppInfoCache.getInstance();
 
     /**
      * Registers an consumer secret against the logged in user. A given user can only have a single
@@ -78,8 +80,9 @@ public class OAuthAdminService extends AbstractAdmin {
 
         String tenantUser = MultitenantUtils.getTenantAwareUsername(loggedInUser);
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        String userDomain = IdentityUtil.extractDomainFromName(loggedInUser);
         OAuthAppDAO dao = new OAuthAppDAO();
-        return dao.addOAuthConsumer(tenantUser, tenantId);
+        return dao.addOAuthConsumer(UserCoreUtil.removeDomainFromName(tenantUser), tenantId, userDomain);
     }
 
     /**
@@ -222,8 +225,9 @@ public class OAuthAdminService extends AbstractAdmin {
                     }
 
                 }
-                app.setUserName(tenantUser);
+                app.setUserName(UserCoreUtil.removeDomainFromName(tenantUser));
                 app.setTenantId(tenantId);
+                app.setUserDomain(IdentityUtil.extractDomainFromName(userName));
                 if (application.getOAuthVersion() != null) {
                     app.setOauthVersion(application.getOAuthVersion());
                 } else {   // by default, assume OAuth 2.0, if it is not set.
@@ -262,8 +266,9 @@ public class OAuthAdminService extends AbstractAdmin {
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         OAuthAppDAO dao = new OAuthAppDAO();
         OAuthAppDO oauthappdo = new OAuthAppDO();
-        oauthappdo.setUserName(tenantAwareUsername);
+        oauthappdo.setUserName(UserCoreUtil.removeDomainFromName(tenantAwareUsername));
         oauthappdo.setTenantId(tenantId);
+        oauthappdo.setUserDomain(IdentityUtil.extractDomainFromName(userName));
         oauthappdo.setOauthConsumerKey(consumerAppDTO.getOauthConsumerKey());
         oauthappdo.setOauthConsumerSecret(consumerAppDTO.getOauthConsumerSecret());
         oauthappdo.setCallbackUrl(consumerAppDTO.getCallbackUrl());
@@ -298,7 +303,7 @@ public class OAuthAdminService extends AbstractAdmin {
         dao.removeConsumerApplication(consumerKey);
         // remove client credentials from cache
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-            OAuthCache.getInstance(0).clearCacheEntry(new OAuthCacheKey(consumerKey));
+            OAuthCache.getInstance().clearCacheEntry(new OAuthCacheKey(consumerKey));
             appInfoCache.clearCacheEntry(consumerKey);
             if (log.isDebugEnabled()) {
                 log.debug("Client credentials are removed from the cache.");
@@ -365,7 +370,8 @@ public class OAuthAdminService extends AbstractAdmin {
                                 appDO = appDAO.getAppInformation(scopedToken.getConsumerKey());
                                 appDTO.setOauthConsumerKey(scopedToken.getConsumerKey());
                                 appDTO.setApplicationName(appDO.getApplicationName());
-                                appDTO.setUsername(appDO.getUserName());
+                                appDTO.setUsername(UserCoreUtil.addTenantDomainToEntry(appDO.getUserName(),
+                                                IdentityTenantUtil.getTenantDomain(appDO.getTenantId())));
                                 appDTO.setGrantTypes(appDO.getGrantTypes());
                                 appDTOs.add(appDTO);
                             } catch (InvalidOAuthClientException e) {

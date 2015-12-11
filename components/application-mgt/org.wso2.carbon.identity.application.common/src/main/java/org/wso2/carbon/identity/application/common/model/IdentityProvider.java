@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.application.common.model;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
@@ -34,10 +35,7 @@ import java.util.Set;
 
 public class IdentityProvider implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 3348487050533568857L;
+    private static final long serialVersionUID = 2199048941051702943L;
 
     private static final Log log = LogFactory.getLog(IdentityProvider.class);
 
@@ -58,12 +56,15 @@ public class IdentityProvider implements Serializable {
     private String certificate;
     private PermissionsAndRoleConfig permissionAndRoleConfig;
     private JustInTimeProvisioningConfig justInTimeProvisioningConfig;
+    private IdentityProviderProperty []idpProperties = new IdentityProviderProperty[0];
 
     public static IdentityProvider build(OMElement identityProviderOM) {
         IdentityProvider identityProvider = new IdentityProvider();
 
         Iterator<?> iter = identityProviderOM.getChildElements();
-
+        String defaultAuthenticatorConfigName = null;
+        String defaultProvisioningConfigName = null;
+        
         while (iter.hasNext()) {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
@@ -126,8 +127,7 @@ public class IdentityProvider implements Serializable {
                             .setFederatedAuthenticatorConfigs(federatedAuthenticatorConfigsArr);
                 }
             } else if ("DefaultAuthenticatorConfig".equals(elementName)) {
-                identityProvider.setDefaultAuthenticatorConfig(FederatedAuthenticatorConfig
-                        .build(element.getFirstElement()));
+                defaultAuthenticatorConfigName = element.getText();
             } else if ("ProvisioningConnectorConfigs".equals(elementName)) {
 
                 Iterator<?> provisioningConnectorConfigsIter = element.getChildElements();
@@ -164,14 +164,7 @@ public class IdentityProvider implements Serializable {
                             .setProvisioningConnectorConfigs(provisioningConnectorConfigsArr);
                 }
             } else if ("DefaultProvisioningConnectorConfig".equals(elementName)) {
-                try {
-                    identityProvider.setDefaultProvisioningConnectorConfig(ProvisioningConnectorConfig
-                            .build(element));
-                } catch (IdentityApplicationManagementException e) {
-                    log.error("Error while building default provisioningConnectorConfig for IDP " + identityProvider
-                            .getIdentityProviderName() + ". Cause : " + e.getMessage() + ". Building rest of the " +
-                            "IDP configs");
-                }
+                defaultProvisioningConfigName = element.getText();
             } else if ("ClaimConfig".equals(elementName)) {
                 identityProvider.setClaimConfig(ClaimConfig.build(element));
             } else if ("Certificate".equals(elementName)) {
@@ -184,6 +177,41 @@ public class IdentityProvider implements Serializable {
                         .build(element));
             }
 
+        }
+        FederatedAuthenticatorConfig[] federatedAuthenticatorConfigs = identityProvider
+                .getFederatedAuthenticatorConfigs();
+        boolean foundDefaultAuthenticator = false;
+        for (int i = 0; i < federatedAuthenticatorConfigs.length; i++) {
+            if (StringUtils.equals(defaultAuthenticatorConfigName, federatedAuthenticatorConfigs[i].getName())) {
+                identityProvider.setDefaultAuthenticatorConfig(federatedAuthenticatorConfigs[i]);
+                foundDefaultAuthenticator = true;
+                break;
+            }
+        }
+        if ((!foundDefaultAuthenticator && federatedAuthenticatorConfigs.length > 0) || (federatedAuthenticatorConfigs
+                .length == 0 && StringUtils.isNotBlank(defaultAuthenticatorConfigName))) {
+            log.warn("No matching federated authentication config found with default authentication config name :  "
+                    + defaultAuthenticatorConfigName + " in identity provider : " + identityProvider .displayName +
+                    ".");
+            identityProvider = null;
+        }
+
+        ProvisioningConnectorConfig[] provisioningConnectorConfigs = identityProvider
+                .getProvisioningConnectorConfigs();
+        boolean foundDefaultProvisioningConfig = false;
+        for (int i = 0; i < provisioningConnectorConfigs.length; i++) {
+            if (StringUtils.equals(defaultProvisioningConfigName, provisioningConnectorConfigs[i].getName())) {
+                identityProvider.setDefaultProvisioningConnectorConfig(provisioningConnectorConfigs[i]);
+                foundDefaultProvisioningConfig = true;
+                break;
+            }
+        }
+        if ((!foundDefaultProvisioningConfig && provisioningConnectorConfigs.length > 0) ||
+                (provisioningConnectorConfigs.length == 0 && StringUtils.isNotBlank(defaultProvisioningConfigName))) {
+            log.warn("No matching provisioning config found with default provisioning config name :  "
+                    + defaultProvisioningConfigName + " in identity provider : " + identityProvider .displayName +
+                    ".");
+            identityProvider = null;
         }
 
         return identityProvider;
@@ -380,7 +408,7 @@ public class IdentityProvider implements Serializable {
     }
 
     /**
-     * @param justTimeProvisioningConfiguration
+     * @param justInTimeProvisioningConfig
      */
     public void setJustInTimeProvisioningConfig(
             JustInTimeProvisioningConfig justInTimeProvisioningConfig) {
@@ -483,4 +511,21 @@ public class IdentityProvider implements Serializable {
     public int hashCode() {
         return identityProviderName != null ? identityProviderName.hashCode() : 0;
     }
+
+    /**
+     * Get IDP properties
+     * @return
+     */
+    public IdentityProviderProperty[] getIdpProperties() {
+        return idpProperties;
+    }
+
+    /**
+     * Set IDP Properties
+     * @param idpProperties
+     */
+    public void setIdpProperties(IdentityProviderProperty []idpProperties) {
+        this.idpProperties = idpProperties;
+    }
+
 }

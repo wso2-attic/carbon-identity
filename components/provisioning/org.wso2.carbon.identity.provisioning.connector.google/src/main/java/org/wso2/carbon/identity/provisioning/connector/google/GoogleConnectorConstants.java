@@ -44,6 +44,9 @@ public class GoogleConnectorConstants {
         public static final String SERVICE_ACCOUNT_PKCS12_FILE_PATH = "Identity.Provisioning.Connector.Google.ServiceAccountPKCS12FilePath";
         public static final String APPLICATION_NAME = "Identity.Provisioning.Connector.Google.ApplicationName";
 
+        public static final String DEFAULT_PROVISIONING_PATTERN = "{UN}";
+        public static final String DEFAULT_PROVISIONING_SEPERATOR = "_";
+
         private PropertyConfig(){}
     }
 }

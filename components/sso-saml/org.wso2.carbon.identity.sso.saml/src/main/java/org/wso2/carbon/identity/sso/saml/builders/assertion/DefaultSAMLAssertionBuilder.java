@@ -17,9 +17,9 @@
  */
 package org.wso2.carbon.identity.sso.saml.builders.assertion;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.common.SAMLVersion;
@@ -54,6 +54,7 @@ import org.opensaml.saml2.core.impl.SubjectConfirmationDataBuilder;
 import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.schema.impl.XSStringBuilder;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.builders.SignKeyDataHolder;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
@@ -66,9 +67,8 @@ import java.util.StringTokenizer;
 public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
 
     private static Log log = LogFactory.getLog(DefaultSAMLAssertionBuilder.class);
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
 
-    private String userAttributeSeparator = ",";
+    private String userAttributeSeparator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
 
     @Override
     public void init() throws IdentityException {
@@ -171,8 +171,9 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
             samlAssertion.setConditions(conditions);
 
             if (authReqDTO.getDoSignAssertions()) {
-                SAMLSSOUtil.setSignature(samlAssertion, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                        new SignKeyDataHolder(authReqDTO.getUser().getAuthenticatedSubjectIdentifier()));
+                SAMLSSOUtil.setSignature(samlAssertion, authReqDTO.getSigningAlgorithmUri(), authReqDTO
+                        .getDigestAlgorithmUri(), new SignKeyDataHolder(authReqDTO.getUser()
+                        .getAuthenticatedSubjectIdentifier()));
             }
 
             return samlAssertion;
@@ -185,11 +186,11 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
 
     private AttributeStatement buildAttributeStatement(Map<String, String> claims) {
 
-        String claimSeparator = claims.get(MULTI_ATTRIBUTE_SEPARATOR);
-        if (claimSeparator != null) {
+        String claimSeparator = claims.get(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
+        if (StringUtils.isNotBlank(claimSeparator)) {
             userAttributeSeparator = claimSeparator;
-            claims.remove(MULTI_ATTRIBUTE_SEPARATOR);
         }
+        claims.remove(IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR);
 
         AttributeStatement attStmt = new AttributeStatementBuilder().buildObject();
         Iterator<Map.Entry<String, String>> iterator = claims.entrySet().iterator();

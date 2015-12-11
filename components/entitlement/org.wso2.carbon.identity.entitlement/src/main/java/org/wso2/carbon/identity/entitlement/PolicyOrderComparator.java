@@ -29,6 +29,8 @@ import java.util.Comparator;
  */
 public class PolicyOrderComparator implements Serializable, Comparator {
 
+    private static final long serialVersionUID = -4125227115004608650L;
+
     @Override
     public int compare(Object o1, Object o2) {
 

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>user-mgt</artifactId>
-        <version>4.5.5-SNAPSHOT</version>
+        <version>5.0.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -65,11 +65,11 @@
                             org.wso2.carbon.identity.user.registration.internal
                         </Private-Package>
                         <Import-Package>
-                            javax.xml.parsers,
+                            javax.xml.parsers; version="${javax.xml.parsers.import.pkg.version}",
 
                             org.xml.sax,
                             org.w3c.dom,
-
+                            org.apache.xerces.util; resolution:=optional,
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
 
                             org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",

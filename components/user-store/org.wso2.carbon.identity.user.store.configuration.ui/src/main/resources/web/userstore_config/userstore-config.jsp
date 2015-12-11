@@ -17,19 +17,21 @@
 -->
 
 <%@page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.api.Properties" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.api.Property" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.UserStoreUIConstants" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.client.UserStoreConfigAdminServiceClient" %>
-<%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.utils.UserStoreMgtDataKeeper" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.utils.UserStoreUIUtils" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.Iterator" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.dto.UserStoreDTO" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.dto.PropertyDTO" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
@@ -58,6 +60,7 @@
     private Boolean isEditing;
     private int isBoolean;
     private String existingDomains;
+    private String messageID;
     private int i;
 
     private int isBoolean(String value) {
@@ -70,13 +73,25 @@
         return i;
     }
 
+    private static Map<String, String> convertArrayToMap(PropertyDTO[] properties) {
+        Map<String, String> propertyMap = new HashMap<String, String>();
+        for (PropertyDTO propertyDTO : properties) {
+            if (propertyDTO.getValue() != null) {
+                propertyMap.put(propertyDTO.getName(), propertyDTO.getValue());
+            }
+        }
+        return propertyMap;
+    }
 %><%
+    domain = "0";
+    className = "0";
+
     if (request.getParameter("domain") != null) {
-        domain = CharacterEncoder.getSafeText(request.getParameter("domain"));
+        domain = request.getParameter("domain");
     }
 
     if (request.getParameter("className") != null) {
-        className = CharacterEncoder.getSafeText(request.getParameter("className"));
+        className = request.getParameter("className");
     }
     String selectedClassApplied = null;
     String description = null;
@@ -104,7 +119,18 @@
             (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
     UserStoreConfigAdminServiceClient userStoreConfigAdminServiceClient = new UserStoreConfigAdminServiceClient(cookie, backendServerURL, configContext);
     classApplies = userStoreConfigAdminServiceClient.getAvailableUserStoreClasses();
-    Iterator<String> iterator = UserStoreMgtDataKeeper.getAvailableDomainNames().iterator();
+    UserStoreDTO[] userStoreDTOs;
+    Map<String, Map<String, String>> userStoreManagers = new HashMap<String, Map<String, String>>();
+    userStoreDTOs = userStoreConfigAdminServiceClient.getActiveDomains();
+    if (userStoreDTOs != null) {
+        for (UserStoreDTO userStoreDTO : userStoreDTOs) {
+            if (userStoreDTO != null) {
+                userStoreManagers.put(userStoreDTO.getDomainId(), convertArrayToMap(userStoreDTO.getProperties()));
+            }
+        }
+    }
+    Iterator<String> iterator = userStoreManagers.keySet().iterator();
+
     existingDomains = "";
     while (iterator.hasNext()) {
         existingDomains = existingDomains + "\"" + iterator.next().toUpperCase() + "\",";
@@ -114,7 +140,7 @@
     if (!"0".equals(domain)) {
 
         //Get the defined properties of user store manager
-        Map<String, String> tempProperties = UserStoreMgtDataKeeper.getUserStoreManager(domain);
+        Map<String, String> tempProperties = userStoreManagers.get(domain);
         className = tempProperties.get(UserStoreUIConstants.CLASS);
         description = tempProperties.get(UserStoreUIConstants.DESCRIPTION);
 
@@ -313,7 +339,7 @@
 
     function doValidateUpdate() {
         var value = document.getElementsByName("domainId")[0].value.toUpperCase();
-        var domain = "<%=domain.toUpperCase()%>";
+        var domain = "<%=Encode.forJavaScriptBlock(domain.toUpperCase())%>";
         if (value.localeCompare(domain)) {
             return false;
         }
@@ -352,12 +378,13 @@
                         for (String classApply : classApplies) {
                             if (selectedClassApplied != null && classApply.equals(selectedClassApplied)) {
                     %>
-                    <option value="<%=classApply%>" selected="selected"><%=classApply%>
+                    <option value="<%=Encode.forHtmlAttribute(classApply)%>"
+                    selected="selected"><%=Encode.forHtmlContent(classApply)%>
                     </option>
                     <%
                     } else {
                     %>
-                    <option value="<%=classApply%>"><%=classApply%>
+                    <option value="<%=Encode.forHtmlAttribute(classApply)%>"><%=Encode.forHtmlContent(classApply)%>
                     </option>
                     <%
                             }
@@ -376,8 +403,10 @@
             <%
                 if (domain != null && domain.trim().length() > 0 && !domain.equals("0")) {
             %>
-            <td><input type="text" name="domainId" id="domainId" width="" value="<%=domain%>"/></td>
-            <td><input type="hidden" name="previousDomainId" id="previousDomainId" value="<%=domain%>"/></td>
+            <td><input type="text" name="domainId" id="domainId" width=""
+            value="<%=Encode.forHtmlAttribute(domain)%>"/></td>
+            <td><input type="hidden" name="previousDomainId" id="previousDomainId"
+            value="<%=Encode.forHtmlAttribute(domain)%>"/></td>
             <%
             } else {
             %>
@@ -477,9 +506,11 @@
                             if (propertyName != null && propertyName.trim().length() > 0) {
 
                         %>
-                        <td class="leftCol-med" width="50%" style="text-align:left;"><%=propertyName%><span
-                                class="required">*</span></td>
-                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=mandatories[j].getName()%>"/>
+                        <td class="leftCol-med" width="50%" style="text-align:left;"><%=propertyName%>
+                        <span class="required">*</span></td>
+                        <input type="hidden" name=<%=name%>
+                        id=<%=name%>
+                        value="<%=mandatories[j].getName()%>"/>
 
                         <%
                         } else {
@@ -494,20 +525,24 @@
                                 if (propertyValue != null) {
 
                                     if (isBoolean == 1) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%>
                                    class="checkbox" checked/>
                             <%
                             } else if (isBoolean == 0) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%>
                                    class="checkbox"/>
                             <%
                             } else if (propertyName.endsWith("password") || propertyName.endsWith("Password")) { %>
-                            <input type="password" name=<%=value%> id=<%=value%> style="width:95%"
+                            <input type="password" name=<%=value%>
+                            id=<%=value%> style="width:95%"
                                    value="<%=propertyValue%>"/>
                             <%
                             } else {
                             %>
-                            <input type="text" name=<%=value%> id=<%=value%> style="width:95%"
+                            <input type="text" name=<%=value%>
+                            id=<%=value%> style="width:95%"
                                    value="<%=propertyValue%>"/>
                             <%
                                 }
@@ -629,26 +664,31 @@
 
                                 if( !("UniqueID".equalsIgnoreCase(propertyName) ) ){
                         %>
-                        <td class="leftCol-med" width="50%" style="text-align:left;" id="<%=name%>"><%=propertyName%>
+                        <td class="leftCol-med" width="50%" style="text-align:left;"
+                        id="<%=name%>"><%=propertyName%>
                         </td>
-                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=optionals[x].getName()%>"/>
+                        <input type="hidden" name=<%=name%>
+                        id=<%=name%>
+                        value="<%=optionals[x].getName()%>"/>
                         </td>
                         <td style="width:30%" style="text-align:left;">
                             <%
                                 if (propertyValue != null) {
                                     if (isBoolean == 1) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%>
                                    class="checkbox" checked/>
 
                             <%
                             } else if (isBoolean == 0) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
-                                   class="checkbox"/>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%> class="checkbox"/>
                             <%
 
                             } else {
                             %>
-                            <input type="text" name=<%=value%> id=<%=value%> style="width:95%"
+                            <input type="text" name=<%=value%>
+                            id=<%=value%> style="width:95%"
                                    value="<%=propertyValue%>"/>
                             <%
                                     }
@@ -658,25 +698,29 @@
                             %>
                         </td>
                         <td class="sectionHelp" width="50%" style="text-align:left; !important">
-                            <%=description%>
+                            <%=Encode.forHtml(description)%>
                         </td>
 
                     </tr>
                     <%
                                 }else{
+                                    messageID = propertyValue;
                                     %>
                                    <td class="leftCol-med" width="50%" style="display:none;" id="<%=name%>"><%=propertyName%>
                                     </td>
-                                    <input type="hidden" name=<%=name%> id=<%=name%> value="<%=optionals[x].getName()%>"/>
+                                    <input type="hidden" name=<%=name%>
+                                    id=<%=name%>
+                                    value="<%=optionals[x].getName()%>"/>
                                     </td>
                                     <td style="width:30%" style="display:none;">
-                                        <input type="hidden" name=<%=value%> id=<%=value%>
+                                        <input type="hidden" name=<%=value%>
+                                        id=<%=value%>
                                         style="width:95%"
                                                value="<%=propertyValue%>"/>
 
                                     </td>
                                     <td class="sectionHelp" width="50%" style="display:none;">
-                                        <%=description%>
+                                        <%=Encode.forHtml(description)%>
                                     </td>
                                     <%
                                 }
@@ -757,26 +801,30 @@
                             if (propertyName != null && propertyName.trim().length() > 0) {
 
                         %>
-                        <td class="leftCol-med" width="50%" style="text-align:left;" id="<%=name%>"><%=propertyName%>
+                        <td class="leftCol-med" width="50%" style="text-align:left;"
+                        id="<%=name%>"><%=propertyName%>
                         </td>
-                        <input type="hidden" name=<%=name%> id=<%=name%> value="<%=advancedProperties[x].getName()%>"/>
+                        <input type="hidden" name=<%=name%>
+                        id=<%=name%>
+                        value="<%=advancedProperties[x].getName()%>"/>
                         </td>
                         <td style="width:30%" style="text-align:left;">
                             <%
                                 if (propertyValue != null) {
                                     if (isBoolean == 1) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
-                                   class="checkbox" checked/>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%> class="checkbox" checked/>
 
                             <%
                             } else if (isBoolean == 0) { %>
-                            <input type="checkbox" name=<%=value%> id=<%=value%>
-                                   class="checkbox"/>
+                            <input type="checkbox" name=<%=value%>
+                            id=<%=value%> class="checkbox"/>
                             <%
 
                             } else {
                             %>
-                            <input type="text" name=<%=value%> id=<%=value%> style="width:95%"
+                            <input type="text" name=<%=value%>
+                             id=<%=value%> style="width:95%"
                                    value="<%=propertyValue%>"/>
                             <%
                                     }
@@ -827,14 +875,22 @@
            
     <script type="text/javascript">
 		function testConnection() {
-			var domainName = document.getElementById("domainId").value;
-			var driverName = document.getElementById("propertyValue_1").value;
-			var connectionURL = document.getElementById("propertyValue_2").value;
-			var username = document.getElementById("propertyValue_3").value;
-			var connectionPassword = document.getElementById("propertyValue_4").value;
-			
-			var url = 'validateconnection-ajaxprocessor.jsp?&domainName=' + domainName+'&driverName='+driverName+
-           	'&connectionURL='+encodeURIComponent(connectionURL)+'&username='+username+'&connectionPassword=' + connectionPassword;
+            var domainName = document.getElementById("domainId").value;
+            var connectionURL = document.getElementById("propertyValue_1").value;
+            var username = document.getElementById("propertyValue_2").value;
+            var connectionPassword = document.getElementById("propertyValue_3").value;
+            var driverName = document.getElementById("propertyValue_4").value;
+
+			var url = 'validateconnection-ajaxprocessor.jsp?' +
+                    '&domainName=' + encodeURIComponent(domainName) +
+                    '&driverName=' + encodeURIComponent(driverName) +
+                    '&connectionURL=' + encodeURIComponent(connectionURL) +
+                    '&username=' + encodeURIComponent(username) +
+                    '&connectionPassword=' + encodeURIComponent(connectionPassword);
+
+            <%if(messageID != null && !"".equals(messageID)) {%>
+            url += '&messageID=<%=messageID%>';
+            <%}%>
 		
 			$.ajax({
 				  url: url,

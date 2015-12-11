@@ -26,6 +26,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.security.SecurityServiceHolder;
 import org.wso2.carbon.security.config.SecurityConfigAdmin;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -48,6 +49,9 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  * interface="org.wso2.carbon.user.core.service.RealmService"
  * cardinality="1..1" policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
+ * @scr.reference name="registry.loader.default"
+ * interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader"
+ * cardinality="1..1" policy="dynamic" bind="setTenantRegistryLoader" unbind="unsetTenantRegistryLoader"
  */
 public class SecurityMgtServiceComponent {
     private static String POX_SECURITY_MODULE = "POXSecurityModule";
@@ -146,5 +150,23 @@ public class SecurityMgtServiceComponent {
         }
         this.registryService = registryService;
         SecurityServiceHolder.setRegistryService(registryService);  // TODO: Serious OSGi bug here. FIXME Thilina
+    }
+
+    protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+        if (log.isDebugEnabled()) {
+            log.debug("Tenant Registry Loader is set in the SAML SSO bundle");
+        }
+        SecurityServiceHolder.setTenantRegistryLoader(tenantRegistryLoader);
+    }
+
+    protected void unsetTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {
+        if (log.isDebugEnabled()) {
+            log.debug("Tenant Registry Loader is unset in the SAML SSO bundle");
+        }
+        SecurityServiceHolder.setTenantRegistryLoader(null);
+    }
+
+    public static RegistryService getRegistryService(){
+        return registryService;
     }
 }

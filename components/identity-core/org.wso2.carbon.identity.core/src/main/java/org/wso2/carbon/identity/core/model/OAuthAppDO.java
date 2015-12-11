@@ -21,6 +21,8 @@ import java.io.Serializable;
 
 public class OAuthAppDO implements Serializable {
 
+    private static final long serialVersionUID = -6453843721358989519L;
+
     private int id;
     private String oauthConsumerKey;
     private String oauthConsumerSecret;
@@ -30,6 +32,7 @@ public class OAuthAppDO implements Serializable {
     private String oauthVersion;
     private int tenantId;
     private String grantTypes;
+    private String userDomain;
 
     public String getUserName() {
         return userName;
@@ -101,5 +104,13 @@ public class OAuthAppDO implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setUserDomain(String domain){
+        this.userDomain = domain;
+    }
+
+    public String getUserDomain() {
+        return userDomain;
     }
 }

@@ -18,66 +18,122 @@
 
 package org.wso2.carbon.identity.oauth.cache;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
+import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.utils.CarbonUtils;
 
 /**
  * Stores authenticated user attributes and OpenID Connect specific attributes during OIDC Authorization request
  * processing. Those values are later required to serve OIDC Token request and build IDToken.
  */
-public class AuthorizationGrantCache extends BaseCache<String, CacheEntry> {
+public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKey, AuthorizationGrantCacheEntry> {
     private static final String AUTHORIZATION_GRANT_CACHE_NAME = "AuthorizationGrantCache";
 
     private static volatile AuthorizationGrantCache instance;
-    private boolean enableRequestScopeCache = false;
+    private static final Log log = LogFactory.getLog(AuthorizationGrantCache.class);
 
-    private AuthorizationGrantCache(String cacheName, int timeout) {
-        super(cacheName, timeout);
-        if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
-            enableRequestScopeCache = Boolean.
-                    parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
-        }
+    private AuthorizationGrantCache() {
+        super(AUTHORIZATION_GRANT_CACHE_NAME);
     }
 
-    public static AuthorizationGrantCache getInstance(int timeout) {
+    public static AuthorizationGrantCache getInstance() {
         CarbonUtils.checkSecurity();
         if (instance == null) {
-            synchronized (SessionDataCache.class) {
+            synchronized (AuthorizationGrantCache.class) {
                 if (instance == null) {
-                    instance = new AuthorizationGrantCache(AUTHORIZATION_GRANT_CACHE_NAME, timeout);
+                    instance = new AuthorizationGrantCache();
                 }
             }
         }
         return instance;
     }
 
-    public void addToCache(CacheKey key, CacheEntry entry) {
-        String keyValue = ((AuthorizationGrantCacheKey)key).getUserAttributesId();
-        super.addToCache(keyValue, entry);
-        SessionDataStore.getInstance().storeSessionData(keyValue, AUTHORIZATION_GRANT_CACHE_NAME, entry);
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().storeSessionData(keyValue,AUTHORIZATION_GRANT_CACHE_NAME,entry);
+    public void addToCacheByToken(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
+        super.addToCache(key, entry);
+        String tokenId = entry.getTokenId();
+        if (tokenId != null) {
+            storeToSessionStore(tokenId, entry);
+        } else {
+            storeToSessionStore(replaceFromTokenId(key.getUserAttributesId()), entry);
         }
+
     }
 
-    public CacheEntry getValueFromCache(CacheKey key) {
-        String keyValue = ((AuthorizationGrantCacheKey)key).getUserAttributesId();
-        CacheEntry cacheEntry = super.getValueFromCache(keyValue);
-        if(cacheEntry==null){
-            cacheEntry = (CacheEntry) SessionDataStore.getInstance().getSessionData(keyValue,
-                    AUTHORIZATION_GRANT_CACHE_NAME);
+
+    public AuthorizationGrantCacheEntry getValueFromCacheByToken(AuthorizationGrantCacheKey key) {
+        AuthorizationGrantCacheEntry cacheEntry = super.getValueFromCache(key);
+        if (cacheEntry == null) {
+            cacheEntry = getFromSessionStore(replaceFromTokenId(key.getUserAttributesId()));
         }
         return cacheEntry;
     }
 
-    public void clearCacheEntry(CacheKey key) {
-        String keyValue = ((AuthorizationGrantCacheKey)key).getUserAttributesId();
-        super.clearCacheEntry(keyValue);
-        SessionDataStore.getInstance().clearSessionData(keyValue, AUTHORIZATION_GRANT_CACHE_NAME);
-        if(enableRequestScopeCache){
-            SessionDataStore.getInstance().clearSessionData(keyValue,AUTHORIZATION_GRANT_CACHE_NAME);
-        }
+    public void clearCacheEntryByToken(AuthorizationGrantCacheKey key) {
+        super.clearCacheEntry(key);
+        clearFromSessionStore(replaceFromTokenId(key.getUserAttributesId()));
     }
+
+
+    public void addToCacheByCode(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
+        super.addToCache(key, entry);
+        storeToSessionStore(entry.getCodeId(), entry);
+    }
+
+
+    public AuthorizationGrantCacheEntry getValueFromCacheByCode(AuthorizationGrantCacheKey key) {
+        AuthorizationGrantCacheEntry cacheEntry = super.getValueFromCache(key);
+        if (cacheEntry == null) {
+            getFromSessionStore(replaceFromCodeId(key.getUserAttributesId()));
+        }
+        return cacheEntry;
+    }
+
+
+    public void clearCacheEntryByCode(AuthorizationGrantCacheKey key) {
+        super.clearCacheEntry(key);
+        clearFromSessionStore(replaceFromCodeId(key.getUserAttributesId()));
+    }
+
+
+    private String replaceFromCodeId(String authzCode) {
+        TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
+        try {
+            return tokenMgtDAO.getCodeIdByAuthorizationCode(authzCode);
+        } catch (IdentityOAuth2Exception e) {
+            log.error("Failed to retrieve authorization code id by authorization code from store for - ." + authzCode, e);
+        }
+        return authzCode;
+    }
+
+
+    private String replaceFromTokenId(String keyValue) {
+        TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
+        try {
+            return tokenMgtDAO.getTokenIdByToken(keyValue);
+        } catch (IdentityOAuth2Exception e) {
+            log.error("Failed to retrieve token id by token from store for - ." + keyValue, e);
+        }
+        return keyValue;
+    }
+
+
+    private void clearFromSessionStore(String id) {
+        SessionDataStore.getInstance().clearSessionData(id, AUTHORIZATION_GRANT_CACHE_NAME);
+    }
+
+
+    private AuthorizationGrantCacheEntry getFromSessionStore(String id) {
+        return (AuthorizationGrantCacheEntry) SessionDataStore.getInstance().getSessionData(id, AUTHORIZATION_GRANT_CACHE_NAME);
+    }
+
+
+    private void storeToSessionStore(String id, AuthorizationGrantCacheEntry entry) {
+        SessionDataStore.getInstance().storeSessionData(id, AUTHORIZATION_GRANT_CACHE_NAME, entry);
+    }
+
 }

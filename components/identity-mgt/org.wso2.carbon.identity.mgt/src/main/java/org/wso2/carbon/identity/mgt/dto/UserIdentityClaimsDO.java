@@ -32,19 +32,17 @@ import java.util.Map;
  */
 public class UserIdentityClaimsDO implements Serializable {
 
+    private static final long serialVersionUID = -2450146518801449646L;
+
     public static final int TRUE = 1;
     public static final int FALSE = 2;
-    /**
-     *
-     */
-    private static final long serialVersionUID = -5135352332427377484L;
+
     private String userName;
     private int tenantId;
 
     private long unlockTime;
     private long lastLogonTime;
     private long lastFailAttemptTime;
-    private long passwordTimeStamp;
     private int failedAttempts;
     private boolean accountLock;
     private boolean passwordChangeRequired;
@@ -99,14 +97,6 @@ public class UserIdentityClaimsDO implements Serializable {
         }
         if (userDataMap.get(UserIdentityDataStore.ACCOUNT_LOCK) != null) {
             setAccountLock(Boolean.parseBoolean(userDataMap.get(UserIdentityDataStore.ACCOUNT_LOCK)));
-        }
-        if (userDataMap.get(UserIdentityDataStore.PASSWORD_TIME_STAMP) != null) {
-            String passwordTs = userDataMap.get(UserIdentityDataStore.PASSWORD_TIME_STAMP).trim();
-            if (!passwordTs.isEmpty()) {
-                setPasswordTimeStamp(Long.parseLong(passwordTs));
-            } else {
-                setPasswordTimeStamp(0);
-            }
         }
     }
 
@@ -234,31 +224,14 @@ public class UserIdentityClaimsDO implements Serializable {
         } else if (UserIdentityDataStore.UNLOCKING_TIME.equalsIgnoreCase(claim)) {
             setUnlockTime(Long.parseLong(value));
         } else if (UserIdentityDataStore.ONE_TIME_PASSWORD.equalsIgnoreCase(claim)) {
-            setOneTimeLogin(Boolean.parseBoolean(claim));
+            setOneTimeLogin(Boolean.parseBoolean(value));
         } else if (UserIdentityDataStore.PASSWORD_CHANGE_REQUIRED.equalsIgnoreCase(claim)) {
             setPasswordChangeRequired(Boolean.parseBoolean(value));
         } else if (UserIdentityDataStore.LAST_LOGON_TIME.equalsIgnoreCase(claim)) {
             setLastLogonTime(Long.parseLong(value));
         } else if (UserIdentityDataStore.ACCOUNT_LOCK.equalsIgnoreCase(claim)) {
             setAccountLock(Boolean.parseBoolean(value));
-        } else if (UserIdentityDataStore.PASSWORD_TIME_STAMP.equalsIgnoreCase(claim)) {
-            setPasswordTimeStamp(Long.parseLong(value));
         }
-    }
-
-    public long getPasswordTimeStamp() {
-        return passwordTimeStamp;
-    }
-
-    /**
-     * @param passwordTimeStamp
-     * @return
-     */
-    public UserIdentityClaimsDO setPasswordTimeStamp(long passwordTimeStamp) {
-        this.passwordTimeStamp = passwordTimeStamp;
-        this.userIdentityDataMap.put(UserIdentityDataStore.PASSWORD_TIME_STAMP,
-                Long.toString(passwordTimeStamp));
-        return this;
     }
 
     public int getTenantId() {

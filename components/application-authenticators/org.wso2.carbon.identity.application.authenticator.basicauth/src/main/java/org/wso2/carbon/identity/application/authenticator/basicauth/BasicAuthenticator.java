@@ -30,8 +30,9 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.L
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.basicauth.internal.BasicAuthenticatorServiceComponent;
-import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -93,6 +94,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
         }
 
         String loginPage = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
+        String retryPage = ConfigurationFacade.getInstance().getAuthenticationEndpointRetryURL();
         String queryParams = context.getContextIdIncludedQueryParams();
 
         try {
@@ -100,6 +102,12 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
 
             if (context.isRetrying()) {
                 retryParam = "&authFailure=true&authFailureMsg=login.fail.message";
+            }
+
+            if (context.getProperty("UserTenantDomainMismatch") != null &&
+                    (Boolean)context.getProperty("UserTenantDomainMismatch")) {
+                retryParam = "&authFailure=true&authFailureMsg=user.tenant.domain.mismatch.message";
+                context.setProperty("UserTenantDomainMismatch", false);
             }
 
             IdentityErrorMsgContext errorContext = IdentityUtil.getIdentityErrorMsg();
@@ -127,7 +135,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
                         response.sendRedirect(response.encodeRedirectURL(loginPage + ("?" + queryParams))
                                 + BasicAuthenticatorConstants.AUTHENTICATORS + getName() + ":" + BasicAuthenticatorConstants.LOCAL + retryParam);
                     } else if (errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED)) {
-                        String redirectURL = loginPage.replace("login.do", "retry.do");
+                        String redirectURL = retryPage;
                         if (remainingAttempts == 0) {
                             redirectURL = response.encodeRedirectURL(redirectURL + ("?" + queryParams)) +
                                     BasicAuthenticatorConstants.ERROR_CODE + errorCode + BasicAuthenticatorConstants.FAILED_USERNAME +
@@ -153,7 +161,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
             } else {
                 String errorCode = errorContext != null ? errorContext.getErrorCode() : null;
                 if (errorCode != null && errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED)) {
-                    String redirectURL = loginPage.replace("login.do", "retry.do");
+                    String redirectURL = retryPage;
                     redirectURL = response.encodeRedirectURL(redirectURL + ("?" + queryParams)) + BasicAuthenticatorConstants.FAILED_USERNAME + URLEncoder.encode(request.getParameter(BasicAuthenticatorConstants.USER_NAME), BasicAuthenticatorConstants.UTF_8);
                     response.sendRedirect(redirectURL);
 
@@ -182,21 +190,23 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
         UserStoreManager userStoreManager;
         // Check the authentication
         try {
-            int tenantId = IdentityUtil.getTenantIdOFUser(username);
-            UserRealm userRealm = BasicAuthenticatorServiceComponent.getRealmService()
-                    .getTenantUserRealm(tenantId);
-
+            int tenantId = IdentityTenantUtil.getTenantIdOfUser(username);
+            UserRealm userRealm = BasicAuthenticatorServiceComponent.getRealmService().getTenantUserRealm(tenantId);
             if (userRealm != null) {
                 userStoreManager = (UserStoreManager) userRealm.getUserStoreManager();
                 isAuthenticated = userStoreManager.authenticate(MultitenantUtils.getTenantAwareUsername(username), password);
             } else {
                 throw new AuthenticationFailedException("Cannot find the user realm for the given tenant: " + tenantId);
             }
-        } catch (IdentityException e) {
-            log.debug("BasicAuthentication failed while trying to get the tenant ID of the use", e);
+        } catch (IdentityRuntimeException e) {
+            if(log.isDebugEnabled()){
+                log.debug("BasicAuthentication failed while trying to get the tenant ID of the user " + username, e);
+            }
             throw new AuthenticationFailedException(e.getMessage(), e);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            log.debug("BasicAuthentication failed while trying to authenticate", e);
+            if(log.isDebugEnabled()){
+                log.debug("BasicAuthentication failed while trying to authenticate", e);
+            }
             throw new AuthenticationFailedException(e.getMessage(), e);
         }
 
@@ -251,7 +261,9 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
                         }
                     } catch (UserStoreException e) {
                         //ignore  but log in debug
-                        log.debug("Error while retrieving UserNameAttribute for user : " + username, e);
+                        if(log.isDebugEnabled()) {
+                            log.debug("Error while retrieving UserNameAttribute for user : " + username, e);
+                        }
                     }
                 } else {
                     if (log.isDebugEnabled()) {

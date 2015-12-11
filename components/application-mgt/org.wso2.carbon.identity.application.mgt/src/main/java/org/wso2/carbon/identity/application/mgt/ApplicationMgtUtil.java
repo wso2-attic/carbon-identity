@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.mgt;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -26,8 +27,10 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ApplicationPermission;
+import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
 import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfig;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
 import org.wso2.carbon.registry.api.Collection;
 import org.wso2.carbon.registry.api.Registry;
@@ -43,7 +46,9 @@ import org.wso2.carbon.user.mgt.UserMgtConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ApplicationMgtUtil {
 
@@ -73,15 +78,15 @@ public class ApplicationMgtUtil {
         return permissionSet;
     }
 
-    public static boolean isUserAuthorized(String applicationName, int applicationID)
+    public static boolean isUserAuthorized(String applicationName, String username, int applicationID)
             throws IdentityApplicationManagementException {
 
-        if (!isUserAuthorized(applicationName)) {
+        if (!isUserAuthorized(applicationName, username)) {
             // maybe the role name of the app has updated. In this case, lets
             // load back the old app name
             ApplicationDAO appDAO = ApplicationMgtSystemConfig.getInstance().getApplicationDAO();
             String storedApplicationName = appDAO.getApplicationName(applicationID);
-            return isUserAuthorized(storedApplicationName);
+            return isUserAuthorized(storedApplicationName, username);
         }
 
         return true;
@@ -89,47 +94,31 @@ public class ApplicationMgtUtil {
 
     /**
      * @param applicationName
+     * @param username
      * @return
      * @throws IdentityApplicationManagementException
      */
-    public static boolean isUserAuthorized(String applicationName) throws IdentityApplicationManagementException {
-        String user = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String applicationRoleName = getAppRoleName(applicationName);
+    public static boolean isUserAuthorized(String applicationName, String username)
+            throws IdentityApplicationManagementException {
 
+        String applicationRoleName = getAppRoleName(applicationName);
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Checking whether user has role : " + applicationRoleName + " by retrieving role list of " +
-                          "user : " + user);
+                          "user : " + username);
             }
             String[] userRoles = CarbonContext.getThreadLocalCarbonContext().getUserRealm()
-                    .getUserStoreManager().getRoleListOfUser(user);
+                    .getUserStoreManager().getRoleListOfUser(username);
             for (String userRole : userRoles) {
                 if (applicationRoleName.equals(userRole)) {
                     return true;
                 }
             }
         } catch (UserStoreException e) {
-            log.error(e.getMessage(), e);
-            throw new IdentityApplicationManagementException("Error while creating application", e);
+            throw new IdentityApplicationManagementException("Error while checking authorization for user: " +
+                    username + " for application: " + applicationName, e);
         }
-
         return false;
-    }
-
-    /**
-     * @param tenantApplicationNames
-     * @return
-     * @throws IdentityApplicationManagementException
-     */
-    public static String[] getAuthorizedApps(String[] tenantApplicationNames)
-            throws IdentityApplicationManagementException {
-        List<String> authorizedApps = new ArrayList<String>();
-        for (String applicationName : tenantApplicationNames) {
-            if (isUserAuthorized(applicationName)) {
-                authorizedApps.add(applicationName);
-            }
-        }
-        return authorizedApps.toArray(new String[authorizedApps.size()]);
     }
 
     /**
@@ -138,28 +127,28 @@ public class ApplicationMgtUtil {
      * @param applicationName
      * @throws IdentityApplicationManagementException
      */
-    public static void createAppRole(String applicationName) throws IdentityApplicationManagementException {
+    public static void createAppRole(String applicationName, String username)
+            throws IdentityApplicationManagementException {
+
         String roleName = getAppRoleName(applicationName);
-        String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String[] user = {qualifiedUsername};
+        String[] usernames = {username};
 
         try {
             // create a role for the application and assign the user to that role.
             if (log.isDebugEnabled()) {
                 log.debug("Creating application role : " + roleName + " and assign the user : "
-                          + Arrays.toString(user) + " to that role");
+                          + Arrays.toString(usernames) + " to that role");
             }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
-                    .addRole(roleName, user, null);
+                    .addRole(roleName, usernames, null);
         } catch (UserStoreException e) {
-            throw new IdentityApplicationManagementException("Error while creating application", e);
+            throw new IdentityApplicationManagementException("Error while creating application role: " + roleName +
+                    " with user " + username, e);
         }
-
     }
 
     private static String getAppRoleName(String applicationName) {
-//        return ApplicationConstants.APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + applicationName;
-        return UserCoreConstants.INTERNAL_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + applicationName;
+        return ApplicationConstants.APPLICATION_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + applicationName;
     }
 
     /**
@@ -235,7 +224,7 @@ public class ApplicationMgtUtil {
      * @param permissionsConfig
      * @throws IdentityApplicationManagementException
      */
-    public static void storePermission(String applicationName, PermissionsAndRoleConfig permissionsConfig)
+    public static void storePermissions(String applicationName, String username, PermissionsAndRoleConfig permissionsConfig)
             throws IdentityApplicationManagementException {
 
         Registry tenantGovReg = CarbonContext.getThreadLocalCarbonContext().getRegistry(
@@ -244,12 +233,11 @@ public class ApplicationMgtUtil {
         String permissionResourcePath = getApplicationPermissionPath();
         try {
             if (!tenantGovReg.resourceExists(permissionResourcePath)) {
-                String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
                 boolean loggedInUserChanged = false;
                 UserRealm realm =
                         (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
                 if (!realm.getAuthorizationManager()
-                        .isUserAuthorized(loggedInUser, permissionResourcePath,
+                        .isUserAuthorized(username, permissionResourcePath,
                                 UserMgtConstants.EXECUTE_ACTION)) {
                     //Logged in user is not authorized to create the permission.
                     // Temporarily change the user to the admin for creating the permission
@@ -263,7 +251,7 @@ public class ApplicationMgtUtil {
                 appRootNode.setProperty("name", "Applications");
                 tenantGovReg.put(permissionResourcePath, appRootNode);
                 if (loggedInUserChanged) {
-                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(loggedInUser);
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setUsername(username);
                 }
             }
 
@@ -288,7 +276,8 @@ public class ApplicationMgtUtil {
             }
 
         } catch (Exception e) {
-            throw new IdentityApplicationManagementException("Error while storing permissions", e);
+            throw new IdentityApplicationManagementException("Error while storing permissions for application " +
+                    applicationName, e);
         }
     }
 
@@ -325,7 +314,7 @@ public class ApplicationMgtUtil {
                 tenantGovReg.delete(applicationNode);
             }
 
-            if (permissions == null || permissions.length == 0) {
+            if (ArrayUtils.isEmpty(permissions)) {
                 return;
             }
 
@@ -490,5 +479,44 @@ public class ApplicationMgtUtil {
 
         return CarbonConstants.UI_PERMISSION_NAME + RegistryConstants.PATH_SEPARATOR + APPLICATION_ROOT_PERMISSION;
 
+    }
+
+    /**
+     * Get Property values
+     *
+     * @param tenantDomain Tenant domain
+     * @param spIssuer SP Issuer
+     * @param propertyNames Property names
+     * @return Properties map
+     * @throws IdentityApplicationManagementException
+     */
+    protected Map<String, String> getPropertyValues(String tenantDomain, String spIssuer, List<String> propertyNames)
+            throws IdentityApplicationManagementException {
+
+        ServiceProvider serviceProvider = ApplicationMgtSystemConfig.getInstance().getApplicationDAO()
+                .getApplication(spIssuer, tenantDomain);
+
+        if (serviceProvider == null) {
+            throw new IdentityApplicationManagementException(
+                    "No service provider exists in the provided tenant, with the given issuer id " + spIssuer);
+        }
+
+        Map<String, String> propKeyValueMap = new HashMap<String, String>();
+
+        InboundAuthenticationRequestConfig[] inboundAuthReqConfigs = serviceProvider.getInboundAuthenticationConfig()
+                .getInboundAuthenticationRequestConfigs();
+
+        if (inboundAuthReqConfigs != null && inboundAuthReqConfigs.length > 0) {
+            for (InboundAuthenticationRequestConfig authConfig : inboundAuthReqConfigs) {
+                Property[] properties = authConfig.getProperties();
+                for (Property prop : properties) {
+                    if (propertyNames.contains(prop.getName())) {
+                        propKeyValueMap.put(prop.getName(), prop.getValue());
+                    }
+                }
+            }
+        }
+
+        return propKeyValueMap;
     }
 }

@@ -18,10 +18,14 @@
 package org.wso2.carbon.identity.sso.saml.dto;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 
 import java.io.Serializable;
 
 public class SAMLSSOServiceProviderDTO implements Serializable {
+
+    private static final long serialVersionUID = -7633935958583257097L;
 
     private String issuer;
     private String[] assertionConsumerUrls;
@@ -47,6 +51,33 @@ public class SAMLSSOServiceProviderDTO implements Serializable {
     private String[] idpInitSLOReturnToURLs;
     private boolean doEnableEncryptedAssertion;
     private boolean doValidateSignatureInRequests;
+    private String signingAlgorithmURI;
+    private String digestAlgorithmURI;
+
+    public SAMLSSOServiceProviderDTO() {
+        signingAlgorithmURI = IdentityApplicationManagementUtil.getSigningAlgoURIByConfig();
+        digestAlgorithmURI = IdentityApplicationManagementUtil.getDigestAlgoURIByConfig();
+    }
+
+    public String getSigningAlgorithmURI() {
+        return signingAlgorithmURI;
+    }
+
+    public void setSigningAlgorithmURI(String signingAlgorithmURI) {
+        if (StringUtils.isNotBlank(signingAlgorithmURI)) {
+            this.signingAlgorithmURI = signingAlgorithmURI;
+        }
+    }
+
+    public String getDigestAlgorithmURI() {
+        return digestAlgorithmURI;
+    }
+
+    public void setDigestAlgorithmURI(String digestAlgorithmURI) {
+        if (StringUtils.isNotBlank(digestAlgorithmURI)) {
+            this.digestAlgorithmURI = digestAlgorithmURI;
+        }
+    }
 
     public String getNameIDFormat() {
         return nameIDFormat;

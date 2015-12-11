@@ -18,6 +18,7 @@
 
 <%@page import="org.wso2.carbon.identity.application.authentication.endpoint.util.Constants" %>
 <%@ page import="java.net.URLDecoder" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <html>
 <head></head>
 <body>
@@ -32,12 +33,12 @@
                 replaceAll("<", "&lt;").replaceAll(">", "&gt;").replace("\n", "");
     }
 %>
-<p>You are now redirected back to <%=assertionConsumerURL%>. If the
+<p>You are now redirected back to <%=Encode.forHtmlContent(assertionConsumerURL)%>. If the
    redirection fails, please click the post button.</p>
 
 <form method="post" action="<%=assertionConsumerURL%>">
-    <p><input type="hidden" name="SAMLResponse" value="<%=samlResp%>"/>
-        <input type="hidden" name="RelayState" value="<%=relayState%>"/>
+    <p><input type="hidden" name="SAMLResponse" value="<%=Encode.forHtmlAttribute(samlResp)%>"/>
+        <input type="hidden" name="RelayState" value="<%=Encode.forHtmlAttribute(relayState)%>"/>
         <button type="submit">POST</button>
     </p>
 </form>

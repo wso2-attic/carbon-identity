@@ -19,9 +19,8 @@ package org.wso2.carbon.identity.provider.openid.cache;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.OpenIDRememberMeDO;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.provider.IdentityProviderException;
 
 import java.sql.Timestamp;
@@ -66,31 +65,27 @@ public class OpenIDRememberMeTokenCache extends OpenIDBaseCache<OpenIDIdentityCa
      * @throws IdentityProviderException
      */
     public synchronized void updateTokenData(OpenIDRememberMeDO rememberMe) throws IdentityProviderException {
-        try {
-            String username = rememberMe.getUserName();
-            int tenantId = IdentityUtil.getTenantIdOFUser(rememberMe.getUserName());
-            if (log.isDebugEnabled()) {
-                log.debug("Updating RememberMe token in cache for " + username + " with tenant ID " + tenantId);
-            }
-            OpenIDIdentityCacheKey key = new OpenIDIdentityCacheKey(tenantId, username);
-            // if the entry exist, remove it
-            if (rememberMeCache.getValueFromCache(key) != null) {
-                rememberMeCache.clearCacheEntry(key);
-            }
-            // now create a new entry
-            Date date = null;
-            if (rememberMe.getTimestamp() != null) {
-                date = new Date(rememberMe.getTimestamp().getTime());
-            } else {
-                date = new Date();
-            }
-            OpenIDIdentityCacheEntry entry = new OpenIDIdentityCacheEntry(rememberMe.getToken(), null, date);
-            // add the entry
-            rememberMeCache.addToCache(key, entry);
 
-        } catch (IdentityException e) {
-            throw new IdentityProviderException("Error while updating RememberMe cache", e);
+        String username = rememberMe.getUserName();
+        int tenantId = IdentityTenantUtil.getTenantIdOfUser(rememberMe.getUserName());
+        if (log.isDebugEnabled()) {
+            log.debug("Updating RememberMe token in cache for " + username + " with tenant ID " + tenantId);
         }
+        OpenIDIdentityCacheKey key = new OpenIDIdentityCacheKey(tenantId, username);
+        // if the entry exist, remove it
+        if (rememberMeCache.getValueFromCache(key) != null) {
+            rememberMeCache.clearCacheEntry(key);
+        }
+        // now create a new entry
+        Date date = null;
+        if (rememberMe.getTimestamp() != null) {
+            date = new Date(rememberMe.getTimestamp().getTime());
+        } else {
+            date = new Date();
+        }
+        OpenIDIdentityCacheEntry entry = new OpenIDIdentityCacheEntry(rememberMe.getToken(), null, date);
+        // add the entry
+        rememberMeCache.addToCache(key, entry);
     }
 
     /**
@@ -102,25 +97,22 @@ public class OpenIDRememberMeTokenCache extends OpenIDBaseCache<OpenIDIdentityCa
      */
     public synchronized OpenIDRememberMeDO getTokenData(OpenIDRememberMeDO rememberMe)
             throws IdentityProviderException {
-        try {
-            String username = rememberMe.getUserName();
-            int tenantId = IdentityUtil.getTenantIdOFUser(rememberMe.getUserName());
-            if (log.isDebugEnabled()) {
-                log.debug("Loading RememberMe token in cache for " + username + " with tenant ID " + tenantId);
-            }
-            OpenIDIdentityCacheKey key = new OpenIDIdentityCacheKey(tenantId, username);
-            OpenIDIdentityCacheEntry entry = rememberMeCache.getValueFromCache(key);
-            if (entry == null) {
-                return null;
-            }
-            rememberMe.setToken(entry.getCacheEntry());
-            Timestamp timestamp = new Timestamp(entry.getDate().getTime());
-            rememberMe.setTimestamp(timestamp);
 
-            return rememberMe;
-        } catch (IdentityException e) {
-            throw new IdentityProviderException("Error while loading RememberMe token from cache", e);
+        String username = rememberMe.getUserName();
+        int tenantId = IdentityTenantUtil.getTenantIdOfUser(rememberMe.getUserName());
+        if (log.isDebugEnabled()) {
+            log.debug("Loading RememberMe token in cache for " + username + " with tenant ID " + tenantId);
         }
+        OpenIDIdentityCacheKey key = new OpenIDIdentityCacheKey(tenantId, username);
+        OpenIDIdentityCacheEntry entry = rememberMeCache.getValueFromCache(key);
+        if (entry == null) {
+            return null;
+        }
+        rememberMe.setToken(entry.getCacheEntry());
+        Timestamp timestamp = new Timestamp(entry.getDate().getTime());
+        rememberMe.setTimestamp(timestamp);
+
+        return rememberMe;
     }
 
 }

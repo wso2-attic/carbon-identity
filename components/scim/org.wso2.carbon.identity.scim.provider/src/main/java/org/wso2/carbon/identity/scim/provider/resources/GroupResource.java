@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2012, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -165,9 +165,8 @@ public class GroupResource extends AbstractResource {
         Encoder encoder = null;
         try {
             outputFormat = identifyOutputFormat(outputFormat);
-            if (inputFormat != null) {
-                inputFormat = identifyInputFormat(inputFormat);
-            }
+            inputFormat = identifyInputFormat(inputFormat);
+
             IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
             //obtain the encoder at this layer in case exceptions needs to be encoded.
             encoder = identitySCIMManager.getEncoder(SCIMConstants.identifyFormat(outputFormat));

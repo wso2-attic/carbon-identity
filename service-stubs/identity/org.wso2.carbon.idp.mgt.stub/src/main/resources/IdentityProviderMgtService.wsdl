@@ -2,7 +2,7 @@
     <wsdl:documentation>IdentityProviderMgtService</wsdl:documentation>
     <wsdl:types>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://common.application.identity.carbon.wso2.org/xsd">
-            <xs:complexType name="IdentityApplicationManagementException">
+            <xs:complexType name="IdentityProviderManagementException">
                 <xs:sequence></xs:sequence>
             </xs:complexType>
         </xs:schema>
@@ -21,6 +21,7 @@
                     <xs:element minOccurs="0" name="homeRealmId" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="identityProviderDescription" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="identityProviderName" nillable="true" type="xs:string"></xs:element>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="idpProperties" nillable="true" type="ax2394:IdentityProviderProperty"/>
                     <xs:element minOccurs="0" name="justInTimeProvisioningConfig" nillable="true" type="ax2394:JustInTimeProvisioningConfig"></xs:element>
                     <xs:element minOccurs="0" name="permissionAndRoleConfig" nillable="true" type="ax2394:PermissionsAndRoleConfig"></xs:element>
                     <xs:element minOccurs="0" name="primary" type="xs:boolean"></xs:element>
@@ -67,6 +68,7 @@
                     <xs:element minOccurs="0" name="defaultValue" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"></xs:element>
+                    <xs:element minOccurs="0" name="displayOrder" type="xs:int"/>
                     <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"></xs:element>
                     <xs:element minOccurs="0" name="required" type="xs:boolean"></xs:element>
                     <xs:element minOccurs="0" name="type" nillable="true" type="xs:string"></xs:element>
@@ -82,8 +84,16 @@
                     <xs:element minOccurs="0" name="valid" type="xs:boolean"></xs:element>
                 </xs:sequence>
             </xs:complexType>
+            <xs:complexType name="IdentityProviderProperty">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="displayName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="value" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:complexType name="InboundProvisioningConfig">
                 <xs:sequence>
+                    <xs:element minOccurs="0" name="dumbMode" type="xs:boolean"/>
                     <xs:element minOccurs="0" name="provisioningEnabled" type="xs:boolean"></xs:element>
                     <xs:element minOccurs="0" name="provisioningUserStore" nillable="true" type="xs:string"></xs:element>
                 </xs:sequence>
@@ -122,13 +132,13 @@
                 </xs:sequence>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax2393="http://common.application.identity.carbon.wso2.org/xsd" xmlns:ax2395="http://model.common.application.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://mgt.idp.carbon.wso2.org">
-            <xs:import namespace="http://common.application.identity.carbon.wso2.org/xsd"></xs:import>
+        <xs:schema xmlns:ax2393="http://mgt.idp.carbon.wso2.org/xsd" xmlns:ax2395="http://model.common.application.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://mgt.idp.carbon.wso2.org">
+            <xs:import namespace="http://mgt.idp.carbon.wso2.org/xsd"></xs:import>
             <xs:import namespace="http://model.common.application.identity.carbon.wso2.org/xsd"></xs:import>
-            <xs:element name="IdentityProviderMgtServiceIdentityApplicationManagementException">
+            <xs:element name="IdentityProviderMgtServiceIdentityProviderManagementException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="IdentityApplicationManagementException" nillable="true" type="ax2393:IdentityApplicationManagementException"></xs:element>
+                        <xs:element minOccurs="0" name="IdentityProviderManagementException" nillable="true" type="ax2393:IdentityProviderManagementException"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -252,8 +262,8 @@
     <wsdl:message name="deleteIdPRequest">
         <wsdl:part name="parameters" element="ns:deleteIdP"></wsdl:part>
     </wsdl:message>
-    <wsdl:message name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-        <wsdl:part name="parameters" element="ns:IdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:part>
+    <wsdl:message name="IdentityProviderMgtServiceIdentityProviderManagementException">
+        <wsdl:part name="parameters" element="ns:IdentityProviderMgtServiceIdentityProviderManagementException"></wsdl:part>
     </wsdl:message>
     <wsdl:message name="getAllIdPsRequest">
         <wsdl:part name="parameters" element="ns:getAllIdPs"></wsdl:part>
@@ -309,54 +319,54 @@
     <wsdl:portType name="IdentityProviderMgtServicePortType">
         <wsdl:operation name="deleteIdP">
             <wsdl:input message="ns:deleteIdPRequest" wsaw:Action="urn:deleteIdP"></wsdl:input>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:deleteIdPIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderManagementException" name="IdentityProviderMgtServiceIdentityProviderManagementException" wsaw:Action="urn:deleteIdPIdentityProviderMgtServiceIdentityProviderManagementException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllIdPs">
             <wsdl:input message="ns:getAllIdPsRequest" wsaw:Action="urn:getAllIdPs"></wsdl:input>
             <wsdl:output message="ns:getAllIdPsResponse" wsaw:Action="urn:getAllIdPsResponse"></wsdl:output>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:getAllIdPsIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderManagementException" name="IdentityProviderMgtServiceIdentityProviderManagementException" wsaw:Action="urn:getAllIdPsIdentityProviderMgtServiceIdentityProviderManagementException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllLocalClaimUris">
             <wsdl:input message="ns:getAllLocalClaimUrisRequest" wsaw:Action="urn:getAllLocalClaimUris"></wsdl:input>
             <wsdl:output message="ns:getAllLocalClaimUrisResponse" wsaw:Action="urn:getAllLocalClaimUrisResponse"></wsdl:output>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:getAllLocalClaimUrisIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderManagementException" name="IdentityProviderMgtServiceIdentityProviderManagementException" wsaw:Action="urn:getAllLocalClaimUrisIdentityProviderMgtServiceIdentityProviderManagementException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getIdPByName">
             <wsdl:input message="ns:getIdPByNameRequest" wsaw:Action="urn:getIdPByName"></wsdl:input>
             <wsdl:output message="ns:getIdPByNameResponse" wsaw:Action="urn:getIdPByNameResponse"></wsdl:output>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:getIdPByNameIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderManagementException" name="IdentityProviderMgtServiceIdentityProviderManagementException" wsaw:Action="urn:getIdPByNameIdentityProviderMgtServiceIdentityProviderManagementException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="addIdP">
             <wsdl:input message="ns:addIdPRequest" wsaw:Action="urn:addIdP"></wsdl:input>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:addIdPIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderManagementException" name="IdentityProviderMgtServiceIdentityProviderManagementException" wsaw:Action="urn:addIdPIdentityProviderMgtServiceIdentityProviderManagementException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllProvisioningConnectors">
             <wsdl:input message="ns:getAllProvisioningConnectorsRequest" wsaw:Action="urn:getAllProvisioningConnectors"></wsdl:input>
             <wsdl:output message="ns:getAllProvisioningConnectorsResponse" wsaw:Action="urn:getAllProvisioningConnectorsResponse"></wsdl:output>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:getAllProvisioningConnectorsIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderManagementException" name="IdentityProviderMgtServiceIdentityProviderManagementException" wsaw:Action="urn:getAllProvisioningConnectorsIdentityProviderMgtServiceIdentityProviderManagementException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="updateResidentIdP">
             <wsdl:input message="ns:updateResidentIdPRequest" wsaw:Action="urn:updateResidentIdP"></wsdl:input>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:updateResidentIdPIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderManagementException" name="IdentityProviderMgtServiceIdentityProviderManagementException" wsaw:Action="urn:updateResidentIdPIdentityProviderMgtServiceIdentityProviderManagementException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getEnabledAllIdPs">
             <wsdl:input message="ns:getEnabledAllIdPsRequest" wsaw:Action="urn:getEnabledAllIdPs"></wsdl:input>
             <wsdl:output message="ns:getEnabledAllIdPsResponse" wsaw:Action="urn:getEnabledAllIdPsResponse"></wsdl:output>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:getEnabledAllIdPsIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderManagementException" name="IdentityProviderMgtServiceIdentityProviderManagementException" wsaw:Action="urn:getEnabledAllIdPsIdentityProviderMgtServiceIdentityProviderManagementException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="updateIdP">
             <wsdl:input message="ns:updateIdPRequest" wsaw:Action="urn:updateIdP"></wsdl:input>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:updateIdPIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderManagementException" name="IdentityProviderMgtServiceIdentityProviderManagementException" wsaw:Action="urn:updateIdPIdentityProviderMgtServiceIdentityProviderManagementException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllFederatedAuthenticators">
             <wsdl:input message="ns:getAllFederatedAuthenticatorsRequest" wsaw:Action="urn:getAllFederatedAuthenticators"></wsdl:input>
             <wsdl:output message="ns:getAllFederatedAuthenticatorsResponse" wsaw:Action="urn:getAllFederatedAuthenticatorsResponse"></wsdl:output>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:getAllFederatedAuthenticatorsIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderManagementException" name="IdentityProviderMgtServiceIdentityProviderManagementException" wsaw:Action="urn:getAllFederatedAuthenticatorsIdentityProviderMgtServiceIdentityProviderManagementException"></wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getResidentIdP">
             <wsdl:input message="ns:getResidentIdPRequest" wsaw:Action="urn:getResidentIdP"></wsdl:input>
             <wsdl:output message="ns:getResidentIdPResponse" wsaw:Action="urn:getResidentIdPResponse"></wsdl:output>
-            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityApplicationManagementException" name="IdentityProviderMgtServiceIdentityApplicationManagementException" wsaw:Action="urn:getResidentIdPIdentityProviderMgtServiceIdentityApplicationManagementException"></wsdl:fault>
+            <wsdl:fault message="ns:IdentityProviderMgtServiceIdentityProviderManagementException" name="IdentityProviderMgtServiceIdentityProviderManagementException" wsaw:Action="urn:getResidentIdPIdentityProviderMgtServiceIdentityProviderManagementException"></wsdl:fault>
         </wsdl:operation>
     </wsdl:portType>
     <wsdl:binding name="IdentityProviderMgtServiceSoap11Binding" type="ns:IdentityProviderMgtServicePortType">
@@ -366,8 +376,8 @@
             <wsdl:input>
                 <soap:body use="literal"></soap:body>
             </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllIdPs">
@@ -378,8 +388,8 @@
             <wsdl:output>
                 <soap:body use="literal"></soap:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllLocalClaimUris">
@@ -390,8 +400,8 @@
             <wsdl:output>
                 <soap:body use="literal"></soap:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getIdPByName">
@@ -402,8 +412,8 @@
             <wsdl:output>
                 <soap:body use="literal"></soap:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllProvisioningConnectors">
@@ -414,8 +424,8 @@
             <wsdl:output>
                 <soap:body use="literal"></soap:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="addIdP">
@@ -423,8 +433,8 @@
             <wsdl:input>
                 <soap:body use="literal"></soap:body>
             </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="updateResidentIdP">
@@ -432,8 +442,8 @@
             <wsdl:input>
                 <soap:body use="literal"></soap:body>
             </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getEnabledAllIdPs">
@@ -444,8 +454,8 @@
             <wsdl:output>
                 <soap:body use="literal"></soap:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="updateIdP">
@@ -453,8 +463,8 @@
             <wsdl:input>
                 <soap:body use="literal"></soap:body>
             </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllFederatedAuthenticators">
@@ -465,8 +475,8 @@
             <wsdl:output>
                 <soap:body use="literal"></soap:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getResidentIdP">
@@ -477,8 +487,8 @@
             <wsdl:output>
                 <soap:body use="literal"></soap:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap:fault>
             </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>
@@ -489,8 +499,8 @@
             <wsdl:input>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllIdPs">
@@ -501,8 +511,8 @@
             <wsdl:output>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllLocalClaimUris">
@@ -513,8 +523,8 @@
             <wsdl:output>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getIdPByName">
@@ -525,8 +535,8 @@
             <wsdl:output>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllProvisioningConnectors">
@@ -537,8 +547,8 @@
             <wsdl:output>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="addIdP">
@@ -546,8 +556,8 @@
             <wsdl:input>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="updateResidentIdP">
@@ -555,8 +565,8 @@
             <wsdl:input>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getEnabledAllIdPs">
@@ -567,8 +577,8 @@
             <wsdl:output>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="updateIdP">
@@ -576,8 +586,8 @@
             <wsdl:input>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:input>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getAllFederatedAuthenticators">
@@ -588,8 +598,8 @@
             <wsdl:output>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
         <wsdl:operation name="getResidentIdP">
@@ -600,8 +610,8 @@
             <wsdl:output>
                 <soap12:body use="literal"></soap12:body>
             </wsdl:output>
-            <wsdl:fault name="IdentityProviderMgtServiceIdentityApplicationManagementException">
-                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityApplicationManagementException"></soap12:fault>
+            <wsdl:fault name="IdentityProviderMgtServiceIdentityProviderManagementException">
+                <soap12:fault use="literal" name="IdentityProviderMgtServiceIdentityProviderManagementException"></soap12:fault>
             </wsdl:fault>
         </wsdl:operation>
     </wsdl:binding>

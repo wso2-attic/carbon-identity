@@ -25,10 +25,7 @@ import java.util.Iterator;
 
 public class Claim implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -9123587946522643637L;
+    private static final long serialVersionUID = 7311770592520078910L;
 
     private String claimUri;
     private int claimId;

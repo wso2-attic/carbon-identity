@@ -17,6 +17,7 @@
 -->
 <%@ page import="org.wso2.balana.utils.policy.dto.BasicRuleDTO" %>
 <%@ page import="org.wso2.balana.utils.policy.dto.BasicTargetDTO" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <jsp:useBean id="entitlementPolicyBean" type="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean"
              class="org.wso2.carbon.identity.entitlement.ui.EntitlementPolicyBean" scope="session"/>
@@ -286,12 +287,12 @@
     if(completedRule != null && completedRule.equals("true")){
         forwardTo = nextPage + ".jsp?";
     } else {
-        forwardTo = nextPage + ".jsp?ruleId=" + ruleId;
+        forwardTo = nextPage + ".jsp?ruleId=" + Encode.forUriComponent(ruleId);
         if(category != null && category.trim().length() > 0){
-            forwardTo = forwardTo + "&category=" + category;
+            forwardTo = forwardTo + "&category=" + Encode.forUriComponent(category);
         }
         if(returnPage != null && returnPage.trim().length() > 0){
-            forwardTo = forwardTo + "&returnPage=" + returnPage;
+            forwardTo = forwardTo + "&returnPage=" + Encode.forUriComponent(returnPage);
         }
     }
 
@@ -299,7 +300,7 @@
 
 <script type="text/javascript">
     function forward() {
-        location.href = "<%=forwardTo%>";
+        location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>
 

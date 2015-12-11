@@ -207,6 +207,10 @@
             <DisplayName>View</DisplayName>
             <ResourceId>/permission/admin/configure/entitlement/pdp/view</ResourceId>
         </ManagementPermission>
+        <ManagementPermission>
+            <DisplayName>PEP</DisplayName>
+            <ResourceId>/permission/admin/manage/identity/pep</ResourceId>
+        </ManagementPermission>
     </ManagementPermissions>
 
 </component>

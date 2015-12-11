@@ -1,3 +1,4 @@
+<%@ page import="org.owasp.encoder.Encode" %>
 <!--
 /*
 * Copyright (c) 2008, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
@@ -147,7 +148,7 @@
             if(policyId != null){
         %>
         <tr>
-            <td colspan="3"><fmt:message key="eval.ent.policy.for.policyId"/> <b><%=policyId%></b></td>
+            <td colspan="3"><fmt:message key="eval.ent.policy.for.policyId"/> <b><%=Encode.forHtmlContent(policyId)%></b></td>
         </tr>
         <%
             }
@@ -171,7 +172,7 @@
                 if (resourceNames != null && resourceNames.trim().length() > 0) {
             %>
             <input type="text" size="60" name="resourceNames" id="resourceNames"
-                       value="<%=resourceNames%>" class="text-box-big"/>
+                       value="<%=Encode.forHtmlAttribute(resourceNames)%>" class="text-box-big"/>
             <%
                 } else {
             %>
@@ -195,7 +196,7 @@
                 if (subjectNames != null && subjectNames.trim().length() > 0) {
             %>
             <input type="text" name="subjectNames" id="subjectNames"
-                       value="<%=subjectNames%>" class="text-box-big"/>
+                       value="<%=Encode.forHtmlAttribute(subjectNames)%>" class="text-box-big"/>
             <%
                 } else {
             %>
@@ -217,7 +218,7 @@
             <%
                 if (actionNames != null && actionNames.trim().length() > 0) {
             %>
-            <input type="text" name="actionNames" id="actionNames" value="<%=actionNames%>"
+            <input type="text" name="actionNames" id="actionNames" value="<%=Encode.forHtmlAttribute(actionNames)%>"
                        class="text-box-big"/>
             <%
                 } else {
@@ -240,7 +241,7 @@
             <%
                 if (environmentNames != null && environmentNames.trim().length() > 0) {
             %>
-            <input type="text" name="environmentNames" id="environmentNames" value="<%=environmentNames%>"
+            <input type="text" name="environmentNames" id="environmentNames" value="<%=Encode.forHtmlAttribute(environmentNames)%>"
                        class="text-box-big"/>
             <%
                 } else {

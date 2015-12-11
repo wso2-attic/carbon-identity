@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -33,6 +33,8 @@ import org.wso2.carbon.user.mgt.ui.UserAdminClient;
 import org.wso2.carbon.user.mgt.ui.UserAdminUIConstants;
 import org.wso2.carbon.user.mgt.ui.UserBean;
 import org.wso2.carbon.user.mgt.ui.Util;
+import org.wso2.carbon.user.mgt.ui.bean.RoleSearchResult;
+import org.wso2.carbon.user.mgt.ui.bean.UserSearchResult;
 import org.wso2.carbon.utils.ServerConstants;
 
 import javax.servlet.ServletException;
@@ -49,9 +51,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+/**
+ * Service to get Users and Roles
+ *
+ */
 public class UserAndRoleManagementServlet extends HttpServlet {
 
     private static final Log log = LogFactory.getLog(UserAndRoleManagementServlet.class);
+    private static final String PERMISSION_VIEWTASKS = "/permission/admin/manage/humantask/viewtasks";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -101,7 +108,6 @@ public class UserAndRoleManagementServlet extends HttpServlet {
             session.removeAttribute(UserAdminUIConstants.USER_LIST_CACHE);
 
             // retrieve session attributes
-            String currentUser = (String) session.getAttribute("logged-user");
             UserRealmInfo userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
             if (userRealmInfo != null) {
                 multipleUserStores = userRealmInfo.getMultipleUserStore();
@@ -214,9 +220,11 @@ public class UserAndRoleManagementServlet extends HttpServlet {
                             ClaimValue claimValue = new ClaimValue();
                             claimValue.setClaimURI(claimUri);
                             claimValue.setValue(modifiedFilter);
-                            datas = client.listUserByClaim(claimValue, userDomainSelector, -1);
+                            datas = client.listUserByClaimWithPermission(claimValue, userDomainSelector,
+                                    PERMISSION_VIEWTASKS, -1);
                         } else {
-                            datas = client.listAllUsers(modifiedFilter, -1);
+                            datas = client.listAllUsersWithPermission(modifiedFilter,
+                                    PERMISSION_VIEWTASKS, -1);
                         }
                         List<FlaggedName> dataList = new ArrayList<>(Arrays.asList(datas));
                         exceededDomains = dataList.remove(dataList.size() - 1);
@@ -395,7 +403,8 @@ public class UserAndRoleManagementServlet extends HttpServlet {
                     session.setAttribute(UserAdminUIConstants.SHARED_ROLE_ENABLED, sharedRoleEnabled);
 
                     if (filter.length() > 0) {
-                        FlaggedName[] datas = client.getAllRolesNames(modifiedFilter, -1);
+                        FlaggedName[] datas = client.getAllPermittedRoleNames(modifiedFilter,
+                                PERMISSION_VIEWTASKS, -1);
                         datasList = new ArrayList<FlaggedName>(Arrays.asList(datas));
                         exceededDomains = datasList.remove(datasList.size() - 1);
                         session.setAttribute(UserAdminUIConstants.ROLE_LIST_CACHE_EXCEEDED, exceededDomains);
@@ -466,59 +475,3 @@ public class UserAndRoleManagementServlet extends HttpServlet {
     }
 }
 
-class SearchResult{
-
-    private int pageNumber ;
-    private int numberOfPages ;
-    private int noOfPageLinksToDisplay ;
-
-    public int getPageNumber() {
-        return pageNumber;
-    }
-
-    public void setPageNumber(int pageNumber) {
-        this.pageNumber = pageNumber;
-    }
-
-    public int getNumberOfPages() {
-        return numberOfPages;
-    }
-
-    public void setNumberOfPages(int numberOfPages) {
-        this.numberOfPages = numberOfPages;
-    }
-
-    public int getNoOfPageLinksToDisplay() {
-        return noOfPageLinksToDisplay;
-    }
-
-    public void setNoOfPageLinksToDisplay(int noOfPageLinksToDisplay) {
-        this.noOfPageLinksToDisplay = noOfPageLinksToDisplay;
-    }
-}
-
-class UserSearchResult extends SearchResult{
-
-    UserBean[] userBeans = null ;
-
-    public UserBean[] getUserBeans() {
-        return userBeans;
-    }
-
-    public void setUserBeans(UserBean[] userBeans) {
-        this.userBeans = userBeans;
-    }
-}
-
-class RoleSearchResult extends SearchResult{
-
-    RoleBean[] roleBeans = null ;
-
-    public RoleBean[] getRoleBeans() {
-        return roleBeans;
-    }
-
-    public void setRoleBeans(RoleBean[] roleBeans) {
-        this.roleBeans = roleBeans;
-    }
-}

@@ -18,76 +18,71 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.cache;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
-import org.wso2.carbon.identity.application.common.cache.CacheKey;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
-public class AuthenticationResultCache extends BaseCache<String, CacheEntry> {
+public class AuthenticationResultCache extends
+        BaseCache<AuthenticationResultCacheKey, AuthenticationResultCacheEntry> {
+
+    private static Log log = LogFactory.getLog(AuthenticationResultCache.class);
 
     private static final String CACHE_NAME = "AuthenticationResultCache";
 
     private static volatile AuthenticationResultCache instance;
 
-    private boolean useCache = true;
+    private boolean isTemporarySessionDataPersistEnabled = false;
 
-    private boolean enableTemporaryCaches = true;
-
-    public AuthenticationResultCache(String cacheName) {
-        super(cacheName);
-    }
-
-    public AuthenticationResultCache(String cacheName, int timeout) {
-        super(cacheName, timeout);
-        useCache = !Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Only"));
+    private AuthenticationResultCache() {
+        super(CACHE_NAME);
         if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
-            enableTemporaryCaches = Boolean.parseBoolean(IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
+            isTemporarySessionDataPersistEnabled = Boolean.parseBoolean(
+                    IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary"));
         }
     }
 
-    public static AuthenticationResultCache getInstance(int timeout) {
-
+    public static AuthenticationResultCache getInstance() {
         if (instance == null) {
             synchronized (AuthenticationResultCache.class) {
                 if (instance == null) {
-                    instance = new AuthenticationResultCache(CACHE_NAME, timeout);
+                    instance = new AuthenticationResultCache();
                 }
             }
         }
         return instance;
     }
 
-    public void addToCache(CacheKey key, CacheEntry entry) {
-        if (useCache) {
-            super.addToCache(((AuthenticationResultCacheKey) key).getResultId(), entry);
-        }
-        if (enableTemporaryCaches) {
-            String keyValue = ((AuthenticationResultCacheKey) key).getResultId();
-            SessionDataStore.getInstance().storeSessionData(keyValue, CACHE_NAME, entry);
+    public void addToCache(AuthenticationResultCacheKey key, AuthenticationResultCacheEntry entry) {
+        super.addToCache(key, entry);
+        if (isTemporarySessionDataPersistEnabled) {
+            int tenantId = MultitenantConstants.INVALID_TENANT_ID;
+            if (entry.getResult() != null && entry.getResult().getSubject() != null) {
+                String tenantDomain = entry.getResult().getSubject().getTenantDomain();
+                if (tenantDomain != null) {
+                    tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
+                }
+            }
+            SessionDataStore.getInstance().storeSessionData(key.getResultId(), CACHE_NAME, entry, tenantId);
         }
     }
 
-    public CacheEntry getValueFromCache(CacheKey key) {
-        CacheEntry cacheEntry = null;
-        if (useCache) {
-            cacheEntry = super.getValueFromCache(((AuthenticationResultCacheKey) key).getResultId());
+    public AuthenticationResultCacheEntry getValueFromCache(AuthenticationResultCacheKey key) {
+        AuthenticationResultCacheEntry entry = super.getValueFromCache(key);
+        if (entry == null && isTemporarySessionDataPersistEnabled) {
+            entry = (AuthenticationResultCacheEntry) SessionDataStore.getInstance().
+                    getSessionData(key.getResultId(), CACHE_NAME);
         }
-        if (cacheEntry == null) {
-            String keyValue = ((AuthenticationResultCacheKey) key).getResultId();
-            cacheEntry = (AuthenticationResultCacheEntry) SessionDataStore.getInstance().
-                    getSessionData(keyValue, CACHE_NAME);
-        }
-        return cacheEntry;
+        return entry;
     }
 
-    public void clearCacheEntry(CacheKey key) {
-        if (useCache) {
-            super.clearCacheEntry(((AuthenticationResultCacheKey) key).getResultId());
-        }
-        if (enableTemporaryCaches) {
-            String keyValue = ((AuthenticationResultCacheKey) key).getResultId();
-            SessionDataStore.getInstance().clearSessionData(keyValue, CACHE_NAME);
+    public void clearCacheEntry(AuthenticationResultCacheKey key) {
+        super.clearCacheEntry(key);
+        if (isTemporarySessionDataPersistEnabled) {
+            SessionDataStore.getInstance().clearSessionData(key.getResultId(), CACHE_NAME);
         }
     }
 }

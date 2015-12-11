@@ -97,7 +97,7 @@
                             ${project.artifactId}
                         </Bundle-SymbolicName>
                         <Export-Package>
-                            org.wso2.carbon.identity.mgt.admin.ui.*,
+                            org.wso2.carbon.identity.mgt.admin.ui.client;
                         </Export-Package>
                         <Import-Package>
                         </Import-Package>

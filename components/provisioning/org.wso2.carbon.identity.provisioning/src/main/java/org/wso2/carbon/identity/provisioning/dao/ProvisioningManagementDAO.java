@@ -23,12 +23,15 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
-import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.ProvisionedIdentifier;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
+import org.wso2.carbon.identity.provisioning.ProvisioningUtil;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.ByteArrayInputStream;
@@ -39,6 +42,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ProvisioningManagementDAO {
 
@@ -55,9 +59,8 @@ public class ProvisioningManagementDAO {
                                       ProvisioningEntity provisioningEntity, int tenantId)
             throws IdentityApplicationManagementException {
 
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
         try {
-            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
 
             PreparedStatement prepStmt = null;
 
@@ -68,6 +71,7 @@ public class ProvisioningManagementDAO {
             int provisioningConfigId = getProvisioningConfigurationIdentifier(dbConnection, idpId,
                     connectorType);
 
+            String localId = getLocalIdFromProvisioningEntity(provisioningEntity);
             // PROVISIONING_CONFIG_ID, ENTITY_TYPE,
             // ENTITY_LOCAL_USERSTORE, ENTITY_NAME, ENTITY_VALUE,
             // TENANT_ID
@@ -76,14 +80,15 @@ public class ProvisioningManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, provisioningConfigId);
             prepStmt.setString(2, provisioningEntity.getEntityType().toString());
-            prepStmt.setString(3, UserCoreUtil.extractDomainFromName(provisioningEntity.getEntityName()));
+            prepStmt.setString(3, IdentityUtil.extractDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setString(5, provisioningEntity.getIdentifier().getIdentifier());
             prepStmt.setInt(6, tenantId);
+            prepStmt.setString(7, localId);
 
             prepStmt.execute();
             dbConnection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while adding Provisioning entity for tenant " + tenantId;
             throw new IdentityApplicationManagementException(msg, e);
@@ -103,9 +108,8 @@ public class ProvisioningManagementDAO {
                                          ProvisioningEntity provisioningEntity, int tenantId)
             throws IdentityApplicationManagementException {
 
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
         try {
-            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
 
             PreparedStatement prepStmt = null;
 
@@ -123,13 +127,13 @@ public class ProvisioningManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, provisioningConfigId);
             prepStmt.setString(2, provisioningEntity.getEntityType().toString());
-            prepStmt.setString(3, UserCoreUtil.extractDomainFromName(provisioningEntity.getEntityName()));
+            prepStmt.setString(3, IdentityUtil.extractDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setInt(5, tenantId);
 
             prepStmt.execute();
             dbConnection.commit();
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while deleting Provisioning entity for tenant " + tenantId;
             throw new IdentityApplicationManagementException(msg, e);
@@ -149,9 +153,8 @@ public class ProvisioningManagementDAO {
                                                           ProvisioningEntity provisioningEntity, int tenantId)
             throws IdentityApplicationManagementException {
 
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
         try {
-            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
 
             PreparedStatement prepStmt = null;
 
@@ -170,7 +173,7 @@ public class ProvisioningManagementDAO {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, provisioningConfigId);
             prepStmt.setString(2, provisioningEntity.getEntityType().toString());
-            prepStmt.setString(3, UserCoreUtil.extractDomainFromName(provisioningEntity.getEntityName()));
+            prepStmt.setString(3, IdentityUtil.extractDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setString(4, UserCoreUtil.removeDomainFromName(provisioningEntity.getEntityName()));
             prepStmt.setInt(5, tenantId);
 
@@ -186,7 +189,7 @@ public class ProvisioningManagementDAO {
                 return null;
             }
 
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
             String msg = "Error occurred while adding Provisioning entity for tenant " + tenantId;
             throw new IdentityApplicationManagementException(msg, e);
@@ -205,11 +208,9 @@ public class ProvisioningManagementDAO {
                                             IdentityProvider currentIdentityProvider, int tenantId)
             throws IdentityApplicationManagementException {
 
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
 
         try {
-
-            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
 
             int idPId =
                     getIdentityProviderIdByName(dbConnection,
@@ -295,12 +296,9 @@ public class ProvisioningManagementDAO {
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
 
             dbConnection.commit();
-        } catch (SQLException | IdentityException e) {
-            log.error(e.getMessage(), e);
+        } catch (SQLException e) {
             IdentityApplicationManagementUtil.rollBack(dbConnection);
-            String msg =
-                    "Error occurred while updating Identity Provider information  for tenant " +
-                            tenantId;
+            String msg = "Error occurred while updating Identity Provider information  for tenant " + tenantId;
             throw new IdentityApplicationManagementException(msg, e);
         } finally {
             IdentityApplicationManagementUtil.closeConnection(dbConnection);
@@ -353,12 +351,12 @@ public class ProvisioningManagementDAO {
         boolean dbConnInitialized = true;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
+        if (dbConnection == null) {
+            dbConnection = IdentityDatabaseUtil.getDBConnection();
+        } else {
+            dbConnInitialized = false;
+        }
         try {
-            if (dbConnection == null) {
-                dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
-            } else {
-                dbConnInitialized = false;
-            }
             String sqlStmt = IdPManagementConstants.SQLQueries.GET_IDP_ROW_ID_SQL;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setInt(1, tenantId);
@@ -368,8 +366,6 @@ public class ProvisioningManagementDAO {
             if (rs.next()) {
                 return rs.getInt(1);
             }
-        } catch (IdentityException e) {
-            throw new IdentityApplicationManagementException("Error while reading Identity Provider by name.", e);
         } finally {
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
             IdentityApplicationManagementUtil.closeResultSet(rs);
@@ -456,12 +452,11 @@ public class ProvisioningManagementDAO {
 
     public List<String> getSPNamesOfProvisioningConnectorsByIDP(String idPName, int tenantId)
             throws IdentityApplicationManagementException {
-        Connection dbConnection = null;
+        Connection dbConnection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         List<String> spNames = new ArrayList<String>();
         try {
-            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
             String sqlStmt = IdentityProvisioningConstants.SQLQueries.GET_SP_NAMES_OF_PROVISIONING_CONNECTORS_BY_IDP;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             prepStmt.setString(1, idPName);
@@ -471,7 +466,7 @@ public class ProvisioningManagementDAO {
             while (rs.next()) {
                 spNames.add(rs.getString(1));
             }
-        } catch (SQLException | IdentityException e) {
+        } catch (SQLException e) {
             String msg = "Error occurred while retrieving SP names of provisioning connectors by IDP name";
             throw new IdentityApplicationManagementException(msg, e);
         } finally {
@@ -485,4 +480,89 @@ public class ProvisioningManagementDAO {
         }
         return spNames;
     }
+
+    private String getLocalIdFromProvisioningEntity(ProvisioningEntity provisioningEntity) {
+        Map<org.wso2.carbon.identity.application.common.model.ClaimMapping, List<String>> attributeMap =
+                provisioningEntity.getAttributes();
+        if (!attributeMap.isEmpty()) {
+            List<String> attributeValues =
+                    attributeMap.get(org.wso2.carbon.identity.application.common.model.ClaimMapping.build(
+                            IdentityProvisioningConstants.ID_CLAIM_URI, null, null, false));
+            if (attributeValues != null && !attributeValues.isEmpty()) {
+                return attributeValues.get(0);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get provisioned entity name by providing SCIM ID (ENTITY_LOCAL_ID)
+     * @param localId
+     * @return
+     * @throws IdentityApplicationManagementException
+     */
+    public String getProvisionedEntityNameByLocalId(String localId) throws IdentityApplicationManagementException {
+        Connection dbConnection = null;
+        String sqlStmt = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+            sqlStmt = IdentityProvisioningConstants.SQLQueries.GET_PROVISIONED_ENTITY_NAME_SQL;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, localId);
+            rs = prepStmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString(1);
+            } else {
+                throw new IdentityApplicationManagementException("Given Local ID :"+localId+" does not exist");
+            }
+        } catch (SQLException e) {
+            IdentityApplicationManagementUtil.rollBack(dbConnection);
+            throw new IdentityApplicationManagementException(
+                    "Error occurred while loading Provisioned Entity Name from DB", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+    }
+
+    /**
+     * Applicable for only group name update
+     *
+     * @param provisioningEntity
+     * @throws IdentityApplicationManagementException
+     */
+    public void updateProvisioningEntityName(ProvisioningEntity provisioningEntity) throws
+                                                                                    IdentityApplicationManagementException {
+
+        Connection dbConnection = null;
+        String provisioningEntityName = null;
+        String entityLocalID = null;
+        PreparedStatement prepStmt = null;
+        try {
+            dbConnection = JDBCPersistenceManager.getInstance().getDBConnection();
+
+            String sqlStmt = IdentityProvisioningConstants.SQLQueries.UPDATE_PROVISIONED_ENTITY_NAME_SQL;
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+
+            provisioningEntityName = ProvisioningUtil.getAttributeValue(provisioningEntity,
+                                                                        IdentityProvisioningConstants.NEW_GROUP_NAME_CLAIM_URI);
+            entityLocalID = ProvisioningUtil.getAttributeValue(provisioningEntity,
+                                                               IdentityProvisioningConstants.ID_CLAIM_URI);
+
+            prepStmt.setString(1, provisioningEntityName);
+            prepStmt.setString(2, entityLocalID);
+
+            prepStmt.execute();
+            dbConnection.commit();
+        } catch (SQLException e) {
+            IdentityApplicationManagementUtil.rollBack(dbConnection);
+            String msg = "Error occurred while Updating Provisioning entity name to " + provisioningEntityName +
+                         " for Entity Local Id :" + entityLocalID;
+            throw new IdentityApplicationManagementException(msg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
+        }
+    }
+
 }

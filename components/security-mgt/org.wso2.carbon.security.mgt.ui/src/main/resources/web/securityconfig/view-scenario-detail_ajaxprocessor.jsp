@@ -1,3 +1,4 @@
+<%@ page import="org.owasp.encoder.Encode" %>
 <!--
 ~ Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 ~
@@ -27,7 +28,7 @@
 <fmt:bundle basename="org.wso2.carbon.security.ui.i18n.Resources">
 
 <div id="middle">
-    <h2><fmt:message key="scenario"/> <%=scenarioId%> : <%=scenarioSummary%></h2>
+    <h2><fmt:message key="scenario"/> <%=Encode.forHtml(scenarioId)%> : <%=Encode.forHtml(scenarioSummary)%></h2>
     <img src="images/<%=scenarioIdNumber%>.png" alt="security scenario description"/>
 </div>
 </fmt:bundle>

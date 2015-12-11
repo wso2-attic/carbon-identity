@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.mgt.services;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -27,7 +28,10 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.ChallengeQuestionProcessor;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
@@ -49,9 +53,11 @@ import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.claim.Claim;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -324,10 +330,17 @@ public class UserInformationRecoveryService {
                 log.warn("No Tenant id for tenant domain " + userDTO.getTenantDomain(), e);
             }
 
-            if (recoveryProcessor.verifyConfirmationCode(3, userDTO.getUserId(), confirmationCode).isVerified()) {
+            if (recoveryProcessor.verifyConfirmationCode(30, userDTO.getUserId(), confirmationCode).isVerified()) {
                 Utils.updatePassword(userDTO.getUserId(), tenantId, newPassword);
                 log.info("Credential is updated for user : " + userDTO.getUserId()
                         + " and tenant domain : " + userDTO.getTenantDomain());
+                IdentityMgtConfig.getInstance().getRecoveryDataStore().invalidate(userDTO.getUserId(), tenantId);
+                bean = new VerificationBean(true);
+            } else if (recoveryProcessor.verifyConfirmationCode(3, userDTO.getUserId(), confirmationCode).isVerified()) {
+                Utils.updatePassword(userDTO.getUserId(), tenantId, newPassword);
+                log.info("Credential is updated for user : " + userDTO.getUserId()
+                        + " and tenant domain : " + userDTO.getTenantDomain());
+                IdentityMgtConfig.getInstance().getRecoveryDataStore().invalidate(userDTO.getUserId(), tenantId);
                 bean = new VerificationBean(true);
             } else {
                 String msg = "Invalid user tried to update credential with user Id : "
@@ -378,7 +391,7 @@ public class UserInformationRecoveryService {
             try {
                 bean = processor.verifyConfirmationCode(1, userDTO.getUserId(), confirmation);
                 if (bean.isVerified()) {
-                    bean = processor.updateConfirmationCode(3, userDTO.getUserId(), userDTO.getTenantId());
+                    bean = processor.updateConfirmationCode(20, userDTO.getUserId(), userDTO.getTenantId());
                 } else {
                     bean.setVerified(false);
                 }
@@ -452,9 +465,11 @@ public class UserInformationRecoveryService {
 
             VerificationBean bean;
             try {
-                bean = processor.verifyConfirmationCode(3, userDTO.getUserId(), confirmation);
+                bean = processor.verifyConfirmationCode(20, userDTO.getUserId(), confirmation);
                 if (bean.isVerified()) {
-                    bean = processor.updateConfirmationCode(3, userDTO.getUserId(), userDTO.getTenantId());
+                    bean = processor.updateConfirmationCode(40, userDTO.getUserId(), userDTO.getTenantId());
+                } else if (processor.verifyConfirmationCode(30, userDTO.getUserId(), confirmation).isVerified()) {
+                    bean = processor.updateConfirmationCode(40, userDTO.getUserId(), userDTO.getTenantId());
                 } else {
                     bean.setVerified(false);
                 }
@@ -536,9 +551,10 @@ public class UserInformationRecoveryService {
 
             RecoveryProcessor recoveryProcessor = IdentityMgtServiceComponent.getRecoveryProcessor();
 
-            try {bean = recoveryProcessor.verifyConfirmationCode(3, userDTO.getUserId(), confirmation);
+            try {
+                bean = recoveryProcessor.verifyConfirmationCode(40, userDTO.getUserId(), confirmation);
                 if (bean.isVerified()) {
-                    bean = recoveryProcessor.updateConfirmationCode(3, userDTO.getUserId(), userDTO.getTenantId());
+                    bean = recoveryProcessor.updateConfirmationCode(30, userDTO.getUserId(), userDTO.getTenantId());
                 } else {
                     bean.setVerified(false);
                 }
@@ -682,7 +698,7 @@ public class UserInformationRecoveryService {
             String userName = UserIdentityManagementUtil.getUsernameByClaims(claims, tenantId);
 
             if (userName != null) {
-                UserDTO userDTO = new UserDTO(userName);
+                UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
                 userDTO.setTenantId(tenantId);
 
                 UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
@@ -794,11 +810,21 @@ public class UserInformationRecoveryService {
                         new String[]{userName});
             }
 
+            IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
+                    (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
+
+            boolean isListenerEnable = true;
+
+            if (identityEventListenerConfig != null) {
+                if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+                    isListenerEnable = Boolean.parseBoolean(identityEventListenerConfig.getEnable());
+                }
+            }
 
             IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
-            if (config.isListenerEnable() && config.isAuthPolicyAccountLockOnCreation()) {
-                UserDTO userDTO = new UserDTO(userName);
+            if (isListenerEnable && config.isAuthPolicyAccountLockOnCreation()) {
+                UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
                 userDTO.setTenantId(tenantId);
 
                 UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
@@ -821,18 +847,111 @@ public class UserInformationRecoveryService {
                 vBean.setVerified(true);
             }
         } catch (UserStoreException | IdentityException e) {
-            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
-                    + " Error occurred while registering user : " + userName, e);
+            vBean = UserIdentityManagementUtil.getCustomErrorMessages(e, userName);
             //Rollback if user exists
             try {
                 if (userStoreManager.isExistingUser(userName)) {
                     userStoreManager.deleteUser(userName);
                 }
             } catch (org.wso2.carbon.user.core.UserStoreException e1) {
-                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
-                        + " Error occurred while rollback registered user : " + userName, e);
+                vBean = UserIdentityManagementUtil.getCustomErrorMessages(e1, userName);
             }
 
+            return vBean;
+        }
+
+        return vBean;
+    }
+
+
+    /**
+     * This method is used to resend selef sign up confiration code when user is not recieved email properly
+     *
+     * @param userName
+     * @param code
+     * @param profileName
+     * @param tenantDomain
+     * @return
+     * @throws IdentityMgtServiceException
+     */
+    public VerificationBean resendSignUpConfiramtionCode(String userName, String code, String profileName, String
+            tenantDomain)
+            throws IdentityMgtServiceException {
+
+        VerificationBean vBean = new VerificationBean();
+        RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
+
+        if (!IdentityMgtConfig.getInstance().isSaasEnabled()) {
+            String loggedInTenant = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            if (tenantDomain != null && !tenantDomain.isEmpty() && !loggedInTenant.equals(tenantDomain)) {
+                String msg = "Trying to resend self sign up code  in unauthorized tenant space";
+                log.error(msg);
+                throw new IdentityMgtServiceException(msg);
+            }
+            if (tenantDomain == null || tenantDomain.isEmpty()) {
+                tenantDomain = loggedInTenant;
+            }
+        }
+
+        int tenantId;
+
+        try {
+            tenantId = Utils.getTenantId(tenantDomain);
+        } catch (IdentityException e) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
+                    + " Error while resending confirmation code", e);
+            return vBean;
+        }
+
+        try {
+            vBean = processor.verifyConfirmationCode(1, userName, code);
+            if (!vBean.isVerified()) {
+                vBean.setError(VerificationBean.ERROR_CODE_INVALID_CODE);
+                return vBean;
+            }
+        } catch (IdentityException e) {
+            vBean = handleError("Error while validating confirmation code for user : " + userName, e);
+            return vBean;
+        }
+
+        try {
+            IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
+                    (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
+
+            boolean isListenerEnable = true;
+
+            if (identityEventListenerConfig != null) {
+                if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+                    isListenerEnable = Boolean.parseBoolean(identityEventListenerConfig.getEnable());
+                }
+            }
+
+            IdentityMgtConfig config = IdentityMgtConfig.getInstance();
+
+            if (isListenerEnable && config.isAuthPolicyAccountLockOnCreation()) {
+                UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
+                userDTO.setTenantId(tenantId);
+
+                UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
+                dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
+                dto.setNotificationType("EMAIL");
+
+                vBean = processor.updateConfirmationCode(1, userName, tenantId);
+
+                dto.setConfirmationCode(vBean.getKey());
+                NotificationDataDTO notificationDto = processor.notifyWithEmail(dto);
+                vBean.setVerified(notificationDto.isNotificationSent());
+
+//				Send email data only if not internally managed.
+                if (!(IdentityMgtConfig.getInstance().isNotificationInternallyManaged())) {
+                    vBean.setNotificationData(notificationDto);
+                }
+
+            } else {
+                vBean.setVerified(true);
+            }
+        } catch (IdentityException e) {
+            vBean = UserIdentityManagementUtil.getCustomErrorMessages(e, userName);
             return vBean;
         }
 

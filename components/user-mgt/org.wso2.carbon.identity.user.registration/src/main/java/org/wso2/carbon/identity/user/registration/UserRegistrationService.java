@@ -20,37 +20,40 @@ package org.wso2.carbon.identity.user.registration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
-import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.user.registration.dto.PasswordRegExDTO;
 import org.wso2.carbon.identity.user.registration.dto.TenantRegistrationConfig;
 import org.wso2.carbon.identity.user.registration.dto.UserDTO;
 import org.wso2.carbon.identity.user.registration.dto.UserFieldDTO;
+import org.wso2.carbon.identity.user.registration.util.CarbonEntityResolver;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -65,6 +68,10 @@ import java.util.Map;
 public class UserRegistrationService {
 
     private static final Log log = LogFactory.getLog(UserRegistrationService.class);
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
+    public static final String EXTERNAL_GENERAL_ENTITIES_URI = "http://xml.org/sax/features/external-general-entities";
 
     /**
      * This service method will return back all available password validation regular expressions
@@ -110,6 +117,7 @@ public class UserRegistrationService {
 
     public UserFieldDTO[] readUserFieldsForUserRegistration(String dialect)
             throws IdentityException {
+
         IdentityClaimManager claimManager = null;
         Claim[] claims = null;
         List<UserFieldDTO> claimList = null;
@@ -134,7 +142,8 @@ public class UserRegistrationService {
                 if (!claim.isReadOnly()) {
                     claimList.add(getUserFieldDTO(claim.getClaimUri(),
                             claim.getDisplayTag(), claim.isRequired(),
-                            claim.getDisplayOrder(), claim.getRegEx()));
+                            claim.getDisplayOrder(), claim.getRegEx(),
+                            claim.isSupportedByDefault()));
                 }
             }
         }
@@ -162,13 +171,6 @@ public class UserRegistrationService {
         Registry registry = IdentityTenantUtil.getRegistry(null, null);
         addUser(tenantAwareUserName, user.getPassword(), userClaims, null, realm);
 
-        // OpenId Sign-Up if necessary.
-        if (user.getOpenID() != null) {
-            IdentityPersistenceManager persistentManager = IdentityPersistenceManager
-                    .getPersistanceManager();
-            persistentManager.doOpenIdSignUp(registry, realm, user.getOpenID(), user.getUserName());
-        }
-
     }
 
     public boolean isAddUserEnabled() throws Exception {
@@ -193,14 +195,33 @@ public class UserRegistrationService {
         return false;
     }
 
+    /**
+     * Check whether the user exist.
+     * @param username Username of the user.
+     * @return True if exist.
+     * @throws Exception
+     */
+    public boolean isUserExist(String username) throws UserRegistrationException {
+
+        try {
+            return CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+                    getUserStoreManager().isExistingUser(username);
+        } catch (UserStoreException e) {
+            log.error("User store exception", e);
+            throw new UserRegistrationException("User store exception", e);
+        }
+    }
+
     private UserFieldDTO getUserFieldDTO(String claimUri, String displayName, boolean isRequired,
-                                         int displayOrder, String regex) {
+                                         int displayOrder, String regex, boolean isSupportedByDefault) {
+
         UserFieldDTO fieldDTO = null;
         fieldDTO = new UserFieldDTO();
         fieldDTO.setClaimUri(claimUri);
         fieldDTO.setFieldName(displayName);
         fieldDTO.setRequired(isRequired);
         fieldDTO.setDisplayOrder(displayOrder);
+        fieldDTO.setSupportedByDefault(isSupportedByDefault);
         fieldDTO.setRegEx(regex);
         return fieldDTO;
     }
@@ -318,7 +339,7 @@ public class UserRegistrationService {
 
         String domainName = UserCoreConstants.INTERNAL_DOMAIN;
         if (externalRole) {
-            domainName = UserCoreUtil.extractDomainFromName(userName);
+            domainName = IdentityUtil.extractDomainFromName(userName);
         }
 
         if (roleName == null || roleName.trim().length() == 0) {
@@ -344,7 +365,7 @@ public class UserRegistrationService {
             if (registry.resourceExists(SelfRegistrationConstants.SIGN_UP_CONFIG_REG_PATH)) {
                 Resource resource = registry.get(SelfRegistrationConstants.SIGN_UP_CONFIG_REG_PATH);
                 // build config from tenant registry resource
-                DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                DocumentBuilder builder = getSecuredDocumentBuilder();
                 String configXml = new String((byte[]) resource.getContent());
                 InputSource configInputSource = new InputSource();
                 configInputSource.setCharacterStream(new StringReader(configXml.trim()));
@@ -383,4 +404,25 @@ public class UserRegistrationService {
         return null;
     }
 
+    /**
+     * * This method provides a secured document builder which will secure XXE attacks.
+     *
+     * @return DocumentBuilder
+     * @throws ParserConfigurationException
+     */
+    private DocumentBuilder getSecuredDocumentBuilder() throws ParserConfigurationException {
+
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(true);
+        documentBuilderFactory.setExpandEntityReferences(false);
+        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        documentBuilderFactory.setFeature(EXTERNAL_GENERAL_ENTITIES_URI, false);
+        SecurityManager securityManager = new SecurityManager();
+        securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+        documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        documentBuilder.setEntityResolver(new CarbonEntityResolver());
+        return documentBuilder;
+
+    }
 }

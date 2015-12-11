@@ -29,7 +29,7 @@ public class CarbonEntityResolver implements EntityResolver {
     @Override
     public InputSource resolveEntity(String publicId, String systemId) throws SAXException,
             IOException {
-        throw new SAXException("SAML request contains invalid elements. Possible XML External Entity (XXE) attack.");
+        throw new SAXException("Possible XML External Entity (XXE) attack. Skip resolving entity");
     }
 
 

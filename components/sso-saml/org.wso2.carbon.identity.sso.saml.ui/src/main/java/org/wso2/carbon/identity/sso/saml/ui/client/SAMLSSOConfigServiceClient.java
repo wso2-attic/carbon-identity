@@ -23,10 +23,12 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.sso.saml.stub.IdentitySAMLSSOConfigServiceStub;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.stub.types.SAMLSSOServiceProviderInfoDTO;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,9 +71,11 @@ public class SAMLSSOConfigServiceClient {
         try {
             SAMLSSOServiceProviderInfoDTO dto = stub.getServiceProviders();
             SAMLSSOServiceProviderDTO[] sps = dto.getServiceProviders();
-            for (SAMLSSOServiceProviderDTO sp : sps) {
-                if (sp.getIssuer().equals(issuer)) {
-                    return sp;
+            if (sps != null) {
+                for (SAMLSSOServiceProviderDTO sp : sps) {
+                    if (sp.getIssuer().equals(issuer)) {
+                        return sp;
+                    }
                 }
             }
         } catch (Exception e) {
@@ -125,5 +129,45 @@ public class SAMLSSOConfigServiceClient {
             throw new AxisFault(e.getMessage(), e);
         }
         return claimUris;
+    }
+
+    public String[] getSigningAlgorithmUris() throws IdentityRuntimeException {
+        String[] signingAlgorithmUris;
+        try {
+            signingAlgorithmUris = stub.getSigningAlgorithmUris();
+        } catch (RemoteException e) {
+            throw new IdentityRuntimeException(e.getMessage(), e);
+        }
+        return signingAlgorithmUris;
+    }
+
+    public String getSigningAlgorithmUriByConfig() throws IdentityRuntimeException {
+        String signingAlgo;
+        try {
+            signingAlgo = stub.getSigningAlgorithmUriByConfig();
+        } catch (RemoteException e) {
+            throw new IdentityRuntimeException(e.getMessage(), e);
+        }
+        return signingAlgo;
+    }
+
+    public String[] getDigestAlgorithmURIs() throws IdentityRuntimeException {
+        String[] digestAlgorithms;
+        try {
+            digestAlgorithms = stub.getDigestAlgorithmURIs();
+        } catch (RemoteException e) {
+            throw new IdentityRuntimeException(e.getMessage(), e);
+        }
+        return digestAlgorithms;
+    }
+
+    public String getDigestAlgorithmURIByConfig() throws IdentityRuntimeException {
+        String digestAlgo;
+        try {
+            digestAlgo = stub.getDigestAlgorithmURIByConfig();
+        } catch (RemoteException e) {
+            throw new IdentityRuntimeException(e.getMessage(), e);
+        }
+        return digestAlgo;
     }
 }

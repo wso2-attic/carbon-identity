@@ -26,6 +26,7 @@
 <%@page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <script type="text/javascript" src="../userstore/extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -99,7 +100,7 @@
     function doValidation() {
         var reason = "";
 
-        reason = validateString("serviceName", "<%=serverManager.getServiceNameConformanceRegularExpression()%>");
+        reason = validateString("serviceName", "<%=Encode.forJavaScriptBlock(serverManager.getServiceNameConformanceRegularExpression())%>");
         if (reason != "") {
             if (reason == "No conformance") {
                 CARBON.showWarningDialog("<fmt:message key="enter.service.name.not.conforming"/>");
@@ -109,7 +110,7 @@
             return false;
         }
 
-        reason = validatePasswordOnCreation("password", "retype", "<%=serverManager.getPasswordConformanceRegularExpression()%>");
+        reason = validatePasswordOnCreation("password", "retype", "<%=Encode.forJavaScriptBlock(serverManager.getPasswordConformanceRegularExpression())%>");
         if (reason != "") {
             if (reason == "Empty Password") {
                 CARBON.showWarningDialog("<fmt:message key="enter.the.same.password.twice"/>");
@@ -129,7 +130,7 @@
 
 
     function doCancel() {
-        location.href = '../application/configure-service-provider.jsp?action=cancel&display=kerberos&spName=<%=applicationSPName%>';
+        location.href = '../application/configure-service-provider.jsp?action=cancel&display=kerberos&spName=<%=Encode.forJavaScriptBlock(Encode.forUriComponent(applicationSPName))%>';
     }
 
 

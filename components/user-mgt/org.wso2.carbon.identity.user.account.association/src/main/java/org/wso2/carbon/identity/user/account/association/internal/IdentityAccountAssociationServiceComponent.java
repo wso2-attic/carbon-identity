@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.identity.user.account.association.UserAccountConnector;
 import org.wso2.carbon.identity.user.account.association.UserAccountConnectorImpl;
 import org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException;
@@ -46,6 +47,9 @@ import java.util.TreeMap;
  * cardinality="0..n" policy="dynamic"
  * bind="setUserStoreManagerListenerService"
  * unbind="unsetUserStoreManagerListenerService"
+ * @scr.reference name="identityCoreInitializedEventService"
+ * interface="org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent" cardinality="1..1"
+ * policy="dynamic" bind="setIdentityCoreInitializedEventService" unbind="unsetIdentityCoreInitializedEventService"
  * @scr.reference name="user.operation.event.listener.service"
  * interface="org.wso2.carbon.user.core.listener.UserOperationEventListener"
  * cardinality="0..n" policy="dynamic"
@@ -215,6 +219,16 @@ public class IdentityAccountAssociationServiceComponent {
             IdentityAccountAssociationServiceDataHolder.getInstance().setUserOperationEventListenerCollection(userOperationEventListenerCollection);
         }
         return userOperationEventListenerCollection;
+    }
+
+    protected void unsetIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
+        /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
+         is started */
+    }
+
+    protected void setIdentityCoreInitializedEventService(IdentityCoreInitializedEvent identityCoreInitializedEvent) {
+        /* reference IdentityCoreInitializedEvent service to guarantee that this component will wait until identity core
+         is started */
     }
 
 }

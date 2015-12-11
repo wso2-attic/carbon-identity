@@ -16,15 +16,12 @@
 ~ under the License.
 -->
 
-<%@page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"%>
+<%@ page import="org.wso2.carbon.identity.application.mgt.ui.util.ApplicationMgtUIUtil"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
 	prefix="carbon"%>
-
-<jsp:useBean id="appBean"
-	class="org.wso2.carbon.identity.application.mgt.ui.ApplicationBean"
-	scope="session" />
-
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -42,8 +39,9 @@
 	<script type="text/javascript" src="../carbon/admin/js/main.js"></script>
 
 	<%
-		String spName = CharacterEncoder.getSafeText(request.getParameter("spName"));
+		String spName = request.getParameter("spName");
 			if (spName != null && !"".equals(spName)) {
+                ApplicationBean appBean = ApplicationMgtUIUtil.getApplicationBeanFromSession(session, spName);
 				if ("wso2carbon-local-sp".equals(spName)) {
 					appBean.updateLocalSp(request);
 				} else {
