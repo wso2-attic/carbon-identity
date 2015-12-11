@@ -28,7 +28,7 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
@@ -810,14 +810,14 @@ public class UserInformationRecoveryService {
                         new String[]{userName});
             }
 
-            IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+            IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
                     (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
 
             boolean isListenerEnable = true;
 
-            if (identityEventListener != null) {
-                if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
-                    isListenerEnable = Boolean.parseBoolean(identityEventListener.getEnable());
+            if (identityEventListenerConfig != null) {
+                if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+                    isListenerEnable = Boolean.parseBoolean(identityEventListenerConfig.getEnable());
                 }
             }
 
@@ -857,6 +857,101 @@ public class UserInformationRecoveryService {
                 vBean = UserIdentityManagementUtil.getCustomErrorMessages(e1, userName);
             }
 
+            return vBean;
+        }
+
+        return vBean;
+    }
+
+
+    /**
+     * This method is used to resend selef sign up confiration code when user is not recieved email properly
+     *
+     * @param userName
+     * @param code
+     * @param profileName
+     * @param tenantDomain
+     * @return
+     * @throws IdentityMgtServiceException
+     */
+    public VerificationBean resendSignUpConfiramtionCode(String userName, String code, String profileName, String
+            tenantDomain)
+            throws IdentityMgtServiceException {
+
+        VerificationBean vBean = new VerificationBean();
+        RecoveryProcessor processor = IdentityMgtServiceComponent.getRecoveryProcessor();
+
+        if (!IdentityMgtConfig.getInstance().isSaasEnabled()) {
+            String loggedInTenant = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            if (tenantDomain != null && !tenantDomain.isEmpty() && !loggedInTenant.equals(tenantDomain)) {
+                String msg = "Trying to resend self sign up code  in unauthorized tenant space";
+                log.error(msg);
+                throw new IdentityMgtServiceException(msg);
+            }
+            if (tenantDomain == null || tenantDomain.isEmpty()) {
+                tenantDomain = loggedInTenant;
+            }
+        }
+
+        int tenantId;
+
+        try {
+            tenantId = Utils.getTenantId(tenantDomain);
+        } catch (IdentityException e) {
+            vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED
+                    + " Error while resending confirmation code", e);
+            return vBean;
+        }
+
+        try {
+            vBean = processor.verifyConfirmationCode(1, userName, code);
+            if (!vBean.isVerified()) {
+                vBean.setError(VerificationBean.ERROR_CODE_INVALID_CODE);
+                return vBean;
+            }
+        } catch (IdentityException e) {
+            vBean = handleError("Error while validating confirmation code for user : " + userName, e);
+            return vBean;
+        }
+
+        try {
+            IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
+                    (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
+
+            boolean isListenerEnable = true;
+
+            if (identityEventListenerConfig != null) {
+                if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+                    isListenerEnable = Boolean.parseBoolean(identityEventListenerConfig.getEnable());
+                }
+            }
+
+            IdentityMgtConfig config = IdentityMgtConfig.getInstance();
+
+            if (isListenerEnable && config.isAuthPolicyAccountLockOnCreation()) {
+                UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
+                userDTO.setTenantId(tenantId);
+
+                UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
+                dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
+                dto.setNotificationType("EMAIL");
+
+                vBean = processor.updateConfirmationCode(1, userName, tenantId);
+
+                dto.setConfirmationCode(vBean.getKey());
+                NotificationDataDTO notificationDto = processor.notifyWithEmail(dto);
+                vBean.setVerified(notificationDto.isNotificationSent());
+
+//				Send email data only if not internally managed.
+                if (!(IdentityMgtConfig.getInstance().isNotificationInternallyManaged())) {
+                    vBean.setNotificationData(notificationDto);
+                }
+
+            } else {
+                vBean.setVerified(true);
+            }
+        } catch (IdentityException e) {
+            vBean = UserIdentityManagementUtil.getCustomErrorMessages(e, userName);
             return vBean;
         }
 

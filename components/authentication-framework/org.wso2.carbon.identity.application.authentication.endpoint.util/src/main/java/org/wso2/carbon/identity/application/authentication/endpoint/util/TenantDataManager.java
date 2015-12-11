@@ -26,7 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.wso2.carbon.identity.application.authentication.endpoint.util.AuthenticationException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 import org.xml.sax.InputSource;
@@ -54,6 +54,7 @@ public class TenantDataManager {
 
     private static final Log log = LogFactory.getLog(TenantDataManager.class);
 
+    private static final String SECRET_ALIAS = "secretAlias:";
     private static Properties prop;
     private static String carbonLogin = "";
     private static String serviceURL;
@@ -61,6 +62,7 @@ public class TenantDataManager {
     private static List<String> tenantDomainList = new ArrayList<String>();
     private static boolean initialized = false;
     private static boolean initAttempted = false;
+    private static boolean identityAvailable;
 
     private TenantDataManager() {
     }
@@ -80,16 +82,23 @@ public class TenantDataManager {
                 File configFile = new File(configFilePath);
 
                 if (configFile.exists()) {
+                    identityAvailable = true;
                     log.info(Constants.TenantConstants.CONFIG_FILE_NAME + " file loaded from " + Constants
                             .TenantConstants.CONFIG_RELATIVE_PATH);
                     inputStream = new FileInputStream(configFile);
 
                     prop.load(inputStream);
-                    // Resolve encrypted properties with secure vault
-                    resolveSecrets(prop);
+
+                    if (isSecuredPropertyAvailable(prop)) {
+                        // Resolve encrypted properties with secure vault
+                        resolveSecrets(prop);
+                    }
+
                 } else {
+                    identityAvailable = false;
                     log.info(Constants.TenantConstants.CONFIG_FILE_NAME + " file loaded from authentication endpoint " +
                             "webapp");
+
                     inputStream = TenantDataManager.class.getClassLoader().getResourceAsStream(Constants
                             .TenantConstants.CONFIG_FILE_NAME);
                     prop.load(inputStream);
@@ -126,9 +135,7 @@ public class TenantDataManager {
 
                 // Build the service URL of tenant management admin service
                 StringBuilder builder = new StringBuilder();
-                serviceURL = builder.append(Constants.HTTPS_URL).append(getPropertyValue(Constants.HOST)).append
-                        (Constants.COLON)
-                        .append(getPropertyValue(Constants.PORT)).append(Constants.TenantConstants
+                serviceURL = builder.append(getPropertyValue(Constants.SERVICES_URL)).append(Constants.TenantConstants
                                 .TENANT_MGT_ADMIN_SERVICE_URL).toString();
 
                 initialized = true;
@@ -177,7 +184,11 @@ public class TenantDataManager {
      * @return Property value
      */
     protected static String getPropertyValue(String key) {
-        return prop.getProperty(key);
+        if (key == Constants.SERVICES_URL && identityAvailable) {
+            return IdentityUtil.getServerURL(prop.getProperty(key),true, true);
+        } else {
+            return prop.getProperty(key);
+        }
     }
 
     /**
@@ -368,5 +379,23 @@ public class TenantDataManager {
             log.warn("Secret Resolver is not present. Will not resolve encryptions in " + Constants.TenantConstants
                     .CONFIG_RELATIVE_PATH + " file");
         }
+    }
+
+    /**
+     * Get status of the availability of secured (with secure vault) properties
+     *
+     * @return availability of secured properties
+     */
+    private static boolean isSecuredPropertyAvailable(Properties properties) {
+
+        Enumeration propertyNames = properties.propertyNames();
+
+        while (propertyNames.hasMoreElements()) {
+            String key = (String) propertyNames.nextElement();
+            if (StringUtils.startsWith(properties.getProperty(key), SECRET_ALIAS)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

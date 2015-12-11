@@ -27,10 +27,15 @@ public class WFImplConstant {
     public static final String HT_PARAMETER_LIST_ELEMENT = "parametersList";
     public static final String HT_ITEM_NAME_ATTRIBUTE = "itemName";
     public static final String HT_REQUEST_ID_ATTRIBUTE_VALUE = "REQUEST ID";
-    public static final String HT_SERVICES_URL = "services/HumanTaskClientAPIAdmin";
-    public static final String BPS_PACKAGE_SERVICES_URL = "services/BPELPackageManagementService/";
-    public static final String BPS_PROCESS_SERVICES_URL = "services/ProcessManagementService/";
+    public static final String HT_SERVICES_URL = "/HumanTaskClientAPIAdmin";
+    public static final String BPS_PACKAGE_SERVICES_URL = "/BPELPackageManagementService/";
+    public static final String BPS_PROCESS_SERVICES_URL = "/ProcessManagementService/";
 
+    public static final String DEFAULT_BPS_PROFILE_NAME = "embeded_bps";
+
+    public static final String MUTUAL_SSL_HEADER = "<m:UserName xmlns:m=\"http://mutualssl.carbon.wso2.org\" " +
+            "xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\" " +
+            "soapenv:mustUnderstand=\"0\">$username</m:UserName>";
 
     public static class ParameterName {
         //Template Parameter List

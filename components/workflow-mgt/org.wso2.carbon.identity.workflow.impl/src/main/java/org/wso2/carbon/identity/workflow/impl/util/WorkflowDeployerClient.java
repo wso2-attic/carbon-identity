@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.workflow.impl.util;
 
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -25,14 +27,16 @@ import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.wso2.carbon.bpel.stub.upload.BPELUploaderStub;
 import org.wso2.carbon.bpel.stub.upload.types.UploadedFileItem;
 import org.wso2.carbon.humantask.stub.upload.HumanTaskUploaderStub;
+import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
 
+import javax.xml.stream.XMLStreamException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class WorkflowDeployerClient {
-    private static final String BPEL_UPLOADER_SERVICE = "/services/BPELUploader";
-    private final static String HT_UPLOADER_SERVICE = "/services/HumanTaskUploader";
+    private static final String BPEL_UPLOADER_SERVICE = "/BPELUploader";
+    private final static String HT_UPLOADER_SERVICE = "/HumanTaskUploader";
 
     private BPELUploaderStub bpelUploaderStub;
     private HumanTaskUploaderStub humanTaskUploaderStub;
@@ -58,11 +62,44 @@ public class WorkflowDeployerClient {
         htServiceClient.setOptions(htOptions);
     }
 
+    public WorkflowDeployerClient(String bpsURL, String username) throws AxisFault {
 
+        bpelUploaderStub = new BPELUploaderStub(bpsURL + BPEL_UPLOADER_SERVICE);
+        ServiceClient serviceClient = bpelUploaderStub._getServiceClient();
+        OMElement mutualSSLHeader;
+        try {
+            String headerString = WFImplConstant.MUTUAL_SSL_HEADER.replaceAll("\\$username", username);
+            mutualSSLHeader = AXIOMUtil.stringToOM(headerString);
+            serviceClient.addHeader(mutualSSLHeader);
+        } catch (XMLStreamException e) {
+            throw new AxisFault("Error while creating mutualSSLHeader XML Element.", e);
+        }
+        Options options = serviceClient.getOptions();
+        serviceClient.setOptions(options);
+
+        humanTaskUploaderStub = new HumanTaskUploaderStub(bpsURL + HT_UPLOADER_SERVICE);
+        ServiceClient htServiceClient = humanTaskUploaderStub._getServiceClient();
+        Options htOptions = htServiceClient.getOptions();
+        htServiceClient.setOptions(htOptions);
+        htServiceClient.addHeader(mutualSSLHeader);
+    }
+
+    /**
+     * Upload BPEL artifacts
+     *
+     * @param fileItems Artifacts todeploy
+     * @throws RemoteException
+     */
     public void uploadBPEL(UploadedFileItem[] fileItems) throws RemoteException {
         bpelUploaderStub.uploadService(fileItems);
     }
 
+    /**
+     * Upload human task artifacts
+     *
+     * @param fileItems Artifacts to deploy
+     * @throws RemoteException
+     */
     public void uploadHumanTask(org.wso2.carbon.humantask.stub.upload.types.UploadedFileItem[] fileItems)
             throws RemoteException {
         humanTaskUploaderStub.uploadHumanTask(fileItems);

@@ -570,13 +570,13 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                         .get(SSOConstants.AUTHENTICATOR_NAME);
         if (authenticatorConfig != null){
             String tmpAcsUrl = authenticatorConfig.getParameterMap().get(SSOConstants.ServerConfig.SAML_SSO_ACS_URL);
-            if(StringUtils.isBlank(tmpAcsUrl)){
+            if(StringUtils.isNotBlank(tmpAcsUrl)){
                 acsUrl = tmpAcsUrl;
             }
         }
 
         if(acsUrl == null) {
-            acsUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+            acsUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true, true);
         }
 
         authRequest.setAssertionConsumerServiceURL(acsUrl);

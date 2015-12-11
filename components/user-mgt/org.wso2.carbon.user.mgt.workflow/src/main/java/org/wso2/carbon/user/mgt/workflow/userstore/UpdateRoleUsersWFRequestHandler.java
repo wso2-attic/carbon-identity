@@ -71,6 +71,12 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
 
         WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
 
+        if (deletedUsers == null) {
+            deletedUsers = new String[0];
+        }
+        if (newUsers == null) {
+            newUsers = new String[0];
+        }
         int tenant = CarbonContext.getThreadLocalCarbonContext().getTenantId();
         String fullyQualifiedName = UserCoreUtil.addDomainToName(roleName, userStoreDomain);
         Map<String, Object> wfParams = new HashMap<>();

@@ -56,7 +56,6 @@ import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.security.Key;
@@ -109,7 +108,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
     private ClaimCache claimsLocalCache;
 
     public JWTTokenGenerator() {
-        claimsLocalCache = ClaimCache.getInstance(OAuthServerConfiguration.getInstance().getClaimCacheTimeout());
+        claimsLocalCache = ClaimCache.getInstance();
     }
 
     private String userAttributeSeparator = IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR_DEFAULT;
@@ -223,8 +222,8 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
                 requestedClaims = claimsRetriever.getDefaultClaims(authzUser);
             }
 
-            CacheKey cacheKey = null;
-            Object result = null;
+            ClaimCacheKey cacheKey = null;
+            UserClaims result = null;
 
             if(requestedClaims != null) {
                 cacheKey = new ClaimCacheKey(authzUser, requestedClaims);
@@ -233,7 +232,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
             SortedMap<String,String> claimValues = null;
             if (result != null) {
-                claimValues = ((UserClaims) result).getClaimValues();
+                claimValues = result.getClaimValues();
             } else if (isExistingUser) {
                 claimValues = claimsRetriever.getClaims(authzUser, requestedClaims);
                 UserClaims userClaims = new UserClaims(claimValues);

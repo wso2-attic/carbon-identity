@@ -30,7 +30,9 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.dto.SingleLogoutRequestDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
@@ -167,7 +169,7 @@ public class LogoutRequestSender {
                 logoutReqParams.add(new BasicNameValuePair(SAMLSSOConstants.SAML_REQUEST_PARAM_KEY, SAMLSSOUtil.encode(logoutReqDTO.getLogoutResponse())));
             }
 
-            if (log.isDebugEnabled()) {
+            if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.SAML_REQUEST)) {
                 log.debug("SAMLRequest : " + decodedSAMLRequest);
             }
 

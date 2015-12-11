@@ -22,9 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCache;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheKey;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
@@ -45,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 /**
  * Request Coordinator
@@ -67,6 +66,16 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         return instance;
     }
 
+    /**
+     * Get authentication request cache entry
+     * @param request Http servlet request
+     * @return Authentication request cache entry
+     */
+    private AuthenticationRequestCacheEntry getAuthenticationRequestFromRequest(HttpServletRequest request) {
+
+        return (AuthenticationRequestCacheEntry) request.getAttribute(FrameworkConstants.RequestAttribute.AUTH_REQUEST);
+    }
+
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
@@ -84,7 +93,8 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                 // Retrieve AuthenticationRequestCache Entry which is stored stored from servlet.
                 if (sessionDataKey != null) {
                     log.debug("retrieving authentication request from cache..");
-                    authRequest = FrameworkUtils.getAuthenticationRequestFromCache(sessionDataKey);
+
+                    authRequest = getAuthenticationRequest(request, sessionDataKey);
 
                     if (authRequest == null) {
                         // authRequest cannot be retrieved from cache. Cache
@@ -143,6 +153,24 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
             log.error("Exception in Authentication Framework", e);
             FrameworkUtils.sendToRetryPage(request, response);
         }
+    }
+
+    /**
+     * When cache removed authentication request stored as request attribute, then taking request from request or
+     * otherwise getting authentication request from cache
+     *
+     * @param request
+     * @param sessionDataKey
+     * @return
+     */
+    private AuthenticationRequestCacheEntry getAuthenticationRequest(HttpServletRequest request,
+            String sessionDataKey) {
+
+        AuthenticationRequestCacheEntry authRequest = getAuthenticationRequestFromRequest(request);
+        if (authRequest == null) {
+            authRequest = FrameworkUtils.getAuthenticationRequestFromCache(sessionDataKey);
+        }
+        return authRequest;
     }
 
     /**
@@ -347,7 +375,8 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         context.setSequenceConfig(sequenceConfig);
     }
 
-    private void buildOutboundQueryString(HttpServletRequest request, AuthenticationContext context) {
+    private void buildOutboundQueryString(HttpServletRequest request, AuthenticationContext context)
+            throws FrameworkException {
 
         // Build the outbound query string that will be sent to the authentication endpoint and
         // federated IdPs
@@ -358,11 +387,15 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
             outboundQueryStringBuilder.append("&");
         }
 
-        outboundQueryStringBuilder.append("sessionDataKey=").append(context.getContextIdentifier())
-                .append("&relyingParty=").append(context.getRelyingParty()).append("&type=")
-                .append(context.getRequestType()).append("&sp=")
-                .append(context.getServiceProviderName()).append("&isSaaSApp=")
-                .append(context.getSequenceConfig().getApplicationConfig().isSaaSApp());
+        try {
+            outboundQueryStringBuilder.append("sessionDataKey=").append(context.getContextIdentifier())
+                    .append("&relyingParty=").append(URLEncoder.encode(context.getRelyingParty(), "UTF-8")).append("&type=")
+                    .append(context.getRequestType()).append("&sp=")
+                    .append(URLEncoder.encode(context.getServiceProviderName(), "UTF-8")).append("&isSaaSApp=")
+                    .append(context.getSequenceConfig().getApplicationConfig().isSaaSApp());
+        } catch (UnsupportedEncodingException e) {
+            throw new FrameworkException("Error while URL Encoding", e);
+        }
 
         if (log.isDebugEnabled()) {
             log.debug("Outbound Query String: " + outboundQueryStringBuilder.toString());

@@ -86,7 +86,7 @@ public class CacheBackedIdPMgtDAO {
             IdentityProviderManagementException {
 
         IdPNameCacheKey cacheKey = new IdPNameCacheKey(idPName, tenantDomain);
-        IdPCacheEntry entry = (IdPCacheEntry) idPCacheByName.getValueFromCache(cacheKey);
+        IdPCacheEntry entry = idPCacheByName.getValueFromCache(cacheKey);
 
         if (entry != null) {
             log.debug("Cache entry found for Identity Provider " + idPName);
@@ -137,7 +137,7 @@ public class CacheBackedIdPMgtDAO {
             throws IdentityProviderManagementException {
 
         IdPAuthPropertyCacheKey cacheKey = new IdPAuthPropertyCacheKey(property, value, tenantDomain);
-        IdPCacheEntry entry = (IdPCacheEntry) idPCacheByAuthProperty.getValueFromCache(cacheKey);
+        IdPCacheEntry entry = idPCacheByAuthProperty.getValueFromCache(cacheKey);
 
         if (entry != null) {
             log.debug("Cache entry found for Identity Provider with authenticator property " + property
@@ -155,7 +155,10 @@ public class CacheBackedIdPMgtDAO {
         if (identityProvider != null) {
             log.debug("Entry fetched from DB for Identity Provider with authenticator property " + property
                     + " and with value " + value + ". Updating cache");
-            idPCacheByName.addToCache(cacheKey, new IdPCacheEntry(identityProvider));
+
+            IdPNameCacheKey idPNameCacheKey = new IdPNameCacheKey(identityProvider.getIdentityProviderName(),
+                    tenantDomain);
+            idPCacheByName.addToCache(idPNameCacheKey, new IdPCacheEntry(identityProvider));
             if (identityProvider.getHomeRealmId() != null) {
                 IdPHomeRealmIdCacheKey homeRealmIdCacheKey = new IdPHomeRealmIdCacheKey(
                         identityProvider.getHomeRealmId(), tenantDomain);
@@ -188,7 +191,7 @@ public class CacheBackedIdPMgtDAO {
                                             String tenantDomain) throws IdentityProviderManagementException {
 
         IdPHomeRealmIdCacheKey cacheKey = new IdPHomeRealmIdCacheKey(realmId, tenantDomain);
-        IdPCacheEntry entry = (IdPCacheEntry) idPCacheByHRI.getValueFromCache(cacheKey);
+        IdPCacheEntry entry = idPCacheByHRI.getValueFromCache(cacheKey);
         if (entry != null) {
             log.debug("Cache entry found for Identity Provider with Home Realm ID " + realmId);
             return entry.getIdentityProvider();

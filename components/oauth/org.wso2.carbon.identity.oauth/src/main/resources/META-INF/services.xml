@@ -50,7 +50,7 @@
         <schema schemaNamespace="http://org.apache.axis2/xsd" elementFormDefaultQualified="true" />
         <description>OAuth administration related functionality.</description>
         <parameter name="ServiceClass">org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService</parameter>
-        <parameter name="AuthorizationAction" locked="true">/permission/admin/manage</parameter>
+        <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/pep</parameter>
         <parameter name="adminService" locked="true">true</parameter>
     </service>
 

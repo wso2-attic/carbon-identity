@@ -20,7 +20,7 @@ package org.wso2.carbon.idp.mgt.listener;
 
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
@@ -76,26 +76,26 @@ public abstract class AbstractIdentityProviderMgtListener implements IdentityPro
     }
 
     public boolean isEnable() {
-        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+        IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
                 (IdentityProviderMgtListener.class.getName(), this.getClass().getName());
-        if (identityEventListener == null) {
+        if (identityEventListenerConfig == null) {
             return true;
         }
-        if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
-            return Boolean.parseBoolean(identityEventListener.getEnable());
+        if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+            return Boolean.parseBoolean(identityEventListenerConfig.getEnable());
         } else {
             return true;
         }
     }
 
     public int getExecutionOrderId() {
-        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+        IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
                 (IdentityProviderMgtListener.class.getName(), this.getClass().getName());
         int orderId;
-        if (identityEventListener == null) {
+        if (identityEventListenerConfig == null) {
             orderId = IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
         } else {
-            orderId = identityEventListener.getOrder();
+            orderId = identityEventListenerConfig.getOrder();
         }
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;

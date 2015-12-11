@@ -57,6 +57,7 @@ public class PAPPolicyReader implements ErrorHandler {
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
+    public static final String EXTERNAL_GENERAL_ENTITIES_URI = "http://xml.org/sax/features/external-general-entities";
     // To enable attempted thread-safety using double-check locking
     private static final Object lock = new Object();
     private static Log log = LogFactory.getLog(PAPPolicyReader.class);
@@ -83,6 +84,7 @@ public class PAPPolicyReader implements ErrorHandler {
         // now use the factory to create the document builder
         try {
             documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            documentBuilderFactory.setFeature(EXTERNAL_GENERAL_ENTITIES_URI, false);
             builder = documentBuilderFactory.newDocumentBuilder();
             builder.setEntityResolver(new CarbonEntityResolver());
             builder.setErrorHandler(this);

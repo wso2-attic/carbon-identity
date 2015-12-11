@@ -35,6 +35,12 @@ public class OAuthTokenReqMessageContext {
     private int tenantID;
 
     private long validityPeriod = OAuthConstants.UNASSIGNED_VALIDITY_PERIOD;
+    
+    private long refreshTokenvalidityPeriod = OAuthConstants.UNASSIGNED_VALIDITY_PERIOD;
+    
+    private long accessTokenIssuedTime;
+    
+    private long refreshTokenIssuedTime;
 
     private Properties properties = new Properties();
 
@@ -84,5 +90,29 @@ public class OAuthTokenReqMessageContext {
 
     public Object getProperty(Object propName) {
         return properties.get(propName);
+    }
+
+    public long getRefreshTokenvalidityPeriod() {
+	return refreshTokenvalidityPeriod;
+    }
+
+    public void setRefreshTokenvalidityPeriod(long refreshTokenvalidityPeriod) {
+	this.refreshTokenvalidityPeriod = refreshTokenvalidityPeriod;
+    }
+
+    public long getAccessTokenIssuedTime() {
+	return accessTokenIssuedTime;
+    }
+
+    public void setAccessTokenIssuedTime(long accessTokenIssuedTime) {
+	this.accessTokenIssuedTime = accessTokenIssuedTime;
+    }
+
+    public long getRefreshTokenIssuedTime() {
+	return refreshTokenIssuedTime;
+    }
+
+    public void setRefreshTokenIssuedTime(long refreshTokenIssuedTime) {
+	this.refreshTokenIssuedTime = refreshTokenIssuedTime;
     }
 }

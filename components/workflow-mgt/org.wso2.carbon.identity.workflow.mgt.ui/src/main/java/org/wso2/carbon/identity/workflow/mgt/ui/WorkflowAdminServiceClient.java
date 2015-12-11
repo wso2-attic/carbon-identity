@@ -59,6 +59,12 @@ public class WorkflowAdminServiceClient {
         option.setProperty(org.apache.axis2.transport.http.HTTPConstants.COOKIE_STRING, cookie);
     }
 
+    /**
+     * List events that can be associated to workflows, eg:- Add user, Addrole, etc
+     *
+     * @return
+     * @throws RemoteException
+     */
     public WorkflowEvent[] listWorkflowEvents() throws RemoteException {
 
         WorkflowEvent[] workflowEvents = stub.listWorkflowEvents();
@@ -68,6 +74,13 @@ public class WorkflowAdminServiceClient {
         return workflowEvents;
     }
 
+    /**
+     * List existing workflow templates
+     *
+     * @return
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
     public Template[] listTemplates() throws RemoteException, WorkflowAdminServiceWorkflowException {
 
         Template[] templates = stub.listTemplates();
@@ -77,6 +90,14 @@ public class WorkflowAdminServiceClient {
         return templates;
     }
 
+    /**
+     * List implementations of a workflow template
+     *
+     * @param templateId  ID of template
+     * @return
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
     public WorkflowImpl[] listWorkflowImpls(String templateId)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
@@ -87,12 +108,29 @@ public class WorkflowAdminServiceClient {
         return workflows;
     }
 
+    /**
+     * Retrieve workflow template using workflow ID
+     *
+     * @param templateName  template name
+     * @return
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
     public Template getTemplate(String templateName) throws RemoteException, WorkflowAdminServiceWorkflowException {
 
         Template template = stub.getTemplate(templateName);
         return template;
     }
 
+    /**
+     * Retrieve workflow impl object
+     *
+     * @param template template id
+     * @param implName workflow impl name
+     * @return
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
     public WorkflowImpl getWorkflowImp(String template, String implName)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
@@ -113,6 +151,14 @@ public class WorkflowAdminServiceClient {
 
     }
 
+    /**
+     * Retrieve workflow from workflow ID
+     *
+     * @param workflowId  workflow id
+     * @return
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
     public WorkflowWizard getWorkflow(String workflowId)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
@@ -137,11 +183,26 @@ public class WorkflowAdminServiceClient {
         return workflows;
     }
 
+    /**
+     * Remove a workflow
+     *
+     * @param workflowId  ID of workflow to remove
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
     public void deleteWorkflow(String workflowId) throws RemoteException, WorkflowAdminServiceWorkflowException {
 
         stub.removeWorkflow(workflowId);
     }
 
+    /**
+     * List associations of a specific workflow
+     *
+     * @param workflowId  Workflow ID
+     * @return
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
     public Association[] listAssociationsForWorkflow(String workflowId)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
         Association[] associationsForWorkflow = stub.listAssociations(workflowId);
@@ -151,6 +212,13 @@ public class WorkflowAdminServiceClient {
         return associationsForWorkflow;
     }
 
+    /**
+     * List all associations
+     *
+     * @return
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
     public Association[] listAllAssociations() throws RemoteException, WorkflowAdminServiceWorkflowException {
 
         Association[] associations = stub.listAllAssociations();
@@ -160,11 +228,28 @@ public class WorkflowAdminServiceClient {
         return associations;
     }
 
+    /**
+     * Remove association
+     *
+     * @param associationId  ID of association to remove
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
     public void deleteAssociation(String associationId) throws RemoteException, WorkflowAdminServiceWorkflowException {
 
         stub.removeAssociation(associationId);
     }
 
+    /**
+     * Add new workflow association
+     *
+     * @param associationName  Name for the association
+     * @param workflowId  Workflow to associate
+     * @param eventId  Event to associate
+     * @param condition  Condition to check the event for associating
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
     public void addAssociation(String workflowId, String associationName, String eventId, String condition)
             throws RemoteException, WorkflowAdminServiceWorkflowException {
 
@@ -197,11 +282,30 @@ public class WorkflowAdminServiceClient {
         stub.changeAssociationState(associationId,false);
     }
 
+    /**
+     * Retrieve workflow event object from ID
+     *
+     * @param id  Workflow event ID
+     * @return
+     * @throws RemoteException
+     */
     public WorkflowEvent getEvent(String id) throws RemoteException {
 
         return stub.getEvent(id);
     }
 
+    /**
+     * Returns array of requests initiated by a user.
+     *
+     * @param user  User to retrieve requests of
+     * @param beginDate  Lower limit of date range
+     * @param endDate  Upper limit of date range
+     * @param dateCategory  Filter by created date or last updated date
+     * @param status  Status of requests to filter
+     * @return
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
     public WorkflowRequest[] getRequestsCreatedByUser(String user, String beginDate, String endDate, String
             dateCategory, String status) throws RemoteException, WorkflowAdminServiceWorkflowException {
         //TODO ADD status as param
@@ -213,6 +317,17 @@ public class WorkflowAdminServiceClient {
 
     }
 
+    /**
+     * Return array of requests according to createdAt and updatedAt filter
+     *
+     * @param beginDate  Lower limit of date range
+     * @param endDate  Upper limit of date range
+     * @param dateCategory  Filter by created date or last updated date
+     * @param status  Status of requests to filter
+     * @return
+     * @throws RemoteException
+     * @throws WorkflowAdminServiceWorkflowException
+     */
     public WorkflowRequest[] getAllRequests(String beginDate, String endDate, String dateCategory, String status) throws
             RemoteException, WorkflowAdminServiceWorkflowException {
 
@@ -224,10 +339,25 @@ public class WorkflowAdminServiceClient {
         return requests;
     }
 
+    /**
+     * Move Workflow request to DELETED state.
+     *
+     * @param requestId Request ID to delete requests of.
+     * @throws WorkflowAdminServiceWorkflowException
+     * @throws RemoteException
+     */
     public void deleteRequest(String requestId) throws WorkflowAdminServiceWorkflowException, RemoteException {
         stub.deleteWorkflowRequest(requestId);
     }
 
+    /**
+     * Get workflows of a request.
+     *
+     * @param requestId Request ID to get workflows of.
+     * @return
+     * @throws WorkflowAdminServiceWorkflowException
+     * @throws RemoteException
+     */
     public WorkflowRequestAssociation[] getWorkflowsOfRequest(String requestId) throws
             WorkflowAdminServiceWorkflowException, RemoteException {
 

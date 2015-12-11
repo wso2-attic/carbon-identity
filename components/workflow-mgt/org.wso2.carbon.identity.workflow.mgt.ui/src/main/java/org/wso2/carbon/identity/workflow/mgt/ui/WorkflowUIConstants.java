@@ -18,26 +18,10 @@
 
 package org.wso2.carbon.identity.workflow.mgt.ui;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class WorkflowUIConstants {
-
-
-
 
     public static final String WORKFLOW_WIZARD_REF = "workflow-wizard" ;
     public static final String PARAM_SELECT_ITEM = "select-item";
-
-
-
-
-
-
-
-
-
-
     public static final String PARAM_ACTION = "action";
     public static final String ACTION_VALUE_ADD = "addNew";
     public static final String ACTION_VALUE_BACK = "back";

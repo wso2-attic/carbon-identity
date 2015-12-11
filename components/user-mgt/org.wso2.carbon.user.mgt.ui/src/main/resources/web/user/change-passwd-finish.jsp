@@ -79,7 +79,6 @@
 
 <script type="text/javascript">
     function forward() {
-        debugger;
         location.href = "<%=Encode.forJavaScriptBlock(forwardTo)%>";
     }
 </script>

@@ -311,6 +311,7 @@ public class IdPManagementUIUtil {
         Property passwordProp = null;
         Property endPointProp = null;
         Property objectClass = null;
+        Property uniqueID = null;
 
         if (paramMap.get("spmlProvEnabled") != null && "on".equals(paramMap.get("spmlProvEnabled"))) {
             proConnector.setEnabled(true);
@@ -347,8 +348,14 @@ public class IdPManagementUIUtil {
             objectClass.setValue(paramMap.get("spml-oc"));
         }
 
+        if (paramMap.get("spml-unique-id") != null){
+            uniqueID = new Property();
+            uniqueID.setName("UniqueID");
+            uniqueID.setValue(paramMap.get("spml-unique-id"));
+        }
+
         Property[] proProperties = new Property[]{userNameProp, passwordProp, endPointProp,
-                objectClass};
+                objectClass, uniqueID};
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -387,6 +394,7 @@ public class IdPManagementUIUtil {
         Property appName = null;
         Property googleProvPatten = null;
         Property googleProvSeparator = null;
+        Property uniqueID = null;
         String oldGooglePvtKey = null;
         String newGooglePvtKey = null;
 
@@ -488,9 +496,15 @@ public class IdPManagementUIUtil {
             googleProvSeparator.setValue(paramMap.get("google_prov_separator"));
         }
 
+        if (paramMap.get("google-unique-id") != null){
+            uniqueID = new Property();
+            uniqueID.setName("UniqueID");
+            uniqueID.setValue(paramMap.get("google-unique-id"));
+        }
+
         Property[] proProperties = new Property[]{appName, adminEmail, privateKey,
                 serviceAccEmail, familyNameDefault, familyNameClaim, givenNameDefaultVal,
-                givenNameClaim, emailClaim, domainName, googleProvPatten, googleProvSeparator};
+                givenNameClaim, emailClaim, domainName, googleProvPatten, googleProvSeparator, uniqueID};
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -523,6 +537,7 @@ public class IdPManagementUIUtil {
         Property scimUserStoreDomain = null;
         Property scimEnablePwdProvisioning = null;
         Property defaultPwdProp = null;
+        Property uniqueID = null;
 
         if (paramMap.get("scimProvEnabled") != null && "on".equals(paramMap.get("scimProvEnabled"))) {
             proConnector.setEnabled(true);
@@ -578,8 +593,14 @@ public class IdPManagementUIUtil {
             defaultPwdProp.setValue(paramMap.get("scim-default-pwd"));
         }
 
+        if (paramMap.get("scim-unique-id") != null){
+            uniqueID = new Property();
+            uniqueID.setName("UniqueID");
+            uniqueID.setValue(paramMap.get("scim-unique-id"));
+        }
+
         Property[] proProperties = new Property[]{userNameProp, passwordProp, userEpProp,
-                groupEpProp, scimUserStoreDomain, scimEnablePwdProvisioning, defaultPwdProp};
+                groupEpProp, scimUserStoreDomain, scimEnablePwdProvisioning, defaultPwdProp, uniqueID};
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -617,6 +638,7 @@ public class IdPManagementUIUtil {
         Property provisioningPattern = null;
         Property provisioningSeparator = null;
         Property provisioningDomain = null;
+        Property uniqueID = null;
 
         if (paramMap.get("sfProvEnabled") != null && "on".equals(paramMap.get("sfProvEnabled"))) {
             proConnector.setEnabled(true);
@@ -696,9 +718,15 @@ public class IdPManagementUIUtil {
             provisioningDomain.setValue(paramMap.get("sf-prov-domainName"));
         }
 
+        if (paramMap.get("sf-unique-id") != null){
+            uniqueID = new Property();
+            uniqueID.setName("UniqueID");
+            uniqueID.setValue(paramMap.get("sf-unique-id"));
+        }
+
         Property[] proProperties = new Property[]{userNameProp, passwordProp, clentIdProp,
                 clientSecretProp, apiVersionProp, domainNameProp, tokenEndpointProp, provisioningPattern,
-                provisioningSeparator, provisioningDomain};
+                provisioningSeparator, provisioningDomain, uniqueID};
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -963,7 +991,7 @@ public class IdPManagementUIUtil {
 
         FederatedAuthenticatorConfig openIdAuthnConfig = new FederatedAuthenticatorConfig();
         openIdAuthnConfig.setName("OpenIDAuthenticator");
-        openIdAuthnConfig.setDisplayName("OpenID");
+        openIdAuthnConfig.setDisplayName("openid");
 
         if ("on".equals(paramMap.get("openIdEnabled"))) {
             openIdAuthnConfig.setEnabled(true);
@@ -1028,7 +1056,7 @@ public class IdPManagementUIUtil {
 
         FederatedAuthenticatorConfig facebookAuthnConfig = new FederatedAuthenticatorConfig();
         facebookAuthnConfig.setName("FacebookAuthenticator");
-        facebookAuthnConfig.setDisplayName("Facebook");
+        facebookAuthnConfig.setDisplayName("facebook");
 
         if ("on".equals(paramMap.get("fbAuthEnabled"))) {
             facebookAuthnConfig.setEnabled(true);
@@ -1106,7 +1134,7 @@ public class IdPManagementUIUtil {
 
         FederatedAuthenticatorConfig oidcAuthnConfig = new FederatedAuthenticatorConfig();
         oidcAuthnConfig.setName("OpenIDConnectAuthenticator");
-        oidcAuthnConfig.setDisplayName("OAuth2/OpenIDConnect");
+        oidcAuthnConfig.setDisplayName("openidconnect");
 
         if ("on".equals(paramMap.get("oidcEnabled"))) {
             oidcAuthnConfig.setEnabled(true);
@@ -1188,7 +1216,7 @@ public class IdPManagementUIUtil {
 
         FederatedAuthenticatorConfig passiveSTSAuthnConfig = new FederatedAuthenticatorConfig();
         passiveSTSAuthnConfig.setName("PassiveSTSAuthenticator");
-        passiveSTSAuthnConfig.setDisplayName("PassiveSTS");
+        passiveSTSAuthnConfig.setDisplayName("passivests");
 
         if ("on".equals(paramMap.get("passiveSTSEnabled"))) {
             passiveSTSAuthnConfig.setEnabled(true);
@@ -1349,7 +1377,7 @@ public class IdPManagementUIUtil {
 
         FederatedAuthenticatorConfig saml2SSOAuthnConfig = new FederatedAuthenticatorConfig();
         saml2SSOAuthnConfig.setName("SAMLSSOAuthenticator");
-        saml2SSOAuthnConfig.setDisplayName("SAML2 Web SSO");
+        saml2SSOAuthnConfig.setDisplayName("samlsso");
 
         if ("on".equals(paramMap.get("saml2SSOEnabled"))) {
             saml2SSOAuthnConfig.setEnabled(true);

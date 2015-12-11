@@ -103,7 +103,7 @@ public class OAuthServlet extends HttpServlet {
                     req.getSession().setAttribute("oauth_req_token", params.getOauthToken());
                     req.getSession().setAttribute("oauth_scope", metadata.getScope());
                     req.getSession().setAttribute("oauth_app_name", metadata.getAppName());
-                    resp.sendRedirect(IdentityUtil.getServerURL("/carbon/oauth/oauth-login.jsp", true));
+                    resp.sendRedirect(IdentityUtil.getServerURL("/carbon/oauth/oauth-login.jsp", false, true));
                 }
             } else if (requestType.indexOf(OAuthConstants.OAuth10AEndpoints.ACCESS_TOKEN_URL) > -1) {
                 // The Request Token and Token Secret MUST be exchanged for an Access Token and

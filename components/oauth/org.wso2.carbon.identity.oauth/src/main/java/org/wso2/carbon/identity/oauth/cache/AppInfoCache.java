@@ -18,10 +18,8 @@
 
 package org.wso2.carbon.identity.oauth.cache;
 
-import org.wso2.carbon.identity.application.authentication.framework.store.SessionDataStore;
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.core.model.OAuthAppDO;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
 /**
@@ -33,8 +31,8 @@ public class AppInfoCache extends BaseCache<String, OAuthAppDO> {
 
     private static volatile AppInfoCache instance;
 
-    private AppInfoCache(String cacheName, int timeout) {
-        super(cacheName, timeout);
+    private AppInfoCache() {
+        super(OAUTH_APP_INFO_CACHE_NAME);
     }
 
     /**
@@ -42,30 +40,15 @@ public class AppInfoCache extends BaseCache<String, OAuthAppDO> {
      *
      * @return instance of OAuthAppInfoCache
      */
-    public static AppInfoCache getInstance(int timeout) {
+    public static AppInfoCache getInstance() {
         CarbonUtils.checkSecurity();
         if (instance == null) {
-            synchronized (SessionDataCache.class) {
+            synchronized (AppInfoCache.class) {
                 if (instance == null) {
-                    instance = new AppInfoCache(OAUTH_APP_INFO_CACHE_NAME, timeout);
+                    instance = new AppInfoCache();
                 }
             }
         }
         return instance;
-    }
-
-    @Override
-    public void addToCache(String key, OAuthAppDO entry) {
-        super.addToCache(key, entry);
-    }
-
-    @Override
-    public OAuthAppDO getValueFromCache(String key) {
-        return super.getValueFromCache(key);
-    }
-
-    @Override
-    public void clearCacheEntry(String key) {
-        super.clearCacheEntry(key);
     }
 }

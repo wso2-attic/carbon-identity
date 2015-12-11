@@ -22,7 +22,6 @@ import org.wso2.carbon.identity.workflow.mgt.bean.metadata.InputData;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowException;
 import org.wso2.carbon.identity.workflow.mgt.exception.WorkflowRuntimeException;
 import org.wso2.carbon.identity.workflow.mgt.template.AbstractTemplate;
-import org.wso2.carbon.identity.workflow.mgt.util.WFConstant;
 
 public class MultiStepApprovalTemplate extends AbstractTemplate {
 
