@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.mgt;
 
+import org.apache.axis2.context.MessageContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -283,6 +284,9 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                     if (notificationModules != null) {
 
                         NotificationDataDTO notificationData = new NotificationDataDTO();
+                        Map headers = (Map) MessageContext.getCurrentMessageContext().getProperty(
+                                MessageContext.TRANSPORT_HEADERS);
+                        notificationData.setTransportHeaders(new HashMap(headers));
 
                         NotificationData emailNotificationData = new NotificationData();
                         String emailTemplate = null;

@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.mgt.dto;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * encapsulates recovery data such as email config that can be used to send
@@ -44,6 +45,8 @@ public class NotificationDataDTO implements Serializable {
     private String notificationSubject;
 
     private boolean notificationSent;
+
+    private Map transportHeaders = null;
 
     public NotificationDataDTO() {
     }
@@ -120,4 +123,11 @@ public class NotificationDataDTO implements Serializable {
         this.notificationSubject = notificationSubject;
     }
 
+    public Map getTransportHeaders() {
+        return transportHeaders;
+    }
+
+    public void setTransportHeaders(Map transportHeaders) {
+        this.transportHeaders = transportHeaders;
+    }
 }
