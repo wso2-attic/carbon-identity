@@ -412,7 +412,7 @@ public class OAuth2AuthzEndpoint {
             // all went okay
             if (StringUtils.isNotBlank(authzRespDTO.getAuthorizationCode())){
                 builder.setCode(authzRespDTO.getAuthorizationCode());
-                addUserAttributesToCache(sessionDataCacheEntry, authzRespDTO.getAuthorizationCode());
+                addUserAttributesToCache(sessionDataCacheEntry, authzRespDTO.getAuthorizationCode(), authzRespDTO.getCodeId());
             }
             if (StringUtils.isNotBlank(authzRespDTO.getAccessToken())){
                 builder.setAccessToken(authzRespDTO.getAccessToken());
@@ -455,11 +455,12 @@ public class OAuth2AuthzEndpoint {
         return oauthResponse.getLocationUri();
     }
 
-    private void addUserAttributesToCache(SessionDataCacheEntry sessionDataCacheEntry, String code) {
+    private void addUserAttributesToCache(SessionDataCacheEntry sessionDataCacheEntry, String code, String codeId) {
         AuthorizationGrantCacheKey authorizationGrantCacheKey = new AuthorizationGrantCacheKey(code);
         AuthorizationGrantCacheEntry authorizationGrantCacheEntry = new AuthorizationGrantCacheEntry(
                 sessionDataCacheEntry.getLoggedInUser().getUserAttributes());
         authorizationGrantCacheEntry.setNonceValue(sessionDataCacheEntry.getoAuth2Parameters().getNonce());
+        authorizationGrantCacheEntry.setCodeId(codeId);
         AuthorizationGrantCache.getInstance().addToCacheByCode(authorizationGrantCacheKey, authorizationGrantCacheEntry);
     }
 
