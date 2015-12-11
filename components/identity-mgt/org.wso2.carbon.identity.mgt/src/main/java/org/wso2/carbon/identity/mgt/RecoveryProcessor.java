@@ -19,6 +19,7 @@
 
 package org.wso2.carbon.identity.mgt;
 
+import org.apache.axis2.context.MessageContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -127,7 +128,12 @@ public class RecoveryProcessor {
                 log.debug("No Tenant domain for tenant id " + tenantId, e);
             }
         }
+
         NotificationDataDTO notificationData = new NotificationDataDTO();
+        Map headers = (Map) MessageContext.getCurrentMessageContext().getProperty(
+                MessageContext.TRANSPORT_HEADERS);
+        notificationData.setTransportHeaders(new HashMap(headers));
+
         String internalCode = null;
 
         String type = recoveryDTO.getNotificationType();
@@ -449,6 +455,9 @@ public class RecoveryProcessor {
         String userName = UserCoreUtil.removeDomainFromName(userId);
 
         NotificationDataDTO notificationData = new NotificationDataDTO();
+        Map headers = (Map)MessageContext.getCurrentMessageContext().getProperty(
+                MessageContext.TRANSPORT_HEADERS);
+        notificationData.setTransportHeaders(new HashMap(headers));
 
 
         String type = notificationBean.getNotificationType();
