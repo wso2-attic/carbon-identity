@@ -82,8 +82,7 @@ public class TenantIdentityMgtClient {
         try {
             TenantConfigDTO[] tenantConfigDTOs = stub.getConfiguration();
 
-            for (int i = 0; i < tenantConfigDTOs.length; i++) {
-                TenantConfigDTO tenantConfigDTO = tenantConfigDTOs[i];
+            for (TenantConfigDTO tenantConfigDTO : tenantConfigDTOs) {
                 configMap.put(tenantConfigDTO.getProperty(),
                         tenantConfigDTO.getPropertyValue());
             }
