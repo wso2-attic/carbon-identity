@@ -30,6 +30,7 @@ import org.wso2.carbon.idp.mgt.cache.IdPCacheByName;
 import org.wso2.carbon.idp.mgt.cache.IdPCacheEntry;
 import org.wso2.carbon.idp.mgt.cache.IdPHomeRealmIdCacheKey;
 import org.wso2.carbon.idp.mgt.cache.IdPNameCacheKey;
+import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 
 import java.sql.Connection;
 import java.util.List;
@@ -91,6 +92,7 @@ public class CacheBackedIdPMgtDAO {
         if (entry != null) {
             log.debug("Cache entry found for Identity Provider " + idPName);
             IdentityProvider identityProvider = entry.getIdentityProvider();
+            IdPManagementUtil.removeRandomPasswords(identityProvider, false);
             return identityProvider;
         } else {
             log.debug("Cache entry not found for Identity Provider " + idPName
@@ -98,7 +100,7 @@ public class CacheBackedIdPMgtDAO {
         }
 
         IdentityProvider identityProvider = idPMgtDAO.getIdPByName(dbConnection, idPName,
-                tenantId, tenantDomain);
+                                                                   tenantId, tenantDomain);
 
         if (identityProvider != null) {
             log.debug("Entry fetched from DB for Identity Provider " + idPName + ". Updating cache");
@@ -150,7 +152,7 @@ public class CacheBackedIdPMgtDAO {
         }
 
         IdentityProvider identityProvider = idPMgtDAO.getIdPByAuthenticatorPropertyValue(dbConnection, property, value,
-                tenantId, tenantDomain);
+                                                                                         tenantId, tenantDomain);
 
         if (identityProvider != null) {
             log.debug("Entry fetched from DB for Identity Provider with authenticator property " + property
