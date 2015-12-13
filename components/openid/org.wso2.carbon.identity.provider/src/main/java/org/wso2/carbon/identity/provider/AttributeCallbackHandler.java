@@ -90,9 +90,7 @@ public class AttributeCallbackHandler implements SAMLCallbackHandler {
 
             try {
                 processClaimData(data, claimElem);
-                if (MapUtils.isEmpty(requestedClaimValues)) {
-                    loadClaims(claimElem, userIdentifier);
-                }
+                loadClaims(claimElem, userIdentifier);
                 populateClaimValues(userIdentifier, attrCallback);
             } catch (IdentityProviderException e) {
                 log.error("Error occurred while populating claim data", e);
