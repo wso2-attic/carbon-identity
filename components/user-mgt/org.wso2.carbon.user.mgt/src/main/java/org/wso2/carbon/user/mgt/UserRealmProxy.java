@@ -2106,7 +2106,7 @@ public class UserRealmProxy {
             if (defaultPassword != null && defaultPassword.trim().length() > 0) {
                 config.setDefaultPassword(defaultPassword.trim());
             }
-            if(StringUtils.isNotEmpty(userStoreDomain)){
+            if (StringUtils.isNotEmpty(userStoreDomain)) {
                 config.setUserStoreDomain(userStoreDomain);
             }
 
