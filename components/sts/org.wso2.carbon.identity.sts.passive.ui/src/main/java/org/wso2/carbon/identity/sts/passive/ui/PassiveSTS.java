@@ -337,7 +337,7 @@ public class PassiveSTS extends HttpServlet {
                 //for now user will be redirected back to the framework
                 // According to ws-federation-1.2-spec; 'wtrealm' will not be sent in the Passive STS Logout Request.
                 if (sessionDTO.getRealm() == null || sessionDTO.getRealm().trim().length() == 0) {
-                    sessionDTO.setRealm(" ");
+                    sessionDTO.setRealm(new String());
                 }
                 sendToAuthenticationFramework(request, response, sessionDataKey, sessionDTO);
             }
@@ -446,7 +446,7 @@ public class PassiveSTS extends HttpServlet {
         authenticationRequest.appendRequestQueryParams(request.getParameterMap());
         // According to ws-federation-1.2-spec; 'wtrealm' will not be sent in the Passive STS Logout Request.
         if (sessionDTO.getRealm() == null || sessionDTO.getRealm().trim().length() == 0) {
-            authenticationRequest.setRelyingParty(" ");
+            authenticationRequest.setRelyingParty(new String());
         }
         for (Enumeration e = request.getHeaderNames(); e.hasMoreElements(); ) {
             String headerName = e.nextElement().toString();
