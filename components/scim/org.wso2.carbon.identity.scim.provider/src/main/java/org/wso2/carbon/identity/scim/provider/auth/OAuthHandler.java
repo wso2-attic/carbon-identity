@@ -134,7 +134,7 @@ public class OAuthHandler implements SCIMAuthenticationHandler {
                     PrivilegedCarbonContext.startTenantFlow();
                     PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
                     String tenantDomain = MultitenantUtils.getTenantDomain(userName);
-                    carbonContext.setUsername(userName);
+                    carbonContext.setUsername(MultitenantUtils.getTenantAwareUsername(userName));
                     carbonContext.setTenantId(realmService.getTenantManager().getTenantId(tenantDomain));
                     carbonContext.setTenantDomain(tenantDomain);
                     return true;
