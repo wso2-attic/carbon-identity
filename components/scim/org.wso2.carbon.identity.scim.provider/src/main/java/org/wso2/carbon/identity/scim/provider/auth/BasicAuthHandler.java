@@ -144,7 +144,7 @@ public class BasicAuthHandler implements SCIMAuthenticationHandler {
                             authzHeaders.set(0, userName);
                             PrivilegedCarbonContext.startTenantFlow();
                             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                            carbonContext.setUsername(userName);
+                            carbonContext.setUsername(tenantLessUserName);
                             carbonContext.setTenantId(tenantId);
                             carbonContext.setTenantDomain(tenantDomain);
                             return true;
