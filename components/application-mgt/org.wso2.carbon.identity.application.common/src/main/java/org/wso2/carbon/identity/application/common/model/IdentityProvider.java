@@ -193,7 +193,7 @@ public class IdentityProvider implements Serializable {
             log.warn("No matching federated authentication config found with default authentication config name :  "
                     + defaultAuthenticatorConfigName + " in identity provider : " + identityProvider .displayName +
                     ".");
-            identityProvider = null;
+            return null;
         }
 
         ProvisioningConnectorConfig[] provisioningConnectorConfigs = identityProvider
