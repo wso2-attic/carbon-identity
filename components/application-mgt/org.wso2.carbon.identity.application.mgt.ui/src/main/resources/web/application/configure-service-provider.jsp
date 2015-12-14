@@ -730,7 +730,7 @@ var roleMappinRowID = -1;
                     <tr>
                         <td style="width:15%" class="leftCol-med labelField"><fmt:message key='config.application.info.basic.name'/>:<span class="required">*</span></td>
                         <td>
-                            <input style="width:50%" id="spName" name="spName" type="text" value="<%=Encode.forHtmlAttribute(spName)%>" white-list-patterns="/^[a-zA-Z0-9._|-]*$/" autofocus/>
+                            <input style="width:50%" id="spName" name="spName" type="text" value="<%=Encode.forHtmlAttribute(spName)%>" white-list-patterns="^[a-zA-Z0-9._|-]*$" autofocus/>
                             <div class="sectionHelp">
                                 <fmt:message key='help.name'/>
                             </div>
