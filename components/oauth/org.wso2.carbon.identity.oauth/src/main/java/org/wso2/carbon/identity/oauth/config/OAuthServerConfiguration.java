@@ -1339,9 +1339,8 @@ public class OAuthServerConfiguration {
                                 .getText().trim();
             }
             if (openIDConnectConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.OPENID_CONNECT_IDTOKEN_ISSUER_ID)) != null) {
-                openIDConnectIDTokenIssuerIdentifier =
-                        openIDConnectConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.OPENID_CONNECT_IDTOKEN_ISSUER_ID))
-                                .getText().trim();
+                openIDConnectIDTokenIssuerIdentifier = IdentityUtil.getProperty(CONFIG_ELEM_OAUTH +
+                        ConfigElements.OPENID_CONNECT + ConfigElements.OPENID_CONNECT_IDTOKEN_ISSUER_ID);
             }
             if (openIDConnectConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.OPENID_CONNECT_IDTOKEN_EXPIRATION)) != null) {
                 openIDConnectIDTokenExpiration =
