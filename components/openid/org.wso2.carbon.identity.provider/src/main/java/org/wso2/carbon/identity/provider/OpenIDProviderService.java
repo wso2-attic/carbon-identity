@@ -364,11 +364,6 @@ public class OpenIDProviderService {
 
         providerInfo.setSubDomain(domain);
         String tenantFreeUsername = MultitenantUtils.getTenantAwareUsername(userName);
-        try {
-            providerInfo.setUserExist(realm.getUserStoreManager().isExistingUser(tenantFreeUsername));
-        } catch (UserStoreException e) {
-            throw new IdentityProviderException("Error while checking if user exists", e);
-        }
 
         providerInfo.setOpenIDProviderServerUrl(OpenIDUtil.getOpenIDServerURL());
         providerInfo.setOpenID(OpenIDUtil.getOpenIDUserPattern() + "/" + tenantFreeUsername);
