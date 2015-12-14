@@ -83,7 +83,7 @@ import org.wso2.carbon.identity.sso.agent.bean.LoggedInSessionBean;
 import org.wso2.carbon.identity.sso.agent.bean.SSOAgentConfig;
 import org.wso2.carbon.identity.sso.agent.util.SAMLSignatureValidator;
 import org.wso2.carbon.identity.sso.agent.util.SSOAgentUtils;
-
+import org.apache.commons.collections.CollectionUtils;
 import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -383,7 +383,7 @@ public class SAML2SSOManager {
         if (ssoAgentConfig.getSAML2().isAssertionEncrypted()) {
             List<EncryptedAssertion> encryptedAssertions = saml2Response.getEncryptedAssertions();
             EncryptedAssertion encryptedAssertion = null;
-            if (!org.apache.commons.collections.CollectionUtils.isEmpty(encryptedAssertions)) {
+            if (!CollectionUtils.isEmpty(encryptedAssertions)) {
                 encryptedAssertion = encryptedAssertions.get(0);
                 try {
                     assertion = getDecryptedAssertion(encryptedAssertion);
