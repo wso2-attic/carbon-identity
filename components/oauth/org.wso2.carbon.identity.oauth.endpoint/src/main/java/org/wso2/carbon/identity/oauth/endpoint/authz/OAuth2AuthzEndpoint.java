@@ -249,8 +249,8 @@ public class OAuth2AuthzEndpoint {
                 if (consent != null) {
 
                     if (OAuthConstants.Consent.DENY.equals(consent)) {
-                        OpenIDConnectUserRPStore.getInstance().putUserRPToStore(resultFromConsent.getLoggedInUser().toString(),
-                                resultFromConsent.getoAuth2Parameters().getApplicationName(), false);
+                        OpenIDConnectUserRPStore.getInstance().putUserRPToStore(resultFromConsent.getLoggedInUser(),
+                                resultFromConsent.getoAuth2Parameters().getApplicationName(), false, oauth2Params.getClientId());
                         // return an error if user denied
                         String denyResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
                                 .setError(OAuth2ErrorCodes.ACCESS_DENIED)
@@ -390,14 +390,16 @@ public class OAuth2AuthzEndpoint {
                                      SessionDataCacheEntry sessionDataCacheEntry) throws OAuthSystemException {
 
         String applicationName = sessionDataCacheEntry.getoAuth2Parameters().getApplicationName();
-        String loggedInUser = sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier();
+        AuthenticatedUser loggedInUser = sessionDataCacheEntry.getLoggedInUser();
+        String clientId = sessionDataCacheEntry.getoAuth2Parameters().getClientId();
 
         boolean skipConsent = EndpointUtil.getOAuthServerConfiguration().getOpenIDConnectSkipeUserConsentConfig();
         if (!skipConsent) {
             boolean approvedAlways =
                     OAuthConstants.Consent.APPROVE_ALWAYS.equals(consent) ? true : false;
             if (approvedAlways) {
-                OpenIDConnectUserRPStore.getInstance().putUserRPToStore(loggedInUser, applicationName, approvedAlways);
+                OpenIDConnectUserRPStore.getInstance().putUserRPToStore(loggedInUser, applicationName,
+                        approvedAlways, clientId);
             }
         }
 
@@ -675,13 +677,15 @@ public class OAuth2AuthzEndpoint {
             throws OAuthSystemException {
 
         OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
-        String loggedInUser = sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier();
+        AuthenticatedUser user = sessionDataCacheEntry.getLoggedInUser();
+        String loggedInUser = user.getAuthenticatedSubjectIdentifier();
 
         boolean skipConsent = EndpointUtil.getOAuthServerConfiguration().getOpenIDConnectSkipeUserConsentConfig();
 
         // load the users approved applications to skip consent
         String appName = oauth2Params.getApplicationName();
-        boolean hasUserApproved = OpenIDConnectUserRPStore.getInstance().hasUserApproved(loggedInUser, appName);
+        boolean hasUserApproved = OpenIDConnectUserRPStore.getInstance().hasUserApproved(user, appName,
+                oauth2Params.getClientId());
         String consentUrl;
         String errorResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
                 .setError(OAuth2ErrorCodes.ACCESS_DENIED)

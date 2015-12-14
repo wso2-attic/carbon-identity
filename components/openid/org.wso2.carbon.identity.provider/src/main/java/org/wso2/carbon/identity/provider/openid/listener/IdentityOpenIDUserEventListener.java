@@ -52,7 +52,7 @@ public class IdentityOpenIDUserEventListener extends AbstractIdentityUserOperati
         }
 
         try {
-            deleteUsersRPs(userName);
+            deleteUsersRPs(userName, userStoreManager.getTenantId());
         } catch (IdentityException e) {
             throw new UserStoreException("Error occurred while deleting RP entries in the DB related to the user", e);
         }
@@ -65,12 +65,12 @@ public class IdentityOpenIDUserEventListener extends AbstractIdentityUserOperati
      * @param userName username of the user which need to clear RPs
      * @throws org.wso2.carbon.identity.base.IdentityException if error occurred while retrieving or deleting user RPs from the DB
      */
-    private void deleteUsersRPs(String userName) throws IdentityException {
+    private void deleteUsersRPs(String userName, int tenantId) throws IdentityException {
         //get all RPs
         OpenIDUserRPDAO dao = new OpenIDUserRPDAO();
 
         //retrieve all RP entries in the DB
-        OpenIDUserRPDO[] userRPs = dao.getOpenIDUserRPs(userName);
+        OpenIDUserRPDO[] userRPs = dao.getOpenIDUserRPs(userName, tenantId);
 
         if (log.isDebugEnabled()) {
             log.debug("Clearing " + userRPs.length + " RPs in DB related to the user : " + userName);
@@ -78,7 +78,7 @@ public class IdentityOpenIDUserEventListener extends AbstractIdentityUserOperati
         //delete each RP entry in the DB related to the user
         for (int i = 0; i < userRPs.length; i++) {
             //delete each relying party entries in database
-            dao.delete(userRPs[i]);
+            dao.delete(userRPs[i], tenantId);
         }
     }
 

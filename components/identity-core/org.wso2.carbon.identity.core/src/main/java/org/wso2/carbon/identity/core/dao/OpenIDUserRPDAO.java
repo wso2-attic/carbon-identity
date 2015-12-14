@@ -42,10 +42,10 @@ public class OpenIDUserRPDAO {
      *
      * @param rpdo
      */
-    public void createOrUpdate(OpenIDUserRPDO rpdo) {
+    public void createOrUpdate(OpenIDUserRPDO rpdo, int tenantId) {
 
         // first we try to get DO from the database. Return null if no data
-        OpenIDUserRPDO existingdo = getOpenIDUserRP(rpdo.getUserName(), rpdo.getRpUrl());
+        OpenIDUserRPDO existingdo = getOpenIDUserRP(rpdo.getUserName(), rpdo.getRpUrl(), tenantId);
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
@@ -57,7 +57,7 @@ public class OpenIDUserRPDAO {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.UPDATE_USER_RP);
 
                 prepStmt.setString(5, rpdo.getUserName());
-                prepStmt.setInt(6, IdentityTenantUtil.getTenantIdOfUser(rpdo.getUserName()));
+                prepStmt.setInt(6, tenantId);
                 prepStmt.setString(7, rpdo.getRpUrl());
                 prepStmt.setString(1, rpdo.isTrustedAlways() ? "TRUE" : "FALSE");
 
@@ -75,7 +75,7 @@ public class OpenIDUserRPDAO {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.STORE_USER_RP);
 
                 prepStmt.setString(1, rpdo.getUserName());
-                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(rpdo.getUserName()));
+                prepStmt.setInt(2, tenantId);
                 prepStmt.setString(3, rpdo.getRpUrl());
                 prepStmt.setString(4, rpdo.isTrustedAlways() ? "TRUE" : "FALSE");
 
@@ -104,18 +104,18 @@ public class OpenIDUserRPDAO {
      *
      * @param rpdo
      */
-    public void update(OpenIDUserRPDO rpdo) {
+    public void update(OpenIDUserRPDO rpdo, int tenantId) {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         try {
-            if (isUserRPExist(connection, rpdo)) {
+            if (isUserRPExist(connection, rpdo, tenantId)) {
                 // we should update the entry
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.UPDATE_USER_RP);
 
                 prepStmt.setString(1, rpdo.getUserName());
-                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(rpdo.getUserName()));
+                prepStmt.setInt(2, tenantId);
                 prepStmt.setString(3, rpdo.getRpUrl());
                 prepStmt.setString(4, rpdo.isTrustedAlways() ? "TRUE" : "FALSE");
                 prepStmt.setDate(5, new java.sql.Date(rpdo.getLastVisit().getTime()));
@@ -144,17 +144,17 @@ public class OpenIDUserRPDAO {
      *
      * @param opdo
      */
-    public void delete(OpenIDUserRPDO opdo) {
+    public void delete(OpenIDUserRPDO opdo, int tenantId) {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
 
         try {
 
-            if (isUserRPExist(connection, opdo)) {
+            if (isUserRPExist(connection, opdo, tenantId)) {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.REMOVE_USER_RP);
                 prepStmt.setString(1, opdo.getUserName());
-                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(opdo.getUserName()));
+                prepStmt.setInt(2, tenantId);
                 prepStmt.setString(3, opdo.getRpUrl());
                 prepStmt.execute();
                 connection.commit();
@@ -176,7 +176,7 @@ public class OpenIDUserRPDAO {
      * @return A set of OpenIDUserRPDO, corresponding to the provided user name
      * and RP url.
      */
-    public OpenIDUserRPDO getOpenIDUserRP(String userName, String rpUrl) {
+    public OpenIDUserRPDO getOpenIDUserRP(String userName, String rpUrl, int tenantId) {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
@@ -185,10 +185,10 @@ public class OpenIDUserRPDAO {
         rpdo.setRpUrl(rpUrl);
 
         try {
-            if (isUserRPExist(connection, rpdo)) {
+            if (isUserRPExist(connection, rpdo, tenantId)) {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_USER_RP);
                 prepStmt.setString(1, userName);
-                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(userName));
+                prepStmt.setInt(2, tenantId);
                 prepStmt.setString(3, rpUrl);
                 OpenIDUserRPDO openIDUserRPDO = buildUserRPDO(prepStmt.executeQuery(), userName);
                 connection.commit();
@@ -254,7 +254,7 @@ public class OpenIDUserRPDAO {
      * @return OpenIDUserRPDO, corresponding to the provided user name and RP
      * url.
      */
-    public OpenIDUserRPDO[] getOpenIDUserRPs(String userName) {
+    public OpenIDUserRPDO[] getOpenIDUserRPs(String userName, int tenantId) {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
@@ -265,7 +265,7 @@ public class OpenIDUserRPDAO {
         try {
             prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_USER_RPS);
             prepStmt.setString(1, userName);
-            prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(userName));
+            prepStmt.setInt(2, tenantId);
             results = prepStmt.executeQuery();
 
             while (results.next()) {
@@ -300,7 +300,7 @@ public class OpenIDUserRPDAO {
      * @param rpUrl    Relying party URL
      * @return Default user profile
      */
-    public String getOpenIDDefaultUserProfile(String userName, String rpUrl) {
+    public String getOpenIDDefaultUserProfile(String userName, String rpUrl, int tenantId) {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
@@ -311,10 +311,10 @@ public class OpenIDUserRPDAO {
 
         try {
 
-            if (isUserRPExist(connection, rpdo)) {
+            if (isUserRPExist(connection, rpdo, tenantId)) {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_USER_RP_DEFAULT_PROFILE);
                 prepStmt.setString(1, userName);
-                prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(userName));
+                prepStmt.setInt(2, tenantId);
                 prepStmt.setString(3, rpUrl);
                 return prepStmt.executeQuery().getString(7);
             } else {
@@ -339,7 +339,7 @@ public class OpenIDUserRPDAO {
      * @return
      * @throws SQLException
      */
-    private boolean isUserRPExist(Connection connection, OpenIDUserRPDO rpDo) throws SQLException {
+    private boolean isUserRPExist(Connection connection, OpenIDUserRPDO rpDo, int tenantId) throws SQLException {
 
         PreparedStatement prepStmt = null;
         ResultSet results = null;
@@ -348,7 +348,7 @@ public class OpenIDUserRPDAO {
         try {
             prepStmt = connection.prepareStatement(OpenIDSQLQueries.CHECK_USER_RP_EXIST);
             prepStmt.setString(1, rpDo.getUserName());
-            prepStmt.setInt(2, IdentityTenantUtil.getTenantIdOfUser(rpDo.getUserName()));
+            prepStmt.setInt(2, tenantId);
             prepStmt.setString(3, rpDo.getRpUrl());
             results = prepStmt.executeQuery();
 
