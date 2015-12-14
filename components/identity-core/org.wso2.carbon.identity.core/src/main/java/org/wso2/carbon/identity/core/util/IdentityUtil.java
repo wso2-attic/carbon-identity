@@ -36,6 +36,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.util.Utils;
 import org.wso2.carbon.identity.base.CarbonEntityResolver;
@@ -434,6 +435,10 @@ public class IdentityUtil {
     public static boolean isUserStoreCaseSensitive(String userStoreDomain, int tenantId) {
 
         boolean isUsernameCaseSensitive = true;
+        if (tenantId == MultitenantConstants.INVALID_TENANT_ID){
+            //this is to handle federated scenarios
+            return true;
+        }
         try {
             org.wso2.carbon.user.core.UserStoreManager userStoreManager = (org.wso2.carbon.user.core
                     .UserStoreManager) IdentityTenantUtil.getRealmService()
