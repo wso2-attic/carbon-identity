@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.provider.openid.listener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.model.OpenIDUserRPDO;
@@ -52,7 +53,8 @@ public class IdentityOpenIDUserEventListener extends AbstractIdentityUserOperati
         }
 
         try {
-            deleteUsersRPs(userName, userStoreManager.getTenantId());
+            int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            deleteUsersRPs(userName, tenantId);
         } catch (IdentityException e) {
             throw new UserStoreException("Error occurred while deleting RP entries in the DB related to the user", e);
         }

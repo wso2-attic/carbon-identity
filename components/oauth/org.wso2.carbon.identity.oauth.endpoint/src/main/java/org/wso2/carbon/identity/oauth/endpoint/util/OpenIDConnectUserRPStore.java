@@ -56,9 +56,9 @@ public class OpenIDConnectUserRPStore {
         repDO.setUserName(user.getAuthenticatedSubjectIdentifier());
         repDO.setTrustedAlways(trustedAlways);
         int tenantId = -1;
-        if (user.getUserName() != null){
+        if (user.getUserName() != null) {
             tenantId = IdentityTenantUtil.getTenantId(user.getTenantDomain());
-        }else {
+        } else {
             OAuthAppDAO oAuthAppDAO = new OAuthAppDAO();
             OAuthAppDO appDO;
             try {
@@ -84,9 +84,9 @@ public class OpenIDConnectUserRPStore {
         OpenIDUserRPDAO dao = new OpenIDUserRPDAO();
         OpenIDUserRPDO rpDO;
         int tenantId = -1;
-        if (user.getUserName() != null){
+        if (user.getUserName() != null) {
             tenantId = IdentityTenantUtil.getTenantId(user.getTenantDomain());
-        }else {
+        } else {
             OAuthAppDAO oAuthAppDAO = new OAuthAppDAO();
             OAuthAppDO appDO;
             try {
@@ -97,13 +97,9 @@ public class OpenIDConnectUserRPStore {
             }
         }
 
-        try{
-            rpDO = dao.getOpenIDUserRP(user.getAuthenticatedSubjectIdentifier(), appName, tenantId);
-            if (rpDO != null && rpDO.isTrustedAlways()) {
-                return true;
-            }
-        }catch (Exception e){
-            //this is to handle federated scenarios
+        rpDO = dao.getOpenIDUserRP(user.getAuthenticatedSubjectIdentifier(), appName, tenantId);
+        if (rpDO != null && rpDO.isTrustedAlways()) {
+            return true;
         }
 
         return false;
