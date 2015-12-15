@@ -117,7 +117,7 @@ public class UserAccountAssociationService extends AbstractAdmin {
      * @param userName2 Username of second account to associate.
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationClientException
      */
-    public void asssociateTwoAccounts(String userName1, String userName2) throws UserAccountAssociationClientException {
+    public void associateTwoAccounts(String userName1, String userName2) throws UserAccountAssociationClientException {
 
         RealmService realmService;
         int tenantId;
