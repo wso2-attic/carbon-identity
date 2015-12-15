@@ -33,6 +33,7 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationManag
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
 import org.wso2.carbon.identity.provisioning.OutboundProvisioningManager;
 import org.wso2.carbon.identity.provisioning.ProvisioningEntity;
@@ -141,9 +142,6 @@ public class SCIMUserManager implements UserManager {
                     log.debug("This instance is operating in dumb mode. " +
                               "Hence, operation is not persisted, it will only be provisioned."
                               + "provisioned user : " + user.getUserName());
-                }
-                if (user.getUserName() != null) {
-                    user.setUserName(UserCoreUtil.removeDomainFromName(user.getUserName()));
                 }
                 this.provision(ProvisioningOperation.POST, user);
             }else {
@@ -344,9 +342,6 @@ public class SCIMUserManager implements UserManager {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
             }
-            if (user.getUserName() != null) {
-                user.setUserName(UserCoreUtil.removeDomainFromName(user.getUserName()));
-            }
             this.provision(ProvisioningOperation.PUT, user);
             return user;
 
@@ -438,9 +433,6 @@ public class SCIMUserManager implements UserManager {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
-            }
-            if (newUser.getUserName() != null) {
-                newUser.setUserName(UserCoreUtil.removeDomainFromName(newUser.getUserName()));
             }
             this.provision(ProvisioningOperation.PATCH, newUser);
             return newUser;
@@ -571,9 +563,6 @@ public class SCIMUserManager implements UserManager {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
-            }
-            if (group.getDisplayName() != null) {
-                group.setDisplayName(UserCoreUtil.removeDomainFromName(group.getDisplayName()));
             }
             this.provision(ProvisioningOperation.POST, group);
             return group;
@@ -819,9 +808,6 @@ public class SCIMUserManager implements UserManager {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
             }
-            if (newGroup.getDisplayName() != null) {
-                newGroup.setDisplayName(UserCoreUtil.removeDomainFromName(newGroup.getDisplayName()));
-            }
             this.provision(ProvisioningOperation.PUT, newGroup);
             return newGroup;
         }
@@ -1008,9 +994,6 @@ public class SCIMUserManager implements UserManager {
             if (log.isDebugEnabled()) {
                 log.debug("This instance is operating in dumb mode. " +
                           "Hence, operation is not persisted, it will only be provisioned.");
-            }
-            if (newGroup.getDisplayName() != null) {
-                newGroup.setDisplayName(UserCoreUtil.removeDomainFromName(newGroup.getDisplayName()));
             }
             this.provision(ProvisioningOperation.PATCH, newGroup);
             return newGroup;
