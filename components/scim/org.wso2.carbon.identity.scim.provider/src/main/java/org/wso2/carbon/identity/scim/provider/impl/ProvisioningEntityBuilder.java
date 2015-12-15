@@ -49,7 +49,9 @@ public final class ProvisioningEntityBuilder {
     public static ProvisioningEntityBuilder getInstance() {
         if (provisioningEntityBuilder == null) {
             synchronized (ProvisioningEntityBuilder.class) {
-                provisioningEntityBuilder = new ProvisioningEntityBuilder();
+                if (provisioningEntityBuilder == null) {
+                    provisioningEntityBuilder = new ProvisioningEntityBuilder();
+                }
             }
         }
         return provisioningEntityBuilder;
