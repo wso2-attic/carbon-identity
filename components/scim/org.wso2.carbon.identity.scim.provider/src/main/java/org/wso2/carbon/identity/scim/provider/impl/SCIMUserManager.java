@@ -103,7 +103,9 @@ public class SCIMUserManager implements UserManager {
         ServiceProvider serviceProvider = getServiceProvider(isBulkUserAdd);
 
         try {
-            userStoreName = getUserStoreDomainFromSP();
+            if (!UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase(getUserStoreDomainFromSP())) {
+                userStoreName = getUserStoreDomainFromSP();
+            }
         } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Error retrieving User Store name. ", e);
         }
