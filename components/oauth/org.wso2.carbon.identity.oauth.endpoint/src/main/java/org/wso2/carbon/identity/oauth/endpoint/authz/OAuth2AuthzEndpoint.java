@@ -86,10 +86,6 @@ public class OAuth2AuthzEndpoint {
 
     private static final Log log = LogFactory.getLog(OAuth2AuthzEndpoint.class);
     public static final String APPROVE = "approve";
-    private static final String OAUTH2 = "oauth2";
-    private static final String SCOPE = "scope";
-    private static final String OPENID = "openid";
-    private static final String OIDC = "oidc";
     private boolean isCacheAvailable = false;
 
     @GET
@@ -183,10 +179,10 @@ public class OAuth2AuthzEndpoint {
             if (clientId != null && sessionDataKeyFromLogin == null && sessionDataKeyFromConsent == null) {
                 // Authz request from client
                 String redirectURL = handleOAuthAuthorizationRequest(clientId, request);
-                String type = OAUTH2;
-                String scopes = request.getParameter(SCOPE);
-                if (scopes != null && scopes.contains(OPENID)) {
-                    type = OIDC;
+                String type = OAuthConstants.Scope.OAUTH2;
+                String scopes = request.getParameter(OAuthConstants.OAuth10AParams.SCOPE);
+                if (scopes != null && scopes.contains(OAuthConstants.Scope.OPENID)) {
+                    type = OAuthConstants.Scope.OIDC;
                 }
                 Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
                 if (attribute != null && attribute == AuthenticatorFlowStatus.SUCCESS_COMPLETED) {
