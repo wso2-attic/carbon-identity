@@ -120,7 +120,8 @@ public abstract class InboundAuthenticationRequestProcessor {
         response.addParameters(InboundAuthenticationConstants.RequestProcessor.CALL_BACK_PATH,
                 getCallbackPath(context));
         response.addParameters(InboundAuthenticationConstants.RequestProcessor.RELYING_PARTY, getRelyingPartyId());
-
+        response.addParameters(InboundAuthenticationConstants.RequestProcessor.AUTH_TYPE, getName());
+        response.setRedirectURL(getCallbackPath(context));
         return response;
     }
 
@@ -170,7 +171,6 @@ public abstract class InboundAuthenticationRequestProcessor {
         response.addParameters(InboundAuthenticationConstants.RequestProcessor.CALL_BACK_PATH,
                 getCallbackPath(context));
         response.addParameters(InboundAuthenticationConstants.RequestProcessor.RELYING_PARTY, getRelyingPartyId());
-
         return response;
     }
 }
