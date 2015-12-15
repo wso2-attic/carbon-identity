@@ -121,6 +121,15 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
+     * We do not have a default claim dialect.
+     * @return
+     */
+    @Override
+    public String getClaimDialectURI() {
+        return null;
+    }
+
+    /**
      * Get the user info endpoint url.
      * @return User info endpoint url.
      */
