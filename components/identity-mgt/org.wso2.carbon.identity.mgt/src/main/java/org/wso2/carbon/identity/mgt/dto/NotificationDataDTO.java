@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.mgt.dto;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -46,7 +47,7 @@ public class NotificationDataDTO implements Serializable {
 
     private boolean notificationSent;
 
-    private Map transportHeaders = null;
+    private Map transportHeaders = new HashMap();
 
     public NotificationDataDTO() {
     }
