@@ -179,13 +179,17 @@ public class OAuth2AuthzEndpoint {
             if (clientId != null && sessionDataKeyFromLogin == null && sessionDataKeyFromConsent == null) {
                 // Authz request from client
                 String redirectURL = handleOAuthAuthorizationRequest(clientId, request);
-
+                String type = OAuthConstants.Scope.OAUTH2;
+                String scopes = request.getParameter(OAuthConstants.OAuth10AParams.SCOPE);
+                if (scopes != null && scopes.contains(OAuthConstants.Scope.OPENID)) {
+                    type = OAuthConstants.Scope.OIDC;
+                }
                 Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
                 if (attribute != null && attribute == AuthenticatorFlowStatus.SUCCESS_COMPLETED) {
                     try {
                         return sendRequestToFramework(request, response,
                                 (String) request.getAttribute(FrameworkConstants.SESSION_DATA_KEY),
-                                FrameworkConstants.OAUTH2);
+                                type);
                     } catch (ServletException | IOException e ) {
                        log.error("Error occurred while sending request to authentication framework.");
                     }
