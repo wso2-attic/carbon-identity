@@ -484,7 +484,7 @@ public class UserAdmin {
      */
     public void bulkImportUsers(String userStoreDomain, String fileName, DataHandler handler, String defaultPassword)
             throws UserAdminException {
-        //password will no longer be used, ins
+        //password will no longer be used, instead the password will be taken from the file
         if (fileName == null || handler == null) {
             throw new UserAdminException("Required data not provided");
         }
