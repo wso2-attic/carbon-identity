@@ -130,9 +130,13 @@ public class RecoveryProcessor {
         }
 
         NotificationDataDTO notificationData = new NotificationDataDTO();
-        Map headers = (Map) MessageContext.getCurrentMessageContext().getProperty(
-                MessageContext.TRANSPORT_HEADERS);
-        notificationData.setTransportHeaders(new HashMap(headers));
+        if(MessageContext.getCurrentMessageContext() != null &&
+                MessageContext.getCurrentMessageContext().getProperty(
+                        MessageContext.TRANSPORT_HEADERS) != null) {
+            notificationData.setTransportHeaders(new HashMap(
+                    (Map)MessageContext.getCurrentMessageContext().getProperty(
+                            MessageContext.TRANSPORT_HEADERS)));
+        }
 
         String internalCode = null;
 
@@ -455,9 +459,13 @@ public class RecoveryProcessor {
         String userName = UserCoreUtil.removeDomainFromName(userId);
 
         NotificationDataDTO notificationData = new NotificationDataDTO();
-        Map headers = (Map)MessageContext.getCurrentMessageContext().getProperty(
-                MessageContext.TRANSPORT_HEADERS);
-        notificationData.setTransportHeaders(new HashMap(headers));
+        if(MessageContext.getCurrentMessageContext() != null &&
+                MessageContext.getCurrentMessageContext().getProperty(
+                        MessageContext.TRANSPORT_HEADERS) != null) {
+            notificationData.setTransportHeaders(new HashMap(
+                    (Map)MessageContext.getCurrentMessageContext().getProperty(
+                            MessageContext.TRANSPORT_HEADERS)));
+        }
 
 
         String type = notificationBean.getNotificationType();
