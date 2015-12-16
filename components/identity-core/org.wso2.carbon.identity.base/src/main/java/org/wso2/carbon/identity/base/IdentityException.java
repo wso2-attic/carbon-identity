@@ -137,13 +137,14 @@ public class IdentityException extends Exception {
         }
     }
 
-    // TODO: make this constructor protected by not instantiating it in any other component, but only allow to subclass
+    // TODO: Make this constructor protected by not instantiating it in any other component, but only allow to subclass
     // TODO: Use the builder to create instances
     public IdentityException(String errorDescription) {
         super(errorDescription);
     }
 
-    // TODO: remove this constructor and have only the one arg constructor since 'cause' is optional
+    // TODO: Make this constructor protected by not instantiating it in any other component, but only allow to subclass
+    // TODO: Use the builder to create instances
     public IdentityException(String errorDescription, Throwable cause) {
         super(errorDescription, cause);
     }
@@ -170,7 +171,16 @@ public class IdentityException extends Exception {
     }
 
     public static IdentityException error(ErrorInfo errorInfo) {
-        IdentityException identityException = new IdentityException(errorInfo.getErrorDescription(), errorInfo.getCause());
+        if(errorInfo == null || StringUtils.isBlank(errorInfo.errorDescription)){
+            throw new IllegalArgumentException("ErrorInfo object is null or Error Description is blank");
+        }
+        IdentityException identityException = null;
+        if(errorInfo.getCause() != null) {
+            identityException = new IdentityException(errorInfo.getErrorDescription(),
+                    errorInfo.getCause());
+        } else {
+            identityException = new IdentityException(errorInfo.getErrorDescription());
+        }
         identityException.addErrorInfo(errorInfo);
         return identityException;
     }

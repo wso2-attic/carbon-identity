@@ -106,9 +106,9 @@ public class IdentityDatabaseUtil {
             connection = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext().getUserRealm().
                     getRealmConfiguration()).getConnection();
         } catch (SQLException e) {
-            throw new IdentityRuntimeException("Database error. Could not get a connection", e);
+            throw IdentityRuntimeException.error("Database error. Could not get a connection", e);
         } catch (UserStoreException e) {
-            throw new IdentityRuntimeException("Could not receive user realm properly to make a connection", e);
+            throw IdentityRuntimeException.error("Could not receive user realm properly to make a connection", e);
         }
         return connection;
     }

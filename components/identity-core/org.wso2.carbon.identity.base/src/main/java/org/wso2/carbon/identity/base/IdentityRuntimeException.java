@@ -136,15 +136,12 @@ public class IdentityRuntimeException extends RuntimeException {
             }
         }
     }
-
-    // TODO: make this constructor protected by not instantiating it in any other component, but only allow to subclass
-    // TODO: Use the builder to create instances
-    public IdentityRuntimeException(String errorDescription) {
+    
+    protected IdentityRuntimeException(String errorDescription) {
         super(errorDescription);
     }
 
-    // TODO: remove this constructor and have only the one arg constructor since 'cause' is optional
-    public IdentityRuntimeException(String errorDescription, Throwable cause) {
+    protected IdentityRuntimeException(String errorDescription, Throwable cause) {
         super(errorDescription, cause);
     }
 
@@ -170,8 +167,16 @@ public class IdentityRuntimeException extends RuntimeException {
     }
 
     public static IdentityRuntimeException error(ErrorInfo errorInfo) {
-        IdentityRuntimeException identityRuntimeException = new IdentityRuntimeException(errorInfo.getErrorDescription(),
-                errorInfo.getCause());
+        if(errorInfo == null || StringUtils.isBlank(errorInfo.errorDescription)){
+            throw new IllegalArgumentException("ErrorInfo object is null or Error Description is blank");
+        }
+        IdentityRuntimeException identityRuntimeException = null;
+        if(errorInfo.getCause() != null) {
+            identityRuntimeException = new IdentityRuntimeException(errorInfo.getErrorDescription(),
+                    errorInfo.getCause());
+        } else {
+            identityRuntimeException = new IdentityRuntimeException(errorInfo.getErrorDescription());
+        }
         identityRuntimeException.addErrorInfo(errorInfo);
         return identityRuntimeException;
     }

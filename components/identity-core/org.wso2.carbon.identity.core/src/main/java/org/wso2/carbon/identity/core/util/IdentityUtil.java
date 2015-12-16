@@ -304,7 +304,7 @@ public class IdentityUtil {
                 hostName = NetworkUtils.getLocalHostname();
             }
         } catch (SocketException e) {
-            throw new IdentityRuntimeException("Error while trying to read hostname.", e);
+            throw IdentityRuntimeException.error("Error while trying to read hostname.", e);
         }
 
         String mgtTransport = CarbonUtils.getManagementTransport();
@@ -589,7 +589,7 @@ public class IdentityUtil {
                 try {
                     hostName = NetworkUtils.getLocalHostname();
                 } catch (SocketException e) {
-                    throw new IdentityRuntimeException("Error while trying to read hostname.", e);
+                    throw IdentityRuntimeException.error("Error while trying to read hostname.", e);
                 }
             }
 
