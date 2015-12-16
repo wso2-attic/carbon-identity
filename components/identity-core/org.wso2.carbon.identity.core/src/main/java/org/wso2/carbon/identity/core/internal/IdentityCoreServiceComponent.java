@@ -22,6 +22,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.core.persistence.UmPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEventImpl;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
@@ -97,6 +98,9 @@ public class IdentityCoreServiceComponent {
             } else {
                 jdbcPersistenceManager.initializeDatabase();
             }
+
+            // initialize um persistence manager and retrieve the user management datasource.
+            UmPersistenceManager.getInstance();
 
             String migrate = System.getProperty("migrate");
             String migrateIdentityDB = System.getProperty("migrateIdentityDB");

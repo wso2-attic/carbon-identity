@@ -131,6 +131,15 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
+     * We do not have a default claim dialect.
+     * @return
+     */
+    @Override
+    public String getClaimDialectURI() {
+        return null;
+    }
+
+    /**
      * @return
      */
     @Override

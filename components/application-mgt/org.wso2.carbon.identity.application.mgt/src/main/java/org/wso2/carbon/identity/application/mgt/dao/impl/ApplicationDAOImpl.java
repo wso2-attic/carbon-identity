@@ -2735,7 +2735,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     /**
      * Read application role permissions for a given application name
      *
-     * @param connection      Database connection
      * @param applicationName Application name
      * @return Map of key value pairs. key is UM table id and value is permission
      * @throws SQLException
@@ -2770,7 +2769,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     /**
      * Update the permission path for a given id
      *
-     * @param connection    Database connection
      * @param id         Id
      * @param newPermission New permission path value
      * @throws SQLException
@@ -2794,7 +2792,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     /**
      * Get permission id for a given permission path
      *
-     * @param connection Database connection
      * @param permission Permission path
      * @return Permission id
      * @throws SQLException
@@ -2824,7 +2821,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     /**
      * Delete role permission mapping for a given permission id
      *
-     * @param connection Database Connection
      * @param id   Permission id
      * @throws SQLException
      */
@@ -2846,7 +2842,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     /**
      * Delete permission entry for a given id
      *
-     * @param connection Database connection
      * @param entry_id   Entry id
      * @throws SQLException
      */
