@@ -68,6 +68,8 @@ public class ProvisioningConnectorConfig implements Serializable {
                     Property[] propertiesArr = propertiesArrList.toArray(new Property[0]);
                     provisioningConnectorConfig.setProvisioningProperties(propertiesArr);
                 }
+            } else if ("Name".equals(elementName)) {
+                provisioningConnectorConfig.setName(element.getText());
             } else if ("IsEnabled".equals(elementName)) {
                 provisioningConnectorConfig.setEnabled(Boolean.parseBoolean(element.getText()));
             } else if ("IsBlocking".equals(elementName)) {
