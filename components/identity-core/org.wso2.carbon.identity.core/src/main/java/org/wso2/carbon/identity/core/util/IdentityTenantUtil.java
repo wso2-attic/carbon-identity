@@ -72,7 +72,7 @@ public class IdentityTenantUtil {
                     return AdminServicesUtil.getSystemRegistry();
                 } catch (CarbonException e) {
                     log.error("Error obtaining a registry instance", e);
-                    throw new IdentityException(
+                    throw IdentityException.error(
                             "Error obtaining a registry instance", e);
                 }
             }
@@ -86,7 +86,7 @@ public class IdentityTenantUtil {
             return AdminServicesUtil.getSystemRegistry();
         } catch (CarbonException e) {
             log.error("Error obtaining a registry instance", e);
-            throw new IdentityException("Error obtaining a registry instance", e);
+            throw IdentityException.error("Error obtaining a registry instance", e);
         }
     }
 
@@ -110,7 +110,7 @@ public class IdentityTenantUtil {
             }
         } catch (CarbonException e) {
             log.error("Error obtaining a registry instance", e);
-            throw new IdentityException("Error obtaining a registry instance", e);
+            throw IdentityException.error("Error obtaining a registry instance", e);
         }
     }
 
@@ -130,7 +130,7 @@ public class IdentityTenantUtil {
             }
         } catch (CarbonException e) {
             log.error("Error obtaining the realm", e);
-            throw new IdentityException("Error Obtaining a realm", e);
+            throw IdentityException.error("Error Obtaining a realm", e);
         }
         return null;
     }
@@ -210,12 +210,12 @@ public class IdentityTenantUtil {
                     try {
                         IdentityTenantUtil.getTenantRegistryLoader().loadTenantRegistry(tenantId);
                     } catch (RegistryException e) {
-                        throw new IdentityException("Error loading tenant registry for tenant domain " + tenantDomain, e);
+                        throw IdentityException.error("Error loading tenant registry for tenant domain " + tenantDomain, e);
                     }
                     try {
                         registryService.getGovernanceSystemRegistry(tenantId);
                     } catch (RegistryException e) {
-                        throw new IdentityException("Error obtaining governance system registry for tenant domain " +
+                        throw IdentityException.error("Error obtaining governance system registry for tenant domain " +
                                                     tenantDomain, e);
                     }
                 }

@@ -65,7 +65,7 @@ public class ParameterDAO extends AbstractDAO<ParameterDO> {
             registry.put(path, resource);
         } catch (RegistryException e) {
             log.error("Error while creating or updating parameter", e);
-            throw new IdentityException("Error while creating or updating parameter", e);
+            throw IdentityException.error("Error while creating or updating parameter", e);
         }
     }
 
@@ -95,7 +95,7 @@ public class ParameterDAO extends AbstractDAO<ParameterDO> {
             }
         } catch (RegistryException e) {
             log.error("Error while retrieving parameter " + paramName, e);
-            throw new IdentityException("Error while retrieving parameter " + paramName, e);
+            throw IdentityException.error("Error while retrieving parameter " + paramName, e);
         }
         return param;
     }
@@ -123,7 +123,7 @@ public class ParameterDAO extends AbstractDAO<ParameterDO> {
             }
         } catch (RegistryException e) {
             log.error("Error while removing parameter", e);
-            throw new IdentityException("Error while removing parameter", e);
+            throw IdentityException.error("Error while removing parameter", e);
         }
     }
 

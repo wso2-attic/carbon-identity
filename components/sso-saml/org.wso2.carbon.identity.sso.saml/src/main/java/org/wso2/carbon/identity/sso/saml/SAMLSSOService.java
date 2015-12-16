@@ -156,14 +156,14 @@ public class SAMLSSOService {
             try {
                 return authnRequestProcessor.process(authReqDTO, sessionId, authenticated, authenticators, authMode);
             } catch (Exception e) {
-                throw new IdentityException("Error when authenticating the users", e);
+                throw IdentityException.error("Error when authenticating the users", e);
             }
         } else {
             SPInitSSOAuthnRequestProcessor authnRequestProcessor = SAMLSSOUtil.getSPInitSSOAuthnRequestProcessor();
             try {
                 return authnRequestProcessor.process(authReqDTO, sessionId, authenticated, authenticators, authMode);
             } catch (Exception e) {
-                throw new IdentityException("Error when authenticating the users", e);
+                throw IdentityException.error("Error when authenticating the users", e);
             }
         }
 

@@ -54,7 +54,7 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
             registry.put(confirmationKeyPath, resource);
         } catch (RegistryException e) {
             log.error(e);
-            throw new IdentityException("Error while persisting user recovery data for user : " +
+            throw IdentityException.error("Error while persisting user recovery data for user : " +
                     recoveryDataDO.getUserName());
         } finally {
             if (registry != null) {
@@ -113,7 +113,7 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
             }
         } catch (RegistryException e) {
             log.error(e);
-            throw new IdentityException("Error while loading user recovery data for code : " + code);
+            throw IdentityException.error("Error while loading user recovery data for code : " + code);
         } finally {
             if (registry != null) {
                 try {
@@ -155,7 +155,7 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
                 }
             }
         } catch (RegistryException e) {
-            throw new IdentityException("Error while deleting resource after loading", e);
+            throw IdentityException.error("Error while deleting resource after loading", e);
         } finally {
             if (registry != null) {
                 try {
@@ -177,7 +177,7 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
             registry.beginTransaction();
             deleteOldResourcesIfFound(registry, userId, IdentityMgtConstants.IDENTITY_MANAGEMENT_DATA);
         } catch (RegistryException e) {
-            throw new IdentityException("Error while deleting the old confirmation code.", e);
+            throw IdentityException.error("Error while deleting the old confirmation code.", e);
         } finally {
             if (registry != null) {
                 try {

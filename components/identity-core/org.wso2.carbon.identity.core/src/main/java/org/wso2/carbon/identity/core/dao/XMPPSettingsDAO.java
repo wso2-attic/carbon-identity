@@ -144,7 +144,7 @@ public class XMPPSettingsDAO extends AbstractDAO<XMPPSettingsDO> {
                 if (e instanceof RegistryException) {
                     throw (RegistryException) e;
                 } else {
-                    throw new IdentityException("Error occured while adding XMPP Settings", e);
+                    throw IdentityException.error("Error occured while adding XMPP Settings", e);
                 }
             }
             if (log.isInfoEnabled()) {
@@ -153,7 +153,7 @@ public class XMPPSettingsDAO extends AbstractDAO<XMPPSettingsDO> {
 
         } catch (RegistryException e) {
             log.error("Error occured while adding XMPP Settings.", e);
-            throw new IdentityException("Error occured while adding XMPP Settings.", e);
+            throw IdentityException.error("Error occured while adding XMPP Settings.", e);
 
         }
     }
@@ -210,7 +210,7 @@ public class XMPPSettingsDAO extends AbstractDAO<XMPPSettingsDO> {
 
         } catch (RegistryException e) {
             log.error("Error occured while updating the XMPP Settings.", e);
-            throw new IdentityException("Error occured while updating the XMPP Settings.", e);
+            throw IdentityException.error("Error occured while updating the XMPP Settings.", e);
         }
     }
 

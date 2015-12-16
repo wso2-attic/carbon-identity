@@ -105,7 +105,7 @@ public class OAuthAppDAO extends AbstractDAO<OAuthAppDO> {
                 if (e instanceof RegistryException) {
                     throw (RegistryException) e;
                 } else {
-                    throw new IdentityException(
+                    throw IdentityException.error(
                             "Error occured while creating new oauth application", e);
                 }
             }
@@ -116,7 +116,7 @@ public class OAuthAppDAO extends AbstractDAO<OAuthAppDO> {
 
         } catch (RegistryException e) {
             log.error("Error occured while creating new oauth application", e);
-            throw new IdentityException("Error occured while creating new oauth application", e);
+            throw IdentityException.error("Error occured while creating new oauth application", e);
         }
     }
 
@@ -157,7 +157,7 @@ public class OAuthAppDAO extends AbstractDAO<OAuthAppDO> {
                 if (e instanceof RegistryException) {
                     throw (RegistryException) e;
                 } else {
-                    throw new IdentityException("Error occured while deleting infromation card", e);
+                    throw IdentityException.error("Error occured while deleting infromation card", e);
                 }
             }
             if (log.isDebugEnabled()) {
@@ -166,7 +166,7 @@ public class OAuthAppDAO extends AbstractDAO<OAuthAppDO> {
 
         } catch (RegistryException e) {
             log.error("Error occured while deleting OAuth app", e);
-            throw new IdentityException("Error occured while deleting OAuth app", e);
+            throw IdentityException.error("Error occured while deleting OAuth app", e);
         }
     }
 
@@ -199,7 +199,7 @@ public class OAuthAppDAO extends AbstractDAO<OAuthAppDO> {
             }
         } catch (RegistryException e) {
             log.error("Error occured while retreiving oauth applications for" + userName, e);
-            throw new IdentityException("Error occured while retreiving oauth applications for "
+            throw IdentityException.error("Error occured while retreiving oauth applications for "
                     + userName, e);
         }
 
@@ -232,7 +232,7 @@ public class OAuthAppDAO extends AbstractDAO<OAuthAppDO> {
             }
         } catch (RegistryException e) {
             log.error("Error occured while retreiving oauth application", e);
-            throw new IdentityException("Error occured while retreiving oauth application", e);
+            throw IdentityException.error("Error occured while retreiving oauth application", e);
         }
         return null;
     }

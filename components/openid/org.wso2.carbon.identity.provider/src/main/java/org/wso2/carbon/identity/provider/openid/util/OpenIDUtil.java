@@ -76,7 +76,7 @@ public class OpenIDUtil {
             uri = new URI(rquestUrl);
             path = uri.getPath();
         } catch (URISyntaxException e) {
-            throw new IdentityException("Invalid OpenID", e);
+            throw IdentityException.error("Invalid OpenID", e);
         }
 
         caller = path.substring(path.indexOf(contextPath) + contextPath.length(), path.length());
@@ -102,18 +102,18 @@ public class OpenIDUtil {
             uri = new URI(openID);
         } catch (URISyntaxException e) {
             log.error("Invalid OpenID URL :" + openID, e);
-            throw new IdentityException("Invalid OpenID URL");
+            throw IdentityException.error("Invalid OpenID URL");
         }
 
         try {
             url = uri.normalize().toURL();
             if (url.getQuery() != null || url.getRef() != null) {
                 log.error("Invalid user name for OpenID :" + openID);
-                throw new IdentityException("Invalid user name for OpenID");
+                throw IdentityException.error("Invalid user name for OpenID");
             }
         } catch (MalformedURLException e) {
             log.error("Malformed OpenID URL :" + openID, e);
-            throw new IdentityException("Malformed OpenID URL");
+            throw IdentityException.error("Malformed OpenID URL");
         }
 
         openID = url.toString();
@@ -176,7 +176,7 @@ public class OpenIDUtil {
             uri = new URI(rpUrl);
         } catch (URISyntaxException e) {
             log.error("Invalid relying party URL :" + rpUrl, e);
-            throw new IdentityException("Invalid relying party URL");
+            throw IdentityException.error("Invalid relying party URL");
         }
 
         try {
@@ -185,7 +185,7 @@ public class OpenIDUtil {
             return url.toString();
         } catch (MalformedURLException e) {
             log.error("Malformed relying party URL :" + rpUrl, e);
-            throw new IdentityException("Malformed relying party URL");
+            throw IdentityException.error("Malformed relying party URL");
         }
     }
 
@@ -334,7 +334,7 @@ public class OpenIDUtil {
                           + "&" + OpenIDConstants.OpenIDRequestParameters.OPENID_IDENTITY + "=" + identity;
         } catch (UnsupportedEncodingException e) {
             log.error("UTF-8 encoding is not supported", e);
-            throw new IdentityException("UTF-8 encoding is not supported");
+            throw IdentityException.error("UTF-8 encoding is not supported");
         }
 
         String username = null;

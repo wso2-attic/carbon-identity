@@ -75,7 +75,7 @@ public abstract class AbstractDAO<T> {
             }
         } catch (RegistryException e) {
             log.error("Error while retreving all objects from the registry path", e);
-            throw new IdentityException("Error while retreving all objects from the registry path",
+            throw IdentityException.error("Error while retreving all objects from the registry path",
                     e);
         }
 
@@ -128,7 +128,7 @@ public abstract class AbstractDAO<T> {
         } catch (RegistryException e) {
             String message = "Error while retreving all objects from the registry path  with property values";
             log.error(message, e);
-            throw new IdentityException(message, e);
+            throw IdentityException.error(message, e);
         }
         return retList;
     }
@@ -164,7 +164,7 @@ public abstract class AbstractDAO<T> {
         } catch (RegistryException e) {
             String message = "Error while retreving first object from the registry path  with property value";
             log.error(message, e);
-            throw new IdentityException(message, e);
+            throw IdentityException.error(message, e);
         }
 
         return resourceToObject(resource);

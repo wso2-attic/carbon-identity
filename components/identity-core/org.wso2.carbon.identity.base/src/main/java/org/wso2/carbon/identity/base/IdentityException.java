@@ -137,15 +137,11 @@ public class IdentityException extends Exception {
         }
     }
 
-    // TODO: Make this constructor protected by not instantiating it in any other component, but only allow to subclass
-    // TODO: Use the builder to create instances
-    public IdentityException(String errorDescription) {
+    protected IdentityException(String errorDescription) {
         super(errorDescription);
     }
 
-    // TODO: Make this constructor protected by not instantiating it in any other component, but only allow to subclass
-    // TODO: Use the builder to create instances
-    public IdentityException(String errorDescription, Throwable cause) {
+    protected IdentityException(String errorDescription, Throwable cause) {
         super(errorDescription, cause);
     }
 
@@ -153,7 +149,7 @@ public class IdentityException extends Exception {
     // However once we migrate all the usages of IdentityException to create using error(ErrorInfo) we can remove this
     @Deprecated
     public static IdentityException error(String errorDescription) {
-        IdentityException identityException = new IdentityException(errorDescription);
+        IdentityException identityException = IdentityException.error(errorDescription);
         ErrorInfo.ErrorInfoBuilder errorInfoBuilder = new ErrorInfo.ErrorInfoBuilder(errorDescription);
         identityException.addErrorInfo(errorInfoBuilder.build());
         return identityException;
@@ -163,7 +159,7 @@ public class IdentityException extends Exception {
     // However once we migrate all the usages of IdentityException to create using error(ErrorInfo) we can remove this
     @Deprecated
     public static IdentityException error(String errorDescription, Throwable cause) {
-        IdentityException identityException = new IdentityException(errorDescription, cause);
+        IdentityException identityException = IdentityException.error(errorDescription, cause);
         ErrorInfo.ErrorInfoBuilder errorInfoBuilder = new ErrorInfo.ErrorInfoBuilder(errorDescription);
         errorInfoBuilder.cause(cause);
         identityException.addErrorInfo(errorInfoBuilder.build());
@@ -176,10 +172,10 @@ public class IdentityException extends Exception {
         }
         IdentityException identityException = null;
         if(errorInfo.getCause() != null) {
-            identityException = new IdentityException(errorInfo.getErrorDescription(),
+            identityException = IdentityException.error(errorInfo.getErrorDescription(),
                     errorInfo.getCause());
         } else {
-            identityException = new IdentityException(errorInfo.getErrorDescription());
+            identityException = IdentityException.error(errorInfo.getErrorDescription());
         }
         identityException.addErrorInfo(errorInfo);
         return identityException;

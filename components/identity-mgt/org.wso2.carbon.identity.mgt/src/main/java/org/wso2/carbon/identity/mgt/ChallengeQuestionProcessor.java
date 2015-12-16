@@ -86,7 +86,7 @@ public class ChallengeQuestionProcessor {
 
             }
         } catch (RegistryException e) {
-            throw new IdentityException(e.getMessage(), e);
+            throw IdentityException.error(e.getMessage(), e);
         }
         return questionDTOs;
     }
@@ -126,7 +126,7 @@ public class ChallengeQuestionProcessor {
                 }
             }
         } catch (RegistryException e) {
-            throw new IdentityException("Error while setting challenge question.", e);
+            throw IdentityException.error("Error while setting challenge question.", e);
         }
 
     }
@@ -405,7 +405,7 @@ public class ChallengeQuestionProcessor {
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             String msg = "No associated challenge question found for the user";
-            throw new IdentityException(msg, e);
+            throw IdentityException.error(msg, e);
         }
     }
 
