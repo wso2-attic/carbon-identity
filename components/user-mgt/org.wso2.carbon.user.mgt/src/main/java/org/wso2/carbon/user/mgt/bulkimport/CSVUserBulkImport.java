@@ -50,7 +50,6 @@ public class CSVUserBulkImport {
         CSVReader csvReader = new CSVReader(reader, ',', '"', 1);
         try {
 
-            String password = config.getDefaultPassword();
             String domain = config.getUserStoreDomain();
             String[] line = csvReader.readNext();
             boolean isDuplicate = false;
@@ -76,12 +75,12 @@ public class CSVUserBulkImport {
                     try {
                         if (!userStore.isExistingUser(userName)) {
                             if (line.length == 1) {
-                                userStore.addUser(userName, password, null, null, null, true);
+                                userStore.addUser(userName, null, null, null, null, true);
                                 success = true;
                                 successCount++;
                             } else {
                                 try {
-                                    addUserWithClaims(userName, password, line, userStore);
+                                    addUserWithClaims(userName, line, userStore);
                                     success = true;
                                     successCount++;
                                     if (log.isDebugEnabled()){
@@ -149,12 +148,13 @@ public class CSVUserBulkImport {
         }
     }
 
-    private void addUserWithClaims(String username, String password, String[] line, UserStoreManager userStore)
+    private void addUserWithClaims(String username, String[] line, UserStoreManager userStore)
             throws UserStoreException, UserAdminException {
         String roleString = null;
         String[] roles = null;
+        String password = line[1];
         Map<String, String> claims = new HashMap<String, String>();
-        for (int i = 1; i < line.length; i++) {
+        for (int i = 2; i < line.length; i++) {
             if (line[i] != null && !line[i].isEmpty()) {
                 String[] claimStrings = line[i].split("=");
                 if (claimStrings.length != 2) {
