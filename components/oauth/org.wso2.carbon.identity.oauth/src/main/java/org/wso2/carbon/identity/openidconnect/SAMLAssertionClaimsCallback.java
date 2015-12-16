@@ -195,8 +195,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
             }
             try {
                 claims = getClaimsFromUserStore(requestMsgCtx);
-            } catch (UserStoreException | IdentityException | ClaimManagementException |
-                    IdentityApplicationManagementException e) {
+            } catch (UserStoreException | IdentityException e) {
                 log.error("Error occurred while getting claims for user " + requestMsgCtx.getAuthorizedUser(), e);
             }
         } else {
@@ -220,8 +219,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
             }
             try {
                 claims = getClaimsFromUserStore(requestMsgCtx);
-            } catch (UserStoreException | IdentityException | ClaimManagementException |
-                    IdentityApplicationManagementException e) {
+            } catch (UserStoreException | IdentityException e) {
                 log.error("Error occurred while getting claims for user " + requestMsgCtx.getAuthorizationReqDTO().getUsername(),
                         e);
             }
@@ -256,8 +254,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
      * @throws Exception
      */
     private static Map<String, Object> getClaimsFromUserStore(OAuthTokenReqMessageContext requestMsgCtx)
-            throws IdentityApplicationManagementException, IdentityException, UserStoreException,
-            ClaimManagementException {
+            throws UserStoreException, IdentityException {
 
         String username = requestMsgCtx.getAuthorizedUser().toString();
         String tenantDomain = requestMsgCtx.getAuthorizedUser().getTenantDomain();

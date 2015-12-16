@@ -15,12 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.authenticator.saml2.sso;
 
-public class SAML2SSOAuthenticatorException extends Exception {
-    public SAML2SSOAuthenticatorException() {
-        super();
-    }
+import org.wso2.carbon.identity.base.IdentityException;
+
+public class SAML2SSOAuthenticatorException extends IdentityException {
+
+    private static final long serialVersionUID = -1013608048991761544L;
 
     public SAML2SSOAuthenticatorException(String message) {
         super(message);

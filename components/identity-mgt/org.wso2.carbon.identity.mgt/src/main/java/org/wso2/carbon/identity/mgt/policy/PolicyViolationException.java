@@ -18,9 +18,17 @@
 
 package org.wso2.carbon.identity.mgt.policy;
 
-public class PolicyViolationException extends Exception {
+import org.wso2.carbon.identity.base.IdentityException;
+
+public class PolicyViolationException extends IdentityException {
+
+    private static final long serialVersionUID = 7267202484738844205L;
 
     public PolicyViolationException(String message) {
         super(message);
+    }
+
+    public PolicyViolationException(String message, Throwable e) {
+        super(message, e);
     }
 }

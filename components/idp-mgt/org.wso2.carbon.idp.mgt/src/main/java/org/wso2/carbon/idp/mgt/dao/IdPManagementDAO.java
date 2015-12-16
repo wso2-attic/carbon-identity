@@ -1030,20 +1030,19 @@ public class IdPManagementDAO {
     }
 
     private String getBlobValue(InputStream is) throws IdentityProviderManagementException {
+
         if (is != null) {
             BufferedReader br = null;
             StringBuilder sb = new StringBuilder();
-
             String line;
             try {
-
                 br = new BufferedReader(new InputStreamReader(is));
                 while ((line = br.readLine()) != null) {
                     sb.append(line);
                 }
-
             } catch (IOException e) {
-                throw new IdentityProviderManagementException(e);
+                throw new IdentityProviderManagementException("Error occurred while reading blob value from input " +
+                        "stream", e);
             } finally {
                 if (br != null) {
                     try {

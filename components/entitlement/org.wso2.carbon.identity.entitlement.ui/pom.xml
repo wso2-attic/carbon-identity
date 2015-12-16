@@ -62,6 +62,10 @@
             <artifactId>org.wso2.carbon.identity.entitlement.common</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.base</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.balana</groupId>
             <artifactId>org.wso2.balana.utils</artifactId>
         </dependency>
@@ -100,6 +104,7 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.ui.*; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.utils; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}"
                         </Import-Package>
                         <Export-Package>org.wso2.carbon.identity.entitlement.ui.*</Export-Package>
                         <Carbon-Component>UIBundle</Carbon-Component>

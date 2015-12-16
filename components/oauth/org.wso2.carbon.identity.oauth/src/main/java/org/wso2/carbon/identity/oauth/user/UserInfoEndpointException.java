@@ -15,9 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.oauth.user;
 
-public class UserInfoEndpointException extends Exception {
+import org.wso2.carbon.identity.base.IdentityException;
+
+public class UserInfoEndpointException extends IdentityException {
 
     public static final String ERROR_CODE_INVALID_SCHEMA = "invalid_schema";
     public static final String ERROR_CODE_INVALID_REQUEST = "invalid_request";
@@ -38,7 +41,13 @@ public class UserInfoEndpointException extends Exception {
 
     public UserInfoEndpointException(String errorMessage) {
         super(errorMessage);
-        this.errorCode = null;
+        errorCode = null;
+        this.errorMessage = errorMessage;
+    }
+
+    public UserInfoEndpointException(String errorMessage, Throwable e) {
+        super(errorMessage, e);
+        errorCode = null;
         this.errorMessage = errorMessage;
     }
 
