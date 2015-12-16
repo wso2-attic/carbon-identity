@@ -30,6 +30,8 @@ public class ApplicationManagementServiceComponentHolder {
     private static ApplicationManagementServiceComponentHolder instance=new
             ApplicationManagementServiceComponentHolder();
     private static Map<String, AbstractInboundAuthenticatorConfig> inboundAuthenticatorConfigs = new HashMap<String, AbstractInboundAuthenticatorConfig>();
+    private static Map<String, AbstractInboundAuthenticatorConfig> inboundProvisioningConfigs = new HashMap<String, AbstractInboundAuthenticatorConfig>();
+
 
     private RegistryService registryService;
 
@@ -73,6 +75,40 @@ public class ApplicationManagementServiceComponentHolder {
      */
     public static void removeInboundAuthenticatorConfig(String type) {
         inboundAuthenticatorConfigs.remove(type);
+    }
+
+
+    /**
+     * Add inbound provisioning configuration
+     * @param inboundProvisioningConnector
+     */
+    public static void addInboundProvisioningConfig(AbstractInboundAuthenticatorConfig inboundProvisioningConnector) {
+        inboundProvisioningConfigs.put(inboundProvisioningConnector.getAuthKey(), inboundProvisioningConnector);
+    }
+
+    /**
+     * Get inbound provisioning configuration
+     * @param type
+     * @return
+     */
+    public static AbstractInboundAuthenticatorConfig getInboundProvisioningConfig(String type) {
+        return inboundProvisioningConfigs.get(type);
+    }
+
+    /**
+     * Get inbound provisioning configurations
+     * @return inbound provisioning configs
+     */
+    public static Map<String, AbstractInboundAuthenticatorConfig> getAllInboundProvisioningConfig() {
+        return inboundAuthenticatorConfigs;
+    }
+
+    /**
+     * Remove inbound provisioning configuration
+     * @param type
+     */
+    public static void removeInboundProvisioningConfig(String type) {
+        inboundProvisioningConfigs.remove(type);
     }
 
 
