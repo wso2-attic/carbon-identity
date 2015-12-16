@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
+import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
@@ -440,6 +441,26 @@ public class DefaultStepHandler implements StepHandler {
                     log.debug(authenticator.getName() + " is redirecting");
                 }
                 return;
+            }
+
+            if (authenticator instanceof FederatedApplicationAuthenticator) {
+                if (context.getSubject().getUserName() == null) {
+                    // Set subject identifier as the default username for federated users
+                    String authenticatedSubjectIdentifier = context.getSubject().getAuthenticatedSubjectIdentifier();
+                    context.getSubject().setUserName(authenticatedSubjectIdentifier);
+                }
+
+                if (context.getSubject().getFederatedIdPName() == null && context.getExternalIdP() != null) {
+                    // Setting identity provider's name
+                    String idpName = context.getExternalIdP().getIdPName();
+                    context.getSubject().setFederatedIdPName(idpName);
+                }
+
+                if (context.getSubject().getTenantDomain() == null) {
+                    // Setting service provider's tenant domain as the default tenant for federated users
+                    String tenantDomain = context.getTenantDomain();
+                    context.getSubject().setTenantDomain(tenantDomain);
+                }
             }
 
             AuthenticatedIdPData authenticatedIdPData = new AuthenticatedIdPData();

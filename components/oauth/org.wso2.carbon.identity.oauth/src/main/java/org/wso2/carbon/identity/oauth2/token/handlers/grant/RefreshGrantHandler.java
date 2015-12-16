@@ -87,7 +87,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         String userStoreDomain = null;
         if (OAuth2Util.checkAccessTokenPartitioningEnabled() && OAuth2Util.checkUserNameAssertionEnabled()) {
             try {
-                userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(validationDataDO.getAuthorizedUser());
+                userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(validationDataDO.getAuthorizedUser().toString());
             } catch (IdentityOAuth2Exception e) {
                 String errorMsg = "Error occurred while getting user store domain for User ID : " + validationDataDO.getAuthorizedUser();
                 log.error(errorMsg, e);
@@ -118,7 +118,7 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
                     ", Token Scope : " + OAuth2Util.buildScopeString(validationDataDO.getScope()));
         }
 
-        tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(validationDataDO.getAuthorizedUser()));
+        tokReqMsgCtx.setAuthorizedUser(validationDataDO.getAuthorizedUser());
         tokReqMsgCtx.setScope(validationDataDO.getScope());
         // Store the old access token as a OAuthTokenReqMessageContext property, this is already
         // a preprocessed token.

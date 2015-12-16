@@ -15,7 +15,9 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.carbon.identity.core.model;
+package org.wso2.carbon.identity.oauth.dao;
+
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 
 import java.io.Serializable;
 
@@ -28,18 +30,16 @@ public class OAuthAppDO implements Serializable {
     private String oauthConsumerSecret;
     private String applicationName;
     private String callbackUrl;
-    private String userName;
+    private AuthenticatedUser user;
     private String oauthVersion;
-    private int tenantId;
     private String grantTypes;
-    private String userDomain;
 
-    public String getUserName() {
-        return userName;
+    public AuthenticatedUser getUser() {
+        return user;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUser(AuthenticatedUser user) {
+        this.user = user;
     }
 
     public String getOauthConsumerKey() {
@@ -82,14 +82,6 @@ public class OAuthAppDO implements Serializable {
         this.oauthVersion = oauthVersion;
     }
 
-    public int getTenantId() {
-        return tenantId;
-    }
-
-    public void setTenantId(int tenantId) {
-        this.tenantId = tenantId;
-    }
-
     public String getGrantTypes() {
         return grantTypes;
     }
@@ -104,13 +96,5 @@ public class OAuthAppDO implements Serializable {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public void setUserDomain(String domain){
-        this.userDomain = domain;
-    }
-
-    public String getUserDomain() {
-        return userDomain;
     }
 }
