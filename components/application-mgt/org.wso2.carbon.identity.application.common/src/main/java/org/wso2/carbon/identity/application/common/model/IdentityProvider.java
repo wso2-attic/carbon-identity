@@ -81,6 +81,8 @@ public class IdentityProvider implements Serializable {
                 identityProvider.setIdentityProviderDescription(element.getText());
             } else if ("Alias".equals(elementName)) {
                 identityProvider.setAlias(element.getText());
+            } else if ("DisplayName".equals(elementName)) {
+                identityProvider.setDisplayName(element.getText());
             } else if ("IsPrimary".equals(elementName)) {
                 if (element.getText() != null && element.getText().trim().length() > 0) {
                     identityProvider.setPrimary(Boolean.parseBoolean(element.getText()));

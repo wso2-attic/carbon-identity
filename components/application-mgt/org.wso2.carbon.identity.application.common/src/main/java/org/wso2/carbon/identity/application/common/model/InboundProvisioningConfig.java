@@ -40,7 +40,9 @@ public class InboundProvisioningConfig implements Serializable {
     }
     /*
      * <InboundProvisioningConfig> <ProvisioningUserStore></ProvisioningUserStore>
-     * <IsProvisioningEnabled></IsProvisioningEnabled> </InboundProvisioningConfig>
+     * <IsProvisioningEnabled></IsProvisioningEnabled>
+     * <IsDumbModeEnabled></IsDumbModeEnabled>
+     * </InboundProvisioningConfig>
      */
     public static InboundProvisioningConfig build(OMElement inboundProvisioningConfigOM) {
         InboundProvisioningConfig inboundProvisioningConfig = new InboundProvisioningConfig();
@@ -58,8 +60,9 @@ public class InboundProvisioningConfig implements Serializable {
             if ("ProvisioningUserStore".equals(elementName)) {
                 inboundProvisioningConfig.setProvisioningUserStore(element.getText());
             } else if ("IsProvisioningEnabled".equals(elementName) && element.getText() != null) {
-                inboundProvisioningConfig.setProvisioningEnabled(Boolean.parseBoolean(element
-                        .getText()));
+                inboundProvisioningConfig.setProvisioningEnabled(Boolean.parseBoolean(element.getText()));
+            } else if ("IsDumbModeEnabled".equals(elementName) && element.getText() != null) {
+                inboundProvisioningConfig.setDumbMode(Boolean.parseBoolean(element.getText()));
             }
         }
 
