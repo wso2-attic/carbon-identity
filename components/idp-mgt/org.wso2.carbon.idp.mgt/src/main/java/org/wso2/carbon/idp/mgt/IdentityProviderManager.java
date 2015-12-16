@@ -164,7 +164,7 @@ public class IdentityProviderManager {
         if(StringUtils.isBlank(passiveStsUrl)){
             passiveStsUrl = IdentityUtil.getServerURL("passivests", true, true);
         }
-        if(StringUtils.isBlank(stsUrl)){
+        if(!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equalsIgnoreCase(tenantDomain)){
             stsUrl = IdentityUtil.getServerURL("services/" + tenantContext + "wso2carbon-sts", true, true);
         }
         if(StringUtils.isBlank(scimUserEndpoint)){
