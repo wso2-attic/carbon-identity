@@ -38,12 +38,13 @@ public class WorkflowImplTenantMgtListener implements TenantMgtListener {
     public void onTenantCreate(TenantInfoBean tenantInfoBean) throws StratosException {
         String fullName = tenantInfoBean.getAdmin() + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantInfoBean.getTenantDomain() ;
         BPSProfile bpsProfileDTO = new BPSProfile();
-        String url = IdentityUtil.getServerURL("", true, true);
+        String url = IdentityUtil.getServerURL(WorkflowImplServiceDataHolder.getInstance()
+                .getConfigurationContextService().getServerConfigContext().getServicePath(), true, true);
         try {
             bpsProfileDTO.setManagerHostURL(url);
             bpsProfileDTO.setWorkerHostURL(url);
             bpsProfileDTO.setUsername(fullName);
-            bpsProfileDTO.setPassword(tenantInfoBean.getAdminPassword().toCharArray());
+            bpsProfileDTO.setPassword(new char[0]);
             bpsProfileDTO.setProfileName(WFImplConstant.DEFAULT_BPS_PROFILE_NAME);
 
             WorkflowImplServiceDataHolder.getInstance().getWorkflowImplService()

@@ -28,7 +28,7 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
@@ -781,6 +781,13 @@ public class UserInformationRecoveryService {
 
         try {
 
+            if (IdentityMgtConfig.getInstance().isSaasEnabled()) {
+                PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                carbonContext.setTenantId(tenantId);
+                carbonContext.setTenantDomain(tenantDomain);
+            }
+
             if (userStoreManager == null) {
                 vBean = new VerificationBean();
                 vBean.setVerified(false);
@@ -810,14 +817,14 @@ public class UserInformationRecoveryService {
                         new String[]{userName});
             }
 
-            IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+            IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
                     (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
 
             boolean isListenerEnable = true;
 
-            if (identityEventListener != null) {
-                if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
-                    isListenerEnable = Boolean.parseBoolean(identityEventListener.getEnable());
+            if (identityEventListenerConfig != null) {
+                if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+                    isListenerEnable = Boolean.parseBoolean(identityEventListenerConfig.getEnable());
                 }
             }
 
@@ -858,6 +865,10 @@ public class UserInformationRecoveryService {
             }
 
             return vBean;
+        } finally {
+            if (IdentityMgtConfig.getInstance().isSaasEnabled()) {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
         }
 
         return vBean;
@@ -904,55 +915,69 @@ public class UserInformationRecoveryService {
         }
 
         try {
-            vBean = processor.verifyConfirmationCode(1, userName, code);
-            if (!vBean.isVerified()) {
-                vBean.setError(VerificationBean.ERROR_CODE_INVALID_CODE);
+
+            if (IdentityMgtConfig.getInstance().isSaasEnabled()) {
+                PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                carbonContext.setTenantId(tenantId);
+                carbonContext.setTenantDomain(tenantDomain);
+            }
+
+            try {
+                vBean = processor.verifyConfirmationCode(1, userName, code);
+                if (!vBean.isVerified()) {
+                    vBean.setError(VerificationBean.ERROR_CODE_INVALID_CODE);
+                    return vBean;
+                }
+            } catch (IdentityException e) {
+                vBean = handleError("Error while validating confirmation code for user : " + userName, e);
                 return vBean;
             }
-        } catch (IdentityException e) {
-            vBean = handleError("Error while validating confirmation code for user : " + userName, e);
-            return vBean;
-        }
 
-        try {
-            IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
-                    (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
+            try {
+                IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
+                        (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
 
-            boolean isListenerEnable = true;
+                boolean isListenerEnable = true;
 
-            if (identityEventListener != null) {
-                if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
-                    isListenerEnable = Boolean.parseBoolean(identityEventListener.getEnable());
+                if (identityEventListenerConfig != null) {
+                    if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+                        isListenerEnable = Boolean.parseBoolean(identityEventListenerConfig.getEnable());
+                    }
                 }
-            }
 
-            IdentityMgtConfig config = IdentityMgtConfig.getInstance();
+                IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
-            if (isListenerEnable && config.isAuthPolicyAccountLockOnCreation()) {
-                UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
-                userDTO.setTenantId(tenantId);
+                if (isListenerEnable && config.isAuthPolicyAccountLockOnCreation()) {
+                    UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
+                    userDTO.setTenantId(tenantId);
 
-                UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
-                dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
-                dto.setNotificationType("EMAIL");
+                    UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
+                    dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
+                    dto.setNotificationType("EMAIL");
 
-                vBean = processor.updateConfirmationCode(1, userName, tenantId);
+                    vBean = processor.updateConfirmationCode(1, userName, tenantId);
 
-                dto.setConfirmationCode(vBean.getKey());
-                NotificationDataDTO notificationDto = processor.notifyWithEmail(dto);
-                vBean.setVerified(notificationDto.isNotificationSent());
+                    dto.setConfirmationCode(vBean.getKey());
+                    NotificationDataDTO notificationDto = processor.notifyWithEmail(dto);
+                    vBean.setVerified(notificationDto.isNotificationSent());
 
 //				Send email data only if not internally managed.
-                if (!(IdentityMgtConfig.getInstance().isNotificationInternallyManaged())) {
-                    vBean.setNotificationData(notificationDto);
-                }
+                    if (!(IdentityMgtConfig.getInstance().isNotificationInternallyManaged())) {
+                        vBean.setNotificationData(notificationDto);
+                    }
 
-            } else {
-                vBean.setVerified(true);
+                } else {
+                    vBean.setVerified(true);
+                }
+            } catch (IdentityException e) {
+                vBean = UserIdentityManagementUtil.getCustomErrorMessages(e, userName);
+                return vBean;
             }
-        } catch (IdentityException e) {
-            vBean = UserIdentityManagementUtil.getCustomErrorMessages(e, userName);
-            return vBean;
+        } finally {
+            if (IdentityMgtConfig.getInstance().isSaasEnabled()) {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
         }
 
         return vBean;

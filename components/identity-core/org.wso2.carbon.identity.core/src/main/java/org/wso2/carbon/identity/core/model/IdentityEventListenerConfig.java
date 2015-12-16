@@ -15,13 +15,13 @@
  */
 package org.wso2.carbon.identity.core.model;
 
-public class IdentityEventListener {
+public class IdentityEventListenerConfig {
 
     private int order;
     private String enable;
     private IdentityEventListenerConfigKey identityEventListenerConfigKey;
 
-    public IdentityEventListener(String enable, int order, IdentityEventListenerConfigKey
+    public IdentityEventListenerConfig(String enable, int order, IdentityEventListenerConfigKey
             identityEventListenerConfigKey) {
         this.order = order;
         this.enable = enable;

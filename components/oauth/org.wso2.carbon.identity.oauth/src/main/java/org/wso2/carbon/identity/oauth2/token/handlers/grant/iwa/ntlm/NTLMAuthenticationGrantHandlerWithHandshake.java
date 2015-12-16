@@ -96,7 +96,7 @@ public class NTLMAuthenticationGrantHandlerWithHandshake extends AbstractAuthori
                 responseHeaders[0] = new ResponseHeader();
                 responseHeaders[0].setKey("WWW-Authenticate");
                 responseHeaders[0].setValue("NTLM " + type2Token);
-                tokReqMsgCtx.addProperty("RESPONSE_HEADERS_PROPERTY", responseHeaders);
+                tokReqMsgCtx.addProperty("RESPONSE_HEADERS", responseHeaders);
                 return false;
             } else if (tokenType == NTLM_TYPE_3_TOKEN) {
                 serverContext = provider.acceptSecurityToken("server-connection", bytesToken, SECURITY_PACKAGE);

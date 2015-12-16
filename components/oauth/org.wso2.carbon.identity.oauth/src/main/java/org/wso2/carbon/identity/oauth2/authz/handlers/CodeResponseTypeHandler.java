@@ -33,6 +33,7 @@ import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.UUID;
 
 public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
 
@@ -43,9 +44,9 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
             throws IdentityOAuth2Exception {
         OAuth2AuthorizeRespDTO respDTO = new OAuth2AuthorizeRespDTO();
         String authorizationCode;
+        String codeId;
 
         OAuth2AuthorizeReqDTO authorizationReqDTO = oauthAuthzMsgCtx.getAuthorizationReqDTO();
-
 
         Timestamp timestamp = new Timestamp(new Date().getTime());
 
@@ -72,13 +73,14 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
         
         try {
             authorizationCode = oauthIssuerImpl.authorizationCode();
+            codeId = UUID.randomUUID().toString();
         } catch (OAuthSystemException e) {
             throw new IdentityOAuth2Exception(e.getMessage(), e);
         }
 
         AuthzCodeDO authzCodeDO = new AuthzCodeDO(OAuth2Util.getUserFromUserName(authorizationReqDTO.getUsername()),
                 oauthAuthzMsgCtx.getApprovedScope(),timestamp, validityPeriod, authorizationReqDTO.getCallbackUrl(),
-                authorizationReqDTO.getConsumerKey(), authorizationCode);
+                authorizationReqDTO.getConsumerKey(), authorizationCode, codeId);
 
         tokenMgtDAO.storeAuthorizationCode(authorizationCode, authorizationReqDTO.getConsumerKey(),
                 authorizationReqDTO.getCallbackUrl(), authzCodeDO);
@@ -105,6 +107,7 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
 
         respDTO.setCallbackURI(authorizationReqDTO.getCallbackUrl());
         respDTO.setAuthorizationCode(authorizationCode);
+        respDTO.setCodeId(codeId);
         return respDTO;
     }
 

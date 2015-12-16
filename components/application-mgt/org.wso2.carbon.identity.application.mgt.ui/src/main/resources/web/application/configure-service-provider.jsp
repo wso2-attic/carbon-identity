@@ -47,7 +47,7 @@
 
 
 <script type="text/javascript" src="../admin/js/main.js"></script>
-
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 
 
 <%
@@ -288,7 +288,9 @@ var roleMappinRowID = -1;
 		if( spName == '') {
 			CARBON.showWarningDialog('<fmt:message key="alert.please.provide.service.provider.id"/>');
 			location.href = '#';
-		} else {
+		} else if (!validateTextForIllegal(document.getElementById("spName"))) {
+                        return false;
+                } else {
 			if($('input:radio[name=claim_dialect]:checked').val() == "custom")
 			{
 				var isValied = true;
@@ -375,7 +377,7 @@ var roleMappinRowID = -1;
 	}
 
     function onSamlSsoClick() {
-		var spName = document.getElementById("spName").value;
+		var spName = document.getElementById("oldSPName").value;
 		if( spName != '') {
 			updateBeanAndRedirect("../sso-saml/add_service_provider.jsp?spName="+spName);
 		} else {
@@ -385,7 +387,7 @@ var roleMappinRowID = -1;
 	}
 
 	function onKerberosClick() {
-		var spName = document.getElementById("spName").value;
+		var spName = document.getElementById("oldSPName").value;
 		if( spName != '') {
 			updateBeanAndRedirect("../servicestore/add-step1.jsp?spName="+spName);
 		} else {
@@ -395,7 +397,7 @@ var roleMappinRowID = -1;
 	}
 
 	function onOauthClick() {
-		var spName = document.getElementById("spName").value;
+		var spName = document.getElementById("oldSPName").value;
 		if( spName != '') {
 			updateBeanAndRedirect("../oauth/add.jsp?spName=" + spName);
 		} else {
@@ -405,7 +407,7 @@ var roleMappinRowID = -1;
 	}
 	
 	function onSTSClick() {
-		var spName = document.getElementById("spName").value;
+		var spName = document.getElementById("oldSPName").value;
 		if( spName != '') {
 			updateBeanAndRedirect("../generic-sts/sts.jsp?spName=" + spName);
 		} else {
@@ -702,6 +704,15 @@ var roleMappinRowID = -1;
         document.getElementById("scim-inbound-userstore").disabled =!document.getElementById("scim-inbound-userstore").disabled;
         document.getElementById("dumb").value = document.getElementById("scim-inbound-userstore").disabled;
     }
+
+    function validateTextForIllegal(fld) {
+        var isValid = doValidateInput(fld, "Provided Service Provider name is invalid.");
+        if (isValid) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 </script>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources">
@@ -711,7 +722,7 @@ var roleMappinRowID = -1;
         </h2>
         <div id="workArea">
             <form id="configure-sp-form" method="post" name="configure-sp-form" method="post" action="configure-service-provider-finish.jsp" >
-            <input type="hidden" name="oldSPName" value="<%=Encode.forHtmlAttribute(spName)%>"/>
+            <input type="hidden" name="oldSPName" id="oldSPName" value="<%=Encode.forHtmlAttribute(spName)%>"/>
             <input type="hidden" id="isNeedToUpdate" value="<%=isNeedToUpdate%>"/>
             <div class="sectionSeperator togglebleTitle"><fmt:message key='title.config.app.basic.config'/></div>
             <div class="sectionSub">
@@ -719,7 +730,7 @@ var roleMappinRowID = -1;
                     <tr>
                         <td style="width:15%" class="leftCol-med labelField"><fmt:message key='config.application.info.basic.name'/>:<span class="required">*</span></td>
                         <td>
-                            <input style="width:50%" id="spName" name="spName" type="text" value="<%=Encode.forHtmlAttribute(spName)%>" autofocus/>
+                            <input style="width:50%" id="spName" name="spName" type="text" value="<%=Encode.forHtmlAttribute(spName)%>" white-list-patterns="^[a-zA-Z0-9._|-]*$" autofocus/>
                             <div class="sectionHelp">
                                 <fmt:message key='help.name'/>
                             </div>

@@ -150,9 +150,10 @@ public class UserMgtAuditLogger extends AbstractIdentityUserOperationEventListen
     }
 
     private String getUser() {
-        String user = CarbonContext.getThreadLocalCarbonContext().getUsername() + "@" +
-                CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-        if (user == null) {
+        String user = CarbonContext.getThreadLocalCarbonContext().getUsername();
+        if (user != null) {
+            user = user + "@" + CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        } else {
             user = CarbonConstants.REGISTRY_SYSTEM_USERNAME;
         }
         return user;

@@ -73,8 +73,8 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
     /**
      * Create new user account association
      *
-     * @param userName1
-     * @param userName2
+     * @param userName1 Username of account 1
+     * @param userName2 Username of account 2
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException
      */
     @Override
@@ -86,8 +86,8 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
             String tenantAwareUsername1 = MultitenantUtils.getTenantAwareUsername(userName1);
             String tenantAwareUsername2 = MultitenantUtils.getTenantAwareUsername(userName2);
 
-            String user1Domain = UserAccountAssociationUtil.getDomainName(tenantAwareUsername1);
-            String user2Domain = UserAccountAssociationUtil.getDomainName(tenantAwareUsername2);
+            String user1Domain = IdentityUtil.extractDomainFromName(tenantAwareUsername1);
+            String user2Domain = IdentityUtil.extractDomainFromName(tenantAwareUsername2);
             String username1WithoutDomain = UserAccountAssociationUtil.getUsernameWithoutDomain(tenantAwareUsername1);
             String username2WithoutDomain = UserAccountAssociationUtil.getUsernameWithoutDomain(tenantAwareUsername2);
             int user1Tenant = MultitenantConstants.INVALID_TENANT_ID;
@@ -179,7 +179,7 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
     /**
      * Delete an existing user account association
      *
-     * @param userName
+     * @param userName Username of account to delete associations of.
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException
      */
     @Override
@@ -213,7 +213,7 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
                         .INVALID_TENANT_DOMAIN.toString());
             }
 
-            String domainName = UserAccountAssociationUtil.getDomainName(tenantAwareUsername);
+            String domainName = IdentityUtil.extractDomainFromName(tenantAwareUsername);
             tenantAwareUsername = UserAccountAssociationUtil.getUsernameWithoutDomain(tenantAwareUsername);
 
             UserAccountAssociationDAO.getInstance().deleteUserAssociation(domainName, tenantId, tenantAwareUsername);
@@ -231,8 +231,9 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
     /**
      * Get all associated accounts of the logged in user
      *
+     * @param userName Username to get account list of
      * @return
-     * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException
+     * @throws UserAccountAssociationException
      */
     @Override
     public UserAccountAssociationDTO[] getAccountAssociationsOfUser(String userName) throws
@@ -269,7 +270,7 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
     /**
      * Switch logged in user account to the required associated user account
      *
-     * @param userName
+     * @param userName Username of associated account to switch
      * @return
      * @throws org.wso2.carbon.identity.user.account.association.exception.UserAccountAssociationException
      */
@@ -280,7 +281,7 @@ public class UserAccountConnectorImpl implements UserAccountConnector {
 
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
             String tenantDomain = MultitenantUtils.getTenantDomain(userName);
-            String domainName = UserAccountAssociationUtil.getDomainName(tenantAwareUsername);
+            String domainName = IdentityUtil.extractDomainFromName(tenantAwareUsername);
             tenantAwareUsername = UserAccountAssociationUtil.getUsernameWithoutDomain(tenantAwareUsername);
             RealmService realmService;
             int tenantId = MultitenantConstants.INVALID_TENANT_ID;

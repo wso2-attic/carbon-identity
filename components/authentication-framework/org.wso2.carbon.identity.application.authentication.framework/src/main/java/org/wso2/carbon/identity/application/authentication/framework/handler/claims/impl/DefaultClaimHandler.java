@@ -126,6 +126,11 @@ public class DefaultClaimHandler implements ClaimHandler {
 
         Map<String, String> spRequestedClaimMappings = context.getSequenceConfig().getApplicationConfig().
                 getRequestedClaimMappings();
+        if (StringUtils.isNotBlank(spStandardDialect) && !StringUtils.equals(spStandardDialect, ApplicationConstants
+                .LOCAL_IDP_DEFAULT_CLAIM_DIALECT)) {
+            spRequestedClaimMappings = getStanderDialectToCarbonMapping(spStandardDialect, context,
+                    spRequestedClaimMappings, context.getTenantDomain());
+        }
 
         ApplicationAuthenticator authenticator = stepConfig.
                 getAuthenticatedAutenticator().getApplicationAuthenticator();

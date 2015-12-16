@@ -21,7 +21,8 @@ package org.wso2.carbon.identity.application.mgt.listener;
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
@@ -51,27 +52,86 @@ public abstract class AbstractApplicationMgtListener implements ApplicationMgtLi
         return true;
     }
 
+    public boolean doPreGetServiceProvider(String applicationName, String tenantDomain)
+            throws IdentityApplicationManagementException{
+        return true;
+    }
+
+    public boolean doPostGetServiceProvider(ServiceProvider serviceProvider, String applicationName, String tenantDomain) throws IdentityApplicationManagementException{
+        return true;
+    }
+
+    public boolean doPreGetServiceProviderByClientId(String clientId, String clientType,
+                                                     String tenantDomain)throws IdentityApplicationManagementException{
+        return true;
+    }
+
+    public boolean doPostGetServiceProviderByClientId(ServiceProvider serviceProvider, String clientId, String clientType,
+                                                      String tenantDomain)throws IdentityApplicationManagementException{
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetAllApplicationBasicInfo(String tenantDomain, String username) throws IdentityApplicationManagementException {
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetAllApplicationBasicInfo(ApplicationDAO appDAO, String tenantDomain, String username) throws IdentityApplicationManagementException {
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetApplicationExcludingFileBasedSPs(String applicationName, String tenantDomain) throws IdentityApplicationManagementException {
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetApplicationExcludingFileBasedSPs(ServiceProvider serviceProvider, String applicationName, String tenantDomain) throws IdentityApplicationManagementException {
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetServiceProviderNameByClientId(String clientId, String clientType, String tenantDomain) throws IdentityApplicationManagementException {
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetServiceProviderNameByClientId(String name, String clientId, String clientType, String tenantDomain) throws IdentityApplicationManagementException {
+        return true;
+    }
+
+    @Override
+    public boolean doPreGetServiceProviderNameByClientIdExcludingFileBasedSPs(String name, String clientId, String type, String tenantDomain) throws IdentityApplicationManagementException {
+        return true;
+    }
+
+    @Override
+    public boolean doPostGetServiceProviderNameByClientIdExcludingFileBasedSPs(String name, String clientId, String type, String tenantDomain) {
+        return true;
+    }
+
     public boolean isEnable() {
-        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+        IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
                 (ApplicationMgtListener.class.getName(), this.getClass().getName());
-        if (identityEventListener == null) {
+        if (identityEventListenerConfig == null) {
             return true;
         }
-        if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
-            return Boolean.parseBoolean(identityEventListener.getEnable());
+        if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+            return Boolean.parseBoolean(identityEventListenerConfig.getEnable());
         } else {
             return true;
         }
     }
 
     public int getExecutionOrderId() {
-        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+        IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
                 (ApplicationMgtListener.class.getName(), this.getClass().getName());
         int orderId;
-        if (identityEventListener == null) {
+        if (identityEventListenerConfig == null) {
             orderId = IdentityCoreConstants.EVENT_LISTENER_ORDER_ID;
         } else {
-            orderId = identityEventListener.getOrder();
+            orderId = identityEventListenerConfig.getOrder();
         }
         if (orderId != IdentityCoreConstants.EVENT_LISTENER_ORDER_ID) {
             return orderId;

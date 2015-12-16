@@ -111,7 +111,6 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
 
         username = UserCoreUtil.addDomainToName(username, userStoreDomain);
         username = UserCoreUtil.addTenantDomainToEntry(username, tenantDomain);
-        username = username.toLowerCase();
 
         /* This userStoreDomain variable is used for access token table partitioning. So it is set to null when access
         token table partitioning is not enabled.*/

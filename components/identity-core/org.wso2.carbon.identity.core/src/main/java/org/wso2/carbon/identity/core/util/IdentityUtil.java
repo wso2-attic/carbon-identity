@@ -36,6 +36,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.util.Utils;
 import org.wso2.carbon.identity.base.CarbonEntityResolver;
@@ -46,7 +47,7 @@ import org.wso2.carbon.identity.core.internal.IdentityCoreServiceComponent;
 import org.wso2.carbon.identity.core.model.IdentityCacheConfig;
 import org.wso2.carbon.identity.core.model.IdentityCacheConfigKey;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.model.IdentityEventListenerConfigKey;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -97,7 +98,7 @@ public class IdentityUtil {
                                                          "[^<>:\"/\\\\|?*\\x00-\\x1F]*[^<>:\"/\\\\|?*\\x00-\\x1F\\ .]$";
     private static Log log = LogFactory.getLog(IdentityUtil.class);
     private static Map<String, Object> configuration = new HashMap<String, Object>();
-    private static Map<IdentityEventListenerConfigKey, IdentityEventListener> eventListenerConfiguration = new
+    private static Map<IdentityEventListenerConfigKey, IdentityEventListenerConfig> eventListenerConfiguration = new
             HashMap<>();
     private static Map<IdentityCacheConfigKey, IdentityCacheConfig> identityCacheConfigurationHolder = new HashMap<>();
     private static Document importerDoc = null;
@@ -154,10 +155,10 @@ public class IdentityUtil {
         return strValue;
     }
 
-    public static IdentityEventListener readEventListenerProperty(String type, String name) {
+    public static IdentityEventListenerConfig readEventListenerProperty(String type, String name) {
         IdentityEventListenerConfigKey identityEventListenerConfigKey = new IdentityEventListenerConfigKey(type, name);
-        IdentityEventListener identityEventListener = eventListenerConfiguration.get(identityEventListenerConfigKey);
-        return identityEventListener;
+        IdentityEventListenerConfig identityEventListenerConfig = eventListenerConfiguration.get(identityEventListenerConfigKey);
+        return identityEventListenerConfig;
     }
 
     public static IdentityCacheConfig getIdentityCacheConfig(String cacheManagerName, String cacheName) {
@@ -236,7 +237,7 @@ public class IdentityUtil {
 
             // random number
             String randomNum = Integer.toString(prng.nextInt());
-            MessageDigest sha = MessageDigest.getInstance("SHA-1");
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
             byte[] digest = sha.digest(randomNum.getBytes());
 
             // Hexadecimal encoding
@@ -434,6 +435,10 @@ public class IdentityUtil {
     public static boolean isUserStoreCaseSensitive(String userStoreDomain, int tenantId) {
 
         boolean isUsernameCaseSensitive = true;
+        if (tenantId == MultitenantConstants.INVALID_TENANT_ID){
+            //this is to handle federated scenarios
+            return true;
+        }
         try {
             org.wso2.carbon.user.core.UserStoreManager userStoreManager = (org.wso2.carbon.user.core
                     .UserStoreManager) IdentityTenantUtil.getRealmService()
@@ -456,6 +461,11 @@ public class IdentityUtil {
      */
     public static boolean isUserStoreCaseSensitive(UserStoreManager userStoreManager) {
 
+        if (userStoreManager == null) {
+            //this is done to handle federated scenarios. For federated scenarios, there is no user store manager for
+            // the user
+            return true;
+        }
         String caseInsensitiveUsername = userStoreManager.getRealmConfiguration()
                 .getUserStoreProperty(IdentityCoreConstants.CASE_INSENSITIVE_USERNAME);
         if (caseInsensitiveUsername == null && log.isDebugEnabled()) {
@@ -601,6 +611,22 @@ public class IdentityUtil {
             urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
                     IdentityConstants.CarbonPlaceholders.CARBON_PORT,
                     Integer.toString(mgtTransportPort));
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTP)) {
+
+            String httpPort = System.getProperty(IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTP_PROPERTY);
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTP,
+                    httpPort);
+        }
+
+        if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTPS)) {
+
+            String httpsPort = System.getProperty(IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTPS_PROPERTY);
+            urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
+                    IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTPS,
+                    httpsPort);
         }
 
         if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PROTOCOL)) {

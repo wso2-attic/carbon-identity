@@ -32,6 +32,7 @@ public class OAuth2AuthorizeRespDTO {
     private long validityPeriod;
     private String idToken;
     private Properties properties = new Properties();
+    private String codeId;
 
     public String getAuthorizationCode() {
         return authorizationCode;
@@ -111,5 +112,13 @@ public class OAuth2AuthorizeRespDTO {
 
     public Object getProperty(Object propName) {
         return properties.get(propName);
+    }
+
+    public String getCodeId(){
+        return codeId;
+    }
+
+    public void setCodeId(String codeId) {
+        this.codeId = codeId;
     }
 }

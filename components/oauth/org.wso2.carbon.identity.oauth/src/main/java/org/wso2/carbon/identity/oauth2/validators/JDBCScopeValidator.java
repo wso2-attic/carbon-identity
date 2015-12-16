@@ -20,6 +20,8 @@ package org.wso2.carbon.identity.oauth2.validators;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
@@ -141,9 +143,27 @@ public class JDBCScopeValidator extends OAuth2ScopeValidator {
                 tenantId = IdentityTenantUtil.getTenantIdOfUser(authzUser.getUserName());
             }
 
-            UserStoreManager userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
-            String[] userRoles = userStoreManager.getRoleListOfUser(
-                    MultitenantUtils.getTenantAwareUsername(authzUser.getUserName()));
+            UserStoreManager userStoreManager;
+            String[] userRoles;
+            boolean tenantFlowStarted = false;
+
+            try{
+                //If this is a tenant user
+                if(tenantId != MultitenantConstants.SUPER_TENANT_ID){
+                    PrivilegedCarbonContext.startTenantFlow();
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
+                                                            realmService.getTenantManager().getDomain(tenantId),true);
+                    tenantFlowStarted = true;
+                }
+
+                userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
+                userRoles = userStoreManager.getRoleListOfUser(
+                        MultitenantUtils.getTenantAwareUsername(authzUser.getUserName()));
+            } finally {
+                if (tenantFlowStarted) {
+                    PrivilegedCarbonContext.endTenantFlow();
+                }
+            }
 
             if(userRoles != null && userRoles.length > 0){
                 if(log.isDebugEnabled()){

@@ -218,6 +218,7 @@ public class DefaultStepHandler implements StepHandler {
                     }
 
                     try {
+                        request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
                         response.sendRedirect(redirectURL
                                 + ("?" + context.getContextIdIncludedQueryParams())
                                 + "&authenticators=" + URLEncoder.encode(authenticatorNames, "UTF-8") + retryParam);

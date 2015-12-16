@@ -30,8 +30,12 @@ import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorCo
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
+import org.wso2.carbon.identity.application.mgt.cache.IdentityServiceProviderCache;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.listener.AbstractIdentityProviderMgtListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ApplicationIdentityProviderMgtListener extends AbstractIdentityProviderMgtListener {
 
@@ -40,12 +44,23 @@ public class ApplicationIdentityProviderMgtListener extends AbstractIdentityProv
             IdentityProviderManagementException {
 
         try {
+            IdentityServiceProviderCache.getInstance().clear();
             ApplicationBasicInfo[] applicationBasicInfos = ApplicationMgtSystemConfig.getInstance()
                     .getApplicationDAO().getAllApplicationBasicInfo();
 
+            List<ServiceProvider> serviceProvidersList = new ArrayList<>();
             for (ApplicationBasicInfo applicationBasicInfo : applicationBasicInfos) {
                 ServiceProvider serviceProvider = ApplicationMgtSystemConfig.getInstance().getApplicationDAO()
                         .getApplication(applicationBasicInfo.getApplicationName(), tenantDomain);
+                serviceProvidersList.add(serviceProvider);
+            }
+
+            // Adding Local Service Provider to the list of service providers
+            ServiceProvider localSp = ApplicationMgtSystemConfig.getInstance()
+                    .getApplicationDAO().getApplication(ApplicationConstants.LOCAL_SP, tenantDomain);
+            serviceProvidersList.add(localSp);
+
+            for (ServiceProvider serviceProvider : serviceProvidersList) {
 
                 LocalAndOutboundAuthenticationConfig localAndOutboundAuthConfig = serviceProvider
                         .getLocalAndOutBoundAuthenticationConfig();

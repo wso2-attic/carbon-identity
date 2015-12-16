@@ -59,6 +59,19 @@ public class SAMLSSOConstants {
     public static final String SAMLSSO_URL = "/samlsso";
     public static final String NOTIFICATION_ENDPOINT ="/authenticationendpoint/samlsso_notification.do";
     public static final String SLO_SAML_SOAP_BINDING_ENABLED = "SSOService.SLOSAMLSOAPBindingEnabled";
+    public static final String START_SOAP_BINDING = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+            "<SOAP-ENV:Body>";
+    public static final String END_SOAP_BINDING = "</SOAP-ENV:Body>" +
+            "</SOAP-ENV:Envelope>";
+    public static final String SOAP_ACTION = "http://www.oasis-open.org/committees/security";
+    public static final String XML_TAG_REGEX = "\\<\\?xml(.+?)\\?\\>";
+    public static final String SAML_REQUEST_PARAM_KEY = "SAMLRequest";
+    public static final String SOAP_ACTION_PARAM_KEY = "SOAPAction";
+    public static final String COOKIE_PARAM_KEY = "Cookie";
+    public static final String SESSION_ID_PARAM_KEY = "JSESSIONID=";
+    public static final String ENCODING_FORMAT = "UTF-8";
+    public static final String COM_PROTOCOL = "https";
+    public static final String CRYPTO_PROTOCOL = "TLS";
 
     private SAMLSSOConstants() {
     }

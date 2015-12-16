@@ -335,6 +335,10 @@ public class PassiveSTS extends HttpServlet {
             } else {
                 // TODO how to send back the authentication failure to client.
                 //for now user will be redirected back to the framework
+                // According to ws-federation-1.2-spec; 'wtrealm' will not be sent in the Passive STS Logout Request.
+                if (sessionDTO.getRealm() == null || sessionDTO.getRealm().trim().length() == 0) {
+                    sessionDTO.setRealm(new String());
+                }
                 sendToAuthenticationFramework(request, response, sessionDataKey, sessionDTO);
             }
         } else {
@@ -417,7 +421,6 @@ public class PassiveSTS extends HttpServlet {
 
     private void sendFrameworkForLogout(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Map paramMap = request.getParameterMap();
-
         SessionDTO sessionDTO = new SessionDTO();
         sessionDTO.setAction(getAttribute(paramMap, PassiveRequestorConstants.ACTION));
         sessionDTO.setAttributes(getAttribute(paramMap, PassiveRequestorConstants.ATTRIBUTE));
@@ -432,7 +435,7 @@ public class PassiveSTS extends HttpServlet {
 
         String sessionDataKey = UUIDGenerator.generateUUID();
         addSessionDataToCache(sessionDataKey, sessionDTO);
-        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
 
         String selfPath = request.getRequestURI();
         AuthenticationRequest authenticationRequest = new AuthenticationRequest();
@@ -441,6 +444,10 @@ public class PassiveSTS extends HttpServlet {
         authenticationRequest.setRequestQueryParams(request.getParameterMap());
         authenticationRequest.setCommonAuthCallerPath(selfPath);
         authenticationRequest.appendRequestQueryParams(request.getParameterMap());
+        // According to ws-federation-1.2-spec; 'wtrealm' will not be sent in the Passive STS Logout Request.
+        if (sessionDTO.getRealm() == null || sessionDTO.getRealm().trim().length() == 0) {
+            authenticationRequest.setRelyingParty(new String());
+        }
         for (Enumeration e = request.getHeaderNames(); e.hasMoreElements(); ) {
             String headerName = e.nextElement().toString();
             authenticationRequest.addHeader(headerName, request.getHeader(headerName));

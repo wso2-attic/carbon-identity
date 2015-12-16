@@ -66,6 +66,16 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
         return instance;
     }
 
+    /**
+     * Get authentication request cache entry
+     * @param request Http servlet request
+     * @return Authentication request cache entry
+     */
+    private AuthenticationRequestCacheEntry getAuthenticationRequestFromRequest(HttpServletRequest request) {
+
+        return (AuthenticationRequestCacheEntry) request.getAttribute(FrameworkConstants.RequestAttribute.AUTH_REQUEST);
+    }
+
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
@@ -83,7 +93,8 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
                 // Retrieve AuthenticationRequestCache Entry which is stored stored from servlet.
                 if (sessionDataKey != null) {
                     log.debug("retrieving authentication request from cache..");
-                    authRequest = FrameworkUtils.getAuthenticationRequestFromCache(sessionDataKey);
+
+                    authRequest = getAuthenticationRequest(request, sessionDataKey);
 
                     if (authRequest == null) {
                         // authRequest cannot be retrieved from cache. Cache
@@ -142,6 +153,24 @@ public class DefaultRequestCoordinator implements RequestCoordinator {
             log.error("Exception in Authentication Framework", e);
             FrameworkUtils.sendToRetryPage(request, response);
         }
+    }
+
+    /**
+     * When cache removed authentication request stored as request attribute, then taking request from request or
+     * otherwise getting authentication request from cache
+     *
+     * @param request
+     * @param sessionDataKey
+     * @return
+     */
+    private AuthenticationRequestCacheEntry getAuthenticationRequest(HttpServletRequest request,
+            String sessionDataKey) {
+
+        AuthenticationRequestCacheEntry authRequest = getAuthenticationRequestFromRequest(request);
+        if (authRequest == null) {
+            authRequest = FrameworkUtils.getAuthenticationRequestFromCache(sessionDataKey);
+        }
+        return authRequest;
     }
 
     /**

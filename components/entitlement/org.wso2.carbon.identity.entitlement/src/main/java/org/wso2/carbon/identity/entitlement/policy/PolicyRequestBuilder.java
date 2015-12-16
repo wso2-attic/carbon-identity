@@ -43,7 +43,7 @@ public class PolicyRequestBuilder {
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
             Constants.SECURITY_MANAGER_PROPERTY;
     private static final int ENTITY_EXPANSION_LIMIT = 0;
-
+    public static final String EXTERNAL_GENERAL_ENTITIES_URI = "http://xml.org/sax/features/external-general-entities";
     /**
      * creates DOM representation of the XACML request
      *
@@ -68,6 +68,7 @@ public class PolicyRequestBuilder {
         DocumentBuilder documentBuilder;
         try {
             documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            documentBuilderFactory.setFeature(EXTERNAL_GENERAL_ENTITIES_URI, false);
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
             documentBuilder.setEntityResolver(new CarbonEntityResolver());
             doc = documentBuilder.parse(inputStream);
