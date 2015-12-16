@@ -116,7 +116,8 @@
                             javax.xml.xpath,
                             org.wso2.carbon.identity.user.registration.stub.*;version="${carbon.identity.package.import.version.range}",
                             org.apache.axis2.*,
-                            org.wso2.carbon.identity.core.util;resolution:=optional
+                            org.wso2.carbon.identity.core.util;resolution:=optional,
+                            org.wso2.carbon.identity.base;resolution:=optional
                         </Import-Package>
                     </instructions>
                 </configuration>

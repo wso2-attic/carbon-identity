@@ -304,7 +304,7 @@ public class ThriftAuthenticatorServiceImpl implements ThriftAuthenticatorServic
             carbonContext.setTenantId((Integer) (authSession.getAttribute(MultitenantConstants.TENANT_ID)));
         } catch (Exception e) {
             String authErrorMsg = "Error populating current carbon context from thrift auth session: " + e.getMessage();
-            throw new IdentityException(authErrorMsg);
+            throw IdentityException.error(authErrorMsg);
         }
     }
 

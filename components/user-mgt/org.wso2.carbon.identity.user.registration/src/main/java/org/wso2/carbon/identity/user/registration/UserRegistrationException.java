@@ -1,5 +1,4 @@
 /*
- *
  *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +17,17 @@
 
 package org.wso2.carbon.identity.user.registration;
 
-public class UserRegistrationException extends Exception {
+import org.wso2.carbon.identity.base.IdentityException;
 
-    public UserRegistrationException(String message, Exception e) {
+public class UserRegistrationException extends IdentityException {
+
+    private static final long serialVersionUID = -1596365777423885319L;
+
+    public UserRegistrationException(String message) {
+        super(message);
+    }
+
+    public UserRegistrationException(String message, Throwable e) {
         super(message, e);
     }
 }

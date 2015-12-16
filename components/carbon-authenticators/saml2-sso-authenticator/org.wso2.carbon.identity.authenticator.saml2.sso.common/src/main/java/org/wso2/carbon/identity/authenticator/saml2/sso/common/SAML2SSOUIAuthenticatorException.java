@@ -15,14 +15,14 @@
  */
 package org.wso2.carbon.identity.authenticator.saml2.sso.common;
 
+import org.wso2.carbon.identity.base.IdentityException;
+
 /**
  * This class is used for denote the exceptions thrown from the SAML2 based SSO Authenticator module
  */
-public class SAML2SSOUIAuthenticatorException extends Exception {
+public class SAML2SSOUIAuthenticatorException extends IdentityException {
 
-    public SAML2SSOUIAuthenticatorException() {
-        super();
-    }
+    private static final long serialVersionUID = 9091432399320717274L;
 
     public SAML2SSOUIAuthenticatorException(String message) {
         super(message);

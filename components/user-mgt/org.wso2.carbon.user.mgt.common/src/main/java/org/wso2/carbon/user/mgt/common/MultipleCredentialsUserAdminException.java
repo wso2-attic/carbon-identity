@@ -18,13 +18,10 @@
 
 package org.wso2.carbon.user.mgt.common;
 
-/**
- * 
- */
 public class MultipleCredentialsUserAdminException extends Exception {
 
+    private static final long serialVersionUID = -8107523072538185423L;
     private String message;
-
 
     public MultipleCredentialsUserAdminException(String message, Throwable cause) {
         super(message, cause);
@@ -39,9 +36,5 @@ public class MultipleCredentialsUserAdminException extends Exception {
     @Override
     public String getMessage() {
         return message;
-    }
-
-    public MultipleCredentialsUserAdminException(Throwable cause) {
-        super(cause);
     }
 }

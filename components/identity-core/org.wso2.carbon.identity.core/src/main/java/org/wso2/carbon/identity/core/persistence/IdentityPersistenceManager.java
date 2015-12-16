@@ -58,7 +58,7 @@ public class IdentityPersistenceManager {
             throws IdentityException {
 
         if (paramName == null || value == null) {
-            throw new IdentityException("Invalid inputs");
+            throw IdentityException.error("Invalid inputs");
         }
 
         ParameterDO param = null;

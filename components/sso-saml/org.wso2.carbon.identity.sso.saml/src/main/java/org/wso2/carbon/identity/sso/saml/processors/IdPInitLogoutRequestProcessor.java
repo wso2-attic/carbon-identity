@@ -148,7 +148,7 @@ public class IdPInitLogoutRequestProcessor implements IdpInitSSOLogoutRequestPro
             validationResponseDTO.setValid(true);
 
         } catch (UserStoreException | IdentityException e) {
-            throw new IdentityException(SAMLSSOConstants.Notification.IDP_SLO_VALIDATE_ERROR, e);
+            throw IdentityException.error(SAMLSSOConstants.Notification.IDP_SLO_VALIDATE_ERROR, e);
         }
         return validationResponseDTO;
     }

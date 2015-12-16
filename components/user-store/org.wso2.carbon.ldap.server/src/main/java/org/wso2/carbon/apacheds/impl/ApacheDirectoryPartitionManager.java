@@ -217,7 +217,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
         } catch (Exception e) {
             logger.error("Error in creating partition from existing partition directory.", e);
-            throw new DirectoryServerException(e);
+            throw new DirectoryServerException("Error in creating partition from existing partition directory.", e);
         }
         /**
          *Initialize the existing partition in the directory service.
@@ -234,7 +234,7 @@ class ApacheDirectoryPartitionManager implements PartitionManager {
 
         } catch (Exception e) {
             logger.error("Error in initializing partition in directory service", e);
-            throw new DirectoryServerException(e);
+            throw new DirectoryServerException("Error in initializing partition in directory service", e);
         }
 
 

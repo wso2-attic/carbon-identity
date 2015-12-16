@@ -18,28 +18,17 @@
 
 package org.wso2.carbon.security;
 
+import org.wso2.carbon.identity.base.IdentityException;
 
-public class SecurityConfigException extends Exception {
+public class SecurityConfigException extends IdentityException {
 
-    public SecurityConfigException() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+    private static final long serialVersionUID = 2202942561393644426L;
 
     public SecurityConfigException(String message, Throwable cause) {
         super(message, cause);
-        // TODO Auto-generated constructor stub
     }
 
     public SecurityConfigException(String message) {
         super(message);
-        // TODO Auto-generated constructor stub
     }
-
-    public SecurityConfigException(Throwable cause) {
-        super(cause);
-        // TODO Auto-generated constructor stub
-    }
-
-
 }

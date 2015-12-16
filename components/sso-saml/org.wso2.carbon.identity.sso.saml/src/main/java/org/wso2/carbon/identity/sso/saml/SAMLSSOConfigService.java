@@ -80,7 +80,7 @@ public class SAMLSSOConfigService extends AbstractAdmin {
             return admin.getKeyStores(isSuperAdmin);
         } catch (SecurityConfigException e) {
             log.error("Error when loading the key stores from registry", e);
-            throw new IdentityException("Error when loading the key stores from registry", e);
+            throw IdentityException.error("Error when loading the key stores from registry", e);
         }
     }
 
@@ -107,7 +107,7 @@ public class SAMLSSOConfigService extends AbstractAdmin {
         if (primaryKeyStore != null) {
             return getStoreEntries(primaryKeyStore.getKeyStoreName());
         }
-        throw new IdentityException("Primary Keystore cannot be found.");
+        throw IdentityException.error("Primary Keystore cannot be found.");
     }
 
     public String[] getSigningAlgorithmUris() {
@@ -166,10 +166,10 @@ public class SAMLSSOConfigService extends AbstractAdmin {
 
         } catch (IdentityException e) {
             log.error("Error while getting realm for " + tenatUser, e);
-            throw new IdentityException("Error while getting realm for " + tenatUser + e);
+            throw IdentityException.error("Error while getting realm for " + tenatUser + e);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             log.error("Error while getting claims for " + tenatUser, e);
-            throw new IdentityException("Error while getting claims for " + tenatUser + e);
+            throw IdentityException.error("Error while getting claims for " + tenatUser + e);
         }
         return claimUris;
     }
@@ -187,7 +187,7 @@ public class SAMLSSOConfigService extends AbstractAdmin {
             return admin.getStoreEntries(keyStoreName);
         } catch (SecurityConfigException e) {
             log.error("Error reading entries from the key store : " + keyStoreName);
-            throw new IdentityException("Error reading entries from the keystore" + e);
+            throw IdentityException.error("Error reading entries from the keystore" + e);
         }
     }
 }

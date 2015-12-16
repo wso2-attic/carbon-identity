@@ -16,15 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.ldap.server.exception;
+
+import org.wso2.carbon.identity.base.IdentityException;
 
 /**
  * An exception class used to wrap apacheds server specific exceptions.
  */
-public class DirectoryServerException extends Exception {
+public class DirectoryServerException extends IdentityException {
 
-    public DirectoryServerException() {
-    }
+    private static final long serialVersionUID = -2022720067378444170L;
 
     public DirectoryServerException(String message) {
         super(message);
@@ -33,9 +35,4 @@ public class DirectoryServerException extends Exception {
     public DirectoryServerException(String message, Throwable cause) {
         super(message, cause);
     }
-
-    public DirectoryServerException(Throwable cause) {
-        super(cause);
-    }
-
 }

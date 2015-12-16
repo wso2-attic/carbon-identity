@@ -72,7 +72,7 @@ public class IdentityTenantUtil {
                     return AdminServicesUtil.getSystemRegistry();
                 } catch (CarbonException e) {
                     log.error("Error obtaining a registry instance", e);
-                    throw new IdentityException(
+                    throw IdentityException.error(
                             "Error obtaining a registry instance", e);
                 }
             }
@@ -86,7 +86,7 @@ public class IdentityTenantUtil {
             return AdminServicesUtil.getSystemRegistry();
         } catch (CarbonException e) {
             log.error("Error obtaining a registry instance", e);
-            throw new IdentityException("Error obtaining a registry instance", e);
+            throw IdentityException.error("Error obtaining a registry instance", e);
         }
     }
 
@@ -110,7 +110,7 @@ public class IdentityTenantUtil {
             }
         } catch (CarbonException e) {
             log.error("Error obtaining a registry instance", e);
-            throw new IdentityException("Error obtaining a registry instance", e);
+            throw IdentityException.error("Error obtaining a registry instance", e);
         }
     }
 
@@ -130,7 +130,7 @@ public class IdentityTenantUtil {
             }
         } catch (CarbonException e) {
             log.error("Error obtaining the realm", e);
-            throw new IdentityException("Error Obtaining a realm", e);
+            throw IdentityException.error("Error Obtaining a realm", e);
         }
         return null;
     }
@@ -210,12 +210,12 @@ public class IdentityTenantUtil {
                     try {
                         IdentityTenantUtil.getTenantRegistryLoader().loadTenantRegistry(tenantId);
                     } catch (RegistryException e) {
-                        throw new IdentityException("Error loading tenant registry for tenant domain " + tenantDomain, e);
+                        throw IdentityException.error("Error loading tenant registry for tenant domain " + tenantDomain, e);
                     }
                     try {
                         registryService.getGovernanceSystemRegistry(tenantId);
                     } catch (RegistryException e) {
-                        throw new IdentityException("Error obtaining governance system registry for tenant domain " +
+                        throw IdentityException.error("Error obtaining governance system registry for tenant domain " +
                                                     tenantDomain, e);
                     }
                 }
@@ -235,11 +235,11 @@ public class IdentityTenantUtil {
             // level once more without adding any valuable contextual information. Because we don't have exception
             // enrichment properly implemented, we are appending the error message from the UserStoreException to the
             // new message
-            throw new IdentityRuntimeException("Error occurred while retrieving tenantId for tenantDomain: " +
+            throw IdentityRuntimeException.error("Error occurred while retrieving tenantId for tenantDomain: " +
                     tenantDomain + e.getMessage(), e);
         }
         if(tenantId == MultitenantConstants.INVALID_TENANT_ID){
-            throw new IdentityRuntimeException("Invalid tenant domain " + tenantDomain);
+            throw IdentityRuntimeException.error("Invalid tenant domain " + tenantDomain);
         } else {
             return tenantId;
         }
@@ -256,11 +256,11 @@ public class IdentityTenantUtil {
             // level once more without adding any valuable contextual information. Because we don't have exception
             // enrichment properly implemented, we are appending the error message from the UserStoreException to the
             // new message
-            throw new IdentityRuntimeException("Error occurred while retrieving tenantDomain for tenantId: " +
+            throw IdentityRuntimeException.error("Error occurred while retrieving tenantDomain for tenantId: " +
                     tenantId + e.getMessage(), e);
         }
         if(tenantDomain == null){
-            throw new IdentityRuntimeException("Invalid tenant domain " + tenantDomain);
+            throw IdentityRuntimeException.error("Invalid tenant domain " + tenantDomain);
         } else {
             return tenantDomain;
         }
@@ -284,11 +284,11 @@ public class IdentityTenantUtil {
                 tenantId = tenantManager.getTenantId(domainName);
             } catch (UserStoreException e) {
                 String errorMsg = "Error when getting the tenant id from the tenant domain : " + domainName;
-                throw new IdentityRuntimeException(errorMsg, e);
+                throw IdentityRuntimeException.error(errorMsg, e);
             }
         }
         if(tenantId == MultitenantConstants.INVALID_TENANT_ID){
-            throw new IdentityRuntimeException("Invalid tenant domain of user " + username);
+            throw IdentityRuntimeException.error("Invalid tenant domain of user " + username);
         } else {
             return tenantId;
         }

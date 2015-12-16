@@ -93,7 +93,7 @@ public class IdPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator
             }
             return validationResponse;
         } catch (Exception e) {
-            throw new IdentityException("Error validating the IdP Initiated SSO request", e);
+            throw IdentityException.error("Error validating the IdP Initiated SSO request", e);
         }
     }
 

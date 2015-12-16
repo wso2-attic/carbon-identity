@@ -55,7 +55,7 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
     public OpenIDAttributeExchange(OpenIDAuthenticationRequest request) throws IdentityException {
         if (request == null) {
             log.debug("Request cannot be null while initializing OpenIDAttributeExchange");
-            throw new IdentityException("Request cannot be null while initializing OpenIDAttributeExchange");
+            throw IdentityException.error("Request cannot be null while initializing OpenIDAttributeExchange");
         }
         this.openidAuthnRequest = request;
     }
@@ -114,7 +114,7 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
             }
         } catch (MessageException e) {
             log.error("Failed to add required attributes of Attribute Exchange", e);
-            throw new IdentityException("Failed to add required attributes of Attribute Exchange", e);
+            throw IdentityException.error("Failed to add required attributes of Attribute Exchange", e);
         }
     }
 
@@ -182,7 +182,7 @@ public class OpenIDAttributeExchange extends OpenIDExtension {
             return fetchResponse;
         } catch (MessageException e) {
             log.error("Failed to create message extension for Attribute Exchange", e);
-            throw new IdentityException("Failed to create message extension for Attribute Exchange", e);
+            throw IdentityException.error("Failed to create message extension for Attribute Exchange", e);
         }
     }
 

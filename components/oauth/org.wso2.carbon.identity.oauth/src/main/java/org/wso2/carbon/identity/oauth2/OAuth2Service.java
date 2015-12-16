@@ -339,19 +339,19 @@ public class OAuth2Service extends AbstractAdmin {
                 return revokeResponseDTO;
             }
 
-        } catch (IdentityException e) {
-            log.error("Error occurred while revoking authorization grant for applications", e);
-            OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
-            revokeRespDTO.setError(true);
-            revokeRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
-            revokeRespDTO.setErrorMsg("Error occurred while revoking authorization grant for applications");
-            return revokeRespDTO;
         } catch (InvalidOAuthClientException e) {
             log.error("Unauthorized Client", e);
             OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
             revokeRespDTO.setError(true);
             revokeRespDTO.setErrorCode(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT);
             revokeRespDTO.setErrorMsg("Unauthorized Client");
+            return revokeRespDTO;
+        } catch (IdentityException e) {
+            log.error("Error occurred while revoking authorization grant for applications", e);
+            OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
+            revokeRespDTO.setError(true);
+            revokeRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
+            revokeRespDTO.setErrorMsg("Error occurred while revoking authorization grant for applications");
             return revokeRespDTO;
         }
     }

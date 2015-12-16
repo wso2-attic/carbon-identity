@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.oauth.user;
 
 public class UserInfoEndpointException extends Exception {
@@ -23,10 +24,7 @@ public class UserInfoEndpointException extends Exception {
     public static final String ERROR_CODE_INVALID_REQUEST = "invalid_request";
     public static final String ERROR_CODE_INVALID_TOKEN = "invalid_token";
     public static final String ERROR_CODE_INSUFFICIENT_SCOPE = "insufficient_scope";
-    /**
-     *
-     */
-    private static final long serialVersionUID = -4449780649560053452L;
+    private static final long serialVersionUID = -1057626324560880329L;
     private final String errorCode;
     private final String errorMessage;
 
@@ -38,7 +36,13 @@ public class UserInfoEndpointException extends Exception {
 
     public UserInfoEndpointException(String errorMessage) {
         super(errorMessage);
-        this.errorCode = null;
+        errorCode = null;
+        this.errorMessage = errorMessage;
+    }
+
+    public UserInfoEndpointException(String errorMessage, Throwable e) {
+        super(errorMessage, e);
+        errorCode = null;
         this.errorMessage = errorMessage;
     }
 

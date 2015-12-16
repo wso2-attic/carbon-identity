@@ -271,7 +271,7 @@ public class IdentityUtil {
             return random;
         } catch (Exception e) {
             log.error("Error when generating a random number.", e);
-            throw new IdentityException("Error when generating a random number.", e);
+            throw IdentityException.error("Error when generating a random number.", e);
         }
     }
 
@@ -286,7 +286,7 @@ public class IdentityUtil {
             return number;
         } catch (NoSuchAlgorithmException e) {
             log.error("Error when generating a random number.", e);
-            throw new IdentityException("Error when generating a random number.", e);
+            throw IdentityException.error("Error when generating a random number.", e);
         }
 
     }
@@ -304,7 +304,7 @@ public class IdentityUtil {
                 hostName = NetworkUtils.getLocalHostname();
             }
         } catch (SocketException e) {
-            throw new IdentityRuntimeException("Error while trying to read hostname.", e);
+            throw IdentityRuntimeException.error("Error while trying to read hostname.", e);
         }
 
         String mgtTransport = CarbonUtils.getManagementTransport();
@@ -393,7 +393,7 @@ public class IdentityUtil {
             return unmarshaller.unmarshall(element);
         } catch (ParserConfigurationException | UnmarshallingException | SAXException | IOException e) {
             String message = "Error in constructing XML Object from the encoded String";
-            throw new IdentityException(message, e);
+            throw IdentityException.error(message, e);
         }
     }
 
@@ -589,7 +589,7 @@ public class IdentityUtil {
                 try {
                     hostName = NetworkUtils.getLocalHostname();
                 } catch (SocketException e) {
-                    throw new IdentityRuntimeException("Error while trying to read hostname.", e);
+                    throw IdentityRuntimeException.error("Error while trying to read hostname.", e);
                 }
             }
 
