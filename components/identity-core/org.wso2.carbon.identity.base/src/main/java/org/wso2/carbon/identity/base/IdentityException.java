@@ -145,6 +145,10 @@ public class IdentityException extends Exception {
         super(errorDescription, cause);
     }
 
+    protected IdentityException(Throwable cause) {
+        super(cause);
+    }
+
     // This method may be used for easily migrating existing usages of IdentityException creation.
     // However once we migrate all the usages of IdentityException to create using error(ErrorInfo) we can remove this
     @Deprecated
