@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class IdentityRuntimeException extends RuntimeException {
 
-    private static final long serialVersionUID = 6858005380078708183L;
+    private static final long serialVersionUID = -8518344774616936350L;
 
     private List<ErrorInfo> errorInfoList = new ArrayList<ErrorInfo>();
 
@@ -103,9 +103,9 @@ public class IdentityRuntimeException extends RuntimeException {
         super(errorDescription, cause);
     }
 
-    public static IdentityRuntimeException createIdentityRuntimeException(String contextId, String errorCode,
-                                                            String userErrorDescription, String errorDescription,
-                                                            Map<String,Object> parameters,Throwable cause) {
+    public static IdentityRuntimeException error(String contextId, String errorCode, String userErrorDescription,
+                                                 String errorDescription, Map<String,Object> parameters,
+                                                 Throwable cause) {
         IdentityRuntimeException identityRuntimeException = new IdentityRuntimeException(contextId, errorCode,
                 userErrorDescription, errorDescription, parameters, cause);
         identityRuntimeException.addErrorInfo(contextId, errorCode, userErrorDescription, errorDescription, parameters,

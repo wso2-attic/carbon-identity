@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class IdentityException extends Exception {
 
-    private static final long serialVersionUID = -1201739743843270738L;
+    private static final long serialVersionUID = -3055060202931592637L;
 
     private List<ErrorInfo> errorInfoList = new ArrayList<>();
 
@@ -102,7 +102,7 @@ public class IdentityException extends Exception {
         super(errorDescription, cause);
     }
 
-    public static IdentityException createIdentityException(String contextId, String errorCode,
+    public static IdentityException error(String contextId, String errorCode,
                                                             String userErrorDescription, String errorDescription,
                                                             Map<String,Object> parameters,Throwable cause) {
         IdentityException identityException = new IdentityException(contextId, errorCode, userErrorDescription,
