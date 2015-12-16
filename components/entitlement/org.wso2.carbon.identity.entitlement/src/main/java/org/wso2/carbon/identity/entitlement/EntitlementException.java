@@ -18,9 +18,7 @@
 
 package org.wso2.carbon.identity.entitlement;
 
-import org.wso2.carbon.identity.base.IdentityException;
-
-public class EntitlementException extends IdentityException {
+public class EntitlementException extends Exception {
 
     private static final long serialVersionUID = 4671622091461340493L;
     private String message;

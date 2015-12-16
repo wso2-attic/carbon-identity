@@ -18,9 +18,7 @@
 
 package org.wso2.carbon.user.mgt.common;
 
-import org.wso2.carbon.identity.base.IdentityException;
-
-public class UserAdminException extends IdentityException {
+public class UserAdminException extends Exception {
 
     private static final long serialVersionUID = -5492975209308511107L;
     private String message;

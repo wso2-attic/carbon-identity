@@ -18,9 +18,7 @@
 
 package org.wso2.carbon.identity.application.common;
 
-import org.wso2.carbon.identity.base.IdentityException;
-
-public class IdentityApplicationManagementException extends IdentityException {
+public class IdentityApplicationManagementException extends Exception {
 
     private String message;
 
