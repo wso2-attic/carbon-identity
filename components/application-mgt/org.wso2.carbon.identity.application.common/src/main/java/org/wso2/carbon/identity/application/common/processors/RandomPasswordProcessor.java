@@ -87,7 +87,7 @@ public class RandomPasswordProcessor {
      * Remove random passwords with original passwords when sending password properties to Service Back-end
      * @param properties
      */
-    public Property[] removeRandomPasswords(Property[] properties) {
+    public Property[] removeRandomPasswords(Property[] properties, boolean withCacheClear) {
 
         if (ArrayUtils.isEmpty(properties)) {
             return new Property[0];
@@ -95,13 +95,13 @@ public class RandomPasswordProcessor {
 
         String uuid = IdentityApplicationManagementUtil.getPropertyValue(properties,
                                                                          IdentityApplicationConstants.UNIQUE_ID_CONSTANT);
-        properties = (Property[]) removeUniqueIdProperty(properties);
         if (StringUtils.isBlank(uuid)) {
             if (log.isDebugEnabled()) {
                 log.debug("Cache Key not found for Random Password Container");
             }
         } else {
-            RandomPassword[] randomPasswords = getAndRemoveRandomPasswordContainerFromCache(uuid);
+            properties = removeUniqueIdProperty(properties);
+            RandomPassword[] randomPasswords = getRandomPasswordContainerFromCache(uuid, withCacheClear);
             if (!ArrayUtils.isEmpty(randomPasswords)) {
                 replaceRandomPasswordsWithOriginalPasswords(properties,
                                                             randomPasswords);
@@ -132,7 +132,7 @@ public class RandomPasswordProcessor {
         RandomPasswordContainerCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
-    private RandomPassword[] getAndRemoveRandomPasswordContainerFromCache(String uuid) {
+    private RandomPassword[] getRandomPasswordContainerFromCache(String uuid, boolean withCacheClear) {
 
         RandomPasswordContainerCacheKey cacheKey = new RandomPasswordContainerCacheKey(uuid);
         RandomPasswordContainerCache cache = RandomPasswordContainerCache.getInstance();
@@ -153,11 +153,12 @@ public class RandomPasswordProcessor {
             return new RandomPassword[0];
         }
 
-        if (log.isDebugEnabled()){
-            log.debug("Removing Cache Entry with Key: " + uuid);
+        if (withCacheClear){
+            if (log.isDebugEnabled()){
+                log.debug("Removing Cache Entry with Key: " + uuid);
+            }
+            cache.clearCacheEntry(cacheKey);
         }
-
-        cache.clearCacheEntry(cacheKey);
         return randomPasswordContainer.getRandomPasswords();
     }
 
