@@ -207,6 +207,7 @@ public class IdentityApplicationConstants {
         public static final String OAUTH2_REVOKE_URL = "OAuth2RevokeEPUrl";
         public static final String OAUTH2_USER_INFO_EP_URL = "OAuth2UserInfoEPUrl";
         public static final String CALLBACK_URL = "callbackUrl";
+        public static final String OAUTH_CONSUMER_SECRET = "oauthConsumerSecret";
 
         private OAuth2() {
             throw new AssertionError("Must not initiate an object of OAuth2 class");
