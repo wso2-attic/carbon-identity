@@ -58,7 +58,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
         respDTO.setCallbackURI(authorizationReqDTO.getCallbackUrl());
 
         String consumerKey = authorizationReqDTO.getConsumerKey();
-        String authorizedUser = authorizationReqDTO.getUsername();
+        String authorizedUser = authorizationReqDTO.getUser().toString();
         String oAuthCacheKeyString;
 
         String responseType = oauthAuthzMsgCtx.getAuthorizationReqDTO().getResponseType();
@@ -147,7 +147,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
 
             // check if the last issued access token is still active and valid in the database
             AccessTokenDO existingAccessTokenDO = tokenMgtDAO.retrieveLatestAccessToken(
-                    consumerKey, authorizedUser, userStoreDomain, scope, false);
+                    consumerKey, authorizationReqDTO.getUser(), userStoreDomain, scope, false);
 
             if (existingAccessTokenDO != null) {
 
@@ -287,7 +287,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
 	    } 
 
             if (OAuth2Util.checkUserNameAssertionEnabled()) {
-                String userName = oauthAuthzMsgCtx.getAuthorizationReqDTO().getUsername();
+                String userName = oauthAuthzMsgCtx.getAuthorizationReqDTO().getUser().toString();
                 //use ':' for token & userStoreDomain separation
                 String accessTokenStrToEncode = accessToken + ":" + userName;
                 accessToken = Base64Utils.encode(accessTokenStrToEncode.getBytes(Charsets.UTF_8));
@@ -296,8 +296,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                 refreshToken = Base64Utils.encode(refreshTokenStrToEncode.getBytes(Charsets.UTF_8));
             }
 
-            AccessTokenDO newAccessTokenDO = new AccessTokenDO(consumerKey, OAuth2Util.getUserFromUserName
-                    (authorizationReqDTO.getUsername()), oauthAuthzMsgCtx.getApprovedScope(), timestamp,
+            AccessTokenDO newAccessTokenDO = new AccessTokenDO(consumerKey, authorizationReqDTO.getUser(), oauthAuthzMsgCtx.getApprovedScope(), timestamp,
                     refreshTokenIssuedTime, validityPeriodInMillis, refreshTokenValidityPeriodInMillis,
                     OAuthConstants.UserType.APPLICATION_USER);
 
@@ -319,7 +318,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             if (log.isDebugEnabled()) {
                 log.debug("Persisted Access Token for " +
                           "Client ID : " + authorizationReqDTO.getConsumerKey() +
-                          ", Authorized User : " + authorizationReqDTO.getUsername() +
+                          ", Authorized User : " + authorizationReqDTO.getUser() +
                           ", Timestamp : " + timestamp +
                           ", Validity period (s) : " + newAccessTokenDO.getValidityPeriod() +
                           ", Scope : " + OAuth2Util.buildScopeString(oauthAuthzMsgCtx.getApprovedScope()) +

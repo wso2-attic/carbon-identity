@@ -78,7 +78,7 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
             throw new IdentityOAuth2Exception(e.getMessage(), e);
         }
 
-        AuthzCodeDO authzCodeDO = new AuthzCodeDO(OAuth2Util.getUserFromUserName(authorizationReqDTO.getUsername()),
+        AuthzCodeDO authzCodeDO = new AuthzCodeDO(authorizationReqDTO.getUser(),
                 oauthAuthzMsgCtx.getApprovedScope(),timestamp, validityPeriod, authorizationReqDTO.getCallbackUrl(),
                 authorizationReqDTO.getConsumerKey(), authorizationCode, codeId);
 
@@ -99,7 +99,7 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Issued Authorization Code to user : " + authorizationReqDTO.getUsername() +
+            log.debug("Issued Authorization Code to user : " + authorizationReqDTO.getUser() +
                     ", Using the redirect url : " + authorizationReqDTO.getCallbackUrl() +
                     ", Scope : " + OAuth2Util.buildScopeString(oauthAuthzMsgCtx.getApprovedScope()) +
                     ", validity period : " + validityPeriod);
