@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.base;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,16 +27,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Used for creating exceptions that cannot be handled.
- * Also reduces code cluttering due to checked exceptions.
+ * Used for creating checked exceptions that can be handled.
  */
 public class IdentityRuntimeException extends RuntimeException {
 
-    private static final long serialVersionUID = -8518344774616936350L;
+    private static final long serialVersionUID = 7630586886851886472L;
 
-    private List<ErrorInfo> errorInfoList = new ArrayList<ErrorInfo>();
+    private List<ErrorInfo> errorInfoList = new ArrayList<>();
 
-    public class ErrorInfo {
+    public static class ErrorInfo {
 
         private String contextId = null;
         private String errorCode  = null;
@@ -44,17 +44,16 @@ public class IdentityRuntimeException extends RuntimeException {
         private Throwable cause = null;
         private Map<String, Object> parameters = new HashMap<>();
 
-        private ErrorInfo(String contextId, String errorCode, String userErrorDescription, String errorDescription,
-                          Map<String,Object> parameters, Throwable cause) {
+        private ErrorInfo(ErrorInfoBuilder builder) {
 
-            this.contextId = contextId;
-            this.errorCode = errorCode;
-            this.userErrorDescription = userErrorDescription;
-            this.errorDescription = errorDescription;
-            if(MapUtils.isNotEmpty(parameters)){
-                this.parameters = parameters;
+            this.contextId = builder.contextId;
+            this.errorCode = builder.errorCode;
+            this.userErrorDescription = builder.userErrorDescription;
+            this.errorDescription = builder.errorDescription;
+            if(MapUtils.isNotEmpty(builder.parameters)){
+                this.parameters = builder.parameters;
             }
-            this.cause = cause;
+            this.cause = builder.cause;
         }
 
         public String getContextId() {
@@ -77,10 +76,6 @@ public class IdentityRuntimeException extends RuntimeException {
             return cause;
         }
 
-        public void addParameter(String key, Object value) {
-            this.parameters.put(key, value);
-        }
-
         public Map<String,Object> getParameters() {
             return this.parameters;
         }
@@ -88,51 +83,104 @@ public class IdentityRuntimeException extends RuntimeException {
         public Object getParameter(String key) {
             return this.parameters.get(key);
         }
+
+        public static class ErrorInfoBuilder {
+
+            private String contextId = null;
+            private String errorCode  = null;
+            private String errorDescription = null;
+            private String userErrorDescription = null;
+            private Throwable cause = null;
+            private Map<String, Object> parameters = new HashMap<>();
+
+            public ErrorInfoBuilder(String errorDescription) {
+                this.errorDescription = errorDescription;
+            }
+
+            public ErrorInfoBuilder contextId(String contextId) {
+                this.contextId = contextId;
+                return this;
+            }
+
+            public ErrorInfoBuilder errorCode(String errorCode) {
+                this.errorCode = errorCode;
+                return this;
+            }
+
+            public ErrorInfoBuilder userErrorDescription(String userErrorDescription) {
+                this.userErrorDescription = userErrorDescription;
+                return this;
+            }
+
+            public ErrorInfoBuilder cause(Throwable cause) {
+                this.cause = cause;
+                return this;
+            }
+
+            public ErrorInfoBuilder parameters(Map<String,Object> parameters) {
+                if(MapUtils.isNotEmpty(parameters)) {
+                    this.parameters = parameters;
+                }
+                return this;
+            }
+
+            public ErrorInfoBuilder parameter(String key, Object value) {
+                if(key != null){
+                    this.parameters.put(key, value);
+                }
+                return this;
+            }
+
+            public ErrorInfo build(){
+                return new ErrorInfo(this);
+            }
+        }
     }
 
+    // TODO: make this constructor protected by not instantiating it in any other component, but only allow to subclass
+    // TODO: Use the builder to create instances
     public IdentityRuntimeException(String errorDescription) {
         super(errorDescription);
     }
 
-    public IdentityRuntimeException(String errorDescription, Throwable e) {
-        super(errorDescription, e);
-    }
-
-    private IdentityRuntimeException(String contextId, String errorCode, String userErrorDescription, String errorDescription,
-                              Map<String,Object> parameters, Throwable cause) {
+    // TODO: remove this constructor and have only the one arg constructor since 'cause' is optional
+    public IdentityRuntimeException(String errorDescription, Throwable cause) {
         super(errorDescription, cause);
     }
 
-    public static IdentityRuntimeException error(String contextId, String errorCode, String userErrorDescription,
-                                                 String errorDescription, Map<String,Object> parameters,
-                                                 Throwable cause) {
-        IdentityRuntimeException identityRuntimeException = new IdentityRuntimeException(contextId, errorCode,
-                userErrorDescription, errorDescription, parameters, cause);
-        identityRuntimeException.addErrorInfo(contextId, errorCode, userErrorDescription, errorDescription, parameters,
-                cause);
+    // This method may be used for easily migrating existing usages of IdentityRuntimeException creation.
+    // However once we migrate all the usages of IdentityRuntimeException to create using error(ErrorInfo) we can remove this
+    @Deprecated
+    public static IdentityRuntimeException error(String errorDescription) {
+        IdentityRuntimeException identityRuntimeException = new IdentityRuntimeException(errorDescription);
+        ErrorInfo.ErrorInfoBuilder errorInfoBuilder = new ErrorInfo.ErrorInfoBuilder(errorDescription);
+        identityRuntimeException.addErrorInfo(errorInfoBuilder.build());
         return identityRuntimeException;
     }
 
-    public IdentityRuntimeException addErrorInfo(ErrorInfo errorInfo) {
+    // This method may be used for easily migrating existing usages of IdentityRuntimeException creation.
+    // However once we migrate all the usages of IdentityRuntimeException to create using error(ErrorInfo) we can remove this
+    @Deprecated
+    public static IdentityRuntimeException error(String errorDescription, Throwable cause) {
+        IdentityRuntimeException identityRuntimeException = new IdentityRuntimeException(errorDescription, cause);
+        ErrorInfo.ErrorInfoBuilder errorInfoBuilder = new ErrorInfo.ErrorInfoBuilder(errorDescription);
+        errorInfoBuilder.cause(cause);
+        identityRuntimeException.addErrorInfo(errorInfoBuilder.build());
+        return identityRuntimeException;
+    }
+
+    public static IdentityRuntimeException error(ErrorInfo errorInfo) {
+        IdentityRuntimeException identityRuntimeException = new IdentityRuntimeException(errorInfo.getErrorDescription(),
+                errorInfo.getCause());
+        identityRuntimeException.addErrorInfo(errorInfo);
+        return identityRuntimeException;
+    }
+
+    public void addErrorInfo(ErrorInfo errorInfo) {
+        if(errorInfo == null || StringUtils.isBlank(errorInfo.errorDescription)){
+            throw new IllegalArgumentException("ErrorInfo object is null or Error Description is blank");
+        }
         this.errorInfoList.add(errorInfo);
-        return this;
-    }
-
-    public IdentityRuntimeException addErrorInfo(String contextId, String errorCode, String userErrorDescription,
-                             String errorDescription, Map<String,Object> parameters, Throwable cause) {
-
-        this.errorInfoList.add(buildErrorInfo(contextId, errorCode, userErrorDescription, errorDescription,
-                parameters, cause));
-        return this;
-    }
-
-    public ErrorInfo buildErrorInfo(String contextId, String errorCode, String userErrorDescription,
-                                    String errorDescription, Map<String,Object> parameters,
-                                    Throwable cause){
-
-        ErrorInfo errorInfo = new ErrorInfo(contextId, errorCode, userErrorDescription, errorDescription,
-                parameters, cause);
-        return errorInfo;
     }
 
     public List<ErrorInfo> getErrorInfoList() {
