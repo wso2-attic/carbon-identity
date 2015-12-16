@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class IdentityException extends Exception {
 
-    private static final long serialVersionUID = -8833460100741863763L;
+    private static final long serialVersionUID = -5849726441147445295L;
 
     private List<ErrorInfo> errorInfoList = new ArrayList<>();
 
@@ -143,10 +143,6 @@ public class IdentityException extends Exception {
 
     protected IdentityException(String errorDescription, Throwable cause) {
         super(errorDescription, cause);
-    }
-
-    protected IdentityException(Throwable cause) {
-        super(cause);
     }
 
     // This method may be used for easily migrating existing usages of IdentityException creation.
