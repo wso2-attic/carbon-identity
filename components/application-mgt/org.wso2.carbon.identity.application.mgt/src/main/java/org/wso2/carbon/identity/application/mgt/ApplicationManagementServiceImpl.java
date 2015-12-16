@@ -111,7 +111,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreCreateApplication(serviceProvider,tenantDomain, username)) {
+            if (listener.isEnable() && !listener.doPreCreateApplication(serviceProvider,tenantDomain, username)) {
                 return;
             }
         }
@@ -161,7 +161,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostCreateApplication(serviceProvider, tenantDomain, username)) {
+            if (listener.isEnable() && !listener.doPostCreateApplication(serviceProvider, tenantDomain, username)) {
                 return;
             }
         }
@@ -349,7 +349,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         // invoking the listeners
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreDeleteApplication(applicationName, tenantDomain, username)) {
+            if (listener.isEnable() && !listener.doPreDeleteApplication(applicationName, tenantDomain, username)) {
                 return;
             }
         }
@@ -432,7 +432,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostDeleteApplication(applicationName, tenantDomain, username)) {
+            if (listener.isEnable() && !listener.doPostDeleteApplication(applicationName, tenantDomain, username)) {
                 return;
             }
         }

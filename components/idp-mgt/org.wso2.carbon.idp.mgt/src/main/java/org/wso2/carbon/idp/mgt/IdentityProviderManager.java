@@ -472,7 +472,7 @@ public class IdentityProviderManager {
         // invoking the pre listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreAddResidentIdP(identityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreAddResidentIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -580,7 +580,7 @@ public class IdentityProviderManager {
 
         // invoking the post listeners
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostAddResidentIdP(identityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostAddResidentIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -614,7 +614,7 @@ public class IdentityProviderManager {
         // invoking the pre listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreUpdateResidentIdP(identityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreUpdateResidentIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -634,7 +634,7 @@ public class IdentityProviderManager {
 
         // invoking the post listeners
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostUpdateResidentIdP(identityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostUpdateResidentIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -1131,7 +1131,7 @@ public class IdentityProviderManager {
         // invoking the pre listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreAddIdP(identityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreAddIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -1188,7 +1188,7 @@ public class IdentityProviderManager {
 
         // invoking the post listeners
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostAddIdP(identityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostAddIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -1206,7 +1206,7 @@ public class IdentityProviderManager {
         // invoking the pre listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreDeleteIdP(idPName, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreDeleteIdP(idPName, tenantDomain)) {
                 return;
             }
         }
@@ -1216,7 +1216,7 @@ public class IdentityProviderManager {
 
         // invoking the post listeners
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostDeleteIdP(idPName, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostDeleteIdP(idPName, tenantDomain)) {
                 return;
             }
         }
@@ -1236,7 +1236,7 @@ public class IdentityProviderManager {
         // invoking the pre listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreUpdateIdP(oldIdPName, newIdentityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreUpdateIdP(oldIdPName, newIdentityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -1301,7 +1301,7 @@ public class IdentityProviderManager {
 
         // invoking the post listeners
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostUpdateIdP(oldIdPName, newIdentityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostUpdateIdP(oldIdPName, newIdentityProvider, tenantDomain)) {
                 return;
             }
         }
