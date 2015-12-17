@@ -603,14 +603,22 @@ public class IdentityUtil {
             String mgtTransport = CarbonUtils.getManagementTransport();
             AxisConfiguration axisConfiguration = IdentityCoreServiceComponent.getConfigurationContextService().
                     getServerConfigContext().getAxisConfiguration();
-            int mgtTransportPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
-            if (mgtTransportPort <= 0) {
-                mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
+
+            int mgtTransportProxyPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
+            String mgtTransportPort = Integer.toString(mgtTransportProxyPort);
+
+            if (mgtTransportProxyPort <= 0) {
+                if (StringUtils.equals(mgtTransport, "http")) {
+                    mgtTransportPort = System.getProperty(
+                            IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTP_PROPERTY);
+                } else {
+                    mgtTransportPort = System.getProperty(
+                            IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTPS_PROPERTY);
+                }
             }
 
             urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
-                    IdentityConstants.CarbonPlaceholders.CARBON_PORT,
-                    Integer.toString(mgtTransportPort));
+                    IdentityConstants.CarbonPlaceholders.CARBON_PORT, mgtTransportPort);
         }
 
         if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTP)) {
