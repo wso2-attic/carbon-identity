@@ -150,6 +150,11 @@ public class OAuthServerConfiguration {
     private String openIDConnectUserInfoEndpointResponseBuilder = "org.wso2.carbon.identity.oauth.endpoint.user.impl.UserInfoJSONResponseBuilder";
     private OAuth2ScopeValidator oAuth2ScopeValidator;
 
+    public static final String IMPLICIT = "implicit";
+    private boolean isInitialized;
+    private static final Object LOCK = new Object();
+    private List<String> allowedGrantTypes;
+
     private OAuthServerConfiguration() {
         buildOAuthServerConfiguration();
     }
@@ -164,6 +169,15 @@ public class OAuthServerConfiguration {
             }
         }
         return instance;
+    }
+
+    public void init() {
+        synchronized (LOCK) {
+            this.supportedGrantTypes = this.populateSupportedGrantTypes();
+            this.supportedResponseTypes = this.populateSupportedResponseTypes();
+            this.allowedGrantTypes = this.populateAllowedGrantTypes();
+            this.isInitialized = true;
+        }
     }
 
     private void buildOAuthServerConfiguration() {
@@ -340,30 +354,12 @@ public class OAuthServerConfiguration {
     }
 
     public Map<String, AuthorizationGrantHandler> getSupportedGrantTypes() {
-        if (supportedGrantTypes == null) {
-            synchronized (this) {
-                if (supportedGrantTypes == null) {
-                    supportedGrantTypes = new Hashtable<String, AuthorizationGrantHandler>();
-                    for (Map.Entry<String, String> entry : supportedGrantTypeClassNames.entrySet()) {
-                        AuthorizationGrantHandler authzGrantHandler = null;
-                        try {
-                            authzGrantHandler = (AuthorizationGrantHandler) Class.forName(entry.getValue()).newInstance();
-                            authzGrantHandler.init();
-                        } catch (InstantiationException e) {
-                            log.error("Error instantiating " + entry.getValue(), e);
-                        } catch (IllegalAccessException e) {
-                            log.error("Illegal access to " + entry.getValue(), e);
-                        } catch (ClassNotFoundException e) {
-                            log.error("Cannot find class: " + entry.getValue(), e);
-                        } catch (IdentityOAuth2Exception e) {
-                            log.error("Error while initializing " + entry.getValue(), e);
-                        }
-                        supportedGrantTypes.put(entry.getKey(), authzGrantHandler);
-                    }
-                }
+        synchronized (LOCK) {
+            if (!isInitialized) {
+                throw new IllegalStateException("OAuth Server Configuration is not properly initialized yet");
             }
+            return supportedGrantTypes;
         }
-        return supportedGrantTypes;
     }
 
     /**
@@ -465,30 +461,12 @@ public class OAuthServerConfiguration {
     }
 
     public Map<String, ResponseTypeHandler> getSupportedResponseTypes() {
-        if (supportedResponseTypes == null) {
-            synchronized (this) {
-                if (supportedResponseTypes == null) {
-                    supportedResponseTypes = new Hashtable<String, ResponseTypeHandler>();
-                    for (Map.Entry<String, String> entry : supportedResponseTypeClassNames.entrySet()) {
-                        ResponseTypeHandler responseTypeHandler = null;
-                        try {
-                            responseTypeHandler = (ResponseTypeHandler) Class.forName(entry.getValue()).newInstance();
-                            responseTypeHandler.init();
-                        } catch (InstantiationException e) {
-                            log.error("Error instantiating " + entry.getValue(), e);
-                        } catch (IllegalAccessException e) {
-                            log.error("Illegal access to " + entry.getValue(), e);
-                        } catch (ClassNotFoundException e) {
-                            log.error("Cannot find class: " + entry.getValue(), e);
-                        } catch (IdentityOAuth2Exception e) {
-                            log.error("Error while initializing " + entry.getValue(), e);
-                        }
-                        supportedResponseTypes.put(entry.getKey(), responseTypeHandler);
-                    }
-                }
+        synchronized (LOCK) {
+            if (!isInitialized) {
+                throw new IllegalStateException("OAuth Server Configuration is not properly initialized yet");
             }
+            return supportedResponseTypes;
         }
-        return supportedResponseTypes;
     }
 
     public String[] getSupportedClaims() {
@@ -1491,6 +1469,66 @@ public class OAuthServerConfiguration {
         private static final String SAML2_GRANT = "SAML2Grant";
         private static final String SAML2_TOKEN_HANDLER = "SAML2TokenHandler";
 
+    }
+
+    private List<String> populateAllowedGrantTypes() {
+        List<String> allowedGrantTypes = new ArrayList<>();
+        allowedGrantTypes.addAll(supportedGrantTypes.keySet());
+        if (supportedResponseTypes.containsKey("token")) {
+            allowedGrantTypes.add(IMPLICIT);
+        }
+        return allowedGrantTypes;
+    }
+
+    public List<String> getAllowedGrantTypes() {
+        synchronized (LOCK) {
+            if (!isInitialized) {
+                throw new IllegalStateException("OAuth Server Configuration is not properly initialized yet");
+            }
+            return allowedGrantTypes;
+        }
+    }
+
+    private Map<String, AuthorizationGrantHandler> populateSupportedGrantTypes() {
+        Map<String, AuthorizationGrantHandler> supportedGrantTypes = new HashMap<>();
+        for (Map.Entry<String, String> entry : supportedGrantTypeClassNames.entrySet()) {
+            AuthorizationGrantHandler authzGrantHandler = null;
+            try {
+                authzGrantHandler = (AuthorizationGrantHandler) Class.forName(entry.getValue()).newInstance();
+                authzGrantHandler.init();
+            } catch (InstantiationException e) {
+                log.error("Error instantiating " + entry.getValue(), e);
+            } catch (IllegalAccessException e) {
+                log.error("Illegal access to " + entry.getValue(), e);
+            } catch (ClassNotFoundException e) {
+                log.error("Cannot find class: " + entry.getValue(), e);
+            } catch (IdentityOAuth2Exception e) {
+                log.error("Error while initializing " + entry.getValue(), e);
+            }
+            supportedGrantTypes.put(entry.getKey(), authzGrantHandler);
+        }
+        return supportedGrantTypes;
+    }
+
+    private Map<String, ResponseTypeHandler> populateSupportedResponseTypes() {
+        Map<String, ResponseTypeHandler> supportedResponseTypes = new HashMap<>();
+        for (Map.Entry<String, String> entry : supportedResponseTypeClassNames.entrySet()) {
+            ResponseTypeHandler responseTypeHandler = null;
+            try {
+                responseTypeHandler = (ResponseTypeHandler) Class.forName(entry.getValue()).newInstance();
+                responseTypeHandler.init();
+            } catch (InstantiationException e) {
+                log.error("Error instantiating " + entry.getValue(), e);
+            } catch (IllegalAccessException e) {
+                log.error("Illegal access to " + entry.getValue(), e);
+            } catch (ClassNotFoundException e) {
+                log.error("Cannot find class: " + entry.getValue(), e);
+            } catch (IdentityOAuth2Exception e) {
+                log.error("Error while initializing " + entry.getValue(), e);
+            }
+            supportedResponseTypes.put(entry.getKey(), responseTypeHandler);
+        }
+        return supportedResponseTypes;
     }
 
 }
