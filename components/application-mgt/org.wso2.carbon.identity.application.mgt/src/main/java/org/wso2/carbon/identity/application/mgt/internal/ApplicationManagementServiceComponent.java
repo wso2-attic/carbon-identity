@@ -29,7 +29,6 @@ import org.wso2.carbon.identity.application.mgt.AbstractInboundAuthenticatorConf
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementServiceImpl;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
-import org.wso2.carbon.identity.application.mgt.InboundAuthenticationConnector;
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationIdentityProviderMgtListener;
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtAuditLogger;
 import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
@@ -145,19 +144,11 @@ public class ApplicationManagementServiceComponent {
     }
 
     protected void setInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig authenticator) {
-        if (authenticator instanceof InboundAuthenticationConnector) {
             ApplicationManagementServiceComponentHolder.addInboundAuthenticatorConfig(authenticator);
-        } else {
-            ApplicationManagementServiceComponentHolder.addInboundProvisioningConfig(authenticator);
-        }
     }
 
     protected void unsetInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig authenticator) {
-        if (authenticator instanceof InboundAuthenticationConnector) {
             ApplicationManagementServiceComponentHolder.removeInboundAuthenticatorConfig(authenticator.getName());
-        }else{
-            ApplicationManagementServiceComponentHolder.removeInboundProvisioningConfig(authenticator.getName());
-        }
     }
 
     private void buildFileBasedSPList() {
