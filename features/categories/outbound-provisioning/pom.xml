@@ -58,7 +58,7 @@
                                     org.wso2.carbon.idp.mgt
                                 </importFeatureDef>
                                 <importFeatureDef>
-                                    org.wso2.carbon.idp.mgt
+                                    org.wso2.carbon.identity.provisioning.server
                                 </importFeatureDef>
                             </importFeatures>
                         </configuration>
