@@ -18,14 +18,14 @@
 
 package org.wso2.carbon.identity.sso.saml.exception;
 
+import org.wso2.carbon.identity.base.IdentityException;
+
 /**
  * Exception implementation to be used inside SAML2 SSO Identity Provider impl.
  */
-public class IdentitySAML2SSOException extends Exception {
+public class IdentitySAML2SSOException extends IdentityException {
 
-    public IdentitySAML2SSOException() {
-        super();
-    }
+    private static final long serialVersionUID = 7027553884968546755L;
 
     public IdentitySAML2SSOException(String message) {
         super(message);

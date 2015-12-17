@@ -98,7 +98,7 @@ public class OpenIDAssociationCache extends OpenIDBaseCache<OpenIDIdentityCacheK
             } else if(Association.TYPE_HMAC_SHA256.equals(type)) {
                 return Association.createHmacSha256(handle, secretKey.getEncoded(), expiry);
             } else {
-                throw new IdentityRuntimeException("Invalid algorithm " + type);
+                throw IdentityRuntimeException.error("Invalid algorithm " + type);
             }
 
             /*

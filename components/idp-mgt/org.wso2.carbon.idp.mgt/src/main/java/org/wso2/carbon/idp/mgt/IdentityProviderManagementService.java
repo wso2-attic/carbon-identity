@@ -26,10 +26,9 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
-import org.wso2.carbon.identity.application.common.processors.RandomPasswordProcessor;
 import org.wso2.carbon.idp.mgt.util.IdPManagementConstants;
+import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.user.api.ClaimMapping;
 import org.wso2.carbon.user.api.UserStoreException;
 
@@ -141,8 +140,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
             }
             String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             IdentityProvider identityProvider = IdentityProviderManager.getInstance().getIdPByName(idPName, tenantDomain, true);
-            //todo: need to create copy of identity provider to avoid updating cache back identity provider
-            //identityProvider = removeOriginalPasswords(identityProvider);
+            IdPManagementUtil.removeOriginalPasswords(identityProvider);
             return identityProvider;
         } catch (IdentityProviderManagementException idpException) {
             log.error("Error while getting Idp with name " + idPName, idpException);
@@ -227,8 +225,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
             IdentityProviderManagementException {
         try {
             String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            //todo:need to properly implement removeOriginalPasswords method to uncomment removeRandomPasswords
-            //removeRandomPasswords(identityProvider);
+            IdPManagementUtil.removeRandomPasswords(identityProvider, true);
             IdentityProviderManager.getInstance().updateIdP(oldIdPName, identityProvider, tenantDomain);
         } catch (IdentityProviderManagementException idpException) {
             log.error("Error while updating IdP with name " + oldIdPName, idpException);
@@ -257,32 +254,6 @@ public class IdentityProviderManagementService extends AbstractAdmin {
         } catch (IdentityProviderManagementException idpException) {
             log.error("Error while getting provisioning connectors", idpException);
             throw idpException;
-        }
-    }
-
-    private IdentityProvider removeOriginalPasswords(IdentityProvider identityProvider) {
-        for (ProvisioningConnectorConfig provisioningConnectorConfig : identityProvider
-                .getProvisioningConnectorConfigs()) {
-            Property[] properties = provisioningConnectorConfig.getProvisioningProperties();
-            if (ArrayUtils.isEmpty(properties)) {
-                continue;
-            }
-            properties = RandomPasswordProcessor.getInstance().removeOriginalPasswords(properties);
-            provisioningConnectorConfig.setProvisioningProperties(properties);
-        }
-
-        return identityProvider;
-    }
-
-    private void removeRandomPasswords(IdentityProvider identityProvider) {
-        for (ProvisioningConnectorConfig provisioningConnectorConfig : identityProvider
-                .getProvisioningConnectorConfigs()) {
-            Property[] properties = provisioningConnectorConfig.getProvisioningProperties();
-            if (ArrayUtils.isEmpty(properties)) {
-                continue;
-            }
-            properties = RandomPasswordProcessor.getInstance().removeRandomPasswords(properties);
-            provisioningConnectorConfig.setProvisioningProperties(properties);
         }
     }
 }

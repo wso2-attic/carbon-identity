@@ -284,9 +284,13 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                     if (notificationModules != null) {
 
                         NotificationDataDTO notificationData = new NotificationDataDTO();
-                        Map headers = (Map) MessageContext.getCurrentMessageContext().getProperty(
-                                MessageContext.TRANSPORT_HEADERS);
-                        notificationData.setTransportHeaders(new HashMap(headers));
+                        if(MessageContext.getCurrentMessageContext() != null &&
+                                MessageContext.getCurrentMessageContext().getProperty(
+                                        MessageContext.TRANSPORT_HEADERS) != null) {
+                            notificationData.setTransportHeaders(new HashMap(
+                                    (Map)MessageContext.getCurrentMessageContext().getProperty(
+                                            MessageContext.TRANSPORT_HEADERS)));
+                        }
 
                         NotificationData emailNotificationData = new NotificationData();
                         String emailTemplate = null;

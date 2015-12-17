@@ -43,7 +43,6 @@ import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
-import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -58,7 +57,6 @@ import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.security.Key;
 import java.security.MessageDigest;
@@ -112,7 +110,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         long lifetimeInMillis = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration()) * 1000;
         long curTimeInMillis = Calendar.getInstance().getTimeInMillis();
         // setting subject
-        String subject = request.getAuthorizedUser().toString();
+        String subject = request.getAuthorizedUser().getAuthenticatedSubjectIdentifier();
 
         if (!GrantType.AUTHORIZATION_CODE.toString().equals(request.getOauth2AccessTokenReqDTO().getGrantType()) &&
                 !org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER.toString().equals(
@@ -142,7 +140,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                         subject = IdentityTenantUtil.getRealm(domainName, username).getUserStoreManager().
                                 getUserClaimValue(tenantUser, claim, null);
                         if (subject == null) {
-                            subject = request.getAuthorizedUser().toString();
+                            subject = request.getAuthorizedUser().getAuthenticatedSubjectIdentifier();
                         }
                     } catch (IdentityException e) {
                         String error = "Error occurred while getting user claim for domain " + domainName + ", " +
@@ -247,7 +245,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         long lifetimeInMillis = Integer.parseInt(config.getOpenIDConnectIDTokenExpiration()) * 1000;
         long curTimeInMillis = Calendar.getInstance().getTimeInMillis();
         // setting subject
-        String subject = request.getAuthorizationReqDTO().getUsername();
+        String subject = request.getAuthorizationReqDTO().getUser().getAuthenticatedSubjectIdentifier();
 
         String nonceValue = request.getAuthorizationReqDTO().getNonce();
 
@@ -373,7 +371,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             throws IdentityOAuth2Exception {
         try {
 
-            String tenantDomain = MultitenantUtils.getTenantDomain(request.getAuthorizationReqDTO().getUsername());
+            String tenantDomain = request.getAuthorizationReqDTO().getUser().getTenantDomain();
 
             int tenantId = IdentityTenantUtil.getTenantId(tenantDomain);
 
@@ -471,7 +469,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
 
         OAuthCache oauthCache = OAuthCache.getInstance();
-        String authorizedUser = request.getAuthorizationReqDTO().getUsername();
+        String authorizedUser = request.getAuthorizationReqDTO().getUser().toString();
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
         if (!isUsernameCaseSensitive){
             authorizedUser = authorizedUser.toLowerCase();

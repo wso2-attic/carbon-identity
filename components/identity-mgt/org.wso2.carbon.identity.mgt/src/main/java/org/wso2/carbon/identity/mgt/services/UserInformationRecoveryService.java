@@ -781,6 +781,13 @@ public class UserInformationRecoveryService {
 
         try {
 
+            if (IdentityMgtConfig.getInstance().isSaasEnabled()) {
+                PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                carbonContext.setTenantId(tenantId);
+                carbonContext.setTenantDomain(tenantDomain);
+            }
+
             if (userStoreManager == null) {
                 vBean = new VerificationBean();
                 vBean.setVerified(false);
@@ -858,6 +865,10 @@ public class UserInformationRecoveryService {
             }
 
             return vBean;
+        } finally {
+            if (IdentityMgtConfig.getInstance().isSaasEnabled()) {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
         }
 
         return vBean;
@@ -904,55 +915,69 @@ public class UserInformationRecoveryService {
         }
 
         try {
-            vBean = processor.verifyConfirmationCode(1, userName, code);
-            if (!vBean.isVerified()) {
-                vBean.setError(VerificationBean.ERROR_CODE_INVALID_CODE);
+
+            if (IdentityMgtConfig.getInstance().isSaasEnabled()) {
+                PrivilegedCarbonContext.startTenantFlow();
+                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                carbonContext.setTenantId(tenantId);
+                carbonContext.setTenantDomain(tenantDomain);
+            }
+
+            try {
+                vBean = processor.verifyConfirmationCode(1, userName, code);
+                if (!vBean.isVerified()) {
+                    vBean.setError(VerificationBean.ERROR_CODE_INVALID_CODE);
+                    return vBean;
+                }
+            } catch (IdentityException e) {
+                vBean = handleError("Error while validating confirmation code for user : " + userName, e);
                 return vBean;
             }
-        } catch (IdentityException e) {
-            vBean = handleError("Error while validating confirmation code for user : " + userName, e);
-            return vBean;
-        }
 
-        try {
-            IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
-                    (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
+            try {
+                IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
+                        (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
 
-            boolean isListenerEnable = true;
+                boolean isListenerEnable = true;
 
-            if (identityEventListenerConfig != null) {
-                if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
-                    isListenerEnable = Boolean.parseBoolean(identityEventListenerConfig.getEnable());
+                if (identityEventListenerConfig != null) {
+                    if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+                        isListenerEnable = Boolean.parseBoolean(identityEventListenerConfig.getEnable());
+                    }
                 }
-            }
 
-            IdentityMgtConfig config = IdentityMgtConfig.getInstance();
+                IdentityMgtConfig config = IdentityMgtConfig.getInstance();
 
-            if (isListenerEnable && config.isAuthPolicyAccountLockOnCreation()) {
-                UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
-                userDTO.setTenantId(tenantId);
+                if (isListenerEnable && config.isAuthPolicyAccountLockOnCreation()) {
+                    UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
+                    userDTO.setTenantId(tenantId);
 
-                UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
-                dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
-                dto.setNotificationType("EMAIL");
+                    UserRecoveryDTO dto = new UserRecoveryDTO(userDTO);
+                    dto.setNotification(IdentityMgtConstants.Notification.ACCOUNT_CONFORM);
+                    dto.setNotificationType("EMAIL");
 
-                vBean = processor.updateConfirmationCode(1, userName, tenantId);
+                    vBean = processor.updateConfirmationCode(1, userName, tenantId);
 
-                dto.setConfirmationCode(vBean.getKey());
-                NotificationDataDTO notificationDto = processor.notifyWithEmail(dto);
-                vBean.setVerified(notificationDto.isNotificationSent());
+                    dto.setConfirmationCode(vBean.getKey());
+                    NotificationDataDTO notificationDto = processor.notifyWithEmail(dto);
+                    vBean.setVerified(notificationDto.isNotificationSent());
 
 //				Send email data only if not internally managed.
-                if (!(IdentityMgtConfig.getInstance().isNotificationInternallyManaged())) {
-                    vBean.setNotificationData(notificationDto);
-                }
+                    if (!(IdentityMgtConfig.getInstance().isNotificationInternallyManaged())) {
+                        vBean.setNotificationData(notificationDto);
+                    }
 
-            } else {
-                vBean.setVerified(true);
+                } else {
+                    vBean.setVerified(true);
+                }
+            } catch (IdentityException e) {
+                vBean = UserIdentityManagementUtil.getCustomErrorMessages(e, userName);
+                return vBean;
             }
-        } catch (IdentityException e) {
-            vBean = UserIdentityManagementUtil.getCustomErrorMessages(e, userName);
-            return vBean;
+        } finally {
+            if (IdentityMgtConfig.getInstance().isSaasEnabled()) {
+                PrivilegedCarbonContext.endTenantFlow();
+            }
         }
 
         return vBean;

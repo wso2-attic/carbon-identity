@@ -35,8 +35,9 @@ public final class InboundAuthenticationConstants {
     public static class RequestProcessor {
 
         public static final String RELYING_PARTY = "RelyingPartyId";
-        public static final String CALL_BACK_PATH = "CallBackPath";
+        public static final String CALL_BACK_PATH = "CallbackURI";
         public static final String AUTH_NAME = "Name";
+        public static final String AUTH_TYPE = "type";
         public static final String SESSION_DATA_KEY = "sessionDataKey";
 
         private RequestProcessor() {

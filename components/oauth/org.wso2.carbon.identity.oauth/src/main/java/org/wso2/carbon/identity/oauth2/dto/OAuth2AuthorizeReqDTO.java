@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.oauth2.dto;
 
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
+
 import java.util.LinkedHashSet;
 import java.util.Properties;
 
@@ -26,18 +28,18 @@ public class OAuth2AuthorizeReqDTO {
     private String[] scopes;
     private String responseType;
     private String callbackUrl;
-    private String username;
+    private AuthenticatedUser user;
     private String password;
     private LinkedHashSet acrValues;
     private String nonce;
     private Properties properties = new Properties();
 
-    public String getUsername() {
-        return username;
+    public AuthenticatedUser getUser() {
+        return user;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUser(AuthenticatedUser user) {
+        this.user = user;
     }
 
     public String getPassword() {

@@ -29,6 +29,10 @@ public class AuthorizationGrantCacheEntry extends CacheEntry {
 
     private static final long serialVersionUID = -3043225645166013281L;
 
+    private String codeId;
+
+    private String tokenId;
+
     private Map<ClaimMapping, String> userAttributes;
 
     private String nonceValue;
@@ -51,5 +55,21 @@ public class AuthorizationGrantCacheEntry extends CacheEntry {
 
     public void setUserAttributes(Map<ClaimMapping, String> userAttributes) {
         this.userAttributes = userAttributes;
+    }
+
+    public String getCodeId(){
+        return codeId;
+    }
+
+    public void setCodeId(String codeId){
+        this.codeId = codeId;
+    }
+
+    public String getTokenId(){
+        return tokenId;
+    }
+
+    public void setTokenId(String tokenId){
+        this.tokenId = tokenId;
     }
 }

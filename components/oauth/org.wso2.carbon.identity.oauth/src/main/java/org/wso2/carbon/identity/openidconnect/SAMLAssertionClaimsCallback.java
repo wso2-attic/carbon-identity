@@ -31,6 +31,7 @@ import org.opensaml.saml2.core.AttributeStatement;
 import org.wso2.carbon.claim.mgt.ClaimManagementException;
 import org.wso2.carbon.claim.mgt.ClaimManagerHandler;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
@@ -44,7 +45,6 @@ import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
-import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth2.authz.OAuthAuthzReqMessageContext;
 import org.wso2.carbon.identity.oauth2.internal.OAuth2ServiceComponentHolder;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
@@ -52,6 +52,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
@@ -137,7 +138,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
     public void handleCustomClaims(JWTClaimsSet jwtClaimsSet, OAuthAuthzReqMessageContext requestMsgCtx) {
 
         if (log.isDebugEnabled()) {
-            log.debug("Adding claims for user " + requestMsgCtx.getAuthorizationReqDTO().getUsername() + " to id token.");
+            log.debug("Adding claims for user " + requestMsgCtx.getAuthorizationReqDTO().getUser() + " to id token.");
         }
         try {
             JSONArray values;
@@ -168,7 +169,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 jwtClaimsSet.setClaim(entry.getKey(), values.toJSONString());
             }
         } catch (OAuthSystemException e) {
-            log.error("Error occurred while adding claims of " + requestMsgCtx.getAuthorizationReqDTO().getUsername() +
+            log.error("Error occurred while adding claims of " + requestMsgCtx.getAuthorizationReqDTO().getUser() +
                     " to id token.", e);
         }
     }
@@ -195,8 +196,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
             }
             try {
                 claims = getClaimsFromUserStore(requestMsgCtx);
-            } catch (UserStoreException | IdentityException | ClaimManagementException |
-                    IdentityApplicationManagementException e) {
+            } catch (UserStoreException | IdentityApplicationManagementException | IdentityException e) {
                 log.error("Error occurred while getting claims for user " + requestMsgCtx.getAuthorizedUser(), e);
             }
         } else {
@@ -216,13 +216,12 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
         if (MapUtils.isEmpty(userAttributes) && (getSubjectClaimUri(requestMsgCtx) == null)) {
             if (log.isDebugEnabled()) {
                 log.debug("User attributes not found in cache. Trying to retrieve attribute for user " + requestMsgCtx
-                        .getAuthorizationReqDTO().getUsername());
+                        .getAuthorizationReqDTO().getUser());
             }
             try {
                 claims = getClaimsFromUserStore(requestMsgCtx);
-            } catch (UserStoreException | IdentityException | ClaimManagementException |
-                    IdentityApplicationManagementException e) {
-                log.error("Error occurred while getting claims for user " + requestMsgCtx.getAuthorizationReqDTO().getUsername(),
+            } catch (UserStoreException | IdentityApplicationManagementException | IdentityException e) {
+                log.error("Error occurred while getting claims for user " + requestMsgCtx.getAuthorizationReqDTO().getUser(),
                         e);
             }
         } else {
@@ -256,8 +255,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
      * @throws Exception
      */
     private static Map<String, Object> getClaimsFromUserStore(OAuthTokenReqMessageContext requestMsgCtx)
-            throws IdentityApplicationManagementException, IdentityException, UserStoreException,
-            ClaimManagementException {
+            throws UserStoreException, IdentityApplicationManagementException, IdentityException {
 
         String username = requestMsgCtx.getAuthorizedUser().toString();
         String tenantDomain = requestMsgCtx.getAuthorizedUser().getTenantDomain();
@@ -355,8 +353,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
             throws IdentityApplicationManagementException, IdentityException, UserStoreException,
             ClaimManagementException {
 
-        String username = requestMsgCtx.getAuthorizationReqDTO().getUsername();
-        String tenantDomain = MultitenantUtils.getTenantDomain(requestMsgCtx.getAuthorizationReqDTO().getUsername());
+        AuthenticatedUser user = requestMsgCtx.getAuthorizationReqDTO().getUser();
+        String tenantDomain = requestMsgCtx.getAuthorizationReqDTO().getUser().getTenantDomain();
 
         UserRealm realm;
         List<String> claimURIList = new ArrayList<String>();
@@ -372,10 +370,10 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
             return mappedAppClaims;
         }
 
-        realm = IdentityTenantUtil.getRealm(tenantDomain, username);
+        realm = IdentityTenantUtil.getRealm(tenantDomain, user.toString());
         if (realm == null) {
             log.warn("No valid tenant domain provider. Empty claim returned back for tenant " + tenantDomain
-                    + " and user " + username);
+                    + " and user " + user);
             return new HashMap<>();
         }
 
@@ -400,13 +398,12 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
 
             Map<String, String> userClaims = null;
             try {
-                userClaims = userStoreManager.getUserClaimValues(
-                        MultitenantUtils.getTenantAwareUsername(username),
-                        claimURIList.toArray(new String[claimURIList.size()]), null);
+                userClaims = userStoreManager.getUserClaimValues(UserCoreUtil.addDomainToName(user.getUserName(),
+                        user.getUserStoreDomain()), claimURIList.toArray(new String[claimURIList.size()]),null);
             } catch (UserStoreException e) {
                 if (e.getMessage().contains("UserNotFound")) {
                     if (log.isDebugEnabled()) {
-                        log.debug("User " + username + " not found in user store");
+                        log.debug("User " + user + " not found in user store");
                     }
                 } else {
                     throw e;
@@ -434,8 +431,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 }
             }
 
-            String domain = IdentityUtil.extractDomainFromName(username);
-            RealmConfiguration realmConfiguration = userStoreManager.getSecondaryUserStoreManager(domain)
+            RealmConfiguration realmConfiguration = userStoreManager.getSecondaryUserStoreManager(user.getUserStoreDomain())
                     .getRealmConfiguration();
 
             String claimSeparator = realmConfiguration.getUserStoreProperty(

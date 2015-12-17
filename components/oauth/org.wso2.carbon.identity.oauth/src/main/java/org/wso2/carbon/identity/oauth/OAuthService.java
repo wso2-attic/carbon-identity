@@ -28,7 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
 import org.wso2.carbon.identity.oauth.dao.OAuthConsumerDAO;
@@ -61,13 +61,13 @@ public class OAuthService {
 
         if (oAuthSecretKey == null) {
             log.debug("Invalid Consumer Key.");
-            throw new IdentityException("Invalid Consumer Key");
+            throw IdentityException.error("Invalid Consumer Key");
         }
         try {
             return validateOauthSignature(oauthConsumer,
                     oAuthSecretKey);
         } catch (AuthenticationException e) {
-            throw new IdentityException(e.getMessage(), e);
+            throw IdentityException.error(e.getMessage(), e);
         }
     }
 
@@ -155,7 +155,7 @@ public class OAuthService {
                     .authenticate(tenantUser, params.getAuthorizedbyUserPassword());
         } catch (UserStoreException e) {
             log.error("Error while authenticating the user", e);
-            throw new IdentityException("Error while authenticating the user", e);
+            throw IdentityException.error("Error while authenticating the user", e);
         }
         if (isAuthenticated) {
             OAuthConsumerDAO dao = new OAuthConsumerDAO();

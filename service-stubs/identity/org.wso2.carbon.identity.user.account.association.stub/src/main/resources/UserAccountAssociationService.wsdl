@@ -1,4 +1,4 @@
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax2375="http://dto.association.account.user.identity.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://association.account.user.identity.carbon.wso2.org" xmlns:ax2373="http://exception.association.account.user.identity.carbon.wso2.org/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://association.account.user.identity.carbon.wso2.org">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ax2375="http://exception.association.account.user.identity.carbon.wso2.org/xsd" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://association.account.user.identity.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ax2377="http://dto.association.account.user.identity.carbon.wso2.org/xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://association.account.user.identity.carbon.wso2.org">
     <wsdl:documentation>UserAccountAssociationService</wsdl:documentation>
     <wsdl:types>
         <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://dto.association.account.user.identity.carbon.wso2.org/xsd">
@@ -16,19 +16,19 @@
             </xs:complexType>
             <xs:complexType name="UserAccountAssociationClientException">
                 <xs:complexContent>
-                    <xs:extension base="ax2373:UserAccountAssociationException">
+                    <xs:extension base="ax2375:UserAccountAssociationException">
                         <xs:sequence/>
                     </xs:extension>
                 </xs:complexContent>
             </xs:complexType>
         </xs:schema>
-        <xs:schema xmlns:ax2376="http://dto.association.account.user.identity.carbon.wso2.org/xsd" xmlns:ax2374="http://exception.association.account.user.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://association.account.user.identity.carbon.wso2.org">
+        <xs:schema xmlns:ax2376="http://exception.association.account.user.identity.carbon.wso2.org/xsd" xmlns:ax2378="http://dto.association.account.user.identity.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://association.account.user.identity.carbon.wso2.org">
             <xs:import namespace="http://exception.association.account.user.identity.carbon.wso2.org/xsd"/>
             <xs:import namespace="http://dto.association.account.user.identity.carbon.wso2.org/xsd"/>
             <xs:element name="UserAccountAssociationServiceUserAccountAssociationClientException">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element minOccurs="0" name="UserAccountAssociationClientException" nillable="true" type="ax2373:UserAccountAssociationClientException"/>
+                        <xs:element minOccurs="0" name="UserAccountAssociationClientException" nillable="true" type="ax2375:UserAccountAssociationClientException"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -40,7 +40,7 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="asssociateTwoAccounts">
+            <xs:element name="associateTwoAccounts">
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element minOccurs="0" name="userName1" nillable="true" type="xs:string"/>
@@ -94,7 +94,7 @@
             <xs:element name="getAccountAssociationsOfUserResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2375:UserAccountAssociationDTO"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2377:UserAccountAssociationDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -108,7 +108,7 @@
             <xs:element name="getAccountAssociationsResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2375:UserAccountAssociationDTO"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2377:UserAccountAssociationDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -123,7 +123,7 @@
             <xs:element name="getMyAccountAssociationsWithoutLoginResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2375:UserAccountAssociationDTO"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2377:UserAccountAssociationDTO"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -166,9 +166,6 @@
         <wsdl:part name="parameters" element="ns:createUserAccountAssociation"/>
     </wsdl:message>
     <wsdl:message name="createUserAccountAssociationResponse"/>
-    <wsdl:message name="asssociateTwoAccountsRequest">
-        <wsdl:part name="parameters" element="ns:asssociateTwoAccounts"/>
-    </wsdl:message>
     <wsdl:message name="deleteMyAssociationsRequest">
         <wsdl:part name="parameters" element="ns:deleteMyAssociations"/>
     </wsdl:message>
@@ -187,6 +184,9 @@
         <wsdl:part name="parameters" element="ns:deleteAssociationsOfUser"/>
     </wsdl:message>
     <wsdl:message name="deleteAssociationsOfUserResponse"/>
+    <wsdl:message name="associateTwoAccountsRequest">
+        <wsdl:part name="parameters" element="ns:associateTwoAccounts"/>
+    </wsdl:message>
     <wsdl:message name="getMyAccountAssociationsWithoutLoginRequest">
         <wsdl:part name="parameters" element="ns:getMyAccountAssociationsWithoutLogin"/>
     </wsdl:message>
@@ -218,10 +218,6 @@
             <wsdl:output message="ns:createUserAccountAssociationResponse" wsaw:Action="urn:createUserAccountAssociationResponse"/>
             <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:createUserAccountAssociationUserAccountAssociationServiceUserAccountAssociationClientException"/>
         </wsdl:operation>
-        <wsdl:operation name="asssociateTwoAccounts">
-            <wsdl:input message="ns:asssociateTwoAccountsRequest" wsaw:Action="urn:asssociateTwoAccounts"/>
-            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:asssociateTwoAccountsUserAccountAssociationServiceUserAccountAssociationClientException"/>
-        </wsdl:operation>
         <wsdl:operation name="deleteMyAssociations">
             <wsdl:input message="ns:deleteMyAssociationsRequest" wsaw:Action="urn:deleteMyAssociations"/>
             <wsdl:output message="ns:deleteMyAssociationsResponse" wsaw:Action="urn:deleteMyAssociationsResponse"/>
@@ -241,6 +237,10 @@
             <wsdl:input message="ns:deleteAssociationsOfUserRequest" wsaw:Action="urn:deleteAssociationsOfUser"/>
             <wsdl:output message="ns:deleteAssociationsOfUserResponse" wsaw:Action="urn:deleteAssociationsOfUserResponse"/>
             <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:deleteAssociationsOfUserUserAccountAssociationServiceUserAccountAssociationClientException"/>
+        </wsdl:operation>
+        <wsdl:operation name="associateTwoAccounts">
+            <wsdl:input message="ns:associateTwoAccountsRequest" wsaw:Action="urn:associateTwoAccounts"/>
+            <wsdl:fault message="ns:UserAccountAssociationServiceUserAccountAssociationClientException" name="UserAccountAssociationServiceUserAccountAssociationClientException" wsaw:Action="urn:associateTwoAccountsUserAccountAssociationServiceUserAccountAssociationClientException"/>
         </wsdl:operation>
         <wsdl:operation name="getMyAccountAssociationsWithoutLogin">
             <wsdl:input message="ns:getMyAccountAssociationsWithoutLoginRequest" wsaw:Action="urn:getMyAccountAssociationsWithoutLogin"/>
@@ -303,15 +303,6 @@
                 <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="asssociateTwoAccounts">
-            <soap:operation soapAction="urn:asssociateTwoAccounts" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
-                <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
-            </wsdl:fault>
-        </wsdl:operation>
         <wsdl:operation name="deleteMyAssociations">
             <soap:operation soapAction="urn:deleteMyAssociations" style="document"/>
             <wsdl:input>
@@ -368,6 +359,15 @@
             <wsdl:output>
                 <soap:body use="literal"/>
             </wsdl:output>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="associateTwoAccounts">
+            <soap:operation soapAction="urn:associateTwoAccounts" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
             <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
                 <soap:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
             </wsdl:fault>
@@ -435,15 +435,6 @@
                 <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
             </wsdl:fault>
         </wsdl:operation>
-        <wsdl:operation name="asssociateTwoAccounts">
-            <soap12:operation soapAction="urn:asssociateTwoAccounts" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
-                <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
-            </wsdl:fault>
-        </wsdl:operation>
         <wsdl:operation name="deleteMyAssociations">
             <soap12:operation soapAction="urn:deleteMyAssociations" style="document"/>
             <wsdl:input>
@@ -504,6 +495,15 @@
                 <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
             </wsdl:fault>
         </wsdl:operation>
+        <wsdl:operation name="associateTwoAccounts">
+            <soap12:operation soapAction="urn:associateTwoAccounts" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:fault name="UserAccountAssociationServiceUserAccountAssociationClientException">
+                <soap12:fault use="literal" name="UserAccountAssociationServiceUserAccountAssociationClientException"/>
+            </wsdl:fault>
+        </wsdl:operation>
         <wsdl:operation name="associateMyAccounts">
             <soap12:operation soapAction="urn:associateMyAccounts" style="document"/>
             <wsdl:input>
@@ -555,12 +555,6 @@
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="asssociateTwoAccounts">
-            <http:operation location="asssociateTwoAccounts"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="parameters"/>
-            </wsdl:input>
-        </wsdl:operation>
         <wsdl:operation name="deleteMyAssociations">
             <http:operation location="deleteMyAssociations"/>
             <wsdl:input>
@@ -605,6 +599,12 @@
             <wsdl:output>
                 <mime:content type="text/xml" part="parameters"/>
             </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="associateTwoAccounts">
+            <http:operation location="associateTwoAccounts"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
         </wsdl:operation>
         <wsdl:operation name="associateMyAccounts">
             <http:operation location="associateMyAccounts"/>

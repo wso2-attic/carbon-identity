@@ -73,7 +73,7 @@ public class OpenIDRememberMeDAO extends AbstractDAO<OpenIDRememberMeDO> {
                     registry.rollbackTransaction();
                 } catch (RegistryException e) {
                     log.error("Error occured while updating OpenID remember me token", e);
-                    throw new IdentityException(
+                    throw IdentityException.error(
                             "Error occured while updating OpenID remember me token",
                             e);
                 }
@@ -103,7 +103,7 @@ public class OpenIDRememberMeDAO extends AbstractDAO<OpenIDRememberMeDO> {
 
         } catch (Exception e) {
             log.error("Error occured while updating OpenID remember me token", e);
-            throw new IdentityException("Error occured while updating OpenID remember me token", e);
+            throw IdentityException.error("Error occured while updating OpenID remember me token", e);
         }
 
         return value;

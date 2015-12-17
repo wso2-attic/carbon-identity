@@ -22,7 +22,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.common.model.User;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -36,7 +36,6 @@ import org.wso2.carbon.identity.oauth2.model.AuthzCodeDO;
 import org.wso2.carbon.identity.oauth2.model.RefreshTokenValidationDataDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.sql.Connection;
 import java.sql.DataTruncation;
@@ -166,7 +165,8 @@ public class TokenMgtDAO {
             prepStmt.setTimestamp(8, authzCodeDO.getIssuedTime(),
                                   Calendar.getInstance(TimeZone.getTimeZone("UTC")));
             prepStmt.setLong(9, authzCodeDO.getValidityPeriod());
-            prepStmt.setString(10, persistenceProcessor.getProcessedClientId(consumerKey));
+            prepStmt.setString(10, authzCodeDO.getAuthorizedUser().getAuthenticatedSubjectIdentifier());
+            prepStmt.setString(11, persistenceProcessor.getProcessedClientId(consumerKey));
             prepStmt.execute();
             connection.commit();
         } catch (SQLException e) {
@@ -219,7 +219,8 @@ public class TokenMgtDAO {
             prepStmt.setString(12, accessTokenDO.getTokenType());
             prepStmt.setString(13, accessTokenDO.getTokenId());
             prepStmt.setString(14, accessTokenDO.getGrantType());
-            prepStmt.setString(15, persistenceProcessor.getProcessedClientId(consumerKey));
+            prepStmt.setString(15, accessTokenDO.getAuthzUser().getAuthenticatedSubjectIdentifier());
+            prepStmt.setString(16, persistenceProcessor.getProcessedClientId(consumerKey));
             prepStmt.execute();
 
             String accessTokenId = accessTokenDO.getTokenId();
@@ -299,18 +300,20 @@ public class TokenMgtDAO {
         }
     }
 
-    public AccessTokenDO retrieveLatestAccessToken(String consumerKey, String userName,
+    public AccessTokenDO retrieveLatestAccessToken(String consumerKey, AuthenticatedUser authzUser,
                                                    String userStoreDomain, String scope,
                                                    boolean includeExpiredTokens)
             throws IdentityOAuth2Exception {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
-        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userName);
-        String tenantDomain = MultitenantUtils.getTenantDomain(userName);
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authzUser.toString());
+        String tenantDomain = authzUser.getTenantDomain();
         int tenantId = OAuth2Util.getTenantId(tenantDomain);
-        String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
-        String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
-        String userDomain = IdentityUtil.extractDomainFromName(userName).toUpperCase();
+        String tenantAwareUsernameWithNoUserDomain = authzUser.getUserName();
+        String userDomain = authzUser.getUserStoreDomain();
+        if ((userDomain != null)){
+            userDomain.toUpperCase();
+        }
 
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
@@ -396,11 +399,13 @@ public class TokenMgtDAO {
 
                     String userType = resultSet.getString(8);
                     String tokenId = resultSet.getString(9);
+                    String subjectIdentifier = resultSet.getString(10);
                     // data loss at dividing the validity period but can be neglected
-                    User user = new User();
+                    AuthenticatedUser user = new AuthenticatedUser();
                     user.setUserName(tenantAwareUsernameWithNoUserDomain);
                     user.setTenantDomain(tenantDomain);
                     user.setUserStoreDomain(userDomain);
+                    user.setAuthenticatedSubjectIdentifier(subjectIdentifier);
                     AccessTokenDO accessTokenDO = new AccessTokenDO(consumerKey, user, OAuth2Util.buildScopeArray
                             (scope), new Timestamp(issuedTime), new Timestamp(refreshTokenIssuedTime)
                             , validityPeriodInMillis, refreshTokenValidityPeriodInMillis, userType);
@@ -414,7 +419,7 @@ public class TokenMgtDAO {
             return null;
         } catch (SQLException e) {
             String errorMsg = "Error occurred while trying to retrieve latest 'ACTIVE' " +
-                              "access token for Client ID : " + consumerKey + ", User ID : " + userName +
+                              "access token for Client ID : " + consumerKey + ", User ID : " + authzUser +
                               " and  Scope : " + scope;
             if (includeExpiredTokens) {
                 errorMsg = errorMsg.replace("ACTIVE", "ACTIVE or EXPIRED");
@@ -425,16 +430,18 @@ public class TokenMgtDAO {
         }
     }
 
-    public Set<AccessTokenDO> retrieveAccessTokens(String consumerKey, String userName,
+    public Set<AccessTokenDO> retrieveAccessTokens(String consumerKey, AuthenticatedUser userName,
                                                    String userStoreDomain, boolean includeExpired)
             throws IdentityOAuth2Exception {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
-        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userName);
-        String tenantDomain = MultitenantUtils.getTenantDomain(userName);
-        String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
-        String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
-        String userDomain = IdentityUtil.extractDomainFromName(userName).toUpperCase();
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userName.toString());
+        String tenantDomain = userName.getTenantDomain();
+        String tenantAwareUsernameWithNoUserDomain = userName.getUserName();
+        String userDomain = userName.getUserStoreDomain();
+        if ((userDomain != null)){
+            userDomain.toUpperCase();
+        }
 
         PreparedStatement prepStmt = null;
         ResultSet resultSet = null;
@@ -477,11 +484,13 @@ public class TokenMgtDAO {
                     String tokenType = resultSet.getString(7);
                     String[] scope = OAuth2Util.buildScopeArray(resultSet.getString(8));
                     String tokenId = resultSet.getString(9);
+                    String subjectIdentifier = resultSet.getString(10);
 
-                    User user = new User();
+                    AuthenticatedUser user = new AuthenticatedUser();
                     user.setUserName(tenantAwareUsernameWithNoUserDomain);
                     user.setTenantDomain(tenantDomain);
-                    user.setUserStoreDomain(userStoreDomain);
+                    user.setUserStoreDomain(userDomain);
+                    user.setAuthenticatedSubjectIdentifier(subjectIdentifier);
                     AccessTokenDO dataDO = new AccessTokenDO(consumerKey, user, scope, issuedTime,
                             refreshTokenIssuedTime, validityPeriodInMillis,
                             refreshTokenValidityPeriodMillis, tokenType);
@@ -534,11 +543,13 @@ public class TokenMgtDAO {
                     Timestamp issuedTime = resultSet.getTimestamp(6, Calendar.getInstance(TimeZone.getTimeZone("UTC")));
                     long validityPeriod = resultSet.getLong(7);
                     String codeId = resultSet.getString(11);
+                    String subjectIdentifier = resultSet.getString(12);
 
-                    User user = new User();
+                    AuthenticatedUser user = new AuthenticatedUser();
                     user.setUserName(authorizedUser);
                     user.setTenantDomain(tenantDomain);
                     user.setUserStoreDomain(userstoreDomain);
+                    user.setAuthenticatedSubjectIdentifier(subjectIdentifier);
 
                     return new AuthzCodeDO(user, OAuth2Util.buildScopeArray(scopeString), issuedTime, validityPeriod,
                             callbackUrl, consumerKey, authorizationKey, codeId);
@@ -688,10 +699,7 @@ public class TokenMgtDAO {
                     int tenantId = resultSet.getInt(3);
                     String userDomain = resultSet.getString(4);
                     String tenantDomain = OAuth2Util.getTenantDomain(tenantId);
-                    String authz_user = UserCoreUtil.addDomainToName(userName, userDomain);
-                    authz_user = UserCoreUtil.addTenantDomainToEntry(authz_user, tenantDomain);
 
-                    validationDataDO.setAuthorizedUser(authz_user);
                     validationDataDO.setScope(OAuth2Util.buildScopeArray(resultSet.getString(5)));
                     validationDataDO.setRefreshTokenState(resultSet.getString(6));
                     validationDataDO.setIssuedTime(
@@ -699,6 +707,13 @@ public class TokenMgtDAO {
                     validationDataDO.setValidityPeriodInMillis(resultSet.getLong(8));
                     validationDataDO.setTokenId(resultSet.getString(9));
                     validationDataDO.setGrantType(resultSet.getString(10));
+                    String subjectIdentifier = resultSet.getString(11);
+                    AuthenticatedUser user = new AuthenticatedUser();
+                    user.setUserName(userName);
+                    user.setUserStoreDomain(userDomain);
+                    user.setTenantDomain(tenantDomain);
+                    user.setAuthenticatedSubjectIdentifier(subjectIdentifier);
+                    validationDataDO.setAuthorizedUser(user);
 
                 } else {
                     scopes.add(resultSet.getString(5));
@@ -778,11 +793,13 @@ public class TokenMgtDAO {
                     String refreshToken = resultSet.getString(11);
                     String tokenId = resultSet.getString(12);
                     String grantType = resultSet.getString(13);
+                    String subjectIdentifier = resultSet.getString(14);
 
-                    User user = new User();
+                    AuthenticatedUser user = new AuthenticatedUser();
                     user.setUserName(authorizedUser);
                     user.setUserStoreDomain(userDomain);
                     user.setTenantDomain(tenantDomain);
+                    user.setAuthenticatedSubjectIdentifier(subjectIdentifier);
 
                     dataDO = new AccessTokenDO(consumerKey, user, scope, issuedTime, refreshTokenIssuedTime,
                             validityPeriodInMillis, refreshTokenValidityPeriodMillis, tokenType);
@@ -790,6 +807,7 @@ public class TokenMgtDAO {
                     dataDO.setRefreshToken(refreshToken);
                     dataDO.setTokenId(tokenId);
                     dataDO.setGrantType(grantType);
+                    dataDO.setTenantID(tenantId);
 
                 } else {
                     scopes.add(resultSet.getString(5));
@@ -961,23 +979,25 @@ public class TokenMgtDAO {
      * @return set of distinct client IDs authorized by user until now
      * @throws IdentityOAuth2Exception if failed to update the access token
      */
-    public Set<String> getAllTimeAuthorizedClientIds(String authzUser) throws IdentityOAuth2Exception {
+    public Set<String> getAllTimeAuthorizedClientIds(AuthenticatedUser authzUser) throws IdentityOAuth2Exception {
 
         String accessTokenStoreTable = OAuthConstants.ACCESS_TOKEN_STORE_TABLE;
         PreparedStatement ps = null;
         Connection connection = IdentityDatabaseUtil.getDBConnection();;
         ResultSet rs = null;
         Set<String> distinctConsumerKeys = new HashSet<>();
-        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authzUser);
-        String tenantDomain = MultitenantUtils.getTenantDomain(authzUser);
-        String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(authzUser);
-        String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
-        String userDomain = IdentityUtil.extractDomainFromName(authzUser).toUpperCase();
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authzUser.toString());
+        String tenantDomain = authzUser.getTenantDomain();
+        String tenantAwareUsernameWithNoUserDomain = authzUser.getUserName();
+        String userDomain = authzUser.getUserStoreDomain();
+        if ((userDomain != null)){
+            userDomain.toUpperCase();
+        }
         try {
             int tenantId = OAuth2Util.getTenantId(tenantDomain);
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
                     OAuth2Util.checkUserNameAssertionEnabled()) {
-                accessTokenStoreTable = OAuth2Util.getAccessTokenStoreTableFromUserId(authzUser);
+                accessTokenStoreTable = OAuth2Util.getAccessTokenStoreTableFromUserId(authzUser.toString());
             }
             String sqlQuery = SQLQueries.GET_DISTINCT_APPS_AUTHORIZED_BY_USER_ALL_TIME.replace(
                     IDN_OAUTH2_ACCESS_TOKEN, accessTokenStoreTable);
@@ -1148,7 +1168,7 @@ public class TokenMgtDAO {
                     String userStoreDomain = resultSet.getString(11);
                     String consumerKey = resultSet.getString(12);
 
-                    User user = new User();
+                    AuthenticatedUser user = new AuthenticatedUser();
                     user.setUserName(authzUser);
                     user.setTenantDomain(OAuth2Util.getTenantDomain(tenantId));
                     user.setUserStoreDomain(userStoreDomain);
@@ -1183,7 +1203,9 @@ public class TokenMgtDAO {
         //we do not support access token partitioning here
         Connection connection = IdentityDatabaseUtil.getDBConnection();
 
-        userStoreDomain = userStoreDomain.toUpperCase();
+        if ((userStoreDomain != null)){
+            userStoreDomain.toUpperCase();
+        }
         PreparedStatement prepStmt = null;
         ResultSet resultSet =  null;
         Map<String, AccessTokenDO> accessTokenDOMap = new HashMap<>();
@@ -1211,7 +1233,7 @@ public class TokenMgtDAO {
                     String authzUser = resultSet.getString(10);
                     String consumerKey = resultSet.getString(11);
 
-                    User user = new User();
+                    AuthenticatedUser user = new AuthenticatedUser();
                     user.setUserName(authzUser);
                     user.setTenantDomain(OAuth2Util.getTenantDomain(tenantId));
                     user.setUserStoreDomain(userStoreDomain);
@@ -1291,7 +1313,7 @@ public class TokenMgtDAO {
                 String callbackUrl = rs.getString(8);
                 String userStoreDomain = rs.getString(9);
 
-                User user = new User();
+                AuthenticatedUser user = new AuthenticatedUser();
                 user.setUserName(authzUser);
                 user.setUserStoreDomain(userStoreDomain);
                 user.setTenantDomain(OAuth2Util.getTenantDomain(tenantId));
@@ -1334,7 +1356,7 @@ public class TokenMgtDAO {
                 long validityPeriodInMillis = rs.getLong(7);
                 String callbackUrl = rs.getString(8);
 
-                User user = new User();
+                AuthenticatedUser user = new AuthenticatedUser();
                 user.setUserName(authzUser);
                 user.setUserStoreDomain(userStorDomain);
                 user.setTenantDomain(OAuth2Util.getTenantDomain(tenantId));

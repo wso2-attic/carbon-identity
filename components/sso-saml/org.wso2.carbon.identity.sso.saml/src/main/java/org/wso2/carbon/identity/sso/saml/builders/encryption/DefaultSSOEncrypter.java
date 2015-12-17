@@ -55,7 +55,7 @@ public class DefaultSSOEncrypter implements SSOEncrypter {
             EncryptedAssertion encrypted = encrypter.encrypt(assertion);
             return encrypted;
         } catch (Exception e) {
-            throw new IdentityException("Error while Encrypting Assertion", e);
+            throw IdentityException.error("Error while Encrypting Assertion", e);
         }
     }
 }

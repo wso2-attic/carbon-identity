@@ -68,7 +68,7 @@ public class SAMLAuthnRequestValidator {
                     false,
                     String.format(SAMLValidatorConstants.ValidationMessage.VAL_VERSION_FAIL,
                             authnRequest.getVersion())));
-            throw new IdentityException(SAMLValidatorConstants.ValidationMessage.EXIT_WITH_ERROR);
+            throw IdentityException.error(SAMLValidatorConstants.ValidationMessage.EXIT_WITH_ERROR);
         }
 
         Issuer issuer = authnRequest.getIssuer();
@@ -80,7 +80,7 @@ public class SAMLAuthnRequestValidator {
                     SAMLValidatorConstants.ValidationType.VAL_ISSUER,
                     false,
                     SAMLValidatorConstants.ValidationMessage.VAL_ISSUER_FAIL));
-            throw new IdentityException(SAMLValidatorConstants.ValidationMessage.EXIT_WITH_ERROR);
+            throw IdentityException.error(SAMLValidatorConstants.ValidationMessage.EXIT_WITH_ERROR);
         } else {
             issuerStr = issuer.getValue() != null ? issuer.getValue() : issuer.getSPProvidedID();
             validatedItems.add(new ValidatedItemDTO(
@@ -100,7 +100,7 @@ public class SAMLAuthnRequestValidator {
                         SAMLValidatorConstants.ValidationType.VAL_ISSUER_FORMAT,
                         false,
                         SAMLValidatorConstants.ValidationMessage.VAL_ISSUER_FMT_FAIL));
-                throw new IdentityException(
+                throw IdentityException.error(
                         SAMLValidatorConstants.ValidationMessage.EXIT_WITH_ERROR);
             }
         }
@@ -117,7 +117,7 @@ public class SAMLAuthnRequestValidator {
                     String.format(SAMLValidatorConstants.ValidationMessage.VAL_IDP_CONFIGS_FAIL,
                             authnRequest.getIssuer()
                                     .getValue())));
-            throw new IdentityException(SAMLValidatorConstants.ValidationMessage.EXIT_WITH_ERROR);
+            throw IdentityException.error(SAMLValidatorConstants.ValidationMessage.EXIT_WITH_ERROR);
         }
         if (ssoIdPConfigs == null) {
             validatedItems.add(new ValidatedItemDTO(
@@ -126,7 +126,7 @@ public class SAMLAuthnRequestValidator {
                     String.format(SAMLValidatorConstants.ValidationMessage.VAL_IDP_CONFIGS_FAIL,
                             authnRequest.getIssuer()
                                     .getValue())));
-            throw new IdentityException(SAMLValidatorConstants.ValidationMessage.EXIT_WITH_ERROR);
+            throw IdentityException.error(SAMLValidatorConstants.ValidationMessage.EXIT_WITH_ERROR);
         } else {
             validatedItems.add(new ValidatedItemDTO(
                     SAMLValidatorConstants.ValidationType.VAL_IDP_CONFIGS,
@@ -152,7 +152,7 @@ public class SAMLAuthnRequestValidator {
                     String.format(SAMLValidatorConstants.ValidationMessage.VAL_CONSUM_URL_FAIL,
                             consumerServiceURL,
                             ssoIdPConfigs.getAssertionConsumerUrl())));
-            throw new IdentityException(SAMLValidatorConstants.ValidationMessage.EXIT_WITH_ERROR);
+            throw IdentityException.error(SAMLValidatorConstants.ValidationMessage.EXIT_WITH_ERROR);
         }
 
         // Validating SubjectID format
@@ -195,7 +195,7 @@ public class SAMLAuthnRequestValidator {
                         String.format(SAMLValidatorConstants.ValidationMessage.VAL_DESTINATION_FAIL,
                                 authnRequest.getDestination(),
                                 idPUrl)));
-                throw new IdentityException(
+                throw IdentityException.error(
                         SAMLValidatorConstants.ValidationMessage.EXIT_WITH_ERROR);
             }
 
@@ -232,7 +232,7 @@ public class SAMLAuthnRequestValidator {
                         false,
                         String.format(SAMLValidatorConstants.ValidationMessage.VAL_SIGNATURE_ERROR,
                                 e.getMessage())));
-                throw new IdentityException(
+                throw IdentityException.error(
                         SAMLValidatorConstants.ValidationMessage.EXIT_WITH_ERROR);
             }
         }

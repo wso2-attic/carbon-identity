@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -14,25 +14,12 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
+package org.wso2.carbon.identity.application.common.model;
 
-package org.wso2.carbon.identity.entitlement.common;
-
-import org.wso2.carbon.identity.base.IdentityException;
-
-/**
- *
+/*
+    Marker interface to identify inbound authentication request processor
  */
-public class PolicyEditorException extends IdentityException {
+public interface InboundAuthenticationConnector {
 
-    private static final long serialVersionUID = -4965068674464842386L;
-
-    public PolicyEditorException(String message) {
-        super(message);
-    }
-
-    public PolicyEditorException(String message, Throwable e) {
-        super(message, e);
-    }
 }

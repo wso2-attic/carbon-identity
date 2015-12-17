@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.oauth2.token;
 
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
@@ -28,7 +29,7 @@ public class OAuthTokenReqMessageContext {
 
     private OAuth2AccessTokenReqDTO oauth2AccessTokenReqDTO;
 
-    private User authorizedUser;
+    private AuthenticatedUser authorizedUser;
 
     private String[] scope;
 
@@ -52,11 +53,11 @@ public class OAuthTokenReqMessageContext {
         return oauth2AccessTokenReqDTO;
     }
 
-    public User getAuthorizedUser() {
+    public AuthenticatedUser getAuthorizedUser() {
         return authorizedUser;
     }
 
-    public void setAuthorizedUser(User authorizedUser) {
+    public void setAuthorizedUser(AuthenticatedUser authorizedUser) {
         this.authorizedUser = authorizedUser;
     }
 

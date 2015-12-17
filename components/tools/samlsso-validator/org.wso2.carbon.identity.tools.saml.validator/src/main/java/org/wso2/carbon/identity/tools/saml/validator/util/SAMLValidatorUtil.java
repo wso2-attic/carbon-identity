@@ -65,7 +65,7 @@ public class SAMLValidatorUtil {
                 return issuers.toArray(new String[issuers.size()]);
             }
         } catch (Exception e) {
-            throw new IdentityException(
+            throw IdentityException.error(
                     SAMLValidatorConstants.ValidationMessage.ERROR_LOADING_SP_CONF,
                     e);
         }
@@ -96,7 +96,7 @@ public class SAMLValidatorUtil {
             }
             return ssoIdpConfigs;
         } catch (Exception e) {
-            throw new IdentityException(
+            throw IdentityException.error(
                     SAMLValidatorConstants.ValidationMessage.ERROR_LOADING_SP_CONF,
                     e);
         }
@@ -147,18 +147,18 @@ public class SAMLValidatorUtil {
             UserRealm userRealm = AnonymousSessionUtil.getRealmByUserName(SAMLSSOUtil.getRegistryService(),
                     SAMLSSOUtil.getRealmService(), username);
             if(userRealm == null){
-                throw new IdentityException("User realm is not present for this user name:" + username);
+                throw IdentityException.error("User realm is not present for this user name:" + username);
             }
             username = MultitenantUtils.getTenantAwareUsername(username);
             UserStoreManager userStoreManager = userRealm.getUserStoreManager();
             return userStoreManager.getUserClaimValues(username, requestedClaims, profile);
         } catch (UserStoreException e) {
             log.error("Error while retrieving claims values", e);
-            throw new IdentityException(
+            throw IdentityException.error(
                     "Error while retrieving claims values", e);
         } catch (CarbonException e) {
             log.error("Error while retrieving claims values", e);
-            throw new IdentityException(
+            throw IdentityException.error(
                     "Error while retrieving claim values",
                     e);
         }

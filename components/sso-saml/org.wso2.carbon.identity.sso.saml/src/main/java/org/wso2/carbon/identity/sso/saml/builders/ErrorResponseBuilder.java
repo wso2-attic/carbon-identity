@@ -61,7 +61,7 @@ public class ErrorResponseBuilder {
     public Response buildResponse(String inResponseToID, List<String> statusCodes, String statusMsg,
                                   String destination) throws IdentityException {
         if (statusCodes == null || statusCodes.isEmpty()) {
-            throw new IdentityException("No Status Values");
+            throw IdentityException.error("No Status Values");
         }
         response.setIssuer(SAMLSSOUtil.getIssuer());
         Status status = new StatusBuilder().buildObject();
@@ -94,7 +94,7 @@ public class ErrorResponseBuilder {
     private StatusCode buildStatusCode(String parentStatusCode, StatusCode childStatusCode) throws IdentityException {
 
         if (parentStatusCode == null) {
-            throw new IdentityException("Invalid SAML Response Status Code");
+            throw IdentityException.error("Invalid SAML Response Status Code");
         }
 
         StatusCode statusCode = new StatusCodeBuilder().buildObject();

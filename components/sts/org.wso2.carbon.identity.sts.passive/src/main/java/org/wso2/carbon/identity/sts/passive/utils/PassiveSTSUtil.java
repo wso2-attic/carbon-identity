@@ -37,7 +37,6 @@ public class PassiveSTSUtil {
         } else {
             tokenStorage = new NoPersistenceTokenStore();
         }
-
     }
 }
 

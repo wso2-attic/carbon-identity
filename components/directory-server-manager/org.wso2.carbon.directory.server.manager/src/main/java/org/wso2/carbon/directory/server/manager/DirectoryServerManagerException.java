@@ -18,15 +18,15 @@
 
 package org.wso2.carbon.directory.server.manager;
 
+import org.wso2.carbon.identity.base.IdentityException;
+
 /**
  * An exception class which encapsulates directory server related
  * errors.
  */
-public class DirectoryServerManagerException extends Exception {
+public class DirectoryServerManagerException extends IdentityException {
 
-    public DirectoryServerManagerException() {
-        super();
-    }
+    private static final long serialVersionUID = 6613588313233817870L;
 
     public DirectoryServerManagerException(String message, Throwable cause) {
         super(message, cause);
@@ -34,9 +34,5 @@ public class DirectoryServerManagerException extends Exception {
 
     public DirectoryServerManagerException(String message) {
         super(message);
-    }
-
-    public DirectoryServerManagerException(Throwable cause) {
-        super(cause);
     }
 }

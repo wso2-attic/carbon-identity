@@ -103,8 +103,9 @@ public class SCIMUserManager implements UserManager {
         ServiceProvider serviceProvider = getServiceProvider(isBulkUserAdd);
 
         try {
-            if (!UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase(getUserStoreDomainFromSP())) {
-                userStoreName = getUserStoreDomainFromSP();
+            String userStoreDomainFromSP = getUserStoreDomainFromSP();
+            if (userStoreDomainFromSP != null) {
+                userStoreName = userStoreDomainFromSP;
             }
         } catch (IdentityApplicationManagementException e) {
             throw new CharonException("Error retrieving User Store name. ", e);
@@ -134,7 +135,7 @@ public class SCIMUserManager implements UserManager {
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(MultitenantUtils.getTenantDomain(consumerName));
             carbonContext.getTenantId(true);
-            carbonContext.setUsername(consumerName);
+            carbonContext.setUsername(MultitenantUtils.getTenantAwareUsername(consumerName));
 
             //if operating in dumb mode, do not persist the operation, only provision to providers
             if (serviceProvider.getInboundProvisioningConfig().isDumbMode()) {
