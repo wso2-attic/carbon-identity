@@ -164,9 +164,10 @@ public class IdentityProviderManager {
         if(StringUtils.isBlank(passiveStsUrl)){
             passiveStsUrl = IdentityUtil.getServerURL("passivests", true, true);
         }
-        if(StringUtils.isNotBlank(stsUrl)){
-            stsUrl = stsUrl.replace("wso2carbon-sts" , tenantContext + "wso2carbon-sts");
-        }else {
+        // If sts url is configured in file, change it according to tenant domain. If not configured, add a default url
+        if (StringUtils.isNotBlank(stsUrl)) {
+            stsUrl = stsUrl.replace("wso2carbon-sts", tenantContext + "wso2carbon-sts");
+        } else {
             stsUrl = IdentityUtil.getServerURL("services/" + tenantContext + "wso2carbon-sts", true, true);
         }
         if(StringUtils.isBlank(scimUserEndpoint)){
