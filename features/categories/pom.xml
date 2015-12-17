@@ -40,10 +40,10 @@
         <module>inbound-provisioning-connectors</module>
         <module>keystore-mgt</module>
         <module>notification-mgt</module>
+        <module>outbound-authentication</module>
         <module>outbound-authenticators</module>
         <module>outbound-provisioning</module>
         <module>outbound-provisioning-connectors</module>
-        <module>sso-federation</module>
         <module>sts</module>
         <module>user-mgt</module>
         <module>workflow</module>
