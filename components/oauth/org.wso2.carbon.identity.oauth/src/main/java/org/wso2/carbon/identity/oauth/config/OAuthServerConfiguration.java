@@ -152,7 +152,6 @@ public class OAuthServerConfiguration {
 
     public static final String IMPLICIT = "implicit";
     private boolean isInitialized;
-    private static final Object LOCK = new Object();
     private List<String> allowedGrantTypes;
 
     private OAuthServerConfiguration() {
@@ -171,13 +170,15 @@ public class OAuthServerConfiguration {
         return instance;
     }
 
+    /**
+     * Intended only to be invoked at the configuration initialization time in a single threaded environment
+     * (i.e. Within the activate method of the ServiceComponent).
+     */
     public void init() {
-        synchronized (LOCK) {
-            this.supportedGrantTypes = this.populateSupportedGrantTypes();
-            this.supportedResponseTypes = this.populateSupportedResponseTypes();
-            this.allowedGrantTypes = this.populateAllowedGrantTypes();
-            this.isInitialized = true;
-        }
+        this.supportedGrantTypes = this.populateSupportedGrantTypes();
+        this.supportedResponseTypes = this.populateSupportedResponseTypes();
+        this.allowedGrantTypes = this.populateAllowedGrantTypes();
+        this.isInitialized = true;
     }
 
     private void buildOAuthServerConfiguration() {
