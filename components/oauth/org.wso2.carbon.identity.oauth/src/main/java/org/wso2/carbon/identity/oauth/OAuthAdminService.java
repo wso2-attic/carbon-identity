@@ -508,11 +508,4 @@ public class OAuthAdminService extends AbstractAdmin {
         return new OAuthRevocationResponseDTO();
     }
 
-    public String[] getAllowedGrantTypes() {
-        List<String> allowedGrantTypes = OAuthServerConfiguration.getInstance().getAllowedGrantTypes();
-        if (allowedGrantTypes != null){
-            return allowedGrantTypes.toArray(new String[allowedGrantTypes.size()]);
-        }
-        return new String[0];
-    }
 }
