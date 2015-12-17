@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.oauth.listener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
@@ -108,18 +109,19 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
 
         String userStoreDomain = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-
-        username = UserCoreUtil.addDomainToName(username, userStoreDomain);
-        username = UserCoreUtil.addTenantDomainToEntry(username, tenantDomain);
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser();
+        authenticatedUser.setUserStoreDomain(userStoreDomain);
+        authenticatedUser.setTenantDomain(tenantDomain);
+        authenticatedUser.setUserName(username);
 
         /* This userStoreDomain variable is used for access token table partitioning. So it is set to null when access
         token table partitioning is not enabled.*/
         userStoreDomain = null;
         if (OAuth2Util.checkAccessTokenPartitioningEnabled() && OAuth2Util.checkUserNameAssertionEnabled()) {
             try {
-                userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(username);
+                userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(authenticatedUser.toString());
             } catch (IdentityOAuth2Exception e) {
-                log.error("Error occurred while getting user store domain for User ID : " + username, e);
+                log.error("Error occurred while getting user store domain for User ID : " + authenticatedUser, e);
                 return true;
             }
         }
@@ -127,19 +129,19 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
         Set<String> clientIds = null;
         try {
             // get all the distinct client Ids authorized by this user
-            clientIds = tokenMgtDAO.getAllTimeAuthorizedClientIds(username);
+            clientIds = tokenMgtDAO.getAllTimeAuthorizedClientIds(authenticatedUser);
         } catch (IdentityOAuth2Exception e) {
-            log.error("Error occurred while retrieving apps authorized by User ID : " + username, e);
+            log.error("Error occurred while retrieving apps authorized by User ID : " + authenticatedUser, e);
             return true;
         }
         for (String clientId : clientIds) {
             Set<AccessTokenDO> accessTokenDOs = null;
             try {
                 // retrieve all ACTIVE or EXPIRED access tokens for particular client authorized by this user
-                accessTokenDOs = tokenMgtDAO.retrieveAccessTokens(clientId, username, userStoreDomain, true);
+                accessTokenDOs = tokenMgtDAO.retrieveAccessTokens(clientId, authenticatedUser, userStoreDomain, true);
             } catch (IdentityOAuth2Exception e) {
                 String errorMsg = "Error occurred while retrieving access tokens issued for " +
-                        "Client ID : " + clientId + ", User ID : " + username;
+                        "Client ID : " + clientId + ", User ID : " + authenticatedUser;
                 log.error(errorMsg, e);
                 return true;
             }
@@ -153,12 +155,12 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
                 try {
                     // retrieve latest access token for particular client, user and scope combination if its ACTIVE or EXPIRED
                     scopedToken = tokenMgtDAO.retrieveLatestAccessToken(
-                            clientId, username, userStoreDomain,
+                            clientId, authenticatedUser, userStoreDomain,
                             OAuth2Util.buildScopeString(accessTokenDO.getScope()), true);
                 } catch (IdentityOAuth2Exception e) {
                     String errorMsg = "Error occurred while retrieving latest " +
                             "access token issued for Client ID : " +
-                            clientId + ", User ID : " + username + " and Scope : " +
+                            clientId + ", User ID : " + authenticatedUser + " and Scope : " +
                             OAuth2Util.buildScopeString(accessTokenDO.getScope());
                     log.error(errorMsg, e);
                     return true;

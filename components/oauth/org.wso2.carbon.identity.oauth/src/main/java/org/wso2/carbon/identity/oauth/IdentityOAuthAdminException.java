@@ -21,6 +21,9 @@ package org.wso2.carbon.identity.oauth;
 import org.wso2.carbon.identity.base.IdentityException;
 
 public class IdentityOAuthAdminException extends IdentityException {
+
+    private static final long serialVersionUID = -5527073641034911815L;
+
     public IdentityOAuthAdminException(String message) {
         super(message);
     }

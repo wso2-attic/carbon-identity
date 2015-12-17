@@ -20,9 +20,7 @@ package org.wso2.carbon.identity.user.account.association.exception;
 
 public class UserAccountAssociationClientException extends UserAccountAssociationException {
 
-    public UserAccountAssociationClientException() {
-        super();
-    }
+    private static final long serialVersionUID = -6540635368115747038L;
 
     public UserAccountAssociationClientException(String message) {
         super(message);

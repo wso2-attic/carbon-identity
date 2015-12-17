@@ -68,11 +68,11 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
         } catch (AuthenticationException e) {
             String errorMsg = ERROR_WHEN_GETTING_AN_IDENTITY_PERSISTENCE_STORE_INSTANCE;
             log.error(errorMsg, e);
-            throw new IdentityException(errorMsg, e);
+            throw IdentityException.error(errorMsg, e);
         } catch (SQLException e) {
             log.error(ERROR_WHEN_EXECUTING_THE_SQL + " " + ThriftAuthenticationConstants.GET_ALL_THRIFT_SESSIONS_SQL);
             log.error(e.getMessage(), e);
-            throw new IdentityException("Error when reading the thrift session information from " +
+            throw IdentityException.error("Error when reading the thrift session information from " +
                     THE_PERSISTENCE_STORE);
         } finally {
             ThriftAuthenticationDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
@@ -100,11 +100,11 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
         } catch (AuthenticationException e) {
             String errorMsg = ERROR_WHEN_GETTING_AN_IDENTITY_PERSISTENCE_STORE_INSTANCE;
             log.error(errorMsg, e);
-            throw new IdentityException(errorMsg, e);
+            throw IdentityException.error(errorMsg, e);
         } catch (SQLException e) {
             log.error(ERROR_WHEN_EXECUTING_THE_SQL + " " + ThriftAuthenticationConstants.CHECK_EXISTING_THRIFT_SESSION_SQL);
             log.error(e.getMessage(), e);
-            throw new IdentityException("Error when reading thrift session information from " +
+            throw IdentityException.error("Error when reading thrift session information from " +
                     THE_PERSISTENCE_STORE);
         } finally {
             ThriftAuthenticationDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
@@ -135,11 +135,11 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
             } catch (AuthenticationException e) {
                 String errorMsg = ERROR_WHEN_GETTING_AN_IDENTITY_PERSISTENCE_STORE_INSTANCE;
                 log.error(errorMsg, e);
-                throw new IdentityException(errorMsg, e);
+                throw IdentityException.error(errorMsg, e);
             } catch (SQLException e) {
                 log.error(ERROR_WHEN_EXECUTING_THE_SQL + " " + sqlStmt);
                 log.error(e.getMessage(), e);
-                throw new IdentityException("Error when adding a new thrift session.");
+                throw IdentityException.error("Error when adding a new thrift session.");
             } finally {
                 ThriftAuthenticationDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }
@@ -147,7 +147,7 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
         } else {
             String errorMessage = THRIFT_SESSION_WITH_GIVEN_SESSION_ID_ALREADY_EXISTS;
             log.error(errorMessage);
-            throw new IdentityException(errorMessage);
+            throw IdentityException.error(errorMessage);
         }
     }
 
@@ -168,11 +168,11 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
             } catch (AuthenticationException e) {
                 String errorMsg = ERROR_WHEN_GETTING_AN_IDENTITY_PERSISTENCE_STORE_INSTANCE;
                 log.error(errorMsg, e);
-                throw new IdentityException(errorMsg, e);
+                throw IdentityException.error(errorMsg, e);
             } catch (SQLException e) {
                 log.error(ERROR_WHEN_EXECUTING_THE_SQL + " " + ThriftAuthenticationConstants.DELETE_SESSION_SQL);
                 log.error(e.getMessage(), e);
-                throw new IdentityException("Error deleting the Thrift Session.");
+                throw IdentityException.error("Error deleting the Thrift Session.");
             } finally {
                 ThriftAuthenticationDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }
@@ -180,7 +180,7 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
         } else {
             String errorMessage = THRIFT_SESSION_WITH_GIVEN_SESSION_ID_ALREADY_EXISTS;
             log.error(errorMessage);
-            throw new IdentityException(errorMessage);
+            throw IdentityException.error(errorMessage);
         }
     }
 
@@ -207,18 +207,18 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
             } catch (AuthenticationException e) {
                 String errorMsg = ERROR_WHEN_GETTING_AN_IDENTITY_PERSISTENCE_STORE_INSTANCE;
                 log.error(errorMsg, e);
-                throw new IdentityException(errorMsg, e);
+                throw IdentityException.error(errorMsg, e);
             } catch (SQLException e) {
                 log.error(ERROR_WHEN_EXECUTING_THE_SQL + " " + ThriftAuthenticationConstants.UPDATE_LAST_MODIFIED_TIME_SQL);
                 log.error(e.getMessage(), e);
-                throw new IdentityException("Error updating the Thrift Session.");
+                throw IdentityException.error("Error updating the Thrift Session.");
             } finally {
                 ThriftAuthenticationDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }
         } else {
             String errorMessage = THRIFT_SESSION_WITH_GIVEN_SESSION_ID_ALREADY_EXISTS;
             log.error(errorMessage);
-            throw new IdentityException(errorMessage);
+            throw IdentityException.error(errorMessage);
         }
     }
 
@@ -245,11 +245,11 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
         } catch (AuthenticationException e) {
             String errorMsg = ERROR_WHEN_GETTING_AN_IDENTITY_PERSISTENCE_STORE_INSTANCE;
             log.error(errorMsg, e);
-            throw new IdentityException(errorMsg, e);
+            throw IdentityException.error(errorMsg, e);
         } catch (SQLException e) {
             log.error(ERROR_WHEN_EXECUTING_THE_SQL + " " + ThriftAuthenticationConstants.GET_THRIFT_SESSION_SQL);
             log.error(e.getMessage(), e);
-            throw new IdentityException("Error when reading the Thrift session information from " +
+            throw IdentityException.error("Error when reading the Thrift session information from " +
                     THE_PERSISTENCE_STORE);
         } finally {
             ThriftAuthenticationDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);

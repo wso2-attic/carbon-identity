@@ -291,7 +291,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
 
         } catch (RegistryException e) {
             log.error("Error While adding Service Provider", e);
-            throw new IdentityException("Error while adding Service Provider", e);
+            throw IdentityException.error("Error while adding Service Provider", e);
         }
 
         if (log.isDebugEnabled()) {
@@ -316,7 +316,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             }
         } catch (RegistryException e) {
             log.error("Error reading Service Providers from Registry", e);
-            throw new IdentityException("Error reading Service Providers from Registry", e);
+            throw IdentityException.error("Error reading Service Providers from Registry", e);
         }
         return serviceProvidersList;
     }
@@ -359,7 +359,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             }
         } catch (RegistryException e) {
             log.error("Error removing the service provider from the registry", e);
-            throw new IdentityException("Error removing the service provider from the registry", e);
+            throw IdentityException.error("Error removing the service provider from the registry", e);
         }
 
         return false;
@@ -387,10 +387,10 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                 serviceProviderDO.setTenantDomain(tenantDomain);
             }
         } catch (RegistryException e) {
-            throw new IdentityException("Error occurred while checking if resource path \'" + path + "\' exists in " +
+            throw IdentityException.error("Error occurred while checking if resource path \'" + path + "\' exists in " +
                     "registry for tenant domain : " + tenantDomain, e);
             } catch (UserStoreException e) {
-                throw new IdentityException("Error occurred while getting tenant domain from tenant ID : " +
+                throw IdentityException.error("Error occurred while getting tenant domain from tenant ID : " +
                     userRegistry.getTenantId(), e);
         }
 
@@ -402,7 +402,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         try {
             return registry.resourceExists(path);
         } catch (RegistryException e) {
-            throw new IdentityException("Error occurred while checking if resource path \'" + path + "\' exists in " +
+            throw IdentityException.error("Error occurred while checking if resource path \'" + path + "\' exists in " +
                                         "registry");
         }
     }

@@ -131,6 +131,6 @@ public class IdentityClaimManager {
      */
     private void getException(String message, Exception e) throws IdentityException {
         log.error(message, e);
-        throw new IdentityException(message, e);
+        throw IdentityException.error(message, e);
     }
 }

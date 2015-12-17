@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005-2006 , WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2006 , WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,17 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.provider;
 
-public class IdentityProviderException extends Exception {
+import org.wso2.carbon.identity.base.IdentityException;
 
-    private static final long serialVersionUID = 6512959880053806795L;
+public class IdentityProviderException extends IdentityException {
 
-    public IdentityProviderException(String messaage) {
-        super(messaage);
+    private static final long serialVersionUID = -3559844720352274498L;
+
+    public IdentityProviderException(String message) {
+        super(message);
     }
 
-    public IdentityProviderException(String messaage, Throwable e) {
-        super(messaage, e);
+    public IdentityProviderException(String message, Throwable e) {
+        super(message, e);
     }
 }

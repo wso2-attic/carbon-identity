@@ -103,7 +103,7 @@ public class IdentityDatabaseUtil {
         try {
             connection = UmPersistenceManager.getInstance().getDataSource().getConnection();
         } catch (SQLException e) {
-            throw new IdentityRuntimeException("Database error. Could not get a connection", e);
+            throw IdentityRuntimeException.error("Database error. Could not get a connection", e);
         }
         return connection;
     }

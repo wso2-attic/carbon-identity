@@ -80,7 +80,7 @@ public class SignKeyDataHolder implements X509Credential {
             }
 
             if (!SAMLSSOUtil.isSaaSApplication() && !spTenantDomain.equalsIgnoreCase(userTenantDomain)) {
-                throw new IdentityException("Service Provider tenant domain must be equal to user tenant domain"
+                throw IdentityException.error("Service Provider tenant domain must be equal to user tenant domain"
                         + " for non-SaaS applications");
             }
 
@@ -145,7 +145,7 @@ public class SignKeyDataHolder implements X509Credential {
             }
 
         } catch (Exception e) {
-            throw new IdentityException(e.getMessage(), e);
+            throw IdentityException.error(e.getMessage(), e);
         }
 
     }

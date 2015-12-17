@@ -18,11 +18,11 @@
 
 package org.wso2.carbon.identity.user.account.association.exception;
 
-public class UserAccountAssociationException extends Exception {
+import org.wso2.carbon.identity.base.IdentityException;
 
-    public UserAccountAssociationException() {
-        super();
-    }
+public class UserAccountAssociationException extends IdentityException {
+
+    private static final long serialVersionUID = 2217974372681551551L;
 
     public UserAccountAssociationException(String message) {
         super(message);

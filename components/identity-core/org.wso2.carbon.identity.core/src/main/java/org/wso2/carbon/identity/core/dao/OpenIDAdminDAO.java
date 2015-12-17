@@ -66,7 +66,7 @@ public class OpenIDAdminDAO extends AbstractDAO<OpenIDAdminDO> {
             registry.put(path, resource);
         } catch (RegistryException e) {
             log.error("Error while creating/updating openid admin", e);
-            throw new IdentityException("Error while creating/updating openid admin", e);
+            throw IdentityException.error("Error while creating/updating openid admin", e);
         }
     }
 
@@ -89,7 +89,7 @@ public class OpenIDAdminDAO extends AbstractDAO<OpenIDAdminDO> {
             }
         } catch (RegistryException e) {
             log.error("Error while retreiving openid admin", e);
-            throw new IdentityException("Error while retreiving openid admin", e);
+            throw IdentityException.error("Error while retreiving openid admin", e);
         }
         return opdo;
     }

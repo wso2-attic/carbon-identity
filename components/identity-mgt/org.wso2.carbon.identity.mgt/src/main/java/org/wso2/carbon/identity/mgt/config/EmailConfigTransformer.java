@@ -77,7 +77,7 @@ public class EmailConfigTransformer {
             String[] contents = props.getProperty(key).split("\\|");
 
             if (contents.length > 3) {
-                throw new IdentityException("Cannot have | character in the template");
+                throw IdentityException.error("Cannot have | character in the template");
             }
 
             String subject = contents[0];
