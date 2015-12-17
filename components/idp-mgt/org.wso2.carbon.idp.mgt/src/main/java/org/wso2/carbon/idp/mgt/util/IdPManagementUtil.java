@@ -114,8 +114,8 @@ public class IdPManagementUtil {
      */
     public static void removeOriginalPasswords(IdentityProvider identityProvider) {
 
-        if(identityProvider == null || identityProvider.getProvisioningConnectorConfigs() == null){
-            return ;
+        if (identityProvider == null || identityProvider.getProvisioningConnectorConfigs() == null) {
+            return;
         }
 
         for (ProvisioningConnectorConfig provisioningConnectorConfig : identityProvider
@@ -136,8 +136,8 @@ public class IdPManagementUtil {
      */
     public static void removeRandomPasswords(IdentityProvider identityProvider, boolean withCacheClear) {
 
-        if(identityProvider == null || identityProvider.getProvisioningConnectorConfigs() == null){
-            return ;
+        if (identityProvider == null || identityProvider.getProvisioningConnectorConfigs() == null) {
+            return;
         }
         for (ProvisioningConnectorConfig provisioningConnectorConfig : identityProvider
                 .getProvisioningConnectorConfigs()) {
