@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.application.mgt;
+package org.wso2.carbon.identity.application.common.model;
 
 /*
     Marker interface to identify inbound authentication request processor
