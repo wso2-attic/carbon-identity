@@ -609,17 +609,16 @@ public class IdentityUtil {
 
             if (mgtTransportProxyPort <= 0) {
                 if (StringUtils.equals(mgtTransport, "http")) {
-                    mgtTransportPort = System
-                            .getProperty(IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTP_PROPERTY);
+                    mgtTransportPort = System.getProperty(
+                            IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTP_PROPERTY);
                 } else {
-                    mgtTransportPort = System
-                            .getProperty(IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTPS_PROPERTY);
+                    mgtTransportPort = System.getProperty(
+                            IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTPS_PROPERTY);
                 }
             }
 
             urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
-                    IdentityConstants.CarbonPlaceholders.CARBON_PORT,
-                    mgtTransportPort);
+                    IdentityConstants.CarbonPlaceholders.CARBON_PORT, mgtTransportPort);
         }
 
         if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTP)) {
