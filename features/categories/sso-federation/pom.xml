@@ -25,7 +25,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.identity-sso-federation.category.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.sso.federation.category.feature</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon Identity - SSO Federation Feature Category</name>
     <url>http://wso2.org</url>
@@ -44,7 +44,7 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.sso-federation.category</id>
+                            <id>org.wso2.carbon.identity.sso.federation.category</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>

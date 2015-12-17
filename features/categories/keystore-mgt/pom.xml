@@ -25,7 +25,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.keystore-mgt.category.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.keystore.mgt.category.feature</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon Identity - Keystore Management Feature Category</name>
     <url>http://wso2.org</url>
@@ -44,7 +44,7 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.authorization.category</id>
+                            <id>org.wso2.carbon.identity.keystore.mgt.category</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>

@@ -25,7 +25,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.user-mgt.category.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.user.mgt.category.feature</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon Identity - User Management Feature Category</name>
     <url>http://wso2.org</url>
@@ -44,7 +44,7 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.user-mgt.category</id>
+                            <id>org.wso2.carbon.identity.user.mgt.category</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
@@ -65,6 +65,21 @@
                                 </importFeatureDef>
                                 <importFeatureDef>
                                     org.wso2.carbon.identity.mgt
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.um.ws.service
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.ldap.server
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.user.registration
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.user.profile
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.user.account.association
                                 </importFeatureDef>
                             </importFeatures>
                         </configuration>

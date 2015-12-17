@@ -25,11 +25,11 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.saml2sso.category.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.outbound.authenticators.category.feature</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon Identity - SAML2 SSO Feature Category</name>
+    <name>WSO2 Carbon Identity - Outbound Authenticators Feature Category</name>
     <url>http://wso2.org</url>
-    <description>This feature contains SAML2 SSO related features.</description>
+    <description>This feature contains outbound authenticators related features.</description>
     <build>
         <plugins>
             <plugin>
@@ -44,7 +44,7 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.saml2sso.category</id>
+                            <id>org.wso2.carbon.identity.outbound.authenticators.category</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
@@ -55,10 +55,34 @@
                             </adviceFile>
                             <importFeatures>
                                 <importFeatureDef>
-                                    org.wso2.carbon.identity.sso.saml
+                                    org.wso2.carbon.identity.application.authenticator.basicauth.server
                                 </importFeatureDef>
                                 <importFeatureDef>
-                                    org.wso2.carbon.identity.tools.saml.validator
+                                    org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.server
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.application.authenticator.fido.server
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.application.authenticator.iwa.server
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.application.authenticator.requestpath.oauth.server
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.application.authenticator.oidc.server
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.application.authenticator.openid.server
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.application.authenticator.passive.sts.server.feature
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.application.authenticator.samlsso.server
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.application.authenticator.social.server
                                 </importFeatureDef>
                             </importFeatures>
                         </configuration>

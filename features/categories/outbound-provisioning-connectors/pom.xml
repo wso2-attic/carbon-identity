@@ -25,11 +25,11 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.identity.workflow.category.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.outbound.provisioning.connectors.category.feature</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon Identity - Workflow Feature Category</name>
+    <name>WSO2 Carbon Identity - Outbound Provisioning Connectors Feature Category</name>
     <url>http://wso2.org</url>
-    <description>This feature contains workflow related features.</description>
+    <description>This feature contains outbound provisioning connector related features.</description>
     <build>
         <plugins>
             <plugin>
@@ -44,7 +44,7 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.identity.workflow.category</id>
+                            <id>org.wso2.carbon.identity.outbound.provisioning.connectors.category</id>
                             <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
@@ -55,7 +55,16 @@
                             </adviceFile>
                             <importFeatures>
                                 <importFeatureDef>
-                                    org.wso2.carbon.identity.workflow.mgt
+                                    org.wso2.carbon.identity.provisioning.connector.google.server
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.provisioning.connector.salesforce.server
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.provisioning.connector.scim.server
+                                </importFeatureDef>
+                                <importFeatureDef>
+                                    org.wso2.carbon.identity.provisioning.connector.spml.server
                                 </importFeatureDef>
                             </importFeatures>
                         </configuration>
