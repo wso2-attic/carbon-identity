@@ -37,6 +37,7 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Commo
 import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthResponseWrapper;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.application.common.model.Claim;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
@@ -465,6 +466,17 @@ public class OAuth2AuthzEndpoint {
         AuthorizationGrantCacheKey authorizationGrantCacheKey = new AuthorizationGrantCacheKey(code);
         AuthorizationGrantCacheEntry authorizationGrantCacheEntry = new AuthorizationGrantCacheEntry(
                 sessionDataCacheEntry.getLoggedInUser().getUserAttributes());
+        String sub = sessionDataCacheEntry.getLoggedInUser().getUserAttributes().get("sub");
+        if(StringUtils.isBlank(sub)){
+            sub = sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier();
+        }
+        if(StringUtils.isNotBlank(sub)){
+            ClaimMapping claimMapping = new ClaimMapping();
+            Claim claim = new Claim();
+            claim.setClaimUri("sub");
+            claimMapping.setRemoteClaim(claim);
+            sessionDataCacheEntry.getLoggedInUser().getUserAttributes().put(claimMapping, sub);
+        }
         authorizationGrantCacheEntry.setNonceValue(sessionDataCacheEntry.getoAuth2Parameters().getNonce());
         authorizationGrantCacheEntry.setCodeId(codeId);
         AuthorizationGrantCache.getInstance().addToCacheByCode(authorizationGrantCacheKey, authorizationGrantCacheEntry);
