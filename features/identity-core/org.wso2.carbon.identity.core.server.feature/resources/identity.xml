@@ -318,7 +318,8 @@
             If that doesn't satisfy uncomment the following config and explicitly configure the value
         -->
         <IdentityProviderURL>${carbon.protocol}://${carbon.host}:${mgt.transport.https.port}/passivests</IdentityProviderURL>
-        <RetryURL>${carbon.protocol}://${carbon.host}:${mgt.transport.https.port}/authenticationendpoint/retry.do</RetryURL>
+	<RetryURL>${carbon.protocol}://${carbon.host}:${mgt.transport.https.port}/authenticationendpoint/retry.do</RetryURL>
+	<TokenStoreClassName>org.wso2.carbon.identity.sts.passive.NoPersistenceTokenStore</TokenStoreClassName>
     </PassiveSTS>
 
     <EntitlementSettings>
