@@ -112,7 +112,12 @@ public class IdPManagementUtil {
      * @param identityProvider
      * @return
      */
-    public static IdentityProvider removeOriginalPasswords(IdentityProvider identityProvider) {
+    public static void removeOriginalPasswords(IdentityProvider identityProvider) {
+
+        if(identityProvider == null || identityProvider.getProvisioningConnectorConfigs() == null){
+            return ;
+        }
+
         for (ProvisioningConnectorConfig provisioningConnectorConfig : identityProvider
                 .getProvisioningConnectorConfigs()) {
             Property[] properties = provisioningConnectorConfig.getProvisioningProperties();
@@ -122,8 +127,6 @@ public class IdPManagementUtil {
             properties = RandomPasswordProcessor.getInstance().removeOriginalPasswords(properties);
             provisioningConnectorConfig.setProvisioningProperties(properties);
         }
-
-        return identityProvider;
     }
 
     /**
@@ -132,6 +135,10 @@ public class IdPManagementUtil {
      * @param withCacheClear
      */
     public static void removeRandomPasswords(IdentityProvider identityProvider, boolean withCacheClear) {
+
+        if(identityProvider == null || identityProvider.getProvisioningConnectorConfigs() == null){
+            return ;
+        }
         for (ProvisioningConnectorConfig provisioningConnectorConfig : identityProvider
                 .getProvisioningConnectorConfigs()) {
             Property[] properties = provisioningConnectorConfig.getProvisioningProperties();

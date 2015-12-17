@@ -140,7 +140,7 @@ public class IdentityProviderManagementService extends AbstractAdmin {
             }
             String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             IdentityProvider identityProvider = IdentityProviderManager.getInstance().getIdPByName(idPName, tenantDomain, true);
-            identityProvider = IdPManagementUtil.removeOriginalPasswords(identityProvider);
+            IdPManagementUtil.removeOriginalPasswords(identityProvider);
             return identityProvider;
         } catch (IdentityProviderManagementException idpException) {
             log.error("Error while getting Idp with name " + idPName, idpException);
