@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class IdentityException extends Exception {
 
-    private static final long serialVersionUID = -8833460100741863763L;
+    private static final long serialVersionUID = -5849726441147445295L;
 
     private List<ErrorInfo> errorInfoList = new ArrayList<>();
 
@@ -145,10 +145,6 @@ public class IdentityException extends Exception {
         super(errorDescription, cause);
     }
 
-    protected IdentityException(Throwable cause) {
-        super(cause);
-    }
-
     // This method may be used for easily migrating existing usages of IdentityException creation.
     // However once we migrate all the usages of IdentityException to create using error(ErrorInfo) we can remove this
     @Deprecated
@@ -210,45 +206,45 @@ public class IdentityException extends Exception {
         return builder.toString();
     }
 
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append(getCode());
-        builder.append('\n');
-
-        //append additional context information.
-        for(int i = this.errorInfoList.size() - 1; i >= 0; i--) {
-            ErrorInfo info = this.errorInfoList.get(i);
-            builder.append('[');
-            builder.append(info.contextId);
-            builder.append(':');
-            builder.append(info.errorCode);
-            builder.append(']');
-            builder.append(info.errorDescription);
-            if(i > 0) {
-                builder.append('\n');
-            }
-        }
-
-        //append root causes and text from this exception first.
-        if(getMessage() != null) {
-            builder.append('\n');
-            if(getCause() == null) {
-                builder.append(getMessage());
-            } else if(!getMessage().equals(getCause().toString())) {
-                builder.append(getMessage());
-            }
-        }
-        appendException(builder, getCause());
-        return builder.toString();
-    }
-
-    private void appendException(StringBuilder builder, Throwable throwable) {
-        if(throwable == null) {
-            return;
-        }
-        appendException(builder, throwable.getCause());
-        builder.append(throwable.toString());
-        builder.append('\n');
-    }
+//    public String toString() {
+//        StringBuilder builder = new StringBuilder();
+//
+//        builder.append(getCode());
+//        builder.append('\n');
+//
+//        //append additional context information.
+//        for(int i = this.errorInfoList.size() - 1; i >= 0; i--) {
+//            ErrorInfo info = this.errorInfoList.get(i);
+//            builder.append('[');
+//            builder.append(info.contextId);
+//            builder.append(':');
+//            builder.append(info.errorCode);
+//            builder.append(']');
+//            builder.append(info.errorDescription);
+//            if(i > 0) {
+//                builder.append('\n');
+//            }
+//        }
+//
+//        //append root causes and text from this exception first.
+//        if(getMessage() != null) {
+//            builder.append('\n');
+//            if(getCause() == null) {
+//                builder.append(getMessage());
+//            } else if(!getMessage().equals(getCause().toString())) {
+//                builder.append(getMessage());
+//            }
+//        }
+//        appendException(builder, getCause());
+//        return builder.toString();
+//    }
+//
+//    private void appendException(StringBuilder builder, Throwable throwable) {
+//        if(throwable == null) {
+//            return;
+//        }
+//        appendException(builder, throwable.getCause());
+//        builder.append(throwable.toString());
+//        builder.append('\n');
+//    }
 }

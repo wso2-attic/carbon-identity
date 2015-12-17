@@ -510,10 +510,16 @@ public class OAuthAdminService extends AbstractAdmin {
 
     public String[] getAllowedGrantTypes() {
         if (allowedGrants == null) {
-            allowedGrants = new ArrayList();
-            allowedGrants.addAll(OAuthServerConfiguration.getInstance().getSupportedGrantTypes().keySet());
-            if (OAuthServerConfiguration.getInstance().getSupportedResponseTypes().containsKey("token")) {
-                allowedGrants.add(IMPLICIT);
+            synchronized (OAuthAdminService.class) {
+                if (allowedGrants == null) {
+                    Set<String> allowedGrantSet =
+                            OAuthServerConfiguration.getInstance().getSupportedGrantTypes().keySet();
+                    Set<String> modifiableGrantSet = new HashSet(allowedGrantSet);
+                    if (OAuthServerConfiguration.getInstance().getSupportedResponseTypes().containsKey("token")) {
+                        modifiableGrantSet.add(IMPLICIT);
+                    }
+                    allowedGrants = new ArrayList<>(modifiableGrantSet);
+                }
             }
         }
         return allowedGrants.toArray(new String[allowedGrants.size()]);
