@@ -58,7 +58,6 @@ public class OAuthAdminService extends AbstractAdmin {
 
     public static final String IMPLICIT = "implicit";
     public static final String AUTHORIZATION_CODE = "authorization_code";
-    private static List<String> allowedGrants = null;
     protected Log log = LogFactory.getLog(OAuthAdminService.class);
     private AppInfoCache appInfoCache = AppInfoCache.getInstance();
 
@@ -509,13 +508,8 @@ public class OAuthAdminService extends AbstractAdmin {
     }
 
     public String[] getAllowedGrantTypes() {
-        if (allowedGrants == null) {
-            allowedGrants = new ArrayList();
-            allowedGrants.addAll(OAuthServerConfiguration.getInstance().getSupportedGrantTypes().keySet());
-            if (OAuthServerConfiguration.getInstance().getSupportedResponseTypes().containsKey("token")) {
-                allowedGrants.add(IMPLICIT);
-            }
-        }
+
+        List<String> allowedGrants = OAuthServerConfiguration.getInstance().getAllowedGrantTypes();
         return allowedGrants.toArray(new String[allowedGrants.size()]);
     }
 }
