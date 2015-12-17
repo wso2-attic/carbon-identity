@@ -18,11 +18,13 @@
 package org.wso2.carbon.identity.sts.passive.processors;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.rahas.RahasConstants;
 import org.apache.rahas.RahasData;
+import org.apache.rahas.TokenStorage;
 import org.apache.rahas.TrustException;
 import org.apache.rahas.impl.SAMLPassiveTokenIssuer;
 import org.apache.rahas.impl.SAMLTokenIssuerConfig;
@@ -33,6 +35,7 @@ import org.apache.ws.security.handler.WSHandlerConstants;
 import org.apache.ws.security.handler.WSHandlerResult;
 import org.wso2.carbon.identity.sts.passive.RequestToken;
 import org.wso2.carbon.identity.sts.passive.ResponseToken;
+import org.wso2.carbon.identity.sts.passive.utils.PassiveSTSUtil;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Vector;
@@ -84,6 +87,9 @@ public class SigningRequestProcessor extends RequestProcessor {
             log.error("Failed to get saml token issuer config.", e);
             throw new TrustException("errorWhileProcessingSigninRequest", e);
         }
+
+        ConfigurationContext configurationContext = context.getConfigurationContext();
+        configurationContext.setProperty(TokenStorage.TOKEN_STORAGE_KEY, PassiveSTSUtil.getTokenStorage());
 
         rahasData = new RahasData(context);
         issuer = new SAMLPassiveTokenIssuer();
