@@ -278,20 +278,20 @@ public class OAuthServerConfiguration {
 	    synchronized (this) {
 		if (oauthTokenGenerator == null) {
 		    try {
-			if (oauthTokenGeneratorClassName != null) {
-			    Class clazz = this.getClass().getClassLoader().loadClass(oauthTokenGeneratorClassName);
-			    oauthTokenGenerator = (OAuthIssuer) clazz.newInstance();
-			    log.info("An instance of " + oauthTokenGeneratorClassName
-				    + " is created for OAuth token generation.");
-			} else {
-			    oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
-			    log.info("The default OAuth token issuer will be used. No custom token generator is set.");
-			}
+                if (oauthTokenGeneratorClassName != null) {
+                    Class clazz = this.getClass().getClassLoader().loadClass(oauthTokenGeneratorClassName);
+                    oauthTokenGenerator = (OAuthIssuer) clazz.newInstance();
+                    log.info("An instance of " + oauthTokenGeneratorClassName
+                        + " is created for OAuth token generation.");
+                } else {
+                    oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
+                    log.info("The default OAuth token issuer will be used. No custom token generator is set.");
+                }
 		    } catch (Exception e) {
-			String errorMsg = "Error when instantiating the OAuthIssuer : "
-				+ tokenPersistenceProcessorClassName + ". Defaulting to OAuthIssuerImpl";
-			log.error(errorMsg, e);
-			oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
+                String errorMsg = "Error when instantiating the OAuthIssuer : "
+                    + tokenPersistenceProcessorClassName + ". Defaulting to OAuthIssuerImpl";
+                log.error(errorMsg, e);
+                oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
 		    }
 		}
 	    }
@@ -343,7 +343,7 @@ public class OAuthServerConfiguration {
         if (supportedGrantTypes == null) {
             synchronized (this) {
                 if (supportedGrantTypes == null) {
-                    supportedGrantTypes = new Hashtable<String, AuthorizationGrantHandler>();
+                    Map<String, AuthorizationGrantHandler> supportedGrantTypesTemp = new Hashtable<>();
                     for (Map.Entry<String, String> entry : supportedGrantTypeClassNames.entrySet()) {
                         AuthorizationGrantHandler authzGrantHandler = null;
                         try {
@@ -358,7 +358,8 @@ public class OAuthServerConfiguration {
                         } catch (IdentityOAuth2Exception e) {
                             log.error("Error while initializing " + entry.getValue(), e);
                         }
-                        supportedGrantTypes.put(entry.getKey(), authzGrantHandler);
+                        supportedGrantTypesTemp.put(entry.getKey(), authzGrantHandler);
+                        supportedGrantTypes = supportedGrantTypesTemp;
                     }
                 }
             }
@@ -381,32 +382,31 @@ public class OAuthServerConfiguration {
         if (supportedGrantTypeValidators == null) {
             synchronized (this) {
                 if (supportedGrantTypeValidators == null) {
-                    supportedGrantTypeValidators =
-                            new Hashtable<String, Class<? extends OAuthValidator<HttpServletRequest>>>();
+                    Map<String,Class<? extends OAuthValidator<HttpServletRequest>>> supportedGrantTypeValidatorsTemp =
+                            new Hashtable<>();
                     // Load default grant type validators
-                    supportedGrantTypeValidators
+                    supportedGrantTypeValidatorsTemp
                             .put(GrantType.PASSWORD.toString(), PasswordValidator.class);
-                    supportedGrantTypeValidators.put(GrantType.CLIENT_CREDENTIALS.toString(),
+                    supportedGrantTypeValidatorsTemp.put(GrantType.CLIENT_CREDENTIALS.toString(),
                             ClientCredentialValidator.class);
-                    supportedGrantTypeValidators.put(GrantType.AUTHORIZATION_CODE.toString(),
+                    supportedGrantTypeValidatorsTemp.put(GrantType.AUTHORIZATION_CODE.toString(),
                             AuthorizationCodeValidator.class);
-                    supportedGrantTypeValidators.put(GrantType.REFRESH_TOKEN.toString(),
+                    supportedGrantTypeValidatorsTemp.put(GrantType.REFRESH_TOKEN.toString(),
                             RefreshTokenValidator.class);
-                    supportedGrantTypeValidators.put(
+                    supportedGrantTypeValidatorsTemp.put(
                             org.wso2.carbon.identity.oauth.common.GrantType.SAML20_BEARER
                                     .toString(), SAML2GrantValidator.class);
 
                     if (supportedGrantTypeValidatorNames != null) {
                         // Load configured grant type validators
-                        for (Map.Entry<String, String> entry : supportedGrantTypeValidatorNames
-                                .entrySet()) {
+                        for (Map.Entry<String, String> entry : supportedGrantTypeValidatorNames.entrySet()) {
                             try {
                                 @SuppressWarnings("unchecked")
                                 Class<? extends OAuthValidator<HttpServletRequest>>
                                         oauthValidatorClass =
                                         (Class<? extends OAuthValidator<HttpServletRequest>>) Class
                                                 .forName(entry.getValue());
-                                supportedGrantTypeValidators
+                                supportedGrantTypeValidatorsTemp
                                         .put(entry.getKey(), oauthValidatorClass);
                             } catch (ClassNotFoundException e) {
                                 log.error("Cannot find class: " + entry.getValue(), e);
@@ -415,6 +415,7 @@ public class OAuthServerConfiguration {
                             }
                         }
                     }
+                    supportedGrantTypeValidators = supportedGrantTypeValidatorsTemp;
                 }
             }
         }
@@ -427,15 +428,15 @@ public class OAuthServerConfiguration {
         if (supportedResponseTypeValidators == null) {
             synchronized (this) {
                 if (supportedResponseTypeValidators == null) {
-                    supportedResponseTypeValidators =
-                            new Hashtable<String, Class<? extends OAuthValidator<HttpServletRequest>>>();
+                    Map<String, Class<? extends OAuthValidator<HttpServletRequest>>>
+                            supportedResponseTypeValidatorsTemp = new Hashtable<>();
                     // Load default grant type validators
-                    supportedResponseTypeValidators
+                    supportedResponseTypeValidatorsTemp
                             .put(ResponseType.CODE.toString(), CodeValidator.class);
-                    supportedResponseTypeValidators.put(ResponseType.TOKEN.toString(),
+                    supportedResponseTypeValidatorsTemp.put(ResponseType.TOKEN.toString(),
                             TokenValidator.class);
-                    supportedResponseTypeValidators.put("id_token", IDTokenResponseValidator.class);
-                    supportedResponseTypeValidators.put("id_token token", IDTokenTokenResponseValidator.class);
+                    supportedResponseTypeValidatorsTemp.put("id_token", IDTokenResponseValidator.class);
+                    supportedResponseTypeValidatorsTemp.put("id_token token", IDTokenTokenResponseValidator.class);
 
 
                     if (supportedResponseTypeValidatorNames != null) {
@@ -448,7 +449,7 @@ public class OAuthServerConfiguration {
                                         oauthValidatorClass =
                                         (Class<? extends OAuthValidator<HttpServletRequest>>) Class
                                                 .forName(entry.getValue());
-                                supportedResponseTypeValidators
+                                supportedResponseTypeValidatorsTemp
                                         .put(entry.getKey(), oauthValidatorClass);
                             } catch (ClassNotFoundException e) {
                                 log.error("Cannot find class: " + entry.getValue(), e);
@@ -456,6 +457,7 @@ public class OAuthServerConfiguration {
                                 log.error("Cannot cast class: " + entry.getValue(), e);
                             }
                         }
+                        supportedResponseTypeValidators = supportedResponseTypeValidatorsTemp;
                     }
                 }
             }
@@ -468,7 +470,7 @@ public class OAuthServerConfiguration {
         if (supportedResponseTypes == null) {
             synchronized (this) {
                 if (supportedResponseTypes == null) {
-                    supportedResponseTypes = new Hashtable<String, ResponseTypeHandler>();
+                    Map<String,ResponseTypeHandler> supportedResponseTypesTemp = new Hashtable<>();
                     for (Map.Entry<String, String> entry : supportedResponseTypeClassNames.entrySet()) {
                         ResponseTypeHandler responseTypeHandler = null;
                         try {
@@ -483,8 +485,9 @@ public class OAuthServerConfiguration {
                         } catch (IdentityOAuth2Exception e) {
                             log.error("Error while initializing " + entry.getValue(), e);
                         }
-                        supportedResponseTypes.put(entry.getKey(), responseTypeHandler);
+                        supportedResponseTypesTemp.put(entry.getKey(), responseTypeHandler);
                     }
+                    supportedResponseTypes = supportedResponseTypesTemp;
                 }
             }
         }
@@ -499,27 +502,28 @@ public class OAuthServerConfiguration {
         if (supportedClientAuthHandlers == null) {
             synchronized (this) {
                 if (supportedClientAuthHandlers == null) {
-                    supportedClientAuthHandlers = new ArrayList<ClientAuthenticationHandler>();
+                    List<ClientAuthenticationHandler> supportedClientAuthHandlersTemp = new ArrayList<>();
 
                     for (Map.Entry<String, Properties> entry : supportedClientAuthHandlerData.entrySet()) {
                         ClientAuthenticationHandler clientAuthenticationHandler = null;
-                            try {
-                                clientAuthenticationHandler = (ClientAuthenticationHandler)
-                                        Class.forName(entry.getKey()).newInstance();
-                                clientAuthenticationHandler.init(entry.getValue());
-                                supportedClientAuthHandlers.add(clientAuthenticationHandler);
+                        try {
+                            clientAuthenticationHandler = (ClientAuthenticationHandler)
+                                    Class.forName(entry.getKey()).newInstance();
+                            clientAuthenticationHandler.init(entry.getValue());
+                            supportedClientAuthHandlersTemp.add(clientAuthenticationHandler);
 
-                            //Exceptions necessarily don't have to break the flow since there are cases
-                            //runnable without client auth handlers
-                            } catch (InstantiationException e) {
-                                log.error("Error instantiating " + entry, e);
-                            } catch (IllegalAccessException e) {
-                                log.error("Illegal access to " + entry, e);
-                            } catch (ClassNotFoundException e) {
-                                log.error("Cannot find class: " + entry, e);
-                            } catch (IdentityOAuth2Exception e) {
-                                log.error("Error while initializing " + entry, e);
-                            }
+                        //Exceptions necessarily don't have to break the flow since there are cases
+                        //runnable without client auth handlers
+                        } catch (InstantiationException e) {
+                            log.error("Error instantiating " + entry, e);
+                        } catch (IllegalAccessException e) {
+                            log.error("Illegal access to " + entry, e);
+                        } catch (ClassNotFoundException e) {
+                            log.error("Cannot find class: " + entry, e);
+                        } catch (IdentityOAuth2Exception e) {
+                            log.error("Error while initializing " + entry, e);
+                        }
+                        supportedClientAuthHandlers = supportedClientAuthHandlersTemp;
                     }
                 }
             }
