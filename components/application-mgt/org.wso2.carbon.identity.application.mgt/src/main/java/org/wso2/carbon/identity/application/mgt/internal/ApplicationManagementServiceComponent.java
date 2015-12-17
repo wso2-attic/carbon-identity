@@ -144,11 +144,11 @@ public class ApplicationManagementServiceComponent {
     }
 
     protected void setInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig authenticator) {
-            ApplicationManagementServiceComponentHolder.addInboundAuthenticatorConfig(authenticator);
+        ApplicationManagementServiceComponentHolder.addInboundAuthenticatorConfig(authenticator);
     }
 
     protected void unsetInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig authenticator) {
-            ApplicationManagementServiceComponentHolder.removeInboundAuthenticatorConfig(authenticator.getName());
+        ApplicationManagementServiceComponentHolder.removeInboundAuthenticatorConfig(authenticator.getName());
     }
 
     private void buildFileBasedSPList() {
