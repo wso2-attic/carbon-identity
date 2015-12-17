@@ -149,9 +149,12 @@ public class OAuthServerConfiguration {
     private String openIDConnectUserInfoEndpointAccessTokenValidator = "org.wso2.carbon.identity.oauth.endpoint.user.impl.UserInfoISAccessTokenValidator";
     private String openIDConnectUserInfoEndpointResponseBuilder = "org.wso2.carbon.identity.oauth.endpoint.user.impl.UserInfoJSONResponseBuilder";
     private OAuth2ScopeValidator oAuth2ScopeValidator;
+    public static final String IMPLICIT = "implicit";
+    private List<String> allowedGrantTypes = null;
 
     private OAuthServerConfiguration() {
         buildOAuthServerConfiguration();
+        init();
     }
 
     public static OAuthServerConfiguration getInstance() {
@@ -164,6 +167,12 @@ public class OAuthServerConfiguration {
             }
         }
         return instance;
+    }
+
+    private void init() {
+        this.supportedGrantTypes = getSupportedGrantTypes();
+        this.supportedResponseTypes = getSupportedResponseTypes();
+        this.allowedGrantTypes = getAllowedGrantTypes();
     }
 
     private void buildOAuthServerConfiguration() {
@@ -364,6 +373,20 @@ public class OAuthServerConfiguration {
             }
         }
         return supportedGrantTypes;
+    }
+
+    public List<String> getAllowedGrantTypes() {
+        if(allowedGrantTypes == null) {
+            synchronized (OAuthServerConfiguration.class) {
+                if (allowedGrantTypes == null) {
+                    allowedGrantTypes.addAll(supportedGrantTypes.keySet());
+                    if (supportedResponseTypes.containsKey("token")) {
+                        allowedGrantTypes.add(IMPLICIT);
+                    }
+                }
+            }
+        }
+        return allowedGrantTypes;
     }
 
     /**
