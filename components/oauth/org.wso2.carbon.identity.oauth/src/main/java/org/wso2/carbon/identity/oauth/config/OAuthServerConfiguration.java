@@ -354,12 +354,10 @@ public class OAuthServerConfiguration {
     }
 
     public Map<String, AuthorizationGrantHandler> getSupportedGrantTypes() {
-        synchronized (LOCK) {
-            if (!isInitialized) {
-                throw new IllegalStateException("OAuth Server Configuration is not properly initialized yet");
-            }
-            return supportedGrantTypes;
+        if (!isInitialized) {
+            throw new IllegalStateException("OAuth Server Configuration is not properly initialized yet");
         }
+        return supportedGrantTypes;
     }
 
     /**
@@ -461,12 +459,10 @@ public class OAuthServerConfiguration {
     }
 
     public Map<String, ResponseTypeHandler> getSupportedResponseTypes() {
-        synchronized (LOCK) {
-            if (!isInitialized) {
-                throw new IllegalStateException("OAuth Server Configuration is not properly initialized yet");
-            }
-            return supportedResponseTypes;
+        if (!isInitialized) {
+            throw new IllegalStateException("OAuth Server Configuration is not properly initialized yet");
         }
+        return supportedResponseTypes;
     }
 
     public String[] getSupportedClaims() {
@@ -1481,12 +1477,10 @@ public class OAuthServerConfiguration {
     }
 
     public List<String> getAllowedGrantTypes() {
-        synchronized (LOCK) {
-            if (!isInitialized) {
-                throw new IllegalStateException("OAuth Server Configuration is not properly initialized yet");
-            }
-            return allowedGrantTypes;
+        if (!isInitialized) {
+            throw new IllegalStateException("OAuth Server Configuration is not properly initialized yet");
         }
+        return allowedGrantTypes;
     }
 
     private Map<String, AuthorizationGrantHandler> populateSupportedGrantTypes() {
