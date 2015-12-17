@@ -85,6 +85,7 @@
         <module>features/user-mgt</module>
         <module>features/workflow-mgt</module>
         <module>features/agents</module>
+        <module>features/categories</module>
     </modules>
 
     <repositories>
