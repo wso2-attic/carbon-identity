@@ -47,6 +47,7 @@ public class OAuthServiceComponent {
     protected void activate(ComponentContext context) {
         // initialize the OAuth Server configuration
         OAuthServerConfiguration oauthServerConfig = OAuthServerConfiguration.getInstance();
+        oauthServerConfig.init();
 
         if (oauthServerConfig.isCacheEnabled()) {
             log.debug("OAuth Caching is enabled. Initializing the cache.");

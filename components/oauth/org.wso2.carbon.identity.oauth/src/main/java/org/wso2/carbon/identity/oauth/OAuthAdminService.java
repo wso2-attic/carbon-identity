@@ -237,7 +237,7 @@ public class OAuthAdminService extends AbstractAdmin {
                     app.setOauthVersion(OAuthConstants.OAuthVersions.VERSION_2);
                 }
                 if (OAuthConstants.OAuthVersions.VERSION_2.equals(application.getOAuthVersion())) {
-                    List<String> allowedGrants = new ArrayList<>(Arrays.asList(getAllowedGrantTypes()));
+                    List<String> allowedGrants = OAuthServerConfiguration.getInstance().getAllowedGrantTypes();
                     String[] requestGrants = application.getGrantTypes().split("\\s");
                     for (String requestedGrant : requestGrants) {
                         if ("".equals(requestedGrant.trim())) {
@@ -280,7 +280,7 @@ public class OAuthAdminService extends AbstractAdmin {
         oauthappdo.setCallbackUrl(consumerAppDTO.getCallbackUrl());
         oauthappdo.setApplicationName(consumerAppDTO.getApplicationName());
         if (OAuthConstants.OAuthVersions.VERSION_2.equals(consumerAppDTO.getOAuthVersion())) {
-            List<String> allowedGrants = new ArrayList<>(Arrays.asList(getAllowedGrantTypes()));
+            List<String> allowedGrants = OAuthServerConfiguration.getInstance().getAllowedGrantTypes();
             String[] requestGrants = consumerAppDTO.getGrantTypes().split("\\s");
             for (String requestedGrant : requestGrants) {
                 if ("".equals(requestedGrant.trim())) {
@@ -508,14 +508,4 @@ public class OAuthAdminService extends AbstractAdmin {
         return new OAuthRevocationResponseDTO();
     }
 
-    public String[] getAllowedGrantTypes() {
-        if (allowedGrants == null) {
-            allowedGrants = new ArrayList();
-            allowedGrants.addAll(OAuthServerConfiguration.getInstance().getSupportedGrantTypes().keySet());
-            if (OAuthServerConfiguration.getInstance().getSupportedResponseTypes().containsKey("token")) {
-                allowedGrants.add(IMPLICIT);
-            }
-        }
-        return allowedGrants.toArray(new String[allowedGrants.size()]);
-    }
 }
