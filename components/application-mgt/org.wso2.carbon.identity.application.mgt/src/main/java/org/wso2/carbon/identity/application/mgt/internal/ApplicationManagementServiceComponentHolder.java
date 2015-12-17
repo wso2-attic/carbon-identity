@@ -31,7 +31,6 @@ public class ApplicationManagementServiceComponentHolder {
             ApplicationManagementServiceComponentHolder();
     private static Map<String, AbstractInboundAuthenticatorConfig> inboundAuthenticatorConfigs = new HashMap<String, AbstractInboundAuthenticatorConfig>();
 
-
     private RegistryService registryService;
 
     private RealmService realmService;
