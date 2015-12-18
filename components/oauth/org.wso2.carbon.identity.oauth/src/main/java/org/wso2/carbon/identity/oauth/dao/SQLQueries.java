@@ -63,6 +63,9 @@ public class SQLQueries {
 
         public static final String REMOVE_APPLICATION = "DELETE FROM IDN_OAUTH_CONSUMER_APPS WHERE CONSUMER_KEY=?";
 
+        public static final String UPDATE_OAUTH_INFO = "UPDATE IDN_OAUTH_CONSUMER_APPS SET APP_NAME=? WHERE " +
+                "CONSUMER_KEY=?";
+
         private OAuthAppDAOSQLQueries(){
 
         }
