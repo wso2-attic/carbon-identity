@@ -274,29 +274,29 @@ public class OAuthServerConfiguration {
      */
     public OAuthIssuer getOAuthTokenGenerator() {
 
-	if (oauthTokenGenerator == null) {
-	    synchronized (this) {
-		if (oauthTokenGenerator == null) {
-		    try {
-                if (oauthTokenGeneratorClassName != null) {
-                    Class clazz = this.getClass().getClassLoader().loadClass(oauthTokenGeneratorClassName);
-                    oauthTokenGenerator = (OAuthIssuer) clazz.newInstance();
-                    log.info("An instance of " + oauthTokenGeneratorClassName
-                        + " is created for OAuth token generation.");
-                } else {
-                    oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
-                    log.info("The default OAuth token issuer will be used. No custom token generator is set.");
+        if (oauthTokenGenerator == null) {
+            synchronized (this) {
+                if (oauthTokenGenerator == null) {
+                    try {
+                        if (oauthTokenGeneratorClassName != null) {
+                            Class clazz = this.getClass().getClassLoader().loadClass(oauthTokenGeneratorClassName);
+                            oauthTokenGenerator = (OAuthIssuer) clazz.newInstance();
+                            log.info("An instance of " + oauthTokenGeneratorClassName
+                                + " is created for OAuth token generation.");
+                        } else {
+                            oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
+                            log.info("The default OAuth token issuer will be used. No custom token generator is set.");
+                        }
+                    } catch (Exception e) {
+                        String errorMsg = "Error when instantiating the OAuthIssuer : "
+                            + tokenPersistenceProcessorClassName + ". Defaulting to OAuthIssuerImpl";
+                        log.error(errorMsg, e);
+                        oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
+                    }
                 }
-		    } catch (Exception e) {
-                String errorMsg = "Error when instantiating the OAuthIssuer : "
-                    + tokenPersistenceProcessorClassName + ". Defaulting to OAuthIssuerImpl";
-                log.error(errorMsg, e);
-                oauthTokenGenerator = new OAuthIssuerImpl(new MD5Generator());
-		    }
-		}
-	    }
-	}
-	return oauthTokenGenerator;
+            }
+        }
+        return oauthTokenGenerator;
     }
 
     public String getOIDCConsentPageUrl() {
