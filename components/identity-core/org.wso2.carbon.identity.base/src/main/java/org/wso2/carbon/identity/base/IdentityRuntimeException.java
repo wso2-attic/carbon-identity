@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class IdentityRuntimeException extends RuntimeException {
 
-    private static final long serialVersionUID = -6298488626481461346L;
+    private static final long serialVersionUID = -5872545821846152596L;
 
     private List<ErrorInfo> errorInfoList = new ArrayList<>();
 
