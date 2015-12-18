@@ -296,7 +296,7 @@ public class OAuthServerConfiguration {
                 }
             }
         }
-	    return oauthTokenGenerator;
+        return oauthTokenGenerator;
     }
 
     public String getOIDCConsentPageUrl() {
