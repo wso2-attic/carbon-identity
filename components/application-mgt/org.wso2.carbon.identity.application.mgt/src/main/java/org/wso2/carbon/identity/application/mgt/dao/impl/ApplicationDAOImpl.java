@@ -51,6 +51,7 @@ import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.common.model.ServiceProviderProperty;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
+import org.wso2.carbon.identity.application.mgt.AbstractInboundAuthenticatorConfig;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtDBQueries;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
@@ -75,6 +76,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -94,6 +96,21 @@ import java.util.Map.Entry;
 public class ApplicationDAOImpl implements ApplicationDAO {
 
     private Log log = LogFactory.getLog(ApplicationDAOImpl.class);
+
+    private List<String> standardInboundAuthTypes;
+
+    public ApplicationDAOImpl() {
+        standardInboundAuthTypes = new ArrayList<String>();
+        standardInboundAuthTypes.add("oauth2");
+        standardInboundAuthTypes.add("wstrust");
+        standardInboundAuthTypes.add("samlsso");
+        standardInboundAuthTypes.add("openid");
+        standardInboundAuthTypes.add("passivests");
+    }
+
+    private boolean isCustomInboundAuthType(String authType) {
+        return !standardInboundAuthTypes.contains(authType);
+    }
 
     /**
      * Get Service provider properties
@@ -411,15 +428,19 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         // only if the application has been renamed
         if (!StringUtils.equals(applicationName, storedAppName)) {
+            String applicationNameforRole = IdentityUtil.addDomainToName(applicationName, ApplicationConstants.
+                    APPLICATION_DOMAIN);
+            String storedAppNameforRole = IdentityUtil.addDomainToName(storedAppName, ApplicationConstants.
+                    APPLICATION_DOMAIN);
             // rename the role
-            ApplicationMgtUtil.renameRole(storedAppName, applicationName);
+            ApplicationMgtUtil.renameRole(storedAppNameforRole, applicationNameforRole);
             if (log.isDebugEnabled()) {
                 log.debug("Renaming application role from " + storedAppName + " to "
                         + applicationName);
             }
-            Map<String, String> applicationPermissions = readApplicationPermissions(connection, storedAppName);
+            Map<String, String> applicationPermissions = readApplicationPermissions(storedAppName);
             for (Map.Entry<String, String> entry : applicationPermissions.entrySet()) {
-                updatePermissionPath(connection, entry.getKey(), entry.getValue().replace(storedAppName.toLowerCase(),
+                updatePermissionPath(entry.getKey(), entry.getValue().replace(storedAppName.toLowerCase(),
                         applicationName.toLowerCase()));
             }
         }
@@ -534,12 +555,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         PreparedStatement inboundProConfigPrepStmt = null;
 
         try {
-            if (inBoundProvisioningConfig == null
-                    || inBoundProvisioningConfig.getProvisioningUserStore() == null) {
-                // no in-bound authentication requests defined.
-                return;
-            }
-
             inboundProConfigPrepStmt = connection
                     .prepareStatement(ApplicationMgtDBQueries.UPDATE_BASIC_APPINFO_WITH_PRO_PROPERTIES);
 
@@ -853,17 +868,19 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     }
 
                     IdentityProvider fedIdp = authSteps[0].getFederatedIdentityProviders()[0];
-                    IdentityProviderDAO idpDAO = ApplicationMgtSystemConfig.getInstance()
-                            .getIdentityProviderDAO();
 
-                    String defualtAuthName = idpDAO.getDefaultAuthenticator(fedIdp
-                            .getIdentityProviderName());
+                    if (fedIdp.getDefaultAuthenticatorConfig() == null || fedIdp.getFederatedAuthenticatorConfigs() == null) {
+                        IdentityProviderDAO idpDAO = ApplicationMgtSystemConfig.getInstance().getIdentityProviderDAO();
 
-                    // set the default authenticator.
-                    FederatedAuthenticatorConfig defaultAuth = new FederatedAuthenticatorConfig();
-                    defaultAuth.setName(defualtAuthName);
-                    fedIdp.setDefaultAuthenticatorConfig(defaultAuth);
-                    fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{defaultAuth});
+                        String defualtAuthName = idpDAO.getDefaultAuthenticator(fedIdp
+                                .getIdentityProviderName());
+
+                        // set the default authenticator.
+                        FederatedAuthenticatorConfig defaultAuth = new FederatedAuthenticatorConfig();
+                        defaultAuth.setName(defualtAuthName);
+                        fedIdp.setDefaultAuthenticatorConfig(defaultAuth);
+                        fedIdp.setFederatedAuthenticatorConfigs(new FederatedAuthenticatorConfig[]{defaultAuth});
+                    }
                 }
 
                 // iterating through each step.
@@ -1530,6 +1547,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
         PreparedStatement getClientInfo = null;
         ResultSet resultSet = null;
+        Map<String, List<String>> customAuthenticatorsAlreadyIn = new HashMap<String, List<String>>();
+
         try {
 
             // INBOUND_AUTH_KEY, INBOUND_AUTH_TYPE, PROP_NAME, PROP_VALUE
@@ -1544,8 +1563,13 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
                 InboundAuthenticationRequestConfig inbountAuthRequest = null;
                 String authKey = resultSet.getString(1);
+                //this is done to handle empty string added to oracle database as null.
+                if (authKey == null){
+                    authKey = "";
+                }
                 String authType = resultSet.getString(2);
                 String mapKey = authType + ":" + authKey;
+                boolean isCustomAuthenticator = isCustomInboundAuthType(authType);
 
                 if (!authRequestMap.containsKey(mapKey)) {
                     inbountAuthRequest = new InboundAuthenticationRequestConfig();
@@ -1564,6 +1588,28 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     prop.setName(propName);
                     prop.setValue(resultSet.getString(4));
 
+                    if (isCustomAuthenticator) {
+                        AbstractInboundAuthenticatorConfig customAuthenticator = ApplicationManagementServiceComponentHolder
+                                .getInboundAuthenticatorConfig(authType);
+                        if (customAuthenticator != null) {
+                            Property[] confProps = customAuthenticator.getConfigurationProperties();
+                            for (Property confProp : confProps) {
+                                if (confProp.getName().equals(propName)) {
+                                    prop.setDisplayName(confProp.getDisplayName());
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!customAuthenticatorsAlreadyIn.containsKey(authType)) {
+                            customAuthenticatorsAlreadyIn.put(authType, new ArrayList<String>());
+
+                        }
+
+                        List<String> propNamesIn = customAuthenticatorsAlreadyIn.get(authType);
+                        propNamesIn.add(propName);
+                    }
+
                     inbountAuthRequest.setProperties((ApplicationMgtUtil.concatArrays(
                             new Property[]{prop}, inbountAuthRequest.getProperties())));
                 }
@@ -1577,6 +1623,35 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         } finally {
             IdentityApplicationManagementUtil.closeStatement(getClientInfo);
             IdentityApplicationManagementUtil.closeResultSet(resultSet);
+        }
+
+        Map<String, AbstractInboundAuthenticatorConfig> allCustomAuthenticators = ApplicationManagementServiceComponentHolder
+                .getAllInboundAuthenticatorConfig();
+
+        Iterator<Entry<String, AbstractInboundAuthenticatorConfig>> it = allCustomAuthenticators.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, AbstractInboundAuthenticatorConfig> entry = it.next();
+
+            if (!customAuthenticatorsAlreadyIn.containsKey(entry.getKey())) {
+                InboundAuthenticationRequestConfig inbountAuthRequest = new InboundAuthenticationRequestConfig();
+                inbountAuthRequest.setInboundAuthKey(entry.getValue().getAuthKey());
+                inbountAuthRequest.setInboundAuthType(entry.getValue().getName());
+                inbountAuthRequest.setFriendlyName(entry.getValue().getFriendlyName());
+                inbountAuthRequest.setProperties(entry.getValue().getConfigurationProperties());
+                authRequestMap.put(entry.getValue().getName() + ":" + entry.getValue().getAuthKey(), inbountAuthRequest);
+            } else {
+                InboundAuthenticationRequestConfig inbountAuthRequest = authRequestMap.get(entry.getValue().getName()
+                        + ":" + entry.getValue().getAuthKey());
+                List<String> propsAlreadyIn = customAuthenticatorsAlreadyIn.get(entry.getKey());
+                for (Property prop : entry.getValue().getConfigurationProperties()) {
+                    if (!propsAlreadyIn.contains(prop.getName())) {
+                        inbountAuthRequest.setProperties(ApplicationMgtUtil.concatArrays(new Property[] { prop },
+                                inbountAuthRequest.getProperties()));
+
+                    }
+                }
+            }
+
         }
 
         InboundAuthenticationConfig inboundAuthenticationConfig = new InboundAuthenticationConfig();
@@ -2038,7 +2113,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             throws IdentityApplicationManagementException {
 
         int tenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
-        String username = CarbonContext.getThreadLocalCarbonContext().getUsername();
 
         if (log.isDebugEnabled()) {
             log.debug("Reading all Applications of Tenant " + tenantID);
@@ -2063,13 +2137,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 }
                 basicInfo.setApplicationName(appNameResultSet.getString(1));
                 basicInfo.setDescription(appNameResultSet.getString(2));
-
-                if (ApplicationMgtUtil.isUserAuthorized(basicInfo.getApplicationName(), username)) {
-                    appInfo.add(basicInfo);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Application Name:" + basicInfo.getApplicationName());
-                    }
-                }
+                appInfo.add(basicInfo);
             }
             connection.commit();
         } catch (SQLException e) {
@@ -2376,9 +2444,9 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                         ApplicationMgtUtil.PATH_CONSTANT +
                         applicationName + ApplicationMgtUtil.PATH_CONSTANT +
                         applicationPermission.getValue();
-                int permisionId = getPermissionId(connection, permissionValue.toLowerCase());
-                deleteRolePermissionMapping(connection, permisionId);
-                deletePermission(connection, permisionId);
+                int permisionId = getPermissionId(permissionValue.toLowerCase());
+                deleteRolePermissionMapping(permisionId);
+                deletePermission(permisionId);
             }
         }
     }
@@ -2667,19 +2735,21 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     /**
      * Read application role permissions for a given application name
      *
-     * @param connection      Database connection
      * @param applicationName Application name
      * @return Map of key value pairs. key is UM table id and value is permission
      * @throws SQLException
      */
-    private Map<String, String> readApplicationPermissions(Connection connection, String applicationName) throws SQLException {
-        PreparedStatement roadPermissionsPrepStmt = null;
+    private Map<String, String> readApplicationPermissions(String applicationName) throws SQLException {
+        PreparedStatement readPermissionsPrepStmt = null;
         ResultSet resultSet = null;
+        Connection connection = null;
         Map<String, String> permissions = new HashMap<>();
         try {
-            roadPermissionsPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS);
-            roadPermissionsPrepStmt.setString(1, "%" + ApplicationMgtUtil.getApplicationPermissionPath() + "%");
-            resultSet = roadPermissionsPrepStmt.executeQuery();
+
+            connection = IdentityDatabaseUtil.getUserDBConnection();
+            readPermissionsPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS);
+            readPermissionsPrepStmt.setString(1, "%" + ApplicationMgtUtil.getApplicationPermissionPath() + "%");
+            resultSet = readPermissionsPrepStmt.executeQuery();
             while (resultSet.next()) {
                 String UM_ID = resultSet.getString(1);
                 String permission = resultSet.getString(2);
@@ -2690,7 +2760,8 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             }
         } finally {
             IdentityDatabaseUtil.closeResultSet(resultSet);
-            IdentityDatabaseUtil.closeStatement(roadPermissionsPrepStmt);
+            IdentityDatabaseUtil.closeStatement(readPermissionsPrepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
         }
         return permissions;
     }
@@ -2698,36 +2769,41 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     /**
      * Update the permission path for a given id
      *
-     * @param connection    Database connection
      * @param id         Id
      * @param newPermission New permission path value
      * @throws SQLException
      */
-    private void updatePermissionPath(Connection connection, String id, String newPermission) throws SQLException {
+    private void updatePermissionPath(String id, String newPermission) throws SQLException {
         PreparedStatement updatePermissionPrepStmt = null;
+        Connection connection = null;
         try {
+
+            connection = IdentityDatabaseUtil.getUserDBConnection();
             updatePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.UPDATE_SP_PERMISSIONS);
             updatePermissionPrepStmt.setString(1, newPermission);
             updatePermissionPrepStmt.setString(2, id);
             updatePermissionPrepStmt.executeUpdate();
         } finally {
             IdentityDatabaseUtil.closeStatement(updatePermissionPrepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
         }
     }
 
     /**
      * Get permission id for a given permission path
      *
-     * @param connection Database connection
      * @param permission Permission path
      * @return Permission id
      * @throws SQLException
      */
-    private int getPermissionId(Connection connection, String permission) throws SQLException {
+    private int getPermissionId(String permission) throws SQLException {
         PreparedStatement loadPermissionsPrepStmt = null;
         ResultSet resultSet = null;
+        Connection connection = null;
         int id = -1;
         try {
+
+            connection = IdentityDatabaseUtil.getUserDBConnection();
             loadPermissionsPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.LOAD_UM_PERMISSIONS_W);
             loadPermissionsPrepStmt.setString(1, permission.toLowerCase());
             resultSet = loadPermissionsPrepStmt.executeQuery();
@@ -2737,6 +2813,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         } finally {
             IdentityDatabaseUtil.closeResultSet(resultSet);
             IdentityDatabaseUtil.closeStatement(loadPermissionsPrepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
         }
         return id;
     }
@@ -2744,36 +2821,42 @@ public class ApplicationDAOImpl implements ApplicationDAO {
     /**
      * Delete role permission mapping for a given permission id
      *
-     * @param connection Database Connection
      * @param id   Permission id
      * @throws SQLException
      */
-    private void deleteRolePermissionMapping(Connection connection, int id) throws SQLException {
+    private void deleteRolePermissionMapping(int id) throws SQLException {
         PreparedStatement deleteRolePermissionPrepStmt = null;
+        Connection connection = null;
         try {
+
+            connection = IdentityDatabaseUtil.getUserDBConnection();
             deleteRolePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_ROLE_PERMISSION);
             deleteRolePermissionPrepStmt.setInt(1, id);
             deleteRolePermissionPrepStmt.executeUpdate();
         } finally {
             IdentityApplicationManagementUtil.closeStatement(deleteRolePermissionPrepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
         }
     }
 
     /**
      * Delete permission entry for a given id
      *
-     * @param connection Database connection
      * @param entry_id   Entry id
      * @throws SQLException
      */
-    private void deletePermission(Connection connection, int entry_id) throws SQLException {
+    private void deletePermission(int entry_id) throws SQLException {
         PreparedStatement deletePermissionPrepStmt = null;
+        Connection connection = null;
         try {
+
+            connection = IdentityDatabaseUtil.getUserDBConnection();
             deletePermissionPrepStmt = connection.prepareStatement(ApplicationMgtDBQueries.REMOVE_UM_PERMISSIONS);
             deletePermissionPrepStmt.setInt(1, entry_id);
             deletePermissionPrepStmt.executeUpdate();
         } finally {
             IdentityApplicationManagementUtil.closeStatement(deletePermissionPrepStmt);
+            IdentityDatabaseUtil.closeConnection(connection);
         }
     }
 

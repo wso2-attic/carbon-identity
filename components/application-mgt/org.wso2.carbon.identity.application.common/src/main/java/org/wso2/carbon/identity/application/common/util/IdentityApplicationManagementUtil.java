@@ -20,10 +20,10 @@ package org.wso2.carbon.identity.application.common.util;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.Base64;
 import org.apache.axiom.util.base64.Base64Utils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.CertData;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProviderProperty;
@@ -560,8 +560,15 @@ public class IdentityApplicationManagementUtil {
 
     public static Property getProperty(Property[] properties, String propertyName) {
 
+        if (ArrayUtils.isEmpty(properties) || StringUtils.isBlank(propertyName)) {
+            return null;
+        }
+
         for (Property property : properties) {
-            if (property.getName().equals(propertyName)) {
+            if (property == null) {
+                continue;
+            }
+            if (propertyName.equals(property.getName())) {
                 return property;
             }
         }
@@ -596,10 +603,11 @@ public class IdentityApplicationManagementUtil {
                     .getInboundAuthenticationConfig().getInboundAuthenticationRequestConfigs();
 
             for (InboundAuthenticationRequestConfig authReqConfig : authReqConfigs) {
-                if ("oauth2".equals(authReqConfig.getInboundAuthType())) {
+                if ((IdentityApplicationConstants.OAuth2.NAME).equals(authReqConfig.getInboundAuthType())) {
                     if (authReqConfig.getProperties() != null) {
                         for (Property property : authReqConfig.getProperties()) {
-                            if ("oauthConsumerSecret".equalsIgnoreCase(property.getName())) {
+                            if ((IdentityApplicationConstants.OAuth2.OAUTH_CONSUMER_SECRET)
+                                    .equalsIgnoreCase(property.getName())) {
                                 oauthConsumerSecret = property.getValue();
                                 break;
                             }
@@ -657,8 +665,8 @@ public class IdentityApplicationManagementUtil {
             byte[] rawHmac = mac.doFinal(value.getBytes());
             result = Base64Utils.encode(rawHmac);
         } catch (Exception e) {
-            if(log.isDebugEnabled()){
-                log.debug("Failed to create the HMAC Signature",e);
+            if (log.isDebugEnabled()) {
+                log.debug("Failed to create the HMAC Signature", e);
             }
             throw new SignatureException("Failed to calculate HMAC : " + e.getMessage());
         }
@@ -740,5 +748,16 @@ public class IdentityApplicationManagementUtil {
             }
         }
         return propValueSet;
+    }
+
+    public static String getPropertyValue(Property[] properties, String propertyName) {
+
+        Property property = getProperty(properties, propertyName);
+        if (property != null) {
+            if (StringUtils.isNotBlank(property.getValue())) {
+                return property.getValue();
+            }
+        }
+        return null;
     }
 }

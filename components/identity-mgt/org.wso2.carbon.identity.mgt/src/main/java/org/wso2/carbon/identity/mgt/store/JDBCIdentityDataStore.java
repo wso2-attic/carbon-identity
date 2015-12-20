@@ -80,7 +80,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
             try {
                 isUserExists = isExistingUserDataValue(userName, tenantId, key);
             } catch (SQLException e) {
-                throw new IdentityException("Error occurred while checking if user existing", e);
+                throw IdentityException.error("Error occurred while checking if user existing", e);
             }
             try {
                 if (isUserExists) {
@@ -89,7 +89,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
                     addUserDataValue(userName, tenantId, key, value);
                 }
             } catch (SQLException e) {
-                throw new IdentityException("Error occurred while persisting user data", e);
+                throw IdentityException.error("Error occurred while persisting user data", e);
             }
         }
     }
@@ -203,6 +203,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
             while (results.next()) {
                 data.put(results.getString(1), results.getString(2));
             }
+            connection.commit();
             if (log.isDebugEnabled()) {
                 log.debug("Retrieved identity data for:" + tenantId + ":" + userName);
                 for (Map.Entry<String, String> dataEntry : data.entrySet()) {
@@ -211,7 +212,11 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
             }
             dto = new UserIdentityClaimsDO(userName, data);
             dto.setTenantId(tenantId);
-            connection.commit();
+            try {
+                super.store(dto, userStoreManager);
+            } catch (IdentityException e) {
+                log.error("Error while reading user identity data", e);
+            }
             return dto;
         } catch (SQLException | UserStoreException e) {
             log.error("Error while reading user identity data", e);
@@ -248,7 +253,7 @@ public class JDBCIdentityDataStore extends InMemoryIdentityDataStore {
             prepStmt.execute();
             connection.commit();
         } catch (SQLException | UserStoreException e) {
-            throw new IdentityException("Error while reading user identity data", e);
+            throw IdentityException.error("Error while reading user identity data", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);

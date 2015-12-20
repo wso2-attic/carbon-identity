@@ -116,7 +116,7 @@ public class ErrorResponseBuilder {
             return byteArrayOutputStrm.toString("UTF-8");
         } catch (Exception e) {
             log.error("Error Serializing the SAML Response");
-            throw new IdentityException("Error Serializing the SAML Response", e);
+            throw IdentityException.error("Error Serializing the SAML Response", e);
         }
     }
 

@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.oauth2.token;
 
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
@@ -28,13 +29,19 @@ public class OAuthTokenReqMessageContext {
 
     private OAuth2AccessTokenReqDTO oauth2AccessTokenReqDTO;
 
-    private User authorizedUser;
+    private AuthenticatedUser authorizedUser;
 
     private String[] scope;
 
     private int tenantID;
 
     private long validityPeriod = OAuthConstants.UNASSIGNED_VALIDITY_PERIOD;
+    
+    private long refreshTokenvalidityPeriod = OAuthConstants.UNASSIGNED_VALIDITY_PERIOD;
+    
+    private long accessTokenIssuedTime;
+    
+    private long refreshTokenIssuedTime;
 
     private Properties properties = new Properties();
 
@@ -46,11 +53,11 @@ public class OAuthTokenReqMessageContext {
         return oauth2AccessTokenReqDTO;
     }
 
-    public User getAuthorizedUser() {
+    public AuthenticatedUser getAuthorizedUser() {
         return authorizedUser;
     }
 
-    public void setAuthorizedUser(User authorizedUser) {
+    public void setAuthorizedUser(AuthenticatedUser authorizedUser) {
         this.authorizedUser = authorizedUser;
     }
 
@@ -84,5 +91,29 @@ public class OAuthTokenReqMessageContext {
 
     public Object getProperty(Object propName) {
         return properties.get(propName);
+    }
+
+    public long getRefreshTokenvalidityPeriod() {
+	return refreshTokenvalidityPeriod;
+    }
+
+    public void setRefreshTokenvalidityPeriod(long refreshTokenvalidityPeriod) {
+	this.refreshTokenvalidityPeriod = refreshTokenvalidityPeriod;
+    }
+
+    public long getAccessTokenIssuedTime() {
+	return accessTokenIssuedTime;
+    }
+
+    public void setAccessTokenIssuedTime(long accessTokenIssuedTime) {
+	this.accessTokenIssuedTime = accessTokenIssuedTime;
+    }
+
+    public long getRefreshTokenIssuedTime() {
+	return refreshTokenIssuedTime;
+    }
+
+    public void setRefreshTokenIssuedTime(long refreshTokenIssuedTime) {
+	this.refreshTokenIssuedTime = refreshTokenIssuedTime;
     }
 }

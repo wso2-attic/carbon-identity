@@ -134,7 +134,6 @@
                     <th width="20%"><fmt:message key="workflow.bps.profile.manager.host"/></th>
                     <th width="20%"><fmt:message key="workflow.bps.profile.worker.host"/></th>
                     <th width="15%"><fmt:message key="workflow.bps.profile.auth.user"/></th>
-                    <th width="15%"><fmt:message key="workflow.bps.profile.callback.user"/></th>
                     <th><fmt:message key="actions"/></th>
                 </tr>
                 </thead>
@@ -154,21 +153,23 @@
                     </td>
                     <td><%=profile.getUsername()%>
                     </td>
-                    <td><%=profile.getCallbackUser()%>
-                    </td>
                     <td>
                         <%
                             if (!WorkflowUIConstants.DEFAULT_BPS_PROFILE.equals(profile.getProfileName())) {
+                                if (CarbonUIUtil.isUserAuthorized(request,"/permission/admin/manage/identity/workflow/profile/update")){
                         %>
                         <a title="<fmt:message key='workflow.bps.profile.edit.title'/>"
                            onclick="editProfile('<%=profile.getProfileName()%>');return false;"
                            href="#" style="background-image: url(images/edit.gif);"
                            class="icon-link"><fmt:message key='edit'/></a>
+                        <%}
+                        if(CarbonUIUtil.isUserAuthorized(request,"/permission/admin/manage/identity/workflow/profile/delete")) { %>
                         <a title="<fmt:message key='workflow.bps.profile.delete.title'/>"
                            onclick="removeProfile('<%=profile.getProfileName()%>');return false;"
                            href="#" style="background-image: url(images/delete.gif);"
                            class="icon-link"><fmt:message key='delete'/></a>
                         <%
+                                }
                             }
                         %>
                     </td>

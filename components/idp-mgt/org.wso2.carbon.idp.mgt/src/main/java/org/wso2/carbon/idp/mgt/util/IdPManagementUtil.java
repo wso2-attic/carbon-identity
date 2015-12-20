@@ -18,21 +18,20 @@
 
 package org.wso2.carbon.idp.mgt.util;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.identity.application.common.model.IdentityProviderProperty;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.common.processors.RandomPasswordProcessor;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
-import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.idp.mgt.internal.IdPManagementServiceComponent;
-import org.wso2.carbon.user.api.Tenant;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserStoreException;
 
@@ -106,5 +105,41 @@ public class IdPManagementUtil {
             log.error("Error when accessing the IdentityProviderManager for tenant : " + tenantDomain, e);
         }
         return rememberMeTimeout * 60;
+    }
+
+    /**
+     * Use this method to replace original passwords with random passwords before sending to UI front-end
+     * @param identityProvider
+     * @return
+     */
+    public static IdentityProvider removeOriginalPasswords(IdentityProvider identityProvider) {
+        for (ProvisioningConnectorConfig provisioningConnectorConfig : identityProvider
+                .getProvisioningConnectorConfigs()) {
+            Property[] properties = provisioningConnectorConfig.getProvisioningProperties();
+            if (ArrayUtils.isEmpty(properties)) {
+                continue;
+            }
+            properties = RandomPasswordProcessor.getInstance().removeOriginalPasswords(properties);
+            provisioningConnectorConfig.setProvisioningProperties(properties);
+        }
+
+        return identityProvider;
+    }
+
+    /**
+     * Use this method to replace random passwords with original passwords when original passwords are required  
+     * @param identityProvider
+     * @param withCacheClear
+     */
+    public static void removeRandomPasswords(IdentityProvider identityProvider, boolean withCacheClear) {
+        for (ProvisioningConnectorConfig provisioningConnectorConfig : identityProvider
+                .getProvisioningConnectorConfigs()) {
+            Property[] properties = provisioningConnectorConfig.getProvisioningProperties();
+            if (ArrayUtils.isEmpty(properties)) {
+                continue;
+            }
+            properties = RandomPasswordProcessor.getInstance().removeRandomPasswords(properties, withCacheClear);
+            provisioningConnectorConfig.setProvisioningProperties(properties);
+        }
     }
 }

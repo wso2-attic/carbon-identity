@@ -16,18 +16,17 @@
 ~ under the License.
 -->
 
-<%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
-<%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
+<%@ page import="org.apache.tools.ant.util.StringUtils" %>
 <%@ page import="org.owasp.encoder.Encode" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.FederatedAuthenticatorConfig" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProvider" %>
+<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProviderProperty" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.Property" %>
 <%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.ProvisioningConnectorConfig" %>
-<%@ page import="org.wso2.carbon.identity.application.common.model.idp.xsd.IdentityProviderProperty" %>
-<%@ page import="java.util.List" %>
+<%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants" %>
+<%@ page import="org.wso2.carbon.idp.mgt.ui.util.IdPManagementUIUtil" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil" %>
-<%@ page import="org.apache.tools.ant.util.StringUtils" %>
+<%@ page import="java.util.List" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="carbon" uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"%>
 
@@ -51,6 +50,7 @@
     String oauth1AccessTokenUrl = null;
     String authzUrl = null;
     String tokenUrl = null;
+    String revokeUrl = null;
     String userInfoUrl = null;
     String passiveSTSUrl = null;
     String passivestsIdPEntityId = null;
@@ -89,6 +89,8 @@
                     IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_AUTHZ_URL).getValue();
             tokenUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_TOKEN_URL).getValue();
+            revokeUrl = IdPManagementUIUtil.getProperty(properties,
+                    IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_REVOKE_URL).getValue();
             userInfoUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_USER_INFO_EP_URL).getValue();
         } else if(IdentityApplicationConstants.Authenticator.PassiveSTS.NAME.equals(federatedAuthenticator.getName())){
@@ -171,6 +173,14 @@ jQuery(document).ready(function(){
         reason = validateEmpty("idPEntityId");
         if (reason != "") {
             CARBON.showWarningDialog("Resident IdP Entity ID cannot be empty");
+            return false;
+        }
+        var isSessionTimeoutValidated = doValidateInput(document.getElementById('sessionIdleTimeout'), "Resident IdP Idle Session Timeout must be numeric value greater than 0");
+        if (!isSessionTimeoutValidated) {
+            return false;
+        }
+        var isRememberTimeValidated = doValidateInput(document.getElementById('rememberMeTimeout'), "Resident IdP Remember Me Period must be numeric value greater than 0");
+        if (!isRememberTimeValidated) {
             return false;
         }
         return true;
@@ -298,18 +308,18 @@ jQuery(document).ready(function(){
                             </td>
                         </tr>
                         <tr>
-                            <td class="leftCol-med labelField"><fmt:message key='idle.session.timeout'/>:</td>
+                            <td class="leftCol-med labelField"><fmt:message key='idle.session.timeout'/><font color="red">*</font>:</td>
                             <td>
-                                <input id="sessionIdleTimeout" name="sessionIdleTimeout" type="text" value="<%=Encode.forHtmlAttribute(sessionIdleTimeout)%>" autofocus/>
+                                <input id="sessionIdleTimeout" name="sessionIdleTimeout" type="text" white-list-patterns="^0*[1-9][0-9]*$" value="<%=Encode.forHtmlAttribute(sessionIdleTimeout)%>" autofocus/>
                                 <div class="sectionHelp">
                                     <fmt:message key='idle.session.timeout.help'/>
                                 </div>
                             </td>
                         </tr>
                         <tr>
-                            <td class="leftCol-med labelField"><fmt:message key='remember.me.timeout'/>:</td>
+                            <td class="leftCol-med labelField"><fmt:message key='remember.me.timeout'/><font color="red">*</font>:</td>
                             <td>
-                                <input id="rememberMeTimeout" name="rememberMeTimeout" type="text" value="<%=Encode.forHtmlAttribute(rememberMeTimeout)%>" autofocus/>
+                                <input id="rememberMeTimeout" name="rememberMeTimeout" type="text" white-list-patterns="^0*[1-9][0-9]*$" value="<%=Encode.forHtmlAttribute(rememberMeTimeout)%>" autofocus/>
                                 <div class="sectionHelp">
                                     <fmt:message key='remember.me.timeout.help'/>
                                 </div>
@@ -449,6 +459,10 @@ jQuery(document).ready(function(){
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='token.endpoint'/>:</td>
                             <td><%=Encode.forHtmlContent(tokenUrl)%></td>
+                        </tr>
+                        <tr>
+                            <td class="leftCol-med labelField"><fmt:message key='revoke.endpoint'/>:</td>
+                            <td><%=Encode.forHtmlContent(revokeUrl)%></td>
                         </tr>
                         <tr>
                             <td class="leftCol-med labelField"><fmt:message key='user.endpoint'/>:</td>

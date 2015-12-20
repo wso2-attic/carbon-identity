@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.oauth.cache;
 
 public class SessionDataCacheKey extends CacheKey {
 
+    private static final long serialVersionUID = -3480330645196653491L;
     private String sessionDataId;
 
     public SessionDataCacheKey(String sessionDataId) {

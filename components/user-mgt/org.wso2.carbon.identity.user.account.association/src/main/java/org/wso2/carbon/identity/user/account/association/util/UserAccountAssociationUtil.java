@@ -30,7 +30,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class UserAccountAssociationUtil {
 
-    private UserAccountAssociationUtil(){}
+    private UserAccountAssociationUtil() {
+    }
 
     /**
      * Generate random number for association key
@@ -60,8 +61,8 @@ public class UserAccountAssociationUtil {
     /**
      * Execute pre and post authentication listeners
      *
-     * @param username
-     * @param userStoreManager
+     * @param username         Username of account to authenticate
+     * @param userStoreManager User store manager
      * @return is authentic
      * @throws UserStoreException
      */
@@ -87,14 +88,12 @@ public class UserAccountAssociationUtil {
         return true;
     }
 
-    public static String getDomainName(String username) {
-        int index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-        if (index < 0) {
-            return UserAccountAssociationConstants.PRIMARY_USER_DOMAIN;
-        }
-        return username.substring(0, index);
-    }
-
+    /**
+     * Remove domain from user name.
+     *
+     * @param username Username
+     * @return
+     */
     public static String getUsernameWithoutDomain(String username) {
         int index = username.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
         if (index < 0) {

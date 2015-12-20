@@ -313,7 +313,6 @@
         }
 
         $(document).ready(function () {
-            debugger;
             $('form[name=filterForm]').submit(function(){
                 return doValidateForm(this, '<fmt:message key="error.input.validation.msg"/>');
             })
@@ -642,7 +641,7 @@
                                     && !userName.equals(userRealmInfo.getAdminUser()) &&
                                     users[i].getEditable()) {
                         %>
-                        <a href="#" onclick="deleteUser('<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(userName))%>')"
+                        <a href="#" onclick="deleteUser('<%=Encode.forJavaScriptAttribute(userName)%>')"
                            class="icon-link"
                            style="background-image:url(images/delete.gif);"><fmt:message
                                 key="delete"/></a>

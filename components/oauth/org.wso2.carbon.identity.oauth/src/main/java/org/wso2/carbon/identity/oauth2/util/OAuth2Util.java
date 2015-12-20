@@ -24,6 +24,7 @@ import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
@@ -36,8 +37,10 @@ import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.dao.OAuthConsumerDAO;
 import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
+import org.wso2.carbon.identity.oauth2.authz.OAuthAuthzReqMessageContext;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.ClientCredentialDO;
+import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -54,14 +57,146 @@ import java.util.TreeMap;
  */
 public class OAuth2Util {
 
+    public static final String REMOTE_ACCESS_TOKEN = "REMOTE_ACCESS_TOKEN";
+    public static final String JWT_ACCESS_TOKEN = "JWT_ACCESS_TOKEN";
+    
+
+    /*
+     * OPTIONAL. A JSON string containing a space-separated list of scopes associated with this token, in the format
+     * described in Section 3.3 of OAuth 2.0
+     */
+    public static final String SCOPE = "scope";
+
+    /*
+     * OPTIONAL. Client identifier for the OAuth 2.0 client that requested this token.
+     */
+    public static final String CLIENT_ID = "client_id";
+
+    /*
+     * OPTIONAL. Human-readable identifier for the resource owner who authorized this token.
+     */
+    public static final String USERNAME = "username";
+
+    /*
+     * OPTIONAL. Type of the token as defined in Section 5.1 of OAuth 2.0
+     */
+    public static final String TOKEN_TYPE = "token_type";
+
+    /*
+     * OPTIONAL. Integer time-stamp, measured in the number of seconds since January 1 1970 UTC, indicating when this
+     * token is not to be used before, as defined in JWT
+     */
+    public static final String NBF = "nbf";
+
+    /*
+     * OPTIONAL. Service-specific string identifier or list of string identifiers representing the intended audience for
+     * this token, as defined in JWT
+     */
+    public static final String AUD = "aud";
+
+    /*
+     * OPTIONAL. String representing the issuer of this token, as defined in JWT
+     */
+    public static final String ISS = "iss";
+
+    /*
+     * OPTIONAL. String identifier for the token, as defined in JWT
+     */
+    public static final String JTI = "jti";
+
+    /*
+     * OPTIONAL. Subject of the token, as defined in JWT [RFC7519]. Usually a machine-readable identifier of the
+     * resource owner who authorized this token.
+     */
+    public static final String SUB = "sub";
+
+    /*
+     * OPTIONAL. Integer time-stamp, measured in the number of seconds since January 1 1970 UTC, indicating when this
+     * token will expire, as defined in JWT
+     */
+    public static final String EXP = "exp";
+
+    /*
+     * OPTIONAL. Integer time-stamp, measured in the number of seconds since January 1 1970 UTC, indicating when this
+     * token was originally issued, as defined in JWT
+     */
+    public static final String IAT = "iat";
+
+    
     private static Log log = LogFactory.getLog(OAuth2Util.class);
     private static boolean cacheEnabled = OAuthServerConfiguration.getInstance().isCacheEnabled();
-    private static OAuthCache cache = OAuthCache.getInstance(OAuthServerConfiguration.getInstance().getOAuthCacheTimeout());
+    private static OAuthCache cache = OAuthCache.getInstance();
     private static long timestampSkew = OAuthServerConfiguration.getInstance().getTimeStampSkewInSeconds() * 1000;
     private static ThreadLocal<Integer> clientTenatId = new ThreadLocal<>();
+    private static ThreadLocal<OAuthTokenReqMessageContext> tokenRequestContext = new ThreadLocal<OAuthTokenReqMessageContext>();
+    private static ThreadLocal<OAuthAuthzReqMessageContext> authzRequestContext = new ThreadLocal<OAuthAuthzReqMessageContext>();
 
     private OAuth2Util(){
 
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public static OAuthAuthzReqMessageContext getAuthzRequestContext() {
+	if (log.isDebugEnabled()) {
+	    log.debug("Retreived OAuthAuthzReqMessageContext from threadlocal");
+	}
+	return authzRequestContext.get();
+    }
+
+    /**
+     * 
+     * @param context
+     */
+    public static void setAuthzRequestContext(OAuthAuthzReqMessageContext context) {
+	authzRequestContext.set(context);
+	if (log.isDebugEnabled()) {
+	    log.debug("Added OAuthAuthzReqMessageContext to threadlocal");
+	}
+    }
+
+    /**
+     * 
+     */
+    public static void clearAuthzRequestContext() {
+	authzRequestContext.remove();
+	if (log.isDebugEnabled()) {
+	    log.debug("Cleared OAuthAuthzReqMessageContext");
+	}
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public static OAuthTokenReqMessageContext getTokenRequestContext() {
+	if (log.isDebugEnabled()) {
+	    log.debug("Retreived OAuthTokenReqMessageContext from threadlocal");
+	}
+	return tokenRequestContext.get();
+    }
+
+    /**
+     * 
+     * @param context
+     */
+    public static void setTokenRequestContext(OAuthTokenReqMessageContext context) {
+	tokenRequestContext.set(context);
+	if (log.isDebugEnabled()) {
+	    log.debug("Added OAuthTokenReqMessageContext to threadlocal");
+	}
+    }
+
+    /**
+     * 
+     */
+    public static void clearTokenRequestContext() {
+	tokenRequestContext.remove();
+	if (log.isDebugEnabled()) {
+	    log.debug("Cleared OAuthTokenReqMessageContext");
+	}
     }
 
     /**
@@ -140,8 +275,8 @@ public class OAuth2Util {
         if (cacheEnabled) {
             CacheEntry cacheResult = cache.getValueFromCache(new OAuthCacheKey(clientId));
             if (cacheResult != null && cacheResult instanceof ClientCredentialDO) {
-                // cache hit
-                clientSecret = ((ClientCredentialDO) cacheResult).getClientSecret();
+                ClientCredentialDO clientCredentialDO = (ClientCredentialDO) cacheResult;
+                clientSecret = clientCredentialDO.getClientSecret();
                 cacheHit = true;
                 if (log.isDebugEnabled()) {
                     log.debug("Client credentials were available in the cache for client id : " +
@@ -422,7 +557,7 @@ public class OAuth2Util {
         long refreshTokenValidityPeriodMillis = accessTokenDO.getRefreshTokenValidityPeriodInMillis();
 
         if (refreshTokenValidityPeriodMillis < 0) {
-            log.debug("Refresh Token : " + accessTokenDO.getRefreshToken() + " has infinite lifetime");
+            log.debug("Refresh Token has infinite lifetime");
             return -1;
         }
 
@@ -445,7 +580,7 @@ public class OAuth2Util {
         long validityPeriodMillis = accessTokenDO.getValidityPeriodInMillis();
 
         if (validityPeriodMillis < 0) {
-            log.debug("Access Token : " + accessTokenDO.getAccessToken() + " has infinite lifetime");
+            log.debug("Access Token has infinite lifetime");
             return -1;
         }
 
@@ -490,7 +625,7 @@ public class OAuth2Util {
     }
 
     public static String hashScopes(String scope){
-        if (StringUtils.isNotBlank(scope)) {
+        if (scope != null) {
             //first converted to an array to sort the scopes
             return DigestUtils.md5Hex(OAuth2Util.buildScopeString(buildScopeArray(scope)));
         } else {
@@ -498,13 +633,13 @@ public class OAuth2Util {
         }
     }
 
-    public static User getUserFromUserName(String username) throws IllegalArgumentException{
+    public static AuthenticatedUser getUserFromUserName(String username) throws IllegalArgumentException{
         if (StringUtils.isNotBlank(username)) {
             String tenantDomain = MultitenantUtils.getTenantDomain(username);
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
             String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
             String userStoreDomain = IdentityUtil.extractDomainFromName(username).toUpperCase();
-            User user = new User();
+            AuthenticatedUser user = new AuthenticatedUser();
             user.setUserName(tenantAwareUsernameWithNoUserDomain);
             user.setTenantDomain(tenantDomain);
             user.setUserStoreDomain(userStoreDomain);
@@ -527,7 +662,7 @@ public class OAuth2Util {
         public static String getOAuth1RequestTokenUrl() {
             String oauth1RequestTokenUrl = OAuthServerConfiguration.getInstance().getOAuth1RequestTokenUrl();
             if(StringUtils.isBlank(oauth1RequestTokenUrl)){
-                oauth1RequestTokenUrl = IdentityUtil.getServerURL("oauth/request-token", true);
+                oauth1RequestTokenUrl = IdentityUtil.getServerURL("oauth/request-token", true, true);
             }
             return oauth1RequestTokenUrl;
         }
@@ -535,7 +670,7 @@ public class OAuth2Util {
         public static String getOAuth1AuthorizeUrl() {
             String oauth1AuthorizeUrl = OAuthServerConfiguration.getInstance().getOAuth1AuthorizeUrl();
             if(StringUtils.isBlank(oauth1AuthorizeUrl)){
-                oauth1AuthorizeUrl = IdentityUtil.getServerURL("oauth/authorize-url", true);
+                oauth1AuthorizeUrl = IdentityUtil.getServerURL("oauth/authorize-url", true, true);
             }
             return oauth1AuthorizeUrl;
         }
@@ -543,7 +678,7 @@ public class OAuth2Util {
         public static String getOAuth1AccessTokenUrl() {
             String oauth1AccessTokenUrl = OAuthServerConfiguration.getInstance().getOAuth1AccessTokenUrl();
             if(StringUtils.isBlank(oauth1AccessTokenUrl)){
-                oauth1AccessTokenUrl = IdentityUtil.getServerURL("oauth/access-token", true);
+                oauth1AccessTokenUrl = IdentityUtil.getServerURL("oauth/access-token", true, true);
             }
             return oauth1AccessTokenUrl;
         }
@@ -551,7 +686,7 @@ public class OAuth2Util {
         public static String getOAuth2AuthzEPUrl() {
             String oauth2AuthzEPUrl = OAuthServerConfiguration.getInstance().getOAuth2AuthzEPUrl();
             if(StringUtils.isBlank(oauth2AuthzEPUrl)){
-                oauth2AuthzEPUrl = IdentityUtil.getServerURL("oauth2/authorize", false);
+                oauth2AuthzEPUrl = IdentityUtil.getServerURL("oauth2/authorize", true, false);
             }
             return oauth2AuthzEPUrl;
         }
@@ -559,7 +694,7 @@ public class OAuth2Util {
         public static String getOAuth2TokenEPUrl() {
             String oauth2TokenEPUrl = OAuthServerConfiguration.getInstance().getOAuth2TokenEPUrl();
             if(StringUtils.isBlank(oauth2TokenEPUrl)){
-                oauth2TokenEPUrl = IdentityUtil.getServerURL("oauth2/token", false);
+                oauth2TokenEPUrl = IdentityUtil.getServerURL("oauth2/token", true, false);
             }
             return oauth2TokenEPUrl;
         }
@@ -567,7 +702,7 @@ public class OAuth2Util {
         public static String getOAuth2UserInfoEPUrl() {
             String oauth2UserInfoEPUrl = OAuthServerConfiguration.getInstance().getOauth2UserInfoEPUrl();
             if(StringUtils.isBlank(oauth2UserInfoEPUrl)){
-                oauth2UserInfoEPUrl = IdentityUtil.getServerURL("oauth2/userinfo", false);
+                oauth2UserInfoEPUrl = IdentityUtil.getServerURL("oauth2/userinfo", true, false);
             }
             return oauth2UserInfoEPUrl;
         }
@@ -575,7 +710,8 @@ public class OAuth2Util {
         public static String getOIDCConsentPageUrl() {
             String OIDCConsentPageUrl = OAuthServerConfiguration.getInstance().getOIDCConsentPageUrl();
             if(StringUtils.isBlank(OIDCConsentPageUrl)){
-                OIDCConsentPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_consent.do", false);
+                OIDCConsentPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_consent.do", false,
+                        false);
             }
             return OIDCConsentPageUrl;
         }
@@ -583,7 +719,8 @@ public class OAuth2Util {
         public static String getOAuth2ConsentPageUrl() {
             String oAuth2ConsentPageUrl = OAuthServerConfiguration.getInstance().getOauth2ConsentPageUrl();
             if(StringUtils.isBlank(oAuth2ConsentPageUrl)){
-                oAuth2ConsentPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_authz.do", false);
+                oAuth2ConsentPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_authz.do", false,
+                        false);
             }
             return oAuth2ConsentPageUrl;
         }
@@ -591,7 +728,7 @@ public class OAuth2Util {
         public static String getOAuth2ErrorPageUrl() {
             String oAuth2ErrorPageUrl = OAuthServerConfiguration.getInstance().getOauth2ErrorPageUrl();
             if(StringUtils.isBlank(oAuth2ErrorPageUrl)){
-                oAuth2ErrorPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_error.do", false);
+                oAuth2ErrorPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_error.do", false, false);
             }
             return oAuth2ErrorPageUrl;
         }
@@ -609,4 +746,5 @@ public class OAuth2Util {
         }
         return false;
     }
+
 }

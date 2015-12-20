@@ -26,6 +26,8 @@ public class SAMLSSOConstants {
     public static final String PASSWORD = "password";
     public static final String FEDERATED_IDP = "federated-idp-domain";
     public static final String ISSUER = "issuer";
+    public static final String SAML_REQUEST = "SAMLRequest";
+    public static final String AUTH_MODE = "authMode";
     public static final String ASSRTN_CONSUMER_URL = "ACSUrl";
     public static final String REQ_ID = "id";
     public static final String SUBJECT = "subject";
@@ -56,6 +58,20 @@ public class SAMLSSOConstants {
     public static final String DEFAULT_LOGOUT_ENDPOINT = "/authenticationendpoint/samlsso_logout.do";
     public static final String SAMLSSO_URL = "/samlsso";
     public static final String NOTIFICATION_ENDPOINT ="/authenticationendpoint/samlsso_notification.do";
+    public static final String SLO_SAML_SOAP_BINDING_ENABLED = "SSOService.SLOSAMLSOAPBindingEnabled";
+    public static final String START_SOAP_BINDING = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+            "<SOAP-ENV:Body>";
+    public static final String END_SOAP_BINDING = "</SOAP-ENV:Body>" +
+            "</SOAP-ENV:Envelope>";
+    public static final String SOAP_ACTION = "http://www.oasis-open.org/committees/security";
+    public static final String XML_TAG_REGEX = "\\<\\?xml(.+?)\\?\\>";
+    public static final String SAML_REQUEST_PARAM_KEY = "SAMLRequest";
+    public static final String SOAP_ACTION_PARAM_KEY = "SOAPAction";
+    public static final String COOKIE_PARAM_KEY = "Cookie";
+    public static final String SESSION_ID_PARAM_KEY = "JSESSIONID=";
+    public static final String ENCODING_FORMAT = "UTF-8";
+    public static final String COM_PROTOCOL = "https";
+    public static final String CRYPTO_PROTOCOL = "TLS";
 
     private SAMLSSOConstants() {
     }
@@ -66,7 +82,7 @@ public class SAMLSSOConstants {
         public static final String SERVICE_PROVIDERS = "ServiceProviders";
         public static final String SERVICE_PROVIDER = "ServiceProvider";
         public static final String ISSUER = "Issuer";
-        public static final String ASSERTION_CONSUMER_URL = "AssertionConsumerService";
+        public static final String ASSERTION_CONSUMER_URL = "AssertionConsumerServiceURL";
         public static final String ACS_URLS = "AssertionConsumerServiceURLs";
         public static final String DEFAULT_ACS_URL= "DefaultAssertionConsumerServiceURL";
         public static final String CUSTOM_LOGIN_PAGE = "CustomLoginPage";
@@ -86,8 +102,8 @@ public class SAMLSSOConstants {
 
         public static final String CERT_ALIAS = "CertAlias";
         public static final String LOGOUT_URL = "LogoutURL";
-        public static final String SLO_RESPONSE_URL = "sloResponseURL";
-        public static final String SLO_REQUEST_URL = "sloRequestURL";
+        public static final String SLO_RESPONSE_URL = "SLOResponseURL";
+        public static final String SLO_REQUEST_URL = "SLORequestURL";
         public static final String CLAIMS = "Claims";
         public static final String CLAIM = "Claim";
         public static final String INCLUDE_ATTRIBUTE = "IncludeAttributeByDefault";
@@ -98,6 +114,7 @@ public class SAMLSSOConstants {
         public static final String CONSUMING_SERVICE_INDEX = "ConsumingServiceIndex";
         public static final String USE_AUTHENTICATED_USER_DOMAIN_CRYPTO = "SSOService.UseAuthenticatedUserDomainCrypto";
         public static final String RETURN_TO_URL_LIST = "ReturnToURLList";
+        public static final String RETURN_TO_URL = "ReturnToURL";
 
         private FileBasedSPConfig() {
         }

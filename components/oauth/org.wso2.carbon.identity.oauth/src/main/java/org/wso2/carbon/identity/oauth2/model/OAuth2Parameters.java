@@ -18,8 +18,6 @@
 
 package org.wso2.carbon.identity.oauth2.model;
 
-import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
-
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;

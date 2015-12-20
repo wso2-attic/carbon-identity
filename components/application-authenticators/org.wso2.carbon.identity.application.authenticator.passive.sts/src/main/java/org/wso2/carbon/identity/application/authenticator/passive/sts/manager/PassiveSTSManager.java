@@ -120,7 +120,7 @@ public class PassiveSTSManager {
                                String contextIdentifier, Map<String, String> authenticationProperties)
             throws PassiveSTSException {
 
-        String replyUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+        String replyUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true, true);
         String action = "wsignin1.0";
         String realm = authenticationProperties.get(PassiveSTSConstants.REALM_ID);
         String redirectUrl = loginPage + "?wa=" + action + "&wreply=" + replyUrl + "&wtrealm=" + realm;
@@ -236,6 +236,7 @@ public class PassiveSTSManager {
         String samlStr = samlString;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setFeature(PassiveSTSConstants.EXTERNAL_GENERAL_ENTITIES_URI, false);
             documentBuilderFactory.setNamespaceAware(true);
 
             documentBuilderFactory.setExpandEntityReferences(false);

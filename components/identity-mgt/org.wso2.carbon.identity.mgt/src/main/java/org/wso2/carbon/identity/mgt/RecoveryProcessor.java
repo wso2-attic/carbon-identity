@@ -19,6 +19,7 @@
 
 package org.wso2.carbon.identity.mgt;
 
+import org.apache.axis2.context.MessageContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
@@ -127,7 +128,16 @@ public class RecoveryProcessor {
                 log.debug("No Tenant domain for tenant id " + tenantId, e);
             }
         }
+
         NotificationDataDTO notificationData = new NotificationDataDTO();
+        if(MessageContext.getCurrentMessageContext() != null &&
+                MessageContext.getCurrentMessageContext().getProperty(
+                        MessageContext.TRANSPORT_HEADERS) != null) {
+            notificationData.setTransportHeaders(new HashMap(
+                    (Map)MessageContext.getCurrentMessageContext().getProperty(
+                            MessageContext.TRANSPORT_HEADERS)));
+        }
+
         String internalCode = null;
 
         String type = recoveryDTO.getNotificationType();
@@ -150,7 +160,8 @@ public class RecoveryProcessor {
         emailNotificationData.setTagData(TENANT_DOMAIN, domainName);
 
         if ((notificationAddress == null) || (notificationAddress.trim().length() < 0)) {
-            throw new IdentityException("Notification sending failure. Notification address is not defined for user : " + userId);
+            throw IdentityException.error("Notification sending failure. Notification address is not defined for user : "
+                    + userId);
         }
         emailNotificationData.setSendTo(notificationAddress);
 
@@ -164,7 +175,7 @@ public class RecoveryProcessor {
         try {
             config = configBuilder.loadConfiguration(ConfigType.EMAIL, StorageType.REGISTRY, tenantId);
         } catch (Exception e1) {
-            throw new IdentityException("Error while loading email templates for user : " + userId, e1);
+            throw IdentityException.error("Error while loading email templates for user : " + userId, e1);
         }
 
         if (recoveryDTO.getNotification() != null) {
@@ -177,7 +188,7 @@ public class RecoveryProcessor {
                 try {
                     confirmationKey = getUserExternalCodeStr(internalCode);
                 } catch (Exception e) {
-                    throw new IdentityException("Error while getting user's external code string.",e);
+                    throw IdentityException.error("Error while getting user's external code string.",e);
                 }
                 secretKey = UUIDGenerator.generateUUID();
                 emailNotificationData.setTagData(CONFIRMATION_CODE, confirmationKey);
@@ -213,7 +224,7 @@ public class RecoveryProcessor {
                 try {
                     confirmationKey = getUserExternalCodeStr(internalCode);
                 } catch (Exception e) {
-                    throw new IdentityException("Error while with recovering with password.", e);
+                    throw IdentityException.error("Error while with recovering with password.", e);
                 }
                 secretKey = UUIDGenerator.generateUUID();
                 emailNotificationData.setTagData(CONFIRMATION_CODE, confirmationKey);
@@ -229,7 +240,7 @@ public class RecoveryProcessor {
         try {
             emailNotification = NotificationBuilder.createNotification("EMAIL", emailTemplate, emailNotificationData);
         } catch (Exception e) {
-            throw new IdentityException("Error when creating notification for user : "+ userId, e);
+            throw IdentityException.error("Error when creating notification for user : "+ userId, e);
         }
 
         notificationData.setNotificationAddress(notificationAddress);
@@ -309,20 +320,24 @@ public class RecoveryProcessor {
 
         try {
             dataDO = dataStore.load(internalCode);
-            if (dataDO != null && sequence != 2) {
+            if (dataDO != null && sequence != 2 && sequence != 40) {
                 dataStore.invalidate(dataDO);
             }
 
         } catch (IdentityException e) {
-            throw new IdentityException("Error loading recovery data for user : " + username, e);
+            throw IdentityException.error("Error loading recovery data for user : " + username, e);
+        }
+
+        if (dataDO == null && (sequence == 30 || sequence == 20)) {
+            return new VerificationBean(false);
         }
 
         if (dataDO == null) {
-            throw new IdentityException("Invalid confirmation code");
+            throw IdentityException.error("Invalid confirmation code");
         }
 
         if (!dataDO.isValid()) {
-            throw new IdentityException("Expired code");
+            throw IdentityException.error("Expired code");
         } else {
             return new VerificationBean(true);
         }
@@ -337,7 +352,7 @@ public class RecoveryProcessor {
         UserRecoveryDataDO recoveryDataDO = new UserRecoveryDataDO(username,
                 tenantId, confirmationKey, secretKey);
 
-        if (sequence != 3) {
+        if (sequence != 3 && sequence != 30) {
             dataStore.invalidate(username, tenantId);
         }
         dataStore.store(recoveryDataDO);
@@ -345,7 +360,7 @@ public class RecoveryProcessor {
         try {
             externalCode = getUserExternalCodeStr(confirmationKey);
         } catch (Exception e) {
-            throw new IdentityException("Error occurred while getting external code for user : "
+            throw IdentityException.error("Error occurred while getting external code for user : "
                     + username, e);
         }
 
@@ -445,6 +460,13 @@ public class RecoveryProcessor {
         String userName = UserCoreUtil.removeDomainFromName(userId);
 
         NotificationDataDTO notificationData = new NotificationDataDTO();
+        if(MessageContext.getCurrentMessageContext() != null &&
+                MessageContext.getCurrentMessageContext().getProperty(
+                        MessageContext.TRANSPORT_HEADERS) != null) {
+            notificationData.setTransportHeaders(new HashMap(
+                    (Map)MessageContext.getCurrentMessageContext().getProperty(
+                            MessageContext.TRANSPORT_HEADERS)));
+        }
 
 
         String type = notificationBean.getNotificationType();
@@ -477,7 +499,7 @@ public class RecoveryProcessor {
             config = configBuilder.loadConfiguration(ConfigType.EMAIL,
                     StorageType.REGISTRY, tenantId);
         } catch (Exception e1) {
-            throw new IdentityException("Error occurred while loading email templates for user : "
+            throw IdentityException.error("Error occurred while loading email templates for user : "
                     + userId, e1);
         }
 
@@ -518,7 +540,7 @@ public class RecoveryProcessor {
         try {
             emailNotification = NotificationBuilder.createNotification("EMAIL", emailTemplate, emailNotificationData);
         } catch (Exception e) {
-            throw new IdentityException(
+            throw IdentityException.error(
                     "Error occurred while creating notification from email template : "
                             + emailTemplate, e);
         }

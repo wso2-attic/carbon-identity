@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
+import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
@@ -42,6 +43,8 @@ import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
@@ -123,9 +126,10 @@ public class DefaultStepHandler implements StepHandler {
             }
 
             try {
+                request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
                 response.sendRedirect(redirectURL
-                                      + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
-                                      + authenticatorNames + "&hrd=true");
+                        + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
+                        + URLEncoder.encode(authenticatorNames, "UTF-8") + "&hrd=true");
             } catch (IOException e) {
                 throw new FrameworkException(e.getMessage(), e);
             }
@@ -215,9 +219,10 @@ public class DefaultStepHandler implements StepHandler {
                     }
 
                     try {
+                        request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
                         response.sendRedirect(redirectURL
-                                              + ("?" + context.getContextIdIncludedQueryParams())
-                                              + "&authenticators=" + authenticatorNames + retryParam);
+                                + ("?" + context.getContextIdIncludedQueryParams())
+                                + "&authenticators=" + URLEncoder.encode(authenticatorNames, "UTF-8") + retryParam);
                     } catch (IOException e) {
                         throw new FrameworkException(e.getMessage(), e);
                     }
@@ -253,9 +258,10 @@ public class DefaultStepHandler implements StepHandler {
         if (domain.trim().length() == 0) {
             //SP hasn't specified a domain. We assume it wants to get the domain from the user
             try {
+                request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
                 response.sendRedirect(redirectURL
-                                      + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
-                                      + authenticatorNames + "&hrd=true");
+                        + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
+                        + URLEncoder.encode(authenticatorNames, "UTF-8") + "&hrd=true");
             } catch (IOException e) {
                 throw new FrameworkException(e.getMessage(), e);
             }
@@ -317,8 +323,8 @@ public class DefaultStepHandler implements StepHandler {
 
         try {
             response.sendRedirect(redirectURL + ("?" + context.getContextIdIncludedQueryParams())
-                                  + "&authenticators=" + authenticatorNames + "&authFailure=true"
-                                  + "&authFailureMsg=" + errorMsg + "&hrd=true");
+                    + "&authenticators=" + URLEncoder.encode(authenticatorNames, "UTF-8") + "&authFailure=true"
+                    + "&authFailureMsg=" + errorMsg + "&hrd=true");
         } catch (IOException e) {
             throw new FrameworkException(e.getMessage(), e);
         }
@@ -424,6 +430,7 @@ public class DefaultStepHandler implements StepHandler {
             context.setAuthenticatorProperties(FrameworkUtils.getAuthenticatorPropertyMapFromIdP(
                     context.getExternalIdP(), authenticator.getName()));
             AuthenticatorFlowStatus status = authenticator.process(request, response, context);
+            request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, status);
 
             if (log.isDebugEnabled()) {
                 log.debug(authenticator.getName() + " returned: " + status.toString());
@@ -434,6 +441,26 @@ public class DefaultStepHandler implements StepHandler {
                     log.debug(authenticator.getName() + " is redirecting");
                 }
                 return;
+            }
+
+            if (authenticator instanceof FederatedApplicationAuthenticator) {
+                if (context.getSubject().getUserName() == null) {
+                    // Set subject identifier as the default username for federated users
+                    String authenticatedSubjectIdentifier = context.getSubject().getAuthenticatedSubjectIdentifier();
+                    context.getSubject().setUserName(authenticatedSubjectIdentifier);
+                }
+
+                if (context.getSubject().getFederatedIdPName() == null && context.getExternalIdP() != null) {
+                    // Setting identity provider's name
+                    String idpName = context.getExternalIdP().getIdPName();
+                    context.getSubject().setFederatedIdPName(idpName);
+                }
+
+                if (context.getSubject().getTenantDomain() == null) {
+                    // Setting service provider's tenant domain as the default tenant for federated users
+                    String tenantDomain = context.getTenantDomain();
+                    context.getSubject().setTenantDomain(tenantDomain);
+                }
             }
 
             AuthenticatedIdPData authenticatedIdPData = new AuthenticatedIdPData();

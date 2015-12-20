@@ -19,10 +19,11 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:cxf="http://cxf.apache.org/core"
        xsi:schemaLocation="
          http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
-         http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
+         http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+         http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
 
     <jaxrs:server id="userResource" address="/Users">
         <jaxrs:serviceBeans>
@@ -65,5 +66,14 @@
     <bean id="authenticationFilter" class="org.wso2.carbon.identity.scim.provider.filter.AuthenticationFilter">
             <!-- authorization bean properties -->
         </bean>
+
+    <bean id="ClearThreadLocalInterceptor" class="org.wso2.carbon.identity.scim.provider.util.ClearThreadLocalInterceptor"/>
+
+    <cxf:bus>
+        <cxf:inInterceptors>
+            <ref bean="ClearThreadLocalInterceptor"/>
+        </cxf:inInterceptors>
+    </cxf:bus>
+
 </beans>
 

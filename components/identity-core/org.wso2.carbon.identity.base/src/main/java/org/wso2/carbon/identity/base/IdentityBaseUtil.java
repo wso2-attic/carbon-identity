@@ -142,7 +142,7 @@ public class IdentityBaseUtil {
         } catch (Exception e) {
             String msg = "error building policy from " + policyString;
             log.error(msg);
-            throw new IdentityException(msg, e);
+            throw IdentityException.error(msg, e);
         }
 
         return policy;

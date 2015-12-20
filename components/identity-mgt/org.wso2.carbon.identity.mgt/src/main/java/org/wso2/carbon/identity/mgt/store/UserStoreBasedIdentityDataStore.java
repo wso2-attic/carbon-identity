@@ -82,7 +82,7 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
                 }
             } catch (UserStoreException e) {
                 if(!e.getMessage().startsWith(IdentityCoreConstants.USER_NOT_FOUND)){
-                    throw new IdentityException("Error while persisting identity user data in to user store", e);
+                    throw IdentityException.error("Error while persisting identity user data in to user store", e);
                 } else if (log.isDebugEnabled()){
                     String message = null;
                     if(userStoreManager instanceof AbstractUserStoreManager){
@@ -180,9 +180,10 @@ public class UserStoreBasedIdentityDataStore extends InMemoryIdentityDataStore {
         String domainName= store.getRealmConfiguration().getUserStoreProperty(
                 UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
-        Cache<String, UserIdentityClaimsDO> cache = getCache();
-        if (cache != null) {
-            cache.put(domainName+tenantId + userName, userIdentityDTO);
+        try {
+            super.store(userIdentityDTO, userStoreManager);
+        } catch (IdentityException e) {
+            log.error("Error while reading user identity data", e);
         }
         return userIdentityDTO;
     }

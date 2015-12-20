@@ -147,8 +147,7 @@ public class OutboundProvisioningManager {
             // reading from the cache
             key = new ServiceProviderProvisioningConnectorCacheKey(serviceProvider.getApplicationName(), tenantDomain);
 
-            entry = (ServiceProviderProvisioningConnectorCacheEntry) ServiceProviderProvisioningConnectorCache.getInstance()
-                    .getValueFromCache(key);
+            entry = ServiceProviderProvisioningConnectorCache.getInstance().getValueFromCache(key);
 
             // cache hit
             if (entry != null) {
@@ -472,6 +471,12 @@ public class OutboundProvisioningManager {
 
                 ProvisioningOperation provisioningOp = provisioningEntity.getOperation();
 
+                if (ProvisioningOperation.DELETE.equals(provisioningOp) &&
+                        (provisionedIdentifier == null || provisionedIdentifier.getIdentifier() == null)) {
+                    //No provisioning identifier found. User has not outbound provisioned to this idp. So no need to
+                    // send outbound delete request. Skip the flow
+                    return;
+                }
                 if (provisionedIdentifier == null || provisionedIdentifier.getIdentifier() == null) {
                     provisioningOp = ProvisioningOperation.POST;
                 }

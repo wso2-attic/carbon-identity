@@ -19,7 +19,6 @@ package org.wso2.carbon.identity.provider.dto;
 
 public class OpenIDProviderInfoDTO {
     private String openIDProviderServerUrl;
-    private boolean isUserExist;
     private String openID;
     private String user;
     private String subDomain;
@@ -46,14 +45,6 @@ public class OpenIDProviderInfoDTO {
 
     public void setOpenIDProviderServerUrl(String openIDProviderServerUrl) {
         this.openIDProviderServerUrl = openIDProviderServerUrl;
-    }
-
-    public boolean isUserExist() {
-        return isUserExist;
-    }
-
-    public void setUserExist(boolean isUserExist) {
-        this.isUserExist = isUserExist;
     }
 
     public String getOpenID() {

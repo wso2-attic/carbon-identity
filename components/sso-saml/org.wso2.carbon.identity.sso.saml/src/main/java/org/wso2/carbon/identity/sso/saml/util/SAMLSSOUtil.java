@@ -26,6 +26,7 @@ import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.LogoutRequest;
@@ -57,7 +58,6 @@ import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
-import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.SAML2SSOFederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
@@ -76,10 +76,18 @@ import org.wso2.carbon.identity.sso.saml.builders.X509CredentialImpl;
 import org.wso2.carbon.identity.sso.saml.builders.assertion.SAMLAssertionBuilder;
 import org.wso2.carbon.identity.sso.saml.builders.encryption.SSOEncrypter;
 import org.wso2.carbon.identity.sso.saml.builders.signature.SSOSigner;
+import org.wso2.carbon.identity.sso.saml.dto.QueryParamDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOAuthnReqDTO;
 import org.wso2.carbon.identity.sso.saml.exception.IdentitySAML2SSOException;
+import org.wso2.carbon.identity.sso.saml.processors.IdPInitLogoutRequestProcessor;
+import org.wso2.carbon.identity.sso.saml.processors.IdPInitSSOAuthnRequestProcessor;
+import org.wso2.carbon.identity.sso.saml.processors.SPInitLogoutRequestProcessor;
+import org.wso2.carbon.identity.sso.saml.processors.SPInitSSOAuthnRequestProcessor;
 import org.wso2.carbon.identity.sso.saml.session.SSOSessionPersistenceManager;
+import org.wso2.carbon.identity.sso.saml.validators.IdPInitSSOAuthnRequestValidator;
 import org.wso2.carbon.identity.sso.saml.validators.SAML2HTTPRedirectSignatureValidator;
+import org.wso2.carbon.identity.sso.saml.validators.SPInitSSOAuthnRequestValidator;
+import org.wso2.carbon.identity.sso.saml.validators.SSOAuthnRequestValidator;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.registry.core.Registry;
@@ -98,6 +106,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -163,7 +172,13 @@ public class SAMLSSOUtil {
     private static SSOEncrypter ssoEncrypter = null;
     private static SSOSigner ssoSigner = null;
     private static SAML2HTTPRedirectSignatureValidator samlHTTPRedirectSignatureValidator = null;
+    private static String sPInitSSOAuthnRequestValidatorClassName = null;
+    private static String iDPInitSSOAuthnRequestValidatorClassName = null;
     private static ThreadLocal tenantDomainInThreadLocal = new ThreadLocal();
+    private static String idPInitLogoutRequestProcessorClassName = null;
+    private static String idPInitSSOAuthnRequestProcessorClassName = null;
+    private static String sPInitSSOAuthnRequestProcessorClassName = null;
+    private static String sPInitLogoutRequestProcessorClassName = null;
 
     private SAMLSSOUtil() {
     }
@@ -292,7 +307,7 @@ public class SAMLSSOUtil {
             return unmarshaller.unmarshall(element);
         } catch (Exception e) {
             log.error("Error in constructing AuthRequest from the encoded String", e);
-            throw new IdentityException(
+            throw IdentityException.error(
                     "Error in constructing AuthRequest from the encoded String ",
                     e);
         } finally {
@@ -334,7 +349,7 @@ public class SAMLSSOUtil {
             return byteArrayOutputStrm.toString("UTF-8");
         } catch (Exception e) {
             log.error("Error Serializing the SAML Response");
-            throw new IdentityException("Error Serializing the SAML Response", e);
+            throw IdentityException.error("Error Serializing the SAML Response", e);
         } finally {
             if (byteArrayOutputStrm != null) {
                 try {
@@ -408,7 +423,7 @@ public class SAMLSSOUtil {
                 return decodedStr;
             }
         } catch (IOException e) {
-            throw new IdentityException("Error when decoding the SAML Request.", e);
+            throw IdentityException.error("Error when decoding the SAML Request.", e);
         }
 
     }
@@ -428,7 +443,7 @@ public class SAMLSSOUtil {
             return decodedString;
 
         } catch (IOException e) {
-            throw new IdentityException(
+            throw IdentityException.error(
                     "Error when decoding the SAML Request.", e);
         }
 
@@ -458,11 +473,11 @@ public class SAMLSSOUtil {
             try {
                 tenantId = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
             } catch (UserStoreException e) {
-                throw new IdentityException("Error occurred while retrieving tenant id from tenant domain", e);
+                throw IdentityException.error("Error occurred while retrieving tenant id from tenant domain", e);
             }
 
             if(MultitenantConstants.INVALID_TENANT_ID == tenantId) {
-                throw new IdentityException("Invalid tenant domain - '" + tenantDomain + "'" );
+                throw IdentityException.error("Invalid tenant domain - '" + tenantDomain + "'" );
             }
         }
 
@@ -471,7 +486,7 @@ public class SAMLSSOUtil {
         try {
             identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
         } catch (IdentityProviderManagementException e) {
-            throw new IdentityException(
+            throw IdentityException.error(
                     "Error occurred while retrieving Resident Identity Provider information for tenant " +
                     tenantDomain, e);
         }
@@ -505,7 +520,7 @@ public class SAMLSSOUtil {
         try {
             identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
         } catch (IdentityProviderManagementException e) {
-            throw new IdentityException(
+            throw IdentityException.error(
                     "Error occurred while retrieving Resident Identity Provider information for tenant " +
                             tenantDomain, e);
         }
@@ -516,7 +531,7 @@ public class SAMLSSOUtil {
         if (destinationURLs.size() == 0) {
             String configDestination = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
             if (StringUtils.isBlank(configDestination)) {
-                configDestination = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL,true);
+                configDestination = IdentityUtil.getServerURL(SAMLSSOConstants.SAMLSSO_URL, true, true);
             }
             destinationURLs.add(configDestination);
         }
@@ -623,16 +638,16 @@ public class SAMLSSOUtil {
                 return ssoSigner.setSignature(request, signatureAlgorithm, digestAlgorithm, cred);
 
             } catch (ClassNotFoundException e) {
-                throw new IdentityException("Class not found: "
+                throw IdentityException.error("Class not found: "
                                             + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (InstantiationException e) {
-                throw new IdentityException("Error while instantiating class: "
+                throw IdentityException.error("Error while instantiating class: "
                                             + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (IllegalAccessException e) {
-                throw new IdentityException("Illegal access to class: "
+                throw IdentityException.error("Illegal access to class: "
                                             + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (Exception e) {
-                throw new IdentityException("Error while signing the XML object.", e);
+                throw IdentityException.error("Error while signing the XML object.", e);
             }
     }
 
@@ -649,16 +664,16 @@ public class SAMLSSOUtil {
             }
             return ssoEncrypter.doEncryptedAssertion(assertion, cred, alias, encryptionAlgorithm);
         } catch (ClassNotFoundException e) {
-            throw new IdentityException("Class not found: "
+            throw IdentityException.error("Class not found: "
                     + IdentityUtil.getProperty("SSOService.SAMLSSOEncrypter"), e);
         } catch (InstantiationException e) {
-            throw new IdentityException("Error while instantiating class: "
+            throw IdentityException.error("Error while instantiating class: "
                     + IdentityUtil.getProperty("SSOService.SAMLSSOEncrypter"), e);
         } catch (IllegalAccessException e) {
-            throw new IdentityException("Illegal access to class: "
+            throw IdentityException.error("Illegal access to class: "
                     + IdentityUtil.getProperty("SSOService.SAMLSSOEncrypter"), e);
         } catch (Exception e) {
-            throw new IdentityException("Error while signing the SAML Response message.", e);
+            throw IdentityException.error("Error while signing the SAML Response message.", e);
         }
     }
 
@@ -688,16 +703,16 @@ public class SAMLSSOUtil {
             return samlAssertionBuilder.buildAssertion(authReqDTO, notOnOrAfter, sessionId);
 
         } catch (ClassNotFoundException e) {
-            throw new IdentityException("Class not found: "
+            throw IdentityException.error("Class not found: "
                     + assertionBuilderClass, e);
         } catch (InstantiationException e) {
-            throw new IdentityException("Error while instantiating class: "
+            throw IdentityException.error("Error while instantiating class: "
                     + assertionBuilderClass, e);
         } catch (IllegalAccessException e) {
-            throw new IdentityException("Illegal access to class: "
+            throw IdentityException.error("Illegal access to class: "
                     + assertionBuilderClass, e);
         } catch (Exception e) {
-            throw new IdentityException("Error while building the saml assertion", e);
+            throw IdentityException.error("Error while building the saml assertion", e);
         }
     }
 
@@ -833,13 +848,12 @@ public class SAMLSSOUtil {
     /**
      * Validates the signature of the LogoutRequest message.
      * TODO : for stratos deployment, super tenant key should be used
-     *
      * @param logoutRequest
      * @param alias
      * @param subject
-     * @param httpRequest
-     * @param isHTTPRedirectBinding
+     * @param queryString
      * @return
+     * @throws IdentityException
      */
     public static boolean validateLogoutRequestSignature(LogoutRequest logoutRequest, String alias,
                                                          String subject, String queryString) throws IdentityException {
@@ -854,12 +868,12 @@ public class SAMLSSOUtil {
 
     /**
      * Signature validation for HTTP Redirect Binding
-     *
-     * @param authnReqDTO
-     * @param samlRequest
+     * @param queryString
+     * @param issuer
      * @param alias
      * @param domainName
      * @return
+     * @throws IdentityException
      */
     public static boolean validateDeflateSignature(String queryString, String issuer,
                                                    String alias, String domainName) throws IdentityException {
@@ -882,13 +896,13 @@ public class SAMLSSOUtil {
                     alias, e);
             return false;
         } catch (ClassNotFoundException e) {
-            throw new IdentityException("Class not found: "
+            throw IdentityException.error("Class not found: "
                     + IdentityUtil.getProperty("SSOService.SAML2HTTPRedirectSignatureValidator"), e);
         } catch (InstantiationException e) {
-            throw new IdentityException("Error while instantiating class: "
+            throw IdentityException.error("Error while instantiating class: "
                     + IdentityUtil.getProperty("SSOService.SAML2HTTPRedirectSignatureValidator"), e);
         } catch (IllegalAccessException e) {
-            throw new IdentityException("Illegal access to class: "
+            throw IdentityException.error("Illegal access to class: "
                     + IdentityUtil.getProperty("SSOService.SAML2HTTPRedirectSignatureValidator"), e);
         }
     }
@@ -928,13 +942,13 @@ public class SAMLSSOUtil {
                     log.debug("Signature Validation Failed for the SAML Assertion : Signature is invalid.", e);
                 }
             } catch (ClassNotFoundException e) {
-                throw new IdentityException("Class not found: "
+                throw IdentityException.error("Class not found: "
                         + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (InstantiationException e) {
-                throw new IdentityException("Error while instantiating class: "
+                throw IdentityException.error("Error while instantiating class: "
                         + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (IllegalAccessException e) {
-                throw new IdentityException("Illegal access to class: "
+                throw IdentityException.error("Illegal access to class: "
                         + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (Exception e) {
                 if (log.isDebugEnabled()) {
@@ -1116,7 +1130,7 @@ public class SAMLSSOUtil {
             uri = new URI(openid);
             path = uri.getPath();
         } catch (URISyntaxException e) {
-            throw new IdentityException("Invalid OpenID", e);
+            throw IdentityException.error("Invalid OpenID", e);
         }
         caller = path.substring(path.indexOf(contextPath) + contextPath.length(), path.length());
         return caller;
@@ -1151,15 +1165,15 @@ public class SAMLSSOUtil {
         try {
             uri = new URI(openID);
         } catch (URISyntaxException e) {
-            throw new IdentityException("Invalid OpenID URL :" + openID, e);
+            throw IdentityException.error("Invalid OpenID URL :" + openID, e);
         }
         try {
             url = uri.normalize().toURL();
             if (url.getQuery() != null || url.getRef() != null) {
-                throw new IdentityException("Invalid user name for OpenID :" + openID);
+                throw IdentityException.error("Invalid user name for OpenID :" + openID);
             }
         } catch (MalformedURLException e) {
-            throw new IdentityException("Malformed OpenID URL :" + openID, e);
+            throw IdentityException.error("Malformed OpenID URL :" + openID, e);
         }
         openID = url.toString();
         return openID;
@@ -1238,7 +1252,7 @@ public class SAMLSSOUtil {
                 if (log.isDebugEnabled()) {
                     log.debug(message);
                 }
-                throw new IdentityException(message);
+                throw IdentityException.error(message);
             } else {
                 return tenantDomain;
             }
@@ -1289,7 +1303,7 @@ public class SAMLSSOUtil {
         String redirectURL = IdentityUtil.getProperty(IdentityConstants.ServerConfig
                 .NOTIFICATION_ENDPOINT);
         if (StringUtils.isBlank(redirectURL)){
-            redirectURL = IdentityUtil.getServerURL(SAMLSSOConstants.NOTIFICATION_ENDPOINT, false);
+            redirectURL = IdentityUtil.getServerURL(SAMLSSOConstants.NOTIFICATION_ENDPOINT, false, false);
         }
         return redirectURL;
     }
@@ -1299,8 +1313,206 @@ public class SAMLSSOUtil {
                 .DEFAULT_LOGOUT_ENDPOINT);
         if (StringUtils.isBlank(defaultLogoutLocation)){
             defaultLogoutLocation = IdentityUtil.getServerURL(SAMLSSOConstants
-                    .DEFAULT_LOGOUT_ENDPOINT, false);
+                    .DEFAULT_LOGOUT_ENDPOINT, false, false);
         }
         return defaultLogoutLocation;
     }
+
+    public static boolean isSAMLIssuerExists(String issuerName, String tenantDomain) throws IdentitySAML2SSOException {
+
+        SSOServiceProviderConfigManager stratosIdpConfigManager = SSOServiceProviderConfigManager.getInstance();
+        SAMLSSOServiceProviderDO serviceProvider = stratosIdpConfigManager.getServiceProvider(issuerName);
+        if (serviceProvider != null) {
+            return true;
+        }
+
+        int tenantId;
+        if (StringUtils.isBlank(tenantDomain)) {
+            tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+            tenantId = MultitenantConstants.SUPER_TENANT_ID;
+        } else {
+            try {
+                tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+            } catch (UserStoreException e) {
+                throw new IdentitySAML2SSOException("Error occurred while retrieving tenant id for the domain : " +
+                                                    tenantDomain, e);
+            }
+        }
+
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            privilegedCarbonContext.setTenantId(tenantId);
+            privilegedCarbonContext.setTenantDomain(tenantDomain);
+
+            IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
+            Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry
+                    (RegistryType.SYSTEM_CONFIGURATION);
+            return persistenceManager.isServiceProviderExists(registry, issuerName);
+        } catch (IdentityException e) {
+            throw new IdentitySAML2SSOException("Error occurred while validating existence of SAML service provider " +
+                                                "'" + issuerName + "' in the tenant domain '" + tenantDomain + "'");
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
+    public static SSOAuthnRequestValidator getSPInitSSOAuthnRequestValidator(AuthnRequest authnRequest)  {
+        if (sPInitSSOAuthnRequestValidatorClassName == null || "".equals(sPInitSSOAuthnRequestValidatorClassName)) {
+            try {
+                return new SPInitSSOAuthnRequestValidator(authnRequest);
+            } catch (IdentityException e) {
+                log.error("Error while instantiating the SPInitSSOAuthnRequestValidator ", e);
+            }
+        } else {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Thread.currentThread().getContextClassLoader()
+                        .loadClass(sPInitSSOAuthnRequestValidatorClassName);
+                return (SSOAuthnRequestValidator) clazz.getDeclaredConstructor(AuthnRequest.class).newInstance(authnRequest);
+
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                log.error("Error while instantiating the SPInitSSOAuthnRequestValidator ", e);
+            } catch (NoSuchMethodException e) {
+                log.error("SP initiated authentication request validation class in run time does not have proper" +
+                        "constructors defined.");
+            } catch (InvocationTargetException e) {
+                log.error("Error in creating an instance of the class: " + sPInitSSOAuthnRequestValidatorClassName);
+            }
+        }
+        return null;
+    }
+
+    public static void setSPInitSSOAuthnRequestValidator(String sPInitSSOAuthnRequestValidator) {
+        sPInitSSOAuthnRequestValidatorClassName = sPInitSSOAuthnRequestValidator;
+    }
+
+
+    public static SSOAuthnRequestValidator getIdPInitSSOAuthnRequestValidator(QueryParamDTO[] queryParamDTOs, String relayState) {
+        if (iDPInitSSOAuthnRequestValidatorClassName == null || "".equals(iDPInitSSOAuthnRequestValidatorClassName)) {
+            try {
+                return new IdPInitSSOAuthnRequestValidator(queryParamDTOs, relayState);
+            } catch (IdentityException e) {
+                log.error("Error while instantiating the IdPInitSSOAuthnRequestValidator ", e);
+            }
+        } else {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Thread.currentThread().getContextClassLoader()
+                        .loadClass(iDPInitSSOAuthnRequestValidatorClassName);
+                return (SSOAuthnRequestValidator) clazz.getDeclaredConstructor(
+                        QueryParamDTO[].class, String.class).newInstance(queryParamDTOs, relayState);
+
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                log.error("Error while instantiating the IdPInitSSOAuthnRequestValidator ", e);
+            } catch (NoSuchMethodException e) {
+                log.error("SP initiated authentication request validation class in run time does not have proper" +
+                        "constructors defined.");
+            } catch (InvocationTargetException e) {
+                log.error("Error in creating an instance of the class: " + sPInitSSOAuthnRequestValidatorClassName);
+            }
+        }
+        return null;
+    }
+
+    public static void setIdPInitSSOAuthnRequestValidator(String iDPInitSSOAuthnRequestValidator) {
+        iDPInitSSOAuthnRequestValidatorClassName = iDPInitSSOAuthnRequestValidator;
+    }
+
+    public static void setIdPInitSSOAuthnRequestProcessor(String idPInitSSOAuthnRequestProcessor) {
+        SAMLSSOUtil.idPInitSSOAuthnRequestProcessorClassName = idPInitSSOAuthnRequestProcessor;
+    }
+
+    public static IdPInitSSOAuthnRequestProcessor getIdPInitSSOAuthnRequestProcessor() {
+        if (iDPInitSSOAuthnRequestValidatorClassName == null || "".equals(iDPInitSSOAuthnRequestValidatorClassName)) {
+                return new IdPInitSSOAuthnRequestProcessor();
+        } else {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Thread.currentThread().getContextClassLoader()
+                        .loadClass(iDPInitSSOAuthnRequestValidatorClassName);
+                return (IdPInitSSOAuthnRequestProcessor) clazz.newInstance();
+
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                log.error("Error while instantiating the IdPInitSSOAuthnRequestProcessor ", e);
+            }
+        }
+        return null;
+    }
+
+    public static void setSPInitSSOAuthnRequestProcessor(String SPInitSSOAuthnRequestProcessor) {
+        SAMLSSOUtil.sPInitSSOAuthnRequestProcessorClassName = SPInitSSOAuthnRequestProcessor;
+    }
+
+    public static SPInitSSOAuthnRequestProcessor getSPInitSSOAuthnRequestProcessor() {
+        if (sPInitSSOAuthnRequestProcessorClassName == null || "".equals(sPInitSSOAuthnRequestProcessorClassName)) {
+            return new SPInitSSOAuthnRequestProcessor();
+        } else {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Thread.currentThread().getContextClassLoader()
+                        .loadClass(sPInitSSOAuthnRequestProcessorClassName);
+                return (SPInitSSOAuthnRequestProcessor) clazz.newInstance();
+
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                log.error("Error while instantiating the SPInitSSOAuthnRequestProcessor ", e);
+            }
+        }
+        return null;
+    }
+
+    public static void setSPInitLogoutRequestProcessor(String SPInitLogoutRequestProcessor) {
+        SAMLSSOUtil.sPInitLogoutRequestProcessorClassName = SPInitLogoutRequestProcessor;
+    }
+
+    public static SPInitLogoutRequestProcessor getSPInitLogoutRequestProcessor() {
+        if (sPInitLogoutRequestProcessorClassName == null || "".equals(sPInitLogoutRequestProcessorClassName)) {
+            return new SPInitLogoutRequestProcessor();
+        } else {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Thread.currentThread().getContextClassLoader()
+                        .loadClass(sPInitLogoutRequestProcessorClassName);
+                return (SPInitLogoutRequestProcessor) clazz.newInstance();
+
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                log.error("Error while instantiating the SPInitLogoutRequestProcessor ", e);
+            }
+        }
+        return null;
+    }
+
+    public static void setIdPInitLogoutRequestProcessor(String idPInitLogoutRequestProcessor) {
+        SAMLSSOUtil.idPInitLogoutRequestProcessorClassName = idPInitLogoutRequestProcessor;
+    }
+
+    public static IdPInitLogoutRequestProcessor getIdPInitLogoutRequestProcessor() {
+        if (idPInitLogoutRequestProcessorClassName == null || "".equals(idPInitLogoutRequestProcessorClassName)) {
+            return new IdPInitLogoutRequestProcessor();
+        } else {
+            try {
+                // Bundle class loader will cache the loaded class and returned
+                // the already loaded instance, hence calling this method
+                // multiple times doesn't cost.
+                Class clazz = Thread.currentThread().getContextClassLoader()
+                        .loadClass(idPInitLogoutRequestProcessorClassName);
+                return (IdPInitLogoutRequestProcessor) clazz.newInstance();
+
+            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+                log.error("Error while instantiating the SPInitLogoutRequestProcessor ", e);
+            }
+        }
+        return null;
+    }
+
 }

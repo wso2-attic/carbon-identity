@@ -28,6 +28,8 @@ import org.wso2.carbon.identity.application.common.model.LocalAuthenticatorConfi
 import org.wso2.carbon.identity.application.common.model.RequestPathAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 
+import java.util.ArrayList;
+
 /**
  * Application management admin service
  */
@@ -82,7 +84,18 @@ public class ApplicationManagementAdminService extends AbstractAdmin {
     public ApplicationBasicInfo[] getAllApplicationBasicInfo()
             throws IdentityApplicationManagementException {
         applicationMgtService = ApplicationManagementService.getInstance();
-        return applicationMgtService.getAllApplicationBasicInfo(getTenantDomain(), getUsername());
+
+        ApplicationBasicInfo[] applicationBasicInfos = applicationMgtService.getAllApplicationBasicInfo(getTenantDomain(), getUsername());
+        ArrayList<ApplicationBasicInfo> appInfo = new ArrayList<>();
+        for (ApplicationBasicInfo applicationBasicInfo: applicationBasicInfos) {
+            if (ApplicationMgtUtil.isUserAuthorized(applicationBasicInfo.getApplicationName(), getUsername())) {
+                appInfo.add(applicationBasicInfo);
+                if (log.isDebugEnabled()) {
+                    log.debug("Application Name:" + applicationBasicInfo.getApplicationName());
+                }
+            }
+        }
+        return appInfo.toArray(new ApplicationBasicInfo[appInfo.size()]);
     }
 
     /**

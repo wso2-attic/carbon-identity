@@ -93,6 +93,9 @@ public class PassiveSTS extends HttpServlet {
     private static final long serialVersionUID = 1927253892844132565L;
 
     private String stsRedirectPage = null;
+    private String redirectHtmlFilePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
+            + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File.separator +
+            "sts_response.html";
 
     /**
      * This method reads Passive STS Html Redirect file content.
@@ -101,9 +104,6 @@ public class PassiveSTS extends HttpServlet {
      * @return Passive STS Html Redirect Page File Content
      */
     private String readPassiveSTSHtmlRedirectPage() {
-        String redirectHtmlFilePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
-                + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File.separator +
-                "sts_response.html";
         FileInputStream fileInputStream = null;
         String fileContent = null;
         try {
@@ -189,10 +189,11 @@ public class PassiveSTS extends HttpServlet {
         String pageWithReplyActionResult = pageWithReplyAction.replace("$result",
                 Encode.forHtml(String.valueOf(respToken.getResults())));
         String pageWithReplyActionResultContext;
-        if(respToken.getContext() !=null) {
+        if (respToken.getContext() != null) {
             pageWithReplyActionResultContext = pageWithReplyActionResult.replace(
-                    "<!--$additionalParams-->", "<!--$additionalParams-->" + "<input type='hidden' name='wctx' value='"
-                            + Encode.forHtmlAttribute(respToken.getContext())+ "'>");
+                    PassiveRequestorConstants.PASSIVE_ADDITIONAL_PARAMETER,
+                    PassiveRequestorConstants.PASSIVE_ADDITIONAL_PARAMETER + "<input type='hidden' name='wctx' value='"
+                            + Encode.forHtmlAttribute(respToken.getContext()) + "'>");
         } else {
             pageWithReplyActionResultContext = pageWithReplyActionResult;
         }
@@ -200,7 +201,7 @@ public class PassiveSTS extends HttpServlet {
         if (authenticatedIdPs == null || authenticatedIdPs.isEmpty()) {
             finalPage = pageWithReplyActionResultContext;
         } else {
-            finalPage = pageWithReplyActionResultContext.replace("<!--$additionalParams-->",
+            finalPage = pageWithReplyActionResultContext.replace(PassiveRequestorConstants.PASSIVE_ADDITIONAL_PARAMETER,
                     "<input type='hidden' name='AuthenticatedIdPs' value='" +
                             Encode.forHtmlAttribute(authenticatedIdPs) + "'>");
         }
@@ -290,9 +291,9 @@ public class PassiveSTS extends HttpServlet {
     private void sendToAuthenticationFramework(HttpServletRequest request, HttpServletResponse response,
                                                String sessionDataKey, SessionDTO sessionDTO) throws IOException {
 
-        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
 
-        String selfPath = request.getContextPath();
+        String selfPath = request.getRequestURI();
         //Authentication context keeps data which should be sent to commonAuth endpoint
         AuthenticationRequest authenticationRequest = new AuthenticationRequest();
         authenticationRequest.setRelyingParty(sessionDTO.getRealm());
@@ -335,6 +336,10 @@ public class PassiveSTS extends HttpServlet {
             } else {
                 // TODO how to send back the authentication failure to client.
                 //for now user will be redirected back to the framework
+                // According to ws-federation-1.2-spec; 'wtrealm' will not be sent in the Passive STS Logout Request.
+                if (sessionDTO.getRealm() == null || sessionDTO.getRealm().trim().length() == 0) {
+                    sessionDTO.setRealm(new String());
+                }
                 sendToAuthenticationFramework(request, response, sessionDataKey, sessionDTO);
             }
         } else {
@@ -417,7 +422,6 @@ public class PassiveSTS extends HttpServlet {
 
     private void sendFrameworkForLogout(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Map paramMap = request.getParameterMap();
-
         SessionDTO sessionDTO = new SessionDTO();
         sessionDTO.setAction(getAttribute(paramMap, PassiveRequestorConstants.ACTION));
         sessionDTO.setAttributes(getAttribute(paramMap, PassiveRequestorConstants.ATTRIBUTE));
@@ -431,9 +435,8 @@ public class PassiveSTS extends HttpServlet {
         sessionDTO.setReqQueryString(request.getQueryString());
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        addSessionDataToCache(sessionDataKey, sessionDTO, IdPManagementUtil.getIdleSessionTimeOut
-                (CarbonContext.getThreadLocalCarbonContext().getTenantDomain()));
-        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+        addSessionDataToCache(sessionDataKey, sessionDTO);
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
 
         String selfPath = request.getRequestURI();
         AuthenticationRequest authenticationRequest = new AuthenticationRequest();
@@ -442,6 +445,10 @@ public class PassiveSTS extends HttpServlet {
         authenticationRequest.setRequestQueryParams(request.getParameterMap());
         authenticationRequest.setCommonAuthCallerPath(selfPath);
         authenticationRequest.appendRequestQueryParams(request.getParameterMap());
+        // According to ws-federation-1.2-spec; 'wtrealm' will not be sent in the Passive STS Logout Request.
+        if (sessionDTO.getRealm() == null || sessionDTO.getRealm().trim().length() == 0) {
+            authenticationRequest.setRelyingParty(new String());
+        }
         for (Enumeration e = request.getHeaderNames(); e.hasMoreElements(); ) {
             String headerName = e.nextElement().toString();
             authenticationRequest.addHeader(headerName, request.getHeader(headerName));
@@ -476,26 +483,25 @@ public class PassiveSTS extends HttpServlet {
         sessionDTO.setReqQueryString(request.getQueryString());
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        addSessionDataToCache(sessionDataKey, sessionDTO, IdPManagementUtil.getIdleSessionTimeOut
-                                                    (CarbonContext.getThreadLocalCarbonContext().getTenantDomain()));
+        addSessionDataToCache(sessionDataKey, sessionDTO);
 
         sendToAuthenticationFramework(request, response, sessionDataKey, sessionDTO);
     }
 
-    private void addSessionDataToCache(String sessionDataKey, SessionDTO sessionDTO, int cacheTimeout) {
+    private void addSessionDataToCache(String sessionDataKey, SessionDTO sessionDTO) {
         SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
         SessionDataCacheEntry cacheEntry = new SessionDataCacheEntry();
         cacheEntry.setSessionDTO(sessionDTO);
-        SessionDataCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+        SessionDataCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
     private SessionDTO getSessionDataFromCache(String sessionDataKey) {
         SessionDTO sessionDTO = null;
         SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
-        Object cacheEntryObj = SessionDataCache.getInstance(0).getValueFromCache(cacheKey);
+        SessionDataCacheEntry cacheEntry = SessionDataCache.getInstance().getValueFromCache(cacheKey);
 
-        if (cacheEntryObj != null) {
-            sessionDTO = ((SessionDataCacheEntry) cacheEntryObj).getSessionDTO();
+        if (cacheEntry != null) {
+            sessionDTO = cacheEntry.getSessionDTO();
         } else {
             log.error("SessionDTO does not exist. Probably due to cache timeout");
         }

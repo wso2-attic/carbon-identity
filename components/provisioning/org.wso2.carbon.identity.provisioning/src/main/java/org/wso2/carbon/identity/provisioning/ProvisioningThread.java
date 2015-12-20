@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.provisioning;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -61,6 +62,7 @@ public class ProvisioningThread implements Callable<Boolean> {
 
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomainName);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(getTenantIdFromDomain(tenantDomainName));
 
             ProvisionedIdentifier provisionedIdentifier = null;
             // real provisioning happens now.
@@ -104,6 +106,8 @@ public class ProvisioningThread implements Callable<Boolean> {
             if (tenantDomainName != null) {
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
                         tenantDomainName);
+                PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                                       .setTenantId(getTenantIdFromDomain(tenantDomainName));
             }
         }
 
@@ -148,6 +152,20 @@ public class ProvisioningThread implements Callable<Boolean> {
         } catch (UserStoreException e) {
             throw new IdentityApplicationManagementException(
                     "Error while deleting provisioning identifier.", e);
+        }
+    }
+
+    private int getTenantIdFromDomain(String tenantDomainName) throws IdentityProvisioningException {
+
+        if (StringUtils.isBlank(tenantDomainName)) {
+            throw new IdentityProvisioningException("Provided tenant domain is invalid");
+        }
+
+        try {
+            return IdPManagementUtil.getTenantIdOfDomain(tenantDomainName);
+        } catch (UserStoreException e) {
+            throw new IdentityProvisioningException(
+                    "Error occurred while resolving tenant Id from tenant domain :" + tenantDomainName, e);
         }
     }
 

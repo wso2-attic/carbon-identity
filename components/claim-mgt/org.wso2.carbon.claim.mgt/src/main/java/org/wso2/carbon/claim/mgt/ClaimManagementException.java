@@ -18,11 +18,11 @@
 
 package org.wso2.carbon.claim.mgt;
 
-public class ClaimManagementException extends Exception {
+import org.wso2.carbon.identity.base.IdentityException;
 
-    public ClaimManagementException() {
-        super();
-    }
+public class ClaimManagementException extends IdentityException {
+
+    private static final long serialVersionUID = -2967190365232758889L;
 
     public ClaimManagementException(String message) {
         super(message);

@@ -54,7 +54,7 @@ import java.util.Map;
 public class BasicAuthenticator extends AbstractApplicationAuthenticator
         implements LocalApplicationAuthenticator {
 
-    private static final long serialVersionUID = 4438354156955223654L;
+    private static final long serialVersionUID = 1819664539416029785L;
     private static final Log log = LogFactory.getLog(BasicAuthenticator.class);
 
     @Override
@@ -102,6 +102,12 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
 
             if (context.isRetrying()) {
                 retryParam = "&authFailure=true&authFailureMsg=login.fail.message";
+            }
+
+            if (context.getProperty("UserTenantDomainMismatch") != null &&
+                    (Boolean)context.getProperty("UserTenantDomainMismatch")) {
+                retryParam = "&authFailure=true&authFailureMsg=user.tenant.domain.mismatch.message";
+                context.setProperty("UserTenantDomainMismatch", false);
             }
 
             IdentityErrorMsgContext errorContext = IdentityUtil.getIdentityErrorMsg();
@@ -206,10 +212,10 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
 
         if (!isAuthenticated) {
             if (log.isDebugEnabled()) {
-                log.debug("user authentication failed due to invalid credentials.");
+                log.debug("User authentication failed due to invalid credentials");
             }
 
-            throw new InvalidCredentialsException();
+            throw new InvalidCredentialsException("User authentication failed due to invalid credentials");
         }
 
         Map<String, Object> authProperties = context.getProperties();

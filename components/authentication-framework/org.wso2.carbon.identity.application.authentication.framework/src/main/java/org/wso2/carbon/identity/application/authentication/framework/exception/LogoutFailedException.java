@@ -18,11 +18,11 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.exception;
 
-public class LogoutFailedException extends Exception {
+import org.wso2.carbon.identity.base.IdentityException;
 
-    public LogoutFailedException() {
-        super();
-    }
+public class LogoutFailedException extends IdentityException {
+
+    private static final long serialVersionUID = 5723130891276708235L;
 
     public LogoutFailedException(String message) {
         super(message);

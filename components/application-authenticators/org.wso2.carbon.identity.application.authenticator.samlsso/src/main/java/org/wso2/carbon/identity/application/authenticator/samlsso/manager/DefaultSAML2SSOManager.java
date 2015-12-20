@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
-import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
@@ -571,13 +570,13 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                         .get(SSOConstants.AUTHENTICATOR_NAME);
         if (authenticatorConfig != null){
             String tmpAcsUrl = authenticatorConfig.getParameterMap().get(SSOConstants.ServerConfig.SAML_SSO_ACS_URL);
-            if(StringUtils.isBlank(tmpAcsUrl)){
+            if(StringUtils.isNotBlank(tmpAcsUrl)){
                 acsUrl = tmpAcsUrl;
             }
         }
 
         if(acsUrl == null) {
-            acsUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true);
+            acsUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true, true);
         }
 
         authRequest.setAssertionConsumerServiceURL(acsUrl);

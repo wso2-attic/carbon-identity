@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.idp.mgt;
 
-import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +28,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.application.common.ApplicationAuthenticatorService;
+import org.wso2.carbon.identity.application.common.ProvisioningConnectorService;
 import org.wso2.carbon.identity.application.common.model.ClaimConfig;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
@@ -39,11 +39,9 @@ import org.wso2.carbon.identity.application.common.model.PermissionsAndRoleConfi
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
 import org.wso2.carbon.identity.application.common.model.RoleMapping;
-import org.wso2.carbon.identity.application.common.ProvisioningConnectorService;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.base.IdentityConstants;
-import org.wso2.carbon.identity.core.util.IdentityConfigParser;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.dao.CacheBackedIdPMgtDAO;
@@ -111,112 +109,69 @@ public class IdentityProviderManager {
         String oauth1AccessTokenUrl = null;
         String oauth2AuthzEPUrl = null;
         String oauth2TokenEPUrl = null;
+        String oauth2RevokeEPUrl = null;
         String oauth2UserInfoEPUrl = null;
         String passiveStsUrl = null;
         String stsUrl = null;
         String scimUserEndpoint = null;
         String scimGroupsEndpoint = null;
 
-        OMElement elem = IdentityConfigParser.getInstance().
-                getConfigElement("OpenID.OpenIDServerUrl");
-        if(elem != null){
-            openIdUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("SSOService.IdentityProviderURL");
-        if(elem != null){
-            samlSSOUrl = elem.getText();
-            samlLogoutUrl = samlSSOUrl;
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("OAuth.OAuth1RequestTokenUrl");
-        if(elem != null){
-            oauth1RequestTokenUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("OAuth.OAuth1AuthorizeUrl");
-        if(elem != null){
-            oauth1AuthorizeUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("OAuth.OAuth1AccessTokenUrl");
-        if(elem != null){
-            oauth1AccessTokenUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("OAuth.OAuth2AuthzEPUrl");
-        if(elem != null){
-            oauth2AuthzEPUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("OAuth.OAuth2TokenEPUrl");
-        if(elem != null){
-            oauth2TokenEPUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("OAuth.OAuth2UserInfoEPUrl");
-        if(elem != null){
-            oauth2UserInfoEPUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("PassiveSTS.IdentityProviderURL");
-        if(elem != null){
-            passiveStsUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("SecurityTokenService.IdentityProviderURL");
-        if(elem != null){
-            stsUrl = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("SCIM.UserEPUrl");
-        if(elem != null){
-            scimUserEndpoint = elem.getText();
-        }
-        elem = IdentityConfigParser.getInstance().
-                getConfigElement("SCIM.GroupEPUrl");
-        if(elem != null){
-            scimGroupsEndpoint = elem.getText();
-        }
-
+        openIdUrl = IdentityUtil.getProperty("OpenID.OpenIDServerUrl");
+        samlSSOUrl = IdentityUtil.getProperty("SSOService.IdentityProviderURL");
+        samlLogoutUrl = samlSSOUrl;
+        oauth1RequestTokenUrl = IdentityUtil.getProperty("OAuth.OAuth1RequestTokenUrl");
+        oauth1AuthorizeUrl = IdentityUtil.getProperty("OAuth.OAuth1AuthorizeUrl");
+        oauth1AccessTokenUrl = IdentityUtil.getProperty("OAuth.OAuth1AccessTokenUrl");
+        oauth2AuthzEPUrl = IdentityUtil.getProperty("OAuth.OAuth2AuthzEPUrl");
+        oauth2TokenEPUrl = IdentityUtil.getProperty("OAuth.OAuth2TokenEPUrl");
+        oauth2UserInfoEPUrl = IdentityUtil.getProperty("OAuth.OAuth2UserInfoEPUrl");
+        passiveStsUrl = IdentityUtil.getProperty("PassiveSTS.IdentityProviderURL");
+        stsUrl = IdentityUtil.getProperty("SecurityTokenService.IdentityProviderURL");
+        scimUserEndpoint = IdentityUtil.getProperty("SCIM.UserEPUrl");
+        scimGroupsEndpoint = IdentityUtil.getProperty("SCIM.GroupEPUrl");
+        oauth2RevokeEPUrl = IdentityUtil.getProperty("OAuth.OAuth2RevokeEPUrl");
+        
         if(StringUtils.isBlank(openIdUrl)){
-            openIdUrl = IdentityUtil.getServerURL("openid", true);
+            openIdUrl = IdentityUtil.getServerURL("openid", true, true);
         }
         if(StringUtils.isBlank(samlSSOUrl)){
-            samlSSOUrl = IdentityUtil.getServerURL("samlsso", true);
+            samlSSOUrl = IdentityUtil.getServerURL("samlsso", true, true);
         }
         if(StringUtils.isBlank(samlLogoutUrl)){
-            samlLogoutUrl = IdentityUtil.getServerURL("samlsso", true);
+            samlLogoutUrl = IdentityUtil.getServerURL("samlsso", true, true);
         }
         if(StringUtils.isBlank(oauth1RequestTokenUrl)){
-            oauth1RequestTokenUrl = IdentityUtil.getServerURL("oauth/request-token", true);
+            oauth1RequestTokenUrl = IdentityUtil.getServerURL("oauth/request-token", true, true);
         }
         if(StringUtils.isBlank(oauth1AuthorizeUrl)){
-            oauth1AuthorizeUrl = IdentityUtil.getServerURL("oauth/authorize-url", true);
+            oauth1AuthorizeUrl = IdentityUtil.getServerURL("oauth/authorize-url", true, true);
         }
         if(StringUtils.isBlank(oauth1AccessTokenUrl)){
-            oauth1AccessTokenUrl = IdentityUtil.getServerURL("oauth/access-token", true);
+            oauth1AccessTokenUrl = IdentityUtil.getServerURL("oauth/access-token", true, true);
         }
         if(StringUtils.isBlank(oauth2AuthzEPUrl)){
-            oauth2AuthzEPUrl = IdentityUtil.getServerURL("oauth2/authorize", false);
+            oauth2AuthzEPUrl = IdentityUtil.getServerURL("oauth2/authorize", true, false);
         }
         if(StringUtils.isBlank(oauth2TokenEPUrl)){
-            oauth2TokenEPUrl = IdentityUtil.getServerURL("oauth2/token", false);
+            oauth2TokenEPUrl = IdentityUtil.getServerURL("oauth2/token", true, false);
+        }
+        if(StringUtils.isBlank(oauth2RevokeEPUrl)){
+            oauth2RevokeEPUrl = IdentityUtil.getServerURL("oauth2/revoke", true, false);
         }
         if(StringUtils.isBlank(oauth2UserInfoEPUrl)){
-            oauth2UserInfoEPUrl = IdentityUtil.getServerURL("oauth2/userinfo", false);
+            oauth2UserInfoEPUrl = IdentityUtil.getServerURL("oauth2/userinfo", true, false);
         }
         if(StringUtils.isBlank(passiveStsUrl)){
-            passiveStsUrl = IdentityUtil.getServerURL("passivests", true);
+            passiveStsUrl = IdentityUtil.getServerURL("passivests", true, true);
         }
-        if(StringUtils.isBlank(stsUrl)){
-            stsUrl = IdentityUtil.getServerURL("services/" + tenantContext + "wso2carbon-sts", true);
+        if(!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equalsIgnoreCase(tenantDomain)){
+            stsUrl = IdentityUtil.getServerURL("services/" + tenantContext + "wso2carbon-sts", true, true);
         }
         if(StringUtils.isBlank(scimUserEndpoint)){
-            scimUserEndpoint = IdentityUtil.getServerURL("wso2/scim/Users", false);
+            scimUserEndpoint = IdentityUtil.getServerURL("wso2/scim/Users", true, false);
         }
         if(StringUtils.isBlank(scimGroupsEndpoint)){
-            scimGroupsEndpoint = IdentityUtil.getServerURL("wso2/scim/Groups", false);
+            scimGroupsEndpoint = IdentityUtil.getServerURL("wso2/scim/Groups", true, false);
         }
 
         IdentityProvider identityProvider = dao.getIdPByName(null,
@@ -379,6 +334,13 @@ public class IdentityProviderManager {
             propertiesList.add(tokenUrlProp);
         }
         if (IdentityApplicationManagementUtil.getProperty(oidcFedAuthn.getProperties(),
+                IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_REVOKE_URL) == null) {
+            Property revokeUrlProp = new Property();
+            revokeUrlProp.setName(IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_REVOKE_URL);
+            revokeUrlProp.setValue(oauth2RevokeEPUrl);
+            propertiesList.add(revokeUrlProp);
+        }
+        if (IdentityApplicationManagementUtil.getProperty(oidcFedAuthn.getProperties(),
                 IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_USER_INFO_EP_URL) == null) {
             Property userInfoUrlProp = new Property();
             userInfoUrlProp.setName(IdentityApplicationConstants.Authenticator.OIDC.OAUTH2_USER_INFO_EP_URL);
@@ -403,6 +365,14 @@ public class IdentityProviderManager {
                     .setName(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL);
             passiveSTSUrlProp.setValue(passiveStsUrl);
             propertiesList.add(passiveSTSUrlProp);
+        }
+        if (IdentityApplicationManagementUtil.getProperty(passiveSTSFedAuthn.getProperties(),
+                IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID) == null) {
+            Property idPEntityIdProp = new Property();
+            idPEntityIdProp
+                    .setName(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID);
+            idPEntityIdProp.setValue(IdPManagementUtil.getResidentIdPEntityId());
+            propertiesList.add(idPEntityIdProp);
         }
         passiveSTSFedAuthn
                 .setProperties(propertiesList.toArray(new Property[propertiesList.size()]));
@@ -502,7 +472,7 @@ public class IdentityProviderManager {
         // invoking the pre listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreAddResidentIdP(identityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreAddResidentIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -584,7 +554,8 @@ public class IdentityProviderManager {
 
         IdentityProviderProperty rememberMeTimeoutProperty = new IdentityProviderProperty();
         String rememberMeTimeout = IdentityUtil.getProperty(IdentityConstants.ServerConfig.REMEMBER_ME_TIME_OUT);
-        if (StringUtils.isBlank(rememberMeTimeout) || !StringUtils.isNumeric(rememberMeTimeout)) {
+        if (StringUtils.isBlank(rememberMeTimeout) || !StringUtils.isNumeric(rememberMeTimeout) ||
+                Integer.parseInt(rememberMeTimeout) <= 0) {
             log.warn("RememberMeTimeout in identity.xml should be a numeric value");
             rememberMeTimeout = IdentityApplicationConstants.REMEMBER_ME_TIME_OUT_DEFAULT;
         }
@@ -593,7 +564,8 @@ public class IdentityProviderManager {
 
         IdentityProviderProperty sessionIdletimeOutProperty = new IdentityProviderProperty();
         String idleTimeout = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SESSION_IDLE_TIMEOUT);
-        if (StringUtils.isBlank(idleTimeout) || !StringUtils.isNumeric(rememberMeTimeout)) {
+        if (StringUtils.isBlank(idleTimeout) || !StringUtils.isNumeric(idleTimeout) ||
+                Integer.parseInt(idleTimeout) <= 0) {
             log.warn("SessionIdleTimeout in identity.xml should be a numeric value");
             idleTimeout = IdentityApplicationConstants.SESSION_IDLE_TIME_OUT_DEFAULT;
         }
@@ -608,7 +580,7 @@ public class IdentityProviderManager {
 
         // invoking the post listeners
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostAddResidentIdP(identityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostAddResidentIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -624,10 +596,25 @@ public class IdentityProviderManager {
     public void updateResidentIdP(IdentityProvider identityProvider, String tenantDomain)
             throws IdentityProviderManagementException {
 
+        for (IdentityProviderProperty idpProp : identityProvider.getIdpProperties()) {
+            if (StringUtils.equals(idpProp.getName(), IdentityApplicationConstants.SESSION_IDLE_TIME_OUT)) {
+                if (StringUtils.isBlank(idpProp.getValue()) || !StringUtils.isNumeric(idpProp.getValue()) ||
+                        Integer.parseInt(idpProp.getValue().trim()) <= 0) {
+                    throw new IdentityProviderManagementException(IdentityApplicationConstants.SESSION_IDLE_TIME_OUT
+                            + " of ResidentIdP should be a numeric value greater than 0 ");
+                }
+            } else if (StringUtils.equals(idpProp.getName(), IdentityApplicationConstants.REMEMBER_ME_TIME_OUT)) {
+                if (StringUtils.isBlank(idpProp.getValue()) || !StringUtils.isNumeric(idpProp.getValue()) ||
+                        Integer.parseInt(idpProp.getValue().trim()) <= 0) {
+                    throw new IdentityProviderManagementException(IdentityApplicationConstants.REMEMBER_ME_TIME_OUT
+                            + " of ResidentIdP should be a numeric value greater than 0 ");
+                }
+            }
+        }
         // invoking the pre listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreUpdateResidentIdP(identityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreUpdateResidentIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -647,7 +634,7 @@ public class IdentityProviderManager {
 
         // invoking the post listeners
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostUpdateResidentIdP(identityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostUpdateResidentIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -1144,7 +1131,7 @@ public class IdentityProviderManager {
         // invoking the pre listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreAddIdP(identityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreAddIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -1201,7 +1188,7 @@ public class IdentityProviderManager {
 
         // invoking the post listeners
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostAddIdP(identityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostAddIdP(identityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -1219,7 +1206,7 @@ public class IdentityProviderManager {
         // invoking the pre listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreDeleteIdP(idPName, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreDeleteIdP(idPName, tenantDomain)) {
                 return;
             }
         }
@@ -1229,7 +1216,7 @@ public class IdentityProviderManager {
 
         // invoking the post listeners
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostDeleteIdP(idPName, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostDeleteIdP(idPName, tenantDomain)) {
                 return;
             }
         }
@@ -1249,7 +1236,7 @@ public class IdentityProviderManager {
         // invoking the pre listeners
         Collection<IdentityProviderMgtListener> listeners = IdPManagementServiceComponent.getIdpMgtListeners();
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPreUpdateIdP(oldIdPName, newIdentityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreUpdateIdP(oldIdPName, newIdentityProvider, tenantDomain)) {
                 return;
             }
         }
@@ -1314,7 +1301,7 @@ public class IdentityProviderManager {
 
         // invoking the post listeners
         for (IdentityProviderMgtListener listener : listeners) {
-            if (!listener.doPostUpdateIdP(oldIdPName, newIdentityProvider, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostUpdateIdP(oldIdPName, newIdentityProvider, tenantDomain)) {
                 return;
             }
         }

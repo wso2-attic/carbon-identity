@@ -25,9 +25,10 @@ import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.dto.QueryParamDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOReqValidationResponseDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 
-public class IdPInitSSOAuthnRequestValidator {
+public class IdPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
 
     private static Log log = LogFactory.getLog(IdPInitSSOAuthnRequestValidator.class);
 
@@ -55,10 +56,22 @@ public class IdPInitSSOAuthnRequestValidator {
             if (StringUtils.isNotBlank(spEntityID)) {
                 validationResponse.setIssuer(spEntityID);
             } else {
-                validationResponse.setValid(false);
                 String errorResp = SAMLSSOUtil.buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
                         "spEntityID parameter not found in request", null);
-                log.debug("spEntityID parameter not found in request");
+                if(log.isDebugEnabled()) {
+                    log.debug("spEntityID parameter not found in request");
+                }
+                validationResponse.setResponse(errorResp);
+                validationResponse.setValid(false);
+                return validationResponse;
+            }
+
+            if (!SAMLSSOUtil.isSAMLIssuerExists(spEntityID, SAMLSSOUtil.getTenantDomainFromThreadLocal())) {
+                String message = "A Service Provider with the Issuer '" + spEntityID + "' is not registered. Service " +
+                                 "Provider should be registered in advance";
+                log.error(message);
+                String errorResp = SAMLSSOUtil.buildErrorResponse(SAMLSSOConstants.StatusCodes.REQUESTOR_ERROR,
+                                                                  message, null);
                 validationResponse.setResponse(errorResp);
                 validationResponse.setValid(false);
                 return validationResponse;
@@ -69,6 +82,10 @@ public class IdPInitSSOAuthnRequestValidator {
                 validationResponse.setAssertionConsumerURL(acs);
             }
 
+            if (StringUtils.isBlank(SAMLSSOUtil.getTenantDomainFromThreadLocal())) {
+                SAMLSSOUtil.setTenantDomainInThreadLocal(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+            }
+
             validationResponse.setValid(true);
 
             if (log.isDebugEnabled()) {
@@ -76,7 +93,7 @@ public class IdPInitSSOAuthnRequestValidator {
             }
             return validationResponse;
         } catch (Exception e) {
-            throw new IdentityException("Error validating the IdP Initiated SSO request", e);
+            throw IdentityException.error("Error validating the IdP Initiated SSO request", e);
         }
     }
 

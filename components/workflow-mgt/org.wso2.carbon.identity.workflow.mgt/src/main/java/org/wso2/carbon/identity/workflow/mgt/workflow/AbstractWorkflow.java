@@ -74,8 +74,9 @@ public abstract class AbstractWorkflow {
     }
 
     /**
+     * Deploy artifacts of a workflow
      *
-     * @param parameterList
+     * @param parameterList Parameter of the workflow
      * @throws WorkflowException
      */
     public void deploy(List< Parameter> parameterList) throws WorkflowException {
@@ -88,6 +89,7 @@ public abstract class AbstractWorkflow {
 
 
     /**
+     * Execute workflow request at profile
      *
      * @param workFlowRequest
      * @throws WorkflowException
@@ -132,6 +134,11 @@ public abstract class AbstractWorkflow {
     protected abstract InputData getInputData(ParameterMetaData parameterMetaData) throws WorkflowException;
 
 
+    /**
+     * Get the ID of current template
+     *
+     * @return
+     */
     public String getTemplateId() {
         return this.metaData.getWorkflowImpl().getTemplateId();
     }

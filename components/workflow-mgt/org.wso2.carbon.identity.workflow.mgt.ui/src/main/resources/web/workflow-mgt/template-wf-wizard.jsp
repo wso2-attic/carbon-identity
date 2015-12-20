@@ -242,13 +242,11 @@
 
         var stepOrder = 0;
         function nextWizard(){
-            //alert("before");
             if(!validateInputs()){
                 alert("Required fields are missing");
                 return ;
             }
 
-            //alert("after");
             try {
                 for (var currentStep = 1; currentStep <= stepOrder; currentStep++) {
                     var newValues = $("#p-step-" + currentStep + "-users").tokenizer('get');
@@ -267,9 +265,7 @@
 
 
         function validateInputs(){
-            //alert("cleanSteps");
             cleanSteps();
-            //alert("in");
             <%
             if(template !=null && template.getParametersMetaData() !=null && template.getParametersMetaData().getParameterMetaData() !=null){
                 ParameterMetaData[] parameterMetaData = template.getParametersMetaData().getParameterMetaData();
@@ -596,12 +592,12 @@
                                                     $(this).find('.step_order_header').text('Step '+newStepOrderVal);
 
                                                     var textArea_Users = $('#p-step-'+oldApproveStepVal+'-users');
-                                                    textArea_Users.attr('id','#p-step-'+newStepOrderVal+'-users');
-                                                    textArea_Users.attr('name','#p-step-'+newStepOrderVal+'-users');
+                                                    textArea_Users.attr('id','p-step-'+newStepOrderVal+'-users');
+                                                    textArea_Users.attr('name','UserAndRole-step-'+newStepOrderVal+'-users');
 
-                                                    var textArea_Roles = $('#p-step-'+oldApproveStepVal+'_roles');
-                                                    textArea_Roles.attr('id','#p-step-'+newStepOrderVal+'_roles');
-                                                    textArea_Roles.attr('name','#p-step-'+newStepOrderVal+'_roles');
+                                                    var textArea_Roles = $('#p-step-'+oldApproveStepVal+'-roles');
+                                                    textArea_Roles.attr('id','p-step-'+newStepOrderVal+'-roles');
+                                                    textArea_Roles.attr('name','UserAndRole-step-'+newStepOrderVal+'-roles');
 
                                                     newStepOrderVal++;
                                                 });
@@ -629,7 +625,6 @@
                                         }
 
                                         function cleanSteps(){
-                                            //alert("cl");
                                             for(var x = 1 ; x<= stepOrder ;  ){
                                                 //alert(x);
                                                 if ($("#p-step-" + x + "-users").tokenizer('get') == "" &&

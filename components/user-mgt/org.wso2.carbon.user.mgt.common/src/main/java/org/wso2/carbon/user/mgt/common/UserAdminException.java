@@ -18,13 +18,10 @@
 
 package org.wso2.carbon.user.mgt.common;
 
-/**
- * 
- */
-public class UserAdminException extends Exception{
+public class UserAdminException extends Exception {
 
-    private     String message;
-
+    private static final long serialVersionUID = -5492975209308511107L;
+    private String message;
 
     public UserAdminException(String message, Throwable cause) {
         super(message, cause);
@@ -34,10 +31,6 @@ public class UserAdminException extends Exception{
     public UserAdminException(String message) {
         super(message);
         this.message = message;
-    }
-
-    public UserAdminException(Throwable cause) {
-        super(cause);
     }
 
     @Override

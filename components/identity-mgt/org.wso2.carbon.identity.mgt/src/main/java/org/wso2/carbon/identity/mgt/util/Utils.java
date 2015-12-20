@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.mgt.util;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.neethi.Policy;
@@ -64,7 +65,7 @@ public class Utils {
 
 
         if (userId == null || userId.trim().length() < 1) {
-            throw new IdentityException("Can not proceed with out a user id");
+            throw IdentityException.error("Can not proceed with out a user id");
         }
 
         UserDTO userDTO = new UserDTO(userId);
@@ -81,7 +82,7 @@ public class Utils {
             if (!user.getTenantDomain().equals(
                     PrivilegedCarbonContext.getThreadLocalCarbonContext()
                             .getTenantDomain())) {
-                throw new IdentityException(
+                throw IdentityException.error(
                         "Failed access to unauthorized tenant domain");
             }
 
@@ -146,12 +147,12 @@ public class Utils {
                 if (tenantId < 1 && tenantId != MultitenantConstants.SUPER_TENANT_ID) {
                     String msg = "This action can not be performed by the users in non-existing domains.";
                     log.error(msg);
-                    throw new IdentityException(msg);
+                    throw IdentityException.error(msg);
                 }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 String msg = "Error in retrieving tenant id of tenant domain: " + domain + ".";
                 log.error(msg, e);
-                throw new IdentityException(msg, e);
+                throw IdentityException.error(msg, e);
             }
         }
         return tenantId;
@@ -182,7 +183,7 @@ public class Utils {
         } catch (Exception e) {
             String msg = "Error retrieving the user store manager for tenant id : " + tenantId;
             log.error(msg, e);
-            throw new IdentityException(msg, e);
+            throw IdentityException.error(msg, e);
         }
         try {
             if (userStoreManager != null) {
@@ -196,7 +197,7 @@ public class Utils {
         } catch (Exception e) {
             String msg = "Unable to retrieve the claim for user : " + userName;
             log.error(msg, e);
-            throw new IdentityException(msg, e);
+            throw IdentityException.error(msg, e);
         }
     }
 
@@ -252,7 +253,7 @@ public class Utils {
                 password == null || password.trim().length() < 1) {
             String msg = "Unable to find the required information for updating password";
             log.error(msg);
-            throw new IdentityException(msg);
+            throw IdentityException.error(msg);
         }
 
         try {
@@ -269,7 +270,7 @@ public class Utils {
             String msg = "Error in changing the password, user name: " + userId + "  domain: " +
                     tenantDomain + ".";
             log.error(msg, e);
-            throw new IdentityException(msg, e);
+            throw IdentityException.error(msg, e);
         }
     }
 
@@ -312,7 +313,7 @@ public class Utils {
         } catch (Exception e) {
             String msg = "Error retrieving the user store manager for the tenant";
             log.error(msg, e);
-            throw new IdentityException(msg, e);
+            throw IdentityException.error(msg, e);
         }
 
         try {
@@ -327,7 +328,7 @@ public class Utils {
         } catch (Exception e) {
             String msg = "Unable to set the claim for user : " + userName;
             log.error(msg, e);
-            throw new IdentityException(msg, e);
+            throw IdentityException.error(msg, e);
         }
     }
 

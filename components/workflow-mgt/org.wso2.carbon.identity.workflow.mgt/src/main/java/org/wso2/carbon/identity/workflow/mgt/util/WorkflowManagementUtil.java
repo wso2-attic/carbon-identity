@@ -24,6 +24,12 @@ import java.util.List;
 public class WorkflowManagementUtil {
     private static Log log = LogFactory.getLog(WorkflowManagementUtil.class);
 
+    /**
+     * Create a internal role in workflow domain with same name as workflow.
+     *
+     * @param workflowName Workflow name
+     * @throws WorkflowException
+     */
     public static void createAppRole(String workflowName) throws WorkflowException {
         String roleName = createWorkflowRoleName(workflowName);
         String qualifiedUsername = CarbonContext.getThreadLocalCarbonContext().getUsername();
@@ -32,7 +38,7 @@ public class WorkflowManagementUtil {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Creating workflow role : " + roleName + " and assign the user : "
-                          + Arrays.toString(user) + " to that role");
+                        + Arrays.toString(user) + " to that role");
             }
             CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
                     .addRole(roleName, user, null);
@@ -42,6 +48,12 @@ public class WorkflowManagementUtil {
 
     }
 
+    /**
+     * Delete role created for workflow.
+     *
+     * @param workflowName Workflow  name
+     * @throws WorkflowException
+     */
     public static void deleteWorkflowRole(String workflowName) throws WorkflowException {
         String roleName = createWorkflowRoleName(workflowName);
 
@@ -56,6 +68,35 @@ public class WorkflowManagementUtil {
         }
     }
 
+    /**
+     * Update name of workflow role
+     *
+     * @param oldWorkflowName Previous role name
+     * @param newWorkflowName New role name
+     * @throws WorkflowException
+     */
+    public static void updateWorkflowRoleName(String oldWorkflowName, String newWorkflowName) throws
+            WorkflowException {
+        String oldRoleName = createWorkflowRoleName(oldWorkflowName);
+        String newRoleName = createWorkflowRoleName(newWorkflowName);
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Updating workflow role : " + oldRoleName);
+            }
+            CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager()
+                    .updateRoleName(oldRoleName, newRoleName);
+        } catch (UserStoreException e) {
+            throw new WorkflowException("Error while updating workflow role name.", e);
+        }
+
+    }
+
+    /**
+     * Generate owner role name for workflow.
+     *
+     * @param workflowName Workflow name
+     * @return
+     */
     public static String createWorkflowRoleName(String workflowName) {
         return UserCoreConstants.INTERNAL_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + workflowName;
     }
@@ -71,8 +112,8 @@ public class WorkflowManagementUtil {
      * @throws JAXBException
      */
     public static <T> T unmarshalXML(String xmlString, Class<T> classType) throws JAXBException {
-        T t = null ;
-        if(xmlString != null){
+        T t = null;
+        if (xmlString != null) {
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(xmlString.toString().getBytes());
             JAXBContext jaxbContext = JAXBContext.newInstance(classType);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
@@ -121,7 +162,7 @@ public class WorkflowManagementUtil {
     public static Parameter getParameter(List<Parameter> parameterList, String paramName, String holder) {
         for (Parameter parameter : parameterList) {
             if (parameter.getParamName().equals(paramName) && parameter.getqName().equals(paramName) &&
-                parameter.getHolder().equals(holder)) {
+                    parameter.getHolder().equals(holder)) {
                 return parameter;
             }
         }

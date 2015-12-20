@@ -18,11 +18,11 @@
 
 package org.wso2.carbon.identity.user.profile.mgt;
 
-public class UserProfileException extends Exception {
+import org.wso2.carbon.identity.base.IdentityException;
 
-    public UserProfileException() {
-        super();
-    }
+public class UserProfileException extends IdentityException {
+
+    private static final long serialVersionUID = -3679089347533523552L;
 
     public UserProfileException(String message, Throwable cause) {
         super(message, cause);
@@ -30,10 +30,6 @@ public class UserProfileException extends Exception {
 
     public UserProfileException(String message) {
         super(message);
-    }
-
-    public UserProfileException(Throwable cause) {
-        super(cause);
     }
 
 

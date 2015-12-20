@@ -27,6 +27,8 @@ import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuth
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -116,6 +118,15 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
         }
 
         return tokenEndpoint;
+    }
+
+    /**
+     * We do not have a default claim dialect.
+     * @return
+     */
+    @Override
+    public String getClaimDialectURI() {
+        return null;
     }
 
     /**
@@ -240,7 +251,8 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
                 claims.put(ClaimMapping.build(key, key, null, false), profile.get(key).toString());
 
-                if (log.isDebugEnabled()) {
+                if (log.isDebugEnabled()
+                        && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)) {
                     log.debug("Adding claims from end-point data mapping : " + key + " - " +
                             profile.get(key).toString());
                 }

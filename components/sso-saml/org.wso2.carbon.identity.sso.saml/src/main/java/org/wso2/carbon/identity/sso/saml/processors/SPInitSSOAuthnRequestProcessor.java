@@ -40,7 +40,7 @@ import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SPInitSSOAuthnRequestProcessor {
+public class SPInitSSOAuthnRequestProcessor implements SSOAuthnRequestProcessor{
 
     private static Log log = LogFactory.getLog(SPInitSSOAuthnRequestProcessor.class);
 
@@ -219,7 +219,7 @@ public class SPInitSSOAuthnRequestProcessor {
             }
             return ssoIdpConfigs;
         } catch (Exception e) {
-            throw new IdentityException("Error while reading Service Provider configurations", e);
+            throw IdentityException.error("Error while reading Service Provider configurations", e);
         }
     }
 

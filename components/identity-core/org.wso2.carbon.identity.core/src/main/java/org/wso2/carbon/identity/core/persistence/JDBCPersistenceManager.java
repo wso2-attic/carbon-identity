@@ -80,7 +80,7 @@ public class JDBCPersistenceManager {
                 String errorMsg = "Identity Persistence Manager configuration is not available in " +
                         "identity.xml file. Terminating the JDBC Persistence Manager " +
                         "initialization. This may affect certain functionality.";
-                throw new IdentityRuntimeException(errorMsg);
+                throw IdentityRuntimeException.error(errorMsg);
             }
 
             OMElement dataSourceElem = persistenceManagerConfigElem.getFirstChildWithName(
@@ -90,7 +90,7 @@ public class JDBCPersistenceManager {
                 String errorMsg = "DataSource Element is not available for JDBC Persistence " +
                         "Manager in identity.xml file. Terminating the JDBC Persistence Manager " +
                         "initialization. This might affect certain features.";
-                throw new IdentityRuntimeException(errorMsg);
+                throw IdentityRuntimeException.error(errorMsg);
             }
 
             OMElement dataSourceNameElem = dataSourceElem.getFirstChildWithName(
@@ -103,7 +103,7 @@ public class JDBCPersistenceManager {
             }
         }  catch (NamingException e) {
             String errorMsg = "Error when looking up the Identity Data Source.";
-            throw new IdentityRuntimeException(errorMsg, e);
+            throw IdentityRuntimeException.error(errorMsg, e);
         }
     }
 
@@ -126,7 +126,7 @@ public class JDBCPersistenceManager {
             return dbConnection;
         } catch (SQLException e) {
             String errMsg = "Error when getting a database connection object from the Identity data source.";
-            throw new IdentityRuntimeException(errMsg, e);
+            throw IdentityRuntimeException.error(errMsg, e);
         }
     }
 

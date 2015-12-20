@@ -75,11 +75,13 @@ public class AttributeMapper {
             }
             if (attribute instanceof SimpleAttribute) {
                 String attributeURI = attribute.getAttributeURI();
-                String attributeValue =
-                        AttributeUtil.getStringValueOfAttribute(((SimpleAttribute) attribute).getValue(),
-                                ((SimpleAttribute) attribute).getDataType());
-                // set attribute URI as the claim URI
-                claimsMap.put(attributeURI, attributeValue);
+                if (((SimpleAttribute) attribute).getValue() != null) {
+                    String attributeValue =
+                            AttributeUtil.getStringValueOfAttribute(((SimpleAttribute) attribute).getValue(),
+                                    ((SimpleAttribute) attribute).getDataType());
+                    // set attribute URI as the claim URI
+                    claimsMap.put(attributeURI, attributeValue);
+                }
             } else if (attribute instanceof MultiValuedAttribute) {
                 MultiValuedAttribute multiValAttribute = (MultiValuedAttribute) attribute;
                 // get the URI of root attribute
@@ -116,7 +118,7 @@ public class AttributeMapper {
                     }
                     SimpleAttribute valueAttribute =
                             (SimpleAttribute) subAttributes.get(SCIMConstants.CommonSchemaConstants.VALUE);
-                    if (valueAttribute != null) {
+                    if (valueAttribute != null && valueAttribute.getValue() != null) {
                         // put it in claims
                         claimsMap.put(valueAttriubuteURI,
                                 AttributeUtil.getStringValueOfAttribute(valueAttribute.getValue(),
@@ -139,9 +141,11 @@ public class AttributeMapper {
                         // if the attribute a simple attribute
                         if (entry instanceof SimpleAttribute) {
                             SimpleAttribute simpleAttribute = (SimpleAttribute) entry;
-                            claimsMap.put(entry.getAttributeURI(),
-                                    AttributeUtil.getStringValueOfAttribute(simpleAttribute.getValue(),
-                                            simpleAttribute.getDataType()));
+                            if (simpleAttribute != null && simpleAttribute.getValue() != null) {
+                                claimsMap.put(entry.getAttributeURI(),
+                                        AttributeUtil.getStringValueOfAttribute(simpleAttribute.getValue(),
+                                                simpleAttribute.getDataType()));
+                            }
                         } else if (entry instanceof MultiValuedAttribute) {
                             MultiValuedAttribute multiValAttribute = (MultiValuedAttribute) entry;
                             // get the URI of root attribute
@@ -178,7 +182,7 @@ public class AttributeMapper {
                                 }
                                 SimpleAttribute valueAttribute =
                                         (SimpleAttribute) subAttributes.get(SCIMConstants.CommonSchemaConstants.VALUE);
-                                if (valueAttribute != null) {
+                                if (valueAttribute != null && valueAttribute.getValue() != null) {
                                     // put it in claims
                                     claimsMap.put(valueAttriubuteURI,
                                             AttributeUtil.getStringValueOfAttribute(valueAttribute.getValue(),
@@ -201,9 +205,11 @@ public class AttributeMapper {
                                 // if the attribute a simple attribute
                                 if (subEntry instanceof SimpleAttribute) {
                                     SimpleAttribute simpleAttribute = (SimpleAttribute) subEntry;
-                                    claimsMap.put(subEntry.getAttributeURI(),
-                                            AttributeUtil.getStringValueOfAttribute(simpleAttribute.getValue(),
-                                                    simpleAttribute.getDataType()));
+                                    if (simpleAttribute != null && simpleAttribute.getValue() != null) {
+                                        claimsMap.put(subEntry.getAttributeURI(),
+                                                AttributeUtil.getStringValueOfAttribute(simpleAttribute.getValue(),
+                                                        simpleAttribute.getDataType()));
+                                    }
                                 }
                             }
                         }

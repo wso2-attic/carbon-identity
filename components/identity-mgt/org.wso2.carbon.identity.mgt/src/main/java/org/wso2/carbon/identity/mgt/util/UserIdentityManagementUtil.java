@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.model.IdentityEventListener;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
@@ -108,7 +108,7 @@ public class UserIdentityManagementUtil {
     public static void lockUserAccount(String userName, UserStoreManager userStoreManager)
             throws IdentityException {
         if (!isIdentityMgtListenerEnable()) {
-            throw new IdentityException("Cannot lock account, IdentityMgtEventListener is not enabled.");
+            throw IdentityException.error("Cannot lock account, IdentityMgtEventListener is not enabled.");
         }
 
         String domainName = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).getRealmConfiguration().
@@ -118,11 +118,11 @@ public class UserIdentityManagementUtil {
         try {
             if (!userStoreManager.isExistingUser(userName)) {
                 log.error("User " + userName + " does not exist in tenant "+userStoreManager.getTenantId());
-                throw new IdentityException("No user account found for user " + userName);
+                throw IdentityException.error("No user account found for user " + userName);
             }
         } catch (UserStoreException e) {
             log.error("Error while reading user identity data", e);
-            throw new IdentityException("Error while lock user account : " + userName);
+            throw IdentityException.error("Error while lock user account : " + userName);
 
         }
 
@@ -133,19 +133,19 @@ public class UserIdentityManagementUtil {
             userIdentityDO.setUnlockTime(0);
             store.store(userIdentityDO, userStoreManager);
         } else {
-            throw new IdentityException("No user account found for user " + userName);
+            throw IdentityException.error("No user account found for user " + userName);
         }
     }
 
     private static boolean isIdentityMgtListenerEnable() {
-        IdentityEventListener identityEventListener = IdentityUtil.readEventListenerProperty
+        IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
                 (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
-        if (identityEventListener == null) {
+        if (identityEventListenerConfig == null) {
             return true;
         }
 
-        if (StringUtils.isNotBlank(identityEventListener.getEnable())) {
-            return Boolean.parseBoolean(identityEventListener.getEnable());
+        if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+            return Boolean.parseBoolean(identityEventListenerConfig.getEnable());
         } else {
             return true;
         }
@@ -162,7 +162,7 @@ public class UserIdentityManagementUtil {
             throws IdentityException {
 
         if (!isIdentityMgtListenerEnable()) {
-            throw new IdentityException("Cannot unlock account, IdentityMgtEventListener is not enabled.");
+            throw IdentityException.error("Cannot unlock account, IdentityMgtEventListener is not enabled.");
         }
 
         String domainName = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).getRealmConfiguration().
@@ -172,11 +172,11 @@ public class UserIdentityManagementUtil {
         try {
             if (!userStoreManager.isExistingUser(userName)) {
                 log.error("User " + userName + " does not exist in tenant "+userStoreManager.getTenantId());
-                throw new IdentityException("No user account found for user " + userName);
+                throw IdentityException.error("No user account found for user " + userName);
             }
         } catch (UserStoreException e) {
             log.error("Error while reading user identity data", e);
-            throw new IdentityException("Error while unlock user account " + userName);
+            throw IdentityException.error("Error while unlock user account " + userName);
 
         }
 
@@ -187,7 +187,7 @@ public class UserIdentityManagementUtil {
             userIdentityDO.setUnlockTime(0);
             store.store(userIdentityDO, userStoreManager);
         } else {
-            throw new IdentityException("No user account found for user " + userName);
+            throw IdentityException.error("No user account found for user " + userName);
         }
 
     }
@@ -223,7 +223,7 @@ public class UserIdentityManagementUtil {
         int i = 0;
         for (String secQuestion : primarySecurityQuestion) {
             if (!secQuestion.contains(UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI)) {
-                throw new IdentityException("One or more security questions does not contain the namespace " +
+                throw IdentityException.error("One or more security questions does not contain the namespace " +
                         UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI);
             }
             metadata[i++] =
@@ -246,7 +246,7 @@ public class UserIdentityManagementUtil {
         int i = 0;
         for (String secQuestion : primarySecurityQuestion) {
             if (!secQuestion.contains(UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI)) {
-                throw new IdentityException("One or more security questions does not contain the namespace " +
+                throw IdentityException.error("One or more security questions does not contain the namespace " +
                         UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI);
             }
             metadata[i++] =
@@ -275,7 +275,7 @@ public class UserIdentityManagementUtil {
             userIdentityDO.updateUserSequeiryQuestions(securityQuestion);
             store.store(userIdentityDO, userStoreManager);
         } else {
-            throw new IdentityException("No user account found for user " + userName);
+            throw IdentityException.error("No user account found for user " + userName);
         }
     }
 
@@ -316,7 +316,7 @@ public class UserIdentityManagementUtil {
             userIdentityDO.updateUserIdentityRecoveryData(userIdentityRecoveryData);
             store.store(userIdentityDO, userStoreManager);
         } else {
-            throw new IdentityException("No user account found for user " + userName);
+            throw IdentityException.error("No user account found for user " + userName);
         }
 
     }
@@ -338,7 +338,7 @@ public class UserIdentityManagementUtil {
         if (userIdentityDO != null) {
             return userIdentityDO.getUserIdentityRecoveryData();
         } else {
-            throw new IdentityException("No user account found for user " + userName);
+            throw IdentityException.error("No user account found for user " + userName);
         }
     }
 

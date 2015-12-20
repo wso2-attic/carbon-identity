@@ -73,7 +73,7 @@ public class ProvisioningApplicationMgtListener extends AbstractApplicationMgtLi
             ServiceProviderProvisioningConnectorCacheKey key =
                     new ServiceProviderProvisioningConnectorCacheKey(applicationName, tenantDomain);
 
-            ServiceProviderProvisioningConnectorCacheEntry entry = (ServiceProviderProvisioningConnectorCacheEntry) ServiceProviderProvisioningConnectorCache
+            ServiceProviderProvisioningConnectorCacheEntry entry = ServiceProviderProvisioningConnectorCache
                     .getInstance().getValueFromCache(key);
 
             // cache hit

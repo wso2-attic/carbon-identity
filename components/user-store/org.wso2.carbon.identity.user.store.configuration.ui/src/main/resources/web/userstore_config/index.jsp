@@ -24,7 +24,6 @@
 <jsp:include page="../dialog/display_messages.jsp"/>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.stub.dto.UserStoreDTO" %>
 <%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.client.UserStoreConfigAdminServiceClient" %>
-<%@ page import="org.wso2.carbon.identity.user.store.configuration.ui.utils.UserStoreMgtDataKeeper" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
@@ -50,14 +49,6 @@
 		                (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 		        UserStoreConfigAdminServiceClient userStoreConfigAdminServiceClient = new UserStoreConfigAdminServiceClient(cookie, backendServerURL, configContext);
 		        userStoreDTOs = userStoreConfigAdminServiceClient.getActiveDomains();
-                UserStoreMgtDataKeeper.clearUserStoreManager();
-		        if (userStoreDTOs[0] != null) {
-		            for (UserStoreDTO userStoreDTO : userStoreDTOs) {
-		                UserStoreMgtDataKeeper.addUserStoreManager(userStoreDTO.getProperties(), userStoreDTO.getDomainId());
-		            }
-		        } else {
-		        }
-		        
 		    }catch(Exception e) {
 		   
 		        userStoreDTOs = new UserStoreDTO[0];
