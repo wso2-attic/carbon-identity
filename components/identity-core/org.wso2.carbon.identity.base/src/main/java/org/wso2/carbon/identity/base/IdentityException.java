@@ -149,7 +149,7 @@ public class IdentityException extends Exception {
     // However once we migrate all the usages of IdentityException to create using error(ErrorInfo) we can remove this
     @Deprecated
     public static IdentityException error(String errorDescription) {
-        IdentityException identityException = IdentityException.error(errorDescription);
+        IdentityException identityException = new IdentityException(errorDescription);
         ErrorInfo.ErrorInfoBuilder errorInfoBuilder = new ErrorInfo.ErrorInfoBuilder(errorDescription);
         identityException.addErrorInfo(errorInfoBuilder.build());
         return identityException;
@@ -159,7 +159,7 @@ public class IdentityException extends Exception {
     // However once we migrate all the usages of IdentityException to create using error(ErrorInfo) we can remove this
     @Deprecated
     public static IdentityException error(String errorDescription, Throwable cause) {
-        IdentityException identityException = IdentityException.error(errorDescription, cause);
+        IdentityException identityException = new IdentityException(errorDescription, cause);
         ErrorInfo.ErrorInfoBuilder errorInfoBuilder = new ErrorInfo.ErrorInfoBuilder(errorDescription);
         errorInfoBuilder.cause(cause);
         identityException.addErrorInfo(errorInfoBuilder.build());
@@ -172,10 +172,9 @@ public class IdentityException extends Exception {
         }
         IdentityException identityException = null;
         if(errorInfo.getCause() != null) {
-            identityException = IdentityException.error(errorInfo.getErrorDescription(),
-                    errorInfo.getCause());
+            identityException = new IdentityException(errorInfo.getErrorDescription(), errorInfo.getCause());
         } else {
-            identityException = IdentityException.error(errorInfo.getErrorDescription());
+            identityException = new IdentityException(errorInfo.getErrorDescription());
         }
         identityException.addErrorInfo(errorInfo);
         return identityException;
