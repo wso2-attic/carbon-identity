@@ -240,7 +240,7 @@ public class OpenIDAuthenticator extends AbstractApplicationAuthenticator implem
             subject = FrameworkUtils.getFederatedSubjectFromClaims(context, getClaimDialectURI());
         } catch (Exception e) {
             if(log.isDebugEnabled()) {
-                log.debug("Couldn't find the subject claim from claim mappings " + e);
+                log.debug("Couldn't find the subject claim from claim mappings ", e);
             }
         }
         return subject;
