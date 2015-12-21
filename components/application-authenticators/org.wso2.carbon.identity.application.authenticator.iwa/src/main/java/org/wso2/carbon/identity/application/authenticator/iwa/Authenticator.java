@@ -3,10 +3,8 @@ package org.wso2.carbon.identity.application.authenticator.iwa;
 import java.security.PrivilegedActionException;
 
 import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.servlet.http.HttpServletRequest;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
@@ -27,7 +25,7 @@ public class Authenticator {
 
 		this.serverCred = Provider.getServerCredential(this.logginContext.getSubject());
 		//new KerberosPrincipal(this.serverCred.getName().toString());
-		System.out.println(this.serverCred.getName().toString());
+		//System.out.println(this.serverCred.getName().toString());
 		
 	}
 

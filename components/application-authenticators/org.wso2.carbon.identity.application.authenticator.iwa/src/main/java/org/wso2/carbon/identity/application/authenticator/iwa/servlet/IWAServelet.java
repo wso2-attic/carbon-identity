@@ -59,13 +59,14 @@ public class IWAServelet extends HttpServlet {
         commonAuthURL += "?" + IWAConstants.IWA_PARAM_STATE + "=" + URLEncoder.encode(param, IWAConstants.UTF_8) +
                          "&" + IWAAuthenticator.IWA_PROCESSED + "=1";
 
-        //todo how to check if user is logged in
         String header = request.getHeader(GSSConstants.AUTHORIZATION_HEADER);
         // authenticate user
         if (header != null) {
             // log the user in using the token
             String token = header.substring("Negotiate".length()+1);
             if (token.startsWith(GSSConstants.NTLM_PROLOG)){
+                //todo prompt to type user name and password.
+                //todo else make redirect to basic auth
                 log.warn("NTLM token found ");
                 sendUnauthorized(response, true);
                 return;
@@ -133,10 +134,13 @@ public class IWAServelet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
 
+        //todo remove these 2 files and check if it works
+        //todo what if this file do  affect the normal steps
         ConfigurationSetup.setSystemProperties("login.conf", "krb5.conf");
 
         try {
 
+            //todo get user names and password from user mgt file
             this.authenticator=new Authenticator("TomCat", "WSO2!@#");
 
         } catch (LoginException | PrivilegedActionException | GSSException e) {
