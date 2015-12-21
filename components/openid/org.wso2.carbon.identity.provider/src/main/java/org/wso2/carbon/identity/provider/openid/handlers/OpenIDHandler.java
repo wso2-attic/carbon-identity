@@ -190,7 +190,7 @@ public class OpenIDHandler {
                 directResponse(response, responseText);
             } catch (IOException e) {
                 log.error("Failed to redirect OpenID response", e);
-                throw new IdentityException("OpenID redirect reponse failed");
+                throw IdentityException.error("OpenID redirect reponse failed");
             }
         }
 
@@ -550,7 +550,7 @@ public class OpenIDHandler {
             String claimedID = (String) session.getAttribute(OpenIDConstants.RequestParameter.OPENID);
 
             if (claimedID == null) {
-                throw new IdentityException("No valid OpenID Identifier found. Terminating authentication flow");
+                throw IdentityException.error("No valid OpenID Identifier found. Terminating authentication flow");
             }
 
             String userName = null;
@@ -665,7 +665,7 @@ public class OpenIDHandler {
                         OpenId.PARAM_LIST)) + "&errorMsg=error.while.user.auth");
             }
         } catch (Exception e) {
-            throw new IdentityException("Exception while handling request from the login page", e);
+            throw IdentityException.error("Exception while handling request from the login page", e);
         }
     }
 

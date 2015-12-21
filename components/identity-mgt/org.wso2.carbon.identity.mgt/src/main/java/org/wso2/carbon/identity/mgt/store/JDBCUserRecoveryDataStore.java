@@ -57,7 +57,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
             prepStmt.execute();
             connection.commit();
         } catch (SQLException e) {
-            throw new IdentityException("Error while storing user identity data", e);
+            throw IdentityException.error("Error while storing user identity data", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -79,7 +79,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
             prepStmt.setInt(2, tenant);
             connection.commit();
         } catch (SQLException e) {
-            throw new IdentityException("Error while invalidating user identity data", e);
+            throw IdentityException.error("Error while invalidating user identity data", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -106,7 +106,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
             connection.setAutoCommit(false);
             connection.commit();
         } catch (SQLException e) {
-            throw new IdentityException("Error while storing user identity data", e);
+            throw IdentityException.error("Error while storing user identity data", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -135,7 +135,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
             prepStmt.executeBatch();
             connection.commit();
         } catch (SQLException e) {
-            throw new IdentityException("Error while storing user identity data", e);
+            throw IdentityException.error("Error while storing user identity data", e);
         } finally {
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
@@ -179,7 +179,7 @@ public class JDBCUserRecoveryDataStore implements UserRecoveryDataStore {
             connection.commit();
             return metada.toArray(resultMetadata);
         } catch (SQLException e) {
-            throw new IdentityException("Error while reading user identity data", e);
+            throw IdentityException.error("Error while reading user identity data", e);
         } finally {
             IdentityDatabaseUtil.closeResultSet(results);
             IdentityDatabaseUtil.closeStatement(prepStmt);

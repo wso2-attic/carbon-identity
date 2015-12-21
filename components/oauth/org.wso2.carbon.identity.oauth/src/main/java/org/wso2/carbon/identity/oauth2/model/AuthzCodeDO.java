@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.oauth2.model;
 
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 
@@ -30,7 +31,7 @@ public class AuthzCodeDO extends CacheEntry {
 
     private static final long serialVersionUID = 3308401412530535040L;
 
-    private User authorizedUser;
+    private AuthenticatedUser authorizedUser;
 
     private String[] scope;
 
@@ -48,7 +49,7 @@ public class AuthzCodeDO extends CacheEntry {
 
     private String authzCodeId;
 
-    public AuthzCodeDO(User authorizedUser, String[] scope, Timestamp issuedTime, long validityPeriod, String
+    public AuthzCodeDO(AuthenticatedUser authorizedUser, String[] scope, Timestamp issuedTime, long validityPeriod, String
             callbackUrl, String consumerKey, String authorizationCode, String authzCodeId) {
         this.authorizedUser = authorizedUser;
         this.scope = scope;
@@ -63,7 +64,7 @@ public class AuthzCodeDO extends CacheEntry {
     public AuthzCodeDO() {
     }
 
-    public User getAuthorizedUser() {
+    public AuthenticatedUser getAuthorizedUser() {
         return authorizedUser;
     }
 

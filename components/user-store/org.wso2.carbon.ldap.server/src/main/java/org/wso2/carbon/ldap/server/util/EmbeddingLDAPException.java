@@ -16,20 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.ldap.server.util;
+
+import org.wso2.carbon.identity.base.IdentityException;
 
 /**
  * This is to differentiate the exceptional events happen in wso2/carbon/apacheds-server package's
  * code (in the process of embedding LDAP to carbon server) from others' code such as ApacheDS's.
  */
-public class EmbeddingLDAPException extends Exception {
+public class EmbeddingLDAPException extends IdentityException {
+
+    private static final long serialVersionUID = 8759746693388071061L;
 
     public EmbeddingLDAPException(String errorMessage) {
         super(errorMessage);
-    }
-
-    public EmbeddingLDAPException(Throwable cause) {
-        super(cause);
     }
 
     public EmbeddingLDAPException(String errorMessage, Throwable cause) {

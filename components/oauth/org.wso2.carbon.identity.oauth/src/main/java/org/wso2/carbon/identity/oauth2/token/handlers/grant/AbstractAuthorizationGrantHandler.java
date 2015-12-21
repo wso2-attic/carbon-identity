@@ -30,7 +30,7 @@ import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
@@ -189,7 +189,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
             //Check if the last issued access token is still active and valid in database
             AccessTokenDO existingAccessTokenDO = tokenMgtDAO.retrieveLatestAccessToken(
-                    oAuth2AccessTokenReqDTO.getClientId(), tokReqMsgCtx.getAuthorizedUser().toString(),
+                    oAuth2AccessTokenReqDTO.getClientId(), tokReqMsgCtx.getAuthorizedUser(),
                     userStoreDomain, scope, false);
 
             if (existingAccessTokenDO != null) {
@@ -421,7 +421,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
     @Override
     public boolean authorizeAccessDelegation(OAuthTokenReqMessageContext tokReqMsgCtx)
             throws IdentityOAuth2Exception {
-        OAuthCallback authzCallback = new OAuthCallback(tokReqMsgCtx.getAuthorizedUser().toString(),
+        OAuthCallback authzCallback = new OAuthCallback(tokReqMsgCtx.getAuthorizedUser(),
                 tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId(),
                 OAuthCallback.OAuthCallbackType.ACCESS_DELEGATION_TOKEN);
         authzCallback.setRequestedScope(tokReqMsgCtx.getScope());
@@ -444,7 +444,7 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
     @Override
     public boolean validateScope(OAuthTokenReqMessageContext tokReqMsgCtx)
             throws IdentityOAuth2Exception {
-        OAuthCallback scopeValidationCallback = new OAuthCallback(tokReqMsgCtx.getAuthorizedUser().toString(),
+        OAuthCallback scopeValidationCallback = new OAuthCallback(tokReqMsgCtx.getAuthorizedUser(),
                 tokReqMsgCtx.getOauth2AccessTokenReqDTO().getClientId(), OAuthCallback.OAuthCallbackType
                 .SCOPE_VALIDATION_TOKEN);
         scopeValidationCallback.setRequestedScope(tokReqMsgCtx.getScope());

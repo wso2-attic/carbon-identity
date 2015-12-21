@@ -143,7 +143,8 @@ public class SPInitLogoutRequestProcessor implements SPInitSSOLogoutRequestProce
                             SAMLSSOUtil.setTenantDomainInThreadLocal(
                                     sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
                         } else {
-                            throw new IdentityException("Service provider :" + issuer + " does not exist in session info " +
+                            throw IdentityException.error("Service provider :" + issuer + " does not exist in session " +
+                                    "info " +
                                     "data.");
                         }
                     }
@@ -259,7 +260,7 @@ public class SPInitLogoutRequestProcessor implements SPInitSSOLogoutRequestProce
 
             return reqValidationResponseDTO;
         } catch (UserStoreException | IdentityException e) {
-            throw new IdentityException("Error Processing the Logout Request", e);
+            throw IdentityException.error("Error Processing the Logout Request", e);
         }
     }
 
@@ -284,7 +285,7 @@ public class SPInitLogoutRequestProcessor implements SPInitSSOLogoutRequestProce
         try {
             reqValidationResponseDTO.setResponse(SAMLSSOUtil.compressResponse(SAMLSSOUtil.marshall(logoutResp)));
         } catch (IOException e) {
-            throw new IdentityException("Error while creating logout response", e);
+            throw IdentityException.error("Error while creating logout response", e);
         }
         return reqValidationResponseDTO;
     }

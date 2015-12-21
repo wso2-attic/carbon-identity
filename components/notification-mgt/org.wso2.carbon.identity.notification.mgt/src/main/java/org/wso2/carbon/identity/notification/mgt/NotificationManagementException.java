@@ -19,18 +19,18 @@
 
 package org.wso2.carbon.identity.notification.mgt;
 
+import org.wso2.carbon.identity.base.IdentityException;
+
 /**
  * Exception class for MessageComponent
  */
 @SuppressWarnings("unused")
-public class NotificationManagementException extends Exception {
+public class NotificationManagementException extends IdentityException {
+
+    private static final long serialVersionUID = 3680713288865900088L;
 
     public NotificationManagementException(String message) {
         super(message);
-    }
-
-    public NotificationManagementException(Throwable cause) {
-        super(cause);
     }
 
     public NotificationManagementException(String message, Throwable cause) {

@@ -160,7 +160,7 @@ public class OAuthConsumerDAO {
             if (resultSet.next()) {
                 tokenSecret = resultSet.getString(1);
             } else {
-                throw new IdentityException("Invalid token : " + token);
+                throw IdentityException.error("Invalid token : " + token);
             }
         } catch (SQLException e) {
             throw new IdentityOAuthAdminException("Error when reading the token secret for token : " +
@@ -272,11 +272,11 @@ public class OAuthConsumerDAO {
                 params.setAuthorizedbyUserName(resultSet.getString(8));
 
             } else {
-                throw new IdentityException("Invalid request token : " + oauthToken);
+                throw IdentityException.error("Invalid request token : " + oauthToken);
             }
             connection.commit();
         } catch (SQLException e) {
-            throw new IdentityException("Error when retrieving request token from the persistence store : " +
+            throw IdentityException.error("Error when retrieving request token from the persistence store : " +
                     oauthToken);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
@@ -345,7 +345,7 @@ public class OAuthConsumerDAO {
                 scope = resultSet.getString(1);
                 authorizedUser = resultSet.getString(2);
             } else {
-                throw new IdentityException("Invalid access token : " + oauthToken);
+                throw IdentityException.error("Invalid access token : " + oauthToken);
             }
             connection.commit();
         } catch (SQLException e) {
@@ -358,7 +358,7 @@ public class OAuthConsumerDAO {
         if (reqScope != null && reqScope.equals(scope)) {
             return authorizedUser;
         } else {
-            throw new IdentityException("Scope of the access token doesn't match with the original scope");
+            throw IdentityException.error("Scope of the access token doesn't match with the original scope");
         }
     }
 

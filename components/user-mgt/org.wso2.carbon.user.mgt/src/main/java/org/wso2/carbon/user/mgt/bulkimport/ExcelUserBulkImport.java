@@ -50,7 +50,6 @@ public class ExcelUserBulkImport {
         try {
             Workbook wb = this.createWorkbook();
             Sheet sheet = wb.getSheet(wb.getSheetName(0));
-            String password = config.getDefaultPassword();
             String domain = config.getUserStoreDomain();
 
             if (sheet == null || sheet.getLastRowNum() == -1) {
@@ -78,7 +77,7 @@ public class ExcelUserBulkImport {
                 if (userName != null && userName.trim().length() > 0) {
                     try {
                         if (!userStore.isExistingUser(userName)) {
-                            userStore.addUser(userName, password, null, null, null, true);
+                            userStore.addUser(userName, null, null, null, null, true);
                             success = true;
                         } else {
                             isDuplicate = true;

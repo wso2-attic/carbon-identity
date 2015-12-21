@@ -94,7 +94,7 @@ public class IdPManagementDAO {
             while (rs.next()) {
                 IdentityProvider identityProvider = new IdentityProvider();
                 identityProvider.setIdentityProviderName(rs.getString(1));
-                if (("1").equals(rs.getString("IS_PRIMARY"))) {
+                if ((IdPManagementConstants.IS_TRUE_VALUE).equals(rs.getString("IS_PRIMARY"))) {
                     identityProvider.setPrimary(true);
                 } else {
                     identityProvider.setPrimary(false);
@@ -103,12 +103,12 @@ public class IdPManagementDAO {
                 identityProvider.setIdentityProviderDescription(rs.getString("DESCRIPTION"));
 
                 // IS_FEDERATION_HUB_IDP
-                if ("1".equals(rs.getString("IS_FEDERATION_HUB"))) {
+                if ((IdPManagementConstants.IS_TRUE_VALUE).equals(rs.getString("IS_FEDERATION_HUB"))) {
                     identityProvider.setFederationHub(false);
                 }
 
                 // IS_LOCAL_CLAIM_DIALECT
-                if ("1".equals(rs.getString("IS_LOCAL_CLAIM_DIALECT"))) {
+                if ((IdPManagementConstants.IS_TRUE_VALUE).equals(rs.getString("IS_LOCAL_CLAIM_DIALECT"))) {
                     if (identityProvider.getClaimConfig() == null) {
                         identityProvider.setClaimConfig(new ClaimConfig());
                     }
@@ -116,7 +116,7 @@ public class IdPManagementDAO {
                 }
 
                 // IS_ENABLE
-                if ("1".equals(rs.getString("IS_ENABLED"))) {
+                if ((IdPManagementConstants.IS_TRUE_VALUE).equals(rs.getString("IS_ENABLED"))) {
                     identityProvider.setEnable(true);
                 } else {
                     identityProvider.setEnable(false);
@@ -281,7 +281,7 @@ public class IdPManagementDAO {
                 int authnId = rs.getInt("ID");
                 authnConfig.setName(rs.getString("NAME"));
 
-                if (("1").equals(rs.getString("IS_ENABLED"))) {
+                if ((IdPManagementConstants.IS_TRUE_VALUE).equals(rs.getString("IS_ENABLED"))) {
                     authnConfig.setEnabled(true);
                 } else {
                     authnConfig.setEnabled(false);
@@ -302,7 +302,7 @@ public class IdPManagementDAO {
                     Property property = new Property();
                     property.setName(proprs.getString("PROPERTY_KEY"));
                     property.setValue(proprs.getString("PROPERTY_VALUE"));
-                    if (("1").equals(proprs.getString("IS_SECRET"))) {
+                    if ((IdPManagementConstants.IS_TRUE_VALUE).equals(proprs.getString("IS_SECRET"))) {
                         property.setConfidential(true);
                     }
                     properties.add(property);
@@ -374,9 +374,9 @@ public class IdPManagementDAO {
             prepStmt1 = dbConnection.prepareStatement(sqlStmt);
 
             if (newFederatedAuthenticatorConfig.isEnabled()) {
-                prepStmt1.setString(1, "1");
+                prepStmt1.setString(1, IdPManagementConstants.IS_TRUE_VALUE);
             } else {
-                prepStmt1.setString(1, "0");
+                prepStmt1.setString(1, IdPManagementConstants.IS_FALSE_VALUE);
             }
             prepStmt1.setInt(2, idpId);
             prepStmt1.setString(3, newFederatedAuthenticatorConfig.getName());
@@ -437,9 +437,9 @@ public class IdPManagementDAO {
             prepStmt1.setInt(1, idpId);
             prepStmt1.setInt(2, tenantId);
             if (authnConfig.isEnabled()) {
-                prepStmt1.setString(3, "1");
+                prepStmt1.setString(3, IdPManagementConstants.IS_TRUE_VALUE);
             } else {
-                prepStmt1.setString(3, "0");
+                prepStmt1.setString(3, IdPManagementConstants.IS_FALSE_VALUE);
             }
             prepStmt1.setString(4, authnConfig.getName());
             prepStmt1.setString(5, authnConfig.getDisplayName());
@@ -460,9 +460,9 @@ public class IdPManagementDAO {
                 prepStmt2.setString(3, property.getName());
                 prepStmt2.setString(4, property.getValue());
                 if (property.isConfidential()) {
-                    prepStmt2.setString(5, "1");
+                    prepStmt2.setString(5, IdPManagementConstants.IS_TRUE_VALUE);
                 } else {
-                    prepStmt2.setString(5, "0");
+                    prepStmt2.setString(5, IdPManagementConstants.IS_FALSE_VALUE);
                 }
                 prepStmt2.executeUpdate();
             }
@@ -488,9 +488,9 @@ public class IdPManagementDAO {
                 prepStmt2 = dbConnection.prepareStatement(sqlStmt);
                 prepStmt2.setString(1, property.getValue());
                 if (property.isConfidential()) {
-                    prepStmt2.setString(2, "1");
+                    prepStmt2.setString(2, IdPManagementConstants.IS_TRUE_VALUE);
                 } else {
-                    prepStmt2.setString(2, "0");
+                    prepStmt2.setString(2, IdPManagementConstants.IS_FALSE_VALUE);
                 }
                 prepStmt2.setInt(3, authnId);
                 prepStmt2.setString(4, property.getName());
@@ -505,9 +505,9 @@ public class IdPManagementDAO {
                     prepStmt3.setString(3, property.getName());
                     prepStmt3.setString(4, property.getValue());
                     if (property.isConfidential()) {
-                        prepStmt3.setString(5, "1");
+                        prepStmt3.setString(5, IdPManagementConstants.IS_TRUE_VALUE);
                     } else {
-                        prepStmt3.setString(5, "0");
+                        prepStmt3.setString(5, IdPManagementConstants.IS_FALSE_VALUE);
                     }
 
                     prepStmt3.executeUpdate();
@@ -547,9 +547,9 @@ public class IdPManagementDAO {
                 addNewPropsPrepStmt.setString(3, property.getName());
                 addNewPropsPrepStmt.setString(4, property.getValue());
                 if (property.isConfidential()) {
-                    addNewPropsPrepStmt.setString(5, "1");
+                    addNewPropsPrepStmt.setString(5, IdPManagementConstants.IS_TRUE_VALUE);
                 } else {
-                    addNewPropsPrepStmt.setString(5, "0");
+                    addNewPropsPrepStmt.setString(5, IdPManagementConstants.IS_FALSE_VALUE);
                 }
 
                 addNewPropsPrepStmt.executeUpdate();
@@ -609,9 +609,9 @@ public class IdPManagementDAO {
                 claimMapping.setRemoteClaim(remoteClaim);
                 claimMapping.setDefaultValue(rs.getString("DEFAULT_VALUE"));
 
-                if (("1").equals(rs.getString("IS_REQUESTED"))) {
+                if ((IdPManagementConstants.IS_TRUE_VALUE).equals(rs.getString("IS_REQUESTED"))) {
                     claimMapping.setRequested(true);
-                } else if (rs.getString("IS_REQUESTED").equals("1")) {
+                } else if (rs.getString("IS_REQUESTED").equals(IdPManagementConstants.IS_TRUE_VALUE)) {
                     claimMapping.setRequested(false);
                 }
 
@@ -689,9 +689,9 @@ public class IdPManagementDAO {
                 claimMapping.setLocalClaim(localClaim);
                 claimMapping.setRemoteClaim(idpClaim);
                 claimMapping.setDefaultValue(rs2.getString("DEFAULT_VALUE"));
-                if (("1").equals(rs2.getString("IS_REQUESTED"))) {
+                if ((IdPManagementConstants.IS_TRUE_VALUE).equals(rs2.getString("IS_REQUESTED"))) {
                     claimMapping.setRequested(true);
-                } else if (("0").equals(rs2.getString("IS_REQUESTED"))) {
+                } else if ((IdPManagementConstants.IS_FALSE_VALUE).equals(rs2.getString("IS_REQUESTED"))) {
                     claimMapping.setRequested(false);
                 }
                 claimMappings.add(claimMapping);
@@ -809,15 +809,15 @@ public class IdPManagementDAO {
                         prepBaseStmt.setString(3, connector.getName());
 
                         if (connector.isEnabled()) {
-                            prepBaseStmt.setString(4, "1");
+                            prepBaseStmt.setString(4, IdPManagementConstants.IS_TRUE_VALUE);
                         } else {
-                            prepBaseStmt.setString(4, "0");
+                            prepBaseStmt.setString(4, IdPManagementConstants.IS_FALSE_VALUE);
                         }
 
                         if (connector.isBlocking()) {
-                            prepBaseStmt.setString(5, "1");
+                            prepBaseStmt.setString(5, IdPManagementConstants.IS_TRUE_VALUE);
                         } else {
-                            prepBaseStmt.setString(5, "0");
+                            prepBaseStmt.setString(5, IdPManagementConstants.IS_FALSE_VALUE);
                         }
 
                         prepBaseStmt.executeUpdate();
@@ -854,9 +854,9 @@ public class IdPManagementDAO {
                                     }
 
                                     if (config.isConfidential()) {
-                                        prepStmt.setString(7, "1");
+                                        prepStmt.setString(7, IdPManagementConstants.IS_TRUE_VALUE);
                                     } else {
-                                        prepStmt.setString(7, "0");
+                                        prepStmt.setString(7, IdPManagementConstants.IS_FALSE_VALUE);
                                     }
                                     prepStmt.addBatch();
 
@@ -958,13 +958,13 @@ public class IdPManagementDAO {
                     provisioningConnector = new ProvisioningConnectorConfig();
                     provisioningConnector.setName(type);
 
-                    if (("1").equals(rs1.getString("IS_ENABLED"))) {
+                    if ((IdPManagementConstants.IS_TRUE_VALUE).equals(rs1.getString("IS_ENABLED"))) {
                         provisioningConnector.setEnabled(true);
                     } else {
                         provisioningConnector.setEnabled(false);
                     }
 
-                    if (("1").equals(rs1.getString("IS_BLOCKING"))) {
+                    if ((IdPManagementConstants.IS_TRUE_VALUE).equals(rs1.getString("IS_BLOCKING"))) {
                         provisioningConnector.setBlocking(true);
                     } else {
                         provisioningConnector.setBlocking(false);
@@ -1003,7 +1003,7 @@ public class IdPManagementDAO {
 
                             Property.setType(propertyType);
 
-                            if (("1").equals(isSecret)) {
+                            if ((IdPManagementConstants.IS_TRUE_VALUE).equals(isSecret)) {
                                 Property.setConfidential(true);
                             } else {
                                 Property.setConfidential(false);
@@ -1030,20 +1030,19 @@ public class IdPManagementDAO {
     }
 
     private String getBlobValue(InputStream is) throws IdentityProviderManagementException {
+
         if (is != null) {
             BufferedReader br = null;
             StringBuilder sb = new StringBuilder();
-
             String line;
             try {
-
                 br = new BufferedReader(new InputStreamReader(is));
                 while ((line = br.readLine()) != null) {
                     sb.append(line);
                 }
-
             } catch (IOException e) {
-                throw new IdentityProviderManagementException(e);
+                throw new IdentityProviderManagementException("Error occurred while reading blob value from input " +
+                        "stream", e);
             } finally {
                 if (br != null) {
                     try {
@@ -1100,7 +1099,7 @@ public class IdPManagementDAO {
 
                 idpId = rs.getInt("ID");
 
-                if (("1").equals(rs.getString("IS_PRIMARY"))) {
+                if ((IdPManagementConstants.IS_TRUE_VALUE).equals(rs.getString("IS_PRIMARY"))) {
                     federatedIdp.setPrimary(true);
                 } else {
                     federatedIdp.setPrimary(false);
@@ -1111,7 +1110,7 @@ public class IdPManagementDAO {
                 federatedIdp.setAlias(rs.getString("ALIAS"));
 
                 JustInTimeProvisioningConfig jitProConfig = new JustInTimeProvisioningConfig();
-                if (("1").equals(rs.getString("INBOUND_PROV_ENABLED"))) {
+                if ((IdPManagementConstants.IS_TRUE_VALUE).equals(rs.getString("INBOUND_PROV_ENABLED"))) {
                     jitProConfig.setProvisioningEnabled(true);
                 } else {
                     jitProConfig.setProvisioningEnabled(false);
@@ -1128,7 +1127,7 @@ public class IdPManagementDAO {
                 federatedIdp.setIdentityProviderDescription(rs.getString("DESCRIPTION"));
 
                 // IS_FEDERATION_HUB_IDP
-                if ("1".equals(rs.getString("IS_FEDERATION_HUB"))) {
+                if (IdPManagementConstants.IS_TRUE_VALUE.equals(rs.getString("IS_FEDERATION_HUB"))) {
                     federatedIdp.setFederationHub(true);
                 } else {
                     federatedIdp.setFederationHub(false);
@@ -1139,7 +1138,7 @@ public class IdPManagementDAO {
                 }
 
                 // IS_LOCAL_CLAIM_DIALECT
-                if ("1".equals(rs.getString("IS_LOCAL_CLAIM_DIALECT"))) {
+                if (IdPManagementConstants.IS_TRUE_VALUE.equals(rs.getString("IS_LOCAL_CLAIM_DIALECT"))) {
                     federatedIdp.getClaimConfig().setLocalClaimDialect(true);
                 } else {
                     federatedIdp.getClaimConfig().setLocalClaimDialect(false);
@@ -1147,7 +1146,7 @@ public class IdPManagementDAO {
 
                 federatedIdp.setProvisioningRole(rs.getString("PROVISIONING_ROLE"));
 
-                if ("1".equals(rs.getString("IS_ENABLED"))) {
+                if (IdPManagementConstants.IS_TRUE_VALUE.equals(rs.getString("IS_ENABLED"))) {
                     federatedIdp.setEnable(true);
                 } else {
                     federatedIdp.setEnable(false);
@@ -1254,7 +1253,7 @@ public class IdPManagementDAO {
 
                 federatedIdp.setIdentityProviderName(idPName);
 
-                if (("1").equals(rs.getString("IS_PRIMARY"))) {
+                if ((IdPManagementConstants.IS_TRUE_VALUE).equals(rs.getString("IS_PRIMARY"))) {
                     federatedIdp.setPrimary(true);
                 } else {
                     federatedIdp.setPrimary(false);
@@ -1265,7 +1264,7 @@ public class IdPManagementDAO {
                 federatedIdp.setAlias(rs.getString("idp.ALIAS"));
 
                 JustInTimeProvisioningConfig jitProConfig = new JustInTimeProvisioningConfig();
-                if (rs.getString("INBOUND_PROV_ENABLED").equals("1")) {
+                if (rs.getString("INBOUND_PROV_ENABLED").equals(IdPManagementConstants.IS_TRUE_VALUE)) {
                     jitProConfig.setProvisioningEnabled(true);
                 } else {
                     jitProConfig.setProvisioningEnabled(false);
@@ -1282,7 +1281,7 @@ public class IdPManagementDAO {
                 federatedIdp.setIdentityProviderDescription(rs.getString("DESCRIPTION"));
 
                 // IS_FEDERATION_HUB_IDP
-                if ("1".equals(rs.getString("IS_FEDERATION_HUB"))) {
+                if (IdPManagementConstants.IS_TRUE_VALUE.equals(rs.getString("IS_FEDERATION_HUB"))) {
                     federatedIdp.setFederationHub(true);
                 } else {
                     federatedIdp.setFederationHub(false);
@@ -1293,7 +1292,7 @@ public class IdPManagementDAO {
                 }
 
                 // IS_LOCAL_CLAIM_DIALECT
-                if ("1".equals(rs.getString("IS_LOCAL_CLAIM_DIALECT"))) {
+                if (IdPManagementConstants.IS_TRUE_VALUE.equals(rs.getString("IS_LOCAL_CLAIM_DIALECT"))) {
                     federatedIdp.getClaimConfig().setLocalClaimDialect(true);
                 } else {
                     federatedIdp.getClaimConfig().setLocalClaimDialect(false);
@@ -1301,7 +1300,7 @@ public class IdPManagementDAO {
 
                 federatedIdp.setProvisioningRole(rs.getString("PROVISIONING_ROLE"));
 
-                if ("1".equals(rs.getString("IS_ENABLED"))) {
+                if (IdPManagementConstants.IS_TRUE_VALUE.equals(rs.getString("IS_ENABLED"))) {
                     federatedIdp.setEnable(true);
                 } else {
                     federatedIdp.setEnable(false);
@@ -1429,9 +1428,9 @@ public class IdPManagementDAO {
             prepStmt.setString(2, identityProvider.getIdentityProviderName());
 
             if (identityProvider.isPrimary()) {
-                prepStmt.setString(3, "1");
+                prepStmt.setString(3, IdPManagementConstants.IS_TRUE_VALUE);
             } else {
-                prepStmt.setString(3, "0");
+                prepStmt.setString(3, IdPManagementConstants.IS_FALSE_VALUE);
             }
 
             prepStmt.setString(4, identityProvider.getHomeRealmId());
@@ -1453,11 +1452,11 @@ public class IdPManagementDAO {
                 // just in time provisioning enabled for this identity provider.
                 // based on the authentication response from the identity provider - user will be
                 // provisioned locally.
-                prepStmt.setString(7, "1");
+                prepStmt.setString(7, IdPManagementConstants.IS_TRUE_VALUE);
                 // user will be provisioned to the configured user store.
                 prepStmt.setString(8, identityProvider.getJustInTimeProvisioningConfig().getProvisioningUserStore());
             } else {
-                prepStmt.setString(7, "0");
+                prepStmt.setString(7, IdPManagementConstants.IS_FALSE_VALUE);
                 prepStmt.setString(8, null);
             }
 
@@ -1488,22 +1487,22 @@ public class IdPManagementDAO {
             prepStmt.setString(13, identityProvider.getIdentityProviderDescription());
 
             if (identityProvider.isFederationHub()) {
-                prepStmt.setString(14, "1");
+                prepStmt.setString(14, IdPManagementConstants.IS_TRUE_VALUE);
             } else {
-                prepStmt.setString(14, "0");
+                prepStmt.setString(14, IdPManagementConstants.IS_FALSE_VALUE);
             }
 
             if (identityProvider.getClaimConfig() != null
                     && identityProvider.getClaimConfig().isLocalClaimDialect()) {
-                prepStmt.setString(15, "1");
+                prepStmt.setString(15, IdPManagementConstants.IS_TRUE_VALUE);
             } else {
-                prepStmt.setString(15, "0");
+                prepStmt.setString(15, IdPManagementConstants.IS_FALSE_VALUE);
             }
 
             prepStmt.setString(16, identityProvider.getProvisioningRole());
 
             // enabled by default
-            prepStmt.setString(17, "1");
+            prepStmt.setString(17, IdPManagementConstants.IS_TRUE_VALUE);
 
             prepStmt.setString(18, identityProvider.getDisplayName());
 
@@ -1616,9 +1615,9 @@ public class IdPManagementDAO {
             prepStmt1.setString(1, newIdentityProvider.getIdentityProviderName());
 
             if (newIdentityProvider.isPrimary()) {
-                prepStmt1.setString(2, "1");
+                prepStmt1.setString(2, IdPManagementConstants.IS_TRUE_VALUE);
             } else {
-                prepStmt1.setString(2, "0");
+                prepStmt1.setString(2, IdPManagementConstants.IS_FALSE_VALUE);
             }
 
             prepStmt1.setString(3, newIdentityProvider.getHomeRealmId());
@@ -1637,11 +1636,11 @@ public class IdPManagementDAO {
             if (newIdentityProvider.getJustInTimeProvisioningConfig() != null
                     && newIdentityProvider.getJustInTimeProvisioningConfig()
                     .isProvisioningEnabled()) {
-                prepStmt1.setString(6, "1");
+                prepStmt1.setString(6, IdPManagementConstants.IS_TRUE_VALUE);
                 prepStmt1.setString(7, newIdentityProvider.getJustInTimeProvisioningConfig().getProvisioningUserStore());
 
             } else {
-                prepStmt1.setString(6, "0");
+                prepStmt1.setString(6, IdPManagementConstants.IS_FALSE_VALUE);
                 prepStmt1.setString(7, null);
             }
 
@@ -1674,24 +1673,24 @@ public class IdPManagementDAO {
             prepStmt1.setString(12, newIdentityProvider.getIdentityProviderDescription());
 
             if (newIdentityProvider.isFederationHub()) {
-                prepStmt1.setString(13, "1");
+                prepStmt1.setString(13, IdPManagementConstants.IS_TRUE_VALUE);
             } else {
-                prepStmt1.setString(13, "0");
+                prepStmt1.setString(13, IdPManagementConstants.IS_FALSE_VALUE);
             }
 
             if (newIdentityProvider.getClaimConfig() != null
                     && newIdentityProvider.getClaimConfig().isLocalClaimDialect()) {
-                prepStmt1.setString(14, "1");
+                prepStmt1.setString(14, IdPManagementConstants.IS_TRUE_VALUE);
             } else {
-                prepStmt1.setString(14, "0");
+                prepStmt1.setString(14, IdPManagementConstants.IS_FALSE_VALUE);
             }
 
             prepStmt1.setString(15, newIdentityProvider.getProvisioningRole());
 
             if (newIdentityProvider.isEnable()) {
-                prepStmt1.setString(16, "1");
+                prepStmt1.setString(16, IdPManagementConstants.IS_TRUE_VALUE);
             } else {
-                prepStmt1.setString(16, "0");
+                prepStmt1.setString(16, IdPManagementConstants.IS_FALSE_VALUE);
             }
 
             prepStmt1.setString(17, newIdentityProvider.getDisplayName());
@@ -1987,14 +1986,14 @@ public class IdPManagementDAO {
         if (!tenantIdPs.isEmpty()) {
             PreparedStatement prepStmt = null;
             try {
-            String sqlStmt = IdPManagementConstants.SQLQueries.SWITCH_IDP_PRIMARY_ON_DELETE_SQL;
-            prepStmt = conn.prepareStatement(sqlStmt);
-            prepStmt.setString(1, "1");
-            prepStmt.setInt(2, tenantId);
-            prepStmt.setString(3, tenantIdPs.get(0).getIdentityProviderName());
-            prepStmt.setString(4, "0");
-            prepStmt.executeUpdate();
-            }finally {
+                String sqlStmt = IdPManagementConstants.SQLQueries.SWITCH_IDP_PRIMARY_ON_DELETE_SQL;
+                prepStmt = conn.prepareStatement(sqlStmt);
+                prepStmt.setString(1, IdPManagementConstants.IS_TRUE_VALUE);
+                prepStmt.setInt(2, tenantId);
+                prepStmt.setString(3, tenantIdPs.get(0).getIdentityProviderName());
+                prepStmt.setString(4, IdPManagementConstants.IS_FALSE_VALUE);
+                prepStmt.executeUpdate();
+            } finally {
                 IdentityDatabaseUtil.closeStatement(prepStmt);
             }
         } else {
@@ -2067,9 +2066,9 @@ public class IdPManagementDAO {
                     prepStmt.setString(3, mapping.getDefaultValue());
                     prepStmt.setInt(4, tenantId);
                     if (mapping.isRequested()) {
-                        prepStmt.setString(5, "1");
+                        prepStmt.setString(5, IdPManagementConstants.IS_TRUE_VALUE);
                     } else {
-                        prepStmt.setString(5, "0");
+                        prepStmt.setString(5, IdPManagementConstants.IS_FALSE_VALUE);
                     }
                     prepStmt.addBatch();
                 }
@@ -2137,9 +2136,9 @@ public class IdPManagementDAO {
                     prepStmt.setString(4, mapping.getDefaultValue());
 
                     if (mapping.isRequested()) {
-                        prepStmt.setString(5, "1");
+                        prepStmt.setString(5, IdPManagementConstants.IS_TRUE_VALUE);
                     } else {
-                        prepStmt.setString(5, "0");
+                        prepStmt.setString(5, IdPManagementConstants.IS_FALSE_VALUE);
                     }
 
                     prepStmt.addBatch();

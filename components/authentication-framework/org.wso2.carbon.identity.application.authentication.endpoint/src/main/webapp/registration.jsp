@@ -55,8 +55,9 @@
         forwardTo = "../dashboard/index.jag";
 
     } catch (Exception e) {
+        String error = "An internal error occurred.";
         response.sendRedirect("create-account.jsp?sessionDataKey=" + request.getParameter("sessionDataKey") +
-                "&failedPrevious=true&errorCode=" + e.getMessage());
+                "&failedPrevious=true&errorCode=" + error);
         return;
     }
 %>

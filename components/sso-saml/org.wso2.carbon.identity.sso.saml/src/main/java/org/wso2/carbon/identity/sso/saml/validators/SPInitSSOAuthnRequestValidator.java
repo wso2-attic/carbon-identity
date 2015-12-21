@@ -179,7 +179,7 @@ public class SPInitSSOAuthnRequestValidator implements SSOAuthnRequestValidator{
             }
             return validationResponse;
         } catch (Exception e) {
-            throw new IdentityException("Error validating the authentication request", e);
+            throw IdentityException.error("Error validating the authentication request", e);
         }
     }
 

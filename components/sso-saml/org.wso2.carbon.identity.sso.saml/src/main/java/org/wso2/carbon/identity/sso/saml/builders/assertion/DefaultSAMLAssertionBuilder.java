@@ -179,7 +179,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
             return samlAssertion;
         } catch (Exception e) {
             log.error("Error when reading claim values for generating SAML Response", e);
-            throw new IdentityException(
+            throw IdentityException.error(
                     "Error when reading claim values for generating SAML Response", e);
         }
     }

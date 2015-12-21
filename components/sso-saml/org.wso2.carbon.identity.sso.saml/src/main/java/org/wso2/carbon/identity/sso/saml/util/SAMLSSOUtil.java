@@ -307,7 +307,7 @@ public class SAMLSSOUtil {
             return unmarshaller.unmarshall(element);
         } catch (Exception e) {
             log.error("Error in constructing AuthRequest from the encoded String", e);
-            throw new IdentityException(
+            throw IdentityException.error(
                     "Error in constructing AuthRequest from the encoded String ",
                     e);
         } finally {
@@ -349,7 +349,7 @@ public class SAMLSSOUtil {
             return byteArrayOutputStrm.toString("UTF-8");
         } catch (Exception e) {
             log.error("Error Serializing the SAML Response");
-            throw new IdentityException("Error Serializing the SAML Response", e);
+            throw IdentityException.error("Error Serializing the SAML Response", e);
         } finally {
             if (byteArrayOutputStrm != null) {
                 try {
@@ -423,7 +423,7 @@ public class SAMLSSOUtil {
                 return decodedStr;
             }
         } catch (IOException e) {
-            throw new IdentityException("Error when decoding the SAML Request.", e);
+            throw IdentityException.error("Error when decoding the SAML Request.", e);
         }
 
     }
@@ -443,7 +443,7 @@ public class SAMLSSOUtil {
             return decodedString;
 
         } catch (IOException e) {
-            throw new IdentityException(
+            throw IdentityException.error(
                     "Error when decoding the SAML Request.", e);
         }
 
@@ -473,11 +473,11 @@ public class SAMLSSOUtil {
             try {
                 tenantId = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
             } catch (UserStoreException e) {
-                throw new IdentityException("Error occurred while retrieving tenant id from tenant domain", e);
+                throw IdentityException.error("Error occurred while retrieving tenant id from tenant domain", e);
             }
 
             if(MultitenantConstants.INVALID_TENANT_ID == tenantId) {
-                throw new IdentityException("Invalid tenant domain - '" + tenantDomain + "'" );
+                throw IdentityException.error("Invalid tenant domain - '" + tenantDomain + "'" );
             }
         }
 
@@ -486,7 +486,7 @@ public class SAMLSSOUtil {
         try {
             identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
         } catch (IdentityProviderManagementException e) {
-            throw new IdentityException(
+            throw IdentityException.error(
                     "Error occurred while retrieving Resident Identity Provider information for tenant " +
                     tenantDomain, e);
         }
@@ -520,7 +520,7 @@ public class SAMLSSOUtil {
         try {
             identityProvider = IdentityProviderManager.getInstance().getResidentIdP(tenantDomain);
         } catch (IdentityProviderManagementException e) {
-            throw new IdentityException(
+            throw IdentityException.error(
                     "Error occurred while retrieving Resident Identity Provider information for tenant " +
                             tenantDomain, e);
         }
@@ -638,16 +638,16 @@ public class SAMLSSOUtil {
                 return ssoSigner.setSignature(request, signatureAlgorithm, digestAlgorithm, cred);
 
             } catch (ClassNotFoundException e) {
-                throw new IdentityException("Class not found: "
+                throw IdentityException.error("Class not found: "
                                             + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (InstantiationException e) {
-                throw new IdentityException("Error while instantiating class: "
+                throw IdentityException.error("Error while instantiating class: "
                                             + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (IllegalAccessException e) {
-                throw new IdentityException("Illegal access to class: "
+                throw IdentityException.error("Illegal access to class: "
                                             + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (Exception e) {
-                throw new IdentityException("Error while signing the XML object.", e);
+                throw IdentityException.error("Error while signing the XML object.", e);
             }
     }
 
@@ -664,16 +664,16 @@ public class SAMLSSOUtil {
             }
             return ssoEncrypter.doEncryptedAssertion(assertion, cred, alias, encryptionAlgorithm);
         } catch (ClassNotFoundException e) {
-            throw new IdentityException("Class not found: "
+            throw IdentityException.error("Class not found: "
                     + IdentityUtil.getProperty("SSOService.SAMLSSOEncrypter"), e);
         } catch (InstantiationException e) {
-            throw new IdentityException("Error while instantiating class: "
+            throw IdentityException.error("Error while instantiating class: "
                     + IdentityUtil.getProperty("SSOService.SAMLSSOEncrypter"), e);
         } catch (IllegalAccessException e) {
-            throw new IdentityException("Illegal access to class: "
+            throw IdentityException.error("Illegal access to class: "
                     + IdentityUtil.getProperty("SSOService.SAMLSSOEncrypter"), e);
         } catch (Exception e) {
-            throw new IdentityException("Error while signing the SAML Response message.", e);
+            throw IdentityException.error("Error while signing the SAML Response message.", e);
         }
     }
 
@@ -703,16 +703,16 @@ public class SAMLSSOUtil {
             return samlAssertionBuilder.buildAssertion(authReqDTO, notOnOrAfter, sessionId);
 
         } catch (ClassNotFoundException e) {
-            throw new IdentityException("Class not found: "
+            throw IdentityException.error("Class not found: "
                     + assertionBuilderClass, e);
         } catch (InstantiationException e) {
-            throw new IdentityException("Error while instantiating class: "
+            throw IdentityException.error("Error while instantiating class: "
                     + assertionBuilderClass, e);
         } catch (IllegalAccessException e) {
-            throw new IdentityException("Illegal access to class: "
+            throw IdentityException.error("Illegal access to class: "
                     + assertionBuilderClass, e);
         } catch (Exception e) {
-            throw new IdentityException("Error while building the saml assertion", e);
+            throw IdentityException.error("Error while building the saml assertion", e);
         }
     }
 
@@ -896,13 +896,13 @@ public class SAMLSSOUtil {
                     alias, e);
             return false;
         } catch (ClassNotFoundException e) {
-            throw new IdentityException("Class not found: "
+            throw IdentityException.error("Class not found: "
                     + IdentityUtil.getProperty("SSOService.SAML2HTTPRedirectSignatureValidator"), e);
         } catch (InstantiationException e) {
-            throw new IdentityException("Error while instantiating class: "
+            throw IdentityException.error("Error while instantiating class: "
                     + IdentityUtil.getProperty("SSOService.SAML2HTTPRedirectSignatureValidator"), e);
         } catch (IllegalAccessException e) {
-            throw new IdentityException("Illegal access to class: "
+            throw IdentityException.error("Illegal access to class: "
                     + IdentityUtil.getProperty("SSOService.SAML2HTTPRedirectSignatureValidator"), e);
         }
     }
@@ -942,13 +942,13 @@ public class SAMLSSOUtil {
                     log.debug("Signature Validation Failed for the SAML Assertion : Signature is invalid.", e);
                 }
             } catch (ClassNotFoundException e) {
-                throw new IdentityException("Class not found: "
+                throw IdentityException.error("Class not found: "
                         + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (InstantiationException e) {
-                throw new IdentityException("Error while instantiating class: "
+                throw IdentityException.error("Error while instantiating class: "
                         + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (IllegalAccessException e) {
-                throw new IdentityException("Illegal access to class: "
+                throw IdentityException.error("Illegal access to class: "
                         + IdentityUtil.getProperty("SSOService.SAMLSSOSigner"), e);
             } catch (Exception e) {
                 if (log.isDebugEnabled()) {
@@ -1130,7 +1130,7 @@ public class SAMLSSOUtil {
             uri = new URI(openid);
             path = uri.getPath();
         } catch (URISyntaxException e) {
-            throw new IdentityException("Invalid OpenID", e);
+            throw IdentityException.error("Invalid OpenID", e);
         }
         caller = path.substring(path.indexOf(contextPath) + contextPath.length(), path.length());
         return caller;
@@ -1165,15 +1165,15 @@ public class SAMLSSOUtil {
         try {
             uri = new URI(openID);
         } catch (URISyntaxException e) {
-            throw new IdentityException("Invalid OpenID URL :" + openID, e);
+            throw IdentityException.error("Invalid OpenID URL :" + openID, e);
         }
         try {
             url = uri.normalize().toURL();
             if (url.getQuery() != null || url.getRef() != null) {
-                throw new IdentityException("Invalid user name for OpenID :" + openID);
+                throw IdentityException.error("Invalid user name for OpenID :" + openID);
             }
         } catch (MalformedURLException e) {
-            throw new IdentityException("Malformed OpenID URL :" + openID, e);
+            throw IdentityException.error("Malformed OpenID URL :" + openID, e);
         }
         openID = url.toString();
         return openID;
@@ -1252,7 +1252,7 @@ public class SAMLSSOUtil {
                 if (log.isDebugEnabled()) {
                     log.debug(message);
                 }
-                throw new IdentityException(message);
+                throw IdentityException.error(message);
             } else {
                 return tenantDomain;
             }

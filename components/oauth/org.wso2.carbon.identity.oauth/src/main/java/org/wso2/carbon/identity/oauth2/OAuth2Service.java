@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -77,7 +77,7 @@ public class OAuth2Service extends AbstractAdmin {
     public OAuth2AuthorizeRespDTO authorize(OAuth2AuthorizeReqDTO oAuth2AuthorizeReqDTO) {
 
         if (log.isDebugEnabled()) {
-            log.debug("Authorization Request received for user : " + oAuth2AuthorizeReqDTO.getUsername() +
+            log.debug("Authorization Request received for user : " + oAuth2AuthorizeReqDTO.getUser() +
                     ", Client ID : " + oAuth2AuthorizeReqDTO.getConsumerKey() +
                     ", Authorization Response Type : " + oAuth2AuthorizeReqDTO.getResponseType() +
                     ", Requested callback URI : " + oAuth2AuthorizeReqDTO.getCallbackUrl() +
@@ -133,7 +133,7 @@ public class OAuth2Service extends AbstractAdmin {
                 return validationResponseDTO;
             }
 
-            OAuth2Util.setClientTenatId(appDO.getTenantId());
+            OAuth2Util.setClientTenatId(IdentityTenantUtil.getTenantId(appDO.getUser().getTenantDomain()));
 
             // Valid Client, No callback has provided. Use the callback provided during the registration.
             if (callbackURI == null) {
@@ -314,7 +314,7 @@ public class OAuth2Service extends AbstractAdmin {
                     addRevokeResponseHeaders(revokeResponseDTO,
                             refreshTokenDO.getAccessToken(),
                             revokeRequestDTO.getToken(),
-                            refreshTokenDO.getAuthorizedUser());
+                            refreshTokenDO.getAuthorizedUser().toString());
 
                 } else if (accessTokenDO != null) {
                         org.wso2.carbon.identity.oauth.OAuthUtil
@@ -339,19 +339,19 @@ public class OAuth2Service extends AbstractAdmin {
                 return revokeResponseDTO;
             }
 
-        } catch (IdentityException e) {
-            log.error("Error occurred while revoking authorization grant for applications", e);
-            OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
-            revokeRespDTO.setError(true);
-            revokeRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
-            revokeRespDTO.setErrorMsg("Error occurred while revoking authorization grant for applications");
-            return revokeRespDTO;
         } catch (InvalidOAuthClientException e) {
             log.error("Unauthorized Client", e);
             OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
             revokeRespDTO.setError(true);
             revokeRespDTO.setErrorCode(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT);
             revokeRespDTO.setErrorMsg("Unauthorized Client");
+            return revokeRespDTO;
+        } catch (IdentityException e) {
+            log.error("Error occurred while revoking authorization grant for applications", e);
+            OAuthRevocationResponseDTO revokeRespDTO = new OAuthRevocationResponseDTO();
+            revokeRespDTO.setError(true);
+            revokeRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
+            revokeRespDTO.setErrorMsg("Error occurred while revoking authorization grant for applications");
             return revokeRespDTO;
         }
     }

@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.oauth2.authz;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.common.error.OAuthError;
-import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
@@ -81,7 +81,7 @@ public class AuthorizationHandlerManager {
 
         if (!responseHandlers.containsKey(responseType)) {
             log.warn("Unsupported Response Type : " + responseType +
-                    " provided  for user : " + authzReqDTO.getUsername());
+                    " provided  for user : " + authzReqDTO.getUser());
             handleErrorRequest(authorizeRespDTO, OAuthError.CodeResponse.UNSUPPORTED_RESPONSE_TYPE,
                     "Unsupported Response Type!");
             authorizeRespDTO.setCallbackURI(authzReqDTO.getCallbackUrl());
@@ -103,7 +103,7 @@ public class AuthorizationHandlerManager {
             authorizeRespDTO.setCallbackURI(authzReqDTO.getCallbackUrl());
             return authorizeRespDTO;
         } else if (!accessDelegationAuthzStatus) {
-            log.warn("User : " + authzReqDTO.getUsername() +
+            log.warn("User : " + authzReqDTO.getUser() +
                     " doesn't have necessary rights to grant access to the resource(s) " +
                     OAuth2Util.buildScopeString(authzReqDTO.getScopes()));
             handleErrorRequest(authorizeRespDTO, OAuthError.CodeResponse.UNAUTHORIZED_CLIENT,
@@ -115,7 +115,7 @@ public class AuthorizationHandlerManager {
         boolean scopeValidationStatus = authzHandler.validateScope(authzReqMsgCtx);
         if (!scopeValidationStatus) {
             log.warn("Scope validation failed for user : "
-                    + authzReqDTO.getUsername() + ", for the scope : "
+                    + authzReqDTO.getUser() + ", for the scope : "
                     + OAuth2Util.buildScopeString(authzReqDTO.getScopes()));
             handleErrorRequest(authorizeRespDTO,
                     OAuthError.CodeResponse.INVALID_SCOPE, "Invalid Scope!");

@@ -71,9 +71,11 @@ public class SAMLSSOConfigServiceClient {
         try {
             SAMLSSOServiceProviderInfoDTO dto = stub.getServiceProviders();
             SAMLSSOServiceProviderDTO[] sps = dto.getServiceProviders();
-            for (SAMLSSOServiceProviderDTO sp : sps) {
-                if (sp.getIssuer().equals(issuer)) {
-                    return sp;
+            if (sps != null) {
+                for (SAMLSSOServiceProviderDTO sp : sps) {
+                    if (sp.getIssuer().equals(issuer)) {
+                        return sp;
+                    }
                 }
             }
         } catch (Exception e) {
@@ -134,7 +136,7 @@ public class SAMLSSOConfigServiceClient {
         try {
             signingAlgorithmUris = stub.getSigningAlgorithmUris();
         } catch (RemoteException e) {
-            throw new IdentityRuntimeException(e.getMessage(), e);
+            throw IdentityRuntimeException.error(e.getMessage(), e);
         }
         return signingAlgorithmUris;
     }
@@ -144,7 +146,7 @@ public class SAMLSSOConfigServiceClient {
         try {
             signingAlgo = stub.getSigningAlgorithmUriByConfig();
         } catch (RemoteException e) {
-            throw new IdentityRuntimeException(e.getMessage(), e);
+            throw IdentityRuntimeException.error(e.getMessage(), e);
         }
         return signingAlgo;
     }
@@ -154,7 +156,7 @@ public class SAMLSSOConfigServiceClient {
         try {
             digestAlgorithms = stub.getDigestAlgorithmURIs();
         } catch (RemoteException e) {
-            throw new IdentityRuntimeException(e.getMessage(), e);
+            throw IdentityRuntimeException.error(e.getMessage(), e);
         }
         return digestAlgorithms;
     }
@@ -164,7 +166,7 @@ public class SAMLSSOConfigServiceClient {
         try {
             digestAlgo = stub.getDigestAlgorithmURIByConfig();
         } catch (RemoteException e) {
-            throw new IdentityRuntimeException(e.getMessage(), e);
+            throw IdentityRuntimeException.error(e.getMessage(), e);
         }
         return digestAlgo;
     }

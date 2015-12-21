@@ -45,7 +45,7 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
@@ -108,7 +108,7 @@ public class UserRegistrationService {
 
         } catch (UserStoreException e) {
             log.error(e);
-            throw new IdentityException(
+            throw IdentityException.error(
                     "Error occured while loading password validation regular expressions.");
         }
 
@@ -201,13 +201,14 @@ public class UserRegistrationService {
      * @return True if exist.
      * @throws Exception
      */
-    public boolean isUserExist(String username) throws Exception {
+    public boolean isUserExist(String username) throws UserRegistrationException {
 
         try {
             return CarbonContext.getThreadLocalCarbonContext().getUserRealm().
                     getUserStoreManager().isExistingUser(username);
         } catch (UserStoreException e) {
-            throw new Exception("User registration exception", e);
+            log.error("User store exception", e);
+            throw new UserRegistrationException("User store exception", e);
         }
     }
 
@@ -246,7 +247,7 @@ public class UserRegistrationService {
 
             admin = realm.getUserStoreManager();
             if (!isUserNameWithAllowedDomainName(userName, realm)) {
-                throw new IdentityException("Domain does not permit self registration");
+                throw IdentityException.error("Domain does not permit self registration");
             }
             // add user
             admin.addUser(userName, password, null, claimList, profileName);
@@ -272,7 +273,7 @@ public class UserRegistrationService {
             }
 
         } catch (UserStoreException e) {
-            throw new IdentityException("Error occurred while adding user : " + userName + ". " + e.getMessage(), e);
+            throw IdentityException.error("Error occurred while adding user : " + userName + ". " + e.getMessage(), e);
         }
     }
 
@@ -289,7 +290,7 @@ public class UserRegistrationService {
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             // If something goes wrong here - then remove the already added user.
             admin.deleteUser(userName);
-            throw new IdentityException("Error occurred while adding user : " + userName + ". " +
+            throw IdentityException.error("Error occurred while adding user : " + userName + ". " +
                     e.getMessage(), e);
         }
     }
@@ -306,7 +307,7 @@ public class UserRegistrationService {
                 return !realm.getRealmConfiguration().isRestrictedDomainForSlefSignUp(
                         userName.substring(0, index));
             } catch (UserStoreException e) {
-                throw new IdentityException(e.getMessage(), e);
+                throw IdentityException.error(e.getMessage(), e);
             }
         }
 
@@ -389,13 +390,13 @@ public class UserRegistrationService {
                 }
             }
         } catch (RegistryException e) {
-            throw new IdentityException("Error retrieving sign up config from registry " + e.getMessage(), e);
+            throw IdentityException.error("Error retrieving sign up config from registry " + e.getMessage(), e);
         } catch (ParserConfigurationException e) {
-            throw new IdentityException("Error parsing tenant sign up configuration " + e.getMessage(), e);
+            throw IdentityException.error("Error parsing tenant sign up configuration " + e.getMessage(), e);
         } catch (SAXException e) {
-            throw new IdentityException("Error parsing tenant sign up configuration " + e.getMessage(), e);
+            throw IdentityException.error("Error parsing tenant sign up configuration " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new IdentityException("Error parsing tenant sign up configuration " + e.getMessage(), e);
+            throw IdentityException.error("Error parsing tenant sign up configuration " + e.getMessage(), e);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }

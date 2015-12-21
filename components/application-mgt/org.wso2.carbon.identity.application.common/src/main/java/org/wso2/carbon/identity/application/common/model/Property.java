@@ -80,6 +80,8 @@ public class Property implements Serializable {
                 property.setDescription(element.getText());
             } else if ("DisplayOrder".equals(elementName)) {
                 property.setDisplayOrder(Integer.parseInt(element.getText()));
+            } else if ("Type".equals(elementName)) {
+                property.setType(element.getText());
             }
         }
 

@@ -118,7 +118,7 @@ public class ThriftAuthenticationConfigParser {
             readChildElements(rootElement, nameStack);
 
         } catch (FileNotFoundException|XMLStreamException e){
-            throw new IdentityRuntimeException("Error occurred while reading " + THRIFT_AUTHENTICATION_XML, e);
+            throw IdentityRuntimeException.error("Error occurred while reading " + THRIFT_AUTHENTICATION_XML, e);
         } finally {
             try {
                 if (inStream != null) {

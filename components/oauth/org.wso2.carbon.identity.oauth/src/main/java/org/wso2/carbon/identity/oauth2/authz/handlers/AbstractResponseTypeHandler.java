@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
 import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
-import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.callback.OAuthCallback;
 import org.wso2.carbon.identity.oauth.callback.OAuthCallbackManager;
@@ -87,7 +87,7 @@ public abstract class AbstractResponseTypeHandler implements ResponseTypeHandler
         }
 
         OAuth2AuthorizeReqDTO authorizationReqDTO = oauthAuthzMsgCtx.getAuthorizationReqDTO();
-        OAuthCallback authzCallback = new OAuthCallback(authorizationReqDTO.getUsername(),
+        OAuthCallback authzCallback = new OAuthCallback(authorizationReqDTO.getUser(),
                 authorizationReqDTO.getConsumerKey(), OAuthCallback.OAuthCallbackType.ACCESS_DELEGATION_AUTHZ);
         authzCallback.setRequestedScope(authorizationReqDTO.getScopes());
         authzCallback.setResponseType(authorizationReqDTO.getResponseType());
@@ -100,7 +100,7 @@ public abstract class AbstractResponseTypeHandler implements ResponseTypeHandler
     @Override
     public boolean validateScope(OAuthAuthzReqMessageContext oauthAuthzMsgCtx) throws IdentityOAuth2Exception {
         OAuth2AuthorizeReqDTO authorizationReqDTO = oauthAuthzMsgCtx.getAuthorizationReqDTO();
-        OAuthCallback scopeValidationCallback = new OAuthCallback(authorizationReqDTO.getUsername(),
+        OAuthCallback scopeValidationCallback = new OAuthCallback(authorizationReqDTO.getUser(),
                 authorizationReqDTO.getConsumerKey(), OAuthCallback.OAuthCallbackType.SCOPE_VALIDATION_AUTHZ);
         scopeValidationCallback.setRequestedScope(authorizationReqDTO.getScopes());
         scopeValidationCallback.setResponseType(authorizationReqDTO.getResponseType());

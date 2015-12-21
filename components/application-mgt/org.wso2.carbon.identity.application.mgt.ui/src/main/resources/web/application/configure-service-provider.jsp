@@ -47,7 +47,7 @@
 
 
 <script type="text/javascript" src="../admin/js/main.js"></script>
-
+<script type="text/javascript" src="../identity/validation/js/identity-validate.js"></script>
 
 
 <%
@@ -288,7 +288,9 @@ var roleMappinRowID = -1;
 		if( spName == '') {
 			CARBON.showWarningDialog('<fmt:message key="alert.please.provide.service.provider.id"/>');
 			location.href = '#';
-		} else {
+		} else if (!validateTextForIllegal(document.getElementById("spName"))) {
+                        return false;
+                } else {
 			if($('input:radio[name=claim_dialect]:checked').val() == "custom")
 			{
 				var isValied = true;
@@ -702,6 +704,15 @@ var roleMappinRowID = -1;
         document.getElementById("scim-inbound-userstore").disabled =!document.getElementById("scim-inbound-userstore").disabled;
         document.getElementById("dumb").value = document.getElementById("scim-inbound-userstore").disabled;
     }
+
+    function validateTextForIllegal(fld) {
+        var isValid = doValidateInput(fld, "Provided Service Provider name is invalid.");
+        if (isValid) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 </script>
 
 <fmt:bundle basename="org.wso2.carbon.identity.application.mgt.ui.i18n.Resources">
@@ -719,7 +730,7 @@ var roleMappinRowID = -1;
                     <tr>
                         <td style="width:15%" class="leftCol-med labelField"><fmt:message key='config.application.info.basic.name'/>:<span class="required">*</span></td>
                         <td>
-                            <input style="width:50%" id="spName" name="spName" type="text" value="<%=Encode.forHtmlAttribute(spName)%>" autofocus/>
+                            <input style="width:50%" id="spName" name="spName" type="text" value="<%=Encode.forHtmlAttribute(spName)%>" white-list-patterns="^[a-zA-Z0-9._|-]*$" autofocus/>
                             <div class="sectionHelp">
                                 <fmt:message key='help.name'/>
                             </div>
