@@ -20,6 +20,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.persistence.UmPersistenceManager;
@@ -142,6 +144,13 @@ public class IdentityCoreServiceComponent {
                 if (log.isDebugEnabled()){
                     log.debug("Migration client is not available");
                 }
+            }
+
+            //this is done to initialize primary key store
+            try {
+                KeyStoreManager.getInstance(MultitenantConstants.SUPER_TENANT_ID).getPrimaryKeyStore();
+            } catch (Exception e) {
+                log.error("Error while initializing primary key store.", e);
             }
 
             // Register initialize service To guarantee the activation order. Component which is referring this
