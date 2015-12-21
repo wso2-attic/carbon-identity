@@ -24,6 +24,7 @@ import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
@@ -632,13 +633,13 @@ public class OAuth2Util {
         }
     }
 
-    public static User getUserFromUserName(String username) throws IllegalArgumentException{
+    public static AuthenticatedUser getUserFromUserName(String username) throws IllegalArgumentException{
         if (StringUtils.isNotBlank(username)) {
             String tenantDomain = MultitenantUtils.getTenantDomain(username);
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
             String tenantAwareUsernameWithNoUserDomain = UserCoreUtil.removeDomainFromName(tenantAwareUsername);
             String userStoreDomain = IdentityUtil.extractDomainFromName(username).toUpperCase();
-            User user = new User();
+            AuthenticatedUser user = new AuthenticatedUser();
             user.setUserName(tenantAwareUsernameWithNoUserDomain);
             user.setTenantDomain(tenantDomain);
             user.setUserStoreDomain(userStoreDomain);

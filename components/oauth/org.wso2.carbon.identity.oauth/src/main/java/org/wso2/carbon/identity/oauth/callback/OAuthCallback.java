@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.oauth.callback;
 
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 
 import javax.security.auth.callback.Callback;
@@ -36,7 +37,7 @@ public class OAuthCallback implements Callback {
     /**
      * Claimed resource owner
      */
-    private String resourceOwner;
+    private AuthenticatedUser resourceOwner;
     /**
      * OAuth2 Grant Type
      */
@@ -81,7 +82,7 @@ public class OAuthCallback implements Callback {
      * @param client        Client who will be accessing the resource
      * @param callbackType  the callback type
      */
-    public OAuthCallback(String resourceOwner,
+    public OAuthCallback(AuthenticatedUser resourceOwner,
                          String client,
                          OAuthCallbackType callbackType) {
         this.resourceOwner = resourceOwner;
@@ -94,7 +95,7 @@ public class OAuthCallback implements Callback {
      *
      * @return Identifier of the Resource Owner
      */
-    public String getResourceOwner() {
+    public AuthenticatedUser getResourceOwner() {
         return resourceOwner;
     }
 

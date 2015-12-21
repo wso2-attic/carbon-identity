@@ -159,15 +159,13 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             user.setUserName(userName);
             setUserPassword(user, userEntity);
 
-            ProvisioningClient scimProvsioningClient = new ProvisioningClient(scimProvider, user,
+            ProvisioningClient scimProvisioningClient = new ProvisioningClient(scimProvider, user,
                     httpMethod, null);
             if (provisioningOperation.equals(ProvisioningOperation.PUT)) {
-                scimProvsioningClient.provisionUpdateUser();
+                scimProvisioningClient.provisionUpdateUser();
             } else if (provisioningOperation.equals(ProvisioningOperation.PATCH)) {
-                scimProvsioningClient.provisionPatchUser();
+                scimProvisioningClient.provisionPatchUser();
             }
-            scimProvsioningClient.provisionUpdateUser();
-
         } catch (Exception e) {
             throw new IdentityProvisioningException("Error while creating the user", e);
         }

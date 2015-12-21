@@ -207,6 +207,9 @@ public final class OAuthConstants {
 
     public static class Scope {
         public static final String OPENID = "openid";
+        public static final String OAUTH2 = "oauth2";
+        public static final String OIDC = "oidc";
+
         private Scope(){
 
         }

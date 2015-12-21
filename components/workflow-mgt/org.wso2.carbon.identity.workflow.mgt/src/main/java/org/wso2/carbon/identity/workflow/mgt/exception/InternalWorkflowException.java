@@ -19,6 +19,9 @@
 package org.wso2.carbon.identity.workflow.mgt.exception;
 
 public class InternalWorkflowException extends WorkflowException{
+
+    private static final long serialVersionUID = -3175681683947439154L;
+
     public InternalWorkflowException(String message) {
         super(message);
     }

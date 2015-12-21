@@ -35,10 +35,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.core.util.KeyStoreManager;
-import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
@@ -169,8 +168,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
         RealmService realmService = OAuthComponentServiceHolder.getRealmService();
         // TODO : Need to handle situation where federated user name is similar to a one we have in our user store
-        if (realmService != null && tenantID != MultitenantConstants.INVALID_TENANT_ID &&
-                tenantID == OAuth2Util.getTenantIdFromUserName(authzUser)) {
+        if (realmService != null && tenantID != MultitenantConstants.INVALID_TENANT_ID ) {
             try {
                 UserRealm userRealm = realmService.getTenantUserRealm(tenantID);
                 if (userRealm != null) {
@@ -196,7 +194,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
             log.debug(e.getMessage(), e);
             throw new IdentityOAuth2Exception(e.getMessage());
         }
-        String subscriber = appDO.getUserName();
+        String subscriber = appDO.getUser().toString();
         String applicationName = appDO.getApplicationName();
 
         //generating expiring timestamp

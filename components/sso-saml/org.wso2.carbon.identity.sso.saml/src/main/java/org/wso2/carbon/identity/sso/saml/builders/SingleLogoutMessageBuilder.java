@@ -88,11 +88,11 @@ public class SingleLogoutMessageBuilder {
             try {
                 tenantId = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
             } catch (UserStoreException e) {
-                throw new IdentityException("Error occurred while retrieving tenant id from tenant domain", e);
+                throw IdentityException.error("Error occurred while retrieving tenant id from tenant domain", e);
             }
 
             if(MultitenantConstants.INVALID_TENANT_ID == tenantId) {
-                throw new IdentityException("Invalid tenant domain - '" + tenantDomain + "'" );
+                throw IdentityException.error("Invalid tenant domain - '" + tenantDomain + "'" );
             }
         }
 
@@ -131,11 +131,11 @@ public class SingleLogoutMessageBuilder {
                 try {
                     tenantId = SAMLSSOUtil.getRealmService().getTenantManager().getTenantId(tenantDomain);
                 } catch (UserStoreException e) {
-                    throw new IdentityException("Error occurred while retrieving tenant id from tenant domain", e);
+                    throw IdentityException.error("Error occurred while retrieving tenant id from tenant domain", e);
                 }
 
                 if(MultitenantConstants.INVALID_TENANT_ID == tenantId) {
-                    throw new IdentityException("Invalid tenant domain - '" + tenantDomain + "'" );
+                    throw IdentityException.error("Invalid tenant domain - '" + tenantDomain + "'" );
                 }
             }
 

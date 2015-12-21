@@ -18,9 +18,11 @@
 package org.wso2.carbon.identity.sts.passive.processors;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
 import org.apache.rahas.RahasConstants;
 import org.apache.rahas.RahasData;
+import org.apache.rahas.TokenStorage;
 import org.apache.rahas.TrustException;
 import org.apache.rahas.impl.SAMLPassiveTokenIssuer;
 import org.apache.ws.security.WSConstants;
@@ -30,6 +32,7 @@ import org.apache.ws.security.handler.WSHandlerConstants;
 import org.apache.ws.security.handler.WSHandlerResult;
 import org.wso2.carbon.identity.sts.passive.RequestToken;
 import org.wso2.carbon.identity.sts.passive.ResponseToken;
+import org.wso2.carbon.identity.sts.passive.utils.PassiveSTSUtil;
 
 import java.util.Vector;
 
@@ -69,6 +72,9 @@ public class AttributeRequestProcessor extends RequestProcessor {
                     handlerResultsVector);
             MessageContext.getCurrentMessageContext().setProperty(RahasConstants.PASSIVE_STS_RST,
                     getRST(request.getRealm(), request.getAttributes(), request.getDialect()));
+
+            ConfigurationContext configurationContext = context.getConfigurationContext();
+            configurationContext.setProperty(TokenStorage.TOKEN_STORAGE_KEY, PassiveSTSUtil.getTokenStorage());
 
             rahasData = new RahasData(context);
             issuer = new SAMLPassiveTokenIssuer();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright 2013 WSO2, Inc. (http://wso2.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.wso2.carbon.identity.user.store.configuration.utils;
 
 public class IdentityUserStoreMgtException extends Exception {
+
+    private static final long serialVersionUID = 148397950276334073L;
     private String message;
 
     public IdentityUserStoreMgtException(String message) {

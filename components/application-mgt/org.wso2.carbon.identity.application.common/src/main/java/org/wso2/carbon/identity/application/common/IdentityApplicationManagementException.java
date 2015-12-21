@@ -22,15 +22,11 @@ public class IdentityApplicationManagementException extends Exception {
 
     private String message;
 
-    private static final long serialVersionUID = 2468789588607453995L;
+    private static final long serialVersionUID = -1982152066401023165L;
 
     public IdentityApplicationManagementException(String message) {
         super(message);
         this.message = message;
-    }
-
-    public IdentityApplicationManagementException(Throwable e) {
-        super(e);
     }
 
     public IdentityApplicationManagementException(String message, Throwable e) {

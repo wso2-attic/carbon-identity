@@ -83,12 +83,12 @@ public class IdentityDBInitializer {
                             ". Database will not be created automatically by the WSO2 Identity Server. " +
                             "Please create the database using appropriate database scripts for " +
                             "the database.";
-                    throw new IdentityRuntimeException(msg);
+                    throw IdentityRuntimeException.error(msg);
                 }
             }
         } catch (SQLException e) {
             String msg = "Failed to create identity database." + e.getMessage();
-            throw new IdentityRuntimeException(msg, e);
+            throw IdentityRuntimeException.error(msg, e);
         }
         return type;
     }
@@ -143,7 +143,7 @@ public class IdentityDBInitializer {
                 log.debug("Identity tables are created successfully.");
             } catch (SQLException e) {
                 String msg = "Failed to create database tables for Identity meta-data store. " + e.getMessage();
-                throw new IdentityRuntimeException(msg, e);
+                throw IdentityRuntimeException.error(msg, e);
             } finally {
                 if (statement != null) {
                     try {
@@ -214,7 +214,7 @@ public class IdentityDBInitializer {
         try {
             databaseType = IdentityDBInitializer.getDatabaseType(dataSource.getConnection());
         } catch (Exception e) {
-            throw new IdentityRuntimeException("Error occurred while getting database type");
+            throw IdentityRuntimeException.error("Error occurred while getting database type");
         }
         boolean keepFormat = false;
         if ("oracle".equals(databaseType)) {
@@ -270,7 +270,8 @@ public class IdentityDBInitializer {
                 executeSQL(sql.toString());
             }
         } catch (IOException e) {
-            throw new IdentityRuntimeException("Error occurred while executing SQL script for creating identity database", e);
+            throw IdentityRuntimeException.error("Error occurred while executing SQL script for creating identity " +
+                    "database", e);
         } finally {
             if (reader != null) {
                 try {
@@ -347,7 +348,7 @@ public class IdentityDBInitializer {
                     log.info("Table Already Exists. Hence, skipping table creation");
                 }
             } else {
-                throw new IdentityRuntimeException("Error occurred while executing : " + sql, e);
+                throw IdentityRuntimeException.error("Error occurred while executing : " + sql, e);
             }
         } finally {
             if (resultSet != null) {

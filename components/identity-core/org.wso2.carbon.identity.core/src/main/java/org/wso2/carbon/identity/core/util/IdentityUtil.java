@@ -36,6 +36,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.util.Utils;
 import org.wso2.carbon.identity.base.CarbonEntityResolver;
@@ -270,7 +271,7 @@ public class IdentityUtil {
             return random;
         } catch (Exception e) {
             log.error("Error when generating a random number.", e);
-            throw new IdentityException("Error when generating a random number.", e);
+            throw IdentityException.error("Error when generating a random number.", e);
         }
     }
 
@@ -285,7 +286,7 @@ public class IdentityUtil {
             return number;
         } catch (NoSuchAlgorithmException e) {
             log.error("Error when generating a random number.", e);
-            throw new IdentityException("Error when generating a random number.", e);
+            throw IdentityException.error("Error when generating a random number.", e);
         }
 
     }
@@ -303,7 +304,7 @@ public class IdentityUtil {
                 hostName = NetworkUtils.getLocalHostname();
             }
         } catch (SocketException e) {
-            throw new IdentityRuntimeException("Error while trying to read hostname.", e);
+            throw IdentityRuntimeException.error("Error while trying to read hostname.", e);
         }
 
         String mgtTransport = CarbonUtils.getManagementTransport();
@@ -392,7 +393,7 @@ public class IdentityUtil {
             return unmarshaller.unmarshall(element);
         } catch (ParserConfigurationException | UnmarshallingException | SAXException | IOException e) {
             String message = "Error in constructing XML Object from the encoded String";
-            throw new IdentityException(message, e);
+            throw IdentityException.error(message, e);
         }
     }
 
@@ -434,6 +435,10 @@ public class IdentityUtil {
     public static boolean isUserStoreCaseSensitive(String userStoreDomain, int tenantId) {
 
         boolean isUsernameCaseSensitive = true;
+        if (tenantId == MultitenantConstants.INVALID_TENANT_ID){
+            //this is to handle federated scenarios
+            return true;
+        }
         try {
             org.wso2.carbon.user.core.UserStoreManager userStoreManager = (org.wso2.carbon.user.core
                     .UserStoreManager) IdentityTenantUtil.getRealmService()
@@ -456,6 +461,11 @@ public class IdentityUtil {
      */
     public static boolean isUserStoreCaseSensitive(UserStoreManager userStoreManager) {
 
+        if (userStoreManager == null) {
+            //this is done to handle federated scenarios. For federated scenarios, there is no user store manager for
+            // the user
+            return true;
+        }
         String caseInsensitiveUsername = userStoreManager.getRealmConfiguration()
                 .getUserStoreProperty(IdentityCoreConstants.CASE_INSENSITIVE_USERNAME);
         if (caseInsensitiveUsername == null && log.isDebugEnabled()) {
@@ -579,7 +589,7 @@ public class IdentityUtil {
                 try {
                     hostName = NetworkUtils.getLocalHostname();
                 } catch (SocketException e) {
-                    throw new IdentityRuntimeException("Error while trying to read hostname.", e);
+                    throw IdentityRuntimeException.error("Error while trying to read hostname.", e);
                 }
             }
 
@@ -593,14 +603,22 @@ public class IdentityUtil {
             String mgtTransport = CarbonUtils.getManagementTransport();
             AxisConfiguration axisConfiguration = IdentityCoreServiceComponent.getConfigurationContextService().
                     getServerConfigContext().getAxisConfiguration();
-            int mgtTransportPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
-            if (mgtTransportPort <= 0) {
-                mgtTransportPort = CarbonUtils.getTransportPort(axisConfiguration, mgtTransport);
+
+            int mgtTransportProxyPort = CarbonUtils.getTransportProxyPort(axisConfiguration, mgtTransport);
+            String mgtTransportPort = Integer.toString(mgtTransportProxyPort);
+
+            if (mgtTransportProxyPort <= 0) {
+                if (StringUtils.equals(mgtTransport, "http")) {
+                    mgtTransportPort = System.getProperty(
+                            IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTP_PROPERTY);
+                } else {
+                    mgtTransportPort = System.getProperty(
+                            IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTPS_PROPERTY);
+                }
             }
 
             urlWithPlaceholders = StringUtils.replace(urlWithPlaceholders,
-                    IdentityConstants.CarbonPlaceholders.CARBON_PORT,
-                    Integer.toString(mgtTransportPort));
+                    IdentityConstants.CarbonPlaceholders.CARBON_PORT, mgtTransportPort);
         }
 
         if (StringUtils.contains(urlWithPlaceholders, IdentityConstants.CarbonPlaceholders.CARBON_PORT_HTTP)) {

@@ -157,7 +157,7 @@ public class IdentityConfigParser {
             buildCacheConfig();
 
         } catch (IOException|XMLStreamException e) {
-            throw new IdentityRuntimeException("Error occurred while building configuration from identity.xml", e);
+            throw IdentityRuntimeException.error("Error occurred while building configuration from identity.xml", e);
         } finally {
             try {
                 if (inStream != null) {
@@ -188,7 +188,8 @@ public class IdentityConfigParser {
                             IdentityConstants.EVENT_LISTENER_ENABLE));
 
                     if (StringUtils.isBlank(eventListenerType) || StringUtils.isBlank(eventListenerName)) {
-                        throw new IdentityRuntimeException("eventListenerType or eventListenerName is not defined correctly");
+                        throw IdentityRuntimeException.error("eventListenerType or eventListenerName is not defined " +
+                                "correctly");
                     }
                     IdentityEventListenerConfigKey configKey = new IdentityEventListenerConfigKey(eventListenerType, eventListenerName);
                     IdentityEventListenerConfig identityEventListenerConfig = new IdentityEventListenerConfig(enable, order, configKey);
@@ -214,7 +215,7 @@ public class IdentityConfigParser {
                             IdentityConstants.CACHE_MANAGER_NAME));
 
                     if (StringUtils.isBlank(cacheManagerName)) {
-                        throw new IdentityRuntimeException("CacheManager name not defined correctly");
+                        throw IdentityRuntimeException.error("CacheManager name not defined correctly");
                     }
 
                     Iterator<OMElement> caches = cacheManager.getChildrenWithName(
@@ -227,7 +228,7 @@ public class IdentityConfigParser {
                             String cacheName = cache.getAttributeValue(new QName(IdentityConstants.CACHE_NAME));
 
                             if (StringUtils.isBlank(cacheName)) {
-                                throw new IdentityRuntimeException("Cache name not defined correctly");
+                                throw IdentityRuntimeException.error("Cache name not defined correctly");
                             }
 
                             IdentityCacheConfigKey identityCacheConfigKey = new IdentityCacheConfigKey(cacheManagerName,

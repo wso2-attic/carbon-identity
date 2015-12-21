@@ -387,7 +387,7 @@ public class UserIdentityManagementAdminService {
             for (UserIdentityClaimDTO dto : userIdentityClaims) {
                 if (dto.getClaimUri().contains(UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI)) {
                     log.warn("WARNING! User " + userName + " tried to alter " + dto.getClaimUri());
-                    throw new IdentityException("Updates to the claim " + dto.getClaimUri() +
+                    throw IdentityException.error("Updates to the claim " + dto.getClaimUri() +
                             " are not allowed");
                 }
                 claims.put(dto.getClaimUri(), dto.getClaimValue());

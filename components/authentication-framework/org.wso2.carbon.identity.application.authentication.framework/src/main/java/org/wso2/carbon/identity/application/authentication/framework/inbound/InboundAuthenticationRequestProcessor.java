@@ -23,6 +23,7 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 
 import java.io.IOException;
@@ -120,7 +121,10 @@ public abstract class InboundAuthenticationRequestProcessor {
         response.addParameters(InboundAuthenticationConstants.RequestProcessor.CALL_BACK_PATH,
                 getCallbackPath(context));
         response.addParameters(InboundAuthenticationConstants.RequestProcessor.RELYING_PARTY, getRelyingPartyId());
-
+        //type parameter is using since framework checking it, but future it'll use AUTH_NAME
+        response.addParameters(InboundAuthenticationConstants.RequestProcessor.AUTH_TYPE, getName());
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true, true);
+        response.setRedirectURL(commonAuthURL);
         return response;
     }
 
@@ -170,7 +174,10 @@ public abstract class InboundAuthenticationRequestProcessor {
         response.addParameters(InboundAuthenticationConstants.RequestProcessor.CALL_BACK_PATH,
                 getCallbackPath(context));
         response.addParameters(InboundAuthenticationConstants.RequestProcessor.RELYING_PARTY, getRelyingPartyId());
-
+        //type parameter is using since framework checking it, but future it'll use AUTH_NAME
+        response.addParameters(InboundAuthenticationConstants.RequestProcessor.AUTH_TYPE, getName());
+        String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true, true);
+        response.setRedirectURL(commonAuthURL);
         return response;
     }
 }

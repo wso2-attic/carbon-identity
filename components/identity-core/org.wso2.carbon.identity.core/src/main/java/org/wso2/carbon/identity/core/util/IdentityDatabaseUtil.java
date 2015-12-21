@@ -20,11 +20,9 @@ package org.wso2.carbon.identity.core.util;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
-import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.identity.core.persistence.UmPersistenceManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -103,12 +101,9 @@ public class IdentityDatabaseUtil {
     public static Connection getUserDBConnection() throws IdentityRuntimeException {
         Connection connection;
         try {
-            connection = DatabaseUtil.getRealmDataSource(CarbonContext.getThreadLocalCarbonContext().getUserRealm().
-                    getRealmConfiguration()).getConnection();
+            connection = UmPersistenceManager.getInstance().getDataSource().getConnection();
         } catch (SQLException e) {
-            throw new IdentityRuntimeException("Database error. Could not get a connection", e);
-        } catch (UserStoreException e) {
-            throw new IdentityRuntimeException("Could not receive user realm properly to make a connection", e);
+            throw IdentityRuntimeException.error("Database error. Could not get a connection", e);
         }
         return connection;
     }

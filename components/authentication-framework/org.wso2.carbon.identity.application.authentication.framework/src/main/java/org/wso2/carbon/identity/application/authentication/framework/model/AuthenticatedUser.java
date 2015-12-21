@@ -40,9 +40,11 @@ import java.util.Map;
  */
 public class AuthenticatedUser extends User {
 
-    private static final long serialVersionUID = -5424950669928062109L;
+    private static final long serialVersionUID = -6919627053686253276L;
 
     private String authenticatedSubjectIdentifier;
+    private String federatedIdPName;
+    private boolean isFederatedUser;
     private Map<ClaimMapping, String> userAttributes = new HashMap<>();
 
     /**
@@ -64,6 +66,7 @@ public class AuthenticatedUser extends User {
         this.userName = authenticatedUser.getUserName();
         this.userStoreDomain = authenticatedUser.getUserStoreDomain();
         this.userAttributes.putAll(authenticatedUser.getUserAttributes());
+        this.isFederatedUser = authenticatedUser.isFederatedUser();
     }
 
     /**
@@ -124,6 +127,7 @@ public class AuthenticatedUser extends User {
 
         AuthenticatedUser authenticatedUser = new AuthenticatedUser();
         authenticatedUser.setAuthenticatedSubjectIdentifier(authenticatedSubjectIdentifier);
+        authenticatedUser.setFederatedUser(true);
 
         return authenticatedUser;
     }
@@ -171,11 +175,45 @@ public class AuthenticatedUser extends User {
     public String getUsernameAsSubjectIdentifier(boolean useUserstoreDomainInLocalSubjectIdentifier, boolean useTenantDomainInLocalSubjectIdentifier){
         String userName = this.userName;
         if (useUserstoreDomainInLocalSubjectIdentifier && userStoreDomain != null){
-            userName = userStoreDomain + "/" + userName;
+            userName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
         }
         if (useTenantDomainInLocalSubjectIdentifier && tenantDomain != null) {
-            userName = userName + "@" + tenantDomain;
+            userName = UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain);
         }
         return userName;
+    }
+
+    /**
+     * Returns whether this user federated user or not.
+     *
+     * @return isFederatedUser
+     */
+    public boolean isFederatedUser() {
+        return isFederatedUser;
+    }
+
+    /**
+     * Sets the flag to indicate whether this is a federated user or not.
+     *
+     * @param isFederatedUser
+     */
+    public void setFederatedUser(boolean isFederatedUser) {
+        this.isFederatedUser = isFederatedUser;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getFederatedIdPName() {
+        return federatedIdPName;
+    }
+
+    /**
+     * Sets the flag to indicate whether this is a federated user or not.
+     * @param federatedIdPName
+     */
+    public void setFederatedIdPName(String federatedIdPName) {
+        this.federatedIdPName = federatedIdPName;
     }
 }

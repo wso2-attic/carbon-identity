@@ -199,7 +199,7 @@ public class IdPInitSSOAuthnRequestProcessor implements SSOAuthnRequestProcessor
             }
             return ssoIdpConfigs;
         } catch (Exception e) {
-            throw new IdentityException("Error while reading Service Provider configurations", e);
+            throw IdentityException.error("Error while reading Service Provider configurations", e);
         }
     }
 

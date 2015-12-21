@@ -18,20 +18,17 @@
 
 package org.wso2.carbon.identity.workflow.mgt.exception;
 
-public class WorkflowException extends Exception {
+import org.wso2.carbon.identity.base.IdentityException;
+
+public class WorkflowException extends IdentityException {
+
+    private static final long serialVersionUID = 737141405805528549L;
 
     public WorkflowException(String message) {
-
         super(message);
     }
 
     public WorkflowException(String message, Throwable e) {
-
         super(message, e);
-    }
-
-    public WorkflowException(Throwable e) {
-
-        super(e);
     }
 }

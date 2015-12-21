@@ -153,8 +153,9 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
         try {
 
+            //TODO add debug log istocommonth and flowstatus
             String isToCommonOauth = req.getParameter(FrameworkConstants.RequestParams.TO_COMMONAUTH);
-            if ("true".equals(isToCommonOauth) & flowStatus == null) {
+            if ("true".equals(isToCommonOauth) && flowStatus == null) {
                 sendRequestToFramework(req, resp);
                 return;
             }
@@ -539,13 +540,13 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         if (acUrl == null || acUrl.trim().length() == 0) {
             // if ACS is null. Send to error page
             log.error("ACS Url is Null");
-            throw new IdentityException("Unexpected error in sending message out");
+            throw IdentityException.error("Unexpected error in sending message out");
         }
 
         if (response == null || response.trim().length() == 0) {
             // if response is null
             log.error("Response message is Null");
-            throw new IdentityException("Unexpected error in sending message out");
+            throw IdentityException.error("Unexpected error in sending message out");
         }
 
         if (IdentitySAMLSSOServiceComponent.getSsoRedirectHtml() != null) {
@@ -666,7 +667,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                             reqValidationDTO.getAssertionConsumerURL(), req, resp);
                     return;
                 } else {
-                    throw new IdentityException("Session data is not found for authenticated user");
+                    throw IdentityException.error("Session data is not found for authenticated user");
                 }
             }
         } else {
@@ -898,11 +899,8 @@ public class SAMLSSOProviderServlet extends HttpServlet {
      */
     private void removeAuthenticationResult(HttpServletRequest req, String sessionDataKey) {
 
-        if(isCacheAvailable){
             FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKey);
-        }else {
             req.removeAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT);
-        }
     }
 
     /**
@@ -928,12 +926,12 @@ public class SAMLSSOProviderServlet extends HttpServlet {
                     if (log.isDebugEnabled()) {
                         log.debug(message);
                     }
-                    throw new IdentityException(message);
+                    throw IdentityException.error(message);
                 }
             } catch (UserStoreException e) {
                 String message = "Error occurred while getting tenant ID from tenantDomain " + tenantDomain;
                 log.error(message, e);
-                throw new IdentityException(message, e);
+                throw IdentityException.error(message, e);
             }
         } else {
             tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;

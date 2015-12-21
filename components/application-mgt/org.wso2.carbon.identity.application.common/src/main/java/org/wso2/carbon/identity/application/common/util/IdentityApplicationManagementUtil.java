@@ -603,10 +603,11 @@ public class IdentityApplicationManagementUtil {
                     .getInboundAuthenticationConfig().getInboundAuthenticationRequestConfigs();
 
             for (InboundAuthenticationRequestConfig authReqConfig : authReqConfigs) {
-                if ("oauth2".equals(authReqConfig.getInboundAuthType())) {
+                if ((IdentityApplicationConstants.OAuth2.NAME).equals(authReqConfig.getInboundAuthType())) {
                     if (authReqConfig.getProperties() != null) {
                         for (Property property : authReqConfig.getProperties()) {
-                            if ("oauthConsumerSecret".equalsIgnoreCase(property.getName())) {
+                            if ((IdentityApplicationConstants.OAuth2.OAUTH_CONSUMER_SECRET)
+                                    .equalsIgnoreCase(property.getName())) {
                                 oauthConsumerSecret = property.getValue();
                                 break;
                             }
@@ -664,8 +665,8 @@ public class IdentityApplicationManagementUtil {
             byte[] rawHmac = mac.doFinal(value.getBytes());
             result = Base64Utils.encode(rawHmac);
         } catch (Exception e) {
-            if(log.isDebugEnabled()){
-                log.debug("Failed to create the HMAC Signature",e);
+            if (log.isDebugEnabled()) {
+                log.debug("Failed to create the HMAC Signature", e);
             }
             throw new SignatureException("Failed to calculate HMAC : " + e.getMessage());
         }

@@ -111,7 +111,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreCreateApplication(serviceProvider,tenantDomain, username)) {
+            if (listener.isEnable() && !listener.doPreCreateApplication(serviceProvider,tenantDomain, username)) {
                 return;
             }
         }
@@ -161,7 +161,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostCreateApplication(serviceProvider, tenantDomain, username)) {
+            if (listener.isEnable() && !listener.doPostCreateApplication(serviceProvider, tenantDomain, username)) {
                 return;
             }
         }
@@ -174,7 +174,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         // invoking the listeners
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreGetApplicationExcludingFileBasedSPs(applicationName, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreGetApplicationExcludingFileBasedSPs(applicationName, tenantDomain)) {
                 return null;
             }
         }
@@ -199,7 +199,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
         // invoking the listeners
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostGetApplicationExcludingFileBasedSPs(serviceProvider, applicationName, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostGetApplicationExcludingFileBasedSPs(serviceProvider, applicationName, tenantDomain)) {
                 return null;
             }
         }
@@ -214,7 +214,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         // invoking the listeners
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreGetAllApplicationBasicInfo(tenantDomain, username)) {
+            if (listener.isEnable() && !listener.doPreGetAllApplicationBasicInfo(tenantDomain, username)) {
                 return null;
             }
         }
@@ -232,7 +232,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
         // invoking the listeners
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostGetAllApplicationBasicInfo(appDAO, tenantDomain, username)) {
+            if (listener.isEnable() && !listener.doPostGetAllApplicationBasicInfo(appDAO, tenantDomain, username)) {
                 return null;
             }
         }
@@ -247,7 +247,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         // invoking the listeners
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreUpdateApplication(serviceProvider, tenantDomain, username)) {
+            if (listener.isEnable() && !listener.doPreUpdateApplication(serviceProvider, tenantDomain, username)) {
                 return;
             }
         }
@@ -303,7 +303,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostUpdateApplication(serviceProvider, tenantDomain, username)) {
+            if (listener.isEnable() && !listener.doPostUpdateApplication(serviceProvider, tenantDomain, username)) {
                 return;
             }
         }
@@ -349,7 +349,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         // invoking the listeners
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreDeleteApplication(applicationName, tenantDomain, username)) {
+            if (listener.isEnable() && !listener.doPreDeleteApplication(applicationName, tenantDomain, username)) {
                 return;
             }
         }
@@ -432,7 +432,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostDeleteApplication(applicationName, tenantDomain, username)) {
+            if (listener.isEnable() && !listener.doPostDeleteApplication(applicationName, tenantDomain, username)) {
                 return;
             }
         }
@@ -544,7 +544,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         // invoking the listeners
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreGetServiceProviderNameByClientIdExcludingFileBasedSPs(name, clientId, type, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreGetServiceProviderNameByClientIdExcludingFileBasedSPs(name, clientId, type, tenantDomain)) {
                 return null;
             }
         }
@@ -559,7 +559,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostGetServiceProviderNameByClientIdExcludingFileBasedSPs(name, clientId, type, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostGetServiceProviderNameByClientIdExcludingFileBasedSPs(name, clientId, type, tenantDomain)) {
                 return null;
             }
         }
@@ -668,7 +668,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         // invoking the listeners
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreGetServiceProviderNameByClientId(clientId, clientType, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreGetServiceProviderNameByClientId(clientId, clientType, tenantDomain)) {
                 return null;
             }
         }
@@ -688,7 +688,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostGetServiceProviderNameByClientId(name, clientId, clientType, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostGetServiceProviderNameByClientId(name, clientId, clientType, tenantDomain)) {
                 return null;
             }
         }
@@ -710,7 +710,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         // invoking the listeners
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreGetServiceProvider(serviceProviderName, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreGetServiceProvider(serviceProviderName, tenantDomain)) {
                 return null;
             }
         }
@@ -733,7 +733,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
 
         // invoking the listeners
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostGetServiceProvider(serviceProvider, serviceProviderName, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostGetServiceProvider(serviceProvider, serviceProviderName, tenantDomain)) {
                 return null;
             }
         }
@@ -754,7 +754,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         // invoking the listeners
         Collection<ApplicationMgtListener> listeners = ApplicationMgtListenerServiceComponent.getApplicationMgtListeners();
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPreGetServiceProviderByClientId(clientId, clientType, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPreGetServiceProviderByClientId(clientId, clientType, tenantDomain)) {
                 return null;
             }
         }
@@ -830,7 +830,7 @@ public class ApplicationManagementServiceImpl extends ApplicationManagementServi
         }
 
         for (ApplicationMgtListener listener : listeners) {
-            if (!listener.doPostGetServiceProviderByClientId(serviceProvider, clientId, clientType, tenantDomain)) {
+            if (listener.isEnable() && !listener.doPostGetServiceProviderByClientId(serviceProvider, clientId, clientType, tenantDomain)) {
                 return null;
             }
         }
