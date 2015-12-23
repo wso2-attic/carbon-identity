@@ -109,7 +109,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                                 log.debug("Infinite lifetime Access Token found in cache");
                             }
                         }
-                        respDTO.setAccessToken(accessTokenDO.getAccessToken());
+                        setAccessToken(responseType, respDTO, accessTokenDO.getAccessToken());
                         if(expireTime > 0){
                             respDTO.setValidityPeriod(expireTime/1000);
                         } else {
@@ -179,8 +179,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         }
                     }
 
-                    respDTO.setAccessToken(existingAccessTokenDO.getAccessToken());
-
+                    setAccessToken(responseType, respDTO, existingAccessTokenDO.getAccessToken());
                     if(expiryTime > 0){
                         respDTO.setValidityPeriod(expiryTime / 1000);
                     } else {
@@ -337,7 +336,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             }
 
             if(StringUtils.contains(responseType, ResponseType.TOKEN.toString())) {
-                respDTO.setAccessToken(accessToken);
+                setAccessToken(responseType, respDTO, accessToken);
 
                 if (validityPeriodInMillis > 0) {
                     respDTO.setValidityPeriod(newAccessTokenDO.getValidityPeriod());
@@ -361,6 +360,22 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                 msgCtx.getApprovedScope() != null && OAuth2Util.isOIDCAuthzRequest(msgCtx.getApprovedScope())) {
             IDTokenBuilder builder = OAuthServerConfiguration.getInstance().getOpenIDConnectIDTokenBuilder();
             authzRespDTO.setIdToken(builder.buildIDToken(msgCtx, authzRespDTO));
+        }
+    }
+
+    /**
+     * Set access token only if response type contains 'token'
+     * @param responseType
+     * @param respDTO
+     * @param accessToken
+     */
+    private void setAccessToken(String responseType, OAuth2AuthorizeRespDTO respDTO, String accessToken) {
+        String[] elements = StringUtils.split(responseType);
+        for (String element : elements) {
+            if (ResponseType.TOKEN.toString().equals(element)) {
+                respDTO.setAccessToken(accessToken);
+                break;
+            }
         }
     }
 }
