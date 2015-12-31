@@ -127,7 +127,6 @@
         </operation>
     </service>
 
-    <!--todo: define a new permission?-->
     <parameter name="AuthorizationAction" locked="false">/permission/admin/manage/identity/workflow</parameter>
     <parameter name="adminService" locked="true">true</parameter>
     <parameter name="hiddenService" locked="true">true</parameter>
