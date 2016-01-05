@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
+/**
+ * This object represent a request associated with a workflow.
+ */
 public class WorkflowRequest {
 
     private String requestId;
