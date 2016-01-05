@@ -28,7 +28,6 @@
             <region>region1</region>
             <order>55</order>
             <style-class>manage</style-class>
-            <!--<icon>../tools-saml/images/lock_blue.png</icon>-->
             <at-least>/permission/admin/manage/identity/workflow/profile/create</at-least>
             <at-least>/permission/admin/manage/identity/workflow/profile/view</at-least>
         </menu>
@@ -42,8 +41,6 @@
             <region>region1</region>
             <order>1</order>
             <style-class>manage</style-class>
-            <!--TODO change icon-->
-            <!--<icon>../workflow-mgt/images/claimmgt.gif</icon>-->
             <require-permission>/permission/admin/manage/identity/workflow/profile/create</require-permission>
         </menu>
         <menu>
@@ -56,8 +53,6 @@
             <region>region1</region>
             <order>2</order>
             <style-class>manage</style-class>
-            <!--TODO change icon-->
-            <!--<icon>../workflow-mgt/images/claimmgt.gif</icon>-->
             <require-permission>/permission/admin/manage/identity/workflow/profile/view</require-permission>
         </menu>
     </menus>

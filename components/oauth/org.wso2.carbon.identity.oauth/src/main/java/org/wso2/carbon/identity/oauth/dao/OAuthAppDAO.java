@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
+import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -356,6 +357,36 @@ public class OAuthAppDAO {
             throw new IdentityOAuthAdminException("Error when executing the SQL : " + SQLQueries.OAuthAppDAOSQLQueries.REMOVE_APPLICATION, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, prepStmt);
+        }
+    }
+
+    /**
+     * Update the OAuth service provider name.
+     * @param appName Service provider name.
+     * @param consumerKey Consumer key.
+     * @throws IdentityApplicationManagementException
+     */
+    public void updateOAuthConsumerApp(String appName, String consumerKey)
+            throws IdentityApplicationManagementException {
+
+        PreparedStatement statement = null;
+        Connection connection = null;
+
+        try {
+
+            connection = IdentityDatabaseUtil.getDBConnection();
+            statement = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.UPDATE_OAUTH_INFO);
+
+            statement.setString(1, appName);
+            statement.setString(2, consumerKey);
+
+            statement.execute();
+            connection.commit();
+
+        } catch (SQLException e) {
+            throw new IdentityApplicationManagementException("Error while executing the SQL statement.", e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, statement);
         }
     }
 
