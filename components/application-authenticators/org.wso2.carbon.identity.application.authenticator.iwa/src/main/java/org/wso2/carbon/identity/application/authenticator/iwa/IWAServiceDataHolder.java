@@ -17,74 +17,73 @@
  */
 package org.wso2.carbon.identity.application.authenticator.iwa;
 
-import waffle.servlet.spi.SecurityFilterProviderCollection;
-import waffle.windows.auth.IWindowsAuthProvider;
-import waffle.windows.auth.PrincipalFormat;
+import org.ietf.jgss.GSSCredential;
+import org.ietf.jgss.GSSException;
+import org.ietf.jgss.GSSManager;
+import org.ietf.jgss.Oid;
 
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+
+//todo handle exceptions and logs
 public class IWAServiceDataHolder {
-    private IWAServiceDataHolder() {
-        setPrincipalFormat(PrincipalFormat.both.fqn);
-        setRoleFormat(PrincipalFormat.fqn);
-    }
-    private static IWAServiceDataHolder instance = new IWAServiceDataHolder();
-    private SecurityFilterProviderCollection providers;
-    private IWindowsAuthProvider auth;
-    private boolean allowGuestLogin;
-    private boolean impersonate;
-    private PrincipalFormat principalFormat;
-    private PrincipalFormat roleFormat;
 
+    static final Oid SPNEGO_OID = IWAServiceDataHolder.getOid();
+    static final GSSManager MANAGER = GSSManager.getInstance();
 
-    public static IWAServiceDataHolder getInstance() {
-        return instance;
-    }
+    public static CallbackHandler getUsernamePasswordHandler(final String username,
+                                                             final String password) {
 
-    public PrincipalFormat getPrincipalFormat() {
-        return principalFormat;
-    }
+        final CallbackHandler handler = new CallbackHandler() {
+            public void handle(final Callback[] callback) {
+                for (int i=0; i<callback.length; i++) {
+                    if (callback[i] instanceof NameCallback) {
+                        final NameCallback nameCallback = (NameCallback) callback[i];
+                        nameCallback.setName(username);
+                    } else if (callback[i] instanceof PasswordCallback) {
+                        final PasswordCallback passCallback = (PasswordCallback) callback[i];
+                        passCallback.setPassword(password.toCharArray());
+                    } else {
+                        System.out.println("Unsupported Callback i=" + i + "; class="
+                                + callback[i].getClass().getName());
+                    }
+                }
+            }
+        };
 
-    public void setPrincipalFormat(PrincipalFormat principalFormat) {
-        this.principalFormat = principalFormat;
-    }
+        return handler;
 
-    public PrincipalFormat getRoleFormat() {
-        return roleFormat;
-    }
-
-    public void setRoleFormat(PrincipalFormat roleFormat) {
-        this.roleFormat = roleFormat;
     }
 
-    public IWindowsAuthProvider getAuth() {
-        return auth;
+    static GSSCredential getServerCredential(final Subject subject)
+            throws PrivilegedActionException {
+
+        final PrivilegedExceptionAction<GSSCredential> action =
+                new PrivilegedExceptionAction<GSSCredential>() {
+                    public GSSCredential run() throws GSSException {
+                        return MANAGER.createCredential(
+                                null
+                                , GSSCredential.INDEFINITE_LIFETIME
+                                , IWAServiceDataHolder.SPNEGO_OID
+                                , GSSCredential.ACCEPT_ONLY);
+                    }
+                };
+        return Subject.doAs(subject, action);
     }
 
-    public void setAuth(IWindowsAuthProvider auth) {
-        this.auth = auth;
-    }
-
-    public boolean isAllowGuestLogin() {
-        return allowGuestLogin;
-    }
-
-    public void setAllowGuestLogin(boolean allowGuestLogin) {
-        this.allowGuestLogin = allowGuestLogin;
-    }
-
-    public boolean isImpersonate() {
-        return impersonate;
-    }
-
-    public void setImpersonate(boolean impersonate) {
-        this.impersonate = impersonate;
-    }
-
-    public SecurityFilterProviderCollection getProviders() {
-        return providers;
-    }
-
-    public void setProviders(SecurityFilterProviderCollection providers) {
-        this.providers = providers;
+    private static Oid getOid() {
+        Oid oid = null;
+        try {
+            oid = new Oid("1.3.6.1.5.5.2");
+        } catch (GSSException gsse) {
+            System.out.println("Unable to create OID 1.3.6.1.5.5.2 !"+ gsse.toString());
+        }
+        return oid;
     }
 
 }

@@ -11,41 +11,47 @@ import org.ietf.jgss.GSSException;
 
 public class Authenticator {
 
-	private final transient LoginContext logginContext;
+	private final transient LoginContext loginContext;
 	private final transient GSSCredential serverCred;
 	
-	public Authenticator(String username, String password ) 
-			throws LoginException, PrivilegedActionException, GSSException {
+	public Authenticator() throws LoginException, PrivilegedActionException, GSSException {
 
-		CallbackHandler callbackHandler = Provider.getUsernamePasswordHandler(username, password);
-		
-		this.logginContext = new LoginContext("spnego-server", callbackHandler);
-		
-		this.logginContext.login();
+		String username="Administrator";
+		String password="Admin@123#";
 
-		this.serverCred = Provider.getServerCredential(this.logginContext.getSubject());
-		//new KerberosPrincipal(this.serverCred.getName().toString());
-		//System.out.println(this.serverCred.getName().toString());
+        CallbackHandler callbackHandler = IWAServiceDataHolder.getUsernamePasswordHandler(username, password);
 		
+		this.loginContext = new LoginContext("spnego-server", callbackHandler);
+		
+		this.loginContext.login();
+
+		this.serverCred = IWAServiceDataHolder.getServerCredential(this.loginContext.getSubject());
+
+		System.out.println(serverCred.toString());
+
 	}
 
 	
-	public String authnticateSp(byte [] gss) throws GSSException {
+	public String authenticateUser(byte [] gssToken) throws GSSException {
 		
-		GSSContext context = null;
+		GSSContext context;
 
-			context= Provider.MANAGER.createContext(this.serverCred);
-			byte[] token = context.acceptSecContext(gss, 0, gss.length);
+			context= IWAServiceDataHolder.MANAGER.createContext(this.serverCred);
+			byte[] token = context.acceptSecContext(gssToken, 0, gssToken.length);
 
 		String name=null;
 		if(!context.isEstablished()) {
-			return name;
-		}
-		
-
+            return name;
+        }
 		name = context.getSrcName().toString();
 		return name;
 	}
-	
+
+    public static void setSystemProperties(String prop1, String prop2) {
+
+        System.setProperty("java.security.auth.login.config",prop1);
+        System.setProperty("java.security.auth.krb5.conf",prop2);
+
+    }
 	
 }
