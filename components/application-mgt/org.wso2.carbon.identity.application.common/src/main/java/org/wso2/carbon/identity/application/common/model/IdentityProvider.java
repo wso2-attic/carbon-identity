@@ -193,8 +193,7 @@ public class IdentityProvider implements Serializable {
         if ((!foundDefaultAuthenticator && federatedAuthenticatorConfigs.length > 0) || (federatedAuthenticatorConfigs
                 .length == 0 && StringUtils.isNotBlank(defaultAuthenticatorConfigName))) {
             log.warn("No matching federated authentication config found with default authentication config name :  "
-                    + defaultAuthenticatorConfigName + " in identity provider : " + identityProvider .displayName +
-                    ".");
+                    + defaultAuthenticatorConfigName + " in identity provider : " + identityProvider.displayName + ".");
             return null;
         }
 
