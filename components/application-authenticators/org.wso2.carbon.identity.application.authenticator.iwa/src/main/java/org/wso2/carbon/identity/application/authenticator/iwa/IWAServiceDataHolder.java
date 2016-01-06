@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,10 +17,13 @@
  */
 package org.wso2.carbon.identity.application.authenticator.iwa;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.Oid;
+import org.wso2.carbon.user.core.service.RealmService;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -35,6 +38,8 @@ public class IWAServiceDataHolder {
 
     static final Oid SPNEGO_OID = IWAServiceDataHolder.getOid();
     static final GSSManager MANAGER = GSSManager.getInstance();
+    private static RealmService realmService;
+    private static Log log = LogFactory.getLog(IWAServiceDataHolder.class);
 
     public static CallbackHandler getUsernamePasswordHandler(final String username,
                                                              final String password) {
@@ -49,8 +54,7 @@ public class IWAServiceDataHolder {
                         final PasswordCallback passCallback = (PasswordCallback) callback[i];
                         passCallback.setPassword(password.toCharArray());
                     } else {
-                        System.out.println("Unsupported Callback i=" + i + "; class="
-                                + callback[i].getClass().getName());
+                        log.error("Unsupported Callback i=" + i + "; class=" + callback[i].getClass().getName());
                     }
                 }
             }
@@ -81,9 +85,16 @@ public class IWAServiceDataHolder {
         try {
             oid = new Oid("1.3.6.1.5.5.2");
         } catch (GSSException gsse) {
-            System.out.println("Unable to create OID 1.3.6.1.5.5.2 !"+ gsse.toString());
+            log.error("Unable to create OID 1.3.6.1.5.5.2 !"+ gsse.toString());
         }
         return oid;
     }
 
+    public static void setRealmService(RealmService realmService) {
+        IWAServiceDataHolder.realmService = realmService;
+    }
+
+    public static RealmService getRealmService() {
+        return realmService;
+    }
 }

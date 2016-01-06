@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -26,7 +26,9 @@ import org.osgi.service.http.NamespaceException;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAConstants;
+import org.wso2.carbon.identity.application.authenticator.iwa.IWAServiceDataHolder;
 import org.wso2.carbon.identity.application.authenticator.iwa.servlet.IWAServelet;
+import org.wso2.carbon.user.core.service.RealmService;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -37,6 +39,10 @@ import javax.servlet.ServletException;
  * @scr.reference name="osgi.httpservice" interface="org.osgi.service.http.HttpService"
  * cardinality="1..1" policy="dynamic" bind="setHttpService"
  * unbind="unsetHttpService"
+ * @scr.reference name="user.realmservice.default"
+ * interface="org.wso2.carbon.user.core.service.RealmService"
+ * cardinality="1..1" policy="dynamic" bind="setRealmService"
+ * unbind="unsetRealmService"
  */
 public class IWAAuthenticatorServiceComponent {
 
@@ -78,5 +84,19 @@ public class IWAAuthenticatorServiceComponent {
             log.debug("HTTP Service is unset in the IWA SSO bundle");
         }
         this.httpService = null;
+    }
+
+    protected void setRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.info("Setting the Realm Service");
+        }
+        IWAServiceDataHolder.setRealmService(realmService);
+    }
+
+    protected void unsetRealmService(RealmService realmService) {
+        if (log.isDebugEnabled()) {
+            log.info("Unsetting the Realm Service");
+        }
+        IWAServiceDataHolder.setRealmService(null);
     }
 }

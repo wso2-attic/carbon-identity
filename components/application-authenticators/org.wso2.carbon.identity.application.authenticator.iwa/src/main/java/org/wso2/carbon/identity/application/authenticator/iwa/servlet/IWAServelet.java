@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,11 +18,11 @@
 
 package org.wso2.carbon.identity.application.authenticator.iwa.servlet;
 
+import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ietf.jgss.GSSException;
 import org.wso2.carbon.identity.application.authenticator.iwa.Authenticator;
-import org.wso2.carbon.identity.application.authenticator.iwa.Base64;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -68,17 +68,16 @@ public class IWAServelet extends HttpServlet {
             // log the user in using the token
             String token = header.substring(IWAConstants.NEGOTIATE_HEADER.length()+1);
             if (token.startsWith(IWAConstants.NTLM_PROLOG)){
-                //todo prompt to type user name and password.
-                //todo else make redirect to basic auth
+                //todo
                 log.warn("NTLM token found ");
-                sendUnauthorized(response, true);
+                sendUnauthorized(response,true);
                 return;
             }
             final byte [] gssToken = Base64.decode(token);
             String name;
             try {
 
-                name = authenticator.authenticateUser(gssToken);
+                name = authenticator.processToken(gssToken);
 
             } catch (GSSException e) {
                 log.warn("error logging in user.", e);
@@ -108,7 +107,7 @@ public class IWAServelet extends HttpServlet {
         if (log.isDebugEnabled()) {
             log.debug("authorization required");
         }
-        //added headers for nego auth
+        //Send unauthorized response to get token
         sendUnauthorized(response, false);
     }
 
@@ -137,19 +136,13 @@ public class IWAServelet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
 
-        //todo remove these 2 files and check if it works
-        //todo add contains to the existing file
-        //todo what if this file do  affect the normal steps
+        //todo change file path to put this on config
         Authenticator.setSystemProperties("login.conf", "krb5.conf");
 
         try {
-            //todo get user names and password from user mgt file
             this.authenticator=new Authenticator();
-
         } catch (LoginException | PrivilegedActionException | GSSException e) {
-            //todo what can do for this
             log.error("Error when creating gss credentials ." + e);
-            e.printStackTrace();
         }
     }
 }
