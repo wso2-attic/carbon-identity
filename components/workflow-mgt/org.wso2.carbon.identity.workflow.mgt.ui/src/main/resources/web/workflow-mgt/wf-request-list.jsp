@@ -290,7 +290,7 @@
                                 <td style="border:0; !important">
                                     <nobr>
                                         <fmt:message key="workflow.request.status"/>
-                                        <% if (statusToFilter.equals("PENDING")) { %>
+                                        <% if ("PENDING".equals(statusToFilter)) { %>
 
                                         <select name="requestStatusFilter" id="requestStatusFilter"
                                                 onchange="getSelectedStatusType();">
@@ -302,7 +302,7 @@
                                             <option value="FAILED"><fmt:message key="failed"/></option>
                                         </select>
 
-                                        <%} else if (statusToFilter.equals("APPROVED")) { %>
+                                        <%} else if ("APPROVED".equals(statusToFilter)) { %>
 
                                         <select name="requestStatusFilter" id="requestStatusFilter"
                                                 onchange="getSelectedStatusType();">
@@ -314,7 +314,7 @@
                                             <option value="FAILED"><fmt:message key="failed"/></option>
                                         </select>
 
-                                        <%} else if (statusToFilter.equals("REJECTED")) { %>
+                                        <%} else if ("REJECTED".equals(statusToFilter)) { %>
 
                                         <select name="requestStatusFilter" id="requestStatusFilter"
                                                 onchange="getSelectedStatusType();">
@@ -326,7 +326,7 @@
                                             <option value="FAILED"><fmt:message key="failed"/></option>
                                         </select>
 
-                                        <%} else if (statusToFilter.equals("FAILED")) { %>
+                                        <%} else if ("FAILED".equals(statusToFilter)) { %>
 
                                         <select name="requestStatusFilter" id="requestStatusFilter"
                                                 onchange="getSelectedStatusType();">
@@ -362,7 +362,7 @@
                             <tr style="border:0; !important">
                                 <td style="border:0; !important">
                                     <nobr>
-                                        <% if (timeFilterCategory.equals("updatedAt")) { %>
+                                        <% if ("updatedAt".equals(timeFilterCategory)) { %>
                                         <select name="timeCategoryToFilter" id="timeCategoryToFilter"
                                                 onchange="getSelectedRequestType();">
                                             <option value="createdAt"><fmt:message key="createdAt"/></option>
@@ -426,7 +426,7 @@
                     if (requestList != null && requestList.length > 0) {
                         for (WorkflowRequest workflowReq : associationToDisplay) {
                             if (workflowReq != null && (statusToFilter == null || statusToFilter == ""
-                                    || statusToFilter.equals("allTasks") || workflowReq.getStatus().equals(statusToFilter))) {
+                                    || "allTasks".equals(statusToFilter) || workflowReq.getStatus().equals(statusToFilter))) {
                 %>
                 <tr>
                     <td><%=Encode.forHtmlContent(workflowReq.getEventType())%>
@@ -445,9 +445,8 @@
                            onclick="listWorkflows('<%=workflowReq.getRequestId()%>');return false;"
                            href="#" style="background-image: url(images/list.png);"
                            class="icon-link"><fmt:message key='workflows'/></a>
-                        <% if ( workflowReq.getStatus().equals("PENDING") && CarbonUIUtil.isUserAuthorized(request,
-                                "/permission/admin/manage/identity/workflow/monitor/delete"))
-                        { %>
+                        <% if ("PENDING".equals(workflowReq.getStatus()) && CarbonUIUtil.isUserAuthorized(request,
+                                "/permission/admin/manage/identity/workflow/monitor/delete")) { %>
                         <a title="<fmt:message key='workflow.request.delete.title'/>"
                            onclick="removeRequest('<%=workflowReq.getRequestId()%>');return false;"
                            href="#" style="background-image: url(images/delete.gif);"

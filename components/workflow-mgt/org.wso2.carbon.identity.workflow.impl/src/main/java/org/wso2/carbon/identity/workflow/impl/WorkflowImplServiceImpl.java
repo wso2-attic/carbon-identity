@@ -198,8 +198,8 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         TStatus readyState = new TStatus();
         readyState.setTStatus(WFImplConstant.HT_STATE_READY);
         input.addStatus(readyState);
-        input.setPageSize(100000);
-        input.setPageNumber(0);
+        input.setPageSize(WFImplConstant.DEFAULT_PAGE_SIZE_FOR_HT_LIST);
+        input.setPageNumber(WFImplConstant.PAGE_0);
         input.setSimpleQueryCategory(TSimpleQueryCategory.ALL_TASKS);
         for (int i = 0; i < bpsProfiles.size(); i++) {
             try {
