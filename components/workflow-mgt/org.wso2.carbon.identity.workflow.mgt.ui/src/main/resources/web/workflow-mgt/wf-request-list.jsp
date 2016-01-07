@@ -38,6 +38,15 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequest" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowEvent" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%! public static final String REGION1_PAGINATION = "region=region1";
+    public static final String I18N_RESOURCDE_FILE = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    public static final String LOGGED_USER = "logged-user";
+    public static final String TIME_CATEGORY_TO_FILTER = "timeCategoryToFilter";
+    public static final String CREATED_AT_TO = "createdAtTo";
+    public static final String CREATED_AT_FROM = "createdAtFrom";
+    public static final String REQUEST_STATUS_FILTER = "requestStatusFilter";
+    private static final String REQUEST_TYPE_FILTER = "requestTypeFilter";
+%>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -45,19 +54,19 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    String taskTypeFilter = request.getParameter("requestTypeFilter");
-    String statusToFilter = request.getParameter("requestStatusFilter");
-    String lowerBound = request.getParameter("createdAtFrom");
-    String upperBound = request.getParameter("createdAtTo");
-    String timeFilterCategory = request.getParameter("timeCategoryToFilter");
-    String loggedUser = (String) session.getAttribute("logged-user");
-    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    String taskTypeFilter = request.getParameter(REQUEST_TYPE_FILTER);
+    String statusToFilter = request.getParameter(REQUEST_STATUS_FILTER);
+    String lowerBound = request.getParameter(CREATED_AT_FROM);
+    String upperBound = request.getParameter(CREATED_AT_TO);
+    String timeFilterCategory = request.getParameter(TIME_CATEGORY_TO_FILTER);
+    String loggedUser = (String) session.getAttribute(LOGGED_USER);
+    String bundle = I18N_RESOURCDE_FILE;
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
     WorkflowRequest[] associationToDisplay = new WorkflowRequest[0];
     WorkflowRequest[] requestList = null;
-    String paginationValue = "region=region1";
+    String paginationValue = REGION1_PAGINATION;
 
     String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
@@ -97,7 +106,7 @@
         }
 
 
-        if (taskTypeFilter.equals("allTasks")) {
+        if ("allTasks".equals(taskTypeFilter)) {
             requestList = client.getAllRequests(lowerBound, upperBound, timeFilterCategory, statusToFilter);
         } else {
             requestList = client.getRequestsCreatedByUser(loggedUser, lowerBound, upperBound, timeFilterCategory,
@@ -266,7 +275,7 @@
                                         <fmt:message key="workflow.request.type"/>
                                         <select name="requestTypeFilter" id="requestTypeFilter"
                                                 onchange="getSelectedRequestType();">
-                                            <% if (taskTypeFilter.equals("allTasks")) { %>
+                                            <% if ("allTasks".equals(taskTypeFilter)) { %>
                                             <option value="myTasks"><fmt:message key="myTasks"/></option>
                                             <option value="allTasks"
                                                     selected="selected"><fmt:message key="allTasks"/></option>
