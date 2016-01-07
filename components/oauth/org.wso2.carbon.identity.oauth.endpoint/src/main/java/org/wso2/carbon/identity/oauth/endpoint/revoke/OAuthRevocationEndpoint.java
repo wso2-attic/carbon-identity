@@ -70,7 +70,7 @@ public class OAuthRevocationEndpoint {
             HttpServletRequestWrapper httpRequest = new OAuthRequestWrapper(request, paramMap);
 
             String token = httpRequest.getParameter("token");
-            if (StringUtils.isBlank(token) && paramMap.get("token") != null && !paramMap.isEmpty()) {
+            if (StringUtils.isBlank(token) && paramMap.get("token") != null && !paramMap.get("token").isEmpty()) {
                 token = paramMap.get("token").get(0);
             }
             String tokenType = httpRequest.getParameter("token_type_hint");

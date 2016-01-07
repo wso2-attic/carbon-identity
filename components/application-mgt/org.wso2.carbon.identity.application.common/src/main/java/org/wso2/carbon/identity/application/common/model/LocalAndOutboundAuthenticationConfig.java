@@ -29,6 +29,13 @@ import java.util.List;
 public class LocalAndOutboundAuthenticationConfig implements Serializable {
 
     private static final long serialVersionUID = 6552125621314155291L;
+    private static final String USE_USERSTORE_DOMAIN_IN_USERNAME = "UseUserstoreDomainInUsername";
+    private static final String USE_TENANT_DOMAIN_IN_USERNAME = "UseTenantDomainInUsername";
+    private static final String SUBJECT_CLAIM_URI = "subjectClaimUri";
+    private static final String ALWAYS_SEND_BACK_AUTHENTICATED_LIST_OF_ID_PS = "alwaysSendBackAuthenticatedListOfIdPs";
+    private static final String AUTHENTICATION_STEP_FOR_ATTRIBUTES = "AuthenticationStepForAttributes";
+    private static final String AUTHENTICATION_STEP_FOR_SUBJECT = "AuthenticationStepForSubject";
+    private static final String AUTHENTICATION_STEPS = "AuthenticationSteps";
 
     private AuthenticationStep[] authenticationSteps = new AuthenticationStep[0];
     private String authenticationType;
@@ -61,7 +68,7 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
         while (iter.hasNext()) {
             OMElement member = (OMElement) iter.next();
 
-            if ("AuthenticationSteps".equals(member.getLocalName())) {
+            if (AUTHENTICATION_STEPS.equals(member.getLocalName())) {
 
                 Iterator<?> authenticationStepsIter = member.getChildElements();
                 List<AuthenticationStep> authenticationStepsArrList = new ArrayList<AuthenticationStep>();
@@ -88,30 +95,30 @@ public class LocalAndOutboundAuthenticationConfig implements Serializable {
 
             } else if ("AuthenticationType".equals(member.getLocalName())) {
                 localAndOutboundAuthenticationConfig.setAuthenticationType(member.getText());
-            } else if ("AuthenticationStepForSubject".equals(member.getLocalName())) {
+            } else if (AUTHENTICATION_STEP_FOR_SUBJECT.equals(member.getLocalName())) {
                 AuthenticationStep authStep = AuthenticationStep.build(member);
                 if (authStep != null) {
                     localAndOutboundAuthenticationConfig.setAuthenticationStepForSubject(authStep);
                 }
-            } else if ("AuthenticationStepForAttributes".equals(member.getLocalName())) {
+            } else if (AUTHENTICATION_STEP_FOR_ATTRIBUTES.equals(member.getLocalName())) {
                 AuthenticationStep authStep = AuthenticationStep.build(member);
                 if (authStep != null) {
                     localAndOutboundAuthenticationConfig
                             .setAuthenticationStepForAttributes(authStep);
                 }
-            } else if ("alwaysSendBackAuthenticatedListOfIdPs".equals(member.getLocalName())) {
+            } else if (ALWAYS_SEND_BACK_AUTHENTICATED_LIST_OF_ID_PS.equals(member.getLocalName())) {
                 if (member.getText() != null && "true".equals(member.getText())) {
                     localAndOutboundAuthenticationConfig.setAlwaysSendBackAuthenticatedListOfIdPs(true);
                 }
-            } else if ("UseUserstoreDomainInUsername".equals(member.getLocalName())) {
+            } else if (USE_USERSTORE_DOMAIN_IN_USERNAME.equals(member.getLocalName())) {
                 if (member.getText() != null && "false".equals(member.getText())) {
                     localAndOutboundAuthenticationConfig.setUseUserstoreDomainInLocalSubjectIdentifier(false);
                 }
-            } else if ("UseTenantDomainInUsername".equals(member.getLocalName())) {
+            } else if (USE_TENANT_DOMAIN_IN_USERNAME.equals(member.getLocalName())) {
                 if (member.getText() != null && "false".equals(member.getText())) {
                     localAndOutboundAuthenticationConfig.setUseTenantDomainInLocalSubjectIdentifier(false);
                 }
-            } else if ("subjectClaimUri".equals(member.getLocalName())) {
+            } else if (SUBJECT_CLAIM_URI.equals(member.getLocalName())) {
                 localAndOutboundAuthenticationConfig.setSubjectClaimUri(member.getText());
             }
         }

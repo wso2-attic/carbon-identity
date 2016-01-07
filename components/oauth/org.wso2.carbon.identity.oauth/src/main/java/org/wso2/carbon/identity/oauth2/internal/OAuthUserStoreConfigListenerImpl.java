@@ -35,7 +35,8 @@ import java.util.Set;
 
 public class OAuthUserStoreConfigListenerImpl implements UserStoreConfigListener {
     @Override
-    public void onUserStoreNamePreUpdate(int tenantId, String currentUserStoreName, String newUserStoreName) throws UserStoreException {
+    public void onUserStoreNamePreUpdate(int tenantId, String currentUserStoreName, String newUserStoreName) throws
+            UserStoreException {
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
         try {
             Set<AccessTokenDO> accessTokenDOs = tokenMgtDAO.getAccessTokensOfUserStore(tenantId, currentUserStoreName);
@@ -55,7 +56,8 @@ public class OAuthUserStoreConfigListenerImpl implements UserStoreConfigListener
     }
 
     @Override
-    public void onUserStoreNamePostUpdate(int tenantId, String currentUserStoreName, String newUserStoreName) throws UserStoreException {
+    public void onUserStoreNamePostUpdate(int tenantId, String currentUserStoreName, String newUserStoreName) throws
+            UserStoreException {
 
     }
 
@@ -70,7 +72,7 @@ public class OAuthUserStoreConfigListenerImpl implements UserStoreConfigListener
                         OAuth2Util.buildScopeString(accessTokenDO.getScope());
                 AccessTokenDO accessTokenDOFromMap = latestAccessTokens.get(keyString);
                 if (accessTokenDOFromMap != null) {
-                    if (accessTokenDOFromMap.getIssuedTime().before(accessTokenDO.getIssuedTime())){
+                    if (accessTokenDOFromMap.getIssuedTime().before(accessTokenDO.getIssuedTime())) {
                         latestAccessTokens.put(keyString, accessTokenDO);
                     }
                 } else {
@@ -84,16 +86,15 @@ public class OAuthUserStoreConfigListenerImpl implements UserStoreConfigListener
                 OAuthUtil.clearOAuthCache(accessTokenDO.getAccessToken());
             }
             ArrayList<String> tokensToRevoke = new ArrayList<>();
-            for (Map.Entry entry : latestAccessTokens.entrySet()){
+            for (Map.Entry entry : latestAccessTokens.entrySet()) {
                 tokensToRevoke.add(((AccessTokenDO) entry.getValue()).getAccessToken());
             }
             tokenMgtDAO.revokeTokens(tokensToRevoke.toArray(new String[tokensToRevoke.size()]));
             List<AuthzCodeDO> latestAuthzCodes = tokenMgtDAO.getLatestAuthorizationCodesOfUserStore(tenantId,
                     userStoreName);
-            for (AuthzCodeDO authzCodeDO : latestAuthzCodes){
+            for (AuthzCodeDO authzCodeDO : latestAuthzCodes) {
                 // remove the authorization code from the cache
-                OAuthUtil.clearOAuthCache(authzCodeDO.getConsumerKey() + ":" +
-                        authzCodeDO.getAuthorizationCode());
+                OAuthUtil.clearOAuthCache(authzCodeDO.getConsumerKey() + ":" + authzCodeDO.getAuthorizationCode());
 
             }
             tokenMgtDAO.deactivateAuthorizationCode(latestAuthzCodes);

@@ -97,9 +97,9 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
         String authorizedUser = tokReqMsgCtx.getAuthorizedUser().toString();
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
         String cacheKeyString;
-        if (isUsernameCaseSensitive){
+        if (isUsernameCaseSensitive) {
             cacheKeyString = consumerKey + ":" + authorizedUser + ":" + scope;
-        }else {
+        } else {
             cacheKeyString = consumerKey + ":" + authorizedUser.toLowerCase() + ":" + scope;
         }
         OAuthCacheKey cacheKey = new OAuthCacheKey(cacheKeyString);
@@ -249,8 +249,10 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
 
                         // Token is expired. If refresh token is still valid, use it.
                         if (refreshTokenExpiryTime > 0 || refreshTokenExpiryTime < 0) {
-                            log.debug("Access token has expired, But refresh token is still valid. User existing " +
-                                    "refresh token.");
+                            if (log.isDebugEnabled()) {
+                                log.debug("Access token has expired, But refresh token is still valid. User existing " +
+                                        "refresh token.");
+                            }
                             refreshToken = existingAccessTokenDO.getRefreshToken();
                             refreshTokenIssuedTime = existingAccessTokenDO.getRefreshTokenIssuedTime();
                             refreshTokenValidityPeriodInMillis = existingAccessTokenDO.getRefreshTokenValidityPeriodInMillis();

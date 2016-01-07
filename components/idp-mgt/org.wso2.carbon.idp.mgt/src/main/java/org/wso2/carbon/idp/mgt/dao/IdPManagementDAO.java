@@ -1261,10 +1261,10 @@ public class IdPManagementDAO {
 
                 federatedIdp.setHomeRealmId(rs.getString("HOME_REALM_ID"));
                 federatedIdp.setCertificate(getBlobValue(rs.getBinaryStream("CERTIFICATE")));
-                federatedIdp.setAlias(rs.getString("idp.ALIAS"));
+                federatedIdp.setAlias(rs.getString("ALIAS"));
 
                 JustInTimeProvisioningConfig jitProConfig = new JustInTimeProvisioningConfig();
-                if (rs.getString("INBOUND_PROV_ENABLED").equals(IdPManagementConstants.IS_TRUE_VALUE)) {
+                if (IdPManagementConstants.IS_TRUE_VALUE.equals(rs.getString("INBOUND_PROV_ENABLED"))) {
                     jitProConfig.setProvisioningEnabled(true);
                 } else {
                     jitProConfig.setProvisioningEnabled(false);

@@ -374,12 +374,13 @@ public class OAuth2Util {
                  * own cache key and cache entry class every time we need to put something to it? Ideal solution is
                  * to have a generalized way of caching a key:value pair
                  */
-                if (isUsernameCaseSensitive){
+                if (isUsernameCaseSensitive) {
                     cache.addToCache(new OAuthCacheKey(clientId + ":" + username), new ClientCredentialDO(username));
-                }else {
-                    cache.addToCache(new OAuthCacheKey(clientId + ":" + username.toLowerCase()), new ClientCredentialDO(username));
+                } else {
+                    cache.addToCache(new OAuthCacheKey(clientId + ":" + username.toLowerCase()),
+                            new ClientCredentialDO(username));
                 }
-                if (log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug("Caching username : " + username);
                 }
 
@@ -620,20 +621,20 @@ public class OAuth2Util {
         return getTenantId(domainName);
     }
 
-    public static String hashScopes(String[] scope){
+    public static String hashScopes(String[] scope) {
         return DigestUtils.md5Hex(OAuth2Util.buildScopeString(scope));
     }
 
-    public static String hashScopes(String scope){
+    public static String hashScopes(String scope) {
         if (scope != null) {
             //first converted to an array to sort the scopes
             return DigestUtils.md5Hex(OAuth2Util.buildScopeString(buildScopeArray(scope)));
         } else {
-           return null;
+            return null;
         }
     }
 
-    public static AuthenticatedUser getUserFromUserName(String username) throws IllegalArgumentException{
+    public static AuthenticatedUser getUserFromUserName(String username) throws IllegalArgumentException {
         if (StringUtils.isNotBlank(username)) {
             String tenantDomain = MultitenantUtils.getTenantDomain(username);
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(username);
@@ -646,7 +647,7 @@ public class OAuth2Util {
 
             return user;
         }
-        throw  new IllegalArgumentException("Cannot create user from empty user name");
+        throw new IllegalArgumentException("Cannot create user from empty user name");
     }
 
     public static String getIDTokenIssuer() {

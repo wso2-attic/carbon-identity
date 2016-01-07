@@ -172,9 +172,10 @@ public class AuthenticatedUser extends User {
         this.userAttributes = userAttributes;
     }
 
-    public String getUsernameAsSubjectIdentifier(boolean useUserstoreDomainInLocalSubjectIdentifier, boolean useTenantDomainInLocalSubjectIdentifier){
+    public String getUsernameAsSubjectIdentifier(boolean useUserstoreDomainInLocalSubjectIdentifier, boolean
+            useTenantDomainInLocalSubjectIdentifier) {
         String userName = this.userName;
-        if (useUserstoreDomainInLocalSubjectIdentifier && userStoreDomain != null){
+        if (useUserstoreDomainInLocalSubjectIdentifier && userStoreDomain != null) {
             userName = UserCoreUtil.addDomainToName(userName, userStoreDomain);
         }
         if (useTenantDomainInLocalSubjectIdentifier && tenantDomain != null) {

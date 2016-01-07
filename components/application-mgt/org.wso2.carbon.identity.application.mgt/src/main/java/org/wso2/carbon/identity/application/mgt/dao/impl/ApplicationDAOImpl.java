@@ -1565,7 +1565,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 String authKey = resultSet.getString(1);
                 //this is done to handle empty string added to oracle database as null.
                 if (authKey == null){
-                    authKey = "";
+                    authKey = new String();
                 }
                 String authType = resultSet.getString(2);
                 String mapKey = authType + ":" + authKey;

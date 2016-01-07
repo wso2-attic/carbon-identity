@@ -21,8 +21,6 @@ package org.wso2.carbon.identity.core.dao;
 
 /**
  * SQL Queries required for the AssociationDAO.
- *
- * @author WSO2 Inc.
  */
 public class OpenIDSQLQueries {
     /**

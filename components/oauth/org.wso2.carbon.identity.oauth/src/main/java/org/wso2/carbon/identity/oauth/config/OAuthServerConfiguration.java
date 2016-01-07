@@ -1056,7 +1056,8 @@ public class OAuthServerConfiguration {
 
         OMElement persistenceprocessorConfigElem =
                 oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.TOKEN_PERSISTENCE_PROCESSOR));
-        if (persistenceprocessorConfigElem != null && !"".equals(persistenceprocessorConfigElem.getText().trim())) {
+        if (persistenceprocessorConfigElem != null &&
+                StringUtils.isNotBlank(persistenceprocessorConfigElem.getText())) {
             tokenPersistenceProcessorClassName = persistenceprocessorConfigElem.getText().trim();
         }
 
@@ -1264,7 +1265,7 @@ public class OAuthServerConfiguration {
         if (saml2GrantElement != null) {
             saml2TokenHandlerElement = saml2GrantElement.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.SAML2_TOKEN_HANDLER));
         }
-        if (saml2TokenHandlerElement != null && !"".equals(saml2TokenHandlerElement.getText().trim())) {
+        if (saml2TokenHandlerElement != null && StringUtils.isNotBlank(saml2TokenHandlerElement.getText())) {
             saml2TokenCallbackHandlerName = saml2TokenHandlerElement.getText().trim();
         }
     }

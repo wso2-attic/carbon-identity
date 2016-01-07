@@ -240,7 +240,7 @@ public class OAuthAdminService extends AbstractAdmin {
                     List<String> allowedGrants = new ArrayList<>(Arrays.asList(getAllowedGrantTypes()));
                     String[] requestGrants = application.getGrantTypes().split("\\s");
                     for (String requestedGrant : requestGrants) {
-                        if ("".equals(requestedGrant.trim())) {
+                        if (StringUtils.isBlank(requestedGrant)){
                             continue;
                         }
                         if (!allowedGrants.contains(requestedGrant)) {
@@ -283,7 +283,7 @@ public class OAuthAdminService extends AbstractAdmin {
             List<String> allowedGrants = new ArrayList<>(Arrays.asList(getAllowedGrantTypes()));
             String[] requestGrants = consumerAppDTO.getGrantTypes().split("\\s");
             for (String requestedGrant : requestGrants) {
-                if ("".equals(requestedGrant.trim())) {
+                if (StringUtils.isBlank(requestedGrant)) {
                     continue;
                 }
                 if (!allowedGrants.contains(requestedGrant)) {
@@ -385,12 +385,12 @@ public class OAuthAdminService extends AbstractAdmin {
                             } catch (InvalidOAuthClientException e) {
                                 String errorMsg = "Invalid Client ID : " + scopedToken.getConsumerKey();
                                 log.error(errorMsg, e);
-                                throw new IdentityOAuthAdminException(errorMsg, e);
+                                throw new IdentityOAuthAdminException(errorMsg);
                             } catch (IdentityOAuth2Exception e) {
                                 String errorMsg = "Error occurred while retrieving app information " +
                                         "for Client ID : " + scopedToken.getConsumerKey();
                                 log.error(errorMsg, e);
-                                throw new IdentityOAuthAdminException(errorMsg, e);
+                                throw new IdentityOAuthAdminException(errorMsg);
                             }
                             distinctClientUserScopeCombo.add(clientId+":"+username);
 
