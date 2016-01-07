@@ -41,6 +41,13 @@ public class IWAServiceDataHolder {
     private static RealmService realmService;
     private static Log log = LogFactory.getLog(IWAServiceDataHolder.class);
 
+    /**
+     * Create call back handler using given username and password
+     *
+     * @param username
+     * @param password
+     * @return CallbackHandler
+     * */
     public static CallbackHandler getUsernamePasswordHandler(final String username,
                                                              final String password) {
 
@@ -64,7 +71,13 @@ public class IWAServiceDataHolder {
 
     }
 
-    static GSSCredential getServerCredential(final Subject subject)
+    /**
+     * Create GSSCredential
+     * @param subject login context subject
+     * @return GSSCredential
+     * @throws PrivilegedActionException
+     * */
+    public static GSSCredential getServerCredential(final Subject subject)
             throws PrivilegedActionException {
 
         final PrivilegedExceptionAction<GSSCredential> action =
@@ -80,6 +93,10 @@ public class IWAServiceDataHolder {
         return Subject.doAs(subject, action);
     }
 
+    /**
+     * Create mech OID for GSS token
+     * @return Oid
+     * */
     private static Oid getOid() {
         Oid oid = null;
         try {

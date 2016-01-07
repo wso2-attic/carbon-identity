@@ -32,10 +32,6 @@
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.com.github.dblock.waffle</groupId>
-            <artifactId>waffle-jna</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.common</artifactId>
         </dependency>

@@ -56,7 +56,7 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
     @Override
     public boolean canHandle(HttpServletRequest request) {
         //check whether the OS is windows. IWA works only with windows
-        // todo no need of windows now
+        // todo no need of windows now no waffle
         String osName = System.getProperty(IWAConstants.OS_NAME_PROPERTY);
         return StringUtils.isNotEmpty(osName) && osName.toLowerCase().contains(IWAConstants.WINDOWS_OS_MATCH_STRING) &&
                 request.getParameter(IWA_PROCESSED) != null;
@@ -73,8 +73,14 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
                                                  AuthenticationContext context) throws AuthenticationFailedException {
 
         HttpSession session = request.getSession(false);
+        if (session.getAttribute(IWAConstants.SUBJECT_ATTRIBUTE)  == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Attribute not set. Therefore authentication is failed.");
+            }
+            throw new AuthenticationFailedException("Authentication Failed");
+        }
         String username = session.getAttribute(IWAConstants.SUBJECT_ATTRIBUTE).toString();
-        if (username.equals(null)) {
+        if (username == null) {
             if (log.isDebugEnabled()) {
                 log.debug("User name is null. Therefore authentication is failed.");
             }

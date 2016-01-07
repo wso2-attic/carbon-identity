@@ -22,6 +22,7 @@ import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ietf.jgss.GSSException;
+import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authenticator.iwa.Authenticator;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAConstants;
@@ -68,9 +69,8 @@ public class IWAServelet extends HttpServlet {
             // log the user in using the token
             String token = header.substring(IWAConstants.NEGOTIATE_HEADER.length()+1);
             if (token.startsWith(IWAConstants.NTLM_PROLOG)){
-                //todo
-                log.warn("NTLM token found ");
-                sendUnauthorized(response,true);
+                log.warn("NTLM token found.");
+                response.sendRedirect(commonAuthURL);
                 return;
             }
             final byte [] gssToken = Base64.decode(token);
@@ -81,12 +81,12 @@ public class IWAServelet extends HttpServlet {
 
             } catch (GSSException e) {
                 log.warn("error logging in user.", e);
-                sendUnauthorized(response, true);
+                response.sendRedirect(commonAuthURL);
                 return;
             }
             if (name.equals(null)) {
                 log.warn("error logging in user.");
-                sendUnauthorized(response, true);
+                response.sendRedirect(commonAuthURL);
                 return;
             }
 

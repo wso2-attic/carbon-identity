@@ -30,26 +30,28 @@ import java.security.PrivilegedActionException;
 /** this class process the kerberos token and create server credentials*/
 public class Authenticator {
 
-	private final transient LoginContext loginContext;
-	private final transient GSSCredential serverCred;
+	private transient LoginContext loginContext;
+	private transient GSSCredential serverCred;
+	private CallbackHandler callbackHandler;
 
 	public Authenticator() throws LoginException, PrivilegedActionException, GSSException {
 
+		//todo if this not given fall back to default user name
 		RealmService realmService = IWAServiceDataHolder.getRealmService();
 		String username = realmService.getBootstrapRealmConfiguration().getUserStoreProperty("SPNName");
 		String password = realmService.getBootstrapRealmConfiguration().getUserStoreProperty("SPNPassword");
 
-		CallbackHandler callbackHandler = IWAServiceDataHolder.getUsernamePasswordHandler(username, password);
-		
-		this.loginContext = new LoginContext("wso2-spnego-server", callbackHandler);
-		
-		this.loginContext.login();
+		callbackHandler = IWAServiceDataHolder.getUsernamePasswordHandler(username, password);
 
-		this.serverCred = IWAServiceDataHolder.getServerCredential(this.loginContext.getSubject());
-
+		serviceLogin(callbackHandler);
 	}
 
-	
+	/**
+	 * Process kerberos token and get user name
+	 *
+	 * @param gssToken kerberos token
+	 * @throws GSSException
+	 * */
 	public String processToken(byte [] gssToken) throws GSSException {
 		
 		GSSContext context;
@@ -70,9 +72,23 @@ public class Authenticator {
     public static void setSystemProperties(String prop1, String prop2) {
 
         System.setProperty("java.security.auth.login.config",prop1);
-        //todo setting the file that exist in is
 		System.setProperty("java.security.auth.krb5.conf",prop2);
 
     }
+
+	/**
+	 * Get server credential using SPN
+	 *
+	 * @param  callbackHandler
+	 * @throws PrivilegedActionException
+	 * @throws LoginException
+	 * */
+	private void serviceLogin(CallbackHandler callbackHandler) throws PrivilegedActionException, LoginException {
+
+		this.loginContext = new LoginContext("Server", callbackHandler);
+		this.loginContext.login();
+		this.serverCred = IWAServiceDataHolder.getServerCredential(this.loginContext.getSubject());
+
+	}
 	
 }
