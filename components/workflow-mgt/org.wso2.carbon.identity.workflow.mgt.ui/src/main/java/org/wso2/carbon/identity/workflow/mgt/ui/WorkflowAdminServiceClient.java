@@ -314,7 +314,6 @@ public class WorkflowAdminServiceClient {
             request = new WorkflowRequest[0];
         }
         return request;
-
     }
 
     /**
