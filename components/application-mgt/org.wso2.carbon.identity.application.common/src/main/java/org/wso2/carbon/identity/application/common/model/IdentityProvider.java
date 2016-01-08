@@ -38,6 +38,24 @@ public class IdentityProvider implements Serializable {
     private static final long serialVersionUID = 2199048941051702943L;
 
     private static final Log log = LogFactory.getLog(IdentityProvider.class);
+    private static final String FILE_ELEMENT_IDENTITY_PROVIDER_NAME = "IdentityProviderName";
+    private static final String FILE_ELEMENT_IDENTITY_PROVIDER_DESCRIPTION = "IdentityProviderDescription";
+    private static final String FILE_ELEMENT_ALIAS = "Alias";
+    private static final String FILE_ELEMENT_DISPLAY_NAME = "DisplayName";
+    private static final String FILE_ELEMENT_IS_PRIMARY = "IsPrimary";
+    private static final String FILE_ELEMENT_IS_ENABLED = "IsEnabled";
+    private static final String FILE_ELEMENT_IS_FEDERATION_HUB = "IsFederationHub";
+    private static final String FILE_ELEMENT_HOME_REALM_ID = "HomeRealmId";
+    private static final String FILE_ELEMENT_PROVISIONING_ROLE = "ProvisioningRole";
+    private static final String FILE_ELEMENT_FEDERATED_AUTHENTICATOR_CONFIGS = "FederatedAuthenticatorConfigs";
+    private static final String FILE_ELEMENT_DEFAULT_AUTHENTICATOR_CONFIG = "DefaultAuthenticatorConfig";
+    private static final String FILE_ELEMENT_PROVISIONING_CONNECTOR_CONFIGS = "ProvisioningConnectorConfigs";
+    private static final String FILE_ELEMENT_DEFAULT_PROVISIONING_CONNECTOR_CONFIG =
+            "DefaultProvisioningConnectorConfig";
+    private static final String FILE_ELEMENT_CLAIM_CONFIG = "ClaimConfig";
+    private static final String FILE_ELEMENT_CERTIFICATE = "Certificate";
+    private static final String FILE_ELEMENT_PERMISSION_AND_ROLE_CONFIG = "PermissionAndRoleConfig";
+    private static final String FILE_ELEMENT_JUST_IN_TIME_PROVISIONING_CONFIG = "JustInTimeProvisioningConfig";
 
     private String identityProviderName;
     private String identityProviderDescription;
@@ -69,7 +87,7 @@ public class IdentityProvider implements Serializable {
             OMElement element = (OMElement) (iter.next());
             String elementName = element.getLocalName();
 
-            if (elementName.equals("IdentityProviderName")) {
+            if (elementName.equals(FILE_ELEMENT_IDENTITY_PROVIDER_NAME)) {
                 if (element.getText() != null) {
                     identityProvider.setIdentityProviderName(element.getText());
                 } else {
@@ -77,29 +95,29 @@ public class IdentityProvider implements Serializable {
                             "not null.");
                     return null;
                 }
-            } else if ("IdentityProviderDescription".equals(elementName)) {
+            } else if (FILE_ELEMENT_IDENTITY_PROVIDER_DESCRIPTION.equals(elementName)) {
                 identityProvider.setIdentityProviderDescription(element.getText());
-            } else if ("Alias".equals(elementName)) {
+            } else if (FILE_ELEMENT_ALIAS.equals(elementName)) {
                 identityProvider.setAlias(element.getText());
-            } else if ("DisplayName".equals(elementName)) {
+            } else if (FILE_ELEMENT_DISPLAY_NAME.equals(elementName)) {
                 identityProvider.setDisplayName(element.getText());
-            } else if ("IsPrimary".equals(elementName)) {
+            } else if (FILE_ELEMENT_IS_PRIMARY.equals(elementName)) {
                 if (element.getText() != null && element.getText().trim().length() > 0) {
                     identityProvider.setPrimary(Boolean.parseBoolean(element.getText()));
                 }
-            } else if ("IsEnabled".equals(elementName)) {
+            } else if (FILE_ELEMENT_IS_ENABLED.equals(elementName)) {
                 if (element.getText() != null && element.getText().trim().length() > 0) {
                     identityProvider.setEnable((Boolean.parseBoolean(element.getText())));
                 }
-            } else if ("IsFederationHub".equals(elementName)) {
+            } else if (FILE_ELEMENT_IS_FEDERATION_HUB.equals(elementName)) {
                 if (element.getText() != null && element.getText().trim().length() > 0) {
                     identityProvider.setFederationHub(Boolean.parseBoolean(element.getText()));
                 }
-            } else if ("HomeRealmId".equals(elementName)) {
+            } else if (FILE_ELEMENT_HOME_REALM_ID.equals(elementName)) {
                 identityProvider.setHomeRealmId(element.getText());
-            } else if ("ProvisioningRole".equals(elementName)) {
+            } else if (FILE_ELEMENT_PROVISIONING_ROLE.equals(elementName)) {
                 identityProvider.setProvisioningRole(element.getText());
-            } else if ("FederatedAuthenticatorConfigs".equals(elementName)) {
+            } else if (FILE_ELEMENT_FEDERATED_AUTHENTICATOR_CONFIGS.equals(elementName)) {
 
                 Iterator<?> federatedAuthenticatorConfigsIter = element.getChildElements();
 
@@ -128,9 +146,9 @@ public class IdentityProvider implements Serializable {
                     identityProvider
                             .setFederatedAuthenticatorConfigs(federatedAuthenticatorConfigsArr);
                 }
-            } else if ("DefaultAuthenticatorConfig".equals(elementName)) {
+            } else if (FILE_ELEMENT_DEFAULT_AUTHENTICATOR_CONFIG.equals(elementName)) {
                 defaultAuthenticatorConfigName = element.getText();
-            } else if ("ProvisioningConnectorConfigs".equals(elementName)) {
+            } else if (FILE_ELEMENT_PROVISIONING_CONNECTOR_CONFIGS.equals(elementName)) {
 
                 Iterator<?> provisioningConnectorConfigsIter = element.getChildElements();
 
@@ -165,16 +183,16 @@ public class IdentityProvider implements Serializable {
                     identityProvider
                             .setProvisioningConnectorConfigs(provisioningConnectorConfigsArr);
                 }
-            } else if ("DefaultProvisioningConnectorConfig".equals(elementName)) {
+            } else if (FILE_ELEMENT_DEFAULT_PROVISIONING_CONNECTOR_CONFIG.equals(elementName)) {
                 defaultProvisioningConfigName = element.getText();
-            } else if ("ClaimConfig".equals(elementName)) {
+            } else if (FILE_ELEMENT_CLAIM_CONFIG.equals(elementName)) {
                 identityProvider.setClaimConfig(ClaimConfig.build(element));
-            } else if ("Certificate".equals(elementName)) {
+            } else if (FILE_ELEMENT_CERTIFICATE.equals(elementName)) {
                 identityProvider.setCertificate(element.getText());
-            } else if ("PermissionAndRoleConfig".equals(elementName)) {
+            } else if (FILE_ELEMENT_PERMISSION_AND_ROLE_CONFIG.equals(elementName)) {
                 identityProvider
                         .setPermissionAndRoleConfig(PermissionsAndRoleConfig.build(element));
-            } else if ("JustInTimeProvisioningConfig".equals(elementName)) {
+            } else if (FILE_ELEMENT_JUST_IN_TIME_PROVISIONING_CONFIG.equals(elementName)) {
                 identityProvider.setJustInTimeProvisioningConfig(JustInTimeProvisioningConfig
                         .build(element));
             }
