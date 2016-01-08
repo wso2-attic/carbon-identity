@@ -197,21 +197,16 @@ public class DeleteClaimWFRequestHandler extends AbstractWorkflowRequestHandler 
             try {
                 if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_USER_EVENT)) {
-
                     throw new WorkflowException("User has a delete operation pending.");
-
                 } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && !userStoreManager
                         .isExistingUser(entities[i].getEntityId())) {
-
                     throw new WorkflowException("User " + entities[i].getEntityId() + " does not exist.");
                 }
 
                 if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER) {
                     for (int j = 0; j < entities.length; j++) {
-
                         if (entities[j].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_CLAIM && workflowService
                                 .areTwoEntitiesRelated(entities[i], entities[j])) {
-
                             throw new WorkflowException(entities[j].getEntityId() + " of user is already in a " +
                                     "workflow to delete or update.");
                         }
