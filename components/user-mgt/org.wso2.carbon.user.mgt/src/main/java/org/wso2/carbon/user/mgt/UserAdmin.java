@@ -81,7 +81,6 @@ public class UserAdmin {
         FlaggedName[] names;
         names = getUserAdminProxy().listAllUsers(filter, limit);
         return names;
-
     }
 
     /**
@@ -597,10 +596,7 @@ public class UserAdmin {
             org.wso2.carbon.user.api.UserRealm realm = UserMgtDSComponent.getRealmService().getTenantUserRealm
                     (PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId());
             AuthorizationManager authorizationManager = realm.getAuthorizationManager();
-
-
             FlaggedName[] users = getUserAdminProxy().listUsers(claimValue, filter, maxLimit);
-
             for (int i = 0; i < users.length - 1; i++) {
                 if (authorizationManager.isUserAuthorized(users[i].getItemName(),
                         permission, UserMgtConstants.EXECUTE_ACTION)) {
