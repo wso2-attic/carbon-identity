@@ -21,7 +21,6 @@
            prefix="carbon" %>
 <%@ page import="org.apache.axis2.AxisFault" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
@@ -38,13 +37,18 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequest" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowEvent" %>
 <%@ page import="org.owasp.encoder.Encode" %>
-<%! public static final String REGION1_PAGINATION = "region=region1";
-    public static final String I18N_RESOURCDE_FILE = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
-    public static final String LOGGED_USER = "logged-user";
-    public static final String TIME_CATEGORY_TO_FILTER = "timeCategoryToFilter";
-    public static final String CREATED_AT_TO = "createdAtTo";
-    public static final String CREATED_AT_FROM = "createdAtFrom";
-    public static final String REQUEST_STATUS_FILTER = "requestStatusFilter";
+<%!
+    private static final String FAILED_STATUS = "FAILED";
+    private static final String REJECTED_STATUS = "REJECTED";
+    private static final String APPROVED_STATUS = "APPROVED";
+    private static final String PENDING_STATUS = "PENDING";
+    private static final String REGION1_PAGINATION = "region=region1";
+    private static final String I18N_RESOURCDE_FILE = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    private static final String LOGGED_USER = "logged-user";
+    private static final String TIME_CATEGORY_TO_FILTER = "timeCategoryToFilter";
+    private static final String CREATED_AT_TO = "createdAtTo";
+    private static final String CREATED_AT_FROM = "createdAtFrom";
+    private static final String REQUEST_STATUS_FILTER = "requestStatusFilter";
     private static final String REQUEST_TYPE_FILTER = "requestTypeFilter";
 %>
 <jsp:include page="../dialog/display_messages.jsp"/>
@@ -299,7 +303,7 @@
                                 <td style="border:0; !important">
                                     <nobr>
                                         <fmt:message key="workflow.request.status"/>
-                                        <% if ("PENDING".equals(statusToFilter)) { %>
+                                        <% if (PENDING_STATUS.equals(statusToFilter)) { %>
 
                                         <select name="requestStatusFilter" id="requestStatusFilter"
                                                 onchange="getSelectedStatusType();">
@@ -311,7 +315,7 @@
                                             <option value="FAILED"><fmt:message key="failed"/></option>
                                         </select>
 
-                                        <%} else if ("APPROVED".equals(statusToFilter)) { %>
+                                        <%} else if (APPROVED_STATUS.equals(statusToFilter)) { %>
 
                                         <select name="requestStatusFilter" id="requestStatusFilter"
                                                 onchange="getSelectedStatusType();">
@@ -323,7 +327,7 @@
                                             <option value="FAILED"><fmt:message key="failed"/></option>
                                         </select>
 
-                                        <%} else if ("REJECTED".equals(statusToFilter)) { %>
+                                        <%} else if (REJECTED_STATUS.equals(statusToFilter)) { %>
 
                                         <select name="requestStatusFilter" id="requestStatusFilter"
                                                 onchange="getSelectedStatusType();">
@@ -335,7 +339,7 @@
                                             <option value="FAILED"><fmt:message key="failed"/></option>
                                         </select>
 
-                                        <%} else if ("FAILED".equals(statusToFilter)) { %>
+                                        <%} else if (FAILED_STATUS.equals(statusToFilter)) { %>
 
                                         <select name="requestStatusFilter" id="requestStatusFilter"
                                                 onchange="getSelectedStatusType();">
@@ -454,7 +458,7 @@
                            onclick="listWorkflows('<%=workflowReq.getRequestId()%>');return false;"
                            href="#" style="background-image: url(images/list.png);"
                            class="icon-link"><fmt:message key='workflows'/></a>
-                        <% if ("PENDING".equals(workflowReq.getStatus()) && CarbonUIUtil.isUserAuthorized(request,
+                        <% if (PENDING_STATUS.equals(workflowReq.getStatus()) && CarbonUIUtil.isUserAuthorized(request,
                                 "/permission/admin/manage/identity/workflow/monitor/delete")) { %>
                         <a title="<fmt:message key='workflow.request.delete.title'/>"
                            onclick="removeRequest('<%=workflowReq.getRequestId()%>');return false;"
