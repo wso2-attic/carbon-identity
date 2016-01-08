@@ -81,11 +81,11 @@ import java.util.regex.Pattern;
 
 public class IdentityUtil {
 
-    public static final ThreadLocal<HashMap<String, Object>> threadLocalProperties = new
-            ThreadLocal<HashMap<String, Object>>() {
+    public static final ThreadLocal<Map<String, Object>> threadLocalProperties = new
+            ThreadLocal<Map<String, Object>>() {
         @Override
-        protected HashMap<String, Object> initialValue() {
-            return new HashMap<String, Object>();
+        protected Map<String, Object> initialValue() {
+            return new HashMap<>();
         }
     };
     private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
