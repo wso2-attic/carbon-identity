@@ -56,7 +56,7 @@ public class SamlSPMetadataUploadExecutor extends AbstractFileUploadExecutor {
 
         Map<String, ArrayList<FileItemData>> fileItemsMap = getFileItemsMap();
         if (fileItemsMap == null || fileItemsMap.isEmpty()) {
-            String msg = "File uploading failed. No files are specified";
+            String msg = "File uploading failed. No files are specified.";
             log.error(msg);
             CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.ERROR, httpServletRequest,
                     httpServletResponse, errorRedirectionPage);
@@ -89,19 +89,21 @@ public class SamlSPMetadataUploadExecutor extends AbstractFileUploadExecutor {
                 }
             }
 
-            if (serviceProviderDTO != null){
+            if (serviceProviderDTO != null) {
                 httpServletResponse.setContentType("text/html; charset=utf-8");
                 msg = "Metadata have been uploaded successfully.";
                 String attributeConsumingServiceIndex = "";
-                if (serviceProviderDTO.getAttributeConsumingServiceIndex() != null){
+                if (serviceProviderDTO.getAttributeConsumingServiceIndex() != null) {
                     attributeConsumingServiceIndex = serviceProviderDTO.getAttributeConsumingServiceIndex();
                 }
 
                 CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.INFO, httpServletRequest,
                         httpServletResponse, getContextRoot(httpServletRequest)
-                                + "/" + webContext + "/application/configure-service-provider.jsp?action=update&display=samlIssuer&spName="+spName+"&samlIssuer="+serviceProviderDTO.getIssuer()+"&attrConServIndex="+attributeConsumingServiceIndex);
+                                + "/" + webContext + "/application/configure-service-provider" +
+                                ".jsp?action=update&display=samlIssuer&spName=" + spName + "&samlIssuer=" +
+                                serviceProviderDTO.getIssuer() + "&attrConServIndex=" + attributeConsumingServiceIndex);
                 return true;
-            }else{
+            } else {
                 msg = "Metadata uploading failed. ";
                 log.error(msg);
                 CarbonUIMessage.sendCarbonUIMessage(msg, CarbonUIMessage.ERROR, httpServletRequest,

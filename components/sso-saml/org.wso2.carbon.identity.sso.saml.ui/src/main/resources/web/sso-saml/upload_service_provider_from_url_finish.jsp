@@ -39,7 +39,7 @@
 
 
 <%
-	String backendServerURL;
+    String backendServerURL;
     ConfigurationContext configContext;
     String cookie;
     String user = null;
@@ -61,9 +61,9 @@
         String url = request.getParameter("metadataFromUrl");
         serviceProviderDTO = client.uploadServiceProviderFromUrl(url);
 
-        if(serviceProviderDTO.getAttributeConsumingServiceIndex() != null){
+        if (serviceProviderDTO.getAttributeConsumingServiceIndex() != null) {
             attributeConsumingServiceIndex = serviceProviderDTO.getAttributeConsumingServiceIndex();
-        }else{
+        } else {
             attributeConsumingServiceIndex = "";
         }
 
@@ -72,7 +72,7 @@
 
         String message = resourceBundle.getString("sp.added.successfully");
 
-		CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
+        CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.INFO, request);
 
 %>
 <script>

@@ -464,8 +464,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             if (samlssoServiceProviderDO.isDoSingleLogout()) {
                 SingleLogoutService singleLogoutService = createSAMLObject(SingleLogoutService.class);
                 singleLogoutService.setBinding(SAMLConstants.SAML2_POST_BINDING_URI);
-                if (samlssoServiceProviderDO.getLogoutURL() != null && !samlssoServiceProviderDO.getLogoutURL()
-                        .equals("")) {
+                if (StringUtils.isNotBlank(samlssoServiceProviderDO.getLogoutURL())) {
                     singleLogoutService.setLocation(samlssoServiceProviderDO.getLogoutURL());
                 } else {
                     singleLogoutService.setLocation(samlssoServiceProviderDO.getAssertionConsumerUrl());
@@ -474,9 +473,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             }
 
             //Certificate Alias
-            if (samlssoServiceProviderDO.getCertAlias() != null
-                    && !samlssoServiceProviderDO.getCertAlias().equals("")) {
-
+            if (StringUtils.isNotBlank(samlssoServiceProviderDO.getCertAlias())) {
                 KeyDescriptor keyDescriptor = createSAMLObject(KeyDescriptor.class);
 
                 KeyInfo keyInfo = createSAMLObject(KeyInfo.class);

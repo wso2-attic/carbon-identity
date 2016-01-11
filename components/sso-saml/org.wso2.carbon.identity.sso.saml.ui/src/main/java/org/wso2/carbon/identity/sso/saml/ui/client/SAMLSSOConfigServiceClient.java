@@ -107,7 +107,7 @@ public class SAMLSSOConfigServiceClient {
         boolean status;
         try {
             status = stub.updateRPServiceProvider(serviceProviderDTO);
-        } catch (RemoteException  | IdentitySAMLSSOConfigServiceIdentitySAML2SSOException e) {
+        } catch (RemoteException | IdentitySAMLSSOConfigServiceIdentitySAML2SSOException e) {
             throw new IdentitySAML2SSOUiException("Error while uploading the service provider", e);
         }
         return status;

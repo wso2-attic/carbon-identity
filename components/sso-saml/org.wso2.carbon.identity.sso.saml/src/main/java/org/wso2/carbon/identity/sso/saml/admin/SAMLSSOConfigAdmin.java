@@ -137,8 +137,7 @@ public class SAMLSSOConfigAdmin {
         if (serviceProviderDO.getNameIDFormat() == null) {
             serviceProviderDO.setNameIDFormat(NameIdentifier.EMAIL);
         } else {
-            serviceProviderDO.setNameIDFormat(serviceProviderDO.getNameIDFormat().replace("/",
-                    ":"));
+            serviceProviderDO.setNameIDFormat(serviceProviderDO.getNameIDFormat().replace("/", ":"));
         }
 
         serviceProviderDTO.setNameIDFormat(serviceProviderDO.getNameIDFormat());

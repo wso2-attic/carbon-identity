@@ -149,24 +149,21 @@ function doValidation() {
 
 function doValidationUrl() {
     var fld = document.getElementsByName("metadataFromUrl")[0];
-        var value = fld.value;
-        var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
-            if (value.length != 0) {
-                value = value.replace(/^\s+/, "");
-                if (value.length != 0) {
-                    if (!regexp.test(value)) {
-                        CARBON.showWarningDialog(
-                                "<fmt:message key='sp.enter.valid.url'/>",
-                                null, null);
-                        return false;
-                    }
-                }
-            }else{
-                CARBON.showWarningDialog("<fmt:message key='sp.enter.valid.url'/>",null, null);
+    var value = fld.value;
+    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+    if (value.length != 0) {
+        value = value.replace(/^\s+/, "");
+        if (value.length != 0) {
+            if (!regexp.test(value)) {
+                CARBON.showWarningDialog("<fmt:message key='sp.enter.valid.url'/>", null, null);
                 return false;
             }
-
-            return true;
+        }
+    } else {
+        CARBON.showWarningDialog("<fmt:message key='sp.enter.valid.url'/>", null, null);
+        return false;
+    }
+    return true;
 }
 
 function edit(issuer) {
