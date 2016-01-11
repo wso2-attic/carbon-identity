@@ -91,7 +91,6 @@ public class SAMLSSOConfigServiceClient {
         try {
             in = new URL(url).openStream();
             String metadata = IOUtils.toString(in);
-            System.out.println(metadata);
             serviceProviderDTO = stub.uploadRPServiceProvider(metadata);
         } catch (IOException | IdentitySAMLSSOConfigServiceIdentitySAML2SSOException e) {
             throw new IdentitySAML2SSOUiException("Error while uploading the service provider", e);

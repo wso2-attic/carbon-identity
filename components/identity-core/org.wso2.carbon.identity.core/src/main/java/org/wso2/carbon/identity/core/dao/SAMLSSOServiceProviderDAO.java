@@ -325,7 +325,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             serviceProviderDO = convertMetadataObjectToServiceProviderDO(generateMetadataObjectFromString(content),
                     serviceProviderDO);
         } catch (RegistryException e) {
-            e.printStackTrace();
+            log.error("Error While reading Service Provider metadata xml", e);
         }
 
         if (resource
