@@ -22,7 +22,7 @@ import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ietf.jgss.GSSException;
-import org.wso2.carbon.identity.application.authenticator.iwa.Authenticator;
+import org.wso2.carbon.identity.application.authenticator.iwa.AuthenticationHandler;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -43,7 +43,6 @@ import java.security.PrivilegedActionException;
  */
 public class IWAServelet extends HttpServlet {
 
-    private transient Authenticator authenticator;
     private static Log log = LogFactory.getLog(IWAServelet.class);
 
     @Override
@@ -67,7 +66,7 @@ public class IWAServelet extends HttpServlet {
 
         //if request is local host
         if (this.isLocalhost(request)) {
-            name = authenticator.doLocalhost();
+            name = AuthenticationHandler.doLocalhost();
 
         } else if (header != null) {
             // log the user in using the token
@@ -81,7 +80,7 @@ public class IWAServelet extends HttpServlet {
             final byte [] gssToken = Base64.decode(token);
             try {
 
-                name = authenticator.processToken(gssToken);
+                name = AuthenticationHandler.processToken(gssToken);
 
             } catch (GSSException e) {
                 log.warn("error logging in user.", e);
@@ -152,13 +151,14 @@ public class IWAServelet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
 
-        //todo change file path to put this on config
-        Authenticator.setSystemProperties("krb5.conf");
+        //todo change or remove
+        AuthenticationHandler.setSystemProperties("krb5.conf");
 
         try {
-            this.authenticator=new Authenticator();
-        } catch (LoginException | PrivilegedActionException | GSSException e) {
+            AuthenticationHandler.initialize();
+        } catch (GSSException | LoginException | PrivilegedActionException e) {
             log.error("Error when creating gss credentials ." + e);
+            //todo ??????
         }
     }
 }

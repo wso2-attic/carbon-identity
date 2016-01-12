@@ -17,8 +17,6 @@
  */
 package org.wso2.carbon.identity.application.authenticator.iwa;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
@@ -31,15 +29,14 @@ import java.security.PrivilegedActionException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
 /** this class process the kerberos token and create server credentials*/
-public class Authenticator {
+public class AuthenticationHandler {
 
-	private transient LoginContext loginContext;
-	private transient GSSCredential serverCred;
-	private CallbackHandler callbackHandler;
-	private final transient KerberosPrincipal serverPrincipal;
-	private static Log log = LogFactory.getLog(Authenticator.class);
+	private static transient LoginContext loginContext;
+	private static transient GSSCredential serverCred;
+	private static CallbackHandler callbackHandler;
+	private static transient KerberosPrincipal serverPrincipal;
 
-	public Authenticator() throws LoginException, PrivilegedActionException, GSSException {
+	public static void initialize() throws GSSException, PrivilegedActionException, LoginException {
 
 		//todo if this not given fall back to default user name
 		RealmService realmService = IWAServiceDataHolder.getRealmService();
@@ -50,8 +47,7 @@ public class Authenticator {
 
 		serviceLogin(callbackHandler);
 
-		this.serverPrincipal = new KerberosPrincipal(this.serverCred.getName().toString());
-
+		serverPrincipal = new KerberosPrincipal(serverCred.getName().toString());
 	}
 
 	/**
@@ -61,11 +57,11 @@ public class Authenticator {
 	 * @return username
 	 * @throws GSSException
 	 * */
-	public String processToken(byte [] gssToken) throws GSSException {
+	public static String processToken(byte [] gssToken) throws GSSException {
 		
 		GSSContext context;
 
-        context= IWAServiceDataHolder.MANAGER.createContext(this.serverCred);
+        context= IWAServiceDataHolder.MANAGER.createContext(serverCred);
         byte[] token = context.acceptSecContext(gssToken, 0, gssToken.length);
 
 		String name=null;
@@ -91,25 +87,25 @@ public class Authenticator {
 	 * @throws PrivilegedActionException
 	 * @throws LoginException
 	 * */
-	private void serviceLogin(CallbackHandler callbackHandler) throws PrivilegedActionException, LoginException {
+	private static void serviceLogin(CallbackHandler callbackHandler) throws PrivilegedActionException, LoginException {
 
-		this.loginContext = new LoginContext("Server", callbackHandler);
-		this.loginContext.login();
-		this.serverCred = IWAServiceDataHolder.getServerCredential(this.loginContext.getSubject());
+		loginContext = new LoginContext("Server", callbackHandler);
+		loginContext.login();
+		serverCred = IWAServiceDataHolder.getServerCredential(loginContext.getSubject());
 
 	}
 
 	/**
 	 * Handle local host authentication request
 	 * */
-	public String doLocalhost() {
+	public static String doLocalhost() {
 		final String username = System.getProperty("user.name");
 
 		if (null == username || username.isEmpty()) {
-			return this.serverPrincipal.getName() + '@' + this.serverPrincipal.getRealm();
+			return serverPrincipal.getName() + '@' + serverPrincipal.getRealm();
 
 		} else {
-			return username + '@' + this.serverPrincipal.getRealm();
+			return username + '@' + serverPrincipal.getRealm();
 		}
 	}
 }

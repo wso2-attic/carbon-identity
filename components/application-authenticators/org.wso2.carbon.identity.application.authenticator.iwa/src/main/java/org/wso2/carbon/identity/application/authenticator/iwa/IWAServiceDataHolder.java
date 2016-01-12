@@ -36,8 +36,8 @@ import java.security.PrivilegedExceptionAction;
 //todo handle exceptions and logs
 public class IWAServiceDataHolder {
 
-    static final Oid SPNEGO_OID = IWAServiceDataHolder.getOid();
-    static final GSSManager MANAGER = GSSManager.getInstance();
+    private static final Oid SPNEGO_OID = IWAServiceDataHolder.getOid();
+    public static final GSSManager MANAGER = GSSManager.getInstance();
     private static RealmService realmService;
     private static Log log = LogFactory.getLog(IWAServiceDataHolder.class);
 
