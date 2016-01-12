@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.identity.application.authenticator.iwa;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
@@ -26,6 +28,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.security.PrivilegedActionException;
+import javax.security.auth.kerberos.KerberosPrincipal;
 
 /** this class process the kerberos token and create server credentials*/
 public class Authenticator {
@@ -33,6 +36,8 @@ public class Authenticator {
 	private transient LoginContext loginContext;
 	private transient GSSCredential serverCred;
 	private CallbackHandler callbackHandler;
+	private final transient KerberosPrincipal serverPrincipal;
+	private static Log log = LogFactory.getLog(Authenticator.class);
 
 	public Authenticator() throws LoginException, PrivilegedActionException, GSSException {
 
@@ -44,12 +49,16 @@ public class Authenticator {
 		callbackHandler = IWAServiceDataHolder.getUsernamePasswordHandler(username, password);
 
 		serviceLogin(callbackHandler);
+
+		this.serverPrincipal = new KerberosPrincipal(this.serverCred.getName().toString());
+
 	}
 
 	/**
 	 * Process kerberos token and get user name
 	 *
 	 * @param gssToken kerberos token
+	 * @return username
 	 * @throws GSSException
 	 * */
 	public String processToken(byte [] gssToken) throws GSSException {
@@ -69,9 +78,8 @@ public class Authenticator {
 		return name;
 	}
 
-    public static void setSystemProperties(String prop1, String prop2) {
+    public static void setSystemProperties(String prop2) {
 
-        System.setProperty("java.security.auth.login.config",prop1);
 		System.setProperty("java.security.auth.krb5.conf",prop2);
 
     }
@@ -90,5 +98,18 @@ public class Authenticator {
 		this.serverCred = IWAServiceDataHolder.getServerCredential(this.loginContext.getSubject());
 
 	}
-	
+
+	/**
+	 * Handle local host authentication request
+	 * */
+	public String doLocalhost() {
+		final String username = System.getProperty("user.name");
+
+		if (null == username || username.isEmpty()) {
+			return this.serverPrincipal.getName() + '@' + this.serverPrincipal.getRealm();
+
+		} else {
+			return username + '@' + this.serverPrincipal.getRealm();
+		}
+	}
 }
