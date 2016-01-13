@@ -34,7 +34,12 @@ public class IWAConstants {
     public static final String AUTHENTICATE_HEADER = "WWW-Authenticate";
     public static final String NEGOTIATE_HEADER = "Negotiate";
     public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String NTLM_PROLOG= "TlRMTVNT";
+    public static final String NTLM_PROLOG = "TlRMTVNT";
+    public static final String SPN_NAME = "SPNName";
+    public static final String SPN_PASSWORD = "SPNPassword";
+    public static final String SERVER = "Server";
+    public static final String USER_NAME = "user.name";
+    public static final String OID = "1.3.6.1.5.5.2";
 
     private IWAConstants() {
     }

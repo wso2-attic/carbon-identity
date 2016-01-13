@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -88,14 +88,14 @@ public class IWAAuthenticatorServiceComponent {
 
     protected void setRealmService(RealmService realmService) {
         if (log.isDebugEnabled()) {
-            log.info("Setting the Realm Service");
+            log.debug("Setting the Realm Service");
         }
         IWAServiceDataHolder.setRealmService(realmService);
     }
 
     protected void unsetRealmService(RealmService realmService) {
         if (log.isDebugEnabled()) {
-            log.info("Unsetting the Realm Service");
+            log.debug("Unsetting the Realm Service");
         }
         IWAServiceDataHolder.setRealmService(null);
     }

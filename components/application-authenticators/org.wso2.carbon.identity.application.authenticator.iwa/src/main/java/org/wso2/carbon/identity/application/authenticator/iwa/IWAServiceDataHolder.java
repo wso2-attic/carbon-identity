@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -47,13 +47,13 @@ public class IWAServiceDataHolder {
      * @param username
      * @param password
      * @return CallbackHandler
-     * */
+     */
     public static CallbackHandler getUsernamePasswordHandler(final String username,
                                                              final String password) {
 
         final CallbackHandler handler = new CallbackHandler() {
             public void handle(final Callback[] callback) {
-                for (int i=0; i<callback.length; i++) {
+                for (int i = 0; i < callback.length; i++) {
                     if (callback[i] instanceof NameCallback) {
                         final NameCallback nameCallback = (NameCallback) callback[i];
                         nameCallback.setName(username);
@@ -73,10 +73,11 @@ public class IWAServiceDataHolder {
 
     /**
      * Create GSSCredential
+     *
      * @param subject login context subject
      * @return GSSCredential
      * @throws PrivilegedActionException
-     * */
+     */
     public static GSSCredential getServerCredential(final Subject subject)
             throws PrivilegedActionException {
 
@@ -95,14 +96,15 @@ public class IWAServiceDataHolder {
 
     /**
      * Create mech OID for GSS token
+     *
      * @return Oid
-     * */
+     */
     private static Oid getOid() {
         Oid oid = null;
         try {
-            oid = new Oid("1.3.6.1.5.5.2");
+            oid = new Oid(IWAConstants.OID);
         } catch (GSSException gsse) {
-            log.error("Unable to create OID 1.3.6.1.5.5.2 !"+ gsse.toString());
+            log.error("Unable to create OID " + IWAConstants.OID + " !" + gsse.toString());
         }
         return oid;
     }

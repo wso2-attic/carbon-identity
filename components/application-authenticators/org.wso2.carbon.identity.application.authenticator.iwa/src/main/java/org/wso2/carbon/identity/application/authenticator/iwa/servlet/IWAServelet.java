@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -60,7 +60,7 @@ public class IWAServelet extends HttpServlet {
             throw new IllegalArgumentException(IWAConstants.IWA_PARAM_STATE + " parameter is null.");
         }
         commonAuthURL += "?" + IWAConstants.IWA_PARAM_STATE + "=" + URLEncoder.encode(param, IWAConstants.UTF_8) +
-                         "&" + IWAAuthenticator.IWA_PROCESSED + "=1";
+                "&" + IWAAuthenticator.IWA_PROCESSED + "=1";
 
         String header = request.getHeader(IWAConstants.AUTHORIZATION_HEADER);
 
@@ -70,14 +70,14 @@ public class IWAServelet extends HttpServlet {
 
         } else if (header != null) {
             // log the user in using the token
-            String token = header.substring(IWAConstants.NEGOTIATE_HEADER.length()+1);
-            if (token.startsWith(IWAConstants.NTLM_PROLOG)){
+            String token = header.substring(IWAConstants.NEGOTIATE_HEADER.length() + 1);
+            if (token.startsWith(IWAConstants.NTLM_PROLOG)) {
                 log.warn("NTLM token found.");
                 //todo handle ntlm token
                 response.sendRedirect(commonAuthURL);
                 return;
             }
-            final byte [] gssToken = Base64.decode(token);
+            final byte[] gssToken = Base64.decode(token);
             try {
 
                 name = AuthenticationHandler.processToken(gssToken);
@@ -87,7 +87,7 @@ public class IWAServelet extends HttpServlet {
                 response.sendRedirect(commonAuthURL);
                 return;
             }
-            if (name.equals(null)) {
+            if (name == null) {
                 log.warn("error logging in user.");
                 response.sendRedirect(commonAuthURL);
                 return;
@@ -102,7 +102,7 @@ public class IWAServelet extends HttpServlet {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("logged in user: " + name );
+            log.debug("logged in user: " + name);
         }
         HttpSession session = request.getSession(true);
         if (session == null) {
@@ -158,7 +158,6 @@ public class IWAServelet extends HttpServlet {
             AuthenticationHandler.initialize();
         } catch (GSSException | LoginException | PrivilegedActionException e) {
             log.error("Error when creating gss credentials ." + e);
-            //todo ??????
         }
     }
 }

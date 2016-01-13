@@ -28,84 +28,82 @@ import javax.security.auth.login.LoginException;
 import java.security.PrivilegedActionException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 
-/** this class process the kerberos token and create server credentials*/
+/**
+ * this class process the kerberos token and create server credentials
+ */
 public class AuthenticationHandler {
 
-	private static transient LoginContext loginContext;
-	private static transient GSSCredential serverCred;
-	private static CallbackHandler callbackHandler;
-	private static transient KerberosPrincipal serverPrincipal;
+    private static transient GSSCredential serverCred;
+    private static transient KerberosPrincipal serverPrincipal;
 
-	public static void initialize() throws GSSException, PrivilegedActionException, LoginException {
+    public static void initialize() throws GSSException, PrivilegedActionException, LoginException {
 
-		//todo if this not given fall back to default user name
-		RealmService realmService = IWAServiceDataHolder.getRealmService();
-		String username = realmService.getBootstrapRealmConfiguration().getUserStoreProperty("SPNName");
-		String password = realmService.getBootstrapRealmConfiguration().getUserStoreProperty("SPNPassword");
+        //todo if this not given fall back to default user name
+        RealmService realmService = IWAServiceDataHolder.getRealmService();
+        String username = realmService.getBootstrapRealmConfiguration().getUserStoreProperty(IWAConstants.SPN_NAME);
+        String password = realmService.getBootstrapRealmConfiguration().getUserStoreProperty(IWAConstants.SPN_PASSWORD);
+        CallbackHandler callbackHandler = IWAServiceDataHolder.getUsernamePasswordHandler(username, password);
+        serviceLogin(callbackHandler);
+        serverPrincipal = new KerberosPrincipal(serverCred.getName().toString());
+    }
 
-		callbackHandler = IWAServiceDataHolder.getUsernamePasswordHandler(username, password);
+    /**
+     * Process kerberos token and get user name
+     *
+     * @param gssToken kerberos token
+     * @return username
+     * @throws GSSException
+     */
+    public static String processToken(byte[] gssToken) throws GSSException {
 
-		serviceLogin(callbackHandler);
+        GSSContext context;
 
-		serverPrincipal = new KerberosPrincipal(serverCred.getName().toString());
-	}
-
-	/**
-	 * Process kerberos token and get user name
-	 *
-	 * @param gssToken kerberos token
-	 * @return username
-	 * @throws GSSException
-	 * */
-	public static String processToken(byte [] gssToken) throws GSSException {
-		
-		GSSContext context;
-
-        context= IWAServiceDataHolder.MANAGER.createContext(serverCred);
+        context = IWAServiceDataHolder.MANAGER.createContext(serverCred);
         byte[] token = context.acceptSecContext(gssToken, 0, gssToken.length);
 
-		String name=null;
+        String name = null;
 
-        if(!context.isEstablished()) {
+        if (!context.isEstablished()) {
             return name;
         }
 
-		name = context.getSrcName().toString();
-		return name;
-	}
+        name = context.getSrcName().toString();
+        return name;
+    }
 
     public static void setSystemProperties(String prop2) {
 
-		System.setProperty("java.security.auth.krb5.conf",prop2);
+        //todo need to be removed
+        System.setProperty("java.security.auth.krb5.conf", prop2);
 
     }
 
-	/**
-	 * Get server credential using SPN
-	 *
-	 * @param  callbackHandler
-	 * @throws PrivilegedActionException
-	 * @throws LoginException
-	 * */
-	private static void serviceLogin(CallbackHandler callbackHandler) throws PrivilegedActionException, LoginException {
+    /**
+     * Get server credential using SPN
+     *
+     * @param callbackHandler username password callback handler
+     * @throws PrivilegedActionException
+     * @throws LoginException
+     */
+    private static void serviceLogin(CallbackHandler callbackHandler) throws PrivilegedActionException, LoginException {
 
-		loginContext = new LoginContext("Server", callbackHandler);
-		loginContext.login();
-		serverCred = IWAServiceDataHolder.getServerCredential(loginContext.getSubject());
+        LoginContext loginContext = new LoginContext(IWAConstants.SERVER, callbackHandler);
+        loginContext.login();
+        serverCred = IWAServiceDataHolder.getServerCredential(loginContext.getSubject());
 
-	}
+    }
 
-	/**
-	 * Handle local host authentication request
-	 * */
-	public static String doLocalhost() {
-		final String username = System.getProperty("user.name");
+    /**
+     * Handle local host authentication request
+     */
+    public static String doLocalhost() {
+        final String username = System.getProperty(IWAConstants.USER_NAME);
 
-		if (null == username || username.isEmpty()) {
-			return serverPrincipal.getName() + '@' + serverPrincipal.getRealm();
+        if (null == username || username.isEmpty()) {
+            return serverPrincipal.getName() + '@' + serverPrincipal.getRealm();
 
-		} else {
-			return username + '@' + serverPrincipal.getRealm();
-		}
-	}
+        } else {
+            return username + '@' + serverPrincipal.getRealm();
+        }
+    }
 }
