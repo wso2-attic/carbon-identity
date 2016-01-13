@@ -133,7 +133,7 @@ public class IWAServelet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.flushBuffer();
         } catch (IOException e) {
-            log.error("Error when sending unauthorized response." + e);
+            log.error("Error when sending unauthorized response." , e);
         }
     }
 
@@ -157,7 +157,7 @@ public class IWAServelet extends HttpServlet {
         try {
             AuthenticationHandler.initialize();
         } catch (GSSException | LoginException | PrivilegedActionException e) {
-            log.error("Error when creating gss credentials ." + e);
+            log.error("Error when creating gss credentials ." , e);
         }
     }
 }
