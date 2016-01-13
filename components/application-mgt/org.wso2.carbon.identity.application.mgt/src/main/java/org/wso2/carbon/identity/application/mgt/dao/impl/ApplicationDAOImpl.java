@@ -666,7 +666,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             }
 
         } finally {
-        	IdentityDatabaseUtil.closeAllConnections(connection, resultSet, inboundProConfigPrepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, inboundProConfigPrepStmt);
         }
         return inBoundProvisioningConfig;
     }
@@ -725,7 +725,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     .toArray(new IdentityProvider[idpProConnectors.size()]));
 
         } finally {
-        	IdentityDatabaseUtil.closeAllConnections(connection, resultSet, outboundProConfigPrepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, outboundProConfigPrepStmt);
         }
         return outBoundProvisioningConfig;
     }
@@ -1363,7 +1363,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             return ApplicationConstants.AUTH_TYPE_DEFAULT;
 
         } finally {
-        	IdentityDatabaseUtil.closeAllConnections(connection,  authTypeResultSet, authTypeStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, authTypeResultSet, authTypeStmt);
         }
 
     }
@@ -1480,7 +1480,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             return applicationName;
 
         } finally {
-        	IdentityDatabaseUtil.closeAllConnections(connection, appNameResultSet, loadBasicAppInfoStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, appNameResultSet, loadBasicAppInfoStmt);
         }
     }
 
@@ -1619,7 +1619,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             }
 
         } finally {
-        	IdentityDatabaseUtil.closeAllConnections(connection, resultSet, getClientInfo);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, getClientInfo);
         }
 
         Map<String, AbstractInboundAuthenticatorConfig> allCustomAuthenticators = ApplicationManagementServiceComponentHolder
@@ -1845,7 +1845,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             return false;
         } finally {
-        	IdentityDatabaseUtil.closeAllConnections(connection, resultSet, get);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, get);
         }
 
     }
@@ -1978,7 +1978,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             throw new IdentityApplicationManagementException(
                     "Error while retrieving all application");
         } finally {
-        	IdentityDatabaseUtil.closeAllConnections(connection, authResultSet, loadReqPathAuthenticators);
+            IdentityDatabaseUtil.closeAllConnections(connection, authResultSet, loadReqPathAuthenticators);
         }
 
         return authenticators.toArray(new RequestPathAuthenticatorConfig[authenticators.size()]);
@@ -2090,7 +2090,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             throw new IdentityApplicationManagementException(
                     "Error while retrieving all application");
         } finally {
-        	IdentityDatabaseUtil.closeAllConnections(connection, resultSet, getClientInfo);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, getClientInfo);
         }
         return roleMappingList;
     }
