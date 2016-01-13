@@ -57,7 +57,7 @@ import java.util.zip.ZipOutputStream;
 public class BPELDeployer implements TemplateInitializer {
 
     private static Log log = LogFactory.getLog(BPELDeployer.class);
-    private static final String CP_SEPARATOR = "/";
+    private static final String CLASSPATH_SEPARATOR = "/";
 
     private BPSProfile bpsProfile = null;
 
@@ -204,7 +204,7 @@ public class BPELDeployer implements TemplateInitializer {
 
     private void removePlaceHolders(String relativeFilePath, String destination) throws IOException {
 
-        InputStream inputStream = getClass().getResourceAsStream(CP_SEPARATOR + relativeFilePath);
+        InputStream inputStream = getClass().getResourceAsStream(CLASSPATH_SEPARATOR + relativeFilePath);
         String content = IOUtils.toString(inputStream);
         for (Map.Entry<String, String> placeHolderEntry : getPlaceHolderValues().entrySet()) {
             content = content.replaceAll(Pattern.quote(placeHolderEntry.getKey()), Matcher.quoteReplacement
@@ -228,9 +228,9 @@ public class BPELDeployer implements TemplateInitializer {
         //Not using File.separator because this will be loaded from java class path
         //Java class path expects the "/" character as the separator
         String resourceHomePath =
-                BPELDeployer.Constants.TEMPLATE_RESOURCE_LOCATION + CP_SEPARATOR +
-                BPELDeployer.Constants.BPEL_RESOURCE_LOCATION +
-                        CP_SEPARATOR + BPELDeployer.Constants.APPROVAL_SERVICE_RESOURCE_LOCATION + CP_SEPARATOR;
+                BPELDeployer.Constants.TEMPLATE_RESOURCE_LOCATION + CLASSPATH_SEPARATOR +
+                        BPELDeployer.Constants.BPEL_RESOURCE_LOCATION + CLASSPATH_SEPARATOR + BPELDeployer.Constants
+                        .APPROVAL_SERVICE_RESOURCE_LOCATION + CLASSPATH_SEPARATOR;
         String outputPath = System.getProperty(BPELDeployer.Constants.TEMP_DIR_PROPERTY) + File.separator;
         //process.wsdl
         String outputFile = outputPath + processName + BPELDeployer.Constants.WSDL_EXT;
@@ -297,9 +297,9 @@ public class BPELDeployer implements TemplateInitializer {
 
         Set<String> filesToAdd = new HashSet<>();
         String resourceHomePath =
-                BPELDeployer.Constants.TEMPLATE_RESOURCE_LOCATION + CP_SEPARATOR +
-                BPELDeployer.Constants.HT_RESOURCE_LOCATION +
-                        CP_SEPARATOR + BPELDeployer.Constants.APPROVAL_HT_RESOURCE_LOCATION + CP_SEPARATOR;
+                BPELDeployer.Constants.TEMPLATE_RESOURCE_LOCATION + CLASSPATH_SEPARATOR +
+                        BPELDeployer.Constants.HT_RESOURCE_LOCATION + CLASSPATH_SEPARATOR + BPELDeployer.Constants
+                        .APPROVAL_HT_RESOURCE_LOCATION + CLASSPATH_SEPARATOR;
         String outputPath = System.getProperty(BPELDeployer.Constants.TEMP_DIR_PROPERTY) + File.separator;
         //task.ht
         String outputFile = outputPath + htName + BPELDeployer.Constants.HT_EXT;
@@ -317,21 +317,21 @@ public class BPELDeployer implements TemplateInitializer {
         if (!outputFileParent.exists()) {
             outputFileParent.mkdirs();
         }
-        removePlaceHolders(resourceHomePath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + CP_SEPARATOR +
+        removePlaceHolders(resourceHomePath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + CLASSPATH_SEPARATOR +
                            BPELDeployer.Constants.TASK_INPUT_JSP_FILE, outputFile);
         filesToAdd.add(outputFile);
         //task-output.jsp
         outputFile =
                 outputPath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + File.separator + htName +
                 BPELDeployer.Constants.OUTPUT_JSP_SUFFIX;
-        removePlaceHolders(resourceHomePath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + CP_SEPARATOR +
+        removePlaceHolders(resourceHomePath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + CLASSPATH_SEPARATOR +
                            BPELDeployer.Constants.TASK_OUTPUT_JSP_FILE, outputFile);
         filesToAdd.add(outputFile);
         //task-response.jsp
         outputFile =
                 outputPath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + File.separator + htName +
                 BPELDeployer.Constants.RESPONSE_JSP_SUFFIX;
-        removePlaceHolders(resourceHomePath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + CP_SEPARATOR +
+        removePlaceHolders(resourceHomePath + BPELDeployer.Constants.APPROVAL_JSP_LOCATION + CLASSPATH_SEPARATOR +
                            BPELDeployer.Constants.TASK_RESPONSE_JSP_FILE, outputFile);
         filesToAdd.add(outputFile);
 
