@@ -23,10 +23,10 @@ import org.ietf.jgss.GSSException;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.security.PrivilegedActionException;
-import javax.security.auth.kerberos.KerberosPrincipal;
 
 /**
  * this class process the kerberos token and create server credentials
