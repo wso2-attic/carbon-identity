@@ -76,14 +76,14 @@ public class IWAAuthenticatorServiceComponent {
         if (log.isDebugEnabled()) {
             log.debug("HTTP Service is set in the IWA SSO bundle");
         }
-        this.httpService = httpService;
+        IWAAuthenticatorServiceComponent.httpService = httpService;
     }
 
     protected void unsetHttpService(HttpService httpService) {
         if (log.isDebugEnabled()) {
             log.debug("HTTP Service is unset in the IWA SSO bundle");
         }
-        this.httpService = null;
+        IWAAuthenticatorServiceComponent.httpService = null;
     }
 
     protected void setRealmService(RealmService realmService) {

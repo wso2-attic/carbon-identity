@@ -22,7 +22,7 @@ import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ietf.jgss.GSSException;
-import org.wso2.carbon.identity.application.authenticator.iwa.AuthenticationHandler;
+import org.wso2.carbon.identity.application.authenticator.iwa.AuthenticationHandlerUtil;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.iwa.IWAConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -63,11 +63,9 @@ public class IWAServelet extends HttpServlet {
                 "&" + IWAAuthenticator.IWA_PROCESSED + "=1";
 
         String header = request.getHeader(IWAConstants.AUTHORIZATION_HEADER);
-
         //if request is local host
         if (this.isLocalhost(request)) {
-            name = AuthenticationHandler.doLocalhost();
-
+            name = AuthenticationHandlerUtil.doLocalhost();
         } else if (header != null) {
             // log the user in using the token
             String token = header.substring(IWAConstants.NEGOTIATE_HEADER.length() + 1);
@@ -80,7 +78,7 @@ public class IWAServelet extends HttpServlet {
             final byte[] gssToken = Base64.decode(token);
             try {
 
-                name = AuthenticationHandler.processToken(gssToken);
+                name = AuthenticationHandlerUtil.processToken(gssToken);
 
             } catch (GSSException e) {
                 log.warn("error logging in user.", e);
@@ -100,7 +98,6 @@ public class IWAServelet extends HttpServlet {
             sendUnauthorized(response, false);
             return;
         }
-
         if (log.isDebugEnabled()) {
             log.debug("logged in user: " + name);
         }
@@ -133,7 +130,7 @@ public class IWAServelet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.flushBuffer();
         } catch (IOException e) {
-            log.error("Error when sending unauthorized response." , e);
+            log.error("Error when sending unauthorized response.", e);
         }
     }
 
@@ -152,12 +149,13 @@ public class IWAServelet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
 
         //todo change or remove
-        AuthenticationHandler.setSystemProperties("krb5.conf");
+        AuthenticationHandlerUtil.setSystemProperties("krb5.conf");
 
         try {
-            AuthenticationHandler.initialize();
+            AuthenticationHandlerUtil.initialize();
         } catch (GSSException | LoginException | PrivilegedActionException e) {
-            log.error("Error when creating gss credentials ." , e);
+            log.error("Error when creating gss credentials .", e);
+            throw new ServletException("Error when creating gss credentials .");
         }
     }
 }

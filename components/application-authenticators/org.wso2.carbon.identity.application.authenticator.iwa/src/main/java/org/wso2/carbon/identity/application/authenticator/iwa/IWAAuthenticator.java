@@ -72,21 +72,14 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
                                                  AuthenticationContext context) throws AuthenticationFailedException {
 
         HttpSession session = request.getSession(false);
-        if (session.getAttribute(IWAConstants.SUBJECT_ATTRIBUTE)  == null) {
+        if (session.getAttribute(IWAConstants.SUBJECT_ATTRIBUTE) == null) {
             if (log.isDebugEnabled()) {
-                log.debug("Attribute not set. Therefore authentication is failed.");
+                log.debug("Subject attribute not set. Therefore authentication is failed.");
             }
             throw new AuthenticationFailedException("Authentication Failed");
         }
-        String username = session.getAttribute(IWAConstants.SUBJECT_ATTRIBUTE).toString();
-        if (username == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("User name is null. Therefore authentication is failed.");
-            }
-            throw new AuthenticationFailedException("Authentication Failed");
-        }
-
-
+        String username = (String)session.getAttribute(IWAConstants.SUBJECT_ATTRIBUTE);
+        //todo if user name has a @
         StringTokenizer stringTokenizer = new StringTokenizer(username, "@");
         username = stringTokenizer.nextToken();
 
@@ -119,7 +112,7 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
         String iwaURL = null;
         try {
             iwaURL = IdentityUtil.getServerURL(IWAConstants.IWA_AUTH_EP, false, true) +
-                    "?" + IWAConstants.IWA_PARAM_STATE + "=" +URLEncoder.encode(ctx, IWAConstants.UTF_8);
+                    "?" + IWAConstants.IWA_PARAM_STATE + "=" + URLEncoder.encode(ctx, IWAConstants.UTF_8);
             response.sendRedirect(response.encodeRedirectURL(iwaURL));
         } catch (IOException e) {
             log.error("Error when sending to the login page :" + iwaURL, e);

@@ -48,9 +48,7 @@ public class IWAServiceDataHolder {
      * @param password
      * @return CallbackHandler
      */
-    public static CallbackHandler getUsernamePasswordHandler(final String username,
-                                                             final String password) {
-
+    public static CallbackHandler getUsernamePasswordHandler(final String username, final String password) {
         final CallbackHandler handler = new CallbackHandler() {
             public void handle(final Callback[] callback) {
                 for (int i = 0; i < callback.length; i++) {
@@ -61,7 +59,7 @@ public class IWAServiceDataHolder {
                         final PasswordCallback passCallback = (PasswordCallback) callback[i];
                         passCallback.setPassword(password.toCharArray());
                     } else {
-                        log.error("Unsupported Callback i=" + i + "; class=" + callback[i].getClass().getName());
+                        log.error("Unsupported Callback i = " + i + "; class = " + callback[i].getClass().getName());
                     }
                 }
             }
@@ -78,9 +76,7 @@ public class IWAServiceDataHolder {
      * @return GSSCredential
      * @throws PrivilegedActionException
      */
-    public static GSSCredential getServerCredential(final Subject subject)
-            throws PrivilegedActionException {
-
+    public static GSSCredential getServerCredential(final Subject subject) throws PrivilegedActionException {
         final PrivilegedExceptionAction<GSSCredential> action =
                 new PrivilegedExceptionAction<GSSCredential>() {
                     public GSSCredential run() throws GSSException {
