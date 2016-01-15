@@ -388,7 +388,7 @@
 
         function enableOnOperationSel() {
             <%
-                if(association != null && StringUtils.isNotBlank(association.getEventName())){
+                if(association != null && StringUtils.isNotBlank(association.getEventName())) {
             %>
             $(".enableOnOperationSel").prop('disabled', false);
             <%
