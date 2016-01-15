@@ -71,8 +71,8 @@
                     IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL).getValue();
             samlSLOUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL).getValue();
-            destinationURLList = IdPManagementUIUtil.getPropertySetStartsWith(properties, IdentityApplicationConstants
-                    .Authenticator.SAML2SSO.DESTINATION_URL_PREFIX);
+            destinationURLList = IdPManagementUIUtil.getPropertySetStartsWith(properties,
+                    IdentityApplicationConstants.Authenticator.SAML2SSO.DESTINATION_URL_PREFIX);
             if (destinationURLList.size() == 0) {
                 destinationURLList.add(IdPManagementUIUtil.getProperty(properties,
                         IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL));
