@@ -308,10 +308,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         if (nonceValue != null) {
             jwtClaimsSet.setClaim("nonce", nonceValue);
         }
-
-        if (!OIDCConstants.OIDCCoreConstants.ID_TOKEN.equals(responseType)){
-            request.addProperty(OAuthConstants.ACCESS_TOKEN, tokenRespDTO.getAccessToken());
-        }
+        request.addProperty(OAuthConstants.ACCESS_TOKEN, tokenRespDTO.getAccessToken());
 
         CustomClaimsCallbackHandler claimsCallBackHandler =
                 OAuthServerConfiguration.getInstance().getOpenIDConnectCustomClaimsCallbackHandler();

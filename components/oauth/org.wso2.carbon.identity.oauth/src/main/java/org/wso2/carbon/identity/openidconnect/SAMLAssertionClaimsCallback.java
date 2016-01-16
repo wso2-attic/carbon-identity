@@ -208,11 +208,8 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
     private Map<String, Object> getResponse(OAuthAuthzReqMessageContext requestMsgCtx)
             throws OAuthSystemException {
 
-        Map<ClaimMapping, String> userAttributes = new HashMap<>();
-        if (requestMsgCtx.getProperty(OAuthConstants.ACCESS_TOKEN) != null) {
-            userAttributes =
-                    getUserAttributesFromCache(requestMsgCtx.getProperty(OAuthConstants.ACCESS_TOKEN).toString());
-        }
+        Map<ClaimMapping, String> userAttributes =
+                getUserAttributesFromCache(requestMsgCtx.getProperty(OAuthConstants.ACCESS_TOKEN).toString());
 
         Map<String, Object> claims = Collections.emptyMap();
 

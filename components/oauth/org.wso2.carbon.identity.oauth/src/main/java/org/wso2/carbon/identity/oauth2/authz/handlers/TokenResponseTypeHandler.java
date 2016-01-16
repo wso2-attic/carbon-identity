@@ -110,9 +110,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                                 log.debug("Infinite lifetime Access Token found in cache");
                             }
                         }
-                        if(!OIDCConstants.OIDCCoreConstants.ID_TOKEN.equals(responseType)){
-                            respDTO.setAccessToken(accessTokenDO.getAccessToken());
-                        }
+                        respDTO.setAccessToken(accessTokenDO.getAccessToken());
                         if(expireTime > 0){
                             respDTO.setValidityPeriod(expireTime/1000);
                         } else {
@@ -181,9 +179,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                                     + cacheKey.getCacheKeyString());
                         }
                     }
-                    if(!OIDCConstants.OIDCCoreConstants.ID_TOKEN.equals(responseType)){
-                        respDTO.setAccessToken(existingAccessTokenDO.getAccessToken());
-                    }
+                    respDTO.setAccessToken(existingAccessTokenDO.getAccessToken());
                     if(expiryTime > 0){
                         respDTO.setValidityPeriod(expiryTime / 1000);
                     } else {
@@ -340,9 +336,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
             }
 
             if(StringUtils.contains(responseType, ResponseType.TOKEN.toString())) {
-                if(!OIDCConstants.OIDCCoreConstants.ID_TOKEN.equals(responseType)){
-                    respDTO.setAccessToken(accessToken);
-                }
+                respDTO.setAccessToken(accessToken);
 
                 if (validityPeriodInMillis > 0) {
                     respDTO.setValidityPeriod(newAccessTokenDO.getValidityPeriod());
