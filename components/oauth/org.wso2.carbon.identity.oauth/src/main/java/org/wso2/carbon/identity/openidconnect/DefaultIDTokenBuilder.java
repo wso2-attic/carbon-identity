@@ -250,12 +250,14 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
 
         String nonceValue = request.getAuthorizationReqDTO().getNonce();
 
+        String responseType = request.getAuthorizationReqDTO().getResponseType();
+
         // Get access token issued time
         long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request) / 1000;
 
         String atHash = null;
         if (!JWSAlgorithm.NONE.getName().equals(signatureAlgorithm.getName()) &&
-            !OIDCConstants.OIDCCoreConstants.ID_TOKEN.equals(request.getAuthorizationReqDTO().getResponseType())) {
+            !OIDCConstants.OIDCCoreConstants.ID_TOKEN.equals(responseType)) {
             String digAlg = mapDigestAlgorithm(signatureAlgorithm);
             MessageDigest md;
             try {
@@ -307,7 +309,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             jwtClaimsSet.setClaim("nonce", nonceValue);
         }
 
-        if (!OIDCConstants.OIDCCoreConstants.ID_TOKEN.equals(request.getAuthorizationReqDTO().getResponseType())){
+        if (!OIDCConstants.OIDCCoreConstants.ID_TOKEN.equals(responseType)){
             request.addProperty(OAuthConstants.ACCESS_TOKEN, tokenRespDTO.getAccessToken());
         }
 
