@@ -426,13 +426,17 @@ public class OAuth2AuthzEndpoint {
                 builder.setExpiresIn(authzRespDTO.getValidityPeriod());
                 builder.setParam(OAuth.OAUTH_TOKEN_TYPE, "Bearer");
             }
-            if (StringUtils.isNotBlank(authzRespDTO.getIdToken())){
-                builder.setParam("id_token", authzRespDTO.getIdToken());
-            }
             if (StringUtils.isNotBlank(oauth2Params.getState())) {
                 builder.setParam(OAuth.OAUTH_STATE, oauth2Params.getState());
             }
             String redirectURL = authzRespDTO.getCallbackURI();
+            if (StringUtils.isNotBlank(authzRespDTO.getIdToken())) {
+                if (authzRespDTO.getAccessToken() == null) {
+                    redirectURL = redirectURL + "#" + "id_token=" + authzRespDTO.getIdToken();
+                } else {
+                    builder.setParam("id_token", authzRespDTO.getIdToken());
+                }
+            }
             oauthResponse = builder.location(redirectURL).buildQueryMessage();
 
         } else if (authzRespDTO != null && authzRespDTO.getErrorCode() != null) {

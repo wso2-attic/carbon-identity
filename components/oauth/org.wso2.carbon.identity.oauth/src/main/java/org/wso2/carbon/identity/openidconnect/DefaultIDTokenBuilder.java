@@ -28,6 +28,7 @@ import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.Charsets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
@@ -253,7 +254,8 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         long accessTokenIssuedTime = getAccessTokenIssuedTime(tokenRespDTO.getAccessToken(), request) / 1000;
 
         String atHash = null;
-        if (!JWSAlgorithm.NONE.getName().equals(signatureAlgorithm.getName())) {
+        if (!JWSAlgorithm.NONE.getName().equals(signatureAlgorithm.getName()) &&
+            !OIDCConstants.OIDCCoreConstants.ID_TOKEN.equals(request.getAuthorizationReqDTO().getResponseType())) {
             String digAlg = mapDigestAlgorithm(signatureAlgorithm);
             MessageDigest md;
             try {
@@ -305,7 +307,10 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
             jwtClaimsSet.setClaim("nonce", nonceValue);
         }
 
-        request.addProperty(OAuthConstants.ACCESS_TOKEN, tokenRespDTO.getAccessToken());
+        if (!OIDCConstants.OIDCCoreConstants.ID_TOKEN.equals(request.getAuthorizationReqDTO().getResponseType())){
+            request.addProperty(OAuthConstants.ACCESS_TOKEN, tokenRespDTO.getAccessToken());
+        }
+
         CustomClaimsCallbackHandler claimsCallBackHandler =
                 OAuthServerConfiguration.getInstance().getOpenIDConnectCustomClaimsCallbackHandler();
         claimsCallBackHandler.handleCustomClaims(jwtClaimsSet, request);
