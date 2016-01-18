@@ -196,7 +196,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
             String userInfoFields = authenticatorProperties.get(FacebookAuthenticatorConstants.USER_INFO_FIELDS);
 
             String tokenEndPoint = getTokenEndpoint();
-            String fbauthUserInfoUrl = getUserInfoEndpoint();
+            String fbAuthUserInfoUrl = getUserInfoEndpoint();
 
             String callbackUrl = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, true, true);
 
@@ -219,7 +219,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
                 }
             }
 
-            Map<String, Object> userInfoJson = getUserInfoJson(fbauthUserInfoUrl, userInfoFields, token);
+            Map<String, Object> userInfoJson = getUserInfoJson(fbAuthUserInfoUrl, userInfoFields, token);
             buildClaims(context, userInfoJson);
         } catch (ApplicationAuthenticatorException e) {
             log.error("Failed to process Facebook Connect response.", e);

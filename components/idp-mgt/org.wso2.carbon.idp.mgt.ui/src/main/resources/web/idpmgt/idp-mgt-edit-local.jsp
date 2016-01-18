@@ -77,7 +77,7 @@
                 destinationURLList.add(IdPManagementUIUtil.getProperty(properties,
                         IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL));
             }
-        } else if(IdentityApplicationConstants.OAuth10A.NAME.equals(federatedAuthenticator.getName())){
+        } else if(IdentityApplicationConstants.OAuth10A.NAME.equals(federatedAuthenticator.getName())) {
             oauth1RequestTokenUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.OAuth10A.OAUTH1_REQUEST_TOKEN_URL).getValue();
             oauth1AuthorizeUrl = IdPManagementUIUtil.getProperty(properties,

@@ -132,8 +132,8 @@ public class CSVUserBulkImport {
         } catch (UserAdminException e) {
             throw e;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new UserAdminException(e.getMessage(), e);
+            log.error("Error occured while adding userlist", e);
+            throw new UserAdminException("Error occured while adding userlist", e);
         } finally {
             try {
                 if (csvReader != null) {
@@ -143,7 +143,7 @@ public class CSVUserBulkImport {
                 if (log.isDebugEnabled()) {
                     log.debug(e);
                 }
-                log.error("Error occurred while closing CSV Reader");
+                log.error("Error occurred while closing CSV Reader",e);
             }
         }
     }
