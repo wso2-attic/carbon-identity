@@ -145,8 +145,14 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
 
 	tokenId = UUID.randomUUID().toString();
 	grantType = oauth2AccessTokenReqDTO.getGrantType();
+        try {
+            accessToken = oauthIssuerImpl.accessToken();
+            refreshToken = oauthIssuerImpl.refreshToken();
+        } catch (OAuthSystemException e) {
+            throw new IdentityOAuth2Exception("Error when generating the tokens.", e);
+        }
 
-	boolean renew = OAuthServerConfiguration.getInstance().isRefreshTokenRenewalEnabled();
+        boolean renew = OAuthServerConfiguration.getInstance().isRefreshTokenRenewalEnabled();
 
 	// an active or expired token will be returned. since we do the validation for active or expired token in
 	// validateGrant() no need to do it here again
@@ -201,8 +207,6 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         }
 
         String clientId = oauth2AccessTokenReqDTO.getClientId();
-
-	try {
 	    
 	    // set the validity period. this is needed by downstream handlers.
             // if this is set before - then this will override it by the calculated new value.
@@ -217,9 +221,6 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
             
             // set refresh token issued time.this is needed by downstream handlers.
             tokReqMsgCtx.setRefreshTokenIssuedTime(refreshTokenIssuedTime.getTime());
-            
-	    accessToken = oauthIssuerImpl.accessToken();
-	    refreshToken = oauthIssuerImpl.refreshToken();
 
 	    if (OAuth2Util.checkUserNameAssertionEnabled()) {
 		String userName = tokReqMsgCtx.getAuthorizedUser().toString();
@@ -235,10 +236,6 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
 		    userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(userName);
 		}
 	    }
-	    
-	} catch (OAuthSystemException e) {
-	    throw new IdentityOAuth2Exception("Error when generating the tokens.", e);
-	}
 
         AccessTokenDO accessTokenDO = new AccessTokenDO(clientId, tokReqMsgCtx.getAuthorizedUser(),
                                                         tokReqMsgCtx.getScope(), timestamp, refreshTokenIssuedTime,
