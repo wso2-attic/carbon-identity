@@ -26,7 +26,7 @@
         if (request.getParameter("authFailureMsg") != null) {
             errorMessage = request.getParameter("authFailureMsg");
 
-            if (errorMessage.equalsIgnoreCase("domain.unknown")) {
+            if ("domain.unknown".equalsIgnoreCase(errorMessage)) {
                 errorMessage = "Domain cannot be identified! Please retry.";
             }
         }

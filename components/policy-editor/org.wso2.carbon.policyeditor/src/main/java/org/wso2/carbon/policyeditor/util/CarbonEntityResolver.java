@@ -1,5 +1,3 @@
-package org.wso2.carbon.policyeditor.util;
-
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -17,6 +15,7 @@ package org.wso2.carbon.policyeditor.util;
  * specific language governing permissions and limitations
  * under the License.
  */
+package org.wso2.carbon.policyeditor.util;
 
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
