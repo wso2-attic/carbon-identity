@@ -33,7 +33,11 @@ public class NTLMAuthenticationGrantHandlerWithHandshake extends AbstractAuthori
 
     private static Log log = LogFactory.getLog(NTLMAuthenticationGrantHandlerWithHandshake.class);
 
+    private static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+    private static final String SCHEME_NTLM = "NTLM";
+    private static final String SERVER_CONNECTION = "server-connection";
     private static final String SECURITY_PACKAGE = "Negotiate";
+    private static final String RESPONSE_HEADERS_PROPERTY = "RESPONSE_HEADERS";
 
     //This is the index of the byte which represents the NTLM token type.
     private static final int MESSAGE_TYPE_BYTE_INDEX = 8;
@@ -87,19 +91,19 @@ public class NTLMAuthenticationGrantHandlerWithHandshake extends AbstractAuthori
             }
 
             if (tokenType == NTLM_TYPE_1_TOKEN) {
-                serverContext = provider.acceptSecurityToken("server-connection", bytesToken, SECURITY_PACKAGE);
+                serverContext = provider.acceptSecurityToken(SERVER_CONNECTION, bytesToken, SECURITY_PACKAGE);
                 String type2Token = Base64.encode(serverContext.getToken());
                 if (log.isDebugEnabled()) {
                     log.debug("Sent NTLM token Type 2:" + type2Token);
                 }
                 ResponseHeader[] responseHeaders = new ResponseHeader[1];
                 responseHeaders[0] = new ResponseHeader();
-                responseHeaders[0].setKey("WWW-Authenticate");
-                responseHeaders[0].setValue("NTLM " + type2Token);
-                tokReqMsgCtx.addProperty("RESPONSE_HEADERS", responseHeaders);
+                responseHeaders[0].setKey(HEADER_WWW_AUTHENTICATE);
+                responseHeaders[0].setValue(SCHEME_NTLM + " " + type2Token);
+                tokReqMsgCtx.addProperty(RESPONSE_HEADERS_PROPERTY, responseHeaders);
                 return false;
             } else if (tokenType == NTLM_TYPE_3_TOKEN) {
-                serverContext = provider.acceptSecurityToken("server-connection", bytesToken, SECURITY_PACKAGE);
+                serverContext = provider.acceptSecurityToken(SERVER_CONNECTION, bytesToken, SECURITY_PACKAGE);
                 String resourceOwnerUserNameWithDomain = serverContext.getIdentity().getFqn();
                 String resourceOwnerUserName = resourceOwnerUserNameWithDomain.split("\\\\")[1];
                 tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(resourceOwnerUserName));
