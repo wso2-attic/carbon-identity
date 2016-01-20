@@ -62,6 +62,7 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
     private static final String PROFILE = "Profile";
 
     private static final Map<String, String> PARAM_DEFINITION;
+    private static final String USER_ALREADY_EXISTING = "UserAlreadyExisting";
     private static Log log = LogFactory.getLog(AddUserWFRequestHandler.class);
 
     static {
@@ -272,7 +273,8 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.ADD_USER_EVENT) ||
                         userStoreManager.isExistingUser(entities[i].getEntityId()))) {
 
-                    throw new WorkflowException("Username already exists in the system. Please pick another username.");
+                    throw new WorkflowException(USER_ALREADY_EXISTING + ":" + "Username already exists in the system." +
+                            " Please pick another username.");
 
                 } else if (eventEngaged &&
                         entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
