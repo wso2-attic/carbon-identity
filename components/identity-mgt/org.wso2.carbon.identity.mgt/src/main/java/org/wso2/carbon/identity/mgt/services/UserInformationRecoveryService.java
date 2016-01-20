@@ -70,6 +70,7 @@ import java.util.Map;
  */
 public class UserInformationRecoveryService {
 
+    private static final String USER_ALREADY_EXISTING = "UserAlreadyExisting";
     Log log = LogFactory.getLog(UserInformationRecoveryService.class);
 
     public CaptchaInfoBean getCaptcha() throws IdentityMgtServiceException {
@@ -893,7 +894,7 @@ public class UserInformationRecoveryService {
             vBean = UserIdentityManagementUtil.getCustomErrorMessagesWhenRegistering(e, userName);
             //Rollback if user exists
             try {
-                if (userStoreManager.isExistingUser(userName)) {
+                if (!e.getMessage().contains(USER_ALREADY_EXISTING) && userStoreManager.isExistingUser(userName)) {
                     userStoreManager.deleteUser(userName);
                 }
             } catch (UserStoreException e1) {
