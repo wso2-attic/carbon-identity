@@ -116,7 +116,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         }
                         respDTO.setAccessToken(accessTokenDO.getAccessToken());
 
-                        if(expireTime > 0){
+                        if (expireTime > 0) {
                             respDTO.setValidityPeriod(expireTime/1000);
                         } else {
                             respDTO.setValidityPeriod(Long.MAX_VALUE/1000);
