@@ -40,23 +40,19 @@ public class SocialAuthenticatorServiceComponent {
 
             FacebookAuthenticator facebookAuthenticator = new FacebookAuthenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
-                    facebookAuthenticator,
-                    null);
+                    facebookAuthenticator, null);
 
             WindowsLiveOAuth2Authenticator windowsLiveOAuth2Authenticator = new WindowsLiveOAuth2Authenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
-                    windowsLiveOAuth2Authenticator,
-                    null);
+                    windowsLiveOAuth2Authenticator, null);
 
             GoogleOAuth2Authenticator googleAuthenticator = new GoogleOAuth2Authenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
-                    googleAuthenticator,
-                    null);
+                    googleAuthenticator, null);
 
             YahooOAuth2Authenticator yahooOAuth2Authenticator = new YahooOAuth2Authenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
-                    yahooOAuth2Authenticator,
-                    null);
+                    yahooOAuth2Authenticator, null);
 
             if (log.isDebugEnabled()) {
                 log.debug("Social Authenticator bundle is activated.");

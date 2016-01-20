@@ -56,8 +56,7 @@
 
 				String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
 				String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
-				ConfigurationContext configContext =
-						(ConfigurationContext) config.getServletContext()
+				ConfigurationContext configContext = (ConfigurationContext) config.getServletContext()
 								.getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 				
 				ApplicationManagementServiceClient serviceClient =

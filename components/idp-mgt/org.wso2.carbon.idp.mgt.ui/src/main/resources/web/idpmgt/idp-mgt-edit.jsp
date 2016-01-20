@@ -217,6 +217,10 @@
 
     Map<String, UUID> idpUniqueIdMap = (Map<String, UUID>) session.getAttribute("idpUniqueIdMap");
 
+    if (idpUniqueIdMap == null) {
+        idpUniqueIdMap = new HashMap<>();
+    }
+
     IdentityProvider identityProvider = null;
 
     if(idPName != null && idpUniqueIdMap.get(idPName) != null) {

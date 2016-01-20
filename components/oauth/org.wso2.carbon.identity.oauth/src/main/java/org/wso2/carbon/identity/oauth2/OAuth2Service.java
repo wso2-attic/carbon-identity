@@ -246,7 +246,6 @@ public class OAuth2Service extends AbstractAdmin {
                 AccessTokenDO accessTokenDO = null;
 
                 if (refreshTokenFirst) {
-
                     refreshTokenDO = tokenMgtDAO
                             .validateRefreshToken(revokeRequestDTO.getConsumerKey(), revokeRequestDTO.getToken());
 
