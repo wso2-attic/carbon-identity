@@ -25,6 +25,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="global-params.js"></script>
 
 <%
@@ -82,15 +83,15 @@ try {
 		              </tr>
 		              <tr>
 	                      <td><fmt:message key='card.name'/></td>
-	                      <td><%=cardIssuer.getCardName()%></td>	                     
+	                      <td><%=Encode.forHtmlContent(cardIssuer.getCardName())%></td>
 	                  </tr>
 	                  <tr>
 	                      <td><fmt:message key='valid.period'/></td>
-	                      <td><%=cardIssuer.getValidPeriodInDays()%></td>	                     
+	                      <td><%=cardIssuer.getValidPeriodInDays()%></td>
 	                  </tr>
 	                    <tr>
 	                      <td><fmt:message key='supporting.token.types'/></td>
-	                      <td><%=client.getSupportingTokens(cardIssuer.getSupportedTokenTypes())%></td>	                     
+	                      <td><%=Encode.forHtmlContent(client.getSupportingTokens(cardIssuer.getSupportedTokenTypes()))%></td>
 	                  </tr>
 	                  <tr>
 	                      <td><fmt:message key='symmetric.binding.used'/></td>

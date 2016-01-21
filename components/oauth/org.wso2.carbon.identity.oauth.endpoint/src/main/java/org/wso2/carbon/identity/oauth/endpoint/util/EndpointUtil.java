@@ -17,11 +17,11 @@
  */
 package org.wso2.carbon.identity.oauth.endpoint.util;
 
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationRequestCacheEntry;
@@ -47,6 +47,7 @@ import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.identity.webfinger.DefaultWebFingerProcessor;
 import org.wso2.carbon.identity.webfinger.WebFingerProcessor;
 import org.wso2.carbon.ui.util.CharacterEncoder;
+
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -184,7 +185,7 @@ public class EndpointUtil {
                 return userNamePassword.split(":");
             }
         }
-        String errMsg = "Error decoding authorization header. Could not retrieve client id and client secret.";
+        String errMsg = "Error decoding authorization header. Space delimited \"<authMethod> <base64Hash>\" format violated.";
         throw new OAuthClientException(errMsg);
     }
 
@@ -203,7 +204,7 @@ public class EndpointUtil {
         if (redirectUri != null && !"".equals(redirectUri)) {
             errorPageUrl = redirectUri;
         } else {
-            errorPageUrl = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_error.do");
+            errorPageUrl = OAuth2Util.OAuthURL.getOAuth2ErrorPageUrl();
         }
         try {
             errorPageUrl += "?" + OAuthConstants.OAUTH_ERROR_CODE + "=" + URLEncoder.encode(errorCode, "UTF-8") + "&"
@@ -242,7 +243,7 @@ public class EndpointUtil {
             throws IdentityOAuth2Exception {
 
         try {
-            SessionDataCacheEntry entry = (SessionDataCacheEntry) SessionDataCache.getInstance(0)
+            SessionDataCacheEntry entry = SessionDataCache.getInstance()
                     .getValueFromCache(new SessionDataCacheKey(sessionDataKey));
 
             return getLoginPageURL(clientId, sessionDataKey, forceAuthenticate,
@@ -275,7 +276,7 @@ public class EndpointUtil {
             if (scopes != null && scopes.contains("openid")) {
                 type = "oidc";
             }
-            String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH);
+            String commonAuthURL = IdentityUtil.getServerURL(FrameworkConstants.COMMONAUTH, false, true);
             String selfPath = "/oauth2/authorize";
             AuthenticationRequest authenticationRequest = new AuthenticationRequest();
 
@@ -327,9 +328,8 @@ public class EndpointUtil {
                 log.debug("Received OAuth2 params are Null for UserConsentURL");
             }
         }
-        SessionDataCache sessionDataCache = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout());
-        SessionDataCacheEntry entry = (SessionDataCacheEntry) sessionDataCache.getValueFromCache
-                (new SessionDataCacheKey(sessionDataKey));
+        SessionDataCache sessionDataCache = SessionDataCache.getInstance();
+        SessionDataCacheEntry entry = sessionDataCache.getValueFromCache(new SessionDataCacheKey(sessionDataKey));
         String consentPage = null;
         String sessionDataKeyConsent = UUID.randomUUID().toString();
         try {
@@ -344,9 +344,9 @@ public class EndpointUtil {
 
 
             if (isOIDC) {
-                consentPage = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_consent.do");
+                consentPage = OAuth2Util.OAuthURL.getOIDCConsentPageUrl();
             } else {
-                consentPage = IdentityUtil.getServerURL("/authenticationendpoint/oauth2_authz.do");
+                consentPage = OAuth2Util.OAuthURL.getOAuth2ConsentPageUrl();
             }
             if (params != null) {
                 consentPage += "?" + OAuthConstants.OIDC_LOGGED_IN_USER + "=" + URLEncoder.encode(loggedInUser,
@@ -367,7 +367,7 @@ public class EndpointUtil {
     public static String getScope(OAuth2Parameters params) {
         StringBuilder scopes = new StringBuilder();
         for (String scope : params.getScopes()) {
-            scopes.append(CharacterEncoder.getSafeText(scope) + " ");
+            scopes.append(scope + " ");
         }
         return scopes.toString().trim();
     }

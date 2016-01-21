@@ -25,17 +25,24 @@ import java.util.Iterator;
 
 public class InboundProvisioningConfig implements Serializable {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -7268191162277514923L;
+    private static final long serialVersionUID = -7320364749026206151L;
 
     private String provisioningUserStore;
     private boolean provisioningEnabled;
+    private boolean isDumbMode = false;
 
+    public boolean isDumbMode() {
+        return isDumbMode;
+    }
+
+    public void setDumbMode(boolean isDumbMode) {
+        this.isDumbMode = isDumbMode;
+    }
     /*
      * <InboundProvisioningConfig> <ProvisioningUserStore></ProvisioningUserStore>
-     * <IsProvisioningEnabled></IsProvisioningEnabled> </InboundProvisioningConfig>
+     * <IsProvisioningEnabled></IsProvisioningEnabled>
+     * <IsDumbModeEnabled></IsDumbModeEnabled>
+     * </InboundProvisioningConfig>
      */
     public static InboundProvisioningConfig build(OMElement inboundProvisioningConfigOM) {
         InboundProvisioningConfig inboundProvisioningConfig = new InboundProvisioningConfig();
@@ -53,8 +60,9 @@ public class InboundProvisioningConfig implements Serializable {
             if ("ProvisioningUserStore".equals(elementName)) {
                 inboundProvisioningConfig.setProvisioningUserStore(element.getText());
             } else if ("IsProvisioningEnabled".equals(elementName) && element.getText() != null) {
-                inboundProvisioningConfig.setProvisioningEnabled(Boolean.parseBoolean(element
-                        .getText()));
+                inboundProvisioningConfig.setProvisioningEnabled(Boolean.parseBoolean(element.getText()));
+            } else if ("IsDumbModeEnabled".equals(elementName) && element.getText() != null) {
+                inboundProvisioningConfig.setDumbMode(Boolean.parseBoolean(element.getText()));
             }
         }
 

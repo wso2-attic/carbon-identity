@@ -31,6 +31,7 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.provider.openid.OpenIDUtil;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -56,7 +57,7 @@ public class IdentityProviderService extends AbstractAdmin {
         String userNameWithDomain = getUserNameWithDomain(userName);
         validateInputParameters(new String[] { userNameWithDomain }, "Invalid parameters provided to getOpenID");
         checkUserAuthorization(userNameWithDomain, "getOpenID");
-        return IdentityUtil.getProperty(ServerConfig.OPENID_USER_PATTERN) + userNameWithDomain;
+        return OpenIDUtil.getOpenIDUserPattern() + "/" + userNameWithDomain;
     }
 
     /**

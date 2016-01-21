@@ -50,6 +50,15 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
         serviceProviderDO.setCertAlias(resource
                 .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ISSUER_CERT_ALIAS));
 
+        if (StringUtils.isNotEmpty(resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_SIGNING_ALGORITHM))) {
+            serviceProviderDO.setSigningAlgorithmUri(resource.getProperty(IdentityRegistryResources
+                    .PROP_SAML_SSO_SIGNING_ALGORITHM));
+        }
+
+        if (StringUtils.isNotEmpty(resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DIGEST_ALGORITHM))) {
+            serviceProviderDO.setDigestAlgorithmUri(resource.getProperty(IdentityRegistryResources
+                    .PROP_SAML_SSO_DIGEST_ALGORITHM));
+        }
 
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_DO_SINGLE_LOGOUT) != null) {
             serviceProviderDO.setDoSingleLogout(new Boolean(resource.getProperty(
@@ -96,6 +105,9 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             serviceProviderDO
                     .setAttributeConsumingServiceIndex(resource
                             .getProperty(IdentityRegistryResources.PROP_SAML_SSO_ATTRIB_CONSUMING_SERVICE_INDEX));
+        }else{
+            // Specific DB's (like oracle) returns empty strings as null.
+            serviceProviderDO.setAttributeConsumingServiceIndex("");
         }
 
         if (resource.getProperty(IdentityRegistryResources.PROP_SAML_SSO_REQUESTED_CLAIMS) != null) {
@@ -181,7 +193,10 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             resource.addProperty(
                     IdentityRegistryResources.PROP_SAML_SSO_NAMEID_FORMAT,
                     serviceProviderDO.getNameIDFormat());
-
+            resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_SIGNING_ALGORITHM, serviceProviderDO
+                    .getSigningAlgorithmUri());
+            resource.addProperty(IdentityRegistryResources.PROP_SAML_SSO_DIGEST_ALGORITHM, serviceProviderDO
+                    .getDigestAlgorithmUri());
             if (serviceProviderDO.getNameIdClaimUri() != null
                     && serviceProviderDO.getNameIdClaimUri().trim().length() > 0) {
                 resource.addProperty(
@@ -276,7 +291,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
 
         } catch (RegistryException e) {
             log.error("Error While adding Service Provider", e);
-            throw new IdentityException("Error while adding Service Provider", e);
+            throw IdentityException.error("Error while adding Service Provider", e);
         }
 
         if (log.isDebugEnabled()) {
@@ -301,7 +316,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             }
         } catch (RegistryException e) {
             log.error("Error reading Service Providers from Registry", e);
-            throw new IdentityException("Error reading Service Providers from Registry", e);
+            throw IdentityException.error("Error reading Service Providers from Registry", e);
         }
         return serviceProvidersList;
     }
@@ -344,7 +359,7 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
             }
         } catch (RegistryException e) {
             log.error("Error removing the service provider from the registry", e);
-            throw new IdentityException("Error removing the service provider from the registry", e);
+            throw IdentityException.error("Error removing the service provider from the registry", e);
         }
 
         return false;
@@ -372,14 +387,24 @@ public class SAMLSSOServiceProviderDAO extends AbstractDAO<SAMLSSOServiceProvide
                 serviceProviderDO.setTenantDomain(tenantDomain);
             }
         } catch (RegistryException e) {
-            throw new IdentityException("Error occurred while checking if resource path \'" + path + "\' exists in " +
+            throw IdentityException.error("Error occurred while checking if resource path \'" + path + "\' exists in " +
                     "registry for tenant domain : " + tenantDomain, e);
             } catch (UserStoreException e) {
-                throw new IdentityException("Error occurred while getting tenant domain from tenant ID : " +
+                throw IdentityException.error("Error occurred while getting tenant domain from tenant ID : " +
                     userRegistry.getTenantId(), e);
         }
 
         return serviceProviderDO;
+    }
+
+    public  boolean isServiceProviderExists(String issuer) throws IdentityException {
+        String path = IdentityRegistryResources.SAML_SSO_SERVICE_PROVIDERS + encodePath(issuer);
+        try {
+            return registry.resourceExists(path);
+        } catch (RegistryException e) {
+            throw IdentityException.error("Error occurred while checking if resource path \'" + path + "\' exists in " +
+                                        "registry");
+        }
     }
 
     private String encodePath(String path) {

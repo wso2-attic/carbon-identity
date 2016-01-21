@@ -123,9 +123,9 @@ public class UserIdentityManagementAdminService {
             if (notificationType != null && isNotificationSending) {
                 UserRecoveryDTO dto;
                 if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
-                    dto = new UserRecoveryDTO(userNameWithoutDomain);
+                    dto = new UserRecoveryDTO(userName);
                 } else {
-                    UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userNameWithoutDomain, tenantDomain));
+                    UserDTO userDTO = new UserDTO(UserCoreUtil.addTenantDomainToEntry(userName, tenantDomain));
                     userDTO.setTenantId(tenantID);
                     dto = new UserRecoveryDTO(userDTO);
                 }
@@ -387,7 +387,7 @@ public class UserIdentityManagementAdminService {
             for (UserIdentityClaimDTO dto : userIdentityClaims) {
                 if (dto.getClaimUri().contains(UserCoreConstants.ClaimTypeURIs.IDENTITY_CLAIM_URI)) {
                     log.warn("WARNING! User " + userName + " tried to alter " + dto.getClaimUri());
-                    throw new IdentityException("Updates to the claim " + dto.getClaimUri() +
+                    throw IdentityException.error("Updates to the claim " + dto.getClaimUri() +
                             " are not allowed");
                 }
                 claims.put(dto.getClaimUri(), dto.getClaimValue());

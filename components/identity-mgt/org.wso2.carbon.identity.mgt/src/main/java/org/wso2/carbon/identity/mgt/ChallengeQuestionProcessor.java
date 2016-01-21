@@ -20,8 +20,10 @@ package org.wso2.carbon.identity.mgt;
 
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
@@ -56,8 +58,9 @@ public class ChallengeQuestionProcessor {
 
         List<ChallengeQuestionDTO> questionDTOs = new ArrayList<ChallengeQuestionDTO>();
         try {
+            int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
             Registry registry = IdentityMgtServiceComponent.getRegistryService().
-                    getConfigSystemRegistry();
+                    getConfigSystemRegistry(tenantId);
             if (registry.resourceExists(IdentityMgtConstants.IDENTITY_MANAGEMENT_QUESTIONS)) {
                 Collection collection = (Collection) registry.
                         get(IdentityMgtConstants.IDENTITY_MANAGEMENT_QUESTIONS);
@@ -83,7 +86,7 @@ public class ChallengeQuestionProcessor {
 
             }
         } catch (RegistryException e) {
-            throw new IdentityException(e.getMessage(), e);
+            throw IdentityException.error(e.getMessage(), e);
         }
         return questionDTOs;
     }
@@ -95,8 +98,13 @@ public class ChallengeQuestionProcessor {
     public void setChallengeQuestions(ChallengeQuestionDTO[] questionDTOs) throws IdentityException {
         Registry registry = null;
         try {
-            registry = IdentityMgtServiceComponent.getRegistryService().getConfigSystemRegistry();
+            int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+            registry = IdentityMgtServiceComponent.getRegistryService().getConfigSystemRegistry(tenantId);
 
+            if (!registry.resourceExists(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH)) {
+                Collection securityQuestionResource = registry.newCollection();
+                registry.put(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH, securityQuestionResource);
+            }
             Resource identityMgtResource = registry.get(IdentityMgtConstants.IDENTITY_MANAGEMENT_PATH);
             if (identityMgtResource != null) {
                 String questionCollectionPath = IdentityMgtConstants.IDENTITY_MANAGEMENT_QUESTIONS;
@@ -118,7 +126,7 @@ public class ChallengeQuestionProcessor {
                 }
             }
         } catch (RegistryException e) {
-            throw new IdentityException("Error while setting challenge question.", e);
+            throw IdentityException.error("Error while setting challenge question.", e);
         }
 
     }
@@ -322,7 +330,9 @@ public class ChallengeQuestionProcessor {
             }
 
             for (String challengesUri : challengesUris) {
-                challenges.add(challengesUri.trim());
+                if (StringUtils.isNotBlank(challengesUri)) {
+                    challenges.add(challengesUri.trim());
+                }
             }
         }
 
@@ -395,7 +405,7 @@ public class ChallengeQuestionProcessor {
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             String msg = "No associated challenge question found for the user";
-            throw new IdentityException(msg, e);
+            throw IdentityException.error(msg, e);
         }
     }
 

@@ -86,13 +86,13 @@ public class OAuthConsumerDAO extends AbstractDAO<OAuthConsumerDO> {
                 if (e instanceof RegistryException) {
                     throw (RegistryException) e;
                 } else {
-                    throw new IdentityException("Error while creating or updating OAuth consumer",
+                    throw IdentityException.error("Error while creating or updating OAuth consumer",
                             e);
                 }
             }
         } catch (RegistryException e) {
             log.error("Error while creating or updating OAuth consumer", e);
-            throw new IdentityException("Error while creating or updating OAuth consumer", e);
+            throw IdentityException.error("Error while creating or updating OAuth consumer", e);
         }
     }
 
@@ -119,7 +119,7 @@ public class OAuthConsumerDAO extends AbstractDAO<OAuthConsumerDO> {
             }
         } catch (RegistryException e) {
             log.error("Error while retreiving user for OAuth consumer key  " + consumerKey, e);
-            throw new IdentityException("Error while retreiving user for OAuth consumer key  "
+            throw IdentityException.error("Error while retreiving user for OAuth consumer key  "
                     + consumerKey, e);
         }
     }

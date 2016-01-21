@@ -26,6 +26,7 @@ import org.w3c.dom.NodeList;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.user.store.configuration.beans.RandomPassword;
 import org.wso2.carbon.identity.user.store.configuration.beans.RandomPasswordContainer;
 import org.wso2.carbon.identity.user.store.configuration.cache.RandomPasswordContainerCache;
@@ -56,7 +57,9 @@ import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -65,6 +68,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -72,7 +76,9 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -92,10 +98,19 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @return : Details of all the configured secondary user stores
      * @throws UserStoreException
      */
-    public UserStoreDTO[] getSecondaryRealmConfigurations() throws UserStoreException {
+    public UserStoreDTO[] getSecondaryRealmConfigurations() throws IdentityUserStoreMgtException {
         ArrayList<UserStoreDTO> domains = new ArrayList<UserStoreDTO>();
-        RealmConfiguration secondaryRealmConfiguration = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
-                getRealmConfiguration().getSecondaryRealmConfig();
+
+        RealmConfiguration secondaryRealmConfiguration = null;
+        try {
+            secondaryRealmConfiguration = CarbonContext.getThreadLocalCarbonContext().getUserRealm().
+                    getRealmConfiguration().getSecondaryRealmConfig();
+        } catch (UserStoreException e) {
+            String errorMessage = "Error while retrieving user store configurations";
+            log.error(errorMessage, e);
+            throw new IdentityUserStoreMgtException(errorMessage);
+        }
+
         //not editing primary store
         if (secondaryRealmConfiguration == null) {
             return null;
@@ -163,7 +178,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @param properties: properties of the user store
      * @return key#value
      */
-    private PropertyDTO[] convertMapToArray(Map<String, String> properties) throws UserStoreException {
+    private PropertyDTO[] convertMapToArray(Map<String, String> properties) {
         Set<Map.Entry<String, String>> propertyEntries = properties.entrySet();
         ArrayList<PropertyDTO> propertiesList = new ArrayList<PropertyDTO>();
         String key;
@@ -182,7 +197,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      *
      * @return: Available implementations for user store managers
      */
-    public String[] getAvailableUserStoreClasses() throws UserStoreException {
+    public String[] getAvailableUserStoreClasses() throws IdentityUserStoreMgtException {
         Set<String> classNames = UserStoreManagerRegistry.getUserStoreManagerClasses();
         return classNames.toArray(new String[classNames.size()]);
     }
@@ -193,8 +208,37 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @param className:Implementation class name for the user store
      * @return : list of default properties(mandatory+optional)
      */
-    public Properties getUserStoreManagerProperties(String className) throws UserStoreException {
-        return (Properties) UserStoreManagerRegistry.getUserStoreProperties(className);
+    public Properties getUserStoreManagerProperties(String className) throws IdentityUserStoreMgtException {
+        Properties properties = UserStoreManagerRegistry.getUserStoreProperties(className);
+
+        if (properties != null && properties.getOptionalProperties() != null) {
+
+            Property[] optionalProperties =  properties.getOptionalProperties();
+
+            boolean foundUniqueIDProperty = false;
+            for (Property property : optionalProperties) {
+                if (UserStoreConfigurationConstant.UNIQUE_ID_CONSTANT.equals(property.getName())) {
+                    foundUniqueIDProperty = true;
+                    break;
+                }
+            }
+            if (!foundUniqueIDProperty) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Inserting property : " + UserStoreConfigurationConstant.UNIQUE_ID_CONSTANT +
+                            " since " + UserStoreConfigurationConstant.UNIQUE_ID_CONSTANT +
+                            " property not defined as an optional property in " + className + " class");
+                }
+                List<Property> optionalPropertyList = new ArrayList<>(Arrays.asList(optionalProperties));
+                Property uniqueIDProperty = new Property(
+                        UserStoreConfigurationConstant.UNIQUE_ID_CONSTANT, "", "", null);
+                optionalPropertyList.add(uniqueIDProperty);
+
+                properties.setOptionalProperties(
+                        optionalPropertyList.toArray(new Property[optionalPropertyList.size()]));
+            }
+        }
+
+        return properties;
     }
 
     /**
@@ -205,19 +249,33 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @throws TransformerException
      * @throws ParserConfigurationException
      */
-    public void addUserStore(UserStoreDTO userStoreDTO) throws UserStoreException, DataSourceException {
+    public void addUserStore(UserStoreDTO userStoreDTO) throws IdentityUserStoreMgtException {
         String domainName = userStoreDTO.getDomainId();
-        xmlProcessorUtils.isValidDomain(domainName, true);
+        try {
+            xmlProcessorUtils.isValidDomain(domainName, true);
+        } catch (UserStoreException e) {
+            String errorMessage = e.getMessage();
+            log.error(errorMessage, e);
+            throw new IdentityUserStoreMgtException(errorMessage);
+        }
 
         File userStoreConfigFile = createConfigurationFile(domainName);
         // This is a redundant check
         if (userStoreConfigFile.exists()) {
-            String msg = "Cannot add user store " + domainName + ". User store already exists.";
-            throw new UserStoreException(msg);
+            String errorMessage = "Cannot add user store " + domainName + ". User store already exists.";
+            log.error(errorMessage);
+            throw new IdentityUserStoreMgtException(errorMessage);
         }
-        writeUserMgtXMLFile(userStoreConfigFile, userStoreDTO, false);
-        if (log.isDebugEnabled()) {
-            log.debug("New user store successfully written to the file" + userStoreConfigFile.getAbsolutePath());
+
+        try {
+            writeUserMgtXMLFile(userStoreConfigFile, userStoreDTO, false);
+            if (log.isDebugEnabled()) {
+                log.debug("New user store successfully written to the file" + userStoreConfigFile.getAbsolutePath());
+            }
+        } catch (IdentityUserStoreMgtException e) {
+            String errorMessage = e.getMessage();
+            log.error(errorMessage, e);
+            throw new IdentityUserStoreMgtException(errorMessage);
         }
     }
 
@@ -230,22 +288,40 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @throws TransformerException
      * @throws ParserConfigurationException
      */
-    public void editUserStore(UserStoreDTO userStoreDTO) throws UserStoreException, DataSourceException {
+    public void editUserStore(UserStoreDTO userStoreDTO) throws IdentityUserStoreMgtException {
         String domainName = userStoreDTO.getDomainId();
-        if (xmlProcessorUtils.isValidDomain(domainName, false)) {
+        boolean isValidDomain = false;
+
+        try {
+            isValidDomain = xmlProcessorUtils.isValidDomain(domainName, false);
+        } catch (UserStoreException e) {
+            String errorMessage = e.getMessage();
+            log.error(errorMessage, e);
+            throw new IdentityUserStoreMgtException(errorMessage);
+        }
+
+        if (isValidDomain) {
 
             File userStoreConfigFile = createConfigurationFile(domainName);
             if (!userStoreConfigFile.exists()) {
                 String msg = "Cannot edit user store " + domainName + ". User store cannot be edited.";
-                throw new UserStoreException(msg);
+                log.error(msg);
+                throw new IdentityUserStoreMgtException(msg);
             }
 
-            writeUserMgtXMLFile(userStoreConfigFile, userStoreDTO, true);
-            if (log.isDebugEnabled()) {
-                log.debug("Edited user store successfully written to the file" + userStoreConfigFile.getAbsolutePath());
+            try {
+                writeUserMgtXMLFile(userStoreConfigFile, userStoreDTO, true);
+                if (log.isDebugEnabled()) {
+                    log.debug("Edited user store successfully written to the file" + userStoreConfigFile.getAbsolutePath());
+                }
+            } catch (IdentityUserStoreMgtException e) {
+                String errorMessage = e.getMessage();
+                log.error(errorMessage, e);
+                throw new IdentityUserStoreMgtException(errorMessage);
             }
         } else {
-            throw new UserStoreException("Trying to edit an invalid domain");
+            String errorMessage = "Trying to edit an invalid domain : " + domainName;
+            throw new IdentityUserStoreMgtException(errorMessage);
         }
     }
 
@@ -258,7 +334,8 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @throws TransformerException
      * @throws ParserConfigurationException
      */
-    public void editUserStoreWithDomainName(String previousDomainName, UserStoreDTO userStoreDTO) throws UserStoreException, DataSourceException {
+    public void editUserStoreWithDomainName(String previousDomainName, UserStoreDTO userStoreDTO)
+            throws IdentityUserStoreMgtException{
         boolean isDebugEnabled = log.isDebugEnabled();
         String domainName = userStoreDTO.getDomainId();
         if (isDebugEnabled) {
@@ -270,6 +347,18 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
 
         String fileName = domainName.replace(".", "_");
         String previousFileName = previousDomainName.replace(".", "_");
+
+        if(!IdentityUtil.isValidFileName(fileName)){
+            String message = "Provided domain name : '" + domainName + "' is invalid.";
+            log.error(message);
+            throw new IdentityUserStoreMgtException(message);
+        }
+
+        if(!IdentityUtil.isValidFileName(previousFileName)){
+            String message = "Provided domain name : '" + previousDomainName + "' is invalid.";
+            log.error(message);
+            throw new IdentityUserStoreMgtException(message);
+        }
 
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
@@ -302,32 +391,49 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
         }
 
         if (!previousUserStoreConfigFile.exists()) {
-            String msg = "Cannot update user store domain name. Previous domain name " + previousDomainName + " does not exists.";
-            throw new UserStoreException(msg);
+            String errorMessage = "Cannot update user store domain name. Previous domain name " + previousDomainName +
+                    " does not exists.";
+            throw new IdentityUserStoreMgtException(errorMessage);
         }
 
         if (userStoreConfigFile.exists()) {
-            String msg = "Cannot update user store domain name. An user store already exists with new domain " + domainName + ".";
-            throw new UserStoreException(msg);
+            String errorMessage = "Cannot update user store domain name. An user store already exists with new domain " +
+                    domainName + ".";
+            throw new IdentityUserStoreMgtException(errorMessage);
         }
 
-        // Run pre user-store name update listeners
-        List<UserStoreConfigListener> userStoreConfigListeners = UserStoreConfigListenersHolder.getInstance()
-                .getUserStoreConfigListeners();
-        for (UserStoreConfigListener userStoreConfigListener : userStoreConfigListeners) {
-            userStoreConfigListener.onUserStoreNamePreUpdate(CarbonContext.getThreadLocalCarbonContext().getTenantId
-                    (), previousDomainName, domainName);
+        try {
+            // Run pre user-store name update listeners
+            List<UserStoreConfigListener> userStoreConfigListeners = UserStoreConfigListenersHolder.getInstance()
+                    .getUserStoreConfigListeners();
+            for (UserStoreConfigListener userStoreConfigListener : userStoreConfigListeners) {
+                userStoreConfigListener.onUserStoreNamePreUpdate(CarbonContext.getThreadLocalCarbonContext().getTenantId
+                        (), previousDomainName, domainName);
+            }
+
+            // Update persisted domain name
+            AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) CarbonContext.
+                    getThreadLocalCarbonContext().getUserRealm().getUserStoreManager();
+            userStoreManager.updatePersistedDomain(previousDomainName, domainName);
+            if (log.isDebugEnabled()) {
+                log.debug("Renamed persisted domain name from" + previousDomainName + " to " + domainName +
+                        " of tenant:" + tenantId + " from UM_DOMAIN.");
+            }
+
+        } catch (UserStoreException e) {
+            String errorMessage = "Error while updating user store domain : " + domainName;
+            log.error(errorMessage, e);
+            throw new IdentityUserStoreMgtException(errorMessage);
         }
 
-        // Update persisted domain name
-        AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager();
-        userStoreManager.updatePersistedDomain(previousDomainName, domainName);
-        if (log.isDebugEnabled()) {
-            log.debug("Renamed persisted domain name from" + previousDomainName + " to " + domainName + " of tenant:" + tenantId + " from UM_DOMAIN.");
+        try {
+            previousUserStoreConfigFile.delete();
+            writeUserMgtXMLFile(userStoreConfigFile, userStoreDTO, true);
+        } catch (IdentityUserStoreMgtException e) {
+            String errorMessage = e.getMessage();
+            log.error(errorMessage, e);
+            throw new IdentityUserStoreMgtException(errorMessage);
         }
-
-        previousUserStoreConfigFile.delete();
-        writeUserMgtXMLFile(userStoreConfigFile, userStoreDTO, true);
     }
 
     /**
@@ -335,11 +441,8 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      *
      * @param domainName: domain name of the user stores to be deleted
      */
-    public void deleteUserStore(String domainName) throws UserStoreException {
-        if (!isAuthorized()) {
-            throw new UserStoreException("Logged user is not authorized to delete user stores");
-        }
-        deleteUserStoresSet(new String[]{domainName});
+    public void deleteUserStore(String domainName) throws IdentityUserStoreMgtException {
+        deleteUserStoresSet(new String[] {domainName});
     }
 
     /**
@@ -347,18 +450,18 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      *
      * @param domains: domain names of user stores to be deleted
      */
-    public void deleteUserStoresSet(String[] domains) throws UserStoreException {
+    public void deleteUserStoresSet(String[] domains) throws IdentityUserStoreMgtException {
         boolean isDebugEnabled = log.isDebugEnabled();
 
         if (domains == null || domains.length <= 0) {
-            throw new UserStoreException("No selected user stores to delete");
+            throw new IdentityUserStoreMgtException("No selected user stores to delete");
         }
 
         if (!validateDomainsForDelete(domains)) {
             if (log.isDebugEnabled()) {
                 log.debug("Failed to delete user store : No privileges to delete own user store configurations ");
             }
-            throw new UserStoreException("No privileges to delete own user store configurations.");
+            throw new IdentityUserStoreMgtException("No privileges to delete own user store configurations.");
         }
 
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
@@ -375,26 +478,32 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
                 log.debug("Deleting, .... " + domainName + " domain.");
             }
 
-            // Run pre user-store name update listeners
-            List<UserStoreConfigListener> userStoreConfigListeners = UserStoreConfigListenersHolder.getInstance()
-                    .getUserStoreConfigListeners();
-            for (UserStoreConfigListener userStoreConfigListener : userStoreConfigListeners) {
-                userStoreConfigListener.onUserStorePreDelete(CarbonContext.getThreadLocalCarbonContext().getTenantId
-                        (), domainName);
-            }
+            try {
+                // Run pre user-store name update listeners
+                List<UserStoreConfigListener> userStoreConfigListeners = UserStoreConfigListenersHolder.getInstance()
+                        .getUserStoreConfigListeners();
+                for (UserStoreConfigListener userStoreConfigListener : userStoreConfigListeners) {
+                    userStoreConfigListener.onUserStorePreDelete(CarbonContext.getThreadLocalCarbonContext().getTenantId
+                            (), domainName);
+                }
 
-            // Delete persisted domain name
-            AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) CarbonContext.getThreadLocalCarbonContext().getUserRealm().getUserStoreManager();
-            //userStoreManager.deletePersistedDomain(domainName);
+                // Delete persisted domain name
+                AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager) CarbonContext.
+                        getThreadLocalCarbonContext().getUserRealm().getUserStoreManager();
 
-            userStoreManager.deletePersistedDomain(domainName);
-            if (isDebugEnabled) {
-                log.debug("Removed persisted domain name: " + domainName + " of tenant:" + tenantId + " from " +
-                        "UM_DOMAIN.");
+                userStoreManager.deletePersistedDomain(domainName);
+                if (isDebugEnabled) {
+                    log.debug("Removed persisted domain name: " + domainName + " of tenant:" + tenantId + " from " +
+                            "UM_DOMAIN.");
+                }
+                //clear cache to make the modification effective
+                UserCoreUtil.getRealmService().clearCachedUserRealm(tenantId);
+                TenantCache.getInstance().clearCacheEntry(new TenantIdKey(tenantId));
+            } catch (UserStoreException e) {
+                String errorMessage = "Error while deleting user store : " + domainName;
+                log.error(errorMessage, e);
+                throw new IdentityUserStoreMgtException(errorMessage);
             }
-            //clear cache to make the modification effective
-            UserCoreUtil.getRealmService().clearCachedUserRealm(tenantId);
-            TenantCache.getInstance().clearCacheEntry(new TenantIdKey(tenantId));
 
             // Delete file
             deleteFile(file, domainName.replace(".", "_").concat(".xml"));
@@ -402,7 +511,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
     }
 
     private boolean validateDomainsForDelete(String[] domains) {
-        String userDomain = UserCoreUtil.extractDomainFromName(PrivilegedCarbonContext.getThreadLocalCarbonContext()
+        String userDomain = IdentityUtil.extractDomainFromName(PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getUsername());
         for (String domain : domains) {
             if (domain.equalsIgnoreCase(userDomain)) {
@@ -422,7 +531,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @param parent       : Parent element of the properties to be added
      */
     private void addProperties(String userStoreClass, PropertyDTO[] propertyDTOs, Document doc, Element parent,
-                               boolean editSecondaryUserStore) throws UserStoreException {
+                               boolean editSecondaryUserStore) throws IdentityUserStoreMgtException {
 
         RandomPasswordContainer randomPasswordContainer = null;
         if (editSecondaryUserStore) {
@@ -432,7 +541,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
                 String errorMsg = "randomPasswordContainer is null for uniqueID therefore " +
                         "proceeding without encryption=" + uniqueID;
                 log.error(errorMsg);//need this error log to further identify the reason for throwing this exception
-                throw new UserStoreException("Longer delay causes the edit operation be to " +
+                throw new IdentityUserStoreMgtException("Longer delay causes the edit operation be to " +
                         "abandoned");
             }
         }
@@ -496,7 +605,13 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
     }
 
 
-    private void deleteFile(File file, final String userStoreName) {
+    private void deleteFile(File file, final String userStoreName) throws IdentityUserStoreMgtException {
+        if(!IdentityUtil.isValidFileName(userStoreName)) {
+            String message = "Provided domain name : '" + userStoreName + "' is invalid.";
+            log.error(message);
+            throw new IdentityUserStoreMgtException(message);
+        }
+
         File[] deleteCandidates = file.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.equalsIgnoreCase(userStoreName);
@@ -517,45 +632,90 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
      * @param domain:   Name of the domain to be updated
      * @param isDisable : Whether to disable/enable domain(true/false)
      */
-    public void changeUserStoreState(String domain, Boolean isDisable) throws UserStoreException, Exception {
+    public void changeUserStoreState(String domain, Boolean isDisable) throws IdentityUserStoreMgtException,
+                                                                              TransformerConfigurationException {
+
+        String currentAuthorizedUserName = CarbonContext.getThreadLocalCarbonContext().getUsername();
+        int index = currentAuthorizedUserName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR);
+        String currentUserDomain = null;
+        if (index > 0) {
+            currentUserDomain = currentAuthorizedUserName.substring(0, index);
+        }
+
+        if (currentUserDomain != null && currentUserDomain.equalsIgnoreCase(domain) && isDisable) {
+            log.error("Error while disabling user store from a user who is in the same user store.");
+            throw new IdentityUserStoreMgtException("Error while updating user store state.");
+        }
 
         File userStoreConfigFile = createConfigurationFile(domain);
         StreamResult result = new StreamResult(userStoreConfigFile);
         if (!userStoreConfigFile.exists()) {
-            String msg = "Cannot edit user store." + domain + " does not exist.";
-            throw new UserStoreException(msg);
+            String errorMessage = "Cannot edit user store." + domain + " does not exist.";
+            throw new IdentityUserStoreMgtException(errorMessage);
         }
 
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
-        Document doc = documentBuilder.parse(userStoreConfigFile);
+        DocumentBuilder documentBuilder = null;
+        try {
+            documentFactory.setFeature(UserStoreConfigurationConstant.EXTERNAL_GENERAL_ENTITIES_URI, false);
+            documentBuilder = documentFactory.newDocumentBuilder();
+            Document doc = documentBuilder.parse(userStoreConfigFile);
 
-        NodeList elements = doc.getElementsByTagName("Property");
-        for (int i = 0; i < elements.getLength(); i++) {
-            //Assumes a property element only have attribute 'name'
-            if ("Disabled".compareToIgnoreCase(elements.item(i).getAttributes().item(0).getNodeValue()) == 0) {
-                elements.item(i).setTextContent(String.valueOf(isDisable));
-                break;
+            NodeList elements = doc.getElementsByTagName("Property");
+            for (int i = 0; i < elements.getLength(); i++) {
+                //Assumes a property element only have attribute 'name'
+                if ("Disabled".compareToIgnoreCase(elements.item(i).getAttributes().item(0).getNodeValue()) == 0) {
+                    elements.item(i).setTextContent(String.valueOf(isDisable));
+                    break;
+                }
             }
-        }
 
-        DOMSource source = new DOMSource(doc);
+            DOMSource source = new DOMSource(doc);
 
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "6");
-        transformer.transform(source, result);
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "6");
+            transformer.transform(source, result);
 
-        if (log.isDebugEnabled()) {
-            log.debug("New state :" + isDisable + " of the user store \'" + domain + "\' successfully written to the file system");
+            if (log.isDebugEnabled()) {
+                log.debug("New state :" + isDisable + " of the user store \'" + domain + "\' successfully written to the file system");
+            }
+        } catch (ParserConfigurationException | SAXException | TransformerException | IOException e) {
+            log.error(e.getMessage(),e);
+            throw new IdentityUserStoreMgtException("Error while updating user store state",e);
         }
     }
 
+    /**
+     * Check the connection heath for JDBC userstores
+     * @param domainName
+     * @param driverName
+     * @param connectionURL
+     * @param username
+     * @param connectionPassword
+     * @param messageID
+     * @return
+     * @throws DataSourceException
+     */
     public boolean testRDBMSConnection(String domainName, String driverName, String connectionURL, String username,
-                                       String connectionPassword) throws DataSourceException {
+                                       String connectionPassword, String messageID) throws IdentityUserStoreMgtException {
+
+        RandomPasswordContainer randomPasswordContainer;
+        if (messageID != null) {
+            randomPasswordContainer = getRandomPasswordContainer(messageID);
+            if (randomPasswordContainer != null) {
+                RandomPassword randomPassword = getRandomPassword(randomPasswordContainer, JDBCRealmConstants.PASSWORD);
+                if (randomPassword != null) {
+                    if (connectionPassword.equalsIgnoreCase(randomPassword.getRandomPhrase())) {
+                        connectionPassword = randomPassword.getPassword();
+                    }
+                }
+            }
+        }
 
         WSDataSourceMetaInfo wSDataSourceMetaInfo = new WSDataSourceMetaInfo();
 
@@ -574,7 +734,9 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             marshaller.marshal(rdbmsConfiguration, out);
 
         } catch (JAXBException e) {
-            log.error("Error in marshelling User Store Configuration info", e);
+            String errorMessage = "Error while checking RDBMS connection health";
+            log.error(errorMessage, e);
+            throw new IdentityUserStoreMgtException(errorMessage);
         }
         wSDataSourceDefinition.setDsXMLConfiguration(out.toString());
         wSDataSourceDefinition.setType("RDBMS");
@@ -585,24 +747,22 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             return DataSourceManager.getInstance().getDataSourceRepository().testDataSourceConnection(wSDataSourceMetaInfo.
                     extractDataSourceMetaInfo());
         } catch (DataSourceException e) {
-            String errMsg = "Data source error occurred";
-            throw new DataSourceException(errMsg, e);
+            String errorMessage = e.getMessage();
+            // Does not print the error log since the log is already printed by DataSourceRepository
+//            log.error(message, e);
+            throw new IdentityUserStoreMgtException(errorMessage);
         }
     }
 
-    private boolean isAuthorized() throws UserStoreException {
-        String loggeduser = CarbonContext.getThreadLocalCarbonContext().getUsername();
-        String admin = CarbonContext.getThreadLocalCarbonContext().getUserRealm().getRealmConfiguration().getAdminUserName();
-
-        if (loggeduser != null && loggeduser.equals(admin)) {
-            return true;
-        }
-        log.error("Logged user '" + loggeduser + "', not the authorized admin user '" + admin + "'.");
-        return false;
-    }
-
-    private File createConfigurationFile(String domainName) {
+    private File createConfigurationFile(String domainName) throws IdentityUserStoreMgtException {
         String fileName = domainName.replace(".", "_");
+
+        if(!IdentityUtil.isValidFileName(fileName)){
+            String message = "Provided domain name : '" + domainName + "' is invalid.";
+            log.error(message);
+            throw new IdentityUserStoreMgtException(message);
+        }
+
         File userStoreConfigFile;
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
 
@@ -636,7 +796,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
 
 
     private void writeUserMgtXMLFile(File userStoreConfigFile, UserStoreDTO userStoreDTO,
-                                     boolean editSecondaryUserStore) throws UserStoreException {
+                                     boolean editSecondaryUserStore) throws IdentityUserStoreMgtException {
         StreamResult result = new StreamResult(userStoreConfigFile);
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 
@@ -659,6 +819,7 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             DOMSource source = new DOMSource(doc);
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
+
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
@@ -666,11 +827,11 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "6");
             transformer.transform(source, result);
         } catch (ParserConfigurationException e) {
-            String errMsg = " Error occured due to serious parser configuration exception of " + userStoreConfigFile;
-            throw new UserStoreException(errMsg, e);
+            String errMsg = " Error occurred due to serious parser configuration exception of " + userStoreConfigFile;
+            throw new IdentityUserStoreMgtException(errMsg, e);
         } catch (TransformerException e) {
-            String errMsg = " Error occured during the transformation process of " + userStoreConfigFile;
-            throw new UserStoreException(errMsg, e);
+            String errMsg = " Error occurred during the transformation process of " + userStoreConfigFile;
+            throw new IdentityUserStoreMgtException(errMsg, e);
         }
     }
 
@@ -762,6 +923,16 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
     }
 
     /**
+     * Get the RandomPasswordContainer object from the cache for given unique id
+     *
+     * @param uniqueID Get the unique id for that particular cache
+     * @return RandomPasswordContainer of particular unique ID
+     */
+    private RandomPasswordContainer getRandomPasswordContainer(String uniqueID) {
+        return RandomPasswordContainerCache.getInstance().getRandomPasswordContainerCache().get(uniqueID);
+    }
+
+    /**
      * Obtain the UniqueID ID constant value from the propertyDTO object which was set well
      * before sending the edit request.
      *
@@ -803,5 +974,17 @@ public class UserStoreConfigAdminService extends AbstractAdmin {
             }
         }
         return null;
+    }
+
+    /**
+     *
+     * @param message
+     * @param e
+     * @throws IdentityUserStoreMgtException
+     */
+    private void handleException(String message, Exception e) throws IdentityUserStoreMgtException {
+        log.error(message, e);
+        throw new IdentityUserStoreMgtException(message);
+
     }
 }

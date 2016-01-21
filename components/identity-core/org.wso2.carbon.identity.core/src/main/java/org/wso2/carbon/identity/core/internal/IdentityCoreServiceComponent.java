@@ -20,24 +20,22 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
+import org.wso2.carbon.identity.core.persistence.UmPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEvent;
 import org.wso2.carbon.identity.core.util.IdentityCoreInitializedEventImpl;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
-import org.wso2.carbon.security.config.SecurityConfigAdmin;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
  * @scr.component name="identity.core.component" immediate="true"
- * @scr.reference name="security.config.service"
- * interface="org.wso2.carbon.security.config.SecurityConfigAdmin" cardinality="1..1"
- * policy="dynamic" bind="setSecurityConfigAdminService"
- * unbind="unsetSecurityConfigAdminService"
  * @scr.reference name="config.context.service"
  * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
  * policy="dynamic" bind="setConfigurationContextService"
@@ -55,6 +53,7 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  */
 
 public class IdentityCoreServiceComponent {
+    private static final String MIGRATION_CLIENT_CLASS_NAME = "org.wso2.carbon.is.migration.client.MigrateFrom5to510";
     private static Log log = LogFactory.getLog(IdentityCoreServiceComponent.class);
 
     private static BundleContext bundleContext = null;
@@ -102,10 +101,63 @@ public class IdentityCoreServiceComponent {
                 jdbcPersistenceManager.initializeDatabase();
             }
 
+            // initialize um persistence manager and retrieve the user management datasource.
+            UmPersistenceManager.getInstance();
+
+            String migrate = System.getProperty("migrate");
+            String migrateIdentityDB = System.getProperty("migrateIdentityDB");
+            String migrateIdentityData = System.getProperty("migrateIdentityData");
+            String migrateUMDB = System.getProperty("migrateUMDB");
+            String migrateUMData = System.getProperty("migrateUMData");
+            String migrateIdentityDBFinalize = System.getProperty("migrateIdentityDBFinalize");
+            String component = System.getProperty("component");
+
+            try{
+                if (component != null && component.contains("identity")){
+                    if (Boolean.parseBoolean(migrate)){
+                        Class<?> c = Class.forName(MIGRATION_CLIENT_CLASS_NAME);
+                        c.getMethod("databaseMigration").invoke(c.newInstance());
+                        log.info("Migrated the identity and user management databases");
+                    }else if (Boolean.parseBoolean(migrateIdentityDB)){
+                        Class<?> c = Class.forName(MIGRATION_CLIENT_CLASS_NAME);
+                        c.getMethod("migrateIdentityDB").invoke(c.newInstance());
+                        log.info("Migrated the identity database");
+                    }else if (Boolean.parseBoolean(migrateUMDB)){
+                        Class<?> c = Class.forName(MIGRATION_CLIENT_CLASS_NAME);
+                        c.getMethod("migrateUMDB").invoke(c.newInstance());
+                        log.info("Migrated the user management database");
+                    }else if (Boolean.parseBoolean(migrateIdentityData)){
+                        Class<?> c = Class.forName(MIGRATION_CLIENT_CLASS_NAME);
+                        c.getMethod("migrateIdentityData").invoke(c.newInstance());
+                        log.info("Migrated the identity data");
+                    }else if (Boolean.parseBoolean(migrateUMData)){
+                        Class<?> c = Class.forName(MIGRATION_CLIENT_CLASS_NAME);
+                        c.getMethod("migrateUMData").invoke(c.newInstance());
+                        log.info("Migrated the user management data");
+                    }else if (Boolean.parseBoolean(migrateIdentityDBFinalize)){
+                        Class<?> c = Class.forName(MIGRATION_CLIENT_CLASS_NAME);
+                        c.getMethod("migrateIdentityDBFinalize").invoke(c.newInstance());
+                        log.info("Finalized the identity database");
+                    }
+                }
+            }catch (Exception e){
+                if (log.isDebugEnabled()){
+                    log.debug("Migration client is not available");
+                }
+            }
+
+            //this is done to initialize primary key store
+            try {
+                KeyStoreManager.getInstance(MultitenantConstants.SUPER_TENANT_ID).getPrimaryKeyStore();
+            } catch (Exception e) {
+                log.error("Error while initializing primary key store.", e);
+            }
+
             // Register initialize service To guarantee the activation order. Component which is referring this
             // service will wait until this component activated.
             ctxt.getBundleContext().registerService(IdentityCoreInitializedEvent.class.getName(),
-                                                    new IdentityCoreInitializedEventImpl(), null);
+                    new IdentityCoreInitializedEventImpl(), null);
+
 
         } catch (Throwable e) {
             log.error("Error occurred while populating identity configuration properties", e);
@@ -142,24 +194,6 @@ public class IdentityCoreServiceComponent {
      */
     protected void unsetRealmService(RealmService realmService) {
         IdentityTenantUtil.setRealmService(null);
-    }
-
-    /**
-     * @param securityConfig
-     */
-    protected void setSecurityConfigAdminService(SecurityConfigAdmin securityConfig) {
-        if (log.isDebugEnabled()) {
-            log.debug("SecurityConfigAdmin set in Identity Core bundle");
-        }
-    }
-
-    /**
-     * @param securityConfig
-     */
-    protected void unsetSecurityConfigAdminService(SecurityConfigAdmin securityConfig) {
-        if (log.isDebugEnabled()) {
-            log.debug("SecurityConfigAdmin unset in Identity Core bundle");
-        }
     }
 
     protected void setTenantRegistryLoader(TenantRegistryLoader tenantRegistryLoader) {

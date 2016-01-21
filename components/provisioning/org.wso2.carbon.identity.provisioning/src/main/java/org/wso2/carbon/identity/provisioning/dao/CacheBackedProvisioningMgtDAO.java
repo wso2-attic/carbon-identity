@@ -92,7 +92,7 @@ public class CacheBackedProvisioningMgtDAO {
 
         ProvisioningEntityCacheKey cacheKey = new ProvisioningEntityCacheKey(identityProviderName, connectorType,
                 provisioningEntity, tenantDomain);
-        ProvisioningEntityCacheEntry entry = (ProvisioningEntityCacheEntry) provisioningEntityCache.getValueFromCache(cacheKey);
+        ProvisioningEntityCacheEntry entry = provisioningEntityCache.getValueFromCache(cacheKey);
 
         if (entry != null) {
             if (log.isDebugEnabled()) {
@@ -161,7 +161,7 @@ public class CacheBackedProvisioningMgtDAO {
 
         ProvisioningEntityCacheKey cacheKey = new ProvisioningEntityCacheKey(identityProviderName, connectorType,
                 provisioningEntity, tenantDomain);
-        ProvisioningEntityCacheEntry entry = (ProvisioningEntityCacheEntry) provisioningEntityCache.getValueFromCache(cacheKey);
+        ProvisioningEntityCacheEntry entry = provisioningEntityCache.getValueFromCache(cacheKey);
         if (entry != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Cache entry found for Provisioning Entity : " +
@@ -185,4 +185,14 @@ public class CacheBackedProvisioningMgtDAO {
         }
     }
 
+    public void updateProvisionedEntityName(ProvisioningEntity provisioningEntity) throws
+                                                                                IdentityApplicationManagementException {
+        //todo: as an improvement cache implementation need to be done
+        provisioningMgtDAO.updateProvisioningEntityName(provisioningEntity);
+    }
+
+    public String getProvisionedEntityNameByLocalId(String localId) throws IdentityApplicationManagementException {
+        //todo: as an improvement cache implementation need to be done
+        return provisioningMgtDAO.getProvisionedEntityNameByLocalId(localId);
+    }
 }

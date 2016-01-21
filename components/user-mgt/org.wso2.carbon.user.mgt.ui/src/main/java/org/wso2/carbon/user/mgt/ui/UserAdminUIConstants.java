@@ -40,6 +40,7 @@ public class UserAdminUIConstants {
     public static final String INTERNAL_ROLE = "Internal";
     public static final String INTERNAL_DOMAIN = "Internal";
     public static final String APPLICATION_DOMAIN = "Application";
+    public static final String WORKFLOW_DOMAIN = "Workflow";
     public static final String EXTERNAL_ROLE = "External";
 
     // errors
@@ -94,7 +95,6 @@ public class UserAdminUIConstants {
     public static final String ROLE_LIST_ADD_ROLE_USER_CACHE_EXCEEDED = "role.list.add.role.cache.exceeded.domains";
     
     public static final String SHARED_ROLE_ENABLED = "shared.role.enabled";
-    
 
     private UserAdminUIConstants(){
 

@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.identity.oauth2.model;
 
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
+
 import java.sql.Timestamp;
 
 /**
@@ -29,11 +31,13 @@ public class RefreshTokenValidationDataDO {
 
     private String accessToken;
 
-    private String authorizedUser;
+    private AuthenticatedUser authorizedUser;
 
     private String[] scope;
 
     private String refreshTokenState;
+
+    private String grantType;
 
     private Timestamp issuedTime;
 
@@ -47,11 +51,11 @@ public class RefreshTokenValidationDataDO {
         this.accessToken = accessToken;
     }
 
-    public String getAuthorizedUser() {
+    public AuthenticatedUser getAuthorizedUser() {
         return authorizedUser;
     }
 
-    public void setAuthorizedUser(String authorizedUser) {
+    public void setAuthorizedUser(AuthenticatedUser authorizedUser) {
         this.authorizedUser = authorizedUser;
     }
 
@@ -93,5 +97,13 @@ public class RefreshTokenValidationDataDO {
 
     public void setTokenId(String tokenId) {
         this.tokenId = tokenId;
+    }
+
+    public String getGrantType() {
+        return grantType;
+    }
+
+    public void setGrantType(String grantType) {
+        this.grantType = grantType;
     }
 }

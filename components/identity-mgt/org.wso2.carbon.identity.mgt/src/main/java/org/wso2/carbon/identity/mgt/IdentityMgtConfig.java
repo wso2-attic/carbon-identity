@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.mgt;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -41,7 +42,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -63,7 +66,6 @@ public class IdentityMgtConfig {
     private String challengeQuestionSeparator;
     private int authPolicyMaxLoginAttempts;
     private int temporaryPasswordExpireTime;
-    private String temporaryDefaultPassword;
     private boolean enableTemporaryPassword;
     private boolean enableAuthPolicy;
     private boolean authPolicyOneTimePasswordCheck;
@@ -91,6 +93,8 @@ public class IdentityMgtConfig {
     private PolicyRegistry policyRegistry = new PolicyRegistry();
 
     protected Properties properties = new Properties();
+
+    private long registryCleanUpPeriod;
 
     /*
      * Define the pattern of the configuration file. Assume following
@@ -187,12 +191,6 @@ public class IdentityMgtConfig {
                     getProperty(IdentityMgtConstants.PropertyConfig.TEMPORARY_PASSWORD_EXPIRE_TIME);
             if (temporaryPasswordExpireTimeProperty != null) {
                 this.temporaryPasswordExpireTime = Integer.parseInt(temporaryPasswordExpireTimeProperty.trim());
-            }
-
-            String defaultPasswordProperty = properties.
-                    getProperty(IdentityMgtConstants.PropertyConfig.TEMPORARY_PASSWORD_DEFAULT);
-            if (defaultPasswordProperty != null) {
-                this.temporaryDefaultPassword = defaultPasswordProperty.trim();
             }
 
             String temporaryPasswordOneTimeProperty = properties.
@@ -321,6 +319,12 @@ public class IdentityMgtConfig {
                 }
             }
 
+            String registryCleanUpPeriod = properties.getProperty(IdentityMgtConstants.PropertyConfig
+                    .REGISTRY_CLEANUP_PERIOD);
+            if (StringUtils.isNotBlank(registryCleanUpPeriod)) {
+                this.registryCleanUpPeriod = Long.parseLong(registryCleanUpPeriod);
+            }
+
             int i = 1;
             while (true) {
                 String module = properties.
@@ -426,10 +430,6 @@ public class IdentityMgtConfig {
         return temporaryPasswordExpireTime;
     }
 
-    public String getTemporaryDefaultPassword() {
-        return temporaryDefaultPassword;
-    }
-
     public boolean isEnableTemporaryPassword() {
         return enableTemporaryPassword;
     }
@@ -530,6 +530,10 @@ public class IdentityMgtConfig {
         return policyRegistry;
     }
 
+    public long getRegistryCleanUpPeriod() {
+        return registryCleanUpPeriod;
+    }
+
     /**
      * This method is used to load the policies declared in the configuration.
      *
@@ -538,29 +542,33 @@ public class IdentityMgtConfig {
      */
     private void loadPolicyExtensions(Properties properties, String extensionType) {
 
-        // First property must start with 1.
-        int count = 1;
-        String className = null;
-        int size = 0;
-        if (properties != null) {
-            size = properties.size();
+        Set<Integer> count = new HashSet();
+        Iterator<String> keyValues = properties.stringPropertyNames().iterator();
+        while (keyValues.hasNext()) {
+            String currentProp = keyValues.next();
+            if (currentProp.startsWith(extensionType)) {
+                String extensionNumber = currentProp.replaceFirst(extensionType + ".", "");
+                if (StringUtils.isNumeric(extensionNumber)) {
+                    count.add(Integer.parseInt(extensionNumber));
+                }
+            }
         }
-        while (size > 0) {
-            className = properties.getProperty(extensionType + "." + count);
+        //setting the number of extensionTypes as the upper bound as there can be many extension policy numbers,
+        //eg: Password.policy.extensions.1, Password.policy.extensions.4, Password.policy.extensions.15
+        Iterator<Integer> countIterator = count.iterator();
+        while (countIterator.hasNext()) {
+            Integer extensionIndex = countIterator.next();
+            String className = properties.getProperty(extensionType + "." + extensionIndex);
             if (className == null) {
-                count++;
-                size--;
                 continue;
             }
             try {
                 Class clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
 
                 PolicyEnforcer policy = (PolicyEnforcer) clazz.newInstance();
-                policy.init(getParameters(properties, extensionType, count));
+                policy.init(getParameters(properties, extensionType, extensionIndex));
 
-                this.policyRegistry.addPolicy((PolicyEnforcer) policy);
-                count++;
-                size--;
+                this.policyRegistry.addPolicy(policy);
             } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | SecurityException e) {
                 log.error("Error while loading password policies " + className, e);
             }

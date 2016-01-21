@@ -31,6 +31,7 @@
         import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Collections" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar"
            prefix="carbon" %>
@@ -177,7 +178,7 @@
                             key="list.issuer"/></td>
                     <td>
                         <input type="text" name="<%=SAMLSSOUIConstants.ISSUER_LIST_FILTER%>"
-                               value="<%=filter%>"/>
+                               value="<%=Encode.forHtmlAttribute(filter)%>"/>
 
                         <input class="button" type="submit"
                                value="<fmt:message key="issuer.search"/>"/>
@@ -207,24 +208,25 @@
                             if (sp != null) {
                 %>
                 <tr>
-                    <td style="width:20%"><%=sp.getIssuer()%>
+                    <td style="width:20%"><%=Encode.forHtml(sp.getIssuer())%>
                     </td>
-                    <td><%=sp.getDefaultAssertionConsumerUrl()%>
+                    <td><%=Encode.forHtml(sp.getDefaultAssertionConsumerUrl())%>
                     </td>
-                    <td style="width:10%"><%=sp.getCertAlias() == null ? "" : sp.getCertAlias()%>
+                    <td style="width:10%"><%=sp.getCertAlias() == null ? "" : Encode.forHtml(sp.getCertAlias())%>
                     </td>
                     <td style="width:15%"><%=sp.getAttributeConsumingServiceIndex() == null
                                              ? ""
-                                             : sp.getAttributeConsumingServiceIndex()%>
+                                             : Encode.forHtml(sp.getAttributeConsumingServiceIndex())%>
                     </td>
-                    <td style="width:200px;white-space:nowrap;"><a title="Edit Service Providers"
-                                                                   onclick="edit('<%=sp.getIssuer()%>');return false;"
-                                                                   href="#"
-                                                                   class="icon-link"
-                                                                   style="background-image: url(../admin/images/edit.gif)">Edit</a>
+                    <td style="width:200px;white-space:nowrap;">
+                        <a title="Edit Service Providers"
+                           onclick="edit('<%=Encode.forJavaScriptAttribute(Encode.forUriComponent(sp.getIssuer()))%>');return false;"
+                           href="#"
+                           class="icon-link"
+                           style="background-image: url(../admin/images/edit.gif)">Edit</a>
 
                         <a title="Remove Service Providers"
-                           onclick="removeItem('<%=sp.getIssuer()%>');return false;" href="#"
+                           onclick="removeItem('<%=Encode.forJavaScriptAttribute(sp.getIssuer())%>');return false;" href="#"
                            class="icon-link"
                            style="background-image: url(../admin/images/delete.gif)">Delete
                         </a></td>

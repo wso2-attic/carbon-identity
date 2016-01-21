@@ -28,7 +28,7 @@ import java.util.List;
 
 public class LocalAndOutboundAuthenticationConfig implements Serializable {
 
-    private static final long serialVersionUID = -932772940989929376L;
+    private static final long serialVersionUID = 6552125621314155291L;
 
     private AuthenticationStep[] authenticationSteps = new AuthenticationStep[0];
     private String authenticationType;

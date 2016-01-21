@@ -38,7 +38,7 @@ public class SAMLSSOUIUtil {
      * @return
      */
     public static String getSafeInput(HttpServletRequest request, String parameter) {
-        return CharacterEncoder.getSafeText(request.getParameter(parameter));
+        return request.getParameter(parameter);
     }
 
     public static SAMLSSOServiceProviderDTO[] doPaging(int pageNumber,

@@ -18,15 +18,20 @@
 
 package org.wso2.carbon.identity.mgt.util;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
+import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.IdentityMgtServiceException;
 import org.wso2.carbon.identity.mgt.beans.UserIdentityMgtBean;
-import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimDTO;
-import org.wso2.carbon.identity.mgt.dto.UserIdentityClaimsDO;
-import org.wso2.carbon.identity.mgt.dto.UserRecoveryDTO;
-import org.wso2.carbon.identity.mgt.dto.UserRecoveryDataDO;
+import org.wso2.carbon.identity.mgt.beans.VerificationBean;
+import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
+import org.wso2.carbon.identity.mgt.dto.*;
 import org.wso2.carbon.identity.mgt.internal.IdentityMgtServiceComponent;
 import org.wso2.carbon.identity.mgt.store.JDBCUserRecoveryDataStore;
 import org.wso2.carbon.identity.mgt.store.UserIdentityDataStore;
@@ -34,6 +39,7 @@ import org.wso2.carbon.user.api.Claim;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
@@ -47,6 +53,27 @@ import java.util.List;
  * @author sga
  */
 public class UserIdentityManagementUtil {
+    private static final String EXISTING_USER = "Username already exists in the system";
+    private static final String INVALID_CLAIM_URL = "InvalidClaimUrl";
+    private static final String EXISTING_ROLE = "RoleExisting";
+    private static final String READ_ONLY_STORE = "User store is read only";
+    private static final String READ_ONLY_PRIMARY_STORE = "ReadOnlyPrimaryUserStoreManager";
+    private static final String INVALID_ROLE = "InvalidRole";
+    private static final String ANONYMOUS_USER = "AnonymousUser";
+    private static final String INVALID_OPERATION = "InvalidOperation";
+    private static final String NO_READ_WRITE_PERMISSIONS = "NoReadWritePermission";
+    private static final String PASSWORD_INVALID = "Credential must be a non null string";
+    private static final String SHARED_USER_ROLES = "SharedUserRoles";
+    private static final String REMOVE_ADMIN_USER = "RemoveAdminUser";
+    private static final String LOGGED_IN_USER = "LoggedInUser";
+    private static final String ADMIN_USER = "AdminUser";
+    private static final String INVALID_USER_NAME = "InvalidUserName";
+    private static final String PASSWORD_POLICY_VIOLATION = "Password at least should have";;
+
+    private static VerificationBean vBean = new VerificationBean();
+    private static ChallengeQuestionIdsDTO idsDTO = new ChallengeQuestionIdsDTO();
+    private static UserChallengesDTO userChallengesDTO = new UserChallengesDTO();
+    private static Log log = LogFactory.getLog(UserIdentityManagementUtil.class);
 
     private UserIdentityManagementUtil() {
     }
@@ -80,6 +107,25 @@ public class UserIdentityManagementUtil {
      */
     public static void lockUserAccount(String userName, UserStoreManager userStoreManager)
             throws IdentityException {
+        if (!isIdentityMgtListenerEnable()) {
+            throw IdentityException.error("Cannot lock account, IdentityMgtEventListener is not enabled.");
+        }
+
+        String domainName = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).getRealmConfiguration().
+                getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        userName = UserCoreUtil.addDomainToName(userName, domainName);
+
+        try {
+            if (!userStoreManager.isExistingUser(userName)) {
+                log.error("User " + userName + " does not exist in tenant "+userStoreManager.getTenantId());
+                throw IdentityException.error("No user account found for user " + userName);
+            }
+        } catch (UserStoreException e) {
+            log.error("Error while reading user identity data", e);
+            throw IdentityException.error("Error while lock user account : " + userName);
+
+        }
+
         UserIdentityDataStore store = IdentityMgtConfig.getInstance().getIdentityDataStore();
         UserIdentityClaimsDO userIdentityDO = store.load(UserCoreUtil.removeDomainFromName(userName), userStoreManager);
         if (userIdentityDO != null) {
@@ -87,7 +133,21 @@ public class UserIdentityManagementUtil {
             userIdentityDO.setUnlockTime(0);
             store.store(userIdentityDO, userStoreManager);
         } else {
-            throw new IdentityException("No user account found for user " + userName);
+            throw IdentityException.error("No user account found for user " + userName);
+        }
+    }
+
+    private static boolean isIdentityMgtListenerEnable() {
+        IdentityEventListenerConfig identityEventListenerConfig = IdentityUtil.readEventListenerProperty
+                (UserOperationEventListener.class.getName(), IdentityMgtEventListener.class.getName());
+        if (identityEventListenerConfig == null) {
+            return true;
+        }
+
+        if (StringUtils.isNotBlank(identityEventListenerConfig.getEnable())) {
+            return Boolean.parseBoolean(identityEventListenerConfig.getEnable());
+        } else {
+            return true;
         }
     }
 
@@ -100,6 +160,26 @@ public class UserIdentityManagementUtil {
      */
     public static void unlockUserAccount(String userName, UserStoreManager userStoreManager)
             throws IdentityException {
+
+        if (!isIdentityMgtListenerEnable()) {
+            throw IdentityException.error("Cannot unlock account, IdentityMgtEventListener is not enabled.");
+        }
+
+        String domainName = ((org.wso2.carbon.user.core.UserStoreManager) userStoreManager).getRealmConfiguration().
+                getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        userName = UserCoreUtil.addDomainToName(userName, domainName);
+
+        try {
+            if (!userStoreManager.isExistingUser(userName)) {
+                log.error("User " + userName + " does not exist in tenant "+userStoreManager.getTenantId());
+                throw IdentityException.error("No user account found for user " + userName);
+            }
+        } catch (UserStoreException e) {
+            log.error("Error while reading user identity data", e);
+            throw IdentityException.error("Error while unlock user account " + userName);
+
+        }
+
         UserIdentityDataStore store = IdentityMgtConfig.getInstance().getIdentityDataStore();
         UserIdentityClaimsDO userIdentityDO = store.load(UserCoreUtil.removeDomainFromName(userName), userStoreManager);
         if (userIdentityDO != null) {
@@ -107,7 +187,7 @@ public class UserIdentityManagementUtil {
             userIdentityDO.setUnlockTime(0);
             store.store(userIdentityDO, userStoreManager);
         } else {
-            throw new IdentityException("No user account found for user " + userName);
+            throw IdentityException.error("No user account found for user " + userName);
         }
 
     }
@@ -143,7 +223,7 @@ public class UserIdentityManagementUtil {
         int i = 0;
         for (String secQuestion : primarySecurityQuestion) {
             if (!secQuestion.contains(UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI)) {
-                throw new IdentityException("One or more security questions does not contain the namespace " +
+                throw IdentityException.error("One or more security questions does not contain the namespace " +
                         UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI);
             }
             metadata[i++] =
@@ -166,7 +246,7 @@ public class UserIdentityManagementUtil {
         int i = 0;
         for (String secQuestion : primarySecurityQuestion) {
             if (!secQuestion.contains(UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI)) {
-                throw new IdentityException("One or more security questions does not contain the namespace " +
+                throw IdentityException.error("One or more security questions does not contain the namespace " +
                         UserCoreConstants.ClaimTypeURIs.CHALLENGE_QUESTION_URI);
             }
             metadata[i++] =
@@ -195,7 +275,7 @@ public class UserIdentityManagementUtil {
             userIdentityDO.updateUserSequeiryQuestions(securityQuestion);
             store.store(userIdentityDO, userStoreManager);
         } else {
-            throw new IdentityException("No user account found for user " + userName);
+            throw IdentityException.error("No user account found for user " + userName);
         }
     }
 
@@ -236,7 +316,7 @@ public class UserIdentityManagementUtil {
             userIdentityDO.updateUserIdentityRecoveryData(userIdentityRecoveryData);
             store.store(userIdentityDO, userStoreManager);
         } else {
-            throw new IdentityException("No user account found for user " + userName);
+            throw IdentityException.error("No user account found for user " + userName);
         }
 
     }
@@ -258,7 +338,7 @@ public class UserIdentityManagementUtil {
         if (userIdentityDO != null) {
             return userIdentityDO.getUserIdentityRecoveryData();
         } else {
-            throw new IdentityException("No user account found for user " + userName);
+            throw IdentityException.error("No user account found for user " + userName);
         }
     }
 
@@ -469,5 +549,191 @@ public class UserIdentityManagementUtil {
             String msg = "Unable to retrieve the claim for the given tenant";
             throw new IdentityMgtServiceException(msg, e);
         }
+    }
+
+    public static VerificationBean getCustomErrorMessagesWhenRegistering(Exception e, String userName) {
+        if (e.getMessage() != null) {
+            if (e.getMessage().contains(PASSWORD_INVALID)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_INVALID_CREDENTIALS +
+                        " Credential not valid. Credential must be a non null for the user : " + userName, e);
+            } else if (e.getMessage().contains(EXISTING_USER)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_INVALID_USER +
+                        " Username '" + userName + "' already exists in the system. Please pick another username.", e);
+            } else if (e.getMessage().contains(INVALID_CLAIM_URL)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED + " Invalid claim uri has been provided.", e);
+            } else if (e.getMessage().contains(INVALID_USER_NAME)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_INVALID_USER +
+                        " Username " + userName + " is not valid. User name must be a non null", e);
+            } else if (e.getMessage().contains(READ_ONLY_STORE)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                        " Read-only UserStoreManager. Roles cannot be added or modified.", e);
+            } else if (e.getMessage().contains(READ_ONLY_PRIMARY_STORE)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                        " Cannot add role to Read Only user store unless it is primary.", e);
+            } else if (e.getMessage().contains(INVALID_ROLE)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                        " Role name not valid. Role name must be a non null string.", e);
+            } else if (e.getMessage().contains(NO_READ_WRITE_PERMISSIONS)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                        " Role cannot be added. User store is read only or cannot write groups.", e);
+            } else if (e.getMessage().contains(EXISTING_ROLE)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                        " Role alreary exists in the system. Please pick another role name.", e);
+            } else if (e.getMessage().contains(SHARED_USER_ROLES)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                        " User store doesn't support shared user roles functionality.", e);
+            } else if (e.getMessage().contains(REMOVE_ADMIN_USER)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED + " Cannot remove Admin user from Admin role.", e);
+            } else if (e.getMessage().contains(LOGGED_IN_USER)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED + " Cannot remove Admin user from Admin role.", e);
+            } else if (e.getMessage().contains(ADMIN_USER)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED + " Cannot remove Admin user from Admin role.", e);
+            } else if (e.getMessage().contains(ANONYMOUS_USER)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED +
+                        " Cannot delete anonymous user.", e);
+            } else if (e.getMessage().contains(INVALID_OPERATION)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED + " Invalid operation. User store is read only.", e);
+            } else if (e.getMessage().contains(PASSWORD_POLICY_VIOLATION)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_UNEXPECTED + " " + e.getMessage(), e);
+            } else {
+                vBean = handleError(
+                        VerificationBean.ERROR_CODE_UNEXPECTED + " Error occurred while adding user : " + userName, e);
+                return vBean;
+            }
+            return vBean;
+        } else {
+            vBean = handleError(
+                    VerificationBean.ERROR_CODE_UNEXPECTED + " Error occurred while adding user : " + userName, e);
+            return vBean;
+        }
+    }
+
+    public static VerificationBean getCustomErrorMessagesToVerifyCode(IdentityException e, String userName) {
+        if (e.getMessage() != null) {
+            if (e.getMessage().contains(VerificationBean.ERROR_CODE_EXPIRED_CODE)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_EXPIRED_CODE + " The code is " + "expired", e);
+            } else if (e.getMessage().contains(IdentityMgtConstants.ErrorHandling.INVALID_CONFIRMATION_CODE)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_INVALID_CODE + " " +
+                        IdentityMgtConstants.ErrorHandling.INVALID_CONFIRMATION_CODE, e);
+            } else if (e.getMessage().contains(VerificationBean.ERROR_CODE_LOADING_DATA_FAILURE)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_LOADING_DATA_FAILURE + " Error" +
+                        " loading data for user : " + userName, e);
+            } else if (e.getMessage().contains(IdentityMgtConstants.ErrorHandling.EXTERNAL_CODE)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_INVALID_CODE + " " +
+                        IdentityMgtConstants.ErrorHandling.EXTERNAL_CODE + ": " + userName, e);
+            } else if (e.getMessage().contains(IdentityMgtConstants.ErrorHandling.NOTIFICATION_FAILURE)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_RECOVERY_NOTIFICATION_FAILURE + " " + IdentityMgtConstants.
+                        ErrorHandling.NOTIFICATION_FAILURE + ": " + userName, e);
+            } else if (e.getMessage().contains(IdentityMgtConstants.ErrorHandling.ERROR_LOADING_EMAIL_TEMP)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_RECOVERY_NOTIFICATION_FAILURE + ": " + IdentityMgtConstants.
+                        ErrorHandling.ERROR_LOADING_EMAIL_TEMP + " " + userName, e);
+            } else if (e.getMessage().contains(IdentityMgtConstants.ErrorHandling.EXTERNAL_CODE)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_INVALID_CODE + ": " + IdentityMgtConstants.
+                        ErrorHandling.EXTERNAL_CODE + " " + userName, e);
+            } else if (e.getMessage().contains(IdentityMgtConstants.ErrorHandling.CREATING_NOTIFICATION_ERROR)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_RECOVERY_NOTIFICATION_FAILURE + ": " + IdentityMgtConstants.
+                        ErrorHandling.CREATING_NOTIFICATION_ERROR + " " + userName, e);
+            } else if (e.getMessage().contains(VerificationBean.ERROR_CODE_LOADING_DATA_FAILURE)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_LOADING_DATA_FAILURE + " Error" +
+                        " loading data for user : " + userName, e);
+            } else if (e.getMessage().contains(IdentityMgtConstants.ErrorHandling.USER_ACCOUNT)) {
+                vBean = handleError(VerificationBean.ERROR_CODE_INVALID_CODE + " No user account found for user", e);
+            }
+            return vBean;
+        } else {
+            vBean = handleError(VerificationBean.ERROR_CODE_INVALID_CODE + " No user account found for user", e);
+            return vBean;
+        }
+    }
+
+    public static ChallengeQuestionIdsDTO getCustomErrorMessagesForChallengeQuestionIds(Exception e, String userName) {
+        if (e.getMessage() != null) {
+            if (e.getMessage().contains(VerificationBean.ERROR_CODE_EXPIRED_CODE)) {
+                idsDTO = handleChallengeIdError(VerificationBean.ERROR_CODE_EXPIRED_CODE + " The code is expired", e);
+            } else if (e.getMessage().contains(IdentityMgtConstants.ErrorHandling.INVALID_CONFIRMATION_CODE)) {
+                idsDTO = handleChallengeIdError(VerificationBean.ERROR_CODE_INVALID_CODE + " " + IdentityMgtConstants.
+                        ErrorHandling.INVALID_CONFIRMATION_CODE, e);
+            } else if (e.getMessage().contains(IdentityMgtConstants.ErrorHandling.EXTERNAL_CODE)) {
+                idsDTO = handleChallengeIdError(VerificationBean.ERROR_CODE_INVALID_CODE + " " +
+                        IdentityMgtConstants.ErrorHandling.EXTERNAL_CODE + userName, e);
+            } else if (e.getMessage().contains(VerificationBean.ERROR_CODE_LOADING_DATA_FAILURE)) {
+                idsDTO = handleChallengeIdError(VerificationBean.ERROR_CODE_LOADING_DATA_FAILURE + " Error loading data for user " +
+                        ":  " + userName, e);
+            }
+            return idsDTO;
+        } else {
+            idsDTO = handleChallengeIdError(VerificationBean.ERROR_CODE_LOADING_DATA_FAILURE + " Error loading data for user " +
+                    ":  " + userName, e);
+            return idsDTO;
+        }
+    }
+
+    public static UserChallengesDTO getCustomErrorMessagesForChallengQuestions(IdentityException e, String userName) {
+        if (e.getMessage() != null) {
+            if (e.getMessage().contains(VerificationBean.ERROR_CODE_EXPIRED_CODE)) {
+                userChallengesDTO = handleChallengesError(VerificationBean.ERROR_CODE_EXPIRED_CODE + " The code is " +
+                        "expired", e);
+            } else if (e.getMessage().contains(IdentityMgtConstants.ErrorHandling.INVALID_CONFIRMATION_CODE)) {
+                userChallengesDTO = handleChallengesError(VerificationBean.ERROR_CODE_INVALID_CODE + " " +
+                        IdentityMgtConstants.ErrorHandling.INVALID_CONFIRMATION_CODE, e);
+            } else if (e.getMessage().contains(VerificationBean.ERROR_CODE_LOADING_DATA_FAILURE)) {
+                userChallengesDTO = handleChallengesError(VerificationBean.ERROR_CODE_LOADING_DATA_FAILURE + " Error" +
+                        " loading data for user : " + userName, e);
+            } else if (e.getMessage().contains(IdentityMgtConstants.ErrorHandling.EXTERNAL_CODE)) {
+                userChallengesDTO = handleChallengesError(VerificationBean.ERROR_CODE_INVALID_CODE + " " +
+                        IdentityMgtConstants.ErrorHandling.EXTERNAL_CODE + ": " + userName, e);
+            }
+            return userChallengesDTO;
+        } else {
+            userChallengesDTO = handleChallengesError(VerificationBean.ERROR_CODE_INVALID_CODE + " " +
+                    IdentityMgtConstants.ErrorHandling.EXTERNAL_CODE + ": " + userName, e);
+            return userChallengesDTO;
+        }
+    }
+
+    private static UserChallengesDTO handleChallengesError(String error, Exception e) {
+
+        UserChallengesDTO bean = new UserChallengesDTO();
+
+        if (error != null) {
+            bean.setError(error);
+            log.error(error, e);
+        } else {
+            bean.setError(e.getMessage());
+            log.error(e);
+        }
+
+        return bean;
+
+    }
+
+    private static ChallengeQuestionIdsDTO handleChallengeIdError(String error, Exception e) {
+
+        ChallengeQuestionIdsDTO bean = new ChallengeQuestionIdsDTO();
+
+        if (error != null) {
+            bean.setError(error);
+            log.error(error, e);
+        } else {
+            bean.setError(e.getMessage());
+            log.error(e);
+        }
+
+        return bean;
+
+    }
+    private static VerificationBean handleError(String error, Exception e) {
+
+        VerificationBean bean = new VerificationBean();
+
+        bean.setVerified(false);
+        if (error != null) {
+            bean.setError(error);
+            log.error(error, e);
+        } else {
+            bean.setError(e.getMessage());
+            log.error(e);
+        }
+        return bean;
     }
 }

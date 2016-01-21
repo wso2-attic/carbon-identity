@@ -25,8 +25,10 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.common.model.User;
-import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
@@ -43,6 +45,7 @@ import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
@@ -57,8 +60,7 @@ public class OAuthAdminService extends AbstractAdmin {
     public static final String AUTHORIZATION_CODE = "authorization_code";
     private static List<String> allowedGrants = null;
     protected Log log = LogFactory.getLog(OAuthAdminService.class);
-    private AppInfoCache appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().
-                                                                                            getAppInfoCacheTimeout());
+    private AppInfoCache appInfoCache = AppInfoCache.getInstance();
 
     /**
      * Registers an consumer secret against the logged in user. A given user can only have a single
@@ -78,8 +80,9 @@ public class OAuthAdminService extends AbstractAdmin {
 
         String tenantUser = MultitenantUtils.getTenantAwareUsername(loggedInUser);
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        String userDomain = IdentityUtil.extractDomainFromName(loggedInUser);
         OAuthAppDAO dao = new OAuthAppDAO();
-        return dao.addOAuthConsumer(tenantUser, tenantId);
+        return dao.addOAuthConsumer(UserCoreUtil.removeDomainFromName(tenantUser), tenantId, userDomain);
     }
 
     /**
@@ -118,7 +121,7 @@ public class OAuthAdminService extends AbstractAdmin {
                 dto.setOauthConsumerSecret(app.getOauthConsumerSecret());
                 dto.setOAuthVersion(app.getOauthVersion());
                 dto.setGrantTypes(app.getGrantTypes());
-                dto.setUsername(app.getUserName());
+                dto.setUsername(app.getUser().toString());
                 dtos[i] = dto;
             }
         }
@@ -189,6 +192,7 @@ public class OAuthAdminService extends AbstractAdmin {
         if (userName != null) {
             String tenantUser = MultitenantUtils.getTenantAwareUsername(userName);
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 
             OAuthAppDAO dao = new OAuthAppDAO();
             OAuthAppDO app = new OAuthAppDO();
@@ -222,8 +226,11 @@ public class OAuthAdminService extends AbstractAdmin {
                     }
 
                 }
-                app.setUserName(tenantUser);
-                app.setTenantId(tenantId);
+                AuthenticatedUser user = new AuthenticatedUser();
+                user.setUserName(UserCoreUtil.removeDomainFromName(tenantUser));
+                user.setTenantDomain(tenantDomain);
+                user.setUserStoreDomain(IdentityUtil.extractDomainFromName(userName));
+                app.setUser(user);
                 if (application.getOAuthVersion() != null) {
                     app.setOauthVersion(application.getOAuthVersion());
                 } else {   // by default, assume OAuth 2.0, if it is not set.
@@ -260,10 +267,14 @@ public class OAuthAdminService extends AbstractAdmin {
         String userName = CarbonContext.getThreadLocalCarbonContext().getUsername();
         String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(userName);
         int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         OAuthAppDAO dao = new OAuthAppDAO();
         OAuthAppDO oauthappdo = new OAuthAppDO();
-        oauthappdo.setUserName(tenantAwareUsername);
-        oauthappdo.setTenantId(tenantId);
+        AuthenticatedUser user = new AuthenticatedUser();
+        user.setUserName(UserCoreUtil.removeDomainFromName(tenantAwareUsername));
+        user.setTenantDomain(tenantDomain);
+        user.setUserStoreDomain(IdentityUtil.extractDomainFromName(userName));
+        oauthappdo.setUser(user);
         oauthappdo.setOauthConsumerKey(consumerAppDTO.getOauthConsumerKey());
         oauthappdo.setOauthConsumerSecret(consumerAppDTO.getOauthConsumerSecret());
         oauthappdo.setCallbackUrl(consumerAppDTO.getCallbackUrl());
@@ -298,7 +309,7 @@ public class OAuthAdminService extends AbstractAdmin {
         dao.removeConsumerApplication(consumerKey);
         // remove client credentials from cache
         if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
-            OAuthCache.getInstance(0).clearCacheEntry(new OAuthCacheKey(consumerKey));
+            OAuthCache.getInstance().clearCacheEntry(new OAuthCacheKey(consumerKey));
             appInfoCache.clearCacheEntry(consumerKey);
             if (log.isDebugEnabled()) {
                 log.debug("Client credentials are removed from the cache.");
@@ -318,7 +329,11 @@ public class OAuthAdminService extends AbstractAdmin {
 
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
-        String username = tenantAwareUserName + "@" + tenantDomain;
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser();
+        authenticatedUser.setUserName(UserCoreUtil.removeDomainFromName(tenantAwareUserName));
+        authenticatedUser.setUserStoreDomain(UserCoreUtil.extractDomainFromName(tenantAwareUserName));
+        authenticatedUser.setTenantDomain(tenantDomain);
+        String username = UserCoreUtil.addTenantDomainToEntry(tenantAwareUserName, tenantDomain);
 
         String userStoreDomain = null;
         if (OAuth2Util.checkAccessTokenPartitioningEnabled() && OAuth2Util.checkUserNameAssertionEnabled()) {
@@ -333,7 +348,7 @@ public class OAuthAdminService extends AbstractAdmin {
 
         Set<String> clientIds = null;
         try {
-            clientIds = tokenMgtDAO.getAllTimeAuthorizedClientIds(username);
+            clientIds = tokenMgtDAO.getAllTimeAuthorizedClientIds(authenticatedUser);
         } catch (IdentityOAuth2Exception e) {
             String errorMsg = "Error occurred while retrieving apps authorized by User ID : " + username;
             log.error(errorMsg, e);
@@ -343,7 +358,7 @@ public class OAuthAdminService extends AbstractAdmin {
         for (String clientId : clientIds) {
             Set<AccessTokenDO> accessTokenDOs = null;
             try {
-                accessTokenDOs = tokenMgtDAO.retrieveAccessTokens(clientId, username, userStoreDomain, true);
+                accessTokenDOs = tokenMgtDAO.retrieveAccessTokens(clientId, authenticatedUser, userStoreDomain, true);
             } catch (IdentityOAuth2Exception e) {
                 String errorMsg = "Error occurred while retrieving access tokens issued for " +
                         "Client ID : " + clientId + ", User ID : " + username;
@@ -357,7 +372,7 @@ public class OAuthAdminService extends AbstractAdmin {
                     String scopeString = OAuth2Util.buildScopeString(accessTokenDO.getScope());
                     try {
                         scopedToken = tokenMgtDAO.retrieveLatestAccessToken(
-                                clientId, username, userStoreDomain, scopeString, true);
+                                clientId, authenticatedUser, userStoreDomain, scopeString, true);
                         if(scopedToken != null && !distinctClientUserScopeCombo.contains(clientId+":"+username)){
                             OAuthConsumerAppDTO appDTO = new OAuthConsumerAppDTO();
                             OAuthAppDO appDO;
@@ -365,7 +380,7 @@ public class OAuthAdminService extends AbstractAdmin {
                                 appDO = appDAO.getAppInformation(scopedToken.getConsumerKey());
                                 appDTO.setOauthConsumerKey(scopedToken.getConsumerKey());
                                 appDTO.setApplicationName(appDO.getApplicationName());
-                                appDTO.setUsername(appDO.getUserName());
+                                appDTO.setUsername(appDO.getUser().toString());
                                 appDTO.setGrantTypes(appDO.getGrantTypes());
                                 appDTOs.add(appDTO);
                             } catch (InvalidOAuthClientException e) {
@@ -406,7 +421,11 @@ public class OAuthAdminService extends AbstractAdmin {
         if (revokeRequestDTO.getApps() != null && revokeRequestDTO.getApps().length > 0) {
             String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
-            String userName = tenantAwareUserName + "@" + tenantDomain;
+            AuthenticatedUser user = new AuthenticatedUser();
+            user.setUserName(UserCoreUtil.removeDomainFromName(tenantAwareUserName));
+            user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(tenantAwareUserName));
+            user.setTenantDomain(tenantDomain);
+            String userName = UserCoreUtil.addTenantDomainToEntry(tenantAwareUserName, tenantDomain);
 
             String userStoreDomain = null;
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
@@ -426,7 +445,7 @@ public class OAuthAdminService extends AbstractAdmin {
                         try {
                             // retrieve all ACTIVE or EXPIRED access tokens for particular client authorized by this user
                             accessTokenDOs = tokenMgtDAO.retrieveAccessTokens(
-                                    appDTO.getOauthConsumerKey(), userName, userStoreDomain, true);
+                                    appDTO.getOauthConsumerKey(), user, userStoreDomain, true);
                         } catch (IdentityOAuth2Exception e) {
                             String errorMsg = "Error occurred while retrieving access tokens issued for " +
                                     "Client ID : " + appDTO.getOauthConsumerKey() + ", User ID : " + userName;
@@ -446,7 +465,7 @@ public class OAuthAdminService extends AbstractAdmin {
                             try {
                                 // retrieve latest access token for particular client, user and scope combination if its ACTIVE or EXPIRED
                                 scopedToken = tokenMgtDAO.retrieveLatestAccessToken(
-                                        appDTO.getOauthConsumerKey(), userName, userStoreDomain,
+                                        appDTO.getOauthConsumerKey(), user, userStoreDomain,
                                         OAuth2Util.buildScopeString(accessTokenDO.getScope()), true);
                             } catch (IdentityOAuth2Exception e) {
                                 String errorMsg = "Error occurred while retrieving latest " +
@@ -492,10 +511,16 @@ public class OAuthAdminService extends AbstractAdmin {
 
     public String[] getAllowedGrantTypes() {
         if (allowedGrants == null) {
-            allowedGrants = new ArrayList();
-            allowedGrants.addAll(OAuthServerConfiguration.getInstance().getSupportedGrantTypes().keySet());
-            if (OAuthServerConfiguration.getInstance().getSupportedResponseTypes().containsKey("token")) {
-                allowedGrants.add(IMPLICIT);
+            synchronized (OAuthAdminService.class) {
+                if (allowedGrants == null) {
+                    Set<String> allowedGrantSet =
+                            OAuthServerConfiguration.getInstance().getSupportedGrantTypes().keySet();
+                    Set<String> modifiableGrantSet = new HashSet(allowedGrantSet);
+                    if (OAuthServerConfiguration.getInstance().getSupportedResponseTypes().containsKey("token")) {
+                        modifiableGrantSet.add(IMPLICIT);
+                    }
+                    allowedGrants = new ArrayList<>(modifiableGrantSet);
+                }
             }
         }
         return allowedGrants.toArray(new String[allowedGrants.size()]);

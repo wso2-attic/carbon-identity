@@ -18,9 +18,9 @@
 
 package org.wso2.carbon.identity.oauth2.authz.handlers;
 
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
@@ -33,6 +33,7 @@ import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.UUID;
 
 public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
 
@@ -43,14 +44,9 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
             throws IdentityOAuth2Exception {
         OAuth2AuthorizeRespDTO respDTO = new OAuth2AuthorizeRespDTO();
         String authorizationCode;
+        String codeId;
 
         OAuth2AuthorizeReqDTO authorizationReqDTO = oauthAuthzMsgCtx.getAuthorizationReqDTO();
-
-        try {
-            authorizationCode = oauthIssuerImpl.authorizationCode();
-        } catch (OAuthSystemException e) {
-            throw new IdentityOAuth2Exception(e.getMessage(), e);
-        }
 
         Timestamp timestamp = new Timestamp(new Date().getTime());
 
@@ -67,10 +63,24 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
         }
         // convert to milliseconds
         validityPeriod = validityPeriod * 1000;
+        
+        // set the validity period. this is needed by downstream handlers.
+        // if this is set before - then this will override it by the calculated new value.
+        oauthAuthzMsgCtx.setValidityPeriod(validityPeriod);
+    
+        // set code issued time.this is needed by downstream handlers.
+        oauthAuthzMsgCtx.setCodeIssuedTime(timestamp.getTime());
+        
+        try {
+            authorizationCode = oauthIssuerImpl.authorizationCode();
+            codeId = UUID.randomUUID().toString();
+        } catch (OAuthSystemException e) {
+            throw new IdentityOAuth2Exception(e.getMessage(), e);
+        }
 
-        AuthzCodeDO authzCodeDO = new AuthzCodeDO(OAuth2Util.getUserFromUserName(authorizationReqDTO.getUsername()),
+        AuthzCodeDO authzCodeDO = new AuthzCodeDO(authorizationReqDTO.getUser(),
                 oauthAuthzMsgCtx.getApprovedScope(),timestamp, validityPeriod, authorizationReqDTO.getCallbackUrl(),
-                authorizationReqDTO.getConsumerKey(), authorizationCode);
+                authorizationReqDTO.getConsumerKey(), authorizationCode, codeId);
 
         tokenMgtDAO.storeAuthorizationCode(authorizationCode, authorizationReqDTO.getConsumerKey(),
                 authorizationReqDTO.getCallbackUrl(), authzCodeDO);
@@ -89,7 +99,7 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Issued Authorization Code to user : " + authorizationReqDTO.getUsername() +
+            log.debug("Issued Authorization Code to user : " + authorizationReqDTO.getUser() +
                     ", Using the redirect url : " + authorizationReqDTO.getCallbackUrl() +
                     ", Scope : " + OAuth2Util.buildScopeString(oauthAuthzMsgCtx.getApprovedScope()) +
                     ", validity period : " + validityPeriod);
@@ -97,6 +107,7 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
 
         respDTO.setCallbackURI(authorizationReqDTO.getCallbackUrl());
         respDTO.setAuthorizationCode(authorizationCode);
+        respDTO.setCodeId(codeId);
         return respDTO;
     }
 

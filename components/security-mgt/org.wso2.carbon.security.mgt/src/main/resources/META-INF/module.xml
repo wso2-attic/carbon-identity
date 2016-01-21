@@ -38,4 +38,7 @@
         </handler>
     </OutFaultFlow>
     <parameter name="adminModule" locked="true">true</parameter>
+    <local-policy-assertions>
+        <sec:CarbonSecConfig xmlns:sec="http://www.wso2.org/products/carbon/security"/>
+    </local-policy-assertions>
 </module>

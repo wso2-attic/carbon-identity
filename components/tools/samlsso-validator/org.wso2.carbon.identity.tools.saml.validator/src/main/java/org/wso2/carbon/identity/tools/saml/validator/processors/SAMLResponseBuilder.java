@@ -18,7 +18,6 @@ package org.wso2.carbon.identity.tools.saml.validator.processors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.common.SAMLVersion;
@@ -118,8 +117,8 @@ public class SAMLResponseBuilder {
             response.getAssertions().add(assertion);
         }
         if (ssoIdPConfigs.isDoSignResponse()) {
-            SAMLSSOUtil.setSignature(response, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                    new SignKeyDataHolder(userName));
+            SAMLSSOUtil.setSignature(response, ssoIdPConfigs.getSigningAlgorithmUri(), ssoIdPConfigs
+                    .getDigestAlgorithmUri(), new SignKeyDataHolder(userName));
         }
         return response;
     }
@@ -213,8 +212,8 @@ public class SAMLResponseBuilder {
         samlAssertion.setConditions(conditions);
 
         if (ssoIdPConfigs.isDoSignAssertions()) {
-            SAMLSSOUtil.setSignature(samlAssertion, XMLSignature.ALGO_ID_SIGNATURE_RSA,
-                    new SignKeyDataHolder(userName));
+            SAMLSSOUtil.setSignature(samlAssertion, ssoIdPConfigs.getSigningAlgorithmUri(), ssoIdPConfigs
+                    .getDigestAlgorithmUri(), new SignKeyDataHolder(userName));
         }
 
         return samlAssertion;

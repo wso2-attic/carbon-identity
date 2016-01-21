@@ -17,12 +17,15 @@
  */
 package org.wso2.carbon.identity.sso.saml.dto;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 
 import java.io.Serializable;
 import java.util.Map;
 
 public class SAMLSSOAuthnReqDTO implements Serializable {
+
+    private static final long serialVersionUID = -8883458443469019318L;
 
     private AuthenticatedUser user;
     private String password;
@@ -49,7 +52,7 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private boolean doSignResponse;
     private boolean doSignAssertions;
     private boolean isStratosDeployment = false;
-    private int attributeConsumingServiceIndex;
+    private int attributeConsumingServiceIndex = 0;
     private String nameIdClaimUri;
     private boolean idPInitSSOEnabled;
     private boolean idPInitSLOEnabled;
@@ -59,6 +62,28 @@ public class SAMLSSOAuthnReqDTO implements Serializable {
     private Map<String, String> claimMapping = null;
     private String tenantDomain;
     private String certAlias;
+    private String signingAlgorithmUri;
+    private String digestAlgorithmUri;
+
+    public String getDigestAlgorithmUri() {
+        return digestAlgorithmUri;
+    }
+
+    public void setDigestAlgorithmUri(String digestAlgorithmUri) {
+        if (StringUtils.isNotBlank(digestAlgorithmUri)) {
+            this.digestAlgorithmUri = digestAlgorithmUri;
+        }
+    }
+
+    public String getSigningAlgorithmUri() {
+        return signingAlgorithmUri;
+    }
+
+    public void setSigningAlgorithmUri(String signingAlgorithmUri) {
+        if (StringUtils.isNotBlank(signingAlgorithmUri)) {
+            this.signingAlgorithmUri = signingAlgorithmUri;
+        }
+    }
 
     public String getNameIdClaimUri() {
         return nameIdClaimUri;

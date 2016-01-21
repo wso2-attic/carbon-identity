@@ -26,6 +26,7 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
 import org.wso2.carbon.identity.core.persistence.IdentityPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.sso.saml.SSOServiceProviderConfigManager;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderInfoDTO;
 import org.wso2.carbon.registry.core.Registry;
@@ -60,13 +61,13 @@ public class SAMLSSOConfigAdmin {
         if (serviceProviderDTO.getIssuer() == null || "".equals(serviceProviderDTO.getIssuer())) {
             String message = "A value for the Issuer is mandatory";
             log.error(message);
-            throw new IdentityException(message);
+            throw IdentityException.error(message);
         }
 
         if (serviceProviderDTO.getIssuer().contains("@")) {
             String message = "\'@\' is a reserved character. Cannot be used for Service Provider Entity ID";
             log.error(message);
-            throw new IdentityException(message);
+            throw IdentityException.error(message);
         }
 
         serviceProviderDO.setIssuer(serviceProviderDTO.getIssuer());
@@ -80,7 +81,9 @@ public class SAMLSSOConfigAdmin {
         serviceProviderDO.setDoSignResponse(serviceProviderDTO.isDoSignResponse());
         serviceProviderDO.setDoSignAssertions(serviceProviderDTO.isDoSignAssertions());
         serviceProviderDO.setNameIdClaimUri(serviceProviderDTO.getNameIdClaimUri());
-
+        serviceProviderDO.setSigningAlgorithmUri(serviceProviderDTO.getSigningAlgorithmURI());
+        serviceProviderDO.setDigestAlgorithmUri(serviceProviderDTO.getDigestAlgorithmURI());
+        
         if (serviceProviderDTO.getNameIDFormat() == null) {
             serviceProviderDTO.setNameIDFormat(NameIdentifier.EMAIL);
         } else {
@@ -120,10 +123,19 @@ public class SAMLSSOConfigAdmin {
         IdentityPersistenceManager persistenceManager = IdentityPersistenceManager
                 .getPersistanceManager();
         try {
+            SAMLSSOServiceProviderDO samlssoServiceProviderDO = SSOServiceProviderConfigManager.getInstance().
+                    getServiceProvider(serviceProviderDO.getIssuer());
+
+            if (samlssoServiceProviderDO != null) {
+                String message = "A Service Provider with the name " + serviceProviderDO.getIssuer() + " is already loaded" +
+                        " from the file system.";
+                log.error(message);
+                return false;
+            }
             return persistenceManager.addServiceProvider(registry, serviceProviderDO);
         } catch (IdentityException e) {
             log.error("Error obtaining a registry for adding a new service provider", e);
-            throw new IdentityException("Error obtaining a registry for adding a new service provider", e);
+            throw IdentityException.error("Error obtaining a registry for adding a new service provider", e);
         }
     }
 
@@ -147,6 +159,8 @@ public class SAMLSSOConfigAdmin {
                 providerDTO.setIssuer(providerDO.getIssuer());
                 providerDTO.setAssertionConsumerUrls(providerDO.getAssertionConsumerUrls());
                 providerDTO.setDefaultAssertionConsumerUrl(providerDO.getDefaultAssertionConsumerUrl());
+                providerDTO.setSigningAlgorithmURI(providerDO.getSigningAlgorithmUri());
+                providerDTO.setDigestAlgorithmURI(providerDO.getDigestAlgorithmUri());
                 providerDTO.setCertAlias(providerDO.getCertAlias());
                 providerDTO.setAttributeConsumingServiceIndex(providerDO.getAttributeConsumingServiceIndex());
                 providerDTO.setDoSignResponse(providerDO.isDoSignResponse());
@@ -182,7 +196,7 @@ public class SAMLSSOConfigAdmin {
             }
         } catch (IdentityException e) {
             log.error("Error obtaining a registry intance for reading service provider list", e);
-            throw new IdentityException("Error obtaining a registry intance for reading service provider list", e);
+            throw IdentityException.error("Error obtaining a registry intance for reading service provider list", e);
         }
 
         SAMLSSOServiceProviderInfoDTO serviceProviderInfoDTO = new SAMLSSOServiceProviderInfoDTO();
@@ -208,7 +222,7 @@ public class SAMLSSOConfigAdmin {
             return persistenceManager.removeServiceProvider(registry, issuer);
         } catch (IdentityException e) {
             log.error("Error removing a Service Provider");
-            throw new IdentityException("Error removing a Service Provider", e);
+            throw IdentityException.error("Error removing a Service Provider", e);
         }
     }
 

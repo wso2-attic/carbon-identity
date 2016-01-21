@@ -56,7 +56,7 @@ public class OpenIDPape extends OpenIDExtension {
     public OpenIDPape(OpenIDAuthenticationRequest request) throws IdentityException {
         if (request == null) {
             log.debug("Request cannot be null while initializing OpenIDPape");
-            throw new IdentityException("Request cannot be null while initializing OpenIDPape");
+            throw IdentityException.error("Request cannot be null while initializing OpenIDPape");
         }
         this.request = request;
     }
@@ -86,7 +86,7 @@ public class OpenIDPape extends OpenIDExtension {
             }
             return new String[0];
         } catch (MessageException e) {
-            throw new IdentityException("Failed retrieve authentication policies", e);
+            throw IdentityException.error("Failed retrieve authentication policies", e);
         }
     }
 
@@ -129,7 +129,7 @@ public class OpenIDPape extends OpenIDExtension {
             }
         } catch (MessageException e) {
             log.error("Failed to create message extension for PAPE", e);
-            throw new IdentityException("Failed to create message extension for PAPE", e);
+            throw IdentityException.error("Failed to create message extension for PAPE", e);
         }
 
         return papeResponse;

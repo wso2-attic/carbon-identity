@@ -18,15 +18,18 @@
 
 package org.wso2.carbon.idp.mgt.util;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
-import org.wso2.carbon.identity.application.common.model.FederatedAuthenticatorConfig;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.identity.application.common.model.IdentityProviderProperty;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.application.common.model.ProvisioningConnectorConfig;
+import org.wso2.carbon.identity.application.common.processors.RandomPasswordProcessor;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 import org.wso2.carbon.idp.mgt.internal.IdPManagementServiceComponent;
 import org.wso2.carbon.user.api.TenantManager;
@@ -69,45 +72,81 @@ public class IdPManagementUtil {
     }
 
     public static int getIdleSessionTimeOut(String tenantDomain) {
-        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator
-                        .IDPProperties.SESSION_IDLE_TIME_OUT,
-                tenantDomain, Integer.parseInt
-                        (IdentityApplicationConstants.Authenticator.IDPProperties.SESSION_IDLE_TIME_OUT_DEFAULT));
+
+        IdentityProviderManager identityProviderManager = IdentityProviderManager.getInstance();
+        int timeout = Integer.parseInt(IdentityApplicationConstants.SESSION_IDLE_TIME_OUT_DEFAULT);
+
+        try {
+            IdentityProvider identityProvider = identityProviderManager.getResidentIdP(tenantDomain);
+            IdentityProviderProperty idpProperty = IdentityApplicationManagementUtil.getProperty(
+                    identityProvider.getIdpProperties(), IdentityApplicationConstants.SESSION_IDLE_TIME_OUT);
+            if (idpProperty != null) {
+                timeout = Integer.parseInt(idpProperty.getValue());
+            }
+        } catch (IdentityProviderManagementException e) {
+            log.error("Error when accessing the IdentityProviderManager for tenant : " + tenantDomain, e);
+        }
+        return timeout * 60;
     }
 
     public static int getRememberMeTimeout(String tenantDomain) {
-        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT,
-                tenantDomain, Integer.parseInt
-                        (IdentityApplicationConstants.Authenticator.IDPProperties.REMEMBER_ME_TIME_OUT_DEFAULT));
-    }
 
-    public static int getCleanUpTimeout(String tenantDomain) {
-        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT,
-                tenantDomain, Integer.parseInt
-                        (IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_TIMEOUT_DEFAULT));
-    }
-
-    public static int getCleanUpPeriod(String tenantDomain){
-        return IdPManagementUtil.getTimeoutProperty(IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD,
-                tenantDomain, Integer.parseInt
-                        (IdentityApplicationConstants.Authenticator.IDPProperties.CLEAN_UP_PERIOD_DEFAULT));
-    }
-
-    private static int getTimeoutProperty(String timeOutPropertyName,String tenantDomain,int defaultVal) {
         IdentityProviderManager identityProviderManager = IdentityProviderManager.getInstance();
-        IdentityProvider identityProvider = null;
-        int timeout = defaultVal;
+        int rememberMeTimeout = Integer.parseInt(IdentityApplicationConstants.REMEMBER_ME_TIME_OUT_DEFAULT);
+
         try {
-            identityProvider = identityProviderManager.getResidentIdP(tenantDomain);
-            FederatedAuthenticatorConfig federatedAuthenticatorConfig = IdentityApplicationManagementUtil
-                    .getFederatedAuthenticator(identityProvider.getFederatedAuthenticatorConfigs(),
-                            IdentityApplicationConstants.Authenticator.IDPProperties.NAME);
-            Property property = IdentityApplicationManagementUtil.getProperty(federatedAuthenticatorConfig.getProperties()
-                    , timeOutPropertyName);
-            timeout = Integer.parseInt(property.getValue()) * 60;
-        } catch (IdentityApplicationManagementException e) {
-            log.error("Error when accessing the IdentityProviderManager for tenant : " +tenantDomain, e);
+            IdentityProvider identityProvider = identityProviderManager.getResidentIdP(tenantDomain);
+            IdentityProviderProperty idpProperty = IdentityApplicationManagementUtil.getProperty(
+                    identityProvider.getIdpProperties(), IdentityApplicationConstants.REMEMBER_ME_TIME_OUT);
+            if (idpProperty != null) {
+                rememberMeTimeout = Integer.parseInt(idpProperty.getValue());
+            }
+        } catch (IdentityProviderManagementException e) {
+            log.error("Error when accessing the IdentityProviderManager for tenant : " + tenantDomain, e);
         }
-        return timeout;
+        return rememberMeTimeout * 60;
+    }
+
+    /**
+     * Use this method to replace original passwords with random passwords before sending to UI front-end
+     * @param identityProvider
+     * @return
+     */
+    public static void removeOriginalPasswords(IdentityProvider identityProvider) {
+
+        if (identityProvider == null || identityProvider.getProvisioningConnectorConfigs() == null) {
+            return;
+        }
+
+        for (ProvisioningConnectorConfig provisioningConnectorConfig : identityProvider
+                .getProvisioningConnectorConfigs()) {
+            Property[] properties = provisioningConnectorConfig.getProvisioningProperties();
+            if (ArrayUtils.isEmpty(properties)) {
+                continue;
+            }
+            properties = RandomPasswordProcessor.getInstance().removeOriginalPasswords(properties);
+            provisioningConnectorConfig.setProvisioningProperties(properties);
+        }
+    }
+
+    /**
+     * Use this method to replace random passwords with original passwords when original passwords are required  
+     * @param identityProvider
+     * @param withCacheClear
+     */
+    public static void removeRandomPasswords(IdentityProvider identityProvider, boolean withCacheClear) {
+
+        if (identityProvider == null || identityProvider.getProvisioningConnectorConfigs() == null) {
+            return;
+        }
+        for (ProvisioningConnectorConfig provisioningConnectorConfig : identityProvider
+                .getProvisioningConnectorConfigs()) {
+            Property[] properties = provisioningConnectorConfig.getProvisioningProperties();
+            if (ArrayUtils.isEmpty(properties)) {
+                continue;
+            }
+            properties = RandomPasswordProcessor.getInstance().removeRandomPasswords(properties, withCacheClear);
+            provisioningConnectorConfig.setProvisioningProperties(properties);
+        }
     }
 }

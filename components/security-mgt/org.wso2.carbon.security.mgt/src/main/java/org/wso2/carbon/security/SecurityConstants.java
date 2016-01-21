@@ -105,6 +105,15 @@ public class SecurityConstants {
     public static final String TRUST_MODULE = "rahas";
     public static final String ALLOWED_ROLES_PARAM_NAME = "org.wso2.carbon.security.allowedroles";
 
+    // Constants related to security policy parts
+    public static final String CARBON_SEC_CONFIG = "CarbonSecConfig";
+    public static final String TRUST = "Trust";
+    public static final String ENCRYPTED = "encrypted";
+    public static final String AUTHORIZATION = "Authorization";
+    public static final String KERBEROS = "Kerberos";
+    public static final String PROPERTY_LABEL = "property";
+    public static final String NAME_LABEL = "name";
+
     private SecurityConstants(){}
 
 }

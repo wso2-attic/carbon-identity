@@ -29,6 +29,7 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String policyId = "";
@@ -139,8 +140,8 @@
                             for (String id : policyIds) {
                                 if (id != null && id.equals(policyId)) {
                     %>
-                    <option value="<%=policyId%>"
-                            selected="selected"><%=policyId%>
+                    <option value="<%=Encode.forHtmlAttribute(policyId)%>"
+                            selected="selected"><%=Encode.forHtmlContent(policyId)%>
                     </option>
                     <%
                         } else {

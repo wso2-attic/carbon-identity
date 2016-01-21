@@ -19,37 +19,20 @@
 package org.wso2.carbon.idp.mgt.cache;
 
 import org.wso2.carbon.identity.application.common.cache.BaseCache;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
-import org.wso2.carbon.identity.application.common.cache.CacheKey;
 import org.wso2.carbon.utils.CarbonUtils;
 
-public class IdPCacheByName extends BaseCache<CacheKey, CacheEntry> {
+public class IdPCacheByName extends BaseCache<IdPNameCacheKey, IdPCacheEntry> {
 
     private static final String CACHE_NAME = "IdPCacheByName";
 
-    private static final IdPCacheByName instance = new IdPCacheByName(CACHE_NAME);
+    private static final IdPCacheByName instance = new IdPCacheByName();
 
-    private IdPCacheByName(String cacheName) {
-        super(cacheName);
+    private IdPCacheByName() {
+        super(CACHE_NAME);
     }
 
     public static IdPCacheByName getInstance() {
         CarbonUtils.checkSecurity();
         return instance;
-    }
-
-    @Override
-    public void addToCache(CacheKey key, CacheEntry entry) {
-        super.addToCache(key, entry);
-    }
-
-    @Override
-    public CacheEntry getValueFromCache(CacheKey key) {
-        return super.getValueFromCache(key);
-    }
-
-    @Override
-    public void clearCacheEntry(CacheKey key) {
-        super.clearCacheEntry(key);
     }
 }

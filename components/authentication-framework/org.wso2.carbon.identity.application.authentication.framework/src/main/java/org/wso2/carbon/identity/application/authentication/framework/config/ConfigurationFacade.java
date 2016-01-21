@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.config;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
@@ -27,6 +28,7 @@ import org.wso2.carbon.identity.application.authentication.framework.config.mode
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 
 import java.util.List;
@@ -65,7 +67,8 @@ public class ConfigurationFacade {
                                                                      relyingParty, tenantDomain);
     }
 
-    public ExternalIdPConfig getIdPConfigByName(String idpName, String tenantDomain) {
+    public ExternalIdPConfig getIdPConfigByName(String idpName, String tenantDomain)
+            throws IdentityProviderManagementException {
 
         ExternalIdPConfig externalIdPConfig = null;
         IdentityProvider idpDO = null;
@@ -90,14 +93,15 @@ public class ConfigurationFacade {
                     log.debug("A registered IdP was not found the given name");
                 }
             }
-        } catch (IdentityApplicationManagementException e) {
-            log.error("Exception while getting IdP by name", e);
+        } catch (IdentityProviderManagementException e) {
+            throw new IdentityProviderManagementException("Exception while getting IdP by name", e);
         }
 
         return externalIdPConfig;
     }
 
-    public ExternalIdPConfig getIdPConfigByRealm(String realm, String tenantDomain) {
+    public ExternalIdPConfig getIdPConfigByRealm(String realm, String tenantDomain)
+            throws IdentityProviderManagementException {
 
         ExternalIdPConfig externalIdPConfig = null;
         IdentityProvider idpDO = null;
@@ -123,15 +127,27 @@ public class ConfigurationFacade {
                     log.debug("A registered IdP was not found the given realm");
                 }
             }
-        } catch (IdentityApplicationManagementException e) {
-            log.error("Exception while getting IdP by realm", e);
+        } catch (IdentityProviderManagementException e) {
+            throw new IdentityProviderManagementException("Exception while getting IdP by realm", e);
         }
 
         return externalIdPConfig;
     }
 
     public String getAuthenticationEndpointURL() {
-        return FileBasedConfigurationBuilder.getInstance().getAuthenticationEndpointURL();
+        String authenticationEndpointURL = FileBasedConfigurationBuilder.getInstance().getAuthenticationEndpointURL();
+        if (StringUtils.isBlank(authenticationEndpointURL)){
+            authenticationEndpointURL = "/authenticationendpoint/login.do";
+        }
+        return authenticationEndpointURL;
+    }
+
+    public String getAuthenticationEndpointRetryURL() {
+        String authenticationEndpointRetryURL = FileBasedConfigurationBuilder.getInstance().getAuthenticationEndpointRetryURL();
+        if (StringUtils.isBlank(authenticationEndpointRetryURL)){
+            authenticationEndpointRetryURL = "/authenticationendpoint/retry.do";
+        }
+        return authenticationEndpointRetryURL;
     }
 
     /**

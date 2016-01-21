@@ -33,6 +33,7 @@
 <%@page import="java.text.MessageFormat" %>
 <%@page import="java.util.ArrayList" %>
 <%@page import="java.util.List" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String serverURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
@@ -113,12 +114,12 @@
         }
 
         client.addNewClaimMappping(mapping);
-        forwardTo = "claim-view.jsp?store=" + store + "&dialect=" + dialect + "&ordinal=1";
+        forwardTo = "claim-view.jsp?store=" + Encode.forUriComponent(store) + "&dialect=" + Encode.forUriComponent(dialect) + "&ordinal=1";
     } catch (Exception e) {
         String unformatted = resourceBundle.getString("error.adding.claim.mapping");
         String message = MessageFormat.format(unformatted, new Object[]{e.getMessage()});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "add-claim.jsp?dialect=" + dialect + "&ordinal=2";
+        forwardTo = "add-claim.jsp?dialect=" + Encode.forUriComponent(dialect) + "&ordinal=2";
     }
 %>
 

@@ -81,16 +81,19 @@ public class IdPManagementUIUtil {
     }
 
     /**
-     * @param request
-     * @return
+     * Build a federated identity provider.
+     * @param request HttpServletRequest
+     * @param oldIdpName This value will be populated if there is an old IDP.
+     * @return IdentityProvider
      * @throws Exception
      */
-    public static IdentityProvider buildeFederatedIdentityProvider(HttpServletRequest request)
+    public static IdentityProvider buildFederatedIdentityProvider(HttpServletRequest request, StringBuilder oldIdpName)
             throws Exception {
 
         IdentityProvider fedIdp = new IdentityProvider();
 
         if (ServletFileUpload.isMultipartContent(request)) {
+
             ServletRequestContext servletContext = new ServletRequestContext(request);
             FileItemFactory factory = new DiskFileItemFactory();
             ServletFileUpload upload = new ServletFileUpload(factory);
@@ -104,88 +107,101 @@ public class IdPManagementUIUtil {
             Map<String, List<Property>> customAuthenticatorProperties = new HashMap<String, List<Property>>();
             Map<String, List<Property>> customProProperties = new HashMap<String, List<Property>>();
 
-            IdentityProvider oldIdentityProvider = (IdentityProvider) request.getSession()
-                    .getAttribute("identityProvider");
+            String idpUUID = StringUtils.EMPTY;
 
-            if (ServletFileUpload.isMultipartContent(request)) {
+            for (Object item : items) {
 
-                for (Object item : items) {
-                    DiskFileItem diskFileItem = (DiskFileItem) item;
-                    if (diskFileItem != null) {
-                        byte[] value = diskFileItem.get();
-                        String key = diskFileItem.getFieldName();
-                        if ("certFile".equals(key)) {
-                            paramMap.put(key, Base64.encode(value));
-                        } else if ("google_prov_private_key".equals(key)) {
-                            paramMap.put(key, Base64.encode(value));
-                        } else if (key.startsWith("claimrowname_")) {
-                            idpClaims.add(new String(value));
-                            paramMap.put(key, new String(value));
-                        } else if (key.startsWith("rolerowname_")) {
-                            idpRoles.add(new String(value));
-                            paramMap.put(key, new String(value));
-                        } else if (key.startsWith("custom_auth_name")) {
-                            customAuthenticatorNames.add(new String(value));
-                        } else if (key.startsWith("custom_pro_name")) {
-                            proConnectorNames.add(new String(value));
-                        } else if (key.startsWith("cust_auth_prop_")) {
-                            int length = "cust_auth_prop_".length();
-                            String authPropString = new String(key).substring(length);
-                            if (authPropString.indexOf("#") > 0) {
-                                String authName = authPropString.substring(0,
-                                        authPropString.indexOf("#"));
-                                String propName = authPropString.substring(authPropString
-                                        .indexOf("#") + 1);
-                                String propVal = new String(value);
-                                Property prop = new Property();
-                                prop.setName(propName);
-                                prop.setValue(propVal);
+                DiskFileItem diskFileItem = (DiskFileItem) item;
 
-                                List<Property> propList = null;
+                if (diskFileItem != null) {
 
-                                if (customAuthenticatorProperties.get(authName) == null) {
-                                    customAuthenticatorProperties.put(authName,
-                                            new ArrayList<Property>());
-                                }
+                    byte[] value = diskFileItem.get();
+                    String key = diskFileItem.getFieldName();
 
-                                propList = customAuthenticatorProperties.get(authName);
-                                propList.add(prop);
-                                customAuthenticatorProperties.put(authName, propList);
+                    if(StringUtils.equals(key, "idpUUID")) {
+                        idpUUID = diskFileItem.getString();
+                    }
+
+                    if ("certFile".equals(key)) {
+                        paramMap.put(key, Base64.encode(value));
+                    } else if ("google_prov_private_key".equals(key)) {
+                        paramMap.put(key, Base64.encode(value));
+                    } else if (key.startsWith("claimrowname_")) {
+                        idpClaims.add(new String(value));
+                        paramMap.put(key, new String(value));
+                    } else if (key.startsWith("rolerowname_")) {
+                        idpRoles.add(new String(value));
+                        paramMap.put(key, new String(value));
+                    } else if (key.startsWith("custom_auth_name")) {
+                        customAuthenticatorNames.add(new String(value));
+                    } else if (key.startsWith("custom_pro_name")) {
+                        proConnectorNames.add(new String(value));
+                    } else if (key.startsWith("cust_auth_prop_")) {
+                        int length = "cust_auth_prop_".length();
+                        String authPropString = new String(key).substring(length);
+                        if (authPropString.indexOf("#") > 0) {
+                            String authName = authPropString.substring(0,
+                                    authPropString.indexOf("#"));
+                            String propName = authPropString.substring(authPropString
+                                    .indexOf("#") + 1);
+                            String propVal = new String(value);
+                            Property prop = new Property();
+                            prop.setName(propName);
+                            prop.setValue(propVal);
+
+                            List<Property> propList = null;
+
+                            if (customAuthenticatorProperties.get(authName) == null) {
+                                customAuthenticatorProperties.put(authName,
+                                        new ArrayList<Property>());
                             }
-                        } else if (key.startsWith("cust_pro_prop_")) {
-                            int length = "cust_pro_prop_".length();
-                            String provPropString = new String(key).substring(length);
-                            if (provPropString.indexOf("#") > 0) {
-                                String proConName = provPropString.substring(0,
-                                        provPropString.indexOf("#"));
-                                String propName = provPropString.substring(provPropString
-                                        .indexOf("#") + 1);
-                                String propVal = new String(value);
-                                Property prop = new Property();
-                                prop.setName(propName);
-                                prop.setValue(propVal);
 
-                                List<Property> propList = null;
+                            propList = customAuthenticatorProperties.get(authName);
+                            propList.add(prop);
+                            customAuthenticatorProperties.put(authName, propList);
+                        }
+                    } else if (key.startsWith("cust_pro_prop_")) {
+                        int length = "cust_pro_prop_".length();
+                        String provPropString = new String(key).substring(length);
+                        if (provPropString.indexOf("#") > 0) {
+                            String proConName = provPropString.substring(0,
+                                    provPropString.indexOf("#"));
+                            String propName = provPropString.substring(provPropString
+                                    .indexOf("#") + 1);
+                            String propVal = new String(value);
+                            Property prop = new Property();
+                            prop.setName(propName);
+                            prop.setValue(propVal);
 
-                                if (customProProperties.get(proConName) == null) {
-                                    customProProperties.put(proConName, new ArrayList<Property>());
-                                }
+                            List<Property> propList = null;
 
-                                propList = customProProperties.get(proConName);
-                                propList.add(prop);
-                                customProProperties.put(proConName, propList);
+                            if (customProProperties.get(proConName) == null) {
+                                customProProperties.put(proConName, new ArrayList<Property>());
                             }
-                        } else {
-                            paramMap.put(key, new String(value));
-                        }
 
-                        String updatedValue = paramMap.get(key);
-
-                        if (updatedValue != null && updatedValue.trim().length() == 0) {
-                            paramMap.put(key, null);
+                            propList = customProProperties.get(proConName);
+                            propList.add(prop);
+                            customProProperties.put(proConName, propList);
                         }
+                    } else {
+                        paramMap.put(key, new String(value));
+                    }
+
+                    String updatedValue = paramMap.get(key);
+
+                    if (updatedValue != null && updatedValue.trim().length() == 0) {
+                        paramMap.put(key, null);
                     }
                 }
+            }
+
+            IdentityProvider oldIdentityProvider = (IdentityProvider) request.getSession().getAttribute(idpUUID);
+
+            if(oldIdentityProvider != null) {
+                if(oldIdpName == null) {
+                    oldIdpName = new StringBuilder();
+                }
+                oldIdpName.append(oldIdentityProvider.getIdentityProviderName());
             }
 
             if (oldIdentityProvider != null && oldIdentityProvider.getCertificate() != null) {
@@ -295,6 +311,7 @@ public class IdPManagementUIUtil {
         Property passwordProp = null;
         Property endPointProp = null;
         Property objectClass = null;
+        Property uniqueID = null;
 
         if (paramMap.get("spmlProvEnabled") != null && "on".equals(paramMap.get("spmlProvEnabled"))) {
             proConnector.setEnabled(true);
@@ -331,8 +348,14 @@ public class IdPManagementUIUtil {
             objectClass.setValue(paramMap.get("spml-oc"));
         }
 
+        if (paramMap.get("spml-unique-id") != null){
+            uniqueID = new Property();
+            uniqueID.setName("UniqueID");
+            uniqueID.setValue(paramMap.get("spml-unique-id"));
+        }
+
         Property[] proProperties = new Property[]{userNameProp, passwordProp, endPointProp,
-                objectClass};
+                objectClass, uniqueID};
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -371,6 +394,7 @@ public class IdPManagementUIUtil {
         Property appName = null;
         Property googleProvPatten = null;
         Property googleProvSeparator = null;
+        Property uniqueID = null;
         String oldGooglePvtKey = null;
         String newGooglePvtKey = null;
 
@@ -472,9 +496,15 @@ public class IdPManagementUIUtil {
             googleProvSeparator.setValue(paramMap.get("google_prov_separator"));
         }
 
+        if (paramMap.get("google-unique-id") != null){
+            uniqueID = new Property();
+            uniqueID.setName("UniqueID");
+            uniqueID.setValue(paramMap.get("google-unique-id"));
+        }
+
         Property[] proProperties = new Property[]{appName, adminEmail, privateKey,
                 serviceAccEmail, familyNameDefault, familyNameClaim, givenNameDefaultVal,
-                givenNameClaim, emailClaim, domainName, googleProvPatten, googleProvSeparator};
+                givenNameClaim, emailClaim, domainName, googleProvPatten, googleProvSeparator, uniqueID};
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -505,6 +535,9 @@ public class IdPManagementUIUtil {
         Property userEpProp = null;
         Property groupEpProp = null;
         Property scimUserStoreDomain = null;
+        Property scimEnablePwdProvisioning = null;
+        Property defaultPwdProp = null;
+        Property uniqueID = null;
 
         if (paramMap.get("scimProvEnabled") != null && "on".equals(paramMap.get("scimProvEnabled"))) {
             proConnector.setEnabled(true);
@@ -547,8 +580,27 @@ public class IdPManagementUIUtil {
             scimUserStoreDomain.setValue(paramMap.get("scim-user-store-domain"));
         }
 
+        if (paramMap.get("scimPwdProvEnabled") != null && "on".equals(paramMap.get("scimPwdProvEnabled"))) {
+            scimEnablePwdProvisioning = new Property();
+            scimEnablePwdProvisioning.setName("scim-enable-pwd-provisioning");
+            scimEnablePwdProvisioning.setDefaultValue("false");
+            scimEnablePwdProvisioning.setValue("true");
+        }
+
+        if (paramMap.get("scim-default-pwd") != null) {
+            defaultPwdProp = new Property();
+            defaultPwdProp.setName("scim-default-pwd");
+            defaultPwdProp.setValue(paramMap.get("scim-default-pwd"));
+        }
+
+        if (paramMap.get("scim-unique-id") != null){
+            uniqueID = new Property();
+            uniqueID.setName("UniqueID");
+            uniqueID.setValue(paramMap.get("scim-unique-id"));
+        }
+
         Property[] proProperties = new Property[]{userNameProp, passwordProp, userEpProp,
-                groupEpProp, scimUserStoreDomain};
+                groupEpProp, scimUserStoreDomain, scimEnablePwdProvisioning, defaultPwdProp, uniqueID};
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -586,6 +638,7 @@ public class IdPManagementUIUtil {
         Property provisioningPattern = null;
         Property provisioningSeparator = null;
         Property provisioningDomain = null;
+        Property uniqueID = null;
 
         if (paramMap.get("sfProvEnabled") != null && "on".equals(paramMap.get("sfProvEnabled"))) {
             proConnector.setEnabled(true);
@@ -665,9 +718,15 @@ public class IdPManagementUIUtil {
             provisioningDomain.setValue(paramMap.get("sf-prov-domainName"));
         }
 
+        if (paramMap.get("sf-unique-id") != null){
+            uniqueID = new Property();
+            uniqueID.setName("UniqueID");
+            uniqueID.setValue(paramMap.get("sf-unique-id"));
+        }
+
         Property[] proProperties = new Property[]{userNameProp, passwordProp, clentIdProp,
                 clientSecretProp, apiVersionProp, domainNameProp, tokenEndpointProp, provisioningPattern,
-                provisioningSeparator, provisioningDomain};
+                provisioningSeparator, provisioningDomain, uniqueID};
 
         proConnector.setProvisioningProperties(proProperties);
 
@@ -1085,7 +1144,7 @@ public class IdPManagementUIUtil {
             fedIdp.setDefaultAuthenticatorConfig(oidcAuthnConfig);
         }
 
-        Property[] properties = new Property[6];
+        Property[] properties = new Property[7];
         Property property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.Facebook.CLIENT_ID);
         property.setValue(paramMap.get("clientId"));
@@ -1125,6 +1184,11 @@ public class IdPManagementUIUtil {
             property.setValue(paramMap.get("oidcQueryParam"));
         }
         properties[5] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.OIDC.CALLBACK_URL);
+        property.setValue(paramMap.get("callbackUrl"));
+        properties[6] = property;
 
         oidcAuthnConfig.setProperties(properties);
         FederatedAuthenticatorConfig[] authenticators = fedIdp.getFederatedAuthenticatorConfigs();
@@ -1323,7 +1387,7 @@ public class IdPManagementUIUtil {
             fedIdp.setDefaultAuthenticatorConfig(saml2SSOAuthnConfig);
         }
 
-        Property[] properties = new Property[13];
+        Property[] properties = new Property[24];
         Property property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
         property.setValue(paramMap.get("idPEntityId"));
@@ -1422,7 +1486,85 @@ public class IdPManagementUIUtil {
         property.setValue(paramMap
                 .get(IdentityApplicationConstants.Authenticator.SAML2SSO.REQUEST_METHOD));
         properties[12] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM));
+        properties[13] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.DIGEST_ALGORITHM);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.DIGEST_ALGORITHM));
+        properties[14] = property;
 
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_COMPARISON_LEVEL);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_COMPARISON_LEVEL));
+        properties[15] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_NAME_ID_POLICY);
+        if ("on".equals(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_NAME_ID_POLICY))) {
+            property.setValue("true");
+        } else {
+            property.setValue("false");
+        }
+        properties[16] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.FORCE_AUTHENTICATION);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.FORCE_AUTHENTICATION));
+        properties[17] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM_POST);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM_POST));
+        properties[18] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_CLASS);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_CLASS));
+        properties[19] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.ATTRIBUTE_CONSUMING_SERVICE_INDEX);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.ATTRIBUTE_CONSUMING_SERVICE_INDEX));
+        properties[20] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_CERT);
+        if ("on".equals(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_CERT))) {
+            property.setValue("true");
+        } else {
+            property.setValue("false");
+        }
+        properties[21] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_AUTHN_CONTEXT);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_AUTHN_CONTEXT));
+        properties[22] = property;
+        
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_PROTOCOL_BINDING);
+        if ("on".equals(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.INCLUDE_PROTOCOL_BINDING))) {
+            property.setValue("true");
+        } else {
+            property.setValue("false");
+        }
+        properties[23] = property;
+        
         saml2SSOAuthnConfig.setProperties(properties);
 
         FederatedAuthenticatorConfig[] authenticators = fedIdp.getFederatedAuthenticatorConfigs();
@@ -1584,4 +1726,24 @@ public class IdPManagementUIUtil {
         }
         return null;
     }
+
+    /**
+     * This is used in front end. Property is the type of stub generated property
+     *
+     * @param properties properties list to iterate
+     * @param startWith  the peoperty list startswith the given name
+     * @return
+     */
+    public static List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> getPropertySetStartsWith(
+            org.wso2.carbon.identity.application.common.model.idp.xsd.Property[] properties,
+            String startWith) {
+        List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> propertySet = new ArrayList<>();
+        for (org.wso2.carbon.identity.application.common.model.idp.xsd.Property property : properties) {
+            if (property.getName().startsWith(startWith)) {
+                propertySet.add(property);
+            }
+        }
+        return propertySet;
+    }
+
 }

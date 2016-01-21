@@ -27,10 +27,9 @@
 <%@ page import="org.wso2.carbon.identity.entitlement.ui.client.EntitlementPolicyAdminServiceClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page
-        import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@ page import="java.util.ResourceBundle" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%
     String subscriberId;
@@ -240,8 +239,8 @@
                         if(dto.getDisplayName() != null && dto.getValue() != null){
             %>
                 <tr>
-                    <td><%=CharacterEncoder.getSafeText(dto.getDisplayName())%></td>
-                    <td><%=CharacterEncoder.getSafeText(dto.getValue())%></td>
+                    <td><%=Encode.forHtmlContent(dto.getDisplayName())%></td>
+                    <td><%=Encode.forHtmlContent(dto.getValue())%></td>
                 </tr>
             <%
                         }
@@ -268,11 +267,11 @@
                                     for (PublisherDataHolder module : dataHolders) {
                                         if(module.getModuleName().equals(selectedModule)) {
                             %>
-                                <option value="<%=selectedModule%>" selected="selected"><%=CharacterEncoder.getSafeText(selectedModule)%></option>
+                                <option value="<%=Encode.forHtmlAttribute(selectedModule)%>" selected="selected"><%=Encode.forHtmlContent(selectedModule)%></option>
                             <%
                                         } else {
                             %>
-                                <option value="<%=module.getModuleName()%>"><%=CharacterEncoder.getSafeText(module.getModuleName())%></option>
+                                <option value="<%=Encode.forHtmlAttribute(module.getModuleName())%>"><%=Encode.forHtmlContent(module.getModuleName())%></option>
                             <%
                                         }
                                     }
@@ -294,7 +293,7 @@
                             }
                 %>
                 <tr>
-                    <td class="leftCol-small"><%=CharacterEncoder.getSafeText(dto.getDisplayName())%>
+                    <td class="leftCol-small"><%=Encode.forHtmlContent(dto.getDisplayName())%>
                     <%
                         if(dto.getRequired()){
                     %>
@@ -305,12 +304,14 @@
                     </td>
                     <td>
                         <% if(dto.getValue() != null) {%>
-                            <input type="<%=inputType%>" name="<%=dto.getId()%>" id="<%=dto.getId()%>"
-                                                                        value="<%=dto.getValue()%>" <% if("subscriberId".equals(dto.getId())){ %> readonly='readonly' <% } %> />
+                            <input type="<%=inputType%>" name="<%=Encode.forHtmlAttribute(dto.getId())%>"
+                                   id="<%=Encode.forHtmlAttribute(dto.getId())%>" value="<%=Encode.forHtmlAttribute(dto.getValue())%>"
+                                    <% if("subscriberId".equals(dto.getId())){ %> readonly='readonly' <% } %> />
                         <%
                             } else {
                         %>
-                            <input type="<%=inputType%>" name="<%=dto.getId()%>" id="<%=dto.getId()%>"/>
+                            <input type="<%=inputType%>" name="<%=Encode.forHtmlAttribute(dto.getId())%>"
+                                   id="<%=Encode.forHtmlAttribute(dto.getId())%>"/>
                         <%
                             }
                         %>

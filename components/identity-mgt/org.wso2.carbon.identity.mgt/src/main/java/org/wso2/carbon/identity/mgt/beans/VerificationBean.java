@@ -27,15 +27,19 @@ import java.io.Serializable;
  */
 public class VerificationBean implements Serializable {
 
+    private static final long serialVersionUID = -2913500119053797062L;
+
     public static final String ERROR_CODE_INVALID_CODE = "18001";
     public static final String ERROR_CODE_EXPIRED_CODE = "18002";
     public static final String ERROR_CODE_INVALID_USER = "18003";
     public static final String ERROR_CODE_INVALID_CAPTCHA = "18004";
     public static final String ERROR_CODE_UNEXPECTED = "18013";
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+    public static final String ERROR_CODE_LOADING_DATA_FAILURE = "18014";
+    public static final String ERROR_CODE_RECOVERY_NOTIFICATION_FAILURE = "18015";
+    public static final String ERROR_CODE_INVALID_TENANT = "18016";
+    public static final String ERROR_CODE_CHALLENGE_QUESTION_NOT_FOUND = "18016";
+    public static final String ERROR_CODE_INVALID_CREDENTIALS = "17002";
+
     /**
      * user identifier according to the user store
      */

@@ -18,6 +18,7 @@
 package org.wso2.carbon.identity.oauth.endpoint.user.impl;
 
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.oauth.user.UserInfoClaimRetriever;
 
 import java.util.HashMap;
@@ -28,14 +29,13 @@ import java.util.Map;
  */
 public class UserInfoUserStoreClaimRetriever implements UserInfoClaimRetriever {
 
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-
     @Override
     public Map<String, Object> getClaimsMap(Map<ClaimMapping, String> userAttributes) {
         Map<String, Object> claims = new HashMap<String, Object>();
         if (userAttributes != null && !userAttributes.isEmpty()) {
             for (Map.Entry<ClaimMapping, String> entry : userAttributes.entrySet()){
-                if (MULTI_ATTRIBUTE_SEPARATOR.equals(entry.getKey().getRemoteClaim().getClaimUri())){
+                if (IdentityCoreConstants.MULTI_ATTRIBUTE_SEPARATOR.equals(entry.getKey().getRemoteClaim()
+                        .getClaimUri())){
                     continue;
                 }
                 claims.put(entry.getKey().getRemoteClaim().getClaimUri(), entry.getValue());

@@ -276,6 +276,9 @@ public class EntitlementService {
     }
 
     public static class getDecision_args implements org.apache.thrift.TBase<getDecision_args, getDecision_args._Fields>, java.io.Serializable, Cloneable {
+
+        private static final long serialVersionUID = 4425435097663962814L;
+
         public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
         static {
             Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);

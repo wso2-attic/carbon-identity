@@ -21,7 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.model.SAMLSSOServiceProviderDO;
-import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOParticipantCache;
 import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOParticipantCacheEntry;
 import org.wso2.carbon.identity.sso.saml.cache.SAMLSSOParticipantCacheKey;
@@ -45,32 +44,30 @@ public class SSOSessionPersistenceManager {
         return sessionPersistenceManager;
     }
 
-    public static void addSessionInfoDataToCache(String key, SessionInfoData sessionInfoData,
-                                                 int cacheTimeout) {
+    public static void addSessionInfoDataToCache(String key, SessionInfoData sessionInfoData) {
 
         SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
         SAMLSSOParticipantCacheEntry cacheEntry = new SAMLSSOParticipantCacheEntry();
         cacheEntry.setSessionInfoData(sessionInfoData);
-        SAMLSSOParticipantCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+        SAMLSSOParticipantCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
-    public static void addSessionIndexToCache(String key, String sessionIndex,
-                                              int cacheTimeout) {
+    public static void addSessionIndexToCache(String key, String sessionIndex) {
 
         SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
         SAMLSSOSessionIndexCacheEntry cacheEntry = new SAMLSSOSessionIndexCacheEntry();
         cacheEntry.setSessionIndex(sessionIndex);
-        SAMLSSOSessionIndexCache.getInstance(cacheTimeout).addToCache(cacheKey, cacheEntry);
+        SAMLSSOSessionIndexCache.getInstance().addToCache(cacheKey, cacheEntry);
     }
 
     public static SessionInfoData getSessionInfoDataFromCache(String key) {
 
         SessionInfoData sessionInfoData = null;
         SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
-        Object cacheEntryObj = SAMLSSOParticipantCache.getInstance(0).getValueFromCache(cacheKey);
+        SAMLSSOParticipantCacheEntry cacheEntry = SAMLSSOParticipantCache.getInstance().getValueFromCache(cacheKey);
 
-        if (cacheEntryObj != null) {
-            sessionInfoData = ((SAMLSSOParticipantCacheEntry) cacheEntryObj).getSessionInfoData();
+        if (cacheEntry != null) {
+            sessionInfoData = cacheEntry.getSessionInfoData();
         }
 
         return sessionInfoData;
@@ -80,10 +77,10 @@ public class SSOSessionPersistenceManager {
 
         String sessionIndex = null;
         SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
-        Object cacheEntryObj = SAMLSSOSessionIndexCache.getInstance(0).getValueFromCache(cacheKey);
+        SAMLSSOSessionIndexCacheEntry cacheEntry = SAMLSSOSessionIndexCache.getInstance().getValueFromCache(cacheKey);
 
-        if (cacheEntryObj != null) {
-            sessionIndex = ((SAMLSSOSessionIndexCacheEntry) cacheEntryObj).getSessionIndex();
+        if (cacheEntry != null) {
+            sessionIndex = cacheEntry.getSessionIndex();
         }
 
         return sessionIndex;
@@ -93,7 +90,7 @@ public class SSOSessionPersistenceManager {
 
         if (key != null) {
             SAMLSSOParticipantCacheKey cacheKey = new SAMLSSOParticipantCacheKey(key);
-            SAMLSSOParticipantCache.getInstance(0).clearCacheEntry(cacheKey);
+            SAMLSSOParticipantCache.getInstance().clearCacheEntry(cacheKey);
         }
     }
 
@@ -101,7 +98,7 @@ public class SSOSessionPersistenceManager {
 
         if (key != null) {
             SAMLSSOSessionIndexCacheKey cacheKey = new SAMLSSOSessionIndexCacheKey(key);
-            SAMLSSOSessionIndexCache.getInstance(0).clearCacheEntry(cacheKey);
+            SAMLSSOSessionIndexCache.getInstance().clearCacheEntry(cacheKey);
         }
     }
 
@@ -121,8 +118,7 @@ public class SSOSessionPersistenceManager {
         }
         sessionInfoData.setSubject(issuer, subject);
         sessionInfoData.addServiceProvider(spDO.getIssuer(), spDO, rpSessionId);
-        addSessionInfoDataToCache(sessionIndex, sessionInfoData, Integer.parseInt(IdentityUtil.
-                                                                getProperty("SSOService.SessionIndexCacheTimeout")));
+        addSessionInfoDataToCache(sessionIndex, sessionInfoData);
 
     }
 
@@ -167,8 +163,7 @@ public class SSOSessionPersistenceManager {
             log.debug("SessionIndex is null.");
             return;
         }
-        addSessionIndexToCache(tokenId, sessionIndex, Integer.parseInt(IdentityUtil.
-                                                                getProperty("SSOService.SessionIndexCacheTimeout")));
+        addSessionIndexToCache(tokenId, sessionIndex);
 
     }
 

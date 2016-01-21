@@ -56,6 +56,7 @@ public abstract class FrameworkConstants {
     public static final String AUDIT_SUCCESS = "Success";
     public static final String AUDIT_FAILED = "Failed";
 
+
     private FrameworkConstants() {
 
     }
@@ -94,6 +95,7 @@ public abstract class FrameworkConstants {
         public static final String ATTR_AUTHENTICATOR_NAME_MAPPING_ALIAS = "alias";
         // Constant definitions for other QNames
         public static final String QNAME_AUTHENTICATION_ENDPOINT_URL = "AuthenticationEndpointURL";
+        public static final String QNAME_AUTHENTICATION_ENDPOINT_RETRY_URL = "AuthenticationEndpointRetryURL";
         public static final String QNAME_PROXY_MODE = "ProxyMode";
         public static final String QNAME_MAX_LOGIN_ATTEMPT_COUNT = "MaxLoginAttemptCount";
         public static final String QNAME_EXTENSIONS = "Extensions";
@@ -142,6 +144,8 @@ public abstract class FrameworkConstants {
         public static final String LOGOUT = "commonAuthLogout";
         public static final String IDP = "idp";
         public static final String AUTHENTICATOR = "authenticator";
+        public static final String FLOW_STATUS = "authenticatorFlowStatus";
+        public static final String TO_COMMONAUTH = "tocommonauth";
         private RequestParams() {
         }
     }
@@ -165,8 +169,17 @@ public abstract class FrameworkConstants {
         public static final String CLAIM_TYPE_SAML_SSO = "samlsso";
         public static final String CLAIM_TYPE_SCIM = "scim";
         public static final String CLAIM_TYPE_OIDC = "oidc";
-        public static final String CLAIM_TYPE_PASSIVE_STS = "passivests";
         private RequestType() {
+        }
+    }
+
+    public static class RequestAttribute {
+
+        public static final String SESSION_DATA = "sessionData";
+        public static final String AUTH_RESULT = "authResult";
+        public static final String AUTH_REQUEST = "authRequest";
+
+        private RequestAttribute() {
         }
     }
 }

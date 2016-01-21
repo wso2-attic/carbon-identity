@@ -21,7 +21,6 @@ package org.wso2.carbon.identity.application.mgt;
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.dao.ApplicationDAO;
 import org.wso2.carbon.identity.application.mgt.dao.IdentityProviderDAO;
@@ -32,7 +31,6 @@ import org.wso2.carbon.identity.application.mgt.dao.impl.IdentityProviderDAOImpl
 import org.wso2.carbon.identity.application.mgt.dao.impl.OAuthApplicationDAOImpl;
 import org.wso2.carbon.identity.application.mgt.dao.impl.SAMLApplicationDAOImpl;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
-import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.utils.CarbonUtils;
 
 /**
@@ -83,13 +81,8 @@ public class ApplicationMgtSystemConfig {
      */
     private void buildSystemConfiguration() {
 
-        OMElement spConfigElem = null;
-        try {
-            spConfigElem = IdentityConfigParser.getInstance().getConfigElement(CONFIG_ELEMENT_SP_MGT);
-        } catch (ServerConfigurationException e) {
-            log.error("Error occurred while reading " + CONFIG_ELEMENT_SP_MGT + " configuration from " +
-                    IdentityCoreConstants.IDENTITY_CONFIG);
-        }
+        OMElement spConfigElem = IdentityConfigParser.getInstance().getConfigElement(CONFIG_ELEMENT_SP_MGT);
+
         if (spConfigElem == null) {
             if(log.isDebugEnabled()){
                 log.debug("No ServiceProvidersManagement configuration found. System Starts with default configuration");

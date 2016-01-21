@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.application.authenticator.passive.sts;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
@@ -28,6 +29,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authenticator.passive.sts.exception.PassiveSTSException;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.manager.PassiveSTSManager;
 import org.wso2.carbon.identity.application.authenticator.passive.sts.util.PassiveSTSConstants;
+import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,7 +38,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Map;
 
-public class PassiveSTSAuthenticator extends AbstractApplicationAuthenticator {
+public class PassiveSTSAuthenticator extends AbstractApplicationAuthenticator implements FederatedApplicationAuthenticator {
 
     private static final long serialVersionUID = -8097512332218044090L;
 
@@ -63,7 +65,7 @@ public class PassiveSTSAuthenticator extends AbstractApplicationAuthenticator {
 
 
         ExternalIdPConfig externalIdPConfig = context.getExternalIdP();
-        String idpURL = context.getAuthenticatorProperties().get(PassiveSTSConstants.PASSIVE_STS_URL);
+        String idpURL = context.getAuthenticatorProperties().get(IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_URL);
         String loginPage;
 
         try {

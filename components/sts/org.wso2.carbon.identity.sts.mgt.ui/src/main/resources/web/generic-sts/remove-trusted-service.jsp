@@ -23,6 +23,7 @@
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <jsp:include page="../admin/layout/ajaxheader.jsp" />
 
@@ -55,7 +56,7 @@
 boolean qpplicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
 if (qpplicationComponentFound) {
 %>
-    location.href = '../application/configure-service-provider.jsp?spName=<%=spName%>&action=<%=action%>&serviceName=<%=address%>';
+    location.href = '../application/configure-service-provider.jsp?spName=<%=Encode.forUriComponent(spName)%>&action=<%=Encode.forUriComponent(action)%>&serviceName=<%=Encode.forUriComponent(address)%>';
 <% } else { %>
     location.href = 'sts.jsp';
 <% } %>

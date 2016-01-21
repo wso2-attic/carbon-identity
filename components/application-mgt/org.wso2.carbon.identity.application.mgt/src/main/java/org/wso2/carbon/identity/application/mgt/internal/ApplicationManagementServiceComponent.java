@@ -25,9 +25,15 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
+import org.wso2.carbon.identity.application.mgt.AbstractInboundAuthenticatorConfig;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementServiceImpl;
 import org.wso2.carbon.identity.application.mgt.ApplicationMgtSystemConfig;
+import org.wso2.carbon.identity.application.mgt.listener.ApplicationIdentityProviderMgtListener;
+import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtAuditLogger;
+import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtListener;
+import org.wso2.carbon.identity.application.mgt.listener.ApplicationMgtValidationListener;
+import org.wso2.carbon.idp.mgt.listener.IdentityProviderMgtListener;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -54,6 +60,10 @@ import java.util.Map;
  * cardinality="1..1" policy="dynamic"
  * bind="setConfigurationContextService"
  * unbind="unsetConfigurationContextService"
+ * @scr.reference name="application.mgt.authenticator"
+ * interface="org.wso2.carbon.identity.application.mgt.AbstractInboundAuthenticatorConfig"
+ * cardinality="0..n" policy="dynamic" bind="setInboundAuthenticatorConfig"
+ * unbind="unsetInboundAuthenticatorConfig"
  */
 public class ApplicationManagementServiceComponent {
     private static Log log = LogFactory.getLog(ApplicationManagementServiceComponent.class);
@@ -66,11 +76,15 @@ public class ApplicationManagementServiceComponent {
 
     protected void activate(ComponentContext context) {
         try {
-            // Registering Application management service as a OSGIService
             bundleContext = context.getBundleContext();
+            // Registering Application management service as a OSGIService
             bundleContext.registerService(ApplicationManagementService.class.getName(),
                     ApplicationManagementServiceImpl.getInstance(), null);
+            bundleContext.registerService(IdentityProviderMgtListener.class.getName(), new ApplicationIdentityProviderMgtListener(), null);
+            bundleContext.registerService(ApplicationMgtListener.class.getName(), new ApplicationMgtValidationListener(), null);
             ApplicationMgtSystemConfig.getInstance();
+            bundleContext.registerService(ApplicationMgtListener.class.getName(), new ApplicationMgtAuditLogger(),
+                    null);
             buildFileBasedSPList();
 
             if (log.isDebugEnabled()) {
@@ -127,6 +141,14 @@ public class ApplicationManagementServiceComponent {
             log.debug("Unsetting the Configuration Context Service");
         }
         ApplicationManagementServiceComponentHolder.getInstance().setConfigContextService(null);
+    }
+
+    protected void setInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig authenticator) {
+        ApplicationManagementServiceComponentHolder.addInboundAuthenticatorConfig(authenticator);
+    }
+
+    protected void unsetInboundAuthenticatorConfig(AbstractInboundAuthenticatorConfig authenticator) {
+        ApplicationManagementServiceComponentHolder.removeInboundAuthenticatorConfig(authenticator.getName());
     }
 
     private void buildFileBasedSPList() {

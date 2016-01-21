@@ -49,11 +49,12 @@ public interface SSOSigner {
      *
      * @param request
      * @param signatureAlgorithm
+     * @param digestAlgorithm
      * @param cred
      * @return
      * @throws IdentityException
      */
-    public SignableXMLObject setSignature(SignableXMLObject signableXMLObject, String signatureAlgorithm,
-                                            X509Credential cred) throws IdentityException;
+    public SignableXMLObject setSignature(SignableXMLObject signableXMLObject, String signatureAlgorithm, String
+            digestAlgorithm, X509Credential cred) throws IdentityException;
 }
 

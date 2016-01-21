@@ -23,7 +23,7 @@
 <%@ page import="org.wso2.carbon.claim.mgt.ui.client.ClaimAdminClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@page import="org.wso2.carbon.utils.ServerConstants" %>
 <%@page import="java.util.ResourceBundle" %>
@@ -42,7 +42,7 @@
     try {
         ClaimAdminClient client = new ClaimAdminClient(cookie, serverURL, configContext);
         client.removeClaimMapping(dialect, claimUri);
-        forwardTo = "claim-view.jsp?dialect=" + dialect + "&ordinal=1";
+        forwardTo = "claim-view.jsp?dialect=" + Encode.forUriComponent(dialect) + "&ordinal=1";
     } catch (Exception e) {
         String message = resourceBundle.getString("error.removing.claim.mapping");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);

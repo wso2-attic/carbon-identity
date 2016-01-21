@@ -30,7 +30,10 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.core.util.IdentityConfigParser;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.identity.sso.saml.SAMLSSOConstants;
 import org.wso2.carbon.identity.sso.saml.dto.SingleLogoutRequestDTO;
 import org.wso2.carbon.identity.sso.saml.util.SAMLSSOUtil;
 
@@ -139,23 +142,46 @@ public class LogoutRequestSender {
         @Override
         public void run() {
             List<NameValuePair> logoutReqParams = new ArrayList<NameValuePair>();
-            // set the logout request
-            logoutReqParams.add(new BasicNameValuePair("SAMLRequest", logoutReqDTO.getLogoutResponse()));
+            StringBuffer logoutRequestWithSoapBinding = new StringBuffer();
+            String decodedSAMLRequest = null;
 
-            if (log.isDebugEnabled()) {
-                try {
-                    log.debug("SAMLRequest : " + SAMLSSOUtil.decodeForPost(logoutReqDTO.getLogoutResponse()));
-                } catch (IdentityException e) {
-                    log.debug("Error in decoding logout request.", e);
-                }
+            boolean propertySAMLSOAPBindingEnabled = IdentityConfigParser.getInstance()
+                    .getConfiguration().containsKey(SAMLSSOConstants.SLO_SAML_SOAP_BINDING_ENABLED);
+            boolean isSAMLSOAPBindingEnabled;
+
+            if (propertySAMLSOAPBindingEnabled) {
+                isSAMLSOAPBindingEnabled = Boolean.parseBoolean(IdentityConfigParser.getInstance()
+                        .getConfiguration().get(SAMLSSOConstants.SLO_SAML_SOAP_BINDING_ENABLED).toString());
+            } else {
+                isSAMLSOAPBindingEnabled = false;
+            }
+
+            decodedSAMLRequest = logoutReqDTO.getLogoutResponse();
+
+            if (isSAMLSOAPBindingEnabled) {
+                decodedSAMLRequest = decodedSAMLRequest.replaceAll(SAMLSSOConstants.XML_TAG_REGEX, "").trim();
+                logoutRequestWithSoapBinding.append(SAMLSSOConstants.START_SOAP_BINDING + decodedSAMLRequest + SAMLSSOConstants.END_SOAP_BINDING);
+                // set the logout request
+                logoutReqParams.add(new BasicNameValuePair(SAMLSSOConstants.SAML_REQUEST_PARAM_KEY,
+                        SAMLSSOUtil.encode(logoutRequestWithSoapBinding.toString())));
+            } else {
+                // set the logout request
+                logoutReqParams.add(new BasicNameValuePair(SAMLSSOConstants.SAML_REQUEST_PARAM_KEY, SAMLSSOUtil.encode(logoutReqDTO.getLogoutResponse())));
+            }
+
+            if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.SAML_REQUEST)) {
+                log.debug("SAMLRequest : " + decodedSAMLRequest);
             }
 
             try {
                 int port = derivePortFromAssertionConsumerURL(logoutReqDTO.getAssertionConsumerURL());
-                UrlEncodedFormEntity entity = new UrlEncodedFormEntity(logoutReqParams, "UTF-8");
+                UrlEncodedFormEntity entity = new UrlEncodedFormEntity(logoutReqParams, SAMLSSOConstants.ENCODING_FORMAT);
                 HttpPost httpPost = new HttpPost(logoutReqDTO.getAssertionConsumerURL());
                 httpPost.setEntity(entity);
-                httpPost.addHeader("Cookie", "JSESSIONID=" + logoutReqDTO.getRpSessionId());
+                httpPost.addHeader(SAMLSSOConstants.COOKIE_PARAM_KEY, SAMLSSOConstants.SESSION_ID_PARAM_KEY + logoutReqDTO.getRpSessionId());
+                if (isSAMLSOAPBindingEnabled) {
+                    httpPost.addHeader(SAMLSSOConstants.SOAP_ACTION_PARAM_KEY, SAMLSSOConstants.SOAP_ACTION);
+                }
                 TrustManager easyTrustManager = new X509TrustManager() {
 
                     @Override
@@ -180,11 +206,11 @@ public class LogoutRequestSender {
                     }
                 };
 
-                SSLContext sslContext = SSLContext.getInstance("TLS");
+                SSLContext sslContext = SSLContext.getInstance(SAMLSSOConstants.CRYPTO_PROTOCOL);
                 sslContext.init(null, new TrustManager[]{easyTrustManager}, null);
                 SSLSocketFactory sf = new SSLSocketFactory(sslContext);
                 sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-                Scheme httpsScheme = new Scheme("https", sf, port);
+                Scheme httpsScheme = new Scheme(SAMLSSOConstants.COM_PROTOCOL, sf, port);
 
                 HttpClient httpClient = new DefaultHttpClient();
                 httpClient.getConnectionManager().getSchemeRegistry().register(httpsScheme);
@@ -216,8 +242,10 @@ public class LogoutRequestSender {
                     }
                     if (response != null && (SAMLSSOUtil.isHttpSuccessStatusCode(statusCode) || SAMLSSOUtil
                             .isHttpRedirectStatusCode(statusCode))) {
-                        log.info("single logout request is sent to : " + logoutReqDTO.getAssertionConsumerURL() +
-                                " is returned with " + HttpStatus.getStatusText(response.getStatusLine().getStatusCode()));
+                        if (log.isDebugEnabled()) {
+                            log.debug("single logout request is sent to : " + logoutReqDTO.getAssertionConsumerURL() +
+                                    " is returned with " + HttpStatus.getStatusText(response.getStatusLine().getStatusCode()));
+                        }
                         isSuccessfullyLogout = true;
                         break;
                     } else {

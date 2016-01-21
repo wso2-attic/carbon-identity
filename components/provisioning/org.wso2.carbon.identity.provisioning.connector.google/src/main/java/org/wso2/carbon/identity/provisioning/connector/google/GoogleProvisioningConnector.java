@@ -35,6 +35,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 import org.wso2.carbon.identity.provisioning.AbstractOutboundProvisioningConnector;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningConstants;
 import org.wso2.carbon.identity.provisioning.IdentityProvisioningException;
@@ -76,15 +77,17 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
             for (Property property : provisioningProperties) {
 
                 if (GoogleConnectorConstants.PRIVATE_KEY.equals(property.getName())) {
+                    FileOutputStream fos = null;
                     try {
                         byte[] decodedBytes = Base64Utils.decode(property.getValue());
                         googlePrvKey = new File("googlePrvKey");
-                        FileOutputStream fos = new FileOutputStream(googlePrvKey);
+                        fos = new FileOutputStream(googlePrvKey);
                         fos.write(decodedBytes);
-                        fos.flush();
-                        fos.close();
                     } catch (IOException e) {
                         log.error("Error while generating private key file object", e);
+                    }finally {
+                        IdentityIOStreamUtils.flushOutputStream(fos);
+                        IdentityIOStreamUtils.closeOutputStream(fos);
                     }
                 }
                 configs.put(property.getName(), property.getValue());
@@ -204,9 +207,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
             User newUser = new User();
 
             newUser = buildGoogleUser(provisioningEntity);
-            if (isDebugEnabled) {
-                log.debug("New google user to be created : " + newUser.toPrettyString());
-            }
 
             Directory.Users.Insert request = getDirectoryService().users().insert(newUser);
             createdUser = request.execute();
@@ -418,7 +418,15 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
         /** Provisioning Pattern */
         String provisioningPattern = this.configHolder.getValue(provisioningPatternKey);
+        if (StringUtils.isBlank(provisioningPattern)) {
+            log.info("Provisioning pattern is not defined, hence using default provisioning pattern");
+            provisioningPattern = GoogleConnectorConstants.PropertyConfig.DEFAULT_PROVISIONING_PATTERN;
+        }
         String provisioningSeparator = this.configHolder.getValue(provisioningSeparatorKey);
+        if (StringUtils.isBlank(provisioningSeparator)) {
+            log.info("Provisioning separator is not defined, hence using default provisioning separator");
+            provisioningSeparator = GoogleConnectorConstants.PropertyConfig.DEFAULT_PROVISIONING_SEPERATOR;
+        }
         String idpName = this.configHolder.getValue(idpName_key);
         String userIdClaimURL = this.configHolder.getValue(userIdClaimUriKey);
         String provisioningDomain = this.configHolder.getValue(domainNameKey);
@@ -439,6 +447,10 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
 
         if (StringUtils.isNotBlank(userIdFromPattern)) {
             userId = userIdFromPattern;
+        }
+
+        if(StringUtils.isEmpty(userId)){
+            throw new IdentityProvisioningException("Could not find Provisioning User Identification");
         }
 
         if (StringUtils.isNotBlank(provisioningDomain) && !userId.endsWith(provisioningDomain)) {
@@ -478,7 +490,6 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         username.setFamilyName(familyNameValue);
 
         newUser.setName(username);
-        newUser.setPassword(generatePassword());
 
         //set primary email
         if (log.isDebugEnabled()) {
@@ -486,6 +497,16 @@ public class GoogleProvisioningConnector extends AbstractOutboundProvisioningCon
         }
         newUser.setPrimaryEmail(userId);
 
+
+        if (log.isDebugEnabled()) {
+            try {
+                log.debug("Building Google user : " + newUser.toPrettyString());
+            } catch (IOException e) {
+                log.debug("Building Google user : " + newUser.toString());
+            }
+        }
+
+        newUser.setPassword(generatePassword());
         return newUser;
     }
 

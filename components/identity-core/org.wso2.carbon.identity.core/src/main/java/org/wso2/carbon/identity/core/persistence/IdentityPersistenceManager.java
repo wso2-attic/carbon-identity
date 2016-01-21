@@ -58,7 +58,7 @@ public class IdentityPersistenceManager {
             throws IdentityException {
 
         if (paramName == null || value == null) {
-            throw new IdentityException("Invalid inputs");
+            throw IdentityException.error("Invalid inputs");
         }
 
         ParameterDO param = null;
@@ -262,6 +262,11 @@ public class IdentityPersistenceManager {
             throws IdentityException {
         SAMLSSOServiceProviderDAO serviceProviderDAO = new SAMLSSOServiceProviderDAO(registry);
         return serviceProviderDAO.getServiceProvider(issuer);
+    }
+
+    public boolean isServiceProviderExists(Registry registry, String issuer) throws IdentityException {
+        SAMLSSOServiceProviderDAO serviceProviderDAO = new SAMLSSOServiceProviderDAO(registry);
+        return serviceProviderDAO.isServiceProviderExists(issuer);
     }
 
     public void createOrUpdateOpenIDAdmin(Registry registry, OpenIDAdminDO opAdmin)

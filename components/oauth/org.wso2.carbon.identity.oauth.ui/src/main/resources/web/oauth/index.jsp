@@ -17,6 +17,7 @@
 -->
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.oauth.common.OAuthConstants" %>
 <%@ page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO" %>
@@ -146,10 +147,10 @@
                 %>
                 <tr>
                     <td width="50%"><a
-                            href="edit.jsp?consumerkey=<%=apps[i].getOauthConsumerKey()%>"><%=apps[i].getApplicationName()%>
+                            href="edit.jsp?consumerkey=<%=Encode.forUriComponent(apps[i].getOauthConsumerKey())%>"><%=Encode.forHtml(apps[i].getApplicationName())%>
                     </a></td>
                     <td width="50%"><a title="<fmt:message key='remove.app'/>"
-                                       onclick="itemRemove('<%=apps[i].getOauthConsumerKey()%>','<%=apps[i].getApplicationName()%>');return false;"
+                                       onclick="itemRemove('<%=Encode.forJavaScriptAttribute(apps[i].getOauthConsumerKey())%>','<%=Encode.forJavaScriptAttribute(apps[i].getApplicationName())%>');return false;"
                                        href="#"
                                        style="background-image: url(../oauth/images/delete.gif);"
                                        class="icon-link">
@@ -172,7 +173,7 @@
                                       numberOfPages="<%=numberOfPages%>"
                                       page="index.jsp"
                                       pageNumberParameterName="pageNumber"
-                                      parameters="<%=paginationValue%>"
+                                      parameters="<%=Encode.forHtmlAttribute(paginationValue)%>"
                                       resourceBundle="org.wso2.carbon.identity.oauth.ui.i18n.Resources"
                                       prevKey="prev" nextKey="next"/>
 

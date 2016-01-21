@@ -34,6 +34,7 @@
 <%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.HashSet" %>
 <%@ page import="java.util.List" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <script type="text/javascript" src="extensions/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
@@ -88,7 +89,7 @@
 
         function removeSet(row){
         	function doDelete() {
-            	location.href= 'challenges-mgt-finish.jsp?removeSetId=' + row;
+            	location.href= 'challenges-mgt-finish.jsp?removeSetId=' + encodeURIComponent(row);
         	}
             
             CARBON.showConfirmationDialog("<fmt:message key="confirm.delete.challenge.set"/> " + row + " ?", doDelete, null);
@@ -118,21 +119,28 @@
                 </thead>
                 <tbody>
 
-                <%
-                        for(String questionSetName :questionSetNames){
-                 %>
+                <% if (questionSetNames.size() > 0) {
+                    for (String questionSetName : questionSetNames) {
+                %>
                 <tr>
                     <td width="60%">
-                        <a href="challenges-mgt.jsp?setName=<%=questionSetName%>" ><%=questionSetName%></a>
+                        <a href="challenges-mgt.jsp?setName=<%=Encode.forUriComponent(questionSetName)%>" ><%=Encode.forHtmlContent(questionSetName)%></a>
                     </td>
                     <td width="40%">
-                        <a onclick="removeSet('<%=questionSetName%>')" style='background-image:url(images/delete.gif);'
+                        <a onclick="removeSet('<%=Encode.forJavaScriptAttribute(questionSetName)%>')" style='background-image:url(images/delete.gif);'
                            type="button" class="icon-link">Delete</a>
                     </td>
                 </tr>
 
                 <%
-                        }
+                    }
+                } else {
+                %>
+                <tr>
+                    <td colspan="2"><i>No challenges questions set registered</i></td>
+                </tr>
+                <%
+                    }
                 %>
                 </tbody>
             </table>

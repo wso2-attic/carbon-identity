@@ -17,36 +17,36 @@
  */
 package org.wso2.carbon.identity.oauth.endpoint.authz;
 
-import org.apache.amber.oauth2.as.request.OAuthAuthzRequest;
-import org.apache.amber.oauth2.as.response.OAuthASResponse;
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.exception.OAuthProblemException;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.OAuthResponse;
-import org.apache.amber.oauth2.common.message.types.ResponseType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.oltu.openidconnect.as.OIDC;
-import org.apache.oltu.openidconnect.as.util.OIDCAuthzServerUtil;
+import org.apache.oltu.oauth2.as.request.OAuthAuthzRequest;
+import org.apache.oltu.oauth2.as.response.OAuthASResponse;
+import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCache;
+import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
+import org.wso2.carbon.identity.application.authentication.framework.CommonAuthenticationHandler;
 import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheEntry;
-import org.wso2.carbon.identity.application.authentication.framework.cache.AuthenticationResultCacheKey;
+import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
-import org.wso2.carbon.identity.application.common.cache.CacheEntry;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthRequestWrapper;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthResponseWrapper;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.application.common.model.Claim;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
-import org.wso2.carbon.identity.oauth.cache.CacheKey;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCache;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
-import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.endpoint.OAuthRequestWrapper;
 import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
 import org.wso2.carbon.identity.oauth.endpoint.util.OpenIDConnectUserRPStore;
@@ -54,11 +54,13 @@ import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeRespDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientValidationResponseDTO;
+import org.wso2.carbon.identity.oauth2.model.CarbonOAuthAuthzRequest;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
+import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
-import org.wso2.carbon.ui.util.CharacterEncoder;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
@@ -70,6 +72,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -83,12 +86,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OAuth2AuthzEndpoint {
 
     private static final Log log = LogFactory.getLog(OAuth2AuthzEndpoint.class);
+    public static final String APPROVE = "approve";
+    private boolean isCacheAvailable = false;
 
     @GET
     @Path("/")
     @Consumes("application/x-www-form-urlencoded")
     @Produces("text/html")
-    public Response authorize(@Context HttpServletRequest request) throws URISyntaxException {
+    public Response authorize(@Context HttpServletRequest request, @Context HttpServletResponse response)
+            throws URISyntaxException {
 
         // Setting super-tenant carbon context
         PrivilegedCarbonContext.startTenantFlow();
@@ -96,23 +102,34 @@ public class OAuth2AuthzEndpoint {
         carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
         carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
-        String clientId = CharacterEncoder.getSafeText(request.getParameter("client_id"));
+        String clientId = request.getParameter("client_id");
 
-        String sessionDataKeyFromLogin = CharacterEncoder.getSafeText(request.getParameter(
-                OAuthConstants.SESSION_DATA_KEY));
-        String sessionDataKeyFromConsent = CharacterEncoder.getSafeText(request.getParameter(
-                OAuthConstants.SESSION_DATA_KEY_CONSENT));
-        CacheKey cacheKey = null;
-        Object resultFromLogin = null;
-        Object resultFromConsent = null;
+        String sessionDataKeyFromLogin = getSessionDataKey(request);
+        String sessionDataKeyFromConsent = request.getParameter(OAuthConstants.SESSION_DATA_KEY_CONSENT);
+        SessionDataCacheKey cacheKey = null;
+        SessionDataCacheEntry resultFromLogin = null;
+        SessionDataCacheEntry resultFromConsent = null;
+
+        Object flowStatus = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+        String isToCommonOauth = request.getParameter(FrameworkConstants.RequestParams.TO_COMMONAUTH);
+
+        if ("true".equals(isToCommonOauth) && flowStatus == null) {
+            try {
+                return sendRequestToFramework(request, response);
+            } catch (ServletException | IOException e) {
+                log.error("Error occurred while sending request to authentication framework.");
+                return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build();
+            }
+        }
+
         if (StringUtils.isNotEmpty(sessionDataKeyFromLogin)) {
             cacheKey = new SessionDataCacheKey(sessionDataKeyFromLogin);
-            resultFromLogin = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).getValueFromCache(cacheKey);
+            resultFromLogin = SessionDataCache.getInstance().getValueFromCache(cacheKey);
         }
         if (StringUtils.isNotEmpty(sessionDataKeyFromConsent)) {
             cacheKey = new SessionDataCacheKey(sessionDataKeyFromConsent);
-            resultFromConsent = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).getValueFromCache(cacheKey);
-            SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).clearCacheEntry(cacheKey);
+            resultFromConsent = SessionDataCache.getInstance().getValueFromCache(cacheKey);
+            SessionDataCache.getInstance().clearCacheEntry(cacheKey);
         }
         if (resultFromLogin != null && resultFromConsent != null) {
 
@@ -163,16 +180,32 @@ public class OAuth2AuthzEndpoint {
             if (clientId != null && sessionDataKeyFromLogin == null && sessionDataKeyFromConsent == null) {
                 // Authz request from client
                 String redirectURL = handleOAuthAuthorizationRequest(clientId, request);
-                return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
+                String type = OAuthConstants.Scope.OAUTH2;
+                String scopes = request.getParameter(OAuthConstants.OAuth10AParams.SCOPE);
+                if (scopes != null && scopes.contains(OAuthConstants.Scope.OPENID)) {
+                    type = OAuthConstants.Scope.OIDC;
+                }
+                Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+                if (attribute != null && attribute == AuthenticatorFlowStatus.SUCCESS_COMPLETED) {
+                    try {
+                        return sendRequestToFramework(request, response,
+                                (String) request.getAttribute(FrameworkConstants.SESSION_DATA_KEY),
+                                type);
+                    } catch (ServletException | IOException e ) {
+                       log.error("Error occurred while sending request to authentication framework.");
+                    }
+                    return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build();
+                } else {
+                    return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
+                }
 
             } else if (resultFromLogin != null) { // Authentication response
 
-                sessionDataCacheEntry = ((SessionDataCacheEntry) resultFromLogin);
+                sessionDataCacheEntry = resultFromLogin;
                 OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
-                AuthenticationResult authnResult = getAuthenticationResultFromCache(sessionDataKeyFromLogin);
+                AuthenticationResult authnResult = getAuthenticationResult(request, sessionDataKeyFromLogin);
                 if (authnResult != null) {
-                    AuthenticationResultCache.getInstance(0).
-                            clearCacheEntry(new AuthenticationResultCacheKey(sessionDataKeyFromLogin));
+                    removeAuthenticationResult(request, sessionDataKeyFromLogin);
 
                     String redirectURL = null;
                     if (authnResult.isAuthenticated()) {
@@ -183,8 +216,7 @@ public class OAuth2AuthzEndpoint {
                         }
                         sessionDataCacheEntry.setLoggedInUser(authenticatedUser);
                         sessionDataCacheEntry.setAuthenticatedIdPs(authnResult.getAuthenticatedIdPs());
-                        SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout
-                                ()).addToCache(cacheKey, sessionDataCacheEntry);
+                        SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntry);
                         redirectURL = doUserAuthz(request, sessionDataKeyFromLogin, sessionDataCacheEntry);
                         return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
 
@@ -218,10 +250,12 @@ public class OAuth2AuthzEndpoint {
 
                 sessionDataCacheEntry = ((SessionDataCacheEntry) resultFromConsent);
                 OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
-                String consent = CharacterEncoder.getSafeText(request.getParameter("consent"));
+                String consent = request.getParameter("consent");
                 if (consent != null) {
 
                     if (OAuthConstants.Consent.DENY.equals(consent)) {
+                        OpenIDConnectUserRPStore.getInstance().putUserRPToStore(resultFromConsent.getLoggedInUser(),
+                                resultFromConsent.getoAuth2Parameters().getApplicationName(), false, oauth2Params.getClientId());
                         // return an error if user denied
                         String denyResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
                                 .setError(OAuth2ErrorCodes.ACCESS_DENIED)
@@ -312,14 +346,43 @@ public class OAuth2AuthzEndpoint {
         }
     }
 
+    /**
+     * Remove authentication result from request
+     * @param req
+     */
+    private void removeAuthenticationResult(HttpServletRequest req, String sessionDataKey) {
+
+        if(isCacheAvailable){
+            FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKey);
+        }else {
+            req.removeAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT);
+        }
+    }
+
+
+    /**
+     * In federated and multi steps scenario there is a redirection from commonauth to samlsso so have to get
+     * session data key from query parameter
+     *
+     * @param req Http servlet request
+     * @return Session data key
+     */
+    private String getSessionDataKey(HttpServletRequest req) {
+        String sessionDataKey = (String) req.getAttribute(OAuthConstants.SESSION_DATA_KEY);
+        if (sessionDataKey == null) {
+            sessionDataKey = req.getParameter(OAuthConstants.SESSION_DATA_KEY);
+        }
+        return sessionDataKey;
+    }
+
     @POST
     @Path("/")
     @Consumes("application/x-www-form-urlencoded")
     @Produces("text/html")
-    public Response authorizePost(@Context HttpServletRequest request, MultivaluedMap paramMap)
+    public Response authorizePost(@Context HttpServletRequest request,@Context HttpServletResponse response,  MultivaluedMap paramMap)
             throws URISyntaxException {
         HttpServletRequestWrapper httpRequest = new OAuthRequestWrapper(request, paramMap);
-        return authorize(httpRequest);
+        return authorize(httpRequest, response);
     }
 
     /**
@@ -332,13 +395,17 @@ public class OAuth2AuthzEndpoint {
                                      SessionDataCacheEntry sessionDataCacheEntry) throws OAuthSystemException {
 
         String applicationName = sessionDataCacheEntry.getoAuth2Parameters().getApplicationName();
-        String loggedInUser = sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier();
+        AuthenticatedUser loggedInUser = sessionDataCacheEntry.getLoggedInUser();
+        String clientId = sessionDataCacheEntry.getoAuth2Parameters().getClientId();
 
         boolean skipConsent = EndpointUtil.getOAuthServerConfiguration().getOpenIDConnectSkipeUserConsentConfig();
         if (!skipConsent) {
             boolean approvedAlways =
                     OAuthConstants.Consent.APPROVE_ALWAYS.equals(consent) ? true : false;
-            OpenIDConnectUserRPStore.getInstance().putUserRPToStore(loggedInUser, applicationName, approvedAlways);
+            if (approvedAlways) {
+                OpenIDConnectUserRPStore.getInstance().putUserRPToStore(loggedInUser, applicationName,
+                        approvedAlways, clientId);
+            }
         }
 
         OAuthResponse oauthResponse = null;
@@ -350,16 +417,21 @@ public class OAuth2AuthzEndpoint {
             OAuthASResponse.OAuthAuthorizationResponseBuilder builder = OAuthASResponse
                     .authorizationResponse(request, HttpServletResponse.SC_FOUND);
             // all went okay
-            if (ResponseType.CODE.toString().equals(oauth2Params.getResponseType())) {
-                String code = authzRespDTO.getAuthorizationCode();
-                builder.setCode(code);
-                addUserAttributesToCache(sessionDataCacheEntry, code);
-            } else if (ResponseType.TOKEN.toString().equals(oauth2Params.getResponseType())) {
-                builder.setAccessToken(authzRespDTO.getAccessToken());
-                builder.setParam(OAuth.OAUTH_TOKEN_TYPE, authzRespDTO.getTokenType());
-                builder.setExpiresIn(String.valueOf(authzRespDTO.getValidityPeriod()));
+            if (StringUtils.isNotBlank(authzRespDTO.getAuthorizationCode())){
+                builder.setCode(authzRespDTO.getAuthorizationCode());
+                addUserAttributesToCache(sessionDataCacheEntry, authzRespDTO.getAuthorizationCode(), authzRespDTO.getCodeId());
             }
-            builder.setParam("state", oauth2Params.getState());
+            if (StringUtils.isNotBlank(authzRespDTO.getAccessToken())){
+                builder.setAccessToken(authzRespDTO.getAccessToken());
+                builder.setExpiresIn(authzRespDTO.getValidityPeriod());
+                builder.setParam(OAuth.OAUTH_TOKEN_TYPE, "Bearer");
+            }
+            if (StringUtils.isNotBlank(authzRespDTO.getIdToken())){
+                builder.setParam("id_token", authzRespDTO.getIdToken());
+            }
+            if (StringUtils.isNotBlank(oauth2Params.getState())) {
+                builder.setParam(OAuth.OAUTH_STATE, oauth2Params.getState());
+            }
             String redirectURL = authzRespDTO.getCallbackURI();
             oauthResponse = builder.location(redirectURL).buildQueryMessage();
 
@@ -390,13 +462,24 @@ public class OAuth2AuthzEndpoint {
         return oauthResponse.getLocationUri();
     }
 
-    private void addUserAttributesToCache(SessionDataCacheEntry sessionDataCacheEntry, String code) {
+    private void addUserAttributesToCache(SessionDataCacheEntry sessionDataCacheEntry, String code, String codeId) {
         AuthorizationGrantCacheKey authorizationGrantCacheKey = new AuthorizationGrantCacheKey(code);
         AuthorizationGrantCacheEntry authorizationGrantCacheEntry = new AuthorizationGrantCacheEntry(
                 sessionDataCacheEntry.getLoggedInUser().getUserAttributes());
+        String sub = sessionDataCacheEntry.getLoggedInUser().getUserAttributes().get("sub");
+        if(StringUtils.isBlank(sub)){
+            sub = sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier();
+        }
+        if(StringUtils.isNotBlank(sub)){
+            ClaimMapping claimMapping = new ClaimMapping();
+            Claim claim = new Claim();
+            claim.setClaimUri("sub");
+            claimMapping.setRemoteClaim(claim);
+            sessionDataCacheEntry.getLoggedInUser().getUserAttributes().put(claimMapping, sub);
+        }
         authorizationGrantCacheEntry.setNonceValue(sessionDataCacheEntry.getoAuth2Parameters().getNonce());
-        AuthorizationGrantCache.getInstance(OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout())
-                .addToCache(authorizationGrantCacheKey, authorizationGrantCacheEntry);
+        authorizationGrantCacheEntry.setCodeId(codeId);
+        AuthorizationGrantCache.getInstance().addToCacheByCode(authorizationGrantCacheKey, authorizationGrantCacheEntry);
     }
 
     /**
@@ -426,7 +509,7 @@ public class OAuth2AuthzEndpoint {
             throws OAuthSystemException, OAuthProblemException {
 
         OAuth2ClientValidationResponseDTO clientDTO = null;
-        String redirectUri = CharacterEncoder.getSafeText(req.getParameter("redirect_uri"));
+        String redirectUri = req.getParameter("redirect_uri");
         if (StringUtils.isBlank(clientId)) {
             if (log.isDebugEnabled()) {
                 log.debug("Client Id is not present in the authorization request");
@@ -448,7 +531,7 @@ public class OAuth2AuthzEndpoint {
         }
 
         // Now the client is valid, redirect him to the authorization page.
-        OAuthAuthzRequest oauthRequest = new OAuthAuthzRequest(req);
+        OAuthAuthzRequest oauthRequest = new CarbonOAuthAuthzRequest(req);
 
         OAuth2Parameters params = new OAuth2Parameters();
         params.setClientId(clientId);
@@ -464,10 +547,10 @@ public class OAuth2AuthzEndpoint {
         params.setApplicationName(clientDTO.getApplicationName());
 
         // OpenID Connect specific request parameters
-        params.setNonce(oauthRequest.getParam(OIDC.AuthZRequest.NONCE));
-        params.setDisplay(oauthRequest.getParam(OIDC.AuthZRequest.DISPLAY));
-        params.setIDTokenHint(oauthRequest.getParam(OIDC.AuthZRequest.ID_TOKEN_HINT));
-        params.setLoginHint(oauthRequest.getParam(OIDC.AuthZRequest.LOGIN_HINT));
+        params.setNonce(oauthRequest.getParam(OAuthConstants.OAuth20Params.NONCE));
+        params.setDisplay(oauthRequest.getParam(OAuthConstants.OAuth20Params.DISPLAY));
+        params.setIDTokenHint(oauthRequest.getParam(OAuthConstants.OAuth20Params.ID_TOKEN_HINT));
+        params.setLoginHint(oauthRequest.getParam(OAuthConstants.OAuth20Params.LOGIN_HINT));
         if (StringUtils.isNotBlank(oauthRequest.getParam("acr_values")) && !"null".equals(oauthRequest.getParam
                 ("acr_values"))) {
             String[] acrValues = oauthRequest.getParam("acr_values").split(" ");
@@ -477,10 +560,7 @@ public class OAuth2AuthzEndpoint {
             }
             params.setACRValues(list);
         }
-        String prompt = oauthRequest.getParam(OIDC.AuthZRequest.PROMPT);
-        if (prompt == null) {
-            prompt = "consent";
-        }
+        String prompt = oauthRequest.getParam(OAuthConstants.OAuth20Params.PROMPT);
         params.setPrompt(prompt);
 
         /**
@@ -516,11 +596,13 @@ public class OAuth2AuthzEndpoint {
         boolean forceAuthenticate = false;
         boolean checkAuthentication = false;
 
-        if (prompt != null) {
-            // values {none, login, consent, select_profile}
-            String[] prompts = prompt.trim().split("\\s");
-            boolean containsNone = prompt.contains(OIDC.Prompt.NONE);
-            if (prompts.length > 1 && containsNone) {
+        // values {none, login, consent, select_profile}
+        boolean contains_none = (OAuthConstants.Prompt.NONE).equals(prompt);
+        String[] prompts = null;
+        if (StringUtils.isNotBlank(prompt)) {
+            prompts = prompt.trim().split("\\s");
+            contains_none = (OAuthConstants.Prompt.NONE).equals(prompt);
+            if (prompts.length > 1 && contains_none) {
                 if (log.isDebugEnabled()) {
                     log.debug("Invalid prompt variable combination. The value 'none' cannot be used with others " +
                             "prompts. Prompt: " + prompt);
@@ -531,19 +613,21 @@ public class OAuth2AuthzEndpoint {
                                 "with others prompts.").location(params.getRedirectURI())
                         .setState(params.getState()).buildQueryMessage().getLocationUri();
             }
+        }
 
-            if (prompt.contains(OIDC.Prompt.LOGIN)) { // prompt for authentication
-                checkAuthentication = false;
-                forceAuthenticate = true;
-
-            } else if (containsNone || prompt.contains(OIDC.Prompt.CONSENT)) {
-                checkAuthentication = false;
-                forceAuthenticate = false;
-            }
+        if ((OAuthConstants.Prompt.LOGIN).equals(prompt)) { // prompt for authentication
+            checkAuthentication = false;
+            forceAuthenticate = true;
+        } else if (contains_none) {
+            checkAuthentication = true;
+            forceAuthenticate = false;
+        } else if ((OAuthConstants.Prompt.CONSENT).equals(prompt)) {
+            checkAuthentication = false;
+            forceAuthenticate = false;
         }
 
         String sessionDataKey = UUIDGenerator.generateUUID();
-        CacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
+        SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
         SessionDataCacheEntry sessionDataCacheEntryNew = new SessionDataCacheEntry();
         sessionDataCacheEntryNew.setoAuth2Parameters(params);
         sessionDataCacheEntryNew.setQueryString(req.getQueryString());
@@ -551,12 +635,14 @@ public class OAuth2AuthzEndpoint {
         if (req.getParameterMap() != null) {
             sessionDataCacheEntryNew.setParamMap(new ConcurrentHashMap<String, String[]>(req.getParameterMap()));
         }
-        SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout()).
-                addToCache(cacheKey, sessionDataCacheEntryNew);
+        SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntryNew);
 
         try {
+            req.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.SUCCESS_COMPLETED);
+            req.setAttribute(FrameworkConstants.SESSION_DATA_KEY, sessionDataKey);
             return EndpointUtil.getLoginPageURL(clientId, sessionDataKey, forceAuthenticate,
                     checkAuthentication, oauthRequest.getScopes(), req.getParameterMap());
+
         } catch (IdentityOAuth2Exception e) {
             if (log.isDebugEnabled()) {
                 log.debug("Error while retrieving the login page url.", e);
@@ -607,31 +693,49 @@ public class OAuth2AuthzEndpoint {
             throws OAuthSystemException {
 
         OAuth2Parameters oauth2Params = sessionDataCacheEntry.getoAuth2Parameters();
-        String loggedInUser = sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier();
+        AuthenticatedUser user = sessionDataCacheEntry.getLoggedInUser();
+        String loggedInUser = user.getAuthenticatedSubjectIdentifier();
 
         boolean skipConsent = EndpointUtil.getOAuthServerConfiguration().getOpenIDConnectSkipeUserConsentConfig();
 
         // load the users approved applications to skip consent
         String appName = oauth2Params.getApplicationName();
-        boolean hasUserApproved = OpenIDConnectUserRPStore.getInstance().hasUserApproved(loggedInUser, appName);
+        boolean hasUserApproved = OpenIDConnectUserRPStore.getInstance().hasUserApproved(user, appName,
+                oauth2Params.getClientId());
+        String consentUrl;
+        String errorResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
+                .setError(OAuth2ErrorCodes.ACCESS_DENIED)
+                .location(oauth2Params.getRedirectURI())
+                .setState(oauth2Params.getState()).buildQueryMessage()
+                .getLocationUri();
+
+        consentUrl = EndpointUtil.getUserConsentURL(oauth2Params, loggedInUser, sessionDataKey,
+                OAuth2Util.isOIDCAuthzRequest(oauth2Params.getScopes()) ? true : false);
 
         //Skip the consent page if User has provided approve always or skip consent from file
-        if (skipConsent || hasUserApproved) {
+        if ((OAuthConstants.Prompt.CONSENT).equals(oauth2Params.getPrompt())) {
+            return consentUrl;
 
-            return handleUserConsent(request, "approveAlways", oauth2Params, sessionDataCacheEntry);
+        } else if ((OAuthConstants.Prompt.NONE).equals(oauth2Params.getPrompt())) {
+            //Returning error if the user has not previous session
+            if (sessionDataCacheEntry.getLoggedInUser() == null) {
+                return errorResponse;
+            } else {
+                if (skipConsent || hasUserApproved) {
+                    return handleUserConsent(request, APPROVE, oauth2Params, sessionDataCacheEntry);
+                } else {
+                    return errorResponse;
+                }
+            }
 
-        } else if (oauth2Params.getPrompt().contains(OIDC.Prompt.NONE)) {
-            // should not prompt for consent if approved always
-            // returning error
-            return OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND)
-                    .setError(OAuth2ErrorCodes.ACCESS_DENIED)
-                    .location(oauth2Params.getRedirectURI())
-                    .setState(oauth2Params.getState()).buildQueryMessage()
-                    .getLocationUri();
-
+        } else if (((OAuthConstants.Prompt.LOGIN).equals(oauth2Params.getPrompt()) || StringUtils.isBlank(oauth2Params.getPrompt()))) {
+            if (skipConsent || hasUserApproved) {
+                return handleUserConsent(request, APPROVE, oauth2Params, sessionDataCacheEntry);
+            } else {
+                return consentUrl;
+            }
         } else {
-            return EndpointUtil.getUserConsentURL(oauth2Params, loggedInUser, sessionDataKey, OIDCAuthzServerUtil
-                    .isOIDCAuthzRequest(oauth2Params.getScopes()) ? true : false);
+            return StringUtils.EMPTY;
         }
 
     }
@@ -650,36 +754,144 @@ public class OAuth2AuthzEndpoint {
         authzReqDTO.setConsumerKey(oauth2Params.getClientId());
         authzReqDTO.setResponseType(oauth2Params.getResponseType());
         authzReqDTO.setScopes(oauth2Params.getScopes().toArray(new String[oauth2Params.getScopes().size()]));
-        authzReqDTO.setUsername(sessionDataCacheEntry.getLoggedInUser().getAuthenticatedSubjectIdentifier());
+        authzReqDTO.setUser(sessionDataCacheEntry.getLoggedInUser());
         authzReqDTO.setACRValues(oauth2Params.getACRValues());
+        authzReqDTO.setNonce(oauth2Params.getNonce());
         return EndpointUtil.getOAuth2Service().authorize(authzReqDTO);
     }
 
     private void clearCacheEntry(String sessionDataKey) {
         if (sessionDataKey != null) {
-            CacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
-            Object result = SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().
-                    getSessionDataCacheTimeout()).getValueFromCache(cacheKey);
+            SessionDataCacheKey cacheKey = new SessionDataCacheKey(sessionDataKey);
+            SessionDataCacheEntry result = SessionDataCache.getInstance().getValueFromCache(cacheKey);
             if (result != null) {
-                SessionDataCache.getInstance(OAuthServerConfiguration.getInstance().getSessionDataCacheTimeout())
-                        .clearCacheEntry(cacheKey);
+                SessionDataCache.getInstance().clearCacheEntry(cacheKey);
             }
         }
     }
 
+    /**
+     * Get authentication result
+     * When using federated or multiple steps authenticators, there is a redirection from commonauth to samlsso,
+     * So in that case we cannot use request attribute and have to get the result from cache
+     *
+     * @param req Http servlet request
+     * @param sessionDataKey Session data key
+     * @return
+     */
+    private AuthenticationResult getAuthenticationResult(HttpServletRequest req, String sessionDataKey) {
+
+        AuthenticationResult result = getAuthenticationResultFromRequest(req);
+        if (result == null) {
+            isCacheAvailable = true;
+            result = getAuthenticationResultFromCache(sessionDataKey);
+        }
+        return result;
+    }
+
     private AuthenticationResult getAuthenticationResultFromCache(String sessionDataKey) {
-
-        AuthenticationResultCacheKey authResultCacheKey = new AuthenticationResultCacheKey(sessionDataKey);
-        CacheEntry cacheEntry = AuthenticationResultCache.getInstance(0).getValueFromCache(authResultCacheKey);
         AuthenticationResult authResult = null;
-
-        if (cacheEntry != null) {
-            AuthenticationResultCacheEntry authResultCacheEntry = (AuthenticationResultCacheEntry) cacheEntry;
+        AuthenticationResultCacheEntry authResultCacheEntry = FrameworkUtils
+                .getAuthenticationResultFromCache(sessionDataKey);
+        if (authResultCacheEntry != null) {
             authResult = authResultCacheEntry.getResult();
         } else {
             log.error("Cannot find AuthenticationResult from the cache");
         }
-
         return authResult;
     }
+
+    /**
+     * Get authentication result from request
+     *
+     * @param request  Http servlet request
+     * @return
+     */
+    private AuthenticationResult getAuthenticationResultFromRequest(HttpServletRequest request) {
+
+        return (AuthenticationResult) request.getAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT);
+    }
+
+    /**
+     * In SAML there is no redirection from authentication endpoint to  commonauth and it send a post request to samlsso
+     * servlet and sending the request to authentication framework from here, this overload method not sending
+     * sessionDataKey and type to commonauth that's why overloaded the method here
+     *
+     * @param request Http servlet request
+     * @param response Http servlet response
+     * @throws ServletException
+     * @throws IOException
+     */
+    private Response sendRequestToFramework(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException,IOException,URISyntaxException {
+
+        CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
+
+        CommonAuthResponseWrapper responseWrapper = new CommonAuthResponseWrapper(response);
+        commonAuthenticationHandler.doGet(request, responseWrapper);
+
+        Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+        if (attribute != null) {
+            if (attribute == AuthenticatorFlowStatus.INCOMPLETE) {
+                if (responseWrapper.getRedirectURL()
+                        .contains(ConfigurationFacade.getInstance().getAuthenticationEndpointURL())) {
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+                } else {
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+                }
+            } else {
+                return authorize(request, response);
+            }
+        } else {
+            request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
+            return authorize(request, response);
+        }
+        return null;
+    }
+
+    /**
+     * This method use to call authentication framework directly via API other than using HTTP redirects.
+     * Sending wrapper request object to doGet method since other original request doesn't exist required parameters
+     * Doesn't check SUCCESS_COMPLETED since taking decision with INCOMPLETE status
+     *
+     *
+     * @param request  Http Request
+     * @param response Http Response
+     * @param sessionDataKey Session data key
+     * @param type authenticator type
+     * @throws ServletException
+     * @throws IOException
+     */
+    private Response sendRequestToFramework(HttpServletRequest request, HttpServletResponse response,
+            String sessionDataKey, String type) throws ServletException, IOException, URISyntaxException {
+
+        CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
+
+        CommonAuthRequestWrapper requestWrapper = new CommonAuthRequestWrapper(request);
+        requestWrapper.setParameter(FrameworkConstants.SESSION_DATA_KEY, sessionDataKey);
+        requestWrapper.setParameter(FrameworkConstants.RequestParams.TYPE, type);
+
+        CommonAuthResponseWrapper responseWrapper = new CommonAuthResponseWrapper(response);
+        commonAuthenticationHandler.doGet(requestWrapper, responseWrapper);
+
+        Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
+        if (attribute != null) {
+            if (attribute == AuthenticatorFlowStatus.INCOMPLETE) {
+
+                if (responseWrapper.getRedirectURL()
+                        .contains(ConfigurationFacade.getInstance().getAuthenticationEndpointURL())) {
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+                } else {
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+                }
+            } else {
+                return authorize(requestWrapper, responseWrapper);
+            }
+        } else {
+            requestWrapper.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
+            return authorize(requestWrapper, responseWrapper);
+        }
+        return null;
+    }
+
 }

@@ -21,11 +21,14 @@ package org.wso2.carbon.user.mgt.bulkimport;
 import au.com.bytecode.opencsv.CSVReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.common.UserAdminException;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -44,9 +47,10 @@ public class CSVUserBulkImport {
     }
 
     public void addUserList(UserStoreManager userStore) throws UserAdminException {
+        CSVReader csvReader = new CSVReader(reader, ',', '"', 1);
         try {
-            CSVReader csvReader = new CSVReader(reader, ',', '"', 1);
-            String password = config.getDefaultPassword();
+
+            String domain = config.getUserStoreDomain();
             String[] line = csvReader.readNext();
             boolean isDuplicate = false;
             boolean fail = false;
@@ -57,16 +61,26 @@ public class CSVUserBulkImport {
             int duplicateCount = 0;
             while (line != null && line.length > 0) {
                 String userName = line[0];
+
+                int index;
+                index = userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+                if (index > 0) {
+                    String domainFreeName = userName.substring(index + 1);
+                    userName = UserCoreUtil.addDomainToName(domainFreeName, domain);
+                } else {
+                    userName = UserCoreUtil.addDomainToName(userName, domain);
+                }
+
                 if (userName != null && userName.trim().length() > 0) {
                     try {
                         if (!userStore.isExistingUser(userName)) {
                             if (line.length == 1) {
-                                userStore.addUser(userName, password, null, null, null, true);
+                                userStore.addUser(userName, null, null, null, null, true);
                                 success = true;
                                 successCount++;
                             } else {
                                 try {
-                                    addUserWithClaims(userName, password, line, userStore);
+                                    addUserWithClaims(userName, line, userStore);
                                     success = true;
                                     successCount++;
                                     if (log.isDebugEnabled()){
@@ -120,15 +134,27 @@ public class CSVUserBulkImport {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new UserAdminException(e.getMessage(), e);
+        } finally {
+            try {
+                if (csvReader != null) {
+                    csvReader.close();
+                }
+            } catch (IOException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug(e);
+                }
+                log.error("Error occurred while closing CSV Reader");
+            }
         }
     }
 
-    private void addUserWithClaims(String username, String password, String[] line, UserStoreManager userStore)
+    private void addUserWithClaims(String username, String[] line, UserStoreManager userStore)
             throws UserStoreException, UserAdminException {
         String roleString = null;
         String[] roles = null;
+        String password = line[1];
         Map<String, String> claims = new HashMap<String, String>();
-        for (int i = 1; i < line.length; i++) {
+        for (int i = 2; i < line.length; i++) {
             if (line[i] != null && !line[i].isEmpty()) {
                 String[] claimStrings = line[i].split("=");
                 if (claimStrings.length != 2) {

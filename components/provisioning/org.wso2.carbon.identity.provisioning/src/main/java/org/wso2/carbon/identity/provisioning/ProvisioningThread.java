@@ -18,12 +18,16 @@
 
 package org.wso2.carbon.identity.provisioning;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
+import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.provisioning.dao.CacheBackedProvisioningMgtDAO;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
 import org.wso2.carbon.user.api.UserStoreException;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -58,6 +62,7 @@ public class ProvisioningThread implements Callable<Boolean> {
 
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomainName);
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(getTenantIdFromDomain(tenantDomainName));
 
             ProvisionedIdentifier provisionedIdentifier = null;
             // real provisioning happens now.
@@ -78,6 +83,16 @@ public class ProvisioningThread implements Callable<Boolean> {
                 // store provisioned identifier for future reference.
                 storeProvisionedEntityIdentifier(idPName, connectorType, provisioningEntity,
                         tenantDomainName);
+            } else if (provisioningEntity.getEntityType() == ProvisioningEntityType.GROUP &&
+                       provisioningEntity.getOperation() == ProvisioningOperation.PUT) {
+
+                String newGroupName = ProvisioningUtil.getAttributeValue(provisioningEntity,
+                                                                IdentityProvisioningConstants.NEW_GROUP_NAME_CLAIM_URI);
+                if(newGroupName != null){
+                    // update provisioned entity name for future reference. this is applicable for only
+                    // group name update
+                    dao.updateProvisionedEntityName(provisioningEntity);
+                }
             }
 
             success = true;
@@ -91,6 +106,8 @@ public class ProvisioningThread implements Callable<Boolean> {
             if (tenantDomainName != null) {
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
                         tenantDomainName);
+                PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                                       .setTenantId(getTenantIdFromDomain(tenantDomainName));
             }
         }
 
@@ -135,6 +152,20 @@ public class ProvisioningThread implements Callable<Boolean> {
         } catch (UserStoreException e) {
             throw new IdentityApplicationManagementException(
                     "Error while deleting provisioning identifier.", e);
+        }
+    }
+
+    private int getTenantIdFromDomain(String tenantDomainName) throws IdentityProvisioningException {
+
+        if (StringUtils.isBlank(tenantDomainName)) {
+            throw new IdentityProvisioningException("Provided tenant domain is invalid");
+        }
+
+        try {
+            return IdPManagementUtil.getTenantIdOfDomain(tenantDomainName);
+        } catch (UserStoreException e) {
+            throw new IdentityProvisioningException(
+                    "Error occurred while resolving tenant Id from tenant domain :" + tenantDomainName, e);
         }
     }
 

@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>provisioning</artifactId>
-        <version>4.5.5-SNAPSHOT</version>
+        <version>5.0.8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -97,7 +97,7 @@
                             org.wso2.carbon.identity.provisioning.connector.salesforce.internal
                         </Private-Package>
                         <Import-Package>
-                            org.json; version="[0.0.0,0.1.0)",
+                            org.json; version="${json.wso2.version.range}",
                             org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
                             org.apache.commons.httpclient.*; version="${commons-httpclient.wso2.osgi.version}",
@@ -107,6 +107,7 @@
                             version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.identity.application.common.model;
                             version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.registry.core.*; version="${carbon.kernel.registry.imp.pkg.version}",
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.provisioning.connector.salesforce.internal,

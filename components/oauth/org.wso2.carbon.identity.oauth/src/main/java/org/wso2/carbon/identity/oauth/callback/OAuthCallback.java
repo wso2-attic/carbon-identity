@@ -18,8 +18,7 @@
 
 package org.wso2.carbon.identity.oauth.callback;
 
-import org.apache.amber.oauth2.common.message.types.GrantType;
-import org.apache.amber.oauth2.common.message.types.ResponseType;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 
 import javax.security.auth.callback.Callback;
@@ -38,15 +37,15 @@ public class OAuthCallback implements Callback {
     /**
      * Claimed resource owner
      */
-    private String resourceOwner;
+    private AuthenticatedUser resourceOwner;
     /**
      * OAuth2 Grant Type
      */
-    private ResponseType responseType;
+    private String responseType;
     /**
      * OAuth2 grant type
      */
-    private GrantType grantType;
+    private String grantType;
     /**
      * OAuth2 grant type
      */
@@ -83,7 +82,7 @@ public class OAuthCallback implements Callback {
      * @param client        Client who will be accessing the resource
      * @param callbackType  the callback type
      */
-    public OAuthCallback(String resourceOwner,
+    public OAuthCallback(AuthenticatedUser resourceOwner,
                          String client,
                          OAuthCallbackType callbackType) {
         this.resourceOwner = resourceOwner;
@@ -96,7 +95,7 @@ public class OAuthCallback implements Callback {
      *
      * @return Identifier of the Resource Owner
      */
-    public String getResourceOwner() {
+    public AuthenticatedUser getResourceOwner() {
         return resourceOwner;
     }
 
@@ -159,7 +158,7 @@ public class OAuthCallback implements Callback {
      *
      * @return
      */
-    public ResponseType getResponseType() {
+    public String getResponseType() {
         return responseType;
     }
 
@@ -168,7 +167,7 @@ public class OAuthCallback implements Callback {
      *
      * @param responseType
      */
-    public void setResponseType(ResponseType responseType) {
+    public void setResponseType(String responseType) {
         this.responseType = responseType;
     }
 
@@ -213,7 +212,7 @@ public class OAuthCallback implements Callback {
      *
      * @return Corresponding <Code>GrantType</Code> of the access token request
      */
-    public GrantType getGrantType() {
+    public String getGrantType() {
         return grantType;
     }
 
@@ -222,7 +221,7 @@ public class OAuthCallback implements Callback {
      *
      * @param grantType Corresponding <Code>GrantType</Code> of the access token request
      */
-    public void setGrantType(GrantType grantType) {
+    public void setGrantType(String grantType) {
         this.grantType = grantType;
     }
 

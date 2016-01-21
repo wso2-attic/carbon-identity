@@ -17,12 +17,12 @@
 -->
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO" %>
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthAdminClient" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
 
 <%@ page import="java.util.ResourceBundle" %>
@@ -99,15 +99,15 @@
                 <%
                     if (apps != null && apps.length > 0) {
                         for (int i = 0; i < apps.length; i++) {
-                            String appName = CharacterEncoder.getSafeText(apps[i].getApplicationName());
-                            String userName = CharacterEncoder.getSafeText(apps[i].getUsername());
+                            String appName = apps[i].getApplicationName();
+                            String userName = apps[i].getUsername();
                 %>
                 <tr>
-                    <td width="30%"><%=appName%></td>
-                    <td width="30%"><%=userName%></td>
+                    <td width="30%"><%=Encode.forHtml(appName)%></td>
+                    <td width="30%"><%=Encode.forHtml(userName)%></td>
                     <td width="40%"><a
                             title="<fmt:message key='remove.app'/>"
-                            onclick="itemRemove('<%=appName%>');return false;"
+                            onclick="itemRemove('<%=Encode.forJavaScriptAttribute(appName)%>');return false;"
                             href="#"
                             style="background-image: url(../oauth/images/delete.gif);"
                             class="icon-link"><fmt:message key='remove.app'/></a>

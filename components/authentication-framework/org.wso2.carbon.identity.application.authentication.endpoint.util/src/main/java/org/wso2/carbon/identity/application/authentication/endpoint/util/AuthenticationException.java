@@ -15,16 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.carbon.identity.application.authentication.endpoint.util;
 
-public class AuthenticationException extends Exception {
-    public AuthenticationException() {
-        super();
-    }
+import org.wso2.carbon.identity.base.IdentityException;
 
-    public AuthenticationException(Exception e) {
-        super(e);
-    }
+public class AuthenticationException extends IdentityException {
+
+    private static final long serialVersionUID = 5246864272214219834L;
 
     public AuthenticationException(String message) {
         super(message);

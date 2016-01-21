@@ -18,7 +18,12 @@
 
 package org.wso2.carbon.identity.scim.common.utils;
 
-public class IdentitySCIMException extends Exception {
+import org.wso2.carbon.identity.base.IdentityException;
+
+public class IdentitySCIMException extends IdentityException {
+
+    private static final long serialVersionUID = 3477076930789578976L;
+
     public IdentitySCIMException(String error) {
         super(error);
     }

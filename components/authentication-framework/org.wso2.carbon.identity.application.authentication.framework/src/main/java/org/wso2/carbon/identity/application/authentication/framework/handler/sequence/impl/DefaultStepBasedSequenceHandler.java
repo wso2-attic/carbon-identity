@@ -41,6 +41,7 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationManag
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.user.profile.mgt.UserProfileAdmin;
 import org.wso2.carbon.identity.user.profile.mgt.UserProfileException;
+import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -240,9 +241,14 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
 
             if (authenticator instanceof FederatedApplicationAuthenticator) {
 
-                ExternalIdPConfig externalIdPConfig = ConfigurationFacade.getInstance()
+                ExternalIdPConfig externalIdPConfig = null;
+                try {
+                    externalIdPConfig = ConfigurationFacade.getInstance()
                         .getIdPConfigByName(stepConfig.getAuthenticatedIdP(),
                                             context.getTenantDomain());
+                } catch (IdentityProviderManagementException e) {
+                    log.error("Exception while getting IdP by name", e);
+                }
 
                 context.setExternalIdP(externalIdPConfig);
 
@@ -259,6 +265,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                 Map<String, String> extAttibutesValueMap;
                 Map<String, String> localClaimValues = null;
                 Map<String, String> idpClaimValues = null;
+                List<String> locallyMappedUserRoles = null;
 
                 extAttrs = stepConfig.getAuthenticatedUser().getUserAttributes();
                 extAttibutesValueMap = FrameworkUtils.getClaimMappings(extAttrs, false);
@@ -286,7 +293,8 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                             stepConfig.getAuthenticatedUser().setTenantDomain(context.getTenantDomain());
                             stepConfig.setAuthenticatedUser(stepConfig.getAuthenticatedUser());
                         } catch (UserProfileException e) {
-                            throw new FrameworkException("Error while getting associated local user ID for "+originalExternalIdpSubjectValueForThisStep, e);
+                            throw new FrameworkException("Error while getting associated local user ID for "
+                                    + originalExternalIdpSubjectValueForThisStep, e);
                         } finally {
                             // end tenant flow
                             FrameworkUtils.endTenantFlow();
@@ -365,7 +373,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
 
                     String idpRoleClaimUri = getIdpRoleClaimUri(externalIdPConfig);
 
-                    List<String> locallyMappedUserRoles = getLocallyMappedUserRoles(sequenceConfig,
+                    locallyMappedUserRoles = getLocallyMappedUserRoles(sequenceConfig,
                             externalIdPConfig, extAttibutesValueMap, idpRoleClaimUri);
 
                     if (idpRoleClaimUri != null && getServiceProviderMappedUserRoles(sequenceConfig,
@@ -374,8 +382,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                                 locallyMappedUserRoles));
                     }
 
-                    if (extAttrs != null && !extAttrs.isEmpty()
-                        && (mappedAttrs == null || mappedAttrs.isEmpty())) {
+                    if (mappedAttrs == null || mappedAttrs.isEmpty()) {
                         // do claim handling
                         mappedAttrs = handleClaimMappings(stepConfig, context,
                                                           extAttibutesValueMap, true);
@@ -404,18 +411,18 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                         authenticatedUserAttributes = FrameworkUtils.buildClaimMappings(mappedAttrs);
                     }
 
-                    // do user provisioning. we should provision the user with the original external
-                    // subject identifier.
-                    if (externalIdPConfig.isProvisioningEnabled()) {
+                }
 
-                        if (localClaimValues == null) {
-                            localClaimValues = new HashMap<>();
-                        }
+                // do user provisioning. we should provision the user with the original external
+                // subject identifier.
+                if (externalIdPConfig.isProvisioningEnabled()) {
 
-                        handleJitProvisioning(originalExternalIdpSubjectValueForThisStep, context,
-                                              locallyMappedUserRoles, localClaimValues);
+                    if (localClaimValues == null) {
+                        localClaimValues = new HashMap<>();
                     }
 
+                    handleJitProvisioning(originalExternalIdpSubjectValueForThisStep, context,
+                            locallyMappedUserRoles, localClaimValues);
                 }
 
             } else {
@@ -665,7 +672,9 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
         } catch (FrameworkException e) {
             log.error("Claim handling failed!", e);
         }
-
+        if(mappedAttrs == null){
+            mappedAttrs = new HashMap<>();
+        }
         return mappedAttrs;
     }
 

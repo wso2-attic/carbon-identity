@@ -27,7 +27,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.common.UserAdminException;
 
 import java.io.InputStream;
@@ -47,7 +50,7 @@ public class ExcelUserBulkImport {
         try {
             Workbook wb = this.createWorkbook();
             Sheet sheet = wb.getSheet(wb.getSheetName(0));
-            String password = config.getDefaultPassword();
+            String domain = config.getUserStoreDomain();
 
             if (sheet == null || sheet.getLastRowNum() == -1) {
                 throw new UserAdminException("The first sheet is empty");
@@ -61,10 +64,20 @@ public class ExcelUserBulkImport {
                 Row row = sheet.getRow(i);
                 Cell cell = row.getCell(0);
                 String userName = cell.getStringCellValue();
+
+                int index;
+                index = userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+                if (index > 0) {
+                    String domainFreeName = userName.substring(index + 1);
+                    userName = UserCoreUtil.addDomainToName(domainFreeName, domain);
+                } else {
+                    userName = UserCoreUtil.addDomainToName(userName, domain);
+                }
+
                 if (userName != null && userName.trim().length() > 0) {
                     try {
                         if (!userStore.isExistingUser(userName)) {
-                            userStore.addUser(userName, password, null, null, null, true);
+                            userStore.addUser(userName, null, null, null, null, true);
                             success = true;
                         } else {
                             isDuplicate = true;
@@ -111,6 +124,8 @@ public class ExcelUserBulkImport {
         } catch (Exception e) {
             log.error("Bulk import failed" + e.getMessage(), e);
             throw new UserAdminException("Bulk import failed" + e.getMessage(), e);
+        } finally {
+            IdentityIOStreamUtils.closeInputStream(ins);
         }
         return wb;
     }

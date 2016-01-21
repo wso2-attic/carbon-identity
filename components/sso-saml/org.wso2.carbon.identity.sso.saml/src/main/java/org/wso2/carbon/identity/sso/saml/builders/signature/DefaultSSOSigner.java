@@ -18,6 +18,7 @@
 package org.wso2.carbon.identity.sso.saml.builders.signature;
 
 import org.apache.xml.security.c14n.Canonicalizer;
+import org.opensaml.common.impl.SAMLObjectContentReference;
 import org.opensaml.saml2.core.RequestAbstractType;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilder;
@@ -60,7 +61,7 @@ public class DefaultSSOSigner implements SSOSigner {
                 validator.validate(request.getSignature());
                 isSignatureValid = true;
             } catch (ValidationException e) {
-                throw new IdentityException("Signature Validation Failed for the SAML Assertion : Signature is " +
+                throw IdentityException.error("Signature Validation Failed for the SAML Assertion : Signature is " +
                                             "invalid.", e);
             }
         }
@@ -68,8 +69,8 @@ public class DefaultSSOSigner implements SSOSigner {
     }
 
     @Override
-    public SignableXMLObject setSignature(SignableXMLObject signableXMLObject, String signatureAlgorithm,
-                                          X509Credential cred) throws IdentityException {
+    public SignableXMLObject setSignature(SignableXMLObject signableXMLObject, String signatureAlgorithm, String
+            digestAlgorithm, X509Credential cred) throws IdentityException {
 
         Signature signature = (Signature) buildXMLObject(Signature.DEFAULT_ELEMENT_NAME);
         signature.setSigningCredential(cred);
@@ -84,7 +85,7 @@ public class DefaultSSOSigner implements SSOSigner {
         try {
             value = org.apache.xml.security.utils.Base64.encode(cred.getEntityCertificate().getEncoded());
         } catch (CertificateEncodingException e) {
-            throw new IdentityException("Error occurred while retrieving encoded cert", e);
+            throw IdentityException.error("Error occurred while retrieving encoded cert", e);
         }
 
         cert.setValue(value);
@@ -93,6 +94,7 @@ public class DefaultSSOSigner implements SSOSigner {
         signature.setKeyInfo(keyInfo);
 
         signableXMLObject.setSignature(signature);
+        ((SAMLObjectContentReference) signature.getContentReferences().get(0)).setDigestAlgorithm(digestAlgorithm);
 
         List<Signature> signatureList = new ArrayList<Signature>();
         signatureList.add(signature);
@@ -103,14 +105,14 @@ public class DefaultSSOSigner implements SSOSigner {
         try {
             marshaller.marshall(signableXMLObject);
         } catch (MarshallingException e) {
-            throw new IdentityException("Unable to marshall the request", e);
+            throw IdentityException.error("Unable to marshall the request", e);
         }
 
         org.apache.xml.security.Init.init();
         try {
             Signer.signObjects(signatureList);
         } catch (SignatureException e) {
-            throw new IdentityException("Error occurred while signing request", e);
+            throw IdentityException.error("Error occurred while signing request", e);
         }
 
         return signableXMLObject;
@@ -128,7 +130,7 @@ public class DefaultSSOSigner implements SSOSigner {
                 org.opensaml.xml.Configuration.getBuilderFactory()
                         .getBuilder(objectQName);
         if (builder == null) {
-            throw new IdentityException("Unable to retrieve builder for object QName " +
+            throw IdentityException.error("Unable to retrieve builder for object QName " +
                                         objectQName);
         }
         return builder.buildObject(objectQName.getNamespaceURI(), objectQName.getLocalPart(),

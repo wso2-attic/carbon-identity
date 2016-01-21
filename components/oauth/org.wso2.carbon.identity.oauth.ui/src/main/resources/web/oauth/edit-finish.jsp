@@ -17,13 +17,13 @@
  -->
 
 <%@ page import="org.apache.axis2.context.ConfigurationContext"%>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%@ page import="org.wso2.carbon.CarbonConstants"%>
 <%@ page import="org.wso2.carbon.identity.oauth.common.OAuthConstants"%>
 <%@ page import="org.wso2.carbon.identity.oauth.stub.dto.OAuthConsumerAppDTO"%>
 <%@ page import="org.wso2.carbon.identity.oauth.ui.client.OAuthAdminClient"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage"%>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil"%>
-<%@ page import="org.wso2.carbon.ui.util.CharacterEncoder"%>
 <%@ page import="org.wso2.carbon.utils.ServerConstants"%>
 
 <%@ page import="java.util.ResourceBundle" %>
@@ -38,20 +38,20 @@
 <jsp:include page="../dialog/display_messages.jsp" />
 
 <%
-	String consumerkey = CharacterEncoder.getSafeText(request.getParameter("consumerkey"));
-    String callback = CharacterEncoder.getSafeText(request.getParameter("callback"));
-    String applicationName = CharacterEncoder.getSafeText(request.getParameter("application"));
-    String consumersecret = CharacterEncoder.getSafeText(request.getParameter("consumersecret"));
-    String oauthVersion = CharacterEncoder.getSafeText(request.getParameter("oauthVersion"));
+    String consumerkey = request.getParameter("consumerkey");
+    String callback = request.getParameter("callback");
+    String applicationName = request.getParameter("application");
+    String consumersecret = request.getParameter("consumersecret");
+    String oauthVersion = request.getParameter("oauthVersion");
     //-- start setting grants
-    String grantCode = CharacterEncoder.getSafeText(request.getParameter("grant_code"));
-    String grantImplicit = CharacterEncoder.getSafeText(request.getParameter("grant_implicit"));
-    String grantPassword = CharacterEncoder.getSafeText(request.getParameter("grant_password"));
-    String grantClient = CharacterEncoder.getSafeText(request.getParameter("grant_client"));
-    String grantRefresh = CharacterEncoder.getSafeText(request.getParameter("grant_refresh"));
-    String grantSAML1 = CharacterEncoder.getSafeText(request.getParameter("grant_saml1"));
-    String grantSAML2 = CharacterEncoder.getSafeText(request.getParameter("grant_saml2"));
-    String grantNTLM = CharacterEncoder.getSafeText(request.getParameter("grant_ntlm"));
+    String grantCode = request.getParameter("grant_code");
+    String grantImplicit = request.getParameter("grant_implicit");
+    String grantPassword = request.getParameter("grant_password");
+    String grantClient = request.getParameter("grant_client");
+    String grantRefresh = request.getParameter("grant_refresh");
+    String grantSAML1 = request.getParameter("grant_saml1");
+    String grantSAML2 = request.getParameter("grant_saml2");
+    String grantNTLM = request.getParameter("grant_ntlm");
     String grants = null;
    	StringBuffer buff = new StringBuffer();
 	if (grantCode != null) {
@@ -122,9 +122,9 @@ boolean qpplicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/a
 if (qpplicationComponentFound) {
 	if (!isError) {
 %>
-    location.href = '../application/configure-service-provider.jsp?action=update&display=oauthapp&spName=<%=spName%>&oauthapp=<%=consumerkey%>';
+    location.href = '../application/configure-service-provider.jsp?action=update&display=oauthapp&spName=<%=Encode.forUriComponent(spName)%>&oauthapp=<%=Encode.forUriComponent(consumerkey)%>';
 <%  } else { %>
-    location.href = '../application/configure-service-provider.jsp?action=cancel&display=oauthapp&spName=<%=spName%>';
+    location.href = '../application/configure-service-provider.jsp?action=cancel&display=oauthapp&spName=<%=Encode.forUriComponent(spName)%>';
 <%
     }
 }else {

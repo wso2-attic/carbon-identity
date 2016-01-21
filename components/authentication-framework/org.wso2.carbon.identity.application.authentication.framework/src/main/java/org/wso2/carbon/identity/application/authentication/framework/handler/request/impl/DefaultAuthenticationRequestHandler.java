@@ -18,10 +18,10 @@
 
 package org.wso2.carbon.identity.application.authentication.framework.handler.request.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ApplicationConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.application.authentication.framework.exception.F
 import org.wso2.carbon.identity.application.authentication.framework.handler.request.AuthenticationRequestHandler;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationResult;
+import org.wso2.carbon.identity.application.authentication.framework.model.CommonAuthResponseWrapper;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.idp.mgt.util.IdPManagementUtil;
@@ -41,6 +42,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultAuthenticationRequestHandler implements AuthenticationRequestHandler {
@@ -48,6 +50,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
     private static final Log log = LogFactory.getLog(DefaultAuthenticationRequestHandler.class);
     private static final Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
     private static volatile DefaultAuthenticationRequestHandler instance;
+
 
     public static DefaultAuthenticationRequestHandler getInstance() {
 
@@ -116,9 +119,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         if (context.getSequenceConfig().isCompleted()) {
             concludeFlow(request, response, context);
         } else { // redirecting outside
-            FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(), context,
-                    IdPManagementUtil.getIdleSessionTimeOut(CarbonContext.
-                                                  getThreadLocalCarbonContext().getTenantDomain()));
+            FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(), context);
         }
     }
 
@@ -234,8 +235,8 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
             if (!sequenceConfig.getApplicationConfig().isSaaSApp()) {
                 String spTenantDomain = context.getTenantDomain();
                 String userTenantDomain = sequenceConfig.getAuthenticatedUser().getTenantDomain();
-                if (userTenantDomain != null && !userTenantDomain.isEmpty()) {
-                    if (spTenantDomain != null && !spTenantDomain.isEmpty() && !spTenantDomain.equals
+                if (StringUtils.isNotEmpty(userTenantDomain)) {
+                    if (StringUtils.isNotEmpty(spTenantDomain) && !spTenantDomain.equals
                             (userTenantDomain)) {
                         throw new FrameworkException("Service Provider tenant domain must be equal to user tenant " +
                                                      "domain for non-SaaS applications");
@@ -270,9 +271,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                 sessionContext.getAuthenticatedIdPs().putAll(context.getCurrentAuthenticatedIdPs());
                 // TODO add to cache?
                 // store again. when replicate  cache is used. this may be needed.
-                FrameworkUtils.addSessionContextToCache(commonAuthCookie, sessionContext,
-                        IdPManagementUtil.getIdleSessionTimeOut(CarbonContext.
-                                                  getThreadLocalCarbonContext().getTenantDomain()));
+                FrameworkUtils.addSessionContextToCache(commonAuthCookie, sessionContext);
             } else {
                 sessionContext = new SessionContext();
                 sessionContext.getAuthenticatedSequences().put(appConfig.getApplicationName(),
@@ -280,9 +279,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
                 sessionContext.setAuthenticatedIdPs(context.getCurrentAuthenticatedIdPs());
                 sessionContext.setRememberMe(context.isRememberMe());
                 String sessionKey = UUIDGenerator.generateUUID();
-                FrameworkUtils.addSessionContextToCache(sessionKey, sessionContext,
-                        IdPManagementUtil.getIdleSessionTimeOut(CarbonContext.
-                                                  getThreadLocalCarbonContext().getTenantDomain()));
+                FrameworkUtils.addSessionContextToCache(sessionKey, sessionContext);
 
                 setAuthCookie(request, response, context, sessionKey, authenticatedUserTenantDomain);
             }
@@ -302,18 +299,21 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
             AUDIT_LOG.info(String.format(
                     FrameworkConstants.AUDIT_MESSAGE,
-                    sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier() + '@' +
-                    sequenceConfig.getAuthenticatedUser().getTenantDomain(),
+                    sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier(),
                     "Login",
                     "ApplicationAuthenticationFramework", auditData, FrameworkConstants.AUDIT_SUCCESS));
         }
-        // Put the result in the cache using calling servlet's sessionDataKey as the cache key Once
-        // the redirect is done to that servlet, it will retrieve the result from the cache using
-        // that key.
-        FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(),
-                authenticationResult, IdPManagementUtil.getIdleSessionTimeOut(CarbonContext.
-                                                  getThreadLocalCarbonContext().getTenantDomain()));
 
+        // Checking weather inbound protocol is an already cache removed one, request come from federated or other
+        // authenticator in multi steps scenario. Ex. Fido
+        if (FrameworkUtils.getCacheDisabledAuthenticators().contains(context.getRequestType())
+                && (response instanceof CommonAuthResponseWrapper)) {
+            //Set the result as request attribute
+            request.setAttribute("sessionDataKey", context.getCallerSessionKey());
+            addAuthenticationResultToRequest(request, authenticationResult);
+        }else{
+            FrameworkUtils.addAuthenticationResultToCache(context.getCallerSessionKey(), authenticationResult);
+        }
         /*
          * TODO Cache retaining is a temporary fix. Remove after Google fixes
          * http://code.google.com/p/gdata-issues/issues/detail?id=6628
@@ -325,6 +325,18 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         }
 
         sendResponse(request, response, context);
+    }
+
+
+
+    /**
+     * Add authentication request as request attribute
+     * @param request
+     * @param authenticationResult
+     */
+    private void addAuthenticationResultToRequest(HttpServletRequest request,
+            AuthenticationResult authenticationResult) {
+        request.setAttribute(FrameworkConstants.RequestAttribute.AUTH_RESULT, authenticationResult);
     }
 
     private void setAuthCookie(HttpServletRequest request, HttpServletResponse response, AuthenticationContext context,
@@ -382,7 +394,7 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
 
         // redirect to the caller
         String redirectURL = context.getCallerPath() + "?sessionDataKey="
-                             + context.getCallerSessionKey() + rememberMeParam;
+                + context.getCallerSessionKey() + rememberMeParam;
         try {
             response.sendRedirect(redirectURL);
         } catch (IOException e) {

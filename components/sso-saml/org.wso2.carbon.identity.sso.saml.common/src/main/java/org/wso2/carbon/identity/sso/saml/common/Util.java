@@ -90,17 +90,6 @@ public class Util {
         return status >= 200 && status < 300;
     }
 
-    /**
-     * Return
-     *
-     * @param request
-     * @param parameter
-     * @return
-     */
-    public static String getSafeInput(HttpServletRequest request, String parameter) {
-        return CharacterEncoder.getSafeText(request.getParameter(parameter));
-    }
-
     public static SAMLSSOServiceProviderDTO[] doPaging(int pageNumber,
                                                        SAMLSSOServiceProviderDTO[] serviceProviderSet) {
 
@@ -151,7 +140,7 @@ public class Util {
             uri = new URI(openid);
             path = uri.getPath();
         } catch (URISyntaxException e) {
-            throw new IdentityException("Invalid OpenID", e);
+            throw IdentityException.error("Invalid OpenID", e);
         }
         caller = path.substring(path.indexOf(contextPath) + contextPath.length(), path.length());
         return caller;
@@ -186,15 +175,15 @@ public class Util {
         try {
             uri = new URI(openID);
         } catch (URISyntaxException e) {
-            throw new IdentityException("Invalid OpenID URL :" + openID, e);
+            throw IdentityException.error("Invalid OpenID URL :" + openID, e);
         }
         try {
             url = uri.normalize().toURL();
             if (url.getQuery() != null || url.getRef() != null) {
-                throw new IdentityException("Invalid user name for OpenID :" + openID);
+                throw IdentityException.error("Invalid user name for OpenID :" + openID);
             }
         } catch (MalformedURLException e) {
-            throw new IdentityException("Malformed OpenID URL :" + openID, e);
+            throw IdentityException.error("Malformed OpenID URL :" + openID, e);
         }
         openID = url.toString();
         return openID;

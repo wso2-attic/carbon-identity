@@ -7,6 +7,8 @@ import java.io.Serializable;
  */
 public class PolicyStatus implements Serializable {
 
+    private static final long serialVersionUID = -5173389109938987102L;
+
     private String policyId = null;
     private int statusCount = 0;
     private String policyAction;

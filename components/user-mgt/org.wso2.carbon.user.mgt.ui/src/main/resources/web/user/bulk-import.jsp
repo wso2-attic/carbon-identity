@@ -19,7 +19,9 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@page import="org.wso2.carbon.CarbonConstants" %>
+<%@page import="org.apache.commons.collections.CollectionUtils" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIMessage" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.user.mgt.stub.types.carbon.UserRealmInfo" %>
@@ -27,6 +29,8 @@
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminClient" %>
 <%@ page import="org.wso2.carbon.user.mgt.ui.UserAdminUIConstants" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.List" %>
 
 <script type="text/javascript" src="extensions/core/js/vui.js"></script>
 <script type="text/javascript" src="../admin/js/main.js"></script>
@@ -40,6 +44,7 @@
     <%
         UserRealmInfo userRealmInfo = null;
         UserStoreInfo userStoreInfo = null;
+        List<String> bulkImportSupportedUserStoreDomains = new ArrayList<String>();
         try {
 
             userRealmInfo = (UserRealmInfo) session.getAttribute(UserAdminUIConstants.USER_STORE_INFO);
@@ -54,6 +59,13 @@
             }
 
             userStoreInfo = userRealmInfo.getPrimaryUserStoreInfo(); // Bulk import enable when only one user store
+
+            UserStoreInfo[] userStoreInfos = userRealmInfo.getUserStoresInfo();
+            for(UserStoreInfo info : userStoreInfos) {
+                if(info.getBulkImportSupported()) {
+                    bulkImportSupportedUserStoreDomains.add(info.getDomainName());
+                }
+            }
 
         } catch (Exception e) {
             CarbonUIMessage uiMsg = new CarbonUIMessage(e.getMessage(), CarbonUIMessage.ERROR, e);
@@ -72,47 +84,7 @@
                 CARBON.showWarningDialog("Users file cannot be empty.");
                 return false;
             }
-            var emptyPswd="";
 
-            emptyPswd = validateEmpty("password");
-
-            if (emptyPswd.length>0){
-                CARBON.showWarningDialog("Password field cannot be empty.");
-                return false;
-            }
-
-            var e = document.getElementById("domain");
-            var passwordRegEx = "<%=userStoreInfo.getPasswordRegEx()%>";
-            if (e != null) {
-
-                var selectedDomainValue = e.options[e.selectedIndex].text.toUpperCase()
-                var pwd = "pwd_";
-
-                var passwordRegExElm = document.getElementById(pwd + selectedDomainValue);
-
-                if (passwordRegExElm != null) {
-                    passwordRegEx = document.getElementById(pwd + selectedDomainValue).value;
-                } else {
-                    passwordRegEx = document.getElementById("pwd_primary_null").value;
-                }
-
-            } else {
-
-                passwordRegEx = document.getElementById("pwd_primary_null").value;
-
-            }
-
-            error = validatePasswordOnCreation("password", "password", passwordRegEx);
-            if (error != "") {
-                if (error == "Empty Password") {
-                    CARBON.showWarningDialog("<fmt:message key="enter.the.same.password.twice"/>");
-                } else if (error == "Invalid Character") {
-                    CARBON.showWarningDialog("<fmt:message key="invalid.character.in.password"/>");
-                } else if (error == "No conformance") {
-                    CARBON.showWarningDialog("<fmt:message key="password.conformance"/>");
-                }
-                return false;
-            }
             return true;
         }
     </script>
@@ -132,19 +104,38 @@
                         <td class="formRaw">
                             <table class="normal">
                                 <tr>
+                                <%
+                                    if (CollectionUtils.isNotEmpty(bulkImportSupportedUserStoreDomains)) {
+                                %>
+                                <tr>
+                                    <td><fmt:message key="select.userStore"/></td>
+                                    <td colspan="2"><select id="userStore" name="userStore">
+                                        <%
+                                            for (String userStoreDomain : bulkImportSupportedUserStoreDomains) {
+
+                                        %>
+
+                                        <option value="<%=Encode.forHtmlAttribute(userStoreDomain)%>">
+                                            <%=Encode.forHtmlContent(userStoreDomain)%>
+                                        </option>
+                                        <%
+                                                }
+
+                                        %>
+                                    </select>
+                                    </td>
+                                </tr>
+                                <%
+                                    }
+                                %>
+
+
+                                </tr>
+                                <tr>
                                     <td><fmt:message key="users.file"/><font color="red">*</font>
                                     </td>
                                     <td><input id="browseField" type="file" name="usersFile"
                                                size="50"/></td>
-                                </tr>
-                                <tr>
-                                    <td><fmt:message key="default.password"/><font
-                                            color="red">*</font></td>
-                                    <td>
-                                        <input type="password" name="password" style="width:150px"/>
-                                        <font color="red">This password expires after 24
-                                                          hours</font>
-                                    </td>
                                 </tr>
                             </table>
                         </td>

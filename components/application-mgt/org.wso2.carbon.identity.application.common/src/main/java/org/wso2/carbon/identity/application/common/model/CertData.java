@@ -23,9 +23,6 @@ import java.math.BigInteger;
 
 public class CertData implements Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 2096222055741114879L;
 
     private String alias;

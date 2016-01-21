@@ -18,17 +18,16 @@
 
 package org.wso2.carbon.identity.oauth2.token;
 
-import org.apache.amber.oauth2.common.error.OAuthError;
-import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.oltu.openidconnect.as.util.OIDCAuthzServerUtil;
+import org.apache.oltu.oauth2.common.error.OAuthError;
+import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.model.OAuthAppDO;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
+import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
-import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
@@ -62,7 +61,7 @@ public class AccessTokenIssuer {
 
         authzGrantHandlers = OAuthServerConfiguration.getInstance().getSupportedGrantTypes();
         clientAuthenticationHandlers = OAuthServerConfiguration.getInstance().getSupportedClientAuthHandlers();
-        appInfoCache = AppInfoCache.getInstance(OAuthServerConfiguration.getInstance().getAppInfoCacheTimeout());
+        appInfoCache = AppInfoCache.getInstance();
         if (appInfoCache != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Successfully created AppInfoCache under " + OAuthConstants.OAUTH_CACHE_MANAGER);
@@ -97,7 +96,7 @@ public class AccessTokenIssuer {
 
         OAuthTokenReqMessageContext tokReqMsgCtx = new OAuthTokenReqMessageContext(tokenReqDTO);
 
-        // If multiple client authenticaton methods have been used the authorization server must reject the request
+        // If multiple client authentication methods have been used the authorization server must reject the request
         int authenticatorHandlerIndex = -1;
         for (int i = 0; i < clientAuthenticationHandlers.size(); i++) {
             if (clientAuthenticationHandlers.get(i).canAuthenticate(tokReqMsgCtx)) {
@@ -133,65 +132,73 @@ public class AccessTokenIssuer {
         } else {
             isAuthenticated = true;
         }
-
-        // loading the stored application data
-        OAuthAppDO oAuthAppDO = getAppInformation(tokenReqDTO);
-        String applicationName = oAuthAppDO.getApplicationName();
-        if (!authzGrantHandler.isOfTypeApplicationUser()) {
-            tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(oAuthAppDO.getUserName()));
-            tokReqMsgCtx.setTenantID(oAuthAppDO.getTenantId());
-        }
-
-        boolean isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
-        boolean isAuthorized = authzGrantHandler.authorizeAccessDelegation(tokReqMsgCtx);
-        boolean isValidScope = authzGrantHandler.validateScope(tokReqMsgCtx);
-
-        String userName = tokReqMsgCtx.getAuthorizedUser().toString();
-
-        //boolean isAuthenticated = true;
         if (!isAuthenticated) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Client Authentication Failed for client id=" + tokenReqDTO.getClientId() + ", " +
-                    "user-name=" + userName + " to application=" + applicationName);
+            if(log.isDebugEnabled()) {
+                log.debug("Client Authentication failed for client Id: " + tokenReqDTO.getClientId());
+            }
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_CLIENT,
                     "Client credentials are invalid.", tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
 
-        //boolean isValidGrant = true;
+        // loading the stored application data
+        OAuthAppDO oAuthAppDO = getAppInformation(tokenReqDTO);
+        if (!authzGrantHandler.isOfTypeApplicationUser()) {
+            tokReqMsgCtx.setAuthorizedUser(oAuthAppDO.getUser());
+        }
+
+        boolean isValidGrant = false;
+        String error = "Provided Authorization Grant is invalid";
+        try {
+            isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
+        } catch (IdentityOAuth2Exception e) {
+            if(log.isDebugEnabled()){
+                log.debug("Error occurred while validating grant", e);
+            }
+            error = e.getMessage();
+        }
+
         if (!isValidGrant) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Invalid Grant provided by the client, id=" + tokenReqDTO.getClientId() + ", " +
-                    "" + "user-name=" + userName + " to application=" + applicationName);
-            tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_GRANT,
-                    "Provided Authorization Grant is invalid.", tokenReqDTO);
+            if (log.isDebugEnabled()) {
+                log.debug("Invalid Grant provided by the client Id: " + tokenReqDTO.getClientId());
+            }
+            tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_GRANT, error, tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
 
-        //boolean isAuthorized = true;
+        boolean isAuthorized = authzGrantHandler.authorizeAccessDelegation(tokReqMsgCtx);
         if (!isAuthorized) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Resource owner is not authorized to grant access, client-id="
-                    + tokenReqDTO.getClientId() + " " + "user-name=" + userName + " to application=" + applicationName);
+            if(log.isDebugEnabled()) {
+                log.debug("Invalid authorization for client Id = " + tokenReqDTO.getClientId());
+            }
             tokenRespDTO = handleError(OAuthError.TokenResponse.UNAUTHORIZED_CLIENT,
                     "Unauthorized Client!", tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
 
-        //boolean isValidScope = true;
+        boolean isValidScope = authzGrantHandler.validateScope(tokReqMsgCtx);
         if (!isValidScope) {
-            //Do not change this log format as these logs use by external applications
-            log.debug("Invalid Scope provided. client-id=" + tokenReqDTO.getClientId() + " " +
-                    "" + "user-name=" + userName + " to application=" + applicationName);
+            if(log.isDebugEnabled()) {
+                log.debug("Invalid scope provided by client Id: " + tokenReqDTO.getClientId());
+            }
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_SCOPE, "Invalid Scope!", tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
             return tokenRespDTO;
         }
 
-        tokenRespDTO = authzGrantHandler.issue(tokReqMsgCtx);
+	try {
+	    // set the token request context to be used by downstream handlers. This is introduced as a fix for
+	    // IDENTITY-4111.
+	    OAuth2Util.setTokenRequestContext(tokReqMsgCtx);
+	    tokenRespDTO = authzGrantHandler.issue(tokReqMsgCtx);
+	} finally {
+	    // clears the token request context.
+	    OAuth2Util.clearTokenRequestContext();
+	}
+	
         tokenRespDTO.setCallbackURI(oAuthAppDO.getCallbackUrl());
 
         String[] scopes = tokReqMsgCtx.getScope();
@@ -208,11 +215,11 @@ public class AccessTokenIssuer {
 
         //Do not change this log format as these logs use by external applications
         if (log.isDebugEnabled()) {
-            log.debug("Access Token issued to client. client-id=" + tokenReqDTO.getClientId() + " " +
-                    "" + "user-name=" + userName + " to application=" + applicationName);
+            log.debug("Access token issued to client Id: " + tokenReqDTO.getClientId() + " username: " +
+                    tokReqMsgCtx.getAuthorizedUser() + " and scopes: " + tokenRespDTO.getAuthorizedScopes());
         }
 
-        if (tokReqMsgCtx.getScope() != null && OIDCAuthzServerUtil.isOIDCAuthzRequest(tokReqMsgCtx.getScope())) {
+        if (tokReqMsgCtx.getScope() != null && OAuth2Util.isOIDCAuthzRequest(tokReqMsgCtx.getScope())) {
             IDTokenBuilder builder = OAuthServerConfiguration.getInstance().getOpenIDConnectIDTokenBuilder();
             tokenRespDTO.setIDToken(builder.buildIDToken(tokReqMsgCtx, tokenRespDTO));
         }
@@ -226,15 +233,21 @@ public class AccessTokenIssuer {
 
     private void addUserAttributesToCache(OAuth2AccessTokenReqDTO tokenReqDTO, OAuth2AccessTokenRespDTO tokenRespDTO) {
         AuthorizationGrantCacheKey oldCacheKey = new AuthorizationGrantCacheKey(tokenReqDTO.getAuthorizationCode());
-        //checking getUserAttributesId vale of cacheKey before retrieve entry from cache as it causes to NPE
+        //checking getUserAttributesId value of cacheKey before retrieve entry from cache as it causes to NPE
         if (oldCacheKey.getUserAttributesId() != null) {
-            CacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance(OAuthServerConfiguration.
-                    getInstance().getAuthorizationGrantCacheTimeout())
-                    .getValueFromCache(oldCacheKey);
+            AuthorizationGrantCacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance().getValueFromCacheByCode(oldCacheKey);
             AuthorizationGrantCacheKey newCacheKey = new AuthorizationGrantCacheKey(tokenRespDTO.getAccessToken());
-            int authorizationGrantCacheTimeout = OAuthServerConfiguration.getInstance().getAuthorizationGrantCacheTimeout();
-            AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).addToCache(newCacheKey, authorizationGrantCacheEntry);
-            AuthorizationGrantCache.getInstance(authorizationGrantCacheTimeout).clearCacheEntry(oldCacheKey);
+            authorizationGrantCacheEntry.setTokenId(tokenRespDTO.getTokenId());
+            if (AuthorizationGrantCache.getInstance().getValueFromCacheByToken(newCacheKey) == null) {
+                if(log.isDebugEnabled()){
+                   log.debug("No AuthorizationGrantCache entry found for the access token:"+ newCacheKey.getUserAttributesId()+
+                   ", hence adding to cache");
+                }
+                AuthorizationGrantCache.getInstance().addToCacheByToken(newCacheKey, authorizationGrantCacheEntry);
+                AuthorizationGrantCache.getInstance().clearCacheEntryByCode(oldCacheKey);
+            } else{
+                //if the user attributes are already saved for access token, no need to add again.
+            }
         }
     }
 

@@ -55,7 +55,7 @@ public class OpenIDSimpleReg extends OpenIDExtension {
     public OpenIDSimpleReg(OpenIDAuthenticationRequest request) throws IdentityException {
         if (request == null) {
             log.debug("Request cannot be null while initializing OpenIDSimpleReg");
-            throw new IdentityException("Request cannot be null while initializing OpenIDSimpleReg");
+            throw IdentityException.error("Request cannot be null while initializing OpenIDSimpleReg");
         }
         this.request = request;
     }
@@ -107,7 +107,7 @@ public class OpenIDSimpleReg extends OpenIDExtension {
             }
         } catch (MessageException e) {
             log.error("Failed to add required attributes of OpenID Simple Registration", e);
-            throw new IdentityException("Failed to add required attributes of OpenID Simple Registration", e);
+            throw IdentityException.error("Failed to add required attributes of OpenID Simple Registration", e);
         }
     }
 
@@ -176,7 +176,7 @@ public class OpenIDSimpleReg extends OpenIDExtension {
 
         } catch (MessageException e) {
             log.error("Failed to create message extension for OpenID Simple Registration", e);
-            throw new IdentityException("Failed to create message extension for OpenID Simple Registration", e);
+            throw IdentityException.error("Failed to create message extension for OpenID Simple Registration", e);
         }
     }
 

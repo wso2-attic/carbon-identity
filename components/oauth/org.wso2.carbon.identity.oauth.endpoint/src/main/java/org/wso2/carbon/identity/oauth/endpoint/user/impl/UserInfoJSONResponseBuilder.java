@@ -17,11 +17,10 @@
  */
 package org.wso2.carbon.identity.oauth.endpoint.user.impl;
 
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jettison.json.JSONException;
+import org.apache.oltu.oauth2.common.utils.JSONUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
@@ -43,8 +42,7 @@ public class UserInfoJSONResponseBuilder implements UserInfoResponseBuilder {
 
     @Override
     public String getResponseString(OAuth2TokenValidationResponseDTO tokenResponse)
-            throws UserInfoEndpointException,
-            OAuthSystemException {
+            throws UserInfoEndpointException {
 
         Map<ClaimMapping, String> userAttributes = getUserAttributesFromCache(tokenResponse);
         Map<String, Object> claims = null;
@@ -53,32 +51,25 @@ public class UserInfoJSONResponseBuilder implements UserInfoResponseBuilder {
             if (log.isDebugEnabled()) {
                 log.debug("User attributes not found in cache. Trying to retrieve from user store.");
             }
-            try {
-                claims = ClaimUtil.getClaimsFromUserStore(tokenResponse);
-            } catch (Exception e) {
-                log.error("Error while retrieving claims from user store.", e);
-                throw new UserInfoEndpointException("Error while retrieving claims from user store.");
-            }
-
+            claims = ClaimUtil.getClaimsFromUserStore(tokenResponse);
         } else {
             UserInfoClaimRetriever retriever = UserInfoEndpointConfig.getInstance().getUserInfoClaimRetriever();
             claims = retriever.getClaimsMap(userAttributes);
         }
-
-        try {
-            return JSONUtils.buildJSON(claims);
-
-        } catch (JSONException e) {
-            log.error("Error while generating the response JSON", e);
-            throw new UserInfoEndpointException("Error while generating the response JSON");
+        if(claims == null){
+            claims = new HashMap<String,Object>();
         }
+        if(!claims.containsKey("sub") || StringUtils.isBlank((String) claims.get("sub"))) {
+            claims.put("sub", tokenResponse.getAuthorizedUser());
+        }
+        return JSONUtils.buildJSON(claims);
     }
 
     private Map<ClaimMapping, String> getUserAttributesFromCache(OAuth2TokenValidationResponseDTO tokenResponse) {
         AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(tokenResponse.getAuthorizationContextToken()
                 .getTokenString());
-        AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance(0)
-                .getValueFromCache(cacheKey);
+        AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache.getInstance()
+                .getValueFromCacheByToken(cacheKey);
 
         if (cacheEntry == null) {
             return new HashMap<ClaimMapping, String>();

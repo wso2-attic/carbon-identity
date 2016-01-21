@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.oauth2.model;
 
 import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.oauth.cache.CacheEntry;
 
@@ -30,7 +31,7 @@ public class AccessTokenDO extends CacheEntry {
 
     private String consumerKey;
 
-    private User authzUser;
+    private AuthenticatedUser authzUser;
 
     private String[] scope;
 
@@ -43,6 +44,8 @@ public class AccessTokenDO extends CacheEntry {
     private String accessToken;
 
     private String authorizationCode;
+
+    private String grantType;
 
     private Timestamp issuedTime;
 
@@ -60,7 +63,7 @@ public class AccessTokenDO extends CacheEntry {
 
     private String tokenType;
 
-    public AccessTokenDO(String consumerKey, User authzUser, String[] scope, Timestamp issuedTime, Timestamp
+    public AccessTokenDO(String consumerKey, AuthenticatedUser authzUser, String[] scope, Timestamp issuedTime, Timestamp
             refreshTokenIssuedTime, long validityPeriodInMillis, long refreshTokenValidityPeriodInMillis, String
                                  tokenType) {
         this.consumerKey = consumerKey;
@@ -75,7 +78,7 @@ public class AccessTokenDO extends CacheEntry {
         this.tokenType = tokenType;
     }
 
-    public AccessTokenDO(String consumerKey, User authzUser, String[] scope, Timestamp issuedTime, Timestamp
+    public AccessTokenDO(String consumerKey, AuthenticatedUser authzUser, String[] scope, Timestamp issuedTime, Timestamp
             refreshTokenIssuedTime, long validityPeriodInMillis, long refreshTokenValidityPeriodInMillis, String
                                  tokenType, String authorizationCode) {
         this(consumerKey, authzUser, scope, issuedTime, refreshTokenIssuedTime, validityPeriodInMillis,
@@ -99,7 +102,7 @@ public class AccessTokenDO extends CacheEntry {
         this.consumerKey = consumerKey;
     }
 
-    public User getAuthzUser() {
+    public AuthenticatedUser getAuthzUser() {
         return authzUser;
     }
 
@@ -209,5 +212,13 @@ public class AccessTokenDO extends CacheEntry {
 
     public void setAuthorizationCode(String authorizationCode) {
         this.authorizationCode = authorizationCode;
+    }
+
+    public String getGrantType() {
+        return grantType;
+    }
+
+    public void setGrantType(String grantType) {
+        this.grantType = grantType;
     }
 }

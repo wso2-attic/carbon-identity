@@ -43,7 +43,7 @@ public class SSOAgentRequestResolver {
     public boolean isSLORequest() {
 
         return ssoAgentConfig.isSAML2SSOLoginEnabled() &&
-                request.getParameter(AuthnRequest.DEFAULT_ELEMENT_LOCAL_NAME) != null;
+                request.getParameter(SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ) != null;
     }
 
     // This could be either SAML Response for a SSO SAML Request by the client application
