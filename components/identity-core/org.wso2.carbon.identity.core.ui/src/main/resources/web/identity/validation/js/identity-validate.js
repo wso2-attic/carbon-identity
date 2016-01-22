@@ -88,8 +88,9 @@ function isWhiteListed(input, whiteListPatterns) {
 
     var isValid = false;
     var pattern;
-    for (var i = 0; i < whiteListPatterns.length; i++) {
-        pattern = getPattern(whiteListPatterns[i]);
+    var whiteListPatternsArray = whiteListPatterns.toString().split(',');
+    for (var i = 0; i < whiteListPatternsArray.length; i++) {
+        pattern = getPattern(whiteListPatternsArray[i]);
         isValid = pattern.test(input);
         if (isValid) {
             break;
