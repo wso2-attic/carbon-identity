@@ -30,7 +30,7 @@ public class ProviderConfigBuilder {
     public OIDProviderConfigResponse buildOIDProviderConfig(OIDProviderRequest request) throws
             OIDCDiscoveryEndPointException, ServerConfigurationException {
         OIDProviderConfigResponse providerConfig = new OIDProviderConfigResponse();
-        providerConfig.setIssuer(IdentityUtil.getServerURL(""));
+        providerConfig.setIssuer(IdentityUtil.getServerURL("",false,false));
         providerConfig.setAuthorization_endpoint(OAuth2Util.OAuthURL.getOAuth2AuthzEPUrl());
         providerConfig.setToken_endpoint(OAuth2Util.OAuthURL.getOAuth2TokenEPUrl());
         providerConfig.setUserinfo_endpoint(OAuth2Util.OAuthURL.getOAuth2UserInfoEPUrl());
@@ -43,7 +43,7 @@ public class ProviderConfigBuilder {
      * Provide additional services to get following parameters.
      */
     private void temp_Value_Settings(OIDProviderConfigResponse providerConfig) {
-        String serverurl = IdentityUtil.getServerURL("");
+        String serverurl = IdentityUtil.getServerURL("",false,false);
         providerConfig.setToken_endpoint_auth_methods_supported(new String[]{"client_secret_basic", "private_key_jwt"});
         providerConfig.setToken_endpoint_auth_signing_alg_values_supported(new String[]{"RS256", "ES256"});
         providerConfig.setJwks_uri(serverurl + "/jwks.json");

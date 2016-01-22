@@ -17,7 +17,7 @@
  */
 package org.wso2.carbon.identity.webfinger;
 
-import com.google.common.base.Strings;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.webfinger.internal.WebFingerServiceComponentHolder;
@@ -55,7 +55,7 @@ public class URLNormalizer {
 
     public static WebFingerRequest normalizeResource(WebFingerRequest request) throws WebFingerEndpointException {
         String resource = request.getResource();
-        if (Strings.isNullOrEmpty(resource)) {
+        if (StringUtils.isBlank(resource)) {
             log.warn("Can't normalize null or empty URI: " + resource);
             throw new WebFingerEndpointException(WebFingerConstants.ERROR_CODE_INVALID_RESOURCE, "Null or empty URI.");
 
@@ -84,7 +84,7 @@ public class URLNormalizer {
      */
     private static WebFingerRequest matchPattern(WebFingerRequest request) throws WebFingerEndpointException {
         String identifier = request.getResource();
-        if (Strings.isNullOrEmpty(identifier)) {
+        if (StringUtils.isBlank(identifier)) {
             log.warn("Can't normalize null or empty URI: " + identifier);
             throw new WebFingerEndpointException(WebFingerConstants.ERROR_CODE_INVALID_RESOURCE, "Null or empty URI.");
 
@@ -97,7 +97,7 @@ public class URLNormalizer {
                 validateTenant(request.getUserInfo());
                 request.setHost((m.group(8)));
                 String port = m.group(10);
-                if (!Strings.isNullOrEmpty(port)) {
+                if (!StringUtils.isBlank(port)) {
                     request.setPort((Integer.parseInt(port)));
                 }
                 request.setPath((m.group(11)));
@@ -111,10 +111,10 @@ public class URLNormalizer {
                         "format.");
             }
 
-            if (Strings.isNullOrEmpty(request.getScheme())) {
-                if (!Strings.isNullOrEmpty(request.getUserInfo())
-                        && Strings.isNullOrEmpty(request.getPath())
-                        && Strings.isNullOrEmpty(request.getQuery())
+            if (StringUtils.isBlank(request.getScheme())) {
+                if (!StringUtils.isBlank(request.getUserInfo())
+                        && StringUtils.isBlank(request.getPath())
+                        && StringUtils.isBlank(request.getQuery())
                         && request.getPort() < 0) {
                     // scheme empty, userinfo is not empty, path/query/port are empty
                     // set to "acct" (rule 2)

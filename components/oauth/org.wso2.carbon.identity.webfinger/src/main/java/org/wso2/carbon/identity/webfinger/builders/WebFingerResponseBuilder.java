@@ -91,7 +91,7 @@ public class WebFingerResponseBuilder {
      * @resource resource parameter in the web finger request
      */
     private WebFingerResponse getIssuerFromServerURL(String resource) throws IdentityException {
-        String issuer = IdentityUtil.getServerURL("");
+        String issuer = IdentityUtil.getServerURL("",false,false);
         if (issuer == null || issuer.isEmpty()) {
             return null;
         }
