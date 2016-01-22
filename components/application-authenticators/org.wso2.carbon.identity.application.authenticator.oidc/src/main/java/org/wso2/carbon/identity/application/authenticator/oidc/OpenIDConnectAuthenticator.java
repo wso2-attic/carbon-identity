@@ -182,7 +182,8 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
             if (StringUtils.isBlank(json)) {
                 if(log.isDebugEnabled()) {
-                    log.debug("Unable to fetch user claims. Proceeding without user claims");
+                    log.debug("Empty JSON response from user info endpoint. Unable to fetch user claims." +
+                            " Proceeding without user claims");
                 }
                 return claims;
             }
@@ -191,7 +192,11 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
             for (Map.Entry<String, Object> data : jsonObject.entrySet()) {
                 String key = data.getKey();
-                claims.put(ClaimMapping.build(key, key, null, false), jsonObject.get(key).toString());
+                Object value = data.getValue();
+
+                if (value != null) {
+                    claims.put(ClaimMapping.build(key, key, null, false), value.toString());
+                }
 
                 if (log.isDebugEnabled() &&
                         IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)) {
