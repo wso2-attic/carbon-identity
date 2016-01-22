@@ -23,12 +23,16 @@ import org.apache.commons.logging.LogFactory;
 
 import org.wso2.carbon.identity.base.IdentityException;
 import org.apache.oltu.oauth2.common.OAuth;
+
+//import org.wso2.carbon.identity.oauth.dto.OAuthConsumerAppDTO;
+
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
+
 /*import org.wso2.carbon.apimgt.api.model.KeyManager;
 import org.wso2.carbon.apimgt.api.model.OAuthAppRequest;
 import org.wso2.carbon.apimgt.api.model.OAuthApplicationInfo;
 import org.wso2.carbon.apimgt.impl.factory.KeyManagerHolder;*/
-
-import org.wso2.carbon.identity.oauth.dto.OAuthConsumerAppDTO;
 
 import org.wso2.carbon.identity.oauth.dcr.dto.FaultResponse;
 import org.wso2.carbon.identity.oauth.dcr.RegistrationService;
@@ -69,7 +73,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             OAuthApplicationInfo applicationInfo = new OAuthApplicationInfo();
             applicationInfo.setClientName(profile.getClientName());
             applicationInfo.setCallBackURL(profile.getCallbackUrl());
-            applicationInfo.addParameter(OAuth.OAUTH_USERNAME, profile.getOwner());
+            applicationInfo.addParameter(ApplicationConstants.OAUTH_CLIENT_USERNAME, profile.getOwner());
             applicationInfo.setClientId("");
             applicationInfo.setClientSecret("");
             applicationInfo.setIsSaasApplication(profile.isSaasApp());
@@ -85,8 +89,6 @@ public class RegistrationServiceImpl implements RegistrationService {
             String msg = "Error occurred while registering client '" + profile.getClientName() + "'";
             log.error(msg, e);
             response = Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
-            //Response.status(Response.Status.BAD_REQUEST).entity(
-            //new FaultResponse(ErrorCode.INVALID_CLIENT_METADATA, msg)).build();
         }
         return response;
     }
