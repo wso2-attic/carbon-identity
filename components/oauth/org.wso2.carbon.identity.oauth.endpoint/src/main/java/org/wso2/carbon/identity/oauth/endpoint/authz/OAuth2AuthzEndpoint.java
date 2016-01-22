@@ -57,6 +57,7 @@ import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.model.CarbonOAuthAuthzRequest;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
+import org.wso2.carbon.identity.openidconnect.OIDCConstants;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -421,18 +422,23 @@ public class OAuth2AuthzEndpoint {
                 builder.setCode(authzRespDTO.getAuthorizationCode());
                 addUserAttributesToCache(sessionDataCacheEntry, authzRespDTO.getAuthorizationCode(), authzRespDTO.getCodeId());
             }
-            if (StringUtils.isNotBlank(authzRespDTO.getAccessToken())){
+            if (StringUtils.isNotBlank(authzRespDTO.getAccessToken()) &&
+                !OIDCConstants.OIDCCoreConstants.ID_TOKEN.equals(oauth2Params.getResponseType())) {
                 builder.setAccessToken(authzRespDTO.getAccessToken());
                 builder.setExpiresIn(authzRespDTO.getValidityPeriod());
                 builder.setParam(OAuth.OAUTH_TOKEN_TYPE, "Bearer");
-            }
-            if (StringUtils.isNotBlank(authzRespDTO.getIdToken())){
-                builder.setParam("id_token", authzRespDTO.getIdToken());
             }
             if (StringUtils.isNotBlank(oauth2Params.getState())) {
                 builder.setParam(OAuth.OAUTH_STATE, oauth2Params.getState());
             }
             String redirectURL = authzRespDTO.getCallbackURI();
+            if (StringUtils.isNotBlank(authzRespDTO.getIdToken())) {
+                if (OIDCConstants.OIDCCoreConstants.ID_TOKEN.equals(oauth2Params.getResponseType())) {
+                    redirectURL = redirectURL + "#" + "id_token=" + authzRespDTO.getIdToken();
+                } else {
+                    builder.setParam("id_token", authzRespDTO.getIdToken());
+                }
+            }
             oauthResponse = builder.location(redirectURL).buildQueryMessage();
 
         } else if (authzRespDTO != null && authzRespDTO.getErrorCode() != null) {

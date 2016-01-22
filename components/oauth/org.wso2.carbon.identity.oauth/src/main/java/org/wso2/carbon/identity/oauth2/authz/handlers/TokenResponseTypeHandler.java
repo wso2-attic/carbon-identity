@@ -178,9 +178,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                                     + cacheKey.getCacheKeyString());
                         }
                     }
-
                     respDTO.setAccessToken(existingAccessTokenDO.getAccessToken());
-
                     if(expiryTime > 0){
                         respDTO.setValidityPeriod(expiryTime / 1000);
                     } else {
