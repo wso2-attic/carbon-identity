@@ -56,15 +56,15 @@ public class DefaultOIDCProcessor implements OIDCProcessor {
         }
         String errorCode = error.getErrorCode();
         if (errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_NO_OPENID_PROVIDER_FOUND)) {
-
+            log.error(OIDCDiscoveryEndPointException.ERROR_MESSAGE_NO_OPENID_PROVIDER_FOUND, error);
         } else if (errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_INVALID_REQUEST)) {
-
+            log.error(OIDCDiscoveryEndPointException.ERROR_MESSAGE_INVALID_REQUEST, error);
         } else if (errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_INVALID_TENANT)) {
-
+            log.error(OIDCDiscoveryEndPointException.ERROR_MESSAGE_INVALID_TENANT, error);
         } else if (errorCode.equals(OIDCDiscoveryEndPointException.ERROR_CODE_JSON_EXCEPTION)) {
-
+            log.error(OIDCDiscoveryEndPointException.ERROR_MESSAGE_JSON_EXCEPTION, error);
         } else {
-            return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+            log.error("Internal server error occured. ", error);
         }
         return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
     }
