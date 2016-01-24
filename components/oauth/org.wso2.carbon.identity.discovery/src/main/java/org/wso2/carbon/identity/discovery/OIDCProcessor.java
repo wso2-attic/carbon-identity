@@ -22,7 +22,7 @@ import org.wso2.carbon.base.ServerConfigurationException;
 import javax.servlet.http.HttpServletRequest;
 
 public interface OIDCProcessor {
-    public OIDProviderConfigResponse getResponse(HttpServletRequest request, String tenant) throws
+    public OIDProviderConfigResponse getResponse(HttpServletRequest request, String tenantDomain) throws
             OIDCDiscoveryEndPointException, ServerConfigurationException;
 
     public int handleError(OIDCDiscoveryEndPointException error);

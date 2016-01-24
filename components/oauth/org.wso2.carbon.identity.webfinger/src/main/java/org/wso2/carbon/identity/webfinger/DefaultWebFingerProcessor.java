@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Singleton class to process the webfinger request.
  */
-public class DefaultWebFingerProcessor implements WebFingerProcessor{
+public class DefaultWebFingerProcessor implements WebFingerProcessor {
     private static Log log = LogFactory.getLog(DefaultWebFingerProcessor.class);
     private static DefaultWebFingerProcessor defaultWebFingerProcessor = new DefaultWebFingerProcessor();
 
@@ -57,15 +57,20 @@ public class DefaultWebFingerProcessor implements WebFingerProcessor{
             log.debug(error);
         }
         String errorCode = error.getErrorCode();
-        if (errorCode.equals(WebFingerConstants.ERROR_CODE_INVALID_REQUEST)) {
+        if (WebFingerConstants.ERROR_CODE_INVALID_REQUEST.equals(errorCode)) {
+            log.error(WebFingerConstants.ERROR_MESSAGE_INVALID_REQUEST, error);
             return HttpServletResponse.SC_BAD_REQUEST;
-        } else if (errorCode.equals(WebFingerConstants.ERROR_CODE_INVALID_RESOURCE)) {
+        } else if (WebFingerConstants.ERROR_CODE_INVALID_RESOURCE.equals(errorCode)) {
+            log.error(WebFingerConstants.ERROR_MESSAGE_INVALID_RESOURCE, error);
             return HttpServletResponse.SC_NOT_FOUND;
-        } else if (errorCode.equals(WebFingerConstants.ERROR_CODE_JSON_EXCEPTION)) {
+        } else if (WebFingerConstants.ERROR_CODE_JSON_EXCEPTION.equals(errorCode)) {
+            log.error(WebFingerConstants.ERROR_MESSAGE_JSON_EXCEPTION, error);
             return HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE;
-        } else if (errorCode.equals(WebFingerConstants.ERROR_CODE_NO_WEBFINGER_CONFIG)) {
+        } else if (WebFingerConstants.ERROR_CODE_NO_WEBFINGER_CONFIG.equals(errorCode)) {
+            log.error(WebFingerConstants.ERROR_MESSAGE_NO_WEBFINGER_CONFIG, error);
             return HttpServletResponse.SC_NOT_FOUND;
         } else {
+            log.error("Internal server error occured. ", error);
             return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
         }
 

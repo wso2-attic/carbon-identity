@@ -42,10 +42,10 @@ public class DefaultOIDCProcessor implements OIDCProcessor {
         return defaultOidcProcessor;
     }
 
-    public OIDProviderConfigResponse getResponse(HttpServletRequest request, String tenant) throws
+    public OIDProviderConfigResponse getResponse(HttpServletRequest request, String tenantDomain) throws
             OIDCDiscoveryEndPointException, ServerConfigurationException {
         OIDProviderRequestBuilder requestBuilder = new DefaultOIDProviderRequestBuilder();
-        OIDProviderRequest requestObject = requestBuilder.buildRequest(request, tenant);
+        OIDProviderRequest requestObject = requestBuilder.buildRequest(request, tenantDomain);
         ProviderConfigBuilder responseBuilder = new ProviderConfigBuilder();
         return responseBuilder.buildOIDProviderConfig(requestObject);
     }

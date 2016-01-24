@@ -20,6 +20,7 @@ package org.wso2.carbon.identity.webfinger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.webfinger.internal.WebFingerServiceComponentHolder;
 import org.wso2.carbon.user.api.UserStoreException;
 
@@ -29,8 +30,6 @@ import java.util.regex.Pattern;
 
 
 public class URLNormalizer {
-
-
     private static final Log log = LogFactory.getLog(URLNormalizer.class);
 
     private static final Pattern pattern = Pattern.compile("^" +
@@ -139,16 +138,13 @@ public class URLNormalizer {
     public static void validateTenant(String userInfo) throws WebFingerEndpointException {
         try {
             int tenantId = WebFingerServiceComponentHolder.getRealmService().getTenantManager().getTenantId(userInfo);
-            if (tenantId < 0 && tenantId!= -1234) {
+            if (tenantId < 0 && tenantId != MultitenantConstants.SUPER_TENANT_ID) {
                 throw new WebFingerEndpointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT, "The tenant domain" +
                         " is not valid.");
             }
         } catch (UserStoreException e) {
+            log.error(WebFingerConstants.ERROR_MESSAGE_INVALID_TENANT, e);
             throw new WebFingerEndpointException(WebFingerConstants.ERROR_CODE_INVALID_TENANT, e.getMessage());
         }
     }
-
-
-
-
 }

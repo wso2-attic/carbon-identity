@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.discovery;
 public class OIDProviderRequest {
 
     private String uri;
-    private String tenant;
+    private String tenantDomain;
 
     public String getUri() {
         return uri;
@@ -31,12 +31,12 @@ public class OIDProviderRequest {
         this.uri = uri.trim();
     }
 
-    public String getTenant() {
-        return tenant;
+    public String getTenantDomain() {
+        return tenantDomain;
     }
 
-    public void setTenant(String tenant) {
-        this.tenant = tenant;
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
     }
 
 

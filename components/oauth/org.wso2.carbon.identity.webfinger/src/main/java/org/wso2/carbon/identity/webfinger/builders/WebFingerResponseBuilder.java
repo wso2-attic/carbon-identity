@@ -18,6 +18,9 @@
 package org.wso2.carbon.identity.webfinger.builders;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.util.IdentityConfigParser;
@@ -36,6 +39,7 @@ import java.util.Iterator;
  */
 public class WebFingerResponseBuilder {
 
+    private static Log log = LogFactory.getLog(WebFingerResponseBuilder.class);
 
     public WebFingerResponse buildWebFingerResponse(WebFingerRequest request) throws WebFingerEndpointException,
             ServerConfigurationException {
@@ -44,6 +48,7 @@ public class WebFingerResponseBuilder {
             try {
                 response = this.getIssuerFromServerURL(request.getResource());
             } catch (IdentityException e) {
+                log.error("error occured when finding issuer from server url.", e);
                 throw new WebFingerEndpointException(WebFingerConstants.ERROR_CODE_NO_WEBFINGER_CONFIG, "Error in " +
                         "getting server url.\n" + e.getMessage());
             }
@@ -91,8 +96,8 @@ public class WebFingerResponseBuilder {
      * @resource resource parameter in the web finger request
      */
     private WebFingerResponse getIssuerFromServerURL(String resource) throws IdentityException {
-        String issuer = IdentityUtil.getServerURL("",false,false);
-        if (issuer == null || issuer.isEmpty()) {
+        String issuer = IdentityUtil.getServerURL("", false, false);
+        if (StringUtils.isBlank(issuer)) {
             return null;
         }
         issuer = issuer + WebFingerConstants.OPENID_CONNECT_ENDPOINT;

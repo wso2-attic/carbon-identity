@@ -65,6 +65,7 @@ public class OIDCDiscoveryEndpoint {
             Response.ResponseBuilder errorResponse = Response.status(processor.handleError(e));
             return errorResponse.entity(e.getMessage()).build();
         } catch (ServerConfigurationException e) {
+            log.error("Server Configuration error occured.", e);
             Response.ResponseBuilder errorResponse = Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return errorResponse.entity("Error in reading configuration.").build();
         }

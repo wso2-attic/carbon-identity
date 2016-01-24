@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.identity.discovery.builders;
 
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.discovery.DiscoveryConstants;
 import org.wso2.carbon.identity.discovery.OIDCDiscoveryEndPointException;
 import org.wso2.carbon.identity.discovery.OIDProviderRequest;
@@ -31,10 +32,10 @@ public class DefaultOIDProviderRequestBuilder implements OIDProviderRequestBuild
             OIDCDiscoveryEndPointException {
         OIDProviderRequest requestObject = new OIDProviderRequest();
         requestObject.setUri(request.getRequestURI());
-        if (tenant != null && !tenant.isEmpty()) {
-            requestObject.setTenant(tenant);
+        if (StringUtils.isNotBlank(tenant)) {
+            requestObject.setTenantDomain(tenant);
         } else {
-            requestObject.setTenant(DiscoveryConstants.CONFIG_DEFAULT_NAME);
+            requestObject.setTenantDomain(DiscoveryConstants.CONFIG_DEFAULT_NAME);
         }
         return requestObject;
     }

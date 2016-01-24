@@ -40,4 +40,9 @@ public class WebFingerConstants {
     public static final String ERROR_CODE_INVALID_REQUEST = "invalid_request";
     public static final String ERROR_CODE_INVALID_TENANT = "invalid_tenant";
     public static final String OPENID_CONNECT_ENDPOINT = "/oauth2/oidcdiscovery";
+    public static final String ERROR_MESSAGE_NO_WEBFINGER_CONFIG = "Failed to find the WebFinger Configurations.";
+    public static final String ERROR_MESSAGE_INVALID_RESOURCE = "Invalid Resource found.";
+    public static final String ERROR_MESSAGE_JSON_EXCEPTION = "Error occured building response.";
+    public static final String ERROR_MESSAGE_INVALID_REQUEST = "Request is invalid.";
+    public static final String ERROR_MESSAGE_INVALID_TENANT = "Provided tenant is invalid.";
 }
