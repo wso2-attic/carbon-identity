@@ -20,15 +20,15 @@
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
-        <artifactId>identity</artifactId>
+        <artifactId>oauth</artifactId>
         <version>5.0.8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.identity.oauth.dcr</artifactId>
-    <name>WSO2 Carbon Identity Server- Dynamic Client Registration Web Service</name>
-    <description>WSO2 Carbon Identity Server- Dynamic Client Registration Web</description>
+    <name>WSO2 Carbon - Dynamic Client Registration Web Service</name>
+    <description>WSO2 Carbon - Dynamic Client Registration Web</description>
     <packaging>war</packaging>
 
     <build>
@@ -68,30 +68,19 @@
             <groupId>io.swagger</groupId>
             <artifactId>swagger-jaxrs</artifactId>
         </dependency>
-        <!--<dependency>
-            <groupId>org.wso2.carbon.apimgt</groupId>
-            <artifactId>org.wso2.carbon.apimgt.impl</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.apimgt</groupId>
-            <artifactId>org.wso2.carbon.apimgt.api</artifactId>
-            <scope>provided</scope>
-        </dependency>-->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.logging</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.entitlement.stub</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <!--<dependency>
-            <groupId>org.wso2.carbon.apimgt</groupId>
-            <artifactId>org.wso2.carbon.apimgt.rest.api.util</artifactId>
-        </dependency>-->
     </dependencies>
 </project>

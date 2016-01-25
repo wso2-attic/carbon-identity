@@ -1,0 +1,2 @@
+instructions.configure = \
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.sts.passive.server_${feature.version}/sts_response.html,target:${installFolder}/../../resources/identity/pages/sts_response.html,overwrite:true);\

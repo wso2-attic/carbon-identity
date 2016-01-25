@@ -19,24 +19,23 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.wso2.carbon.apimgt</groupId>
-        <artifactId>apimgt-feature</artifactId>
-        <version>5.0.4-SNAPSHOT</version>
+        <groupId>org.wso2.carbon.identity</groupId>
+        <artifactId>oauth-feature</artifactId>
+        <version>5.0.8-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.apimgt.rest.api.dcr.feature</artifactId>
+    <artifactId>org.wso2.carbon.identity.oauth.dcr.feature</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - API Dynamic Client Registration Rest API Feature</name>
+    <name>WSO2 Carbon - Dynamic Client Registration Feature</name>
     <url>http://wso2.org</url>
-    <description>This feature contains required bundles for API Manager Rest API for API publisher functionality</description>
-
+    <description>This feature contains the bundles required for Identity dynamic client registration functionality</description>
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon.apimgt</groupId>
-            <artifactId>org.wso2.carbon.apimgt.rest.api.dcr</artifactId>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.oauth.dcr</artifactId>
             <type>war</type>           
         </dependency>
         <dependency>
@@ -59,8 +58,8 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.wso2.carbon.apimgt</groupId>
-                                    <artifactId>org.wso2.carbon.apimgt.rest.api.dcr</artifactId>
+                                    <groupId>org.wso2.carbon.identity</groupId>
+                                    <artifactId>org.wso2.carbon.identity.oauth.dcr</artifactId>
                                     <overWrite>true</overWrite>
                                     <type>war</type>
                                     <outputDirectory>${basedir}/src/main/resources/</outputDirectory>
@@ -110,7 +109,7 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.apimgt.rest.api.dcr</id>
+                            <id>org.wso2.carbon.identity.oauth.dcr</id>
                             <propertiesFile>../feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>

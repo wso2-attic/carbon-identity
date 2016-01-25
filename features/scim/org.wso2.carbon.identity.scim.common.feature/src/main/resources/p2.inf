@@ -1,0 +1,6 @@
+instructions.configure = \
+org.eclipse.equinox.p2.touchpoint.natives.mkdir(path:${installFolder}/../../../repository); \
+org.eclipse.equinox.p2.touchpoint.natives.mkdir(path:${installFolder}/../../../repository/conf); \
+org.eclipse.equinox.p2.touchpoint.natives.mkdir(path:${installFolder}/../../../repository/conf/identity); \
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.scim.common_${feature.version}/provisioning-config.xml,target:${installFolder}/../../conf/identity/provisioning-config.xml,overwrite:true);\
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.scim.common_${feature.version}/scim-schema-extension.config,target:${installFolder}/../../conf/identity/scim-schema-extension.config,overwrite:true);

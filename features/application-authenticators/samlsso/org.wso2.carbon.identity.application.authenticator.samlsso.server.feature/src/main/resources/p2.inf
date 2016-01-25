@@ -1,0 +1,2 @@
+instructions.configure = \
+org.eclipse.equinox.p2.touchpoint.natives.copy(source:${installFolder}/../features/org.wso2.carbon.identity.application.authenticator.samlsso.server_${feature.version}/samlsso_federate.html,target:${installFolder}/../../resources/identity/pages/samlsso_federate.html,overwrite:true); \
