@@ -43,5 +43,6 @@ public class UserMgtConstants {
 
     public static final String APPLICATION_DOMAIN = "Application";
 
+    public static final String EXISTING_USER = "UserAlreadyExisting";
     //component xml constants
 }
