@@ -176,15 +176,14 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
         Map<ClaimMapping, String> claims = new HashMap<>();
 
         try {
-
             String accessToken = token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
             String url = getUserInfoEndpoint(token, authenticatorProperties);
-
             String json = sendRequest(url, accessToken);
 
             if (StringUtils.isBlank(json)) {
                 if(log.isDebugEnabled()) {
-                    log.debug("Unable to fetch user claims. Proceeding without user claims");
+                    log.debug("Empty JSON response from user info endpoint. Unable to fetch user claims." +
+                            " Proceeding without user claims");
                 }
                 return claims;
             }
@@ -192,10 +191,12 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
 
             for (Map.Entry<String, Object> data : jsonObject.entrySet()) {
-
                 String key = data.getKey();
+                Object value = data.getValue();
 
-                claims.put(ClaimMapping.build(key, key, null, false), jsonObject.get(key).toString());
+                if (value != null) {
+                    claims.put(ClaimMapping.build(key, key, null, false), value.toString());
+                }
 
                 if (log.isDebugEnabled() &&
                         IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)) {
@@ -203,9 +204,8 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                             jsonObject.get(key).toString());
                 }
             }
-
-        } catch (Exception e) {
-            log.error("Error occurred while accessing user info endpoint", e);
+        } catch (IOException e) {
+            log.error("Communication error occurred while accessing user info endpoint", e);
         }
 
         return claims;
@@ -321,8 +321,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     }
 
     @Override
-    protected void processAuthenticationResponse(HttpServletRequest request,
-                                                 HttpServletResponse response,
+    protected void processAuthenticationResponse(HttpServletRequest request, HttpServletResponse response,
                                                  AuthenticationContext context)
             throws AuthenticationFailedException {
 
@@ -355,7 +354,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             String code = authzResponse.getCode();
 
             OAuthClientRequest accessRequest =
-                    getaccessRequest(tokenEndPoint, clientId, code, clientSecret, callbackUrl);
+                    getAccessRequest(tokenEndPoint, clientId, code, clientSecret, callbackUrl);
 
             // Create OAuth client that uses custom http client under the hood
             OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
@@ -395,7 +394,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                     if (log.isDebugEnabled()) {
                         log.debug("Decoded json object is null");
                     }
-
                     throw new AuthenticationFailedException("Decoded json object is null");
                 }
 
@@ -403,13 +401,11 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                         IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_ID_TOKEN)) {
                     log.debug("Retrieved the User Information:" + jsonObject);
                 }
-
                 String authenticatedUser = null;
                 String isSubjectInClaimsProp = context.getAuthenticatorProperties().get(
                         IdentityApplicationConstants.Authenticator.SAML2SSO.IS_USER_ID_IN_CLAIMS);
 
-                if (StringUtils.equalsIgnoreCase("true", isSubjectInClaimsProp)) {
-
+                if (Boolean.parseBoolean(isSubjectInClaimsProp)) {
                     authenticatedUser = getSubjectFromUserIDClaimURI(context);
 
                     if (authenticatedUser == null && log.isDebugEnabled()) {
@@ -419,7 +415,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 }
 
                 if (authenticatedUser == null) {
-
                     authenticatedUser = getAuthenticateUser(context, jsonObject, oAuthResponse);
 
                     if (authenticatedUser == null) {
@@ -436,7 +431,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                     if (StringUtils.isBlank(tenantDomain)) {
                         tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
                     }
-
                     int tenantId = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
                             .getTenantManager().getTenantId(tenantDomain);
                     UserRealm userRealm = OpenIDConnectAuthenticatorServiceComponent.getRealmService()
@@ -451,7 +445,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                                     " is used as the attributeSeparator in tenant: " + tenantDomain);
                         }
                     }
-
                 } catch (UserStoreException e) {
                     throw new AuthenticationFailedException("Error while retrieving multi attribute " +
                             "separator", e);
@@ -460,7 +453,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
                     buildClaimMappings(claims, entry, attributeSeparator);
                 }
-
                 authenticatedUserObj = AuthenticatedUser
                         .createFederateAuthenticatedUserFromSubjectIdentifier(authenticatedUser);
             } else {
@@ -468,7 +460,6 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                 if (log.isDebugEnabled()) {
                     log.debug("The IdToken is null");
                 }
-
                 authenticatedUserObj = AuthenticatedUser
                         .createFederateAuthenticatedUserFromSubjectIdentifier(
                                 getAuthenticateUser(context, jsonObject, oAuthResponse));
@@ -514,10 +505,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
     }
 
-    private OAuthClientRequest getaccessRequest(String tokenEndPoint,
-                                                String clientId,
-                                                String code,
-                                                String clientSecret,
+    private OAuthClientRequest getAccessRequest(String tokenEndPoint, String clientId, String code, String clientSecret,
                                                 String callbackurl)
             throws AuthenticationFailedException {
 
@@ -617,8 +605,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
      * @return Response string.
      * @throws IOException
      */
-    protected String sendRequest(String url, String accessToken)
-            throws IOException {
+    protected String sendRequest(String url, String accessToken) throws IOException {
 
         if (log.isDebugEnabled()) {
             log.debug("Claim URL: " + url);
@@ -630,13 +617,10 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
 
         URL obj = new URL(url);
         HttpURLConnection urlConnection = (HttpURLConnection) obj.openConnection();
-
         urlConnection.setRequestMethod("GET");
         urlConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
-
         BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
         StringBuilder builder = new StringBuilder();
-
         String inputLine = reader.readLine();
 
         while (inputLine != null) {
