@@ -131,55 +131,68 @@ public class IdentityProviderManager {
         scimGroupsEndpoint = IdentityUtil.getProperty("SCIM.GroupEPUrl");
         oauth2RevokeEPUrl = IdentityUtil.getProperty("OAuth.OAuth2RevokeEPUrl");
         
-        if(StringUtils.isBlank(openIdUrl)){
+        if (StringUtils.isBlank(openIdUrl)) {
             openIdUrl = IdentityUtil.getServerURL("openid", true, true);
         }
-        if(StringUtils.isBlank(samlSSOUrl)){
+
+        if (StringUtils.isBlank(samlSSOUrl)) {
             samlSSOUrl = IdentityUtil.getServerURL("samlsso", true, true);
         }
-        if(StringUtils.isBlank(samlLogoutUrl)){
+
+        if (StringUtils.isBlank(samlLogoutUrl)) {
             samlLogoutUrl = IdentityUtil.getServerURL("samlsso", true, true);
         }
-        if(StringUtils.isBlank(oauth1RequestTokenUrl)){
+
+        if (StringUtils.isBlank(oauth1RequestTokenUrl)) {
             oauth1RequestTokenUrl = IdentityUtil.getServerURL("oauth/request-token", true, true);
         }
-        if(StringUtils.isBlank(oauth1AuthorizeUrl)){
+
+        if (StringUtils.isBlank(oauth1AuthorizeUrl)) {
             oauth1AuthorizeUrl = IdentityUtil.getServerURL("oauth/authorize-url", true, true);
         }
-        if(StringUtils.isBlank(oauth1AccessTokenUrl)){
+
+        if (StringUtils.isBlank(oauth1AccessTokenUrl)) {
             oauth1AccessTokenUrl = IdentityUtil.getServerURL("oauth/access-token", true, true);
         }
-        if(StringUtils.isBlank(oauth2AuthzEPUrl)){
+
+        if (StringUtils.isBlank(oauth2AuthzEPUrl)) {
             oauth2AuthzEPUrl = IdentityUtil.getServerURL("oauth2/authorize", true, false);
         }
-        if(StringUtils.isBlank(oauth2TokenEPUrl)){
+
+        if (StringUtils.isBlank(oauth2TokenEPUrl)) {
             oauth2TokenEPUrl = IdentityUtil.getServerURL("oauth2/token", true, false);
         }
-        if(StringUtils.isBlank(oauth2RevokeEPUrl)){
+
+        if (StringUtils.isBlank(oauth2RevokeEPUrl)) {
             oauth2RevokeEPUrl = IdentityUtil.getServerURL("oauth2/revoke", true, false);
         }
-        if(StringUtils.isBlank(oauth2UserInfoEPUrl)){
+
+        if (StringUtils.isBlank(oauth2UserInfoEPUrl)) {
             oauth2UserInfoEPUrl = IdentityUtil.getServerURL("oauth2/userinfo", true, false);
         }
-        if(StringUtils.isBlank(passiveStsUrl)){
+
+        if (StringUtils.isBlank(passiveStsUrl)) {
             passiveStsUrl = IdentityUtil.getServerURL("passivests", true, true);
         }
+
         // If sts url is configured in file, change it according to tenant domain. If not configured, add a default url
         if (StringUtils.isNotBlank(stsUrl)) {
             stsUrl = stsUrl.replace("wso2carbon-sts", tenantContext + "wso2carbon-sts");
         } else {
             stsUrl = IdentityUtil.getServerURL("services/" + tenantContext + "wso2carbon-sts", true, true);
         }
-        if(StringUtils.isBlank(scimUserEndpoint)){
+
+        if (StringUtils.isBlank(scimUserEndpoint)) {
             scimUserEndpoint = IdentityUtil.getServerURL("wso2/scim/Users", true, false);
         }
-        if(StringUtils.isBlank(scimGroupsEndpoint)){
+
+        if (StringUtils.isBlank(scimGroupsEndpoint)) {
             scimGroupsEndpoint = IdentityUtil.getServerURL("wso2/scim/Groups", true, false);
         }
-
         IdentityProvider identityProvider = dao.getIdPByName(null,
                 IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME,
                 IdentityTenantUtil.getTenantId(tenantDomain), tenantDomain);
+
         if (identityProvider == null) {
             String message = "Could not find Resident Identity Provider for tenant " + tenantDomain;
             throw new IdentityProviderManagementException(message);
@@ -369,6 +382,7 @@ public class IdentityProviderManager {
             passiveSTSUrlProp.setValue(passiveStsUrl);
             propertiesList.add(passiveSTSUrlProp);
         }
+
         if (IdentityApplicationManagementUtil.getProperty(passiveSTSFedAuthn.getProperties(),
                 IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID) == null) {
             Property idPEntityIdProp = new Property();

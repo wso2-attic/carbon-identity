@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.base.IdentityException;
+import org.wso2.carbon.identity.oauth.OAuthUtil;
 import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
@@ -246,7 +247,6 @@ public class OAuth2Service extends AbstractAdmin {
                 AccessTokenDO accessTokenDO = null;
 
                 if (refreshTokenFirst) {
-
                     refreshTokenDO = tokenMgtDAO
                             .validateRefreshToken(revokeRequestDTO.getConsumerKey(), revokeRequestDTO.getToken());
 
@@ -301,28 +301,21 @@ public class OAuth2Service extends AbstractAdmin {
 
                 if (refreshTokenDO != null) {
 
-                    org.wso2.carbon.identity.oauth.OAuthUtil
-                            .clearOAuthCache(revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser(),
+                    OAuthUtil.clearOAuthCache(revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser(),
                                     OAuth2Util.buildScopeString(refreshTokenDO.getScope()));
-
-                    org.wso2.carbon.identity.oauth.OAuthUtil
-                            .clearOAuthCache(revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser());
-
-                    org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(refreshTokenDO.getAccessToken());
+                    OAuthUtil.clearOAuthCache(revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser());
+                    OAuthUtil.clearOAuthCache(refreshTokenDO.getAccessToken());
                     tokenMgtDAO.revokeTokens(new String[] { refreshTokenDO.getAccessToken() });
-
                     addRevokeResponseHeaders(revokeResponseDTO,
                             refreshTokenDO.getAccessToken(),
                             revokeRequestDTO.getToken(),
                             refreshTokenDO.getAuthorizedUser().toString());
 
                 } else if (accessTokenDO != null) {
-                        org.wso2.carbon.identity.oauth.OAuthUtil
-                                .clearOAuthCache(revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser(),
+                        OAuthUtil.clearOAuthCache(revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser(),
                                         OAuth2Util.buildScopeString(accessTokenDO.getScope()));
-                        org.wso2.carbon.identity.oauth.OAuthUtil
-                                .clearOAuthCache(revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser());
-                        org.wso2.carbon.identity.oauth.OAuthUtil.clearOAuthCache(revokeRequestDTO.getToken());
+                        OAuthUtil.clearOAuthCache(revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser());
+                        OAuthUtil.clearOAuthCache(revokeRequestDTO.getToken());
                         tokenMgtDAO.revokeTokens(new String[] { revokeRequestDTO.getToken() });
                         addRevokeResponseHeaders(revokeResponseDTO,
                                 revokeRequestDTO.getToken(),

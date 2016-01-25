@@ -127,11 +127,13 @@ public class IdPManagementUIUtil {
                     } else if ("google_prov_private_key".equals(key)) {
                         paramMap.put(key, Base64.encode(value));
                     } else if (key.startsWith("claimrowname_")) {
-                        idpClaims.add(new String(value));
-                        paramMap.put(key, new String(value));
+                        String strValue = new String(value);
+                        idpClaims.add(strValue);
+                        paramMap.put(key, strValue);
                     } else if (key.startsWith("rolerowname_")) {
-                        idpRoles.add(new String(value));
-                        paramMap.put(key, new String(value));
+                        String strValue = new String(value);
+                        idpRoles.add(strValue);
+                        paramMap.put(key, strValue);
                     } else if (key.startsWith("custom_auth_name")) {
                         customAuthenticatorNames.add(new String(value));
                     } else if (key.startsWith("custom_pro_name")) {
