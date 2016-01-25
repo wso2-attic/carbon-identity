@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
 import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
@@ -70,7 +71,6 @@ import java.util.Map;
  */
 public class UserInformationRecoveryService {
 
-    private static final String USER_ALREADY_EXISTING = "UserAlreadyExisting";
     Log log = LogFactory.getLog(UserInformationRecoveryService.class);
 
     public CaptchaInfoBean getCaptcha() throws IdentityMgtServiceException {
@@ -894,7 +894,7 @@ public class UserInformationRecoveryService {
             vBean = UserIdentityManagementUtil.getCustomErrorMessagesWhenRegistering(e, userName);
             //Rollback if user exists
             try {
-                if (!e.getMessage().contains(USER_ALREADY_EXISTING) && userStoreManager.isExistingUser(userName)) {
+                if (!e.getMessage().contains(IdentityCoreConstants.EXISTING_USER) && userStoreManager.isExistingUser(userName)) {
                     userStoreManager.deleteUser(userName);
                 }
             } catch (UserStoreException e1) {
