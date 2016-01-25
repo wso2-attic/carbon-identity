@@ -139,7 +139,7 @@ public class UserInformationRecoveryService {
         }
     }
 
-    public VerificationBean FsendRecoveryNotification(String username, String key, String notificationType)
+    public VerificationBean sendRecoveryNotification(String username, String key, String notificationType)
             throws IdentityMgtServiceException {
 
         UserDTO userDTO = null;
