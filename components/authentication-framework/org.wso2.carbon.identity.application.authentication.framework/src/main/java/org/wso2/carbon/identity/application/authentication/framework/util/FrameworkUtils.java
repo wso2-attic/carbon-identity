@@ -431,8 +431,7 @@ public class FrameworkUtils {
             throws IOException {
         // TODO read the URL from framework config file rather than carbon.xml
         request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
-        response.sendRedirect(IdentityUtil.getServerURL(ConfigurationFacade.getInstance()
-                .getAuthenticationEndpointRetryURL(), false, false));
+        response.sendRedirect(ConfigurationFacade.getInstance().getAuthenticationEndpointRetryURL());
     }
 
     /**
