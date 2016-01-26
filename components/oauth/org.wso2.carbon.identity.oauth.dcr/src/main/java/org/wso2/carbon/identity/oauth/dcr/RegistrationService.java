@@ -62,10 +62,6 @@ public interface RegistrationService {
     Response unRegister(@QueryParam("applicationName") String applicationName,
             @QueryParam("userId") String userId, @QueryParam("consumerKey") String consumerKey);
 
-  //--------------------------------------------------------------------------------------------------------
-    //The following method declarations can be removed from this RegistrationService interface if required
-  //--------------------------------------------------------------------------------------------------------
-
     /**
      * This method will register a new OAuth application using the data provided by
      * RegistrationProfile.

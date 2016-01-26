@@ -35,7 +35,7 @@ import org.wso2.carbon.identity.oauth.dcr.OAuthApplicationInfo;
 import org.wso2.carbon.identity.oauth.dcr.RegistrationService;
 import org.wso2.carbon.identity.oauth.dcr.dto.FaultResponse;
 import org.wso2.carbon.identity.oauth.dcr.dto.RegistrationProfile;
-import org.wso2.carbon.identity.oauth.dcr.internal.DynamicClientRegistrationDataHolder;
+import org.wso2.carbon.identity.oauth.dcr.dto.DynamicClientRegistrationDataHolder;
 import org.wso2.carbon.identity.oauth.dcr.util.DCRConstants;
 import org.wso2.carbon.identity.oauth.dcr.util.DynamicClientRegistrationUtil;
 import org.wso2.carbon.identity.oauth.dcr.util.DynamicClientUtil;
@@ -155,11 +155,14 @@ public class RegistrationServiceImpl implements RegistrationService {
             log.debug("Trying to register OAuth application: '" + applicationName + "'");
         }
 
-        String tokenScope = profile.getTokenScope();
-        String tokenScopes[] = new String[1];
-        tokenScopes[0] = tokenScope;
+        //String tokenScope = profile.getTokenScope();
+        //String tokenScopes[] = new String[1];
+        //tokenScopes[0] = tokenScope;
 
-        oAuthApplicationInfo.addParameter(TOKEN_SCOPE, Arrays.toString(tokenScopes));
+        //Improvement to the above commented lines
+        String tokenScopes[] = {profile.getTokenScope()}; //Why do you need to use an array here? Since only one String would anyway be coming as the token scope
+
+        oAuthApplicationInfo.addParameter(TOKEN_SCOPE, Arrays.toString(tokenScopes)); //array?
         OAuthApplicationInfo info;
         try {
             info = this.createOAuthApplication(profile);
@@ -237,7 +240,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             ApplicationManagementService appMgtService = DynamicClientRegistrationDataHolder.getInstance().
                     getApplicationManagementService();
             if (appMgtService == null) {
-                throw new IllegalStateException("Error occurred while retrieving Application Management" + "Service");
+                throw new IllegalStateException("Error occurred while retrieving Application Management Service");
             }
 
             ServiceProvider existingServiceProvider = appMgtService.getServiceProvider(applicationName, tenantDomain);
@@ -397,8 +400,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
             if (appMgtService == null) {
                 throw new IllegalStateException(
-                        "Error occurred while retrieving Application Management" +
-                                "Service");
+                        "Error occurred while retrieving Application Management Service");
             }
             ServiceProvider createdServiceProvider = appMgtService.getServiceProvider(applicationName, tenantDomain);
             if (createdServiceProvider == null) {
@@ -425,13 +427,11 @@ public class RegistrationServiceImpl implements RegistrationService {
                 getApplicationManagementService();
         if (appMgtService == null) {
             throw new IllegalStateException(
-                    "Error occurred while retrieving Application Management" +
-                            "Service");
+                    "Error occurred while retrieving Application Management Service");
         }
         try {
             return appMgtService.getServiceProvider(applicationName,
-                    CarbonContext.getThreadLocalCarbonContext().getTenantDomain()) !=
-                    null;
+                    CarbonContext.getThreadLocalCarbonContext().getTenantDomain()) != null;
         } catch (IdentityApplicationManagementException e) {
             throw new DynamicClientRegistrationException(
                     "Error occurred while retrieving information of OAuthApp " + applicationName, e);

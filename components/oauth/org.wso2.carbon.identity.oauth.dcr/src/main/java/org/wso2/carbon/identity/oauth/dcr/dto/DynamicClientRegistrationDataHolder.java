@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.oauth.dcr.internal;
+package org.wso2.carbon.identity.oauth.dcr.dto;
 
 import org.wso2.carbon.identity.application.mgt.ApplicationManagementService;
 
