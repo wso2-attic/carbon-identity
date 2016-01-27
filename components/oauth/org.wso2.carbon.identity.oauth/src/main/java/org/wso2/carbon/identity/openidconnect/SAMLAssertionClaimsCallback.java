@@ -189,7 +189,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
         Map<String, Object> claims = Collections.emptyMap();
 
         // If subject claim uri is null, we get the actual user name of the logged in user.
-        if (MapUtils.isEmpty(userAttributes) && (getSubjectClaimUri(requestMsgCtx) == null)) {
+        if (MapUtils.isEmpty(userAttributes)) {
             if (log.isDebugEnabled()) {
                 log.debug("User attributes not found in cache. Trying to retrieve attribute for user " + requestMsgCtx
                         .getAuthorizedUser());
@@ -213,7 +213,7 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
         Map<String, Object> claims = Collections.emptyMap();
 
         // If subject claim uri is null, we get the actual user name of the logged in user.
-        if (MapUtils.isEmpty(userAttributes)) {
+        if (MapUtils.isEmpty(userAttributes) && (getSubjectClaimUri(requestMsgCtx) == null)) {
             if (log.isDebugEnabled()) {
                 log.debug("User attributes not found in cache. Trying to retrieve attribute for user " + requestMsgCtx
                         .getAuthorizationReqDTO().getUser());
