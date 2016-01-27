@@ -125,9 +125,8 @@ public class WorkFlowExecutorManager {
                                     .toString(), workFlowRequest.getTenantId());
                 }
             } catch (JaxenException e) {
-                String errorMsg = "Error when executing the xpath expression:" + association.getAssociationCondition
-                        () + " , on " +
-                        xmlRequest;
+                String errorMsg = "Error when executing the xpath expression:" + association.getAssociationCondition()
+                        + " , on " + xmlRequest;
                 log.error(errorMsg, e);
                 return new WorkflowExecutorResult(ExecutorResultState.FAILED, errorMsg);
             } catch (CloneNotSupportedException e) {
