@@ -160,9 +160,9 @@ public class RegistrationServiceImpl implements RegistrationService {
         //tokenScopes[0] = tokenScope;
 
         //Improvement to the above commented lines
-        String tokenScopes[] = {profile.getTokenScope()}; //Why do you need to use an array here? Since only one String would anyway be coming as the token scope
+        String tokenScopes[] = {profile.getTokenScope()};
 
-        oAuthApplicationInfo.addParameter(TOKEN_SCOPE, Arrays.toString(tokenScopes)); //array?
+        oAuthApplicationInfo.addParameter(TOKEN_SCOPE, Arrays.toString(tokenScopes));
         OAuthApplicationInfo info;
         try {
             info = this.createOAuthApplication(profile);
