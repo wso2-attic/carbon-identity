@@ -106,7 +106,6 @@ public class RegistryCleanUpService {
                                     Collection secondaryStoreCollection = (Collection) currentResource;
                                     String[] secondaryStoreResourcePaths = secondaryStoreCollection.getChildren();
                                     for (int k = 0; k < secondaryStoreResourcePaths.length; k++) {
-
                                         checkAndDeleteRegistryResource(registry, secondaryStoreResourcePaths[k]);
                                     }
                                 } else {

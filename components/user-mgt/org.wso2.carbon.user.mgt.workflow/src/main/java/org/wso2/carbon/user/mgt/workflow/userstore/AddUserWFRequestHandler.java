@@ -271,24 +271,18 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                 if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && (workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.ADD_USER_EVENT) ||
                         userStoreManager.isExistingUser(entities[i].getEntityId()))) {
-
                     throw new WorkflowException("Username already exists in the system. Please pick another username.");
-
                 } else if (eventEngaged &&
                         entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_ROLE_EVENT) ||
                         workflowService.entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
                                 .UPDATE_ROLE_NAME_EVENT))) {
-
                     throw new WorkflowException("One or more roles assigned has pending workflows which " +
                             "blocks this operation.");
-
                 } else if (eventEngaged && (entities[i].getEntityType() == UserStoreWFConstants
                         .ENTITY_TYPE_ROLE && !userStoreManager.isExistingRole(entities[i].getEntityId()))) {
-
                     //Check condition only when event engaged to workflow since failure at populating users for tests.
                     throw new WorkflowException("Role " + entities[i].getEntityId() + " does not exist.");
-
                 }
 
             } catch (InternalWorkflowException | org.wso2.carbon.user.core.UserStoreException e) {

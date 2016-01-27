@@ -198,8 +198,8 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         TStatus readyState = new TStatus();
         readyState.setTStatus(WFImplConstant.HT_STATE_READY);
         input.addStatus(readyState);
-        input.setPageSize(100000);
-        input.setPageNumber(0);
+        input.setPageSize(WFImplConstant.DEFAULT_PAGE_SIZE_FOR_HT_LIST);
+        input.setPageNumber(WFImplConstant.PAGE_0);
         input.setSimpleQueryCategory(TSimpleQueryCategory.ALL_TASKS);
         for (int i = 0; i < bpsProfiles.size(); i++) {
             try {
@@ -232,7 +232,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                                 IllegalOperationFault | IllegalAccessFault e) {
                             //If exception throws when retrieving and deleting a specific task, it will continue with
                             // other tasks without terminating.
-                            log.info("Failed to check human task.");
+                            log.warn("Failed to check human task.");
                         }
 
                     }
@@ -241,7 +241,7 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
             } catch (IllegalArgumentFault | RemoteException | IllegalStateFault e) {
                 //If exception throws at one iteration of loop, which is testing 1 BPS profile, it will continue with
                 // other profiles without terminating.
-                log.info("Failed to delete human task associated for this request in BPS profile : " + bpsProfiles.get
+                log.warn("Failed to delete human task associated for this request in BPS profile : " + bpsProfiles.get
                         (i).getProfileName());
             }
         }

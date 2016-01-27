@@ -49,8 +49,7 @@ public class WorkflowAuditLogger extends AbstractWorkflowListener {
         if (StringUtils.isBlank(loggedInUser)) {
             loggedInUser = CarbonConstants.REGISTRY_SYSTEM_USERNAME;
         }
-        String auditData = "\"" + "Request ID" + "\" : \"" + workflowRequest.getRequestId()
-                + "\"";
+        String auditData = "\"" + "Request ID" + "\" : \"" + workflowRequest.getRequestId() + "\"";
         AUDIT_LOG.info(String.format(AUDIT_MESSAGE, loggedInUser, "Remove workflow request", auditData,
                 AUDIT_SUCCESS));
     }
@@ -67,8 +66,7 @@ public class WorkflowAuditLogger extends AbstractWorkflowListener {
         if (StringUtils.isBlank(loggedInUser)) {
             loggedInUser = CarbonConstants.REGISTRY_SYSTEM_USERNAME;
         }
-        String auditData = "\"" + "Workflow ID" + "\" : \"" + workflow.getWorkflowId()
-                + "\"";
+        String auditData = "\"" + "Workflow ID" + "\" : \"" + workflow.getWorkflowId() + "\"";
         AUDIT_LOG.info(String.format(AUDIT_MESSAGE, loggedInUser, "Remove workflow", auditData, AUDIT_SUCCESS));
     }
 
@@ -87,12 +85,11 @@ public class WorkflowAuditLogger extends AbstractWorkflowListener {
         if (StringUtils.isBlank(loggedInUser)) {
             loggedInUser = CarbonConstants.REGISTRY_SYSTEM_USERNAME;
         }
-        String auditData = "\"" + "Workflow Name" + "\" : \"" + workflowDTO.getWorkflowName()
-                + "\",\"" + "Workflow Impl ID" + "\" : \"" + workflowDTO.getWorkflowImplId()
-                + "\",\"" + "Workerflow ID" + "\" : \"" + workflowDTO.getWorkflowId()
-                + "\",\"" + "Workflow Description" + "\" : \"" + workflowDTO.getWorkflowDescription()
-                + "\",\"" + "Template ID" + "\" : \"" + workflowDTO.getTemplateId()
-                + "\"";
+        String auditData = "\"" + "Workflow Name" + "\" : \"" + workflowDTO.getWorkflowName() + "\",\""
+                + "Workflow  Impl ID" + "\" : \"" + workflowDTO.getWorkflowImplId() + "\",\""
+                + "Workflow ID" + "\" : \"" + workflowDTO.getWorkflowId() + "\",\""
+                + "Workflow Description" + "\" : \"" + workflowDTO.getWorkflowDescription() + "\",\""
+                + "Template ID" + "\" : \"" + workflowDTO.getTemplateId() + "\"";
         AUDIT_LOG.info(String.format(AUDIT_MESSAGE, loggedInUser, "Add Workflow", auditData, AUDIT_SUCCESS));
     }
 
@@ -112,11 +109,10 @@ public class WorkflowAuditLogger extends AbstractWorkflowListener {
         if (StringUtils.isBlank(loggedInUser)) {
             loggedInUser = CarbonConstants.REGISTRY_SYSTEM_USERNAME;
         }
-        String auditData = "\"" + "Association Name" + "\" : \"" + associationName
-                + "\",\"" + "Workflow ID" + "\" : \"" + workflowId
-                + "\",\"" + "Event ID" + "\" : \"" + eventId
-                + "\",\"" + "Condition" + "\" : \"" + condition
-                + "\"";
+        String auditData = "\"" + "Association Name" + "\" : \"" + associationName+ "\",\""
+                + "Workflow ID" + "\" : \"" + workflowId + "\",\""
+                + "Event ID" + "\" : \"" + eventId + "\",\""
+                + "Condition" + "\" : \"" + condition + "\"";
         AUDIT_LOG.info(String.format(AUDIT_MESSAGE, loggedInUser, "Add Association", auditData, AUDIT_SUCCESS));
     }
 
@@ -132,8 +128,7 @@ public class WorkflowAuditLogger extends AbstractWorkflowListener {
         if (StringUtils.isBlank(loggedInUser)) {
             loggedInUser = CarbonConstants.REGISTRY_SYSTEM_USERNAME;
         }
-        String auditData = "\"" + "Association ID" + "\" : \"" + associationId
-                + "\"";
+        String auditData = "\"" + "Association ID" + "\" : \"" + associationId + "\"";
         AUDIT_LOG.info(String.format(AUDIT_MESSAGE, loggedInUser, "Remove Association", auditData, AUDIT_SUCCESS));
     }
 
@@ -150,9 +145,8 @@ public class WorkflowAuditLogger extends AbstractWorkflowListener {
         if (StringUtils.isBlank(loggedInUser)) {
             loggedInUser = CarbonConstants.REGISTRY_SYSTEM_USERNAME;
         }
-        String auditData = "\"" + "Association ID" + "\" : \"" + associationId
-                + "\",\"" + "Resulting State" + "\" : \"" + isEnable
-                + "\"";
+        String auditData = "\"" + "Association ID" + "\" : \"" + associationId + "\",\""
+                + "Resulting State" + "\" : \"" + isEnable + "\"";
         AUDIT_LOG.info(String.format(AUDIT_MESSAGE, loggedInUser, "Change Association State", auditData,
                 AUDIT_SUCCESS));
     }

@@ -37,7 +37,7 @@ import java.util.List;
 
 public class WorkflowRequestAssociationDAO {
 
-    private static Log log = LogFactory.getLog(WorkflowRequestDAO.class);
+    private static Log log = LogFactory.getLog(WorkflowRequestAssociationDAO.class);
 
     /**
      * Adds new workflow-request relationship to database

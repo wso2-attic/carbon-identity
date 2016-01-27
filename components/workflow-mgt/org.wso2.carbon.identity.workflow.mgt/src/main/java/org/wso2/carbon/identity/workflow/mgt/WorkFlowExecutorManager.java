@@ -125,9 +125,8 @@ public class WorkFlowExecutorManager {
                                     .toString(), workFlowRequest.getTenantId());
                 }
             } catch (JaxenException e) {
-                String errorMsg = "Error when executing the xpath expression:" + association.getAssociationCondition
-                        () + " , on " +
-                        xmlRequest;
+                String errorMsg = "Error when executing the xpath expression:" + association.getAssociationCondition()
+                        + " , on " + xmlRequest;
                 log.error(errorMsg, e);
                 return new WorkflowExecutorResult(ExecutorResultState.FAILED, errorMsg);
             } catch (CloneNotSupportedException e) {
@@ -159,9 +158,8 @@ public class WorkFlowExecutorManager {
             String requestId = request.getUuid();
             workflowRequestAssociationDAO.updateStatusOfRelationship(requestWorkflowId, status);
             workflowRequestDAO.updateLastUpdatedTimeOfRequest(requestId);
-            if (StringUtils.isNotBlank(requestWorkflowId) && workflowRequestDAO.retrieveStatusOfWorkflow(request
-                    .getUuid())
-                    .equals(WorkflowRequestStatus.DELETED.toString())) {
+            if (StringUtils.isNotBlank(requestWorkflowId) && WorkflowRequestStatus.DELETED.toString().equals
+                    (workflowRequestDAO.retrieveStatusOfWorkflow(request.getUuid()))) {
                 log.info("Callback received for request " + requestId + " which is already deleted by user. ");
                 return;
             }

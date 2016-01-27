@@ -157,8 +157,6 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
                 }
             }
         }
-
-
         return eventList;
     }
 
@@ -229,8 +227,6 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
                 workflowListener.doPostListTemplates(templates);
             }
         }
-
-
         return templates;
     }
 
@@ -702,16 +698,14 @@ public class WorkflowManagementServiceImpl implements WorkflowManagementService 
     @Override
     public boolean isEventAssociated(String eventType) throws WorkflowException {
 
-        List<WorkflowListener> workflowListenerList =
-                WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
+        List<WorkflowListener> workflowListenerList = WorkflowServiceDataHolder.getInstance().getWorkflowListenerList();
         for (WorkflowListener workflowListener : workflowListenerList) {
             if (workflowListener.isEnable()) {
                 workflowListener.doPreIsEventAssociated(eventType);
             }
         }
         List<WorkflowAssociation> associations = workflowRequestAssociationDAO.getWorkflowAssociationsForRequest
-                (eventType, CarbonContext
-                        .getThreadLocalCarbonContext().getTenantId());
+                (eventType, CarbonContext.getThreadLocalCarbonContext().getTenantId());
         for (WorkflowListener workflowListener : workflowListenerList) {
             if (workflowListener.isEnable()) {
                 workflowListener.doPreIsEventAssociated(eventType);
