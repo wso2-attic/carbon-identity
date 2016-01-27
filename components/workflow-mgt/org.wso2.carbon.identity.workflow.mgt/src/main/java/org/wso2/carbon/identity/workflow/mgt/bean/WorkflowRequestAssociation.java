@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
+/**
+ * This object represent a workflow association.
+ */
 public class WorkflowRequestAssociation {
 
     private String workflowId;

@@ -183,14 +183,14 @@ public class DeleteRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
 
         for (int i = 0; i < entities.length; i++) {
             try {
-                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && workflowService
+                if (entities[i].getEntityType().equals(UserStoreWFConstants.ENTITY_TYPE_ROLE) && workflowService
                         .entityHasPendingWorkflows(entities[i])) {
 
                     throw new WorkflowException("One or more roles assigned has pending workflows which " +
                             "blocks this operation.");
 
-                } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && !userStoreManager
-                        .isExistingRole(entities[i].getEntityId())) {
+                } else if (entities[i].getEntityType().equals(UserStoreWFConstants.ENTITY_TYPE_ROLE) &&
+                        !userStoreManager.isExistingRole(entities[i].getEntityId())) {
 
                     throw new WorkflowException("Role does not exist.");
                 }

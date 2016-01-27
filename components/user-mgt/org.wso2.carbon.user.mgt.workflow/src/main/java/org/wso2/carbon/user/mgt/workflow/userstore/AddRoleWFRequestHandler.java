@@ -231,26 +231,20 @@ public class AddRoleWFRequestHandler extends AbstractWorkflowRequestHandler {
         }
         for (int i = 0; i < entities.length; i++) {
             try {
-                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
+                if (entities[i].getEntityType().equals(UserStoreWFConstants.ENTITY_TYPE_ROLE) && (workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.ADD_ROLE_EVENT) ||
                         workflowService.entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
-                                .UPDATE_ROLE_NAME_EVENT) || userStoreManager.isExistingRole(entities[i].getEntityId()
-                ))) {
-
+                                .UPDATE_ROLE_NAME_EVENT) ||
+                        userStoreManager.isExistingRole(entities[i].getEntityId()))) {
                     throw new WorkflowException("Role name already exists in the system. Please pick another role " +
                             "name.");
-
                 } else if (workflowService.isEventAssociated(UserStoreWFConstants.ADD_USER_EVENT) &&
                         entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_USER_EVENT)) {
-
                     throw new WorkflowException("One or more assigned users are pending in delete workflow.");
-
                 } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && !userStoreManager
                         .isExistingUser(entities[i].getEntityId())) {
-
                     throw new WorkflowException("User " + entities[i].getEntityId() + " does not exist.");
-
                 }
             } catch (InternalWorkflowException | org.wso2.carbon.user.core.UserStoreException e) {
                 throw new WorkflowException(e.getMessage(), e);

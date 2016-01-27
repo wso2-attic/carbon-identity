@@ -133,7 +133,7 @@
                             org.wso2.carbon.identity.workflow.mgt.*; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.humantask.deployer; resolution:=optional,
                             org.wso2.carbon; version="${carbon.kernel.package.import.version.range}",
-                            org.apache.axiom.om.util
+                            org.apache.axiom.om.util; version="${axiom.osgi.version.range}"
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.workflow.impl.internal,

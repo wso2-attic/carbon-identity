@@ -182,12 +182,11 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         }
         for (int i = 0; i < entities.length; i++) {
             try {
-                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
+                if (entities[i].getEntityType().equals(UserStoreWFConstants.ENTITY_TYPE_USER) && workflowService
                         .entityHasPendingWorkflows(entities[i])) {
                     throw new WorkflowException("User has pending workflows which blocks this operation.");
-                } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && !userStoreManager
-                        .isExistingUser(entities[i].getEntityId())) {
-
+                } else if (entities[i].getEntityType().equals(UserStoreWFConstants.ENTITY_TYPE_USER) &&
+                        !userStoreManager.isExistingUser(entities[i].getEntityId())) {
                     throw new WorkflowException("User does not exist.");
                 }
             } catch (InternalWorkflowException | org.wso2.carbon.user.core.UserStoreException e) {

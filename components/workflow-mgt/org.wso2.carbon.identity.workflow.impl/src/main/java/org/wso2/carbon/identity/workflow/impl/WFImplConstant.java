@@ -23,6 +23,8 @@ public class WFImplConstant {
     public static final String HT_STATE_RESERVED = "RESERVED" ;
     public static final String HT_STATE_READY = "READY" ;
     public static final String BPS_STATUS_ACTIVE = "ACTIVE";
+    public static final int DEFAULT_PAGE_SIZE_FOR_HT_LIST = 100000;
+    public static final int PAGE_0 = 0;
 
     public static final String HT_PARAMETER_LIST_ELEMENT = "parametersList";
     public static final String HT_ITEM_NAME_ATTRIBUTE = "itemName";
@@ -36,6 +38,7 @@ public class WFImplConstant {
     public static final String MUTUAL_SSL_HEADER = "<m:UserName xmlns:m=\"http://mutualssl.carbon.wso2.org\" " +
             "xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\" " +
             "soapenv:mustUnderstand=\"0\">$username</m:UserName>";
+    public static final String DEFAULT_CHARSET = "UTF-8";
 
     public static class ParameterName {
         //Template Parameter List

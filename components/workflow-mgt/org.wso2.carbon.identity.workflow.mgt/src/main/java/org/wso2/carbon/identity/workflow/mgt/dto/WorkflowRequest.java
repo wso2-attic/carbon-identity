@@ -80,7 +80,7 @@ public class WorkflowRequest implements Serializable, Cloneable {
 
         String requestParametersString = "{";
         for (int i = 0; i < requestParameters.size(); i++) {
-            if(!requestParameters.get(i).getName().equals(CREDENTIAL)) {
+            if(!CREDENTIAL.equals(requestParameters.get(i).getName())) {
                 requestParametersString = requestParametersString + requestParameters.get(i).getName() + " : " +
                         requestParameters.get(i).getValue();
                 if (i != requestParameters.size() - 1) {

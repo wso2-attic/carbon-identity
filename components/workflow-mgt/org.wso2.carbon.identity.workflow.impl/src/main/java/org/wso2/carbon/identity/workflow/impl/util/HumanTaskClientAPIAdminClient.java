@@ -117,12 +117,12 @@ public class HumanTaskClientAPIAdminClient {
     public OMElement getInput(URI taskId)
             throws RemoteException, IllegalStateFault, IllegalOperationFault, IllegalAccessFault,
             IllegalArgumentFault, XMLStreamException {
-        String errMsg = "Error occurred while performing loadTaskInput operation";
+
         try {
             String input = (String) stub.getInput(taskId, new NCName(""));
             return AXIOMUtil.stringToOM(input);
         } catch (RemoteException | IllegalStateFault | IllegalOperationFault | IllegalArgumentFault | IllegalAccessFault | XMLStreamException e) {
-            log.error(errMsg, e);
+            log.error("Error occurred while performing loadTaskInput operation", e);
             throw e;
         }
     }
