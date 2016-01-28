@@ -140,10 +140,7 @@ public class CSVUserBulkImport {
                     csvReader.close();
                 }
             } catch (IOException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug(e);
-                }
-                log.error("Error occurred while closing CSV Reader",e);
+                log.error("Error occurred while closing CSV Reader", e);
             }
         }
     }

@@ -196,7 +196,7 @@ public class PolicyEditorService {
             xml = baos.toString("UTF-8");
 
         } catch (ParserConfigurationException pce) {
-            throw new IllegalArgumentException("Failed to parse the XML. ", pce);
+            throw new IllegalArgumentException("Failed to parse the unformatted XML String. ", pce);
         } catch (Exception e) {
             log.error(e);
         }
