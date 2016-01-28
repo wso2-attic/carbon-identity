@@ -62,11 +62,16 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
         String oAuthCacheKeyString;
 
         String responseType = oauthAuthzMsgCtx.getAuthorizationReqDTO().getResponseType();
+        String grantType;
 
-        String grantType = StringUtils.contains(responseType, OAuthConstants.GrantTypes.TOKEN) ?
-                OAuthConstants.GrantTypes.IMPLICIT : responseType;
+        if (StringUtils.contains(responseType, OAuthConstants.GrantTypes.TOKEN)) {
+            grantType = OAuthConstants.GrantTypes.IMPLICIT;
+        } else {
+            grantType = responseType;
+        }
 
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
+
         if (isUsernameCaseSensitive) {
             oAuthCacheKeyString = consumerKey + ":" + authorizedUser + ":" + scope;
         } else {
@@ -76,7 +81,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
         OAuthCacheKey cacheKey = new OAuthCacheKey(oAuthCacheKeyString);
         String userStoreDomain = null;
 
-        //select the user store domain when multiple user stores are configured.
+        // Select the user store domain when multiple user stores are configured.
         if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
                 OAuth2Util.checkUserNameAssertionEnabled()) {
             userStoreDomain = OAuth2Util.getUserStoreDomainFromUserId(authorizedUser);
@@ -110,7 +115,8 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                             }
                         }
                         respDTO.setAccessToken(accessTokenDO.getAccessToken());
-                        if(expireTime > 0){
+
+                        if (expireTime > 0) {
                             respDTO.setValidityPeriod(expireTime/1000);
                         } else {
                             respDTO.setValidityPeriod(Long.MAX_VALUE/1000);
@@ -124,14 +130,19 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         long refreshTokenExpiryTime = OAuth2Util.getRefreshTokenExpireTimeMillis(accessTokenDO);
 
                         if (refreshTokenExpiryTime < 0 || refreshTokenExpiryTime > 0) {
-                            log.debug("Access token has expired, But refresh token is still valid. User existing " +
-                                      "refresh token.");
+
+                            if (log.isDebugEnabled()) {
+                                log.debug("Access token has expired, But refresh token is still valid. User existing " +
+                                        "refresh token.");
+                            }
                             refreshToken = accessTokenDO.getRefreshToken();
                             refreshTokenIssuedTime = accessTokenDO.getRefreshTokenIssuedTime();
                             refreshTokenValidityPeriodInMillis = accessTokenDO.getRefreshTokenValidityPeriodInMillis();
                         }
-                        //Token is expired. Clear it from cache
+
+                        // Token is expired. Clear it from cache
                         oauthCache.clearCacheEntry(cacheKey);
+
                         if (log.isDebugEnabled()) {
                             log.debug("Access Token is expired. Therefore cleared it from cache and marked it" +
                                     " as expired in database");
@@ -163,14 +174,16 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
 
                 if (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(
                         existingAccessTokenDO.getTokenState()) && (expiryTime > 0 || expiryTime < 0)) {
+
                     // token is active and valid
                     if (log.isDebugEnabled()) {
-                        if(expiryTime > 0){
+                        if(expiryTime > 0) {
                             log.debug("Access token is valid for another " + expiryTime + "ms");
                         } else {
                             log.debug("Infinite lifetime Access Token found in cache");
                         }
                     }
+
                     if (cacheEnabled) {
                         oauthCache.addToCache(cacheKey, existingAccessTokenDO);
                         if (log.isDebugEnabled()) {
@@ -181,7 +194,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
 
                     respDTO.setAccessToken(existingAccessTokenDO.getAccessToken());
 
-                    if(expiryTime > 0){
+                    if(expiryTime > 0) {
                         respDTO.setValidityPeriod(expiryTime / 1000);
                     } else {
                         respDTO.setValidityPeriod(Long.MAX_VALUE / 1000);
@@ -199,15 +212,16 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                     if (log.isDebugEnabled()) {
                         log.debug("Access Token is " + existingAccessTokenDO.getTokenState());
                     }
-
                     String tokenState = existingAccessTokenDO.getTokenState();
 
                     if (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(tokenState)) {
 
                         // Token is expired. If refresh token is still valid, use it.
-                        if(refreshTokenExpiryTime > 0 || refreshTokenExpiryTime < 0){
-                            log.debug("Access token has expired, But refresh token is still valid. User existing " +
-                                      "refresh token." );
+                        if(refreshTokenExpiryTime > 0 || refreshTokenExpiryTime < 0) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Access token has expired, But refresh token is still valid. User existing " +
+                                        "refresh token.");
+                            }
                             refreshToken = existingAccessTokenDO.getRefreshToken();
                             refreshTokenIssuedTime = existingAccessTokenDO.getRefreshTokenIssuedTime();
                             refreshTokenValidityPeriodInMillis = existingAccessTokenDO.getRefreshTokenValidityPeriodInMillis();
@@ -216,7 +230,6 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                         if (log.isDebugEnabled()) {
                             log.debug("Marked Access Token as expired");
                         }
-
                     } else {
 
                         //Token is revoked or inactive
