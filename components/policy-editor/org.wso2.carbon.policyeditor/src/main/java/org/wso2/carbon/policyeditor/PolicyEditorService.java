@@ -198,7 +198,7 @@ public class PolicyEditorService {
         } catch (ParserConfigurationException pce) {
             throw new IllegalArgumentException("Failed to parse the unformatted XML String. ", pce);
         } catch (Exception e) {
-            log.error(e);
+            log.error("Error occured while formtting the unformatted XML String. ", e);
         }
 
         return "<![CDATA[" + xml + "]]>";
