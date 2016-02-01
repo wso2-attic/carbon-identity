@@ -825,7 +825,7 @@ public class TokenMgtDAO {
             connection.commit();
 
         } catch (SQLException e) {
-            throw new IdentityOAuth2Exception("Error when retrieving Access Token : " + accessTokenIdentifier, e);
+            throw new IdentityOAuth2Exception("Error when retrieving Access Token" + e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, resultSet, prepStmt);
         }

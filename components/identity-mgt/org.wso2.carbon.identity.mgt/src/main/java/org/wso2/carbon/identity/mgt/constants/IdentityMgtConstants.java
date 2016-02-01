@@ -198,4 +198,21 @@ public class IdentityMgtConstants {
         }
 
     }
+
+    public class ErrorHandling {
+
+        public static final String NOTIFICATION_FAILURE = "Notification sending failure. Notification address is not " +
+                "defined for user:";
+
+        public static final String ERROR_LOADING_EMAIL_TEMP = "Error occurred while loading email templates for user : ";
+
+        public static final String EXTERNAL_CODE = "Error occurred while getting external code for user : ";
+
+        public static final String CREATING_NOTIFICATION_ERROR = "Error occurred while creating notification for user : ";
+
+        public static final String INVALID_CONFIRMATION_CODE = " Invalid confirmation code ";
+
+        public static final String USER_ACCOUNT = " No user account found for user ";
+
+    }
 }

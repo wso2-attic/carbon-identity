@@ -332,6 +332,7 @@ public class OAuthAdminService extends AbstractAdmin {
         AuthenticatedUser authenticatedUser = new AuthenticatedUser();
         authenticatedUser.setUserName(UserCoreUtil.removeDomainFromName(tenantAwareUserName));
         authenticatedUser.setUserStoreDomain(UserCoreUtil.extractDomainFromName(tenantAwareUserName));
+        authenticatedUser.setTenantDomain(tenantDomain);
         String username = UserCoreUtil.addTenantDomainToEntry(tenantAwareUserName, tenantDomain);
 
         String userStoreDomain = null;

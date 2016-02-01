@@ -310,6 +310,11 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
                         .getRefreshTokenValidityPeriodInSeconds() * 1000;
             }
 
+            if (tokReqMsgCtx.getOauth2AccessTokenReqDTO() == null ||
+                    tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType() == null) {
+                throw new IdentityOAuth2Exception("Error while retrieving the grant type");
+            }
+
             String grantType = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getGrantType();
 
             AccessTokenDO newAccessTokenDO = new AccessTokenDO(consumerKey, tokReqMsgCtx.getAuthorizedUser(),
