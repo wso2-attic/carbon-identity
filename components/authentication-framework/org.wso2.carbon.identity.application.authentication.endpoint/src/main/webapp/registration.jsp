@@ -24,10 +24,11 @@
 
 <%
     String forwardTo;
-    try {
+    String username = request.getParameter("reg_username");
 
+    try {
         UserRegistrationAdminServiceClient registrationClient = new UserRegistrationAdminServiceClient();
-        boolean isExistingUser = registrationClient.isUserExist(request.getParameter("reg_username"));
+        boolean isExistingUser = registrationClient.isUserExist(username);
 
         if (StringUtils.equals(request.getParameter("is_validation"), "true")) {
             if (isExistingUser) {
@@ -41,19 +42,14 @@
         if (isExistingUser) {
             throw new Exception("User exist");
         }
-
         List<UserFieldDTO> fields = (List<UserFieldDTO>) session.getAttribute("fields");
 
         for(UserFieldDTO userFieldDTO : fields) {
             userFieldDTO.setFieldValue(request.getParameter(userFieldDTO.getFieldName()));
         }
-
-        String username = request.getParameter("reg_username");
         char [] password = request.getParameter("reg_password").toCharArray();
         registrationClient.addUser(username, password, fields);
-
         forwardTo = "../dashboard/index.jag";
-
     } catch (Exception e) {
         String error = "An internal error occurred.";
         response.sendRedirect("create-account.jsp?sessionDataKey=" + request.getParameter("sessionDataKey") +

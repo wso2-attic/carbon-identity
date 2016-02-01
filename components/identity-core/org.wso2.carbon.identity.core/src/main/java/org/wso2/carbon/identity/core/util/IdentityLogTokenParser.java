@@ -86,10 +86,10 @@ class IdentityLogTokenParser {
         }
 
         FileInputStream fileInput = null;
+
         try {
             File file = new File(filePath);
             fileInput = new FileInputStream(file);
-
             Properties properties = new Properties();
             properties.load(fileInput);
 

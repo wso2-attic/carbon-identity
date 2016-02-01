@@ -184,6 +184,7 @@ public class IdentityConstants {
         public final static String XMPP_SETTINGS_PASSWORD = "MultifactorAuthentication.XMPPSettings.XMPPConfig.XMPPPassword";
 
         //SAML SSO Service config
+        public final static String SAMLSSO = "samlsso";
         public final static String ENTITY_ID = "SSOService.EntityID";
         public final static String SSO_IDP_URL = "SSOService.IdentityProviderURL";
         public final static String DEFAULT_LOGOUT_ENDPOINT = "SSOService.DefaultLogoutEndpoint";
@@ -251,10 +252,55 @@ public class IdentityConstants {
     }
 
     /**
+     * Common constants related to OAuth.
+     */
+    public static class OAuth {
+
+        public static final String OAUTH1_REQUEST_TOKEN_URL = "OAuth.OAuth1RequestTokenUrl";
+        public static final String OAUTH1_AUTHORIZE_URL = "OAuth.OAuth1AuthorizeUrl";
+        public static final String OAUTH1_ACCESSTOKEN_URL = "OAuth.OAuth1AccessTokenUrl";
+        public static final String OAUTH2_AUTHZ_EP_URL = "OAuth.OAuth2AuthzEPUrl";
+        public static final String OAUTH2_TOKEN_EP_URL = "OAuth.OAuth2TokenEPUrl";
+        public static final String OAUTH2_USERINFO_EP_URL = "OAuth.OAuth2UserInfoEPUrl";
+        public static final String OAUTH2_REVOKE_EP_URL = "OAuth.OAuth2RevokeEPUrl";
+
+        public static final String REQUEST_TOKEN = "oauth/request-token";
+        public static final String AUTHORIZE_URL = "oauth/authorize-url";
+        public static final String ACCESS_TOKEN = "oauth/access-token";
+        public static final String AUTHORIZE = "oauth2/authorize";
+        public static final String TOKEN = "oauth2/token";
+        public static final String REVOKE = "oauth2/revoke";
+        public static final String USERINFO = "oauth2/userinfo";
+    }
+
+    /**
+     * Common constants related to STS
+     */
+    public static class STS {
+
+        public static final String PASSIVE_STS = "passivests";
+        public static final String WSO2_CARBON_STS = "wso2carbon-sts";
+        public static final String PSTS_IDENTITY_PROVIDER_URL = "PassiveSTS.IdentityProviderURL";
+        public static final String STS_IDENTITY_PROVIDER_URL = "SecurityTokenService.IdentityProviderURL";
+    }
+
+    /**
+     * Common constants realted to SCIM
+     */
+    public static class SCIM {
+
+        public static final String USER_EP_URL = "SCIM.UserEPUrl";
+        public static final String GROUP_EP_URL = "SCIM.GroupEPUrl";
+        public static final String USER_EP = "wso2/scim/Users";
+        public static final String GROUP_EP = "wso2/scim/Users";
+    }
+
+    /**
      * Common constants related to OpenID.
      */
     public static class OpenId {
 
+        public final static String OPENID = "openid";
         public final static String NS = "http://schema.openid.net";
         public final static String OPENID_URL = "http://specs.openid.net/auth/2.0";
         public final static String ATTR_MODE = "openid.mode";

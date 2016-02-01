@@ -207,8 +207,8 @@ public class UserRegistrationService {
             return CarbonContext.getThreadLocalCarbonContext().getUserRealm().
                     getUserStoreManager().isExistingUser(username);
         } catch (UserStoreException e) {
-            log.error("User store exception", e);
-            throw new UserRegistrationException("User store exception", e);
+            log.error("Unable to connect to the user store.", e);
+            throw new UserRegistrationException("Internal error occurred while connecting to the user store.", e);
         }
     }
 
