@@ -25,6 +25,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.workflow.mgt.WorkflowManagementService;
 import org.wso2.carbon.identity.workflow.mgt.bean.Entity;
 import org.wso2.carbon.identity.workflow.mgt.exception.InternalWorkflowException;
@@ -272,7 +273,8 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.ADD_USER_EVENT) ||
                         userStoreManager.isExistingUser(entities[i].getEntityId()))) {
 
-                    throw new WorkflowException("Username already exists in the system. Please pick another username.");
+                    throw new WorkflowException(IdentityCoreConstants.EXISTING_USER + ":" + "Username already exists" +
+                            " in the system. Please pick another username.");
 
                 } else if (eventEngaged &&
                         entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
