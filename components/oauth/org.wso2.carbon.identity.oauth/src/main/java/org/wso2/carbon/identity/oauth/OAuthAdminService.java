@@ -331,7 +331,7 @@ public class OAuthAdminService extends AbstractAdmin {
         String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
         AuthenticatedUser authenticatedUser = new AuthenticatedUser();
         authenticatedUser.setUserName(UserCoreUtil.removeDomainFromName(tenantAwareUserName));
-        authenticatedUser.setUserStoreDomain(UserCoreUtil.extractDomainFromName(tenantAwareUserName));
+        authenticatedUser.setUserStoreDomain(IdentityUtil.extractDomainFromName(tenantAwareUserName));
         String username = UserCoreUtil.addTenantDomainToEntry(tenantAwareUserName, tenantDomain);
 
         String userStoreDomain = null;
@@ -422,7 +422,7 @@ public class OAuthAdminService extends AbstractAdmin {
             String tenantAwareUserName = PrivilegedCarbonContext.getThreadLocalCarbonContext().getUsername();
             AuthenticatedUser user = new AuthenticatedUser();
             user.setUserName(UserCoreUtil.removeDomainFromName(tenantAwareUserName));
-            user.setUserStoreDomain(UserCoreUtil.extractDomainFromName(tenantAwareUserName));
+            user.setUserStoreDomain(IdentityUtil.extractDomainFromName(tenantAwareUserName));
             user.setTenantDomain(tenantDomain);
             String userName = UserCoreUtil.addTenantDomainToEntry(tenantAwareUserName, tenantDomain);
 
