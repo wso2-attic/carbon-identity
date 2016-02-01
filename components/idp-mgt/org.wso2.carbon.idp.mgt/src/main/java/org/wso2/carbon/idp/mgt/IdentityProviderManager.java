@@ -191,10 +191,10 @@ public class IdentityProviderManager {
         if (StringUtils.isBlank(scimGroupsEndpoint)) {
             scimGroupsEndpoint = IdentityUtil.getServerURL(IdentityConstants.SCIM.GROUP_EP, true, false);
         }
-
         IdentityProvider identityProvider = dao.getIdPByName(null,
                 IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME,
                 IdentityTenantUtil.getTenantId(tenantDomain), tenantDomain);
+
         if (identityProvider == null) {
             String message = "Could not find Resident Identity Provider for tenant " + tenantDomain;
             throw new IdentityProviderManagementException(message);
@@ -384,6 +384,7 @@ public class IdentityProviderManager {
             passiveSTSUrlProp.setValue(passiveStsUrl);
             propertiesList.add(passiveSTSUrlProp);
         }
+
         if (IdentityApplicationManagementUtil.getProperty(passiveSTSFedAuthn.getProperties(),
                 IdentityApplicationConstants.Authenticator.PassiveSTS.IDENTITY_PROVIDER_ENTITY_ID) == null) {
             Property idPEntityIdProp = new Property();

@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.core.IdentityClaimManager;
 import org.wso2.carbon.identity.core.model.IdentityEventListenerConfig;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
@@ -893,7 +894,7 @@ public class UserInformationRecoveryService {
             vBean = UserIdentityManagementUtil.getCustomErrorMessagesWhenRegistering(e, userName);
             //Rollback if user exists
             try {
-                if (userStoreManager.isExistingUser(userName)) {
+                if (!e.getMessage().contains(IdentityCoreConstants.EXISTING_USER) && userStoreManager.isExistingUser(userName)) {
                     userStoreManager.deleteUser(userName);
                 }
             } catch (UserStoreException e1) {

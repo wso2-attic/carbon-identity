@@ -30,6 +30,7 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationConst
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,8 +54,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     private void initOAuthEndpoint() {
 
-        oAuthEndpoint = getAuthenticatorConfig()
-                .getParameterMap()
+        oAuthEndpoint = getAuthenticatorConfig().getParameterMap()
                 .get(YahooOAuth2AuthenticatorConstants.YAHOO_OAUTHZ_ENDPOINT);
 
         if (oAuthEndpoint == null) {
@@ -67,8 +67,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     private void initTokenEndpoint() {
 
-        tokenEndpoint = getAuthenticatorConfig()
-                .getParameterMap()
+        tokenEndpoint =  getAuthenticatorConfig().getParameterMap()
                 .get(YahooOAuth2AuthenticatorConstants.YAHOO_TOKEN_ENDPOINT);
 
         if (tokenEndpoint == null) {
@@ -81,8 +80,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     private void initUserInfoURL() {
 
-        userInfoURL = getAuthenticatorConfig()
-                .getParameterMap()
+        userInfoURL = getAuthenticatorConfig().getParameterMap()
                 .get(YahooOAuth2AuthenticatorConstants.YAHOO_USERINFO_ENDPOINT);
 
         if (userInfoURL == null) {
@@ -178,9 +176,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
     protected String getUserInfoEndpoint(OAuthClientResponse token, Map<String, String> authenticatorProperties) {
 
         String userGUID = token.getParam(YahooOAuth2AuthenticatorConstants.USER_GUID);
-        String url = getUserInfoURL()
-                + userGUID
-                + YahooOAuth2AuthenticatorConstants.YAHOO_USER_DETAILS_JSON;
+        String url = getUserInfoURL() + userGUID + YahooOAuth2AuthenticatorConstants.YAHOO_USER_DETAILS_JSON;
 
         return url;
     }
@@ -236,18 +232,22 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
             String json = sendRequest(url, accessToken);
 
             if (!StringUtils.isNotBlank(json)) {
-                log.info("Unable to fetch user claims. Proceeding without user claims");
+                if (log.isDebugEnabled()) {
+                    log.debug("Unable to fetch user claims. Proceeding without user claims");
+                }
                 return claims;
             }
 
             Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
 
-            // Extract the inside profile JSON object.
+            // Extract the inner profile JSON object.
             Map<String, Object> profile = JSONUtils.parseJSON(
                     jsonObject.entrySet().iterator().next().getValue().toString());
 
             if (profile == null) {
-                log.info("Invalid user profile object. Proceeding without user claims");
+                if (log.isDebugEnabled()) {
+                    log.debug("Invalid user profile object. Proceeding without user claims");
+                }
                 return claims;
             }
 
@@ -261,8 +261,8 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
                             profile.get(key).toString());
                 }
             }
-        } catch (Exception e) {
-            log.error("Error occurred while accessing user info endpoint", e);
+        } catch (IOException e) {
+            log.error("Communication error occurred while accessing user info endpoint", e);
         }
         return claims;
     }
