@@ -131,16 +131,19 @@ public class WindowsLiveOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * We do not have a default claim dialect.
-     * @return
+     * Get the default claim dialect URI.
+     * @return Claim dialect URI.
      */
     @Override
     public String getClaimDialectURI() {
+
+        // We do not have a default claim dialect.
         return null;
     }
 
     /**
-     * @return
+     * Always return false since there is no ID token in MS Live.
+     * @return True if ID token is required.
      */
     @Override
     protected boolean requiredIDToken(Map<String, String> authenticatorProperties) {

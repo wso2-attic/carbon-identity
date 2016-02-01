@@ -119,12 +119,14 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * We do not have a default claim dialect.
+     * Get the default claim dialect URI.
      *
-     * @return Claim dialect URI
+     * @return Claim dialect URI.
      */
     @Override
     public String getClaimDialectURI() {
+
+        // We do not have a default claim dialect.
         return null;
     }
 
@@ -176,9 +178,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
     protected String getUserInfoEndpoint(OAuthClientResponse token, Map<String, String> authenticatorProperties) {
 
         String userGUID = token.getParam(YahooOAuth2AuthenticatorConstants.USER_GUID);
-        String url = getUserInfoURL() + userGUID + YahooOAuth2AuthenticatorConstants.YAHOO_USER_DETAILS_JSON;
-
-        return url;
+        return getUserInfoURL() + userGUID + YahooOAuth2AuthenticatorConstants.YAHOO_USER_DETAILS_JSON;
     }
 
     /**
@@ -211,6 +211,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     @Override
     protected boolean requiredIDToken(Map<String, String> authenticatorProperties) {
+
         return false;
     }
 
