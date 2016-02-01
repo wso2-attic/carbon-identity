@@ -308,10 +308,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
     }
 
-    /**
-     *
-     */
-
     @Override
     public void updateApplication(ServiceProvider serviceProvider, String tenantDomain)
             throws IdentityApplicationManagementException {
@@ -1166,10 +1162,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             IdentityApplicationManagementUtil.closeStatement(storeRoleMapPrepStmt);
         }
     }
-
-    /**
-     *
-     */
 
     @Override
     public ServiceProvider getApplication(String applicationName, String tenantDomain)

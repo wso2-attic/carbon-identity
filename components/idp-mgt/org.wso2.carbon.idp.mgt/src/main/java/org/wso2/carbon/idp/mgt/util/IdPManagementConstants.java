@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.idp.mgt.util;
 
+/**
+ * This class is used to keep the identity provider management related constants.
+ */
 public class IdPManagementConstants {
 
     public static final String SHARED_IDP_PREFIX = "SHARED_";

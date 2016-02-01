@@ -47,6 +47,9 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class is used to issue access tokens and refresh tokens.
+ */
 public class AccessTokenIssuer {
 
     private static AccessTokenIssuer instance;
@@ -57,6 +60,9 @@ public class AccessTokenIssuer {
             new ArrayList<ClientAuthenticationHandler>();
     private AppInfoCache appInfoCache;
 
+    /**
+     * Private constructor which will not allow to create objects of this class from outside
+     */
     private AccessTokenIssuer() throws IdentityOAuth2Exception {
 
         authzGrantHandlers = OAuthServerConfiguration.getInstance().getSupportedGrantTypes();
@@ -71,7 +77,11 @@ public class AccessTokenIssuer {
         }
 
     }
-
+    /**
+     * Singleton method
+     *
+     * @return AccessTokenIssuer
+     */
     public static AccessTokenIssuer getInstance() throws IdentityOAuth2Exception {
 
         CarbonUtils.checkSecurity();
@@ -86,6 +96,14 @@ public class AccessTokenIssuer {
         return instance;
     }
 
+    /**
+     * Issue access token using the respective grant handler and client authentication handler.
+     *
+     * @param tokenReqDTO
+     * @return access token response
+     * @throws IdentityException
+     * @throws InvalidOAuthClientException
+     */
     public OAuth2AccessTokenRespDTO issue(OAuth2AccessTokenReqDTO tokenReqDTO)
             throws IdentityException, InvalidOAuthClientException {
 
@@ -231,6 +249,12 @@ public class AccessTokenIssuer {
         return tokenRespDTO;
     }
 
+    /**
+     * Add user attributes to cache.
+     *
+     * @param tokenReqDTO
+     * @param tokenRespDTO
+     */
     private void addUserAttributesToCache(OAuth2AccessTokenReqDTO tokenReqDTO, OAuth2AccessTokenRespDTO tokenRespDTO) {
         AuthorizationGrantCacheKey oldCacheKey = new AuthorizationGrantCacheKey(tokenReqDTO.getAuthorizationCode());
         //checking getUserAttributesId value of cacheKey before retrieve entry from cache as it causes to NPE
@@ -251,6 +275,14 @@ public class AccessTokenIssuer {
         }
     }
 
+    /**
+     * Get Oauth application information
+     *
+     * @param tokenReqDTO
+     * @return Oauth app information
+     * @throws IdentityOAuth2Exception
+     * @throws InvalidOAuthClientException
+     */
     private OAuthAppDO getAppInformation(OAuth2AccessTokenReqDTO tokenReqDTO) throws IdentityOAuth2Exception, InvalidOAuthClientException {
         OAuthAppDO oAuthAppDO = appInfoCache.getValueFromCache(tokenReqDTO.getClientId());
         if (oAuthAppDO != null) {
@@ -262,6 +294,14 @@ public class AccessTokenIssuer {
         }
     }
 
+    /**
+     * Handle error scenarios in issueing the access token.
+     *
+     * @param errorCode
+     * @param errorMsg
+     * @param tokenReqDTO
+     * @return Access token response DTO
+     */
     private OAuth2AccessTokenRespDTO handleError(String errorCode,
                                                  String errorMsg,
                                                  OAuth2AccessTokenReqDTO tokenReqDTO) {
@@ -278,6 +318,11 @@ public class AccessTokenIssuer {
         return tokenRespDTO;
     }
 
+    /**
+     * Set headers in OAuth2AccessTokenRespDTO
+     * @param tokReqMsgCtx
+     * @param tokenRespDTO
+     */
     private void setResponseHeaders(OAuthTokenReqMessageContext tokReqMsgCtx,
                                     OAuth2AccessTokenRespDTO tokenRespDTO) {
         if (tokReqMsgCtx.getProperty("RESPONSE_HEADERS") != null) {

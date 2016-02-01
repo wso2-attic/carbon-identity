@@ -37,10 +37,18 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
     private static volatile AuthorizationGrantCache instance;
     private static final Log log = LogFactory.getLog(AuthorizationGrantCache.class);
 
+    /**
+     * Private constructor which will not allow to create objects of this class from outside
+     */
     private AuthorizationGrantCache() {
         super(AUTHORIZATION_GRANT_CACHE_NAME);
     }
 
+    /**
+     * Singleton method
+     *
+     * @return AuthorizationGrantCache
+     */
     public static AuthorizationGrantCache getInstance() {
         CarbonUtils.checkSecurity();
         if (instance == null) {
@@ -52,7 +60,12 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
         }
         return instance;
     }
-
+    /**
+     * Add a cache entry by access token.
+     *
+     * @param key   Key which cache entry is indexed.
+     * @param entry Actual object where cache entry is placed.
+     */
     public void addToCacheByToken(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
         super.addToCache(key, entry);
         String tokenId = entry.getTokenId();
@@ -64,7 +77,12 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
 
     }
 
-
+    /**
+     * Retrieves a cache entry by access token.
+     *
+     * @param key CacheKey
+     * @return Cached entry.
+     */
     public AuthorizationGrantCacheEntry getValueFromCacheByToken(AuthorizationGrantCacheKey key) {
         AuthorizationGrantCacheEntry cacheEntry = super.getValueFromCache(key);
         if (cacheEntry == null) {
@@ -73,18 +91,33 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
         return cacheEntry;
     }
 
+    /**
+     * Clears a cache entry by access token.
+     *
+     * @param key Key to clear cache.
+     */
     public void clearCacheEntryByToken(AuthorizationGrantCacheKey key) {
         super.clearCacheEntry(key);
         clearFromSessionStore(replaceFromTokenId(key.getUserAttributesId()));
     }
 
-
+    /**
+     * Add a cache entry by authorization code.
+     *
+     * @param key   Key which cache entry is indexed.
+     * @param entry Actual object where cache entry is placed.
+     */
     public void addToCacheByCode(AuthorizationGrantCacheKey key, AuthorizationGrantCacheEntry entry) {
         super.addToCache(key, entry);
         storeToSessionStore(entry.getCodeId(), entry);
     }
 
-
+    /**
+     * Retrieves a cache entry by authorization code.
+     *
+     * @param key CacheKey
+     * @return Cached entry.
+     */
     public AuthorizationGrantCacheEntry getValueFromCacheByCode(AuthorizationGrantCacheKey key) {
         AuthorizationGrantCacheEntry cacheEntry = super.getValueFromCache(key);
         if (cacheEntry == null) {
@@ -94,12 +127,21 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
     }
 
 
+    /**
+     * Clears a cache entry by authorization code.
+     *
+     * @param key Key to clear cache.
+     */
     public void clearCacheEntryByCode(AuthorizationGrantCacheKey key) {
         super.clearCacheEntry(key);
         clearFromSessionStore(replaceFromCodeId(key.getUserAttributesId()));
     }
 
-
+    /**
+     * Retrieve the authorization code id using the authorization code
+     * @param authzCode Authorization code
+     * @return CODE_ID from the database
+     */
     private String replaceFromCodeId(String authzCode) {
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
         try {
@@ -110,7 +152,11 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
         return authzCode;
     }
 
-
+    /**
+     * Retrieve the access token id using the access token
+     * @param keyValue Access token
+     * @return TOKEN_ID from the database
+     */
     private String replaceFromTokenId(String keyValue) {
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
         try {
@@ -121,17 +167,30 @@ public class AuthorizationGrantCache extends BaseCache<AuthorizationGrantCacheKe
         return keyValue;
     }
 
-
+    /**
+     * Clears a cache entry from SessionDataStore.
+     *
+     * @param id to clear cache.
+     */
     private void clearFromSessionStore(String id) {
         SessionDataStore.getInstance().clearSessionData(id, AUTHORIZATION_GRANT_CACHE_NAME);
     }
 
-
+    /**
+     * Retrieve cache entry from SessionDataStore
+     * @param id session data key
+     * @return
+     */
     private AuthorizationGrantCacheEntry getFromSessionStore(String id) {
-        return (AuthorizationGrantCacheEntry) SessionDataStore.getInstance().getSessionData(id, AUTHORIZATION_GRANT_CACHE_NAME);
+        return (AuthorizationGrantCacheEntry) SessionDataStore.getInstance().getSessionData(id,
+                AUTHORIZATION_GRANT_CACHE_NAME);
     }
 
-
+    /**
+     * Store cache entry in SessionDataStore
+     * @param id session data key
+     * @param entry cache entry to store
+     */
     private void storeToSessionStore(String id, AuthorizationGrantCacheEntry entry) {
         SessionDataStore.getInstance().storeSessionData(id, AUTHORIZATION_GRANT_CACHE_NAME, entry);
     }

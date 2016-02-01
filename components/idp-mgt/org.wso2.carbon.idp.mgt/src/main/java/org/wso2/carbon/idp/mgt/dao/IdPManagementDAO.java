@@ -61,6 +61,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+/**
+ * This class is used to access the data storage to retrieve and store identity provider configurations.
+ */
 public class IdPManagementDAO {
 
     private static final Log log = LogFactory.getLog(IdPManagementDAO.class);
