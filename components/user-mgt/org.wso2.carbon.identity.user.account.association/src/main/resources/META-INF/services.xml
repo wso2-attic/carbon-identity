@@ -31,7 +31,7 @@
             <parameter name="AuthorizationAction" locked="true">/permission/admin/login
             </parameter>
         </operation>
-        <operation name="createUserAccountAssociation">
+        <operation name="associateTwoAccounts">
             <parameter name="AuthorizationAction" locked="true">/permission/admin/manage/identity/user/association/create
             </parameter>
         </operation>

@@ -18,6 +18,7 @@
 package org.wso2.carbon.identity.oauth2.internal;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.InboundAuthenticationConfig;
 import org.wso2.carbon.identity.application.common.model.InboundAuthenticationRequestConfig;
@@ -25,6 +26,7 @@ import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.listener.AbstractApplicationMgtListener;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
 import org.wso2.carbon.identity.oauth.dao.OAuthConsumerDAO;
 
 public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener {
@@ -61,7 +63,9 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
     }
 
     public boolean doPostUpdateApplication(ServiceProvider serviceProvider, String tenantDomain, String userName) throws IdentityApplicationManagementException {
+
         addClientSecret(serviceProvider);
+        updateAuthApplication(serviceProvider);
         return true;
     }
 
@@ -145,5 +149,37 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
     private String getClientSecret(String inboundAuthKey) throws IdentityOAuthAdminException {
         OAuthConsumerDAO dao = new OAuthConsumerDAO();
         return dao.getOAuthConsumerSecret(inboundAuthKey);
+    }
+
+    /**
+     * Update the application name if OAuth application presents.
+     * @param serviceProvider Service provider
+     * @throws IdentityApplicationManagementException
+     */
+    private void updateAuthApplication(ServiceProvider serviceProvider)
+            throws IdentityApplicationManagementException {
+
+        InboundAuthenticationRequestConfig authenticationRequestConfigConfig = null;
+        if (serviceProvider.getInboundAuthenticationConfig() != null &&
+                serviceProvider.getInboundAuthenticationConfig()
+                        .getInboundAuthenticationRequestConfigs() != null) {
+
+            for (InboundAuthenticationRequestConfig authConfig : serviceProvider.getInboundAuthenticationConfig()
+                    .getInboundAuthenticationRequestConfigs()) {
+                if (StringUtils.equals(authConfig.getInboundAuthType(), "oauth") ||
+                        StringUtils.equals(authConfig.getInboundAuthType(), "oauth2")) {
+                    authenticationRequestConfigConfig = authConfig;
+                    break;
+                }
+            }
+        }
+
+        if (authenticationRequestConfigConfig == null) {
+            return;
+        }
+
+        OAuthAppDAO dao = new OAuthAppDAO();
+        dao.updateOAuthConsumerApp(serviceProvider.getApplicationName(),
+                authenticationRequestConfigConfig.getInboundAuthKey());
     }
 }

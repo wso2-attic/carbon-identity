@@ -401,7 +401,7 @@ public class UserResource extends AbstractResource {
         Encoder encoder = null;
         try {
             IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
-            String filter = "userNameEq" + MultitenantUtils.getTenantAwareUsername(authorization);
+            String filter = "userName Eq " + MultitenantUtils.getTenantAwareUsername(authorization);
 
             // defaults to application/json.
             format = identifyOutputFormat(format);
