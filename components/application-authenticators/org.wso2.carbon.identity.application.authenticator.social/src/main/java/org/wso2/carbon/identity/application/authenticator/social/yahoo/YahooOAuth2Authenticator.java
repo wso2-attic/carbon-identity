@@ -240,10 +240,13 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
             }
 
             Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
+            Map<String, Object> profile = null;
 
-            // Extract the inner profile JSON object.
-            Map<String, Object> profile = JSONUtils.parseJSON(
-                    jsonObject.entrySet().iterator().next().getValue().toString());
+            if (!jsonObject.isEmpty()) {
+
+                // Extract the inner profile JSON object.
+                profile = JSONUtils.parseJSON(jsonObject.entrySet().iterator().next().getValue().toString());
+            }
 
             if (profile == null) {
                 if (log.isDebugEnabled()) {
