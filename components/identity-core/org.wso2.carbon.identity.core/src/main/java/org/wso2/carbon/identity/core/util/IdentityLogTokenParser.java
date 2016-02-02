@@ -73,7 +73,6 @@ class IdentityLogTokenParser {
      * @return Map{String String}
      */
     Map<String, String> getLogTokenMap() {
-
         return logTokenMap;
     }
 

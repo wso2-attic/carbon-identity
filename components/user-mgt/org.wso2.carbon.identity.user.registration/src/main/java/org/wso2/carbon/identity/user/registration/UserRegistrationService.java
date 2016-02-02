@@ -87,7 +87,6 @@ public class UserRegistrationService {
         PasswordRegExDTO passwordRegEx;
 
         try {
-
             UserStoreManager manager = realm.getUserStoreManager();
             String domainName;
             String regEx;
@@ -105,13 +104,11 @@ public class UserRegistrationService {
                 }
                 manager = manager.getSecondaryUserStoreManager();
             }
-
         } catch (UserStoreException e) {
             log.error(e);
             throw IdentityException.error(
                     "Error occured while loading password validation regular expressions.");
         }
-
         return passwordRegExList.toArray(new PasswordRegExDTO[passwordRegExList.size()]);
     }
 
@@ -140,14 +137,11 @@ public class UserRegistrationService {
                     continue;
                 }
                 if (!claim.isReadOnly()) {
-                    claimList.add(getUserFieldDTO(claim.getClaimUri(),
-                            claim.getDisplayTag(), claim.isRequired(),
-                            claim.getDisplayOrder(), claim.getRegEx(),
-                            claim.isSupportedByDefault()));
+                    claimList.add(getUserFieldDTO(claim.getClaimUri(), claim.getDisplayTag(), claim.isRequired(),
+                            claim.getDisplayOrder(), claim.getRegEx(), claim.isSupportedByDefault()));
                 }
             }
         }
-
         return claimList.toArray(new UserFieldDTO[claimList.size()]);
     }
 
@@ -170,7 +164,6 @@ public class UserRegistrationService {
         realm = IdentityTenantUtil.getRealm(tenantName, null);
         Registry registry = IdentityTenantUtil.getRegistry(null, null);
         addUser(tenantAwareUserName, user.getPassword(), userClaims, null, realm);
-
     }
 
     public boolean isAddUserEnabled() throws Exception {
@@ -182,9 +175,7 @@ public class UserRegistrationService {
                 return !userStoreManager.isReadOnly();
             }
         }
-
         return false;
-
     }
 
     public boolean isAddUserWithOpenIDEnabled() throws Exception {
@@ -237,9 +228,11 @@ public class UserRegistrationService {
             if (tenantConfig != null && !"".equals(tenantConfig.getSignUpDomain())) {
                 int index = userName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR);
                 if (index > 0) {
-                    userName = tenantConfig.getSignUpDomain().toUpperCase() + UserCoreConstants.DOMAIN_SEPARATOR + userName.substring(index + 1);
+                    userName = tenantConfig.getSignUpDomain().toUpperCase() + UserCoreConstants.DOMAIN_SEPARATOR
+                            + userName.substring(index + 1);
                 } else {
-                    userName = tenantConfig.getSignUpDomain().toUpperCase() + UserCoreConstants.DOMAIN_SEPARATOR + userName;
+                    userName = tenantConfig.getSignUpDomain().toUpperCase() + UserCoreConstants.DOMAIN_SEPARATOR
+                            + userName;
                 }
             }
 
@@ -252,17 +245,18 @@ public class UserRegistrationService {
             // add user
             admin.addUser(userName, password, null, claimList, profileName);
 
-
             // after adding the user, assign specif roles
             List<String> roleNamesArr = getRoleName(userName, tenantConfig);
             if (claimList.get(SelfRegistrationConstants.SIGN_UP_ROLE_CLAIM_URI) != null) {
                 // check is a user role is specified as a claim by the client, if so add it to the roles list
                 if (tenantConfig != null) {
-                    roleNamesArr.add(tenantConfig.getSignUpDomain().toUpperCase() +
-                            UserCoreConstants.DOMAIN_SEPARATOR + claimList.get(SelfRegistrationConstants.SIGN_UP_ROLE_CLAIM_URI));
+                    roleNamesArr.add(tenantConfig.getSignUpDomain().toUpperCase()
+                            + UserCoreConstants.DOMAIN_SEPARATOR
+                            + claimList.get(SelfRegistrationConstants.SIGN_UP_ROLE_CLAIM_URI));
                 } else {
-                    roleNamesArr.add(UserCoreConstants.INTERNAL_DOMAIN +
-                            UserCoreConstants.DOMAIN_SEPARATOR + claimList.get(SelfRegistrationConstants.SIGN_UP_ROLE_CLAIM_URI));
+                    roleNamesArr.add(UserCoreConstants.INTERNAL_DOMAIN
+                            + UserCoreConstants.DOMAIN_SEPARATOR
+                            + claimList.get(SelfRegistrationConstants.SIGN_UP_ROLE_CLAIM_URI));
                 }
             }
             String[] identityRoleNames = roleNamesArr.toArray(new String[roleNamesArr.size()]);
@@ -271,7 +265,6 @@ public class UserRegistrationService {
                 // if this is the first time a user signs up, needs to create role
                 doAddUser(i,admin, identityRoleNames,userName,permission);
             }
-
         } catch (UserStoreException e) {
             throw IdentityException.error("Error occurred while adding user : " + userName + ". " + e.getMessage(), e);
         }
@@ -310,7 +303,6 @@ public class UserRegistrationService {
                 throw IdentityException.error(e.getMessage(), e);
             }
         }
-
         return true;
     }
 
@@ -323,7 +315,8 @@ public class UserRegistrationService {
                 String roleName;
                 if (entry.getValue()) {
                     // external role
-                    roleName = tenantConfig.getSignUpDomain().toUpperCase() + UserCoreConstants.DOMAIN_SEPARATOR + entry.getKey();
+                    roleName = tenantConfig.getSignUpDomain().toUpperCase() + UserCoreConstants.DOMAIN_SEPARATOR +
+                            entry.getKey();
                 } else {
                     // internal role
                     roleName = UserCoreConstants.INTERNAL_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + entry.getKey();
@@ -335,7 +328,8 @@ public class UserRegistrationService {
         }
 
         String roleName = IdentityUtil.getProperty(SelfRegistrationConstants.ROLE_NAME_PROPERTY);
-        boolean externalRole = Boolean.parseBoolean(IdentityUtil.getProperty(SelfRegistrationConstants.ROLE_EXTERNAL_PROPERTY));
+        boolean externalRole = Boolean.parseBoolean(IdentityUtil.getProperty(
+                SelfRegistrationConstants.ROLE_EXTERNAL_PROPERTY));
 
         String domainName = UserCoreConstants.INTERNAL_DOMAIN;
         if (externalRole) {
@@ -349,7 +343,6 @@ public class UserRegistrationService {
         if (domainName != null && domainName.trim().length() > 0) {
             roleName = domainName.toUpperCase() + CarbonConstants.DOMAIN_SEPARATOR + roleName;
         }
-
         return new ArrayList<String>(Arrays.asList(roleName));
     }
 
@@ -361,7 +354,8 @@ public class UserRegistrationService {
             PrivilegedCarbonContext.startTenantFlow();
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId, true);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry(RegistryType.SYSTEM_GOVERNANCE);
+            Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                    .getRegistry(RegistryType.SYSTEM_GOVERNANCE);
             if (registry.resourceExists(SelfRegistrationConstants.SIGN_UP_CONFIG_REG_PATH)) {
                 Resource resource = registry.get(SelfRegistrationConstants.SIGN_UP_CONFIG_REG_PATH);
                 // build config from tenant registry resource
@@ -373,15 +367,18 @@ public class UserRegistrationService {
                 nodes = doc.getElementsByTagName(SelfRegistrationConstants.SELF_SIGN_UP_ELEMENT);
                 if (nodes.getLength() > 0) {
                     config = new TenantRegistrationConfig();
-                    config.setSignUpDomain(((Element) nodes.item(0)).getElementsByTagName(SelfRegistrationConstants.SIGN_UP_DOMAIN_ELEMENT).
-                            item(0).getTextContent());
+                    config.setSignUpDomain(((Element) nodes.item(0)).getElementsByTagName(SelfRegistrationConstants
+                            .SIGN_UP_DOMAIN_ELEMENT)
+                            .item(0).getTextContent());
                     // there can be more than one <SignUpRole> elements, iterate through all elements
-                    NodeList rolesEl = ((Element) nodes.item(0)).getElementsByTagName(SelfRegistrationConstants.SIGN_UP_ROLE_ELEMENT);
+                    NodeList rolesEl = ((Element) nodes.item(0))
+                            .getElementsByTagName(SelfRegistrationConstants.SIGN_UP_ROLE_ELEMENT);
                     for (int i = 0; i < rolesEl.getLength(); i++) {
                         Element tmpEl = (Element) rolesEl.item(i);
-                        String tmpRole = tmpEl.getElementsByTagName(SelfRegistrationConstants.ROLE_NAME_ELEMENT).item(0).getTextContent();
-                        boolean tmpIsExternal = Boolean.parseBoolean(tmpEl.getElementsByTagName(SelfRegistrationConstants.IS_EXTERNAL_ELEMENT).
-                                item(0).getTextContent());
+                        String tmpRole = tmpEl.getElementsByTagName(SelfRegistrationConstants.ROLE_NAME_ELEMENT)
+                                .item(0).getTextContent();
+                        boolean tmpIsExternal = Boolean.parseBoolean(tmpEl.getElementsByTagName(
+                                SelfRegistrationConstants.IS_EXTERNAL_ELEMENT).item(0).getTextContent());
                         config.getRoles().put(tmpRole, tmpIsExternal);
                     }
                     return config;
@@ -400,7 +397,6 @@ public class UserRegistrationService {
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
-
         return null;
     }
 
@@ -423,6 +419,5 @@ public class UserRegistrationService {
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
         documentBuilder.setEntityResolver(new CarbonEntityResolver());
         return documentBuilder;
-
     }
 }

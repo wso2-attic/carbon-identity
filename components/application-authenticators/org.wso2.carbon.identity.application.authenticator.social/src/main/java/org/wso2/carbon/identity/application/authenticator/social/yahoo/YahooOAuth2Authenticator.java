@@ -232,7 +232,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
             String url = getUserInfoEndpoint(token, authenticatorProperties);
             String json = sendRequest(url, accessToken);
 
-            if (!StringUtils.isNotBlank(json)) {
+            if (StringUtils.isBlank(json)) {
                 if (log.isDebugEnabled()) {
                     log.debug("Unable to fetch user claims. Proceeding without user claims");
                 }

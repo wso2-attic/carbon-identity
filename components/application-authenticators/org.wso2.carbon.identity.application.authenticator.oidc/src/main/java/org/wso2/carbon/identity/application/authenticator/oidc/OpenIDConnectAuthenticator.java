@@ -446,8 +446,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
                         }
                     }
                 } catch (UserStoreException e) {
-                    throw new AuthenticationFailedException("Error while retrieving multi attribute " +
-                            "separator", e);
+                    throw new AuthenticationFailedException("Error while retrieving multi attribute separator", e);
                 }
 
                 for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
@@ -615,25 +614,30 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
             return StringUtils.EMPTY;
         }
 
-        URL obj = new URL(url);
-        HttpURLConnection urlConnection = (HttpURLConnection) obj.openConnection();
-        urlConnection.setRequestMethod("GET");
-        urlConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
         StringBuilder builder = new StringBuilder();
-        String inputLine = reader.readLine();
+        BufferedReader reader = null;
 
-        while (inputLine != null) {
-            builder.append(inputLine).append("\n");
-            inputLine = reader.readLine();
+        try {
+            URL obj = new URL(url);
+            HttpURLConnection urlConnection = (HttpURLConnection) obj.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
+            reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            String inputLine = reader.readLine();
+
+            while (inputLine != null) {
+                builder.append(inputLine).append("\n");
+                inputLine = reader.readLine();
+            }
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
         }
-
-        reader.close();
 
         if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_ID_TOKEN)) {
             log.debug("response: " + builder.toString());
         }
-
         return builder.toString();
     }
 }

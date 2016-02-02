@@ -329,7 +329,7 @@ public class IdPManagementServiceComponent {
         }
     };
 
-    private static void addSuperTenantIdp() {
+    private static void addSuperTenantIdp() throws Exception {
 
         try {
             IdentityProvider identityProvider = new IdentityProvider();
@@ -339,7 +339,7 @@ public class IdPManagementServiceComponent {
             IdentityProviderManager.getInstance()
                     .addResidentIdP(identityProvider, MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
         } catch (Throwable e) {
-            log.error("Error when adding Resident Identity Provider entry for super tenant ", e);
+            throw new Exception("Error when adding Resident Identity Provider entry for super tenant ", e);
         }
     }
 }
