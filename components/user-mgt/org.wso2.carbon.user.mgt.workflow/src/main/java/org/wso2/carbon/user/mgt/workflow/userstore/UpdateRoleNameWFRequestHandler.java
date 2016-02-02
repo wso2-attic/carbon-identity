@@ -175,13 +175,11 @@ public class UpdateRoleNameWFRequestHandler extends AbstractWorkflowRequestHandl
 
     @Override
     public boolean isValidOperation(Entity[] entities) throws WorkflowException {
-
         WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
         for (int i = 0; i < entities.length; i++) {
-            if (entities[i].getEntityType().equals(UserStoreWFConstants.ENTITY_TYPE_ROLE) && workflowService
-                        .entityHasPendingWorkflows(entities[i])) {
-
-                    throw new WorkflowException("Role has pending workflows which  blocks this operation.");
+            if (UserStoreWFConstants.ENTITY_TYPE_ROLE.equals(entities[i].getEntityType()) && workflowService
+                    .entityHasPendingWorkflows(entities[i])) {
+                throw new WorkflowException("Role has pending workflows which  blocks this operation.");
             }
         }
         return true;

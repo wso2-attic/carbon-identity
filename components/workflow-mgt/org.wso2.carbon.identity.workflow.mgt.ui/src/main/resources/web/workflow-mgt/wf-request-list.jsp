@@ -37,7 +37,9 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequest" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowEvent" %>
 <%@ page import="org.owasp.encoder.Encode" %>
-<%!
+<%! public static final String ADMIN_ERROR_PAGE = "../admin/error.jsp";
+    public static final String ALL_TASKS = "allTasks";
+    public static final String CREATED_AT = "createdAt";
     private static final String FAILED_STATUS = "FAILED";
     private static final String REJECTED_STATUS = "REJECTED";
     private static final String APPROVED_STATUS = "APPROVED";
@@ -106,11 +108,11 @@
             upperBound = "";
         }
         if (timeFilterCategory == null) {
-            timeFilterCategory = "createdAt";
+            timeFilterCategory = CREATED_AT;
         }
 
 
-        if ("allTasks".equals(taskTypeFilter)) {
+        if (ALL_TASKS.equals(taskTypeFilter)) {
             requestList = client.getAllRequests(lowerBound, upperBound, timeFilterCategory, statusToFilter);
         } else {
             requestList = client.getRequestsCreatedByUser(loggedUser, lowerBound, upperBound, timeFilterCategory,
@@ -142,11 +144,11 @@
     } catch (WorkflowAdminServiceWorkflowException e) {
         String message = resourceBundle.getString("workflow.error.when.listing.services");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "../admin/error.jsp";
+        forwardTo = ADMIN_ERROR_PAGE;
     } catch (AxisFault e) {
         String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "../admin/error.jsp";
+        forwardTo = ADMIN_ERROR_PAGE;
     }
 %>
 
@@ -279,7 +281,7 @@
                                         <fmt:message key="workflow.request.type"/>
                                         <select name="requestTypeFilter" id="requestTypeFilter"
                                                 onchange="getSelectedRequestType();">
-                                            <% if ("allTasks".equals(taskTypeFilter)) { %>
+                                            <% if (ALL_TASKS.equals(taskTypeFilter)) { %>
                                             <option value="myTasks"><fmt:message key="myTasks"/></option>
                                             <option value="allTasks"
                                                     selected="selected"><fmt:message key="allTasks"/></option>
@@ -439,7 +441,7 @@
                     if (requestList != null && requestList.length > 0) {
                         for (WorkflowRequest workflowReq : associationToDisplay) {
                             if (workflowReq != null && (statusToFilter == null || statusToFilter == ""
-                                    || "allTasks".equals(statusToFilter) || workflowReq.getStatus().equals(statusToFilter))) {
+                                    || ALL_TASKS.equals(statusToFilter) || workflowReq.getStatus().equals(statusToFilter))) {
                 %>
                 <tr>
                     <td><%=Encode.forHtmlContent(workflowReq.getEventType())%>
