@@ -17,15 +17,12 @@
  */
 package org.wso2.carbon.identity.oauth.dcr;
 
-import org.wso2.carbon.identity.oauth.dcr.dto.RegistrationProfile;
+import org.wso2.carbon.identity.oauth.dcr.profile.RegistrationProfile;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.POST;
 
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
-public interface RegistrationService {
+public interface DynamicClientRegistrationService {
 
     enum ErrorCode {
         INVALID_URI("invalid_redirect_uri"), INVALID_CLIENT_METADATA("invalid_client_metadata");
@@ -41,28 +38,6 @@ public interface RegistrationService {
     }
 
     /**
-     * This method is used to dynamically register an OAuth application.
-     *
-     * @param profile contains the necessary attributes that are
-     *                needed in order to register an app.
-     * @return Status 200 if success including consumerKey and consumerSecret.
-     */
-    @POST
-    Response register(RegistrationProfile profile);
-
-    /**
-     * This method is used to remove an already registered OAuth application.
-     *
-     * @param applicationName name of the application.
-     * @param userId name of the application owner.
-     * @param consumerKey provided consumerKey for the registered application.
-     * @return Status 200 if success.
-     */
-    @DELETE
-    Response unRegister(@QueryParam("applicationName") String applicationName,
-            @QueryParam("userId") String userId, @QueryParam("consumerKey") String consumerKey);
-
-    /**
      * This method will register a new OAuth application using the data provided by
      * RegistrationProfile.
      *
@@ -71,6 +46,7 @@ public interface RegistrationService {
      * @throws DynamicClientRegistrationException
      *
      */
+    @POST
     OAuthApplicationInfo registerOAuthApplication(
             RegistrationProfile profile) throws DynamicClientRegistrationException;
 
@@ -84,6 +60,7 @@ public interface RegistrationService {
      * @throws DynamicClientRegistrationException
      *
      */
+    @DELETE
     boolean unregisterOAuthApplication(String userName, String applicationName,
             String consumerKey) throws DynamicClientRegistrationException;
 

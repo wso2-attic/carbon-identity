@@ -17,19 +17,19 @@
  */
 package org.wso2.carbon.identity.oauth.dcr.dto;
 
-import org.wso2.carbon.identity.oauth.dcr.RegistrationService;
+import org.wso2.carbon.identity.oauth.dcr.DynamicClientRegistrationService;
 
 public class FaultResponse {
 
-    private RegistrationService.ErrorCode code;
+    private DynamicClientRegistrationService.ErrorCode code;
     private String description;
 
-    public FaultResponse(RegistrationService.ErrorCode code, String description) {
+    public FaultResponse(DynamicClientRegistrationService.ErrorCode code, String description) {
         this.code = code;
         this.description = description;
     }
 
-    public RegistrationService.ErrorCode getCode() {
+    public DynamicClientRegistrationService.ErrorCode getCode() {
         return code;
     }
 

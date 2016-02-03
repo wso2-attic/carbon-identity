@@ -35,6 +35,7 @@ import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.OAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.identity.oauth.dcr.DynamicClientRegistrationService;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
@@ -86,6 +87,16 @@ public class EndpointUtil {
     }
 
     /**
+     * Returns the {@code DynamicClientRegistrationService} instance
+     *
+     * @return
+     */
+    public static DynamicClientRegistrationService getDynamicClientRegistrationService() {
+        return (DynamicClientRegistrationService) PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                .getOSGiService(DynamicClientRegistrationService.class, null);
+    }
+
+    /**
      * Returns the request validator class name
      *
      * @return
@@ -121,6 +132,15 @@ public class EndpointUtil {
     public static String getUserInfoClaimRetriever() {
         return getOAuthServerConfiguration().getOpenIDConnectUserInfoEndpointClaimRetriever();
     }
+
+    /**
+     * Returns the OAuth Dynamic Client Registration Impl class name
+     *
+     * @return
+     */
+    /*public static String getOAuthDynamicClientRegistrationServiceImplClass() {
+        return getOAuthServerConfiguration().getOauthDynamicClientRegistrationImplClass();
+    }*/
 
     /**
      * Return the claim dialect for the claim retriever

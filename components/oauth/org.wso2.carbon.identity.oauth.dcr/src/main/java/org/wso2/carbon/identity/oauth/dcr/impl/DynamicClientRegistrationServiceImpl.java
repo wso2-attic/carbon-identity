@@ -31,33 +31,30 @@ import org.wso2.carbon.identity.base.IdentityException;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
 import org.wso2.carbon.identity.oauth.OAuthAdminService;
 import org.wso2.carbon.identity.oauth.dcr.DynamicClientRegistrationException;
+import org.wso2.carbon.identity.oauth.dcr.DynamicClientRegistrationService;
 import org.wso2.carbon.identity.oauth.dcr.OAuthApplicationInfo;
-import org.wso2.carbon.identity.oauth.dcr.RegistrationService;
-import org.wso2.carbon.identity.oauth.dcr.dto.FaultResponse;
-import org.wso2.carbon.identity.oauth.dcr.dto.RegistrationProfile;
-import org.wso2.carbon.identity.oauth.dcr.dto.DynamicClientRegistrationDataHolder;
+import org.wso2.carbon.identity.oauth.dcr.internal.DynamicClientRegistrationDataHolder;
+import org.wso2.carbon.identity.oauth.dcr.profile.RegistrationProfile;
 import org.wso2.carbon.identity.oauth.dcr.util.DCRConstants;
 import org.wso2.carbon.identity.oauth.dcr.util.DynamicClientRegistrationUtil;
-import org.wso2.carbon.identity.oauth.dcr.util.DynamicClientUtil;
 import org.wso2.carbon.identity.oauth.dto.OAuthConsumerAppDTO;
 import org.wso2.carbon.identity.sso.saml.admin.SAMLSSOConfigAdmin;
 import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.registry.core.Registry;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.POST;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
-public class RegistrationServiceImpl implements RegistrationService {
+public class DynamicClientRegistrationServiceImpl implements DynamicClientRegistrationService {
 
-    private static final Log log = LogFactory.getLog(RegistrationServiceImpl.class);
+    private static final Log log = LogFactory.getLog(DynamicClientRegistrationServiceImpl.class);
 
     private static final String TOKEN_SCOPE = "tokenScope";
     private static final String SAML_SSO = "samlsso";
@@ -71,80 +68,18 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     private static final String APPLICATION_TYPE_WEBAPP = "webapp";
 
+    /**
+     * This method will register a new OAuth application using the data provided by
+     * RegistrationProfile.
+     *
+     * @param profile - RegistrationProfile of the OAuth application to be created.
+     * @return OAuthApplicationInfo object which holds the necessary data of created OAuth app.
+     * @throws DynamicClientRegistrationException
+     *
+     */
     @POST
-    @Override
-    public Response register(RegistrationProfile profile) {
-        /**
-         * sample message to this method
-         * {
-         * "callbackUrl": "www.google.lk",
-         * "clientName": "mdm",
-         * "tokenScope": "Production",
-         * "owner": "admin",
-         * "grantType": "password refresh_token",
-         * "saasApp": true
-         *}
-         */
-        Response response;
-
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
-                    MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-            RegistrationService dynamicClientRegistrationService = DynamicClientUtil
-                    .getDynamicClientRegistrationService();
-            if (dynamicClientRegistrationService != null) {
-                OAuthApplicationInfo info = dynamicClientRegistrationService.registerOAuthApplication(profile);
-                return Response.status(Response.Status.CREATED).entity(info.toString()).build();
-            }
-            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).
-                    entity("Dynamic Client Registration Service not available.").build();
-        } catch (DynamicClientRegistrationException e) {
-            String msg = "Error occurred while registering client '" + profile.getClientName() + "'";
-            log.error(msg, e);
-            response = Response.status(Response.Status.BAD_REQUEST).entity(
-                    new FaultResponse(ErrorCode.INVALID_CLIENT_METADATA, msg)).build();
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
-        return response;
-    }
-
-
-    @DELETE
-    @Override
-    public Response unRegister(@QueryParam("applicationName") String applicationName,
-                               @QueryParam("userId") String userId,
-                               @QueryParam("consumerKey") String consumerKey) {
-        Response response;
-        try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(
-                    MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
-            RegistrationService dynamicClientRegistrationService = DynamicClientUtil.
-                    getDynamicClientRegistrationService();
-            if (dynamicClientRegistrationService != null) {
-                boolean status = dynamicClientRegistrationService.unregisterOAuthApplication(userId, applicationName,
-                        consumerKey);
-                if (status) {
-                    return Response.status(Response.Status.OK).build();
-                }
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).
-                    entity("Dynamic Client Registration Service not available.").build();
-        } catch (DynamicClientRegistrationException e) {
-            String msg = "Error occurred while un-registering client '" + applicationName + "'";
-            log.error(msg, e);
-            response = Response.serverError().entity(new FaultResponse(ErrorCode.INVALID_CLIENT_METADATA, msg)).build();
-        } finally {
-            PrivilegedCarbonContext.endTenantFlow();
-        }
-        return response;
-    }
-
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Override
     public OAuthApplicationInfo registerOAuthApplication(
             RegistrationProfile profile) throws DynamicClientRegistrationException {
@@ -362,6 +297,19 @@ public class RegistrationServiceImpl implements RegistrationService {
         }
     }
 
+    /**
+     * This method will unregister a created OAuth application.
+     *
+     * @param userId        - UserId of the owner
+     * @param applicationName - OAuth application name
+     * @param consumerKey     - ConsumerKey of the OAuth application
+     * @return The status of the operation
+     * @throws DynamicClientRegistrationException
+     *
+     */
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Override
     public boolean unregisterOAuthApplication(String userId, String applicationName, String consumerKey) throws
             DynamicClientRegistrationException {
@@ -421,6 +369,14 @@ public class RegistrationServiceImpl implements RegistrationService {
         return status;
     }
 
+    /**
+     * This method will check the existence of an OAuth application provided application-name.
+     *
+     * @param applicationName - OAuth application name
+     * @return The status of the operation
+     * @throws DynamicClientRegistrationException
+     *
+     */
     @Override
     public boolean isOAuthApplicationAvailable(String applicationName) throws DynamicClientRegistrationException {
         ApplicationManagementService appMgtService = DynamicClientRegistrationDataHolder.getInstance().

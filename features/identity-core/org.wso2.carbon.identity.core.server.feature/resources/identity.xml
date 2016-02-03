@@ -155,6 +155,8 @@
         <RenewRefreshTokenForRefreshGrant>true</RenewRefreshTokenForRefreshGrant>
         <!-- Process the token before storing it in database, e.g. encrypting -->
         <TokenPersistenceProcessor>org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor</TokenPersistenceProcessor>
+        <!--Impl class for Dynamic Client registration of OAuth Clients-->
+        <!--<OAuthDynamicClientRegistrationImplClass>org.wso2.carbon.identity.oauth.dcr.impl.DynamicClientRegistrationServiceImpl</OAuthDynamicClientRegistrationImplClass>-->
         <!-- Supported Client Authentication Methods -->
         <ClientAuthHandlers>
             <ClientAuthHandler Class="org.wso2.carbon.identity.oauth2.token.handlers.clientauth.BasicAuthClientAuthHandler">
