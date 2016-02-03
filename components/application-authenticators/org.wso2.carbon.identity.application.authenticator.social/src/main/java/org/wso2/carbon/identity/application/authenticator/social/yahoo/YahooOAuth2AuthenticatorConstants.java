@@ -1,5 +1,4 @@
 /*
- *
  *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +18,7 @@
 package org.wso2.carbon.identity.application.authenticator.social.yahoo;
 
 /**
- * Created by jayanga on 09/10/15.
+ * Common string constants related to the Yahoo authenticator.
  */
 public class YahooOAuth2AuthenticatorConstants {
 

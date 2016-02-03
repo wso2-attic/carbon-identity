@@ -157,7 +157,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     /**
      * Get user info endpoint.
      * @param token OAuthClientResponse
-     * @param authenticatorProperties Map<String, String>
+     * @param authenticatorProperties Map<String, String> (Authenticator property, Property value)
      * @return User info endpoint.
      */
     protected String getUserInfoEndpoint(OAuthClientResponse token, Map<String, String> authenticatorProperties) {
@@ -167,7 +167,7 @@ public class OpenIDConnectAuthenticator extends AbstractApplicationAuthenticator
     /**
      * Get subject attributes.
      * @param token OAuthClientResponse
-     * @param authenticatorProperties Map<String, String>
+     * @param authenticatorProperties Map<String, String> (Authenticator property, Property value)
      * @return Map<ClaimMapping, String> Claim mappings.
      */
     protected Map<ClaimMapping, String> getSubjectAttributes(OAuthClientResponse token,
