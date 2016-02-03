@@ -411,7 +411,6 @@ public class UserRegistrationService {
      * @throws ParserConfigurationException
      */
     private DocumentBuilder getSecuredDocumentBuilder() throws ParserConfigurationException {
-
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);
         documentBuilderFactory.setExpandEntityReferences(false);

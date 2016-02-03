@@ -23,10 +23,8 @@
     String domain_unknown = resourceBundle.getString("domain.unknown");
     String errorMessage = "Authentication Failed";
     boolean loginFailed = false;
-
     if (Boolean.parseBoolean(request.getParameter("authFailure"))) {
         loginFailed = true;
-
         if (request.getParameter("authFailureMsg") != null) {
             errorMessage = request.getParameter("authFailureMsg");
 
@@ -36,9 +34,6 @@
         }
     }
 %>
-
-
-
 <script type="text/javascript">
 	function doLogin() {
 		var loginForm = document.getElementById('loginForm');
