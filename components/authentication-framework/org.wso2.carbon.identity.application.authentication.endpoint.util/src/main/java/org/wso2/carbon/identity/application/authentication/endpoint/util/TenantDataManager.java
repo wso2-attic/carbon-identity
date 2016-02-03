@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2014-2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -220,11 +220,10 @@ public class TenantDataManager {
     }
 
     /**
-     * Set the updated tenant domains list
+     * Reset the tenant domains list
      *
-     * @param dataList List of active tenant domains
      */
-    public static void setTenantDataList(String dataList) {
+    public static void resetTenantDataList() {
 
         if (!initialized) {
             if (log.isDebugEnabled()) {
@@ -232,20 +231,9 @@ public class TenantDataManager {
             }
             return;
         }
-
-        if (StringUtils.isNotEmpty(dataList)) {
-            synchronized (tenantDomainList) {
-                String[] domains = dataList.split(Constants.TenantConstants.TENANT_DATA_SEPARATOR);
-                // Remove all existing tenant domains from the list
-                tenantDomainList.clear();
-
-                Collections.addAll(tenantDomainList, domains);
-                // Sort the tenant domains list according to alphabetical order
-                Collections.sort(tenantDomainList);
-            }
-        } else {
-            // Reset active tenant domains list
+        synchronized (tenantDomainList) {
             tenantDomainList.clear();
+            refreshActiveTenantDomainsList();
         }
     }
 

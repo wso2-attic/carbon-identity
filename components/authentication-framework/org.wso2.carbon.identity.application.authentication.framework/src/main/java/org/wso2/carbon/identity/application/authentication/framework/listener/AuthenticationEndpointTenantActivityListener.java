@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2013-2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -20,16 +20,11 @@ package org.wso2.carbon.identity.application.authentication.framework.listener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.stratos.common.beans.TenantInfoBean;
 import org.wso2.carbon.stratos.common.exception.StratosException;
 import org.wso2.carbon.stratos.common.listeners.TenantMgtListener;
-import org.wso2.carbon.user.api.Tenant;
-import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.user.core.tenant.TenantManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +46,7 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
     /**
      * Tenant list query parameter
      */
-    private static final String TENANT_LIST_QUERY_PARAM = "tenantList";
+    private static final String TENANT_LIST_QUERY_PARAM = "isTenantListModified";
 
     /**
      * Tenant list data separator
@@ -62,11 +57,6 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
      * List of tenant list receiving URLs
      */
     private List<String> tenantDataReceiveURLs;
-
-    /**
-     * TenantManager for receiving tenant data
-     */
-    private TenantManager tenantManager;
 
     /**
      * Listener initialization status
@@ -103,12 +93,7 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
                     }
                     index++;
                 }
-                RealmService realmService = (RealmService) PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                        .getOSGiService(RealmService.class);
 
-                if (realmService != null) {
-                    tenantManager = realmService.getTenantManager();
-                }
                 initialized = true;
             } else {
                 if (log.isDebugEnabled()) {
@@ -138,27 +123,9 @@ public class AuthenticationEndpointTenantActivityListener implements TenantMgtLi
         }
 
         if (tenantDataReceiveURLs != null && !tenantDataReceiveURLs.isEmpty()) {
-            Tenant[] tenants = new Tenant[0];
-            try {
-                tenants = tenantManager.getAllTenants();
-            } catch (UserStoreException e) {
-                log.error("Retrieving all available tenants failed", e);
-            }
-            StringBuilder tenantDataReceiverUrlBuilder = new StringBuilder();
-            // Add only the active tenants to the list
-            for (Tenant tenant : tenants) {
-                if (tenant.isActive()) {
-                    tenantDataReceiverUrlBuilder.append(tenant.getDomain()).append(TENANT_LIST_DATA_SEPARATOR);
-                }
-            }
-            if (!tenantDataReceiverUrlBuilder.toString().isEmpty()) {
-                // Delete data separator at the last index
-                tenantDataReceiverUrlBuilder.deleteCharAt(tenantDataReceiverUrlBuilder.toString().length() - 1);
-            }
 
             StringBuilder paramsBuilder = new StringBuilder();
-            paramsBuilder.append("?").append(TENANT_LIST_QUERY_PARAM).append("=")
-                    .append(tenantDataReceiverUrlBuilder.toString());
+            paramsBuilder.append("?").append(TENANT_LIST_QUERY_PARAM).append("=true");
 
             InputStream inputStream = null;
             for (String tenantDataReceiveURL : tenantDataReceiveURLs) {

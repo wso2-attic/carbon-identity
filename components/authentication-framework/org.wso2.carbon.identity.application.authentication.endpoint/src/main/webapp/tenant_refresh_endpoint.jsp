@@ -1,5 +1,5 @@
 <%--
-  ~ Copyright (c) 2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2014-2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
   ~
   ~ WSO2 Inc. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -22,14 +22,14 @@
     /**
      * Parameter name for tenant list
      */
-    private static final String TENANT_LIST = "tenantList";
+    private static final String IS_TENANT_LIST_MODIFIED = "isTenantListModified";
 %>
 
 <%
-    String tenantList = request.getParameter(TENANT_LIST);
+    String isTenantListModified = request.getParameter(IS_TENANT_LIST_MODIFIED);
 
-    if (StringUtils.isNotEmpty(tenantList)) {
-        TenantDataManager.setTenantDataList(tenantList);
+    if (StringUtils.isNotEmpty(isTenantListModified) && Boolean.parseBoolean(isTenantListModified)) {
+        TenantDataManager.resetTenantDataList();
     }
 %>
 
