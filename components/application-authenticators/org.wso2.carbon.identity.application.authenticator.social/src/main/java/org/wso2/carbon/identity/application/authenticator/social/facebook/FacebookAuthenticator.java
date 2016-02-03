@@ -64,7 +64,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
 
 
     /**
-     * initiate tokenEndpoint
+     * Initiate tokenEndpoint
      */
     private void initTokenEndpoint() {
         this.tokenEndpoint = getAuthenticatorConfig().getParameterMap().get(FacebookAuthenticatorConstants
@@ -75,7 +75,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
     }
 
     /**
-     * initiate authorization server endpoint
+     * Initiate authorization server endpoint
      */
     private void initOAuthEndpoint() {
         this.oAuthEndpoint = getAuthenticatorConfig().getParameterMap().get(FacebookAuthenticatorConstants
@@ -86,7 +86,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
     }
 
     /**
-     * initiate userInfoEndpoint
+     * Initiate userInfoEndpoint
      */
     private void initUserInfoEndPoint() {
         this.userInfoEndpoint = getAuthenticatorConfig().getParameterMap().get(FacebookAuthenticatorConstants
@@ -97,7 +97,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
     }
 
     /**
-     * get the tokenEndpoint.
+     * Get the tokenEndpoint.
      * @return tokenEndpoint
      */
     private String getTokenEndpoint() {
@@ -108,7 +108,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
     }
 
     /**
-     * get the oAuthEndpoint.
+     * Get the oAuthEndpoint.
      * @return oAuthEndpoint
      */
     private String getAuthorizationServerEndpoint() {
@@ -119,7 +119,7 @@ public class FacebookAuthenticator extends AbstractApplicationAuthenticator impl
     }
 
     /**
-     * get the userInfoEndpoint.
+     * Get the userInfoEndpoint.
      * @return userInfoEndpoint
      */
     private String getUserInfoEndpoint() {
