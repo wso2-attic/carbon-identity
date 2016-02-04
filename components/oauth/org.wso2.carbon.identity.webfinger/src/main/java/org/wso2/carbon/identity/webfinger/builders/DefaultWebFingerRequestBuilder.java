@@ -17,7 +17,7 @@
  */
 package org.wso2.carbon.identity.webfinger.builders;
 
-import org.wso2.carbon.identity.webfinger.URLNormalizer;
+import org.wso2.carbon.identity.webfinger.WebFingerURLNormalizer;
 import org.wso2.carbon.identity.webfinger.WebFingerConstants;
 import org.wso2.carbon.identity.webfinger.WebFingerEndpointException;
 import org.wso2.carbon.identity.webfinger.WebFingerRequest;
@@ -40,7 +40,7 @@ public class DefaultWebFingerRequestBuilder implements WebFingerRequestBuilder {
         String resource = request.getParameter(WebFingerConstants.RESOURCE);
         webFingerRequest.setRel(request.getParameter(WebFingerConstants.REL));
         webFingerRequest.setResource(resource);
-        URLNormalizer.normalizeResource(webFingerRequest);
+        WebFingerURLNormalizer.normalizeResource(webFingerRequest);
         return webFingerRequest;
     }
 

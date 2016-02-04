@@ -21,6 +21,10 @@ package org.wso2.carbon.identity.webfinger;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * WebFingerResponse contains the required information,
+ * subject and set of WebLinks as specified in OpenID Connect Discovery spec
+ */
 public class WebFingerResponse {
     private String subject;
     private List<WebLink> links;

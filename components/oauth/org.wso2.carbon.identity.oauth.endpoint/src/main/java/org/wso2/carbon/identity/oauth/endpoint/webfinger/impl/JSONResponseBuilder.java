@@ -23,9 +23,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.webfinger.WebFingerEndpointException;
 import org.wso2.carbon.identity.webfinger.WebFingerResponse;
-import org.wso2.carbon.identity.webfinger.builders.ResponseBuilder;
+import org.wso2.carbon.identity.webfinger.builders.WebFingerResponseBuilder;
 
-public class JSONResponseBuilder implements ResponseBuilder {
+public class JSONResponseBuilder implements WebFingerResponseBuilder {
     private static final Log log = LogFactory.getLog(JSONResponseBuilder.class);
 
     @Override

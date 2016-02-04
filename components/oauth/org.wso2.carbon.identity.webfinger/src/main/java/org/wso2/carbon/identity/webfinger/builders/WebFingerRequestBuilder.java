@@ -22,6 +22,11 @@ import org.wso2.carbon.identity.webfinger.WebFingerRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * WebFingerRequestBuilder should be implemented to build
+ * the WebFingerRequest which should be used in the webfinger
+ * context, using the HttpServletRequest.
+ */
 public interface WebFingerRequestBuilder {
     public WebFingerRequest buildRequest(HttpServletRequest request) throws WebFingerEndpointException;
 }

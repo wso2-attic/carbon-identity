@@ -17,7 +17,10 @@
  */
 package org.wso2.carbon.identity.webfinger;
 
-
+/**
+ * MessageContext contains the WebFingerRequest and WebFingerResponse
+ * which can be used in further processing.
+ */
 class MessageContext {
     private WebFingerRequest request;
     private WebFingerResponse response;

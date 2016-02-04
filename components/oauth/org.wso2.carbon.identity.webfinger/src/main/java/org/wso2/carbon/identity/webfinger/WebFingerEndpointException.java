@@ -17,7 +17,10 @@
  */
 package org.wso2.carbon.identity.webfinger;
 
-
+/**
+ * WebFingerEndpointException specifies the possible exception in the web finger process
+ * Exception is not specified in the https://openid.net/specs/openid-connect-discovery-1_0.html
+ */
 public class WebFingerEndpointException extends Exception {
 
     private static final long serialVersionUID = -4449780649560035452L;

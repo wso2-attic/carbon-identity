@@ -22,8 +22,14 @@ import org.wso2.carbon.base.ServerConfigurationException;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * WebFingerProcessor should be implemented to process the WebFinger request.
+ * WebFingerProcessor should return the WebFingerResponse and should handle
+ * WebFingerEndpointException as required.
+ */
 public interface WebFingerProcessor {
     public WebFingerResponse getResponse(HttpServletRequest request) throws WebFingerEndpointException,
             ServerConfigurationException;
+
     public int handleError(WebFingerEndpointException error);
 }

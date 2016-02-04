@@ -20,6 +20,10 @@ package org.wso2.carbon.identity.webfinger;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * WebFingerRequest contains the information sent in the WebFingerRequest
+ * as specified in the OpenID Connect Discovery spec.
+ */
 public class WebFingerRequest {
     private String rel;
     private String resource;

@@ -28,9 +28,12 @@ import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
-public class URLNormalizer {
-    private static final Log log = LogFactory.getLog(URLNormalizer.class);
+/**
+ * WebFingerURLNormalizer normalize the provided resource uri in
+ * WebFingerRequest as specified in OpenID Connect Discovery spec
+ */
+public class WebFingerURLNormalizer {
+    private static final Log log = LogFactory.getLog(WebFingerURLNormalizer.class);
 
     private static final Pattern pattern = Pattern.compile("^" +
                     "((https|acct|http|mailto|tel|device):(//)?)?" + // scheme
@@ -49,7 +52,7 @@ public class URLNormalizer {
     /**
      * Private constructor to prevent instantiation.
      */
-    private URLNormalizer() {
+    private WebFingerURLNormalizer() {
     }
 
     public static WebFingerRequest normalizeResource(WebFingerRequest request) throws WebFingerEndpointException {

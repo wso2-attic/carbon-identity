@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfigurationException;
 import org.wso2.carbon.identity.webfinger.builders.DefaultWebFingerRequestBuilder;
 import org.wso2.carbon.identity.webfinger.builders.WebFingerRequestBuilder;
-import org.wso2.carbon.identity.webfinger.builders.WebFingerResponseBuilder;
+import org.wso2.carbon.identity.webfinger.builders.WebFingerOIDCResponseBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,7 +48,7 @@ public class DefaultWebFingerProcessor implements WebFingerProcessor {
             ServerConfigurationException {
         WebFingerRequestBuilder requestBuilder = new DefaultWebFingerRequestBuilder();
         WebFingerRequest requestObject = requestBuilder.buildRequest(request);
-        WebFingerResponseBuilder responseBuilder = new WebFingerResponseBuilder();
+        WebFingerOIDCResponseBuilder responseBuilder = new WebFingerOIDCResponseBuilder();
         return responseBuilder.buildWebFingerResponse(requestObject);
     }
 

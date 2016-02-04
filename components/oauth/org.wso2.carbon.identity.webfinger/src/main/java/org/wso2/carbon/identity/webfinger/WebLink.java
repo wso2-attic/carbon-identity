@@ -17,6 +17,10 @@
  */
 package org.wso2.carbon.identity.webfinger;
 
+/**
+ * WebFinger response should contain list of WebLink objects
+ * which has rel, href as JSON object as specified in the OpenID Connect Discovery spec
+ */
 public class WebLink {
     private String rel;
     private String href;
