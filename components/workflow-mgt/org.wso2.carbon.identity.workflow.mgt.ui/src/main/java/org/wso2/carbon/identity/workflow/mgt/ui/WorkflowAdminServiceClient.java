@@ -308,13 +308,12 @@ public class WorkflowAdminServiceClient {
      */
     public WorkflowRequest[] getRequestsCreatedByUser(String user, String beginDate, String endDate, String
             dateCategory, String status) throws RemoteException, WorkflowAdminServiceWorkflowException {
-        //TODO ADD status as param
-        WorkflowRequest[] request = stub.getRequestsCreatedByUser(user, beginDate, endDate, dateCategory,status);
+
+        WorkflowRequest[] request = stub.getRequestsCreatedByUser(user, beginDate, endDate, dateCategory, status);
         if (request == null) {
             request = new WorkflowRequest[0];
         }
         return request;
-
     }
 
     /**

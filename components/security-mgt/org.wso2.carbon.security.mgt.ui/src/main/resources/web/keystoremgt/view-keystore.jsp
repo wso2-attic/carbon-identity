@@ -240,8 +240,8 @@
 				    </td>
 				    <td><a href="#"
 				           onclick="deleteCert('<%=Encode.forJavaScriptAttribute(cert.getAlias())%>',
-                                   '<%=Encode.forJavaScriptAttribute(keyStoreData.getKeyStoreName())%>')"
-                           class="icon-link"
+				                   '<%=Encode.forJavaScriptAttribute(keyStoreData.getKeyStoreName())%>')"
+				           class="icon-link"
 				           style="background-image:url(images/delete.gif);">Delete</a>
 				    </td>
 				</tr>

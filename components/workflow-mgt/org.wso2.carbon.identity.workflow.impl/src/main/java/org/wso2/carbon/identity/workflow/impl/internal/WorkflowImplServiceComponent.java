@@ -160,7 +160,7 @@ public class WorkflowImplServiceComponent {
                 bpsProfileDTO.setManagerHostURL(url);
                 bpsProfileDTO.setWorkerHostURL(url);
                 bpsProfileDTO.setUsername(userName);
-                bpsProfileDTO.setPassword("".toCharArray());
+                bpsProfileDTO.setPassword(new char[0]);
                 bpsProfileDTO.setProfileName(WFImplConstant.DEFAULT_BPS_PROFILE_NAME);
                 if (currentBpsProfile == null) {
                     workflowImplService.addBPSProfile(bpsProfileDTO, MultitenantConstants.SUPER_TENANT_ID);

@@ -183,7 +183,7 @@ public class RegistryRecoveryDataStore implements UserRecoveryDataStore {
                 try {
                     registry.commitTransaction();
                 } catch (RegistryException e) {
-                    log.error("Error while deleting the old confirmation code \n" + e);
+                    log.error("Error while deleting the old confirmation code.", e);
                 }
             }
         }

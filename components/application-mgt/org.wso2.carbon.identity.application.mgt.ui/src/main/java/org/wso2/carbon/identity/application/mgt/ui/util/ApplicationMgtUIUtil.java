@@ -39,16 +39,13 @@ public class ApplicationMgtUIUtil {
         Map<String, UUID> spUniqueIdMap;
 
         if (session.getAttribute("spUniqueIdMap") == null) {
-
-            spUniqueIdMap = new HashMap<String, UUID>();
+            spUniqueIdMap = new HashMap<>();
             session.setAttribute("spUniqueIdMap", spUniqueIdMap);
         } else {
-
             spUniqueIdMap = (HashMap<String, UUID>) session.getAttribute("spUniqueIdMap");
         }
 
         if (spUniqueIdMap.get(spName) == null) {
-
             ApplicationBean applicationBean = new ApplicationBean();
             UUID uuid = UUID.randomUUID();
 

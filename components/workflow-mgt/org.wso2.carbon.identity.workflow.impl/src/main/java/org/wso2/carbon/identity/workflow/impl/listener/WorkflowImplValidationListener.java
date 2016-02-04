@@ -24,8 +24,18 @@ import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplException;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 
+/**
+ * This listener is used to validate parameters passed to service methods.
+ */
 public class WorkflowImplValidationListener extends AbstractWorkflowImplServiceListener {
 
+    /**
+     *This method triggers before adding a BPS profile and validate parameters passed to it.
+     *
+     * @param bpsProfileDTO Details of BPS profiles to add
+     * @param tenantId      Tenant to add new profile
+     * @throws WorkflowImplException
+     */
     @Override
     public void doPreAddBPSProfile(BPSProfile bpsProfileDTO, int tenantId) throws WorkflowImplException {
 

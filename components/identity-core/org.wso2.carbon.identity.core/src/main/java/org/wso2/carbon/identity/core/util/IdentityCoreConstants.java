@@ -34,6 +34,7 @@ public class IdentityCoreConstants {
 
     public static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     public static final String USER_NOT_FOUND = "UserNotFound";
+    public static final String EXISTING_USER = "UserAlreadyExisting";
     public final static String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     public final static String MULTI_ATTRIBUTE_SEPARATOR_DEFAULT = ",,,";
 

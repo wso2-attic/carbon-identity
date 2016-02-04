@@ -33,24 +33,31 @@
     String BUNDLE = "org.wso2.carbon.idp.mgt.ui.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
     String idPName = request.getParameter("idPName");
+
     try {
-        if(idPName != null && !idPName.equals("")){
+
+        if (idPName != null && !idPName.equals("")) {
             String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
             String backendServerURL = CarbonUIUtil.getServerURL(config.getServletContext(), session);
             ConfigurationContext configContext =
                     (ConfigurationContext) config.getServletContext().getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
             IdentityProviderMgtServiceClient client = new IdentityProviderMgtServiceClient(cookie, backendServerURL, configContext);
             IdentityProvider identityProvider = client.getIdPByName(idPName);
-            if(identityProvider != null){
+
+            if (identityProvider != null) {
                 Map<String, UUID> idpUniqueIdMap = (Map<String, UUID>) session.getAttribute("idpUniqueIdMap");
+
+                if (idpUniqueIdMap == null || idpUniqueIdMap.get(idPName) == null) {
+                    response.sendRedirect("idp-mgt-list-load.jsp");
+                    return;
+                }
                 session.setAttribute(idpUniqueIdMap.get(idPName).toString(), identityProvider);
             }
-        } else if(session.getAttribute("identityProviderList") == null){
+        } else if (session.getAttribute("identityProviderList") == null) {
             response.sendRedirect("idp-mgt-list-load.jsp");
             return;
         }
     } catch (Exception e) {
-
         String message = MessageFormat.format(resourceBundle.getString("error.loading.idp"),
                 new Object[]{e.getMessage()});
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
