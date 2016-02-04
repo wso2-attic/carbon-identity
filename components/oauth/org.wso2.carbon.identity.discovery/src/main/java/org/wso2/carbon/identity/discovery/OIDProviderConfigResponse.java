@@ -22,43 +22,48 @@ package org.wso2.carbon.identity.discovery;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * OIDProviderConfigResponse contains the patameters to be written
+ * as specified in the spec at https://openid.net/specs/openid-connect-discovery-1_0.html
+ * Values are corresponding to the entries specified in the DicoveryConstants class
+ */
 public class OIDProviderConfigResponse {
 
     private String issuer;
-    private String authorization_endpoint;
-    private String token_endpoint;
-    private String userinfo_endpoint;
-    private String jwks_uri;
-    private String registration_endpoint;
-    private String[] scopes_supported;
-    private String[] response_types_supported;
-    private String[] response_modes_supported;
-    private String[] grant_types_supported;
-    private String[] acr_values_supported;
-    private String[] subject_types_supported;
-    private String[] id_token_signing_alg_values_supported;
-    private String[] id_token_encryption_alg_values_supported;
-    private String[] id_token_encryption_enc_values_supported;
-    private String[] userinfo_signing_alg_values_supported;
-    private String[] userinfo_encryption_alg_values_supported;
-    private String[] userinfo_encryption_enc_values_supported;
-    private String[] request_object_signing_alg_values_supported;
-    private String[] request_object_encryption_alg_values_supported;
-    private String[] request_object_encryption_enc_values_supported;
-    private String[] token_endpoint_auth_methods_supported;
-    private String[] token_endpoint_auth_signing_alg_values_supported;
-    private String[] display_values_supported;
-    private String[] claim_types_supported;
-    private String[] claims_supported;
-    private String service_documentation;
-    private String[] claims_locales_supported;
-    private String[] ui_locales_supported;
-    private String claims_parameter_supported;
-    private String request_parameter_supported;
-    private String request_uri_parameter_supported;
-    private String require_request_uri_registration;
-    private String op_policy_uri;
-    private String op_tos_uri;
+    private String authorizationEndpoint;
+    private String tokenEndpoint;
+    private String userinfoEndpoint;
+    private String jwksUri;
+    private String registrationEndpoint;
+    private String[] scopesSupported;
+    private String[] responseTypesSupported;
+    private String[] responseModesSupported;
+    private String[] grantTypesSupported;
+    private String[] acrValuesSupported;
+    private String[] subjectTypesSupported;
+    private String[] idTokenSigningAlgValuesSupported;
+    private String[] idTokenEncryptionAlgValuesSupported;
+    private String[] idTokenEncryptionEncValuesSupported;
+    private String[] userinfoSigningAlgValuesSupported;
+    private String[] userinfoEncryptionAlgValuesSupported;
+    private String[] userinfoEncryptionEncValuesSupported;
+    private String[] requestObjectSigningAlgValuesSupported;
+    private String[] requestObjectEncryptionAlgValuesSupported;
+    private String[] requestObjectEncryptionEncValuesSupported;
+    private String[] tokenEndpointAuthMethodsSupported;
+    private String[] tokenEndpointAuthSigningAlgValuesSupported;
+    private String[] displayValuesSupported;
+    private String[] claimTypesSupported;
+    private String[] claimsSupported;
+    private String serviceDocumentation;
+    private String[] claimsLocalesSupported;
+    private String[] uiLocalesSupported;
+    private String claimsParameterSupported;
+    private String requestParameterSupported;
+    private String requestUriParameterSupported;
+    private String requireRequestUriRegistration;
+    private String opPolicyUri;
+    private String opTosUri;
 
 
     public String getIssuer() {
@@ -69,331 +74,331 @@ public class OIDProviderConfigResponse {
         this.issuer = issuer;
     }
 
-    public String getAuthorization_endpoint() {
-        return authorization_endpoint;
+    public String getAuthorizationEndpoint() {
+        return authorizationEndpoint;
     }
 
-    public void setAuthorization_endpoint(String authorization_endpoint) {
-        this.authorization_endpoint = authorization_endpoint;
+    public void setAuthorizationEndpoint(String authorizationEndpoint) {
+        this.authorizationEndpoint = authorizationEndpoint;
     }
 
-    public String getToken_endpoint() {
-        return token_endpoint;
+    public String getTokenEndpoint() {
+        return tokenEndpoint;
     }
 
-    public void setToken_endpoint(String token_endpoint) {
-        this.token_endpoint = token_endpoint;
+    public void setTokenEndpoint(String tokenEndpoint) {
+        this.tokenEndpoint = tokenEndpoint;
     }
 
-    public String getUserinfo_endpoint() {
-        return userinfo_endpoint;
+    public String getUserinfoEndpoint() {
+        return userinfoEndpoint;
     }
 
-    public void setUserinfo_endpoint(String userinfo_endpoint) {
-        this.userinfo_endpoint = userinfo_endpoint;
+    public void setUserinfoEndpoint(String userinfoEndpoint) {
+        this.userinfoEndpoint = userinfoEndpoint;
     }
 
-    public String getJwks_uri() {
-        return jwks_uri;
+    public String getJwksUri() {
+        return jwksUri;
     }
 
-    public void setJwks_uri(String jwks_uri) {
-        this.jwks_uri = jwks_uri;
+    public void setJwksUri(String jwksUri) {
+        this.jwksUri = jwksUri;
     }
 
-    public String getRegistration_endpoint() {
-        return registration_endpoint;
+    public String getRegistrationEndpoint() {
+        return registrationEndpoint;
     }
 
-    public void setRegistration_endpoint(String registration_endpoint) {
-        this.registration_endpoint = registration_endpoint;
+    public void setRegistrationEndpoint(String registrationEndpoint) {
+        this.registrationEndpoint = registrationEndpoint;
     }
 
-    public String[] getScopes_supported() {
-        return scopes_supported;
+    public String[] getScopesSupported() {
+        return scopesSupported;
     }
 
-    public void setScopes_supported(String[] scopes_supported) {
-        this.scopes_supported = scopes_supported;
+    public void setScopesSupported(String[] scopesSupported) {
+        this.scopesSupported = scopesSupported;
     }
 
-    public String[] getResponse_types_supported() {
-        return response_types_supported;
+    public String[] getResponseTypesSupported() {
+        return responseTypesSupported;
     }
 
-    public void setResponse_types_supported(String[] response_types_supported) {
-        this.response_types_supported = response_types_supported;
+    public void setResponseTypesSupported(String[] responseTypesSupported) {
+        this.responseTypesSupported = responseTypesSupported;
     }
 
-    public String[] getResponse_modes_supported() {
-        return response_modes_supported;
+    public String[] getResponseModesSupported() {
+        return responseModesSupported;
     }
 
-    public void setResponse_modes_supported(String[] response_modes_supported) {
-        this.response_modes_supported = response_modes_supported;
+    public void setResponseModesSupported(String[] responseModesSupported) {
+        this.responseModesSupported = responseModesSupported;
     }
 
-    public String[] getGrant_types_supported() {
-        return grant_types_supported;
+    public String[] getGrantTypesSupported() {
+        return grantTypesSupported;
     }
 
-    public void setGrant_types_supported(String[] grant_types_supported) {
-        this.grant_types_supported = grant_types_supported;
+    public void setGrantTypesSupported(String[] grantTypesSupported) {
+        this.grantTypesSupported = grantTypesSupported;
     }
 
-    public String[] getAcr_values_supported() {
-        return acr_values_supported;
+    public String[] getAcrValuesSupported() {
+        return acrValuesSupported;
     }
 
-    public void setAcr_values_supported(String[] acr_values_supported) {
-        this.acr_values_supported = acr_values_supported;
+    public void setAcrValuesSupported(String[] acrValuesSupported) {
+        this.acrValuesSupported = acrValuesSupported;
     }
 
-    public String[] getSubject_types_supported() {
-        return subject_types_supported;
+    public String[] getSubjectTypesSupported() {
+        return subjectTypesSupported;
     }
 
-    public void setSubject_types_supported(String[] subject_types_supported) {
-        this.subject_types_supported = subject_types_supported;
+    public void setSubjectTypesSupported(String[] subjectTypesSupported) {
+        this.subjectTypesSupported = subjectTypesSupported;
     }
 
-    public String[] getId_token_signing_alg_values_supported() {
-        return id_token_signing_alg_values_supported;
+    public String[] getIdTokenSigningAlgValuesSupported() {
+        return idTokenSigningAlgValuesSupported;
     }
 
-    public void setId_token_signing_alg_values_supported(String[] id_token_signing_alg_values_supported) {
-        this.id_token_signing_alg_values_supported = id_token_signing_alg_values_supported;
+    public void setIdTokenSigningAlgValuesSupported(String[] idTokenSigningAlgValuesSupported) {
+        this.idTokenSigningAlgValuesSupported = idTokenSigningAlgValuesSupported;
     }
 
-    public String[] getId_token_encryption_alg_values_supported() {
-        return id_token_encryption_alg_values_supported;
+    public String[] getIdTokenEncryptionAlgValuesSupported() {
+        return idTokenEncryptionAlgValuesSupported;
     }
 
-    public void setId_token_encryption_alg_values_supported(String[] id_token_encryption_alg_values_supported) {
-        this.id_token_encryption_alg_values_supported = id_token_encryption_alg_values_supported;
+    public void setIdTokenEncryptionAlgValuesSupported(String[] idTokenEncryptionAlgValuesSupported) {
+        this.idTokenEncryptionAlgValuesSupported = idTokenEncryptionAlgValuesSupported;
     }
 
-    public String[] getId_token_encryption_enc_values_supported() {
-        return id_token_encryption_enc_values_supported;
+    public String[] getIdTokenEncryptionEncValuesSupported() {
+        return idTokenEncryptionEncValuesSupported;
     }
 
-    public void setId_token_encryption_enc_values_supported(String[] id_token_encryption_enc_values_supported) {
-        this.id_token_encryption_enc_values_supported = id_token_encryption_enc_values_supported;
+    public void setIdTokenEncryptionEncValuesSupported(String[] idTokenEncryptionEncValuesSupported) {
+        this.idTokenEncryptionEncValuesSupported = idTokenEncryptionEncValuesSupported;
     }
 
-    public String[] getUserinfo_signing_alg_values_supported() {
-        return userinfo_signing_alg_values_supported;
+    public String[] getUserinfoSigningAlgValuesSupported() {
+        return userinfoSigningAlgValuesSupported;
     }
 
-    public void setUserinfo_signing_alg_values_supported(String[] userinfo_signing_alg_values_supported) {
-        this.userinfo_signing_alg_values_supported = userinfo_signing_alg_values_supported;
+    public void setUserinfoSigningAlgValuesSupported(String[] userinfoSigningAlgValuesSupported) {
+        this.userinfoSigningAlgValuesSupported = userinfoSigningAlgValuesSupported;
     }
 
-    public String[] getUserinfo_encryption_alg_values_supported() {
-        return userinfo_encryption_alg_values_supported;
+    public String[] getUserinfoEncryptionAlgValuesSupported() {
+        return userinfoEncryptionAlgValuesSupported;
     }
 
-    public void setUserinfo_encryption_alg_values_supported(String[] userinfo_encryption_alg_values_supported) {
-        this.userinfo_encryption_alg_values_supported = userinfo_encryption_alg_values_supported;
+    public void setUserinfoEncryptionAlgValuesSupported(String[] userinfoEncryptionAlgValuesSupported) {
+        this.userinfoEncryptionAlgValuesSupported = userinfoEncryptionAlgValuesSupported;
     }
 
-    public String[] getUserinfo_encryption_enc_values_supported() {
-        return userinfo_encryption_enc_values_supported;
+    public String[] getUserinfoEncryptionEncValuesSupported() {
+        return userinfoEncryptionEncValuesSupported;
     }
 
-    public void setUserinfo_encryption_enc_values_supported(String[] userinfo_encryption_enc_values_supported) {
-        this.userinfo_encryption_enc_values_supported = userinfo_encryption_enc_values_supported;
+    public void setUserinfoEncryptionEncValuesSupported(String[] userinfoEncryptionEncValuesSupported) {
+        this.userinfoEncryptionEncValuesSupported = userinfoEncryptionEncValuesSupported;
     }
 
-    public String[] getRequest_object_signing_alg_values_supported() {
-        return request_object_signing_alg_values_supported;
+    public String[] getRequestObjectSigningAlgValuesSupported() {
+        return requestObjectSigningAlgValuesSupported;
     }
 
-    public void setRequest_object_signing_alg_values_supported(String[] request_object_signing_alg_values_supported) {
-        this.request_object_signing_alg_values_supported = request_object_signing_alg_values_supported;
+    public void setRequestObjectSigningAlgValuesSupported(String[] requestObjectSigningAlgValuesSupported) {
+        this.requestObjectSigningAlgValuesSupported = requestObjectSigningAlgValuesSupported;
     }
 
-    public String[] getRequest_object_encryption_alg_values_supported() {
-        return request_object_encryption_alg_values_supported;
+    public String[] getRequestObjectEncryptionAlgValuesSupported() {
+        return requestObjectEncryptionAlgValuesSupported;
     }
 
-    public void setRequest_object_encryption_alg_values_supported(String[]
-                                                                          request_object_encryption_alg_values_supported) {
-        this.request_object_encryption_alg_values_supported = request_object_encryption_alg_values_supported;
+    public void setRequestObjectEncryptionAlgValuesSupported(String[]
+                                                                     requestObjectEncryptionAlgValuesSupported) {
+        this.requestObjectEncryptionAlgValuesSupported = requestObjectEncryptionAlgValuesSupported;
     }
 
-    public String[] getRequest_object_encryption_enc_values_supported() {
-        return request_object_encryption_enc_values_supported;
+    public String[] getRequestObjectEncryptionEncValuesSupported() {
+        return requestObjectEncryptionEncValuesSupported;
     }
 
-    public void setRequest_object_encryption_enc_values_supported(String[]
-                                                                          request_object_encryption_enc_values_supported) {
-        this.request_object_encryption_enc_values_supported = request_object_encryption_enc_values_supported;
+    public void setRequestObjectEncryptionEncValuesSupported(String[]
+                                                                     requestObjectEncryptionEncValuesSupported) {
+        this.requestObjectEncryptionEncValuesSupported = requestObjectEncryptionEncValuesSupported;
     }
 
-    public String[] getToken_endpoint_auth_methods_supported() {
-        return token_endpoint_auth_methods_supported;
+    public String[] getTokenEndpointAuthMethodsSupported() {
+        return tokenEndpointAuthMethodsSupported;
     }
 
-    public void setToken_endpoint_auth_methods_supported(String[] token_endpoint_auth_methods_supported) {
-        this.token_endpoint_auth_methods_supported = token_endpoint_auth_methods_supported;
+    public void setTokenEndpointAuthMethodsSupported(String[] tokenEndpointAuthMethodsSupported) {
+        this.tokenEndpointAuthMethodsSupported = tokenEndpointAuthMethodsSupported;
     }
 
-    public String[] getToken_endpoint_auth_signing_alg_values_supported() {
-        return token_endpoint_auth_signing_alg_values_supported;
+    public String[] getTokenEndpointAuthSigningAlgValuesSupported() {
+        return tokenEndpointAuthSigningAlgValuesSupported;
     }
 
-    public void setToken_endpoint_auth_signing_alg_values_supported(String[]
-                                                                            token_endpoint_auth_signing_alg_values_supported) {
-        this.token_endpoint_auth_signing_alg_values_supported = token_endpoint_auth_signing_alg_values_supported;
+    public void setTokenEndpointAuthSigningAlgValuesSupported(String[]
+                                                                      tokenEndpointAuthSigningAlgValuesSupported) {
+        this.tokenEndpointAuthSigningAlgValuesSupported = tokenEndpointAuthSigningAlgValuesSupported;
     }
 
-    public String[] getDisplay_values_supported() {
-        return display_values_supported;
+    public String[] getDisplayValuesSupported() {
+        return displayValuesSupported;
     }
 
-    public void setDisplay_values_supported(String[] display_values_supported) {
-        this.display_values_supported = display_values_supported;
+    public void setDisplayValuesSupported(String[] displayValuesSupported) {
+        this.displayValuesSupported = displayValuesSupported;
     }
 
-    public String[] getClaim_types_supported() {
-        return claim_types_supported;
+    public String[] getClaimTypesSupported() {
+        return claimTypesSupported;
     }
 
-    public void setClaim_types_supported(String[] claim_types_supported) {
-        this.claim_types_supported = claim_types_supported;
+    public void setClaimTypesSupported(String[] claimTypesSupported) {
+        this.claimTypesSupported = claimTypesSupported;
     }
 
-    public String[] getClaims_supported() {
-        return claims_supported;
+    public String[] getClaimsSupported() {
+        return claimsSupported;
     }
 
-    public void setClaims_supported(String[] claims_supported) {
-        this.claims_supported = claims_supported;
+    public void setClaimsSupported(String[] claimsSupported) {
+        this.claimsSupported = claimsSupported;
     }
 
-    public String getService_documentation() {
-        return service_documentation;
+    public String getServiceDocumentation() {
+        return serviceDocumentation;
     }
 
-    public void setService_documentation(String service_documentation) {
-        this.service_documentation = service_documentation;
+    public void setServiceDocumentation(String serviceDocumentation) {
+        this.serviceDocumentation = serviceDocumentation;
     }
 
-    public String[] getClaims_locales_supported() {
-        return claims_locales_supported;
+    public String[] getClaimsLocalesSupported() {
+        return claimsLocalesSupported;
     }
 
-    public void setClaims_locales_supported(String[] claims_locales_supported) {
-        this.claims_locales_supported = claims_locales_supported;
+    public void setClaimsLocalesSupported(String[] claimsLocalesSupported) {
+        this.claimsLocalesSupported = claimsLocalesSupported;
     }
 
-    public String[] getUi_locales_supported() {
-        return ui_locales_supported;
+    public String[] getUiLocalesSupported() {
+        return uiLocalesSupported;
     }
 
-    public void setUi_locales_supported(String[] ui_locales_supported) {
-        this.ui_locales_supported = ui_locales_supported;
+    public void setUiLocalesSupported(String[] uiLocalesSupported) {
+        this.uiLocalesSupported = uiLocalesSupported;
     }
 
-    public String getClaims_parameter_supported() {
-        return claims_parameter_supported;
+    public String getClaimsParameterSupported() {
+        return claimsParameterSupported;
     }
 
-    public void setClaims_parameter_supported(String claims_parameter_supported) {
-        this.claims_parameter_supported = claims_parameter_supported;
+    public void setClaimsParameterSupported(String claimsParameterSupported) {
+        this.claimsParameterSupported = claimsParameterSupported;
     }
 
-    public String getRequest_parameter_supported() {
-        return request_parameter_supported;
+    public String getRequestParameterSupported() {
+        return requestParameterSupported;
     }
 
-    public void setRequest_parameter_supported(String request_parameter_supported) {
-        this.request_parameter_supported = request_parameter_supported;
+    public void setRequestParameterSupported(String requestParameterSupported) {
+        this.requestParameterSupported = requestParameterSupported;
     }
 
-    public String getRequest_uri_parameter_supported() {
-        return request_uri_parameter_supported;
+    public String getRequestUriParameterSupported() {
+        return requestUriParameterSupported;
     }
 
-    public void setRequest_uri_parameter_supported(String request_uri_parameter_supported) {
-        this.request_uri_parameter_supported = request_uri_parameter_supported;
+    public void setRequestUriParameterSupported(String requestUriParameterSupported) {
+        this.requestUriParameterSupported = requestUriParameterSupported;
     }
 
-    public String getRequire_request_uri_registration() {
-        return require_request_uri_registration;
+    public String getRequireRequestUriRegistration() {
+        return requireRequestUriRegistration;
     }
 
-    public void setRequire_request_uri_registration(String require_request_uri_registration) {
-        this.require_request_uri_registration = require_request_uri_registration;
+    public void setRequireRequestUriRegistration(String requireRequestUriRegistration) {
+        this.requireRequestUriRegistration = requireRequestUriRegistration;
     }
 
-    public String getOp_policy_uri() {
-        return op_policy_uri;
+    public String getOpPolicyUri() {
+        return opPolicyUri;
     }
 
-    public void setOp_policy_uri(String op_policy_uri) {
-        this.op_policy_uri = op_policy_uri;
+    public void setOpPolicyUri(String opPolicyUri) {
+        this.opPolicyUri = opPolicyUri;
     }
 
-    public String getOp_tos_uri() {
-        return op_tos_uri;
+    public String getOpTosUri() {
+        return opTosUri;
     }
 
-    public void setOp_tos_uri(String op_tos_uri) {
-        this.op_tos_uri = op_tos_uri;
+    public void setOpTosUri(String opTosUri) {
+        this.opTosUri = opTosUri;
     }
 
     public Map<String, Object> getConfigMap() {
         Map<String, Object> configMap = new HashMap<String, Object>();
         configMap.put(DiscoveryConstants.ISSUER.toLowerCase(), this.issuer);
-        configMap.put(DiscoveryConstants.ACR_VALUES_SUPPORTED.toLowerCase(), this.acr_values_supported);
-        configMap.put(DiscoveryConstants.AUTHORIZATION_ENDPOINT.toLowerCase(), this.authorization_endpoint);
-        configMap.put(DiscoveryConstants.CLAIM_TYPES_SUPPORTED.toLowerCase(), this.claim_types_supported);
-        configMap.put(DiscoveryConstants.CLAIMS_LOCALES_SUPPORTED.toLowerCase(), this.claims_locales_supported);
-        configMap.put(DiscoveryConstants.CLAIMS_PARAMETER_SUPPORTED.toLowerCase(), this.claims_parameter_supported);
-        configMap.put(DiscoveryConstants.CLAIMS_SUPPORTED.toLowerCase(), this.claims_supported);
-        configMap.put(DiscoveryConstants.DISPLAY_VALUES_SUPPORTED.toLowerCase(), this.display_values_supported);
-        configMap.put(DiscoveryConstants.GRANT_TYPES_SUPPORTED.toLowerCase(), this.grant_types_supported);
+        configMap.put(DiscoveryConstants.ACR_VALUES_SUPPORTED.toLowerCase(), this.acrValuesSupported);
+        configMap.put(DiscoveryConstants.AUTHORIZATION_ENDPOINT.toLowerCase(), this.authorizationEndpoint);
+        configMap.put(DiscoveryConstants.CLAIM_TYPES_SUPPORTED.toLowerCase(), this.claimTypesSupported);
+        configMap.put(DiscoveryConstants.CLAIMS_LOCALES_SUPPORTED.toLowerCase(), this.claimsLocalesSupported);
+        configMap.put(DiscoveryConstants.CLAIMS_PARAMETER_SUPPORTED.toLowerCase(), this.claimsParameterSupported);
+        configMap.put(DiscoveryConstants.CLAIMS_SUPPORTED.toLowerCase(), this.claimsSupported);
+        configMap.put(DiscoveryConstants.DISPLAY_VALUES_SUPPORTED.toLowerCase(), this.displayValuesSupported);
+        configMap.put(DiscoveryConstants.GRANT_TYPES_SUPPORTED.toLowerCase(), this.grantTypesSupported);
         configMap.put(DiscoveryConstants.ID_TOKEN_ENCRYPTION_ALG_VALUES_SUPPORTED.toLowerCase(), this
-                .id_token_encryption_alg_values_supported);
+                .idTokenEncryptionAlgValuesSupported);
         configMap.put(DiscoveryConstants.ID_TOKEN_ENCRYPTION_ENC_VALUES_SUPPORTED.toLowerCase(), this
-                .id_token_encryption_enc_values_supported);
+                .idTokenEncryptionEncValuesSupported);
         configMap.put(DiscoveryConstants.ID_TOKEN_SIGNING_ALG_VALUES_SUPPORTED.toLowerCase(), this
-                .id_token_signing_alg_values_supported);
-        configMap.put(DiscoveryConstants.JWKS_URI.toLowerCase(), this.jwks_uri);
-        configMap.put(DiscoveryConstants.OP_POLICY_URI.toLowerCase(), this.op_policy_uri);
-        configMap.put(DiscoveryConstants.OP_TOS_URI.toLowerCase(), this.op_tos_uri);
-        configMap.put(DiscoveryConstants.REGISTRATION_ENDPOINT.toLowerCase(), this.registration_endpoint);
+                .idTokenSigningAlgValuesSupported);
+        configMap.put(DiscoveryConstants.JWKS_URI.toLowerCase(), this.jwksUri);
+        configMap.put(DiscoveryConstants.OP_POLICY_URI.toLowerCase(), this.opPolicyUri);
+        configMap.put(DiscoveryConstants.OP_TOS_URI.toLowerCase(), this.opTosUri);
+        configMap.put(DiscoveryConstants.REGISTRATION_ENDPOINT.toLowerCase(), this.registrationEndpoint);
         configMap.put(DiscoveryConstants.REQUEST_OBJECT_ENCRYPTION_ALG_VALUES_SUPPORTED.toLowerCase(), this
-                .request_object_encryption_alg_values_supported);
+                .requestObjectEncryptionAlgValuesSupported);
         configMap.put(DiscoveryConstants.REQUEST_OBJECT_ENCRYPTION_ENC_VALUES_SUPPORTED.toLowerCase(), this
-                .request_object_encryption_enc_values_supported);
+                .requestObjectEncryptionEncValuesSupported);
         configMap.put(DiscoveryConstants.REQUEST_OBJECT_SIGNING_ALG_VALUES_SUPPORTED.toLowerCase(), this
-                .request_object_signing_alg_values_supported);
-        configMap.put(DiscoveryConstants.REQUEST_PARAMETER_SUPPORTED.toLowerCase(), this.request_parameter_supported);
+                .requestObjectSigningAlgValuesSupported);
+        configMap.put(DiscoveryConstants.REQUEST_PARAMETER_SUPPORTED.toLowerCase(), this.requestParameterSupported);
         configMap.put(DiscoveryConstants.REQUEST_URI_PARAMETER_SUPPORTED.toLowerCase(), this
-                .request_uri_parameter_supported);
+                .requestUriParameterSupported);
         configMap.put(DiscoveryConstants.REQUIRE_REQUEST_URI_REGISTRATION.toLowerCase(), this
-                .require_request_uri_registration);
-        configMap.put(DiscoveryConstants.RESPONSE_MODES_SUPPORTED.toLowerCase(), this.response_modes_supported);
-        configMap.put(DiscoveryConstants.RESPONSE_TYPES_SUPPORTED.toLowerCase(), this.response_types_supported);
-        configMap.put(DiscoveryConstants.SCOPES_SUPPORTED.toLowerCase(), this.scopes_supported);
-        configMap.put(DiscoveryConstants.SERVICE_DOCUMENTATION.toLowerCase(), this.service_documentation);
-        configMap.put(DiscoveryConstants.SUBJECT_TYPES_SUPPORTED.toLowerCase(), this.subject_types_supported);
-        configMap.put(DiscoveryConstants.TOKEN_ENDPOINT.toLowerCase(), this.token_endpoint);
+                .requireRequestUriRegistration);
+        configMap.put(DiscoveryConstants.RESPONSE_MODES_SUPPORTED.toLowerCase(), this.responseModesSupported);
+        configMap.put(DiscoveryConstants.RESPONSE_TYPES_SUPPORTED.toLowerCase(), this.responseTypesSupported);
+        configMap.put(DiscoveryConstants.SCOPES_SUPPORTED.toLowerCase(), this.scopesSupported);
+        configMap.put(DiscoveryConstants.SERVICE_DOCUMENTATION.toLowerCase(), this.serviceDocumentation);
+        configMap.put(DiscoveryConstants.SUBJECT_TYPES_SUPPORTED.toLowerCase(), this.subjectTypesSupported);
+        configMap.put(DiscoveryConstants.TOKEN_ENDPOINT.toLowerCase(), this.tokenEndpoint);
         configMap.put(DiscoveryConstants.TOKEN_ENDPOINT_AUTH_METHODS_SUPPORTED.toLowerCase(), this
-                .token_endpoint_auth_methods_supported);
+                .tokenEndpointAuthMethodsSupported);
         configMap.put(DiscoveryConstants.TOKEN_ENDPOINT_AUTH_SIGNING_ALG_VALUES_SUPPORTED.toLowerCase(), this
-                .token_endpoint_auth_signing_alg_values_supported);
-        configMap.put(DiscoveryConstants.UI_LOCALES_SUPPORTED.toLowerCase(), this.ui_locales_supported);
+                .tokenEndpointAuthSigningAlgValuesSupported);
+        configMap.put(DiscoveryConstants.UI_LOCALES_SUPPORTED.toLowerCase(), this.uiLocalesSupported);
         configMap.put(DiscoveryConstants.USERINFO_ENCRYPTION_ALG_VALUES_SUPPORTED.toLowerCase(), this
-                .userinfo_encryption_alg_values_supported);
+                .userinfoEncryptionAlgValuesSupported);
         configMap.put(DiscoveryConstants.USERINFO_ENCRYPTION_ENC_VALUES_SUPPORTED.toLowerCase(), this
-                .userinfo_encryption_enc_values_supported);
-        configMap.put(DiscoveryConstants.USERINFO_ENDPOINT.toLowerCase(), this.userinfo_endpoint);
+                .userinfoEncryptionEncValuesSupported);
+        configMap.put(DiscoveryConstants.USERINFO_ENDPOINT.toLowerCase(), this.userinfoEndpoint);
         configMap.put(DiscoveryConstants.USERINFO_SIGNING_ALG_VALUES_SUPPORTED.toLowerCase(), this
-                .userinfo_signing_alg_values_supported);
+                .userinfoSigningAlgValuesSupported);
         return configMap;
     }
 

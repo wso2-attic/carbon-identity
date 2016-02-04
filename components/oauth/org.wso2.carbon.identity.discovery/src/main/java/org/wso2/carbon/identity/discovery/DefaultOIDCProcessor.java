@@ -27,6 +27,14 @@ import org.wso2.carbon.identity.discovery.builders.ProviderConfigBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * DefaultOIDCProcessor build the response to be sent as the final result
+ * <ol>
+ * <li>Build the OIDProviderRequest using HttpServletRequest<li/>
+ * <li>Get the OIDProvider configuration</li>
+ * <li>Build OIDProviderConfigResponse which will be used to create the JSON result</li>
+ * </ol>
+ */
 public class DefaultOIDCProcessor implements OIDCProcessor {
     private static Log log = LogFactory.getLog(DefaultOIDCProcessor.class);
     private static DefaultOIDCProcessor defaultOidcProcessor = new DefaultOIDCProcessor();

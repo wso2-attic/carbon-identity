@@ -24,7 +24,11 @@ import org.wso2.carbon.identity.discovery.OIDProviderRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
-
+/**
+ * DefaultOIDProviderRequestBuilder is the default OIDProviderRequestBuilder
+ * provided in the discovery module.
+ * DefaultOIDProviderRequestBuilder builds the OIDProviderRequest using HttpServletRequest and tenant
+ */
 public class DefaultOIDProviderRequestBuilder implements OIDProviderRequestBuilder {
 
     @Override

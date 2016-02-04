@@ -22,6 +22,11 @@ import org.wso2.carbon.identity.discovery.OIDProviderRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * OIDProviderRequestBuilder should be implemented to build
+ * the OIDProviderRequest which should be used in the OIDC discovery
+ * context, using the HttpServletRequest and tenant.
+ */
 public interface OIDProviderRequestBuilder {
 
     public OIDProviderRequest buildRequest(HttpServletRequest request, String tenant) throws

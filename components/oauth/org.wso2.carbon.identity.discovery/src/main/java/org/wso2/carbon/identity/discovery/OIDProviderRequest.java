@@ -17,7 +17,9 @@
  */
 package org.wso2.carbon.identity.discovery;
 
-
+/**
+ * OIDProviderRequest contains the two parameters
+ */
 public class OIDProviderRequest {
 
     private String uri;

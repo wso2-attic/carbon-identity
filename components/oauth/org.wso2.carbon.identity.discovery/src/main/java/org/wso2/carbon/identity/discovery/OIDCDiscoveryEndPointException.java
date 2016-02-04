@@ -18,6 +18,10 @@
 
 package org.wso2.carbon.identity.discovery;
 
+/**
+ * OIDCDiscoveryEndPointException specifies the possible exception in the process
+ * Exception is not specified in the https://openid.net/specs/openid-connect-discovery-1_0.html
+ */
 public class OIDCDiscoveryEndPointException extends Exception {
 
 

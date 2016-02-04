@@ -17,7 +17,9 @@
  */
 package org.wso2.carbon.identity.discovery;
 
-
+/**
+ * Contains the headers of the values to be sent in the JSON Result as specified in spec
+ */
 public class DiscoveryConstants {
     /**
      * issuer

@@ -20,6 +20,10 @@ package org.wso2.carbon.identity.discovery.builders;
 import org.wso2.carbon.identity.discovery.OIDCDiscoveryEndPointException;
 import org.wso2.carbon.identity.discovery.OIDProviderConfigResponse;
 
+/**
+ * OIDProviderResponseBuilder should be implemented to get the required format
+ * which represents the information in OIDProviderConfigResponse instance
+ */
 public interface OIDProviderResponseBuilder {
     public String getOIDProviderConfigString(OIDProviderConfigResponse oidProviderConfigResponse) throws
             OIDCDiscoveryEndPointException;

@@ -17,6 +17,10 @@
  */
 package org.wso2.carbon.identity.discovery;
 
+/**
+ * MessageContext contains the OIDProviderRequest and OIDProviderConfigResponse
+ * which can be used in further processing.
+ */
 class MessageContext {
 
     private OIDProviderConfigResponse configurations;
