@@ -20,7 +20,7 @@
 <%
     String BUNDLE = "org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources";
     ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
-    String domain_unknown = resourceBundle.getString("domain.unknown");
+    String domainUnknown = resourceBundle.getString("domain.unknown");
     String errorMessage = "Authentication Failed";
     boolean loginFailed = false;
     if (Boolean.parseBoolean(request.getParameter("authFailure"))) {
@@ -28,7 +28,7 @@
         if (request.getParameter("authFailureMsg") != null) {
             errorMessage = request.getParameter("authFailureMsg");
 
-            if (domain_unknown.equalsIgnoreCase(errorMessage)) {
+            if (domainUnknown.equalsIgnoreCase(errorMessage)) {
                 errorMessage = "Domain cannot be identified! Please retry.";
             }
         }
