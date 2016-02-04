@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.identity.workflow.mgt.bean;
 
+/**
+ * This class is used to represent entities associated with workflows, eg:- User entity, Role entity
+ */
 public class Entity {
 
     private String entityId;
@@ -30,26 +33,56 @@ public class Entity {
         this.tenantId = tenantId;
     }
 
+    /**
+     * Retrieve entity type
+     *
+     * @return
+     */
     public String getEntityType() {
         return entityType;
     }
 
+    /**
+     * Set type of entity
+     *
+     * @param entityType value to set as entity type
+     */
     public void setEntityType(String entityType) {
         this.entityType = entityType;
     }
 
+    /**
+     * Retrieve entity ID
+     *
+     * @return
+     */
     public String getEntityId() {
         return entityId;
     }
 
+    /**
+     * Set entity ID
+     *
+     * @param entityId value to set as entity ID
+     */
     public void setEntityId(String entityId) {
         this.entityId = entityId;
     }
 
+    /**
+     * Get ID of the tenant which entity belongs
+     *
+     * @return
+     */
     public int getTenantId() {
         return tenantId;
     }
 
+    /**
+     * Set tenant ID for entity
+     *
+     * @param tenantId value to set as tenant ID
+     */
     public void setTenantId(int tenantId) {
         this.tenantId = tenantId;
     }

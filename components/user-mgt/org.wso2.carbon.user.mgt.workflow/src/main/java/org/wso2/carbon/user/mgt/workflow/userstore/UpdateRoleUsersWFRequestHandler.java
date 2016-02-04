@@ -219,24 +219,21 @@ public class UpdateRoleUsersWFRequestHandler extends AbstractWorkflowRequestHand
         }
         for (int i = 0; i < entities.length; i++) {
             try {
-                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
+                if (UserStoreWFConstants.ENTITY_TYPE_USER.equals(entities[i].getEntityType()) && workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_USER_EVENT)) {
-
                     throw new WorkflowException("One or more users assigned has pending workflows which " +
                             "blocks this operation.");
-                } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
+                } else if (UserStoreWFConstants.ENTITY_TYPE_ROLE.equals(entities[i].getEntityType()) && (workflowService
                         .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_ROLE_EVENT) ||
-                        workflowService
-                                .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
-                                        .UPDATE_ROLE_NAME_EVENT))) {
-
+                        workflowService.entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
+                                .UPDATE_ROLE_NAME_EVENT))) {
                     throw new WorkflowException("Role has a pending delete or rename operation which blocks this " +
                             "operation.");
-                } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && !userStoreManager
-                        .isExistingRole(entities[i].getEntityId())) {
+                } else if (UserStoreWFConstants.ENTITY_TYPE_ROLE.equals(entities[i].getEntityType()) &&
+                        !userStoreManager.isExistingRole(entities[i].getEntityId())) {
                     throw new WorkflowException("Role " + entities[i].getEntityId() + " does not exist.");
-                } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && !userStoreManager
-                        .isExistingUser(entities[i].getEntityId())) {
+                } else if (UserStoreWFConstants.ENTITY_TYPE_USER.equals(entities[i].getEntityType()) &&
+                        !userStoreManager.isExistingUser(entities[i].getEntityId())) {
                     throw new WorkflowException("User " + entities[i].getEntityId() + " does not exist.");
                 }
             } catch (InternalWorkflowException | org.wso2.carbon.user.core.UserStoreException e) {

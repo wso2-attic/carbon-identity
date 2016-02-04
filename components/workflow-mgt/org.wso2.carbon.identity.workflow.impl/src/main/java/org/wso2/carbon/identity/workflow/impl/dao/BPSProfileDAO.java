@@ -21,17 +21,21 @@ package org.wso2.carbon.identity.workflow.impl.dao;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
+import org.wso2.carbon.identity.workflow.impl.WFImplConstant;
 import org.wso2.carbon.identity.workflow.impl.WorkflowImplException;
 import org.wso2.carbon.identity.workflow.impl.bean.BPSProfile;
 import org.wso2.carbon.identity.workflow.mgt.util.SQLConstants;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BPSProfileDAO {
@@ -49,12 +53,11 @@ public class BPSProfileDAO {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.ADD_BPS_PROFILE_QUERY;
-        String password = String.copyValueOf(bpsProfileDTO.getPassword());
         String profileName = bpsProfileDTO.getProfileName();
         String encryptedPassword;
 
         try {
-            encryptedPassword = encryptPassword(password);
+            encryptedPassword = encryptPassword(bpsProfileDTO.getPassword());
         } catch (CryptoException e) {
             throw new WorkflowImplException("Error while encrypting the passwords of BPS Profile: " + profileName, e);
         }
@@ -90,12 +93,11 @@ public class BPSProfileDAO {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         String query = SQLConstants.UPDATE_BPS_PROFILE_QUERY;
-        String password = String.copyValueOf(bpsProfile.getPassword());
         String profileName = bpsProfile.getProfileName();
         String encryptedPassword;
 
         try {
-            encryptedPassword = encryptPassword(password);
+            encryptedPassword = encryptPassword(bpsProfile.getPassword());
         } catch (CryptoException e) {
             throw new WorkflowImplException("Error while encrypting the passwords of BPS Profile: " + profileName, e);
         }
@@ -108,7 +110,6 @@ public class BPSProfileDAO {
             prepStmt.setString(4, encryptedPassword);
             prepStmt.setInt(5, tenantId);
             prepStmt.setString(6, bpsProfile.getProfileName());
-
             prepStmt.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
@@ -131,12 +132,10 @@ public class BPSProfileDAO {
                                                                                                WorkflowImplException {
 
         BPSProfile bpsProfileDTO = null;
-
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement prepStmt = null;
         ResultSet rs;
         String query = SQLConstants.GET_BPS_PROFILE_FOR_TENANT_QUERY;
-        String decryptedPassword;
 
         try {
             prepStmt = connection.prepareStatement(query);
@@ -148,7 +147,6 @@ public class BPSProfileDAO {
                 String managerHostName = rs.getString(SQLConstants.HOST_URL_MANAGER_COLUMN);
                 String workerHostName = rs.getString(SQLConstants.HOST_URL_WORKER_COLUMN);
                 String user = rs.getString(SQLConstants.USERNAME_COLUMN);
-
                 bpsProfileDTO = new BPSProfile();
                 bpsProfileDTO.setProfileName(profileName);
                 bpsProfileDTO.setManagerHostURL(managerHostName);
@@ -157,17 +155,13 @@ public class BPSProfileDAO {
 
                 if (isWithPasswords) {
                     String password = rs.getString(SQLConstants.PASSWORD_COLUMN);
-
                     try {
-                        decryptedPassword = decryptPassword(password);
-
+                        bpsProfileDTO.setPassword(decryptPassword(password));
                     } catch (CryptoException | UnsupportedEncodingException e) {
                         throw new WorkflowImplException("Error while decrypting the password for BPEL Profile "
                                 + profileName, e);
                     }
-                    bpsProfileDTO.setPassword(decryptedPassword.toCharArray());
                 }
-
             }
         } catch (SQLException e) {
             throw new WorkflowImplException("Error when executing the sql.", e);
@@ -200,8 +194,10 @@ public class BPSProfileDAO {
             try {
                 classCheckResult = Class.forName("org.wso2.carbon.humantask.deployer.HumanTaskDeployer");
             } catch (ClassNotFoundException e) {
-                //If BPS features are not installed, it will throw a ClassNotFoundException, no actionto be executed
-                // here
+                //The purpose of this code segment is to check if BPS features have been installed by trying to load
+                // 'HumanTaskDeployer'.If BPS features are not installed, it will throw a ClassNotFoundException. The
+                // object retrieved here will be checked for null it will kept null when following this path. So no
+                // need to do anything here.
             }
             prepStmt = connection.prepareStatement(query);
             prepStmt.setInt(1, tenantId);
@@ -217,7 +213,7 @@ public class BPSProfileDAO {
                 String password = rs.getString(SQLConstants.PASSWORD_COLUMN);
                 try {
                     byte[] decryptedPasswordBytes = cryptoUtil.base64DecodeAndDecrypt(password);
-                    decryptPassword = new String(decryptedPasswordBytes, "UTF-8");
+                    decryptPassword = new String(decryptedPasswordBytes, WFImplConstant.DEFAULT_CHARSET);
                 } catch (CryptoException | UnsupportedEncodingException e) {
                     throw new WorkflowImplException("Error while decrypting the password for BPEL Profile " +
                             name, e);
@@ -262,18 +258,34 @@ public class BPSProfileDAO {
         }
     }
 
-    private String encryptPassword(String passwordValue) throws CryptoException {
+    private String encryptPassword(char[] passwordValue) throws CryptoException {
 
         CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
-        return cryptoUtil.encryptAndBase64Encode(passwordValue.getBytes(Charset.forName("UTF-8")));
+        return cryptoUtil.encryptAndBase64Encode(toBytes(passwordValue));
     }
 
-    private String decryptPassword(String passwordValue) throws UnsupportedEncodingException, CryptoException {
+    private char[] decryptPassword(String passwordValue) throws UnsupportedEncodingException, CryptoException {
 
         CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
         byte[] decryptedPasswordBytes = cryptoUtil.base64DecodeAndDecrypt(passwordValue);
-        return new String(decryptedPasswordBytes, "UTF-8");
+        return (new String(decryptedPasswordBytes, WFImplConstant.DEFAULT_CHARSET)).toCharArray();
 
+    }
+
+    /**
+     * Convert a char array into a byte array
+     *
+     * @param chars
+     * @return
+     */
+    private byte[] toBytes(char[] chars) {
+        CharBuffer charBuffer = CharBuffer.wrap(chars);
+        ByteBuffer byteBuffer = Charset.forName(WFImplConstant.DEFAULT_CHARSET).encode(charBuffer);
+        byte[] bytes = Arrays.copyOfRange(byteBuffer.array(),
+                byteBuffer.position(), byteBuffer.limit());
+        Arrays.fill(charBuffer.array(), '\u0000');
+        Arrays.fill(byteBuffer.array(), (byte) 0);
+        return bytes;
     }
 
 }
