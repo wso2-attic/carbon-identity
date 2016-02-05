@@ -353,6 +353,10 @@ public class TokenMgtDAO {
                 sql = sql.replace("TOKEN_SCOPE_HASH=?", "TOKEN_SCOPE_HASH IS NULL");
             }
 
+            if (userDomain == null) {
+                sql = sql.replace("USER_DOMAIN=?", "USER_DOMAIN IS NULL");
+            }
+
             prepStmt = connection.prepareStatement(sql);
             prepStmt.setString(1, persistenceProcessor.getProcessedClientId(consumerKey));
             if (isUsernameCaseSensitive) {
@@ -361,10 +365,14 @@ public class TokenMgtDAO {
                 prepStmt.setString(2, tenantAwareUsernameWithNoUserDomain.toLowerCase());
             }
             prepStmt.setInt(3, tenantId);
-            prepStmt.setString(4, userDomain);
+
+            int i = 4;
+            if (userDomain != null) {
+                prepStmt.setString(i++, userDomain);
+            }
 
             if (hashedScope != null) {
-                prepStmt.setString(5, hashedScope);
+                prepStmt.setString(i, hashedScope);
             }
 
             resultSet = prepStmt.executeQuery();
