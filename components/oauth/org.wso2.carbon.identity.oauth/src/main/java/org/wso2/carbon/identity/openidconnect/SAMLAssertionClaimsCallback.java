@@ -112,6 +112,9 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 }
 
                 for (Map.Entry<String, Object> entry : claims.entrySet()) {
+                    if (jwtClaimsSet.getClaim(entry.getKey()) != null) {
+                        continue;
+                    }
                     String value = entry.getValue().toString();
                     values = new JSONArray();
                     if (userAttributeSeparator != null && value.contains(userAttributeSeparator)) {
