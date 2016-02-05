@@ -24,6 +24,7 @@ import org.wso2.carbon.identity.application.authentication.framework.Application
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
+import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
@@ -38,13 +39,17 @@ import org.wso2.carbon.identity.application.authentication.framework.model.Authe
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
+import org.wso2.carbon.user.core.UserCoreConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -77,7 +82,7 @@ public class DefaultStepHandler implements StepHandler {
 
         String authenticatorNames = FrameworkUtils.getAuthenticatorIdPMappingString(authConfigList);
 
-        String redirectURL = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
+        String loginPage = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
 
         String fidp = request.getParameter(FrameworkConstants.RequestParams.FEDERATED_IDP);
 
@@ -127,7 +132,7 @@ public class DefaultStepHandler implements StepHandler {
 
             try {
                 request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
-                response.sendRedirect(redirectURL
+                response.sendRedirect(loginPage
                         + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
                         + URLEncoder.encode(authenticatorNames, "UTF-8") + "&hrd=true");
             } catch (IOException e) {
@@ -210,7 +215,14 @@ public class DefaultStepHandler implements StepHandler {
                     if (log.isDebugEnabled()) {
                         log.debug("Sending to the Multi Option page");
                     }
-
+                    Map<String, String> parameterMap = getAuthenticatorConfig().getParameterMap();
+                    String showAuthFailureReason = null;
+                    if (parameterMap != null) {
+                        showAuthFailureReason = parameterMap.get("showAuthFailureReason");
+                        if (log.isDebugEnabled()) {
+                            log.debug("showAuthFailureReason has been set as : " + showAuthFailureReason);
+                        }
+                    }
                     String retryParam = "";
 
                     if (stepConfig.isRetrying()) {
@@ -220,9 +232,9 @@ public class DefaultStepHandler implements StepHandler {
 
                     try {
                         request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
-                        response.sendRedirect(redirectURL
-                                + ("?" + context.getContextIdIncludedQueryParams())
-                                + "&authenticators=" + URLEncoder.encode(authenticatorNames, "UTF-8") + retryParam);
+                        response.sendRedirect(getRedirectUrl(request, response, context, authenticatorNames,
+                                showAuthFailureReason, retryParam, loginPage) + "&authenticators=" + URLEncoder
+                                .encode(authenticatorNames, "UTF-8") + retryParam);
                     } catch (IOException e) {
                         throw new FrameworkException(e.getMessage(), e);
                     }
@@ -508,5 +520,80 @@ public class DefaultStepHandler implements StepHandler {
         stepConfig.setAuthenticatedUser(authenticatedIdPData.getUser());
         stepConfig.setAuthenticatedIdP(authenticatedIdPData.getIdpName());
         stepConfig.setAuthenticatedAutenticator(authenticatedIdPData.getAuthenticator());
+    }
+
+    private String getRedirectUrl(HttpServletRequest request, HttpServletResponse response, AuthenticationContext
+            context, String authenticatorNames, String showAuthFailureReason, String retryParam, String loginPage)
+            throws IOException {
+
+        IdentityErrorMsgContext errorContext = IdentityUtil.getIdentityErrorMsg();
+        IdentityUtil.clearIdentityErrorMsg();
+
+        if (showAuthFailureReason != null && showAuthFailureReason.equals("true")) {
+            if (errorContext != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Identity error message context is not null");
+                }
+
+                String errorCode = errorContext.getErrorCode();
+                int remainingAttempts = errorContext.getMaximumLoginAttempts() - errorContext.getFailedLoginAttempts();
+
+                if (log.isDebugEnabled()) {
+                    log.debug("errorCode : " + errorCode);
+                    log.debug("username : " + request.getParameter("username"));
+                    log.debug("remainingAttempts : " + remainingAttempts);
+                }
+
+                if (errorCode.equals(UserCoreConstants.ErrorCode.INVALID_CREDENTIAL)) {
+                    retryParam = retryParam + "&errorCode=" + errorCode + "&failedUsername=" + URLEncoder.encode
+                            (request.getParameter("username"), "UTF-8") + "&remainingAttempts=" + remainingAttempts;
+                    return response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams()))
+                            + "&authenticators=" + authenticatorNames + ":" + "LOCAL" + retryParam;
+                } else if (errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED)) {
+                    String redirectURL;
+                    if (remainingAttempts == 0) {
+                        redirectURL = response.encodeRedirectURL(loginPage + ("?" + context
+                                .getContextIdIncludedQueryParams())) + "&errorCode=" + errorCode + "&failedUsername="
+                                + URLEncoder.encode(request.getParameter("username"), "UTF-8") + "&remainingAttempts=0";
+                    } else {
+                        redirectURL = response.encodeRedirectURL(loginPage + ("?" + context
+                                .getContextIdIncludedQueryParams())) + "&errorCode=" + errorCode + "&failedUsername="
+                                + URLEncoder.encode(request.getParameter("username"), "UTF-8");
+                    }
+                    return redirectURL;
+                } else if (errorCode.equals(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST)) {
+                    retryParam = retryParam + "&errorCode=" + errorCode + "&failedUsername=" + URLEncoder.encode
+                            (request.getParameter("username"), "UTF-8");
+                    return response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams()))
+                            + "&authenticators=" + authenticatorNames + ":" + "LOCAL" + retryParam;
+                }
+            } else {
+                return response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams())) +
+                        "&authenticators=" + authenticatorNames + ":" + "LOCAL" + retryParam;
+            }
+        } else {
+            String errorCode = errorContext != null ? errorContext.getErrorCode() : null;
+            if (errorCode != null && errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED)) {
+                String redirectURL;
+                redirectURL = response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams
+                        ())) + "&failedUsername=" + URLEncoder.encode(request.getParameter("username"), "UTF-8");
+                return redirectURL;
+
+            } else {
+                return response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams())) +
+                        "&authenticators=" + authenticatorNames + ":" + "LOCAL" + retryParam;
+            }
+        }
+        return loginPage + ("?" + context.getContextIdIncludedQueryParams());
+    }
+
+    private AuthenticatorConfig getAuthenticatorConfig() {
+        AuthenticatorConfig authConfig = FileBasedConfigurationBuilder.getInstance().getAuthenticatorBean
+                ("BasicAuthenticator");
+        if (authConfig == null) {
+            authConfig = new AuthenticatorConfig();
+            authConfig.setParameterMap(new HashMap());
+        }
+        return authConfig;
     }
 }
