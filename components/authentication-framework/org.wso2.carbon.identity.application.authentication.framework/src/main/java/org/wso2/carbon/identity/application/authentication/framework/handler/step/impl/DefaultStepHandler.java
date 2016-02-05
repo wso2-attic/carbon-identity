@@ -218,7 +218,7 @@ public class DefaultStepHandler implements StepHandler {
                     Map<String, String> parameterMap = getAuthenticatorConfig().getParameterMap();
                     String showAuthFailureReason = null;
                     if (parameterMap != null) {
-                        showAuthFailureReason = parameterMap.get("showAuthFailureReason");
+                        showAuthFailureReason = parameterMap.get(FrameworkConstants.SHOW_AUTHFAILURE_RESON_CONFIG);
                         if (log.isDebugEnabled()) {
                             log.debug("showAuthFailureReason has been set as : " + showAuthFailureReason);
                         }
@@ -231,10 +231,10 @@ public class DefaultStepHandler implements StepHandler {
                     }
 
                     try {
-                        request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
+                        request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus
+                                .INCOMPLETE);
                         response.sendRedirect(getRedirectUrl(request, response, context, authenticatorNames,
-                                showAuthFailureReason, retryParam, loginPage) + "&authenticators=" + URLEncoder
-                                .encode(authenticatorNames, "UTF-8") + retryParam);
+                                showAuthFailureReason, retryParam, loginPage));
                     } catch (IOException e) {
                         throw new FrameworkException(e.getMessage(), e);
                     }
@@ -529,67 +529,71 @@ public class DefaultStepHandler implements StepHandler {
         IdentityErrorMsgContext errorContext = IdentityUtil.getIdentityErrorMsg();
         IdentityUtil.clearIdentityErrorMsg();
 
-        if (showAuthFailureReason != null && showAuthFailureReason.equals("true")) {
+        if (showAuthFailureReason != null && "true".equals(showAuthFailureReason)) {
             if (errorContext != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Identity error message context is not null");
-                }
-
                 String errorCode = errorContext.getErrorCode();
                 int remainingAttempts = errorContext.getMaximumLoginAttempts() - errorContext.getFailedLoginAttempts();
 
                 if (log.isDebugEnabled()) {
-                    log.debug("errorCode : " + errorCode);
-                    log.debug("username : " + request.getParameter("username"));
-                    log.debug("remainingAttempts : " + remainingAttempts);
+                    StringBuilder debugString = new StringBuilder();
+                    debugString.append("Identity error message context is not null. Error details are as follows.");
+                    debugString.append("errorCode : " + errorCode + "\n");
+                    debugString.append("username : " + request.getParameter("username") + "\n");
+                    debugString.append("remainingAttempts : " + remainingAttempts);
+                    log.debug(debugString.toString());
                 }
 
                 if (errorCode.equals(UserCoreConstants.ErrorCode.INVALID_CREDENTIAL)) {
                     retryParam = retryParam + "&errorCode=" + errorCode + "&failedUsername=" + URLEncoder.encode
                             (request.getParameter("username"), "UTF-8") + "&remainingAttempts=" + remainingAttempts;
                     return response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams()))
-                            + "&authenticators=" + authenticatorNames + ":" + "LOCAL" + retryParam;
+                            + "&authenticators=" + authenticatorNames + ":" + FrameworkConstants.LOCAL + retryParam;
                 } else if (errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED)) {
                     String redirectURL;
                     if (remainingAttempts == 0) {
                         redirectURL = response.encodeRedirectURL(loginPage + ("?" + context
                                 .getContextIdIncludedQueryParams())) + "&errorCode=" + errorCode + "&failedUsername="
-                                + URLEncoder.encode(request.getParameter("username"), "UTF-8") + "&remainingAttempts=0";
+                                + URLEncoder.encode(request.getParameter("username"), "UTF-8") +
+                                "&remainingAttempts=0" + "&authenticators=" + URLEncoder.encode(authenticatorNames,
+                                "UTF-8") + retryParam;
                     } else {
                         redirectURL = response.encodeRedirectURL(loginPage + ("?" + context
                                 .getContextIdIncludedQueryParams())) + "&errorCode=" + errorCode + "&failedUsername="
-                                + URLEncoder.encode(request.getParameter("username"), "UTF-8");
+                                + URLEncoder.encode(request.getParameter("username"), "UTF-8" + "&authenticators=" +
+                                URLEncoder.encode(authenticatorNames, "UTF-8") + retryParam);
                     }
                     return redirectURL;
                 } else if (errorCode.equals(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST)) {
                     retryParam = retryParam + "&errorCode=" + errorCode + "&failedUsername=" + URLEncoder.encode
                             (request.getParameter("username"), "UTF-8");
                     return response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams()))
-                            + "&authenticators=" + authenticatorNames + ":" + "LOCAL" + retryParam;
+                            + "&authenticators=" + authenticatorNames + ":" + FrameworkConstants.LOCAL + retryParam;
                 }
             } else {
                 return response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams())) +
-                        "&authenticators=" + authenticatorNames + ":" + "LOCAL" + retryParam;
+                        "&authenticators=" + authenticatorNames + ":" + FrameworkConstants.LOCAL + retryParam;
             }
         } else {
             String errorCode = errorContext != null ? errorContext.getErrorCode() : null;
             if (errorCode != null && errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED)) {
                 String redirectURL;
                 redirectURL = response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams
-                        ())) + "&failedUsername=" + URLEncoder.encode(request.getParameter("username"), "UTF-8");
+                        ())) + "&errorCode=" + errorCode + "&failedUsername=" + URLEncoder.encode(request
+                        .getParameter("username"), "UTF-8");
                 return redirectURL;
 
             } else {
                 return response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams())) +
-                        "&authenticators=" + authenticatorNames + ":" + "LOCAL" + retryParam;
+                        "&authenticators=" + authenticatorNames + ":" + FrameworkConstants.LOCAL + retryParam;
             }
         }
-        return loginPage + ("?" + context.getContextIdIncludedQueryParams());
+        return loginPage + ("?" + context.getContextIdIncludedQueryParams() + "&authenticators=" + URLEncoder.encode
+                (authenticatorNames, "UTF-8") + retryParam);
     }
 
     private AuthenticatorConfig getAuthenticatorConfig() {
         AuthenticatorConfig authConfig = FileBasedConfigurationBuilder.getInstance().getAuthenticatorBean
-                ("BasicAuthenticator");
+                (FrameworkConstants.BASIC_AUTHENTICATOR_CLASS);
         if (authConfig == null) {
             authConfig = new AuthenticatorConfig();
             authConfig.setParameterMap(new HashMap());
