@@ -559,8 +559,8 @@ public class DefaultStepHandler implements StepHandler {
                     } else {
                         redirectURL = response.encodeRedirectURL(loginPage + ("?" + context
                                 .getContextIdIncludedQueryParams())) + "&errorCode=" + errorCode + "&failedUsername="
-                                + URLEncoder.encode(request.getParameter("username"), "UTF-8" + "&authenticators=" +
-                                URLEncoder.encode(authenticatorNames, "UTF-8") + retryParam);
+                                + URLEncoder.encode(request.getParameter("username"), "UTF-8") + "&authenticators=" +
+                                URLEncoder.encode(authenticatorNames, "UTF-8") + retryParam;
                     }
                     return redirectURL;
                 } else if (errorCode.equals(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST)) {
