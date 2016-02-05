@@ -31,6 +31,9 @@
             <ref bean="userinfoEndpointBean"/>
             <ref bean="oauthdcrEndpointBean"/>
         </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <ref bean="jsonProvider"/>
+        </jaxrs:providers>
     </jaxrs:server>
 
     <bean id="authzEndpointBean" class="org.wso2.carbon.identity.oauth.endpoint.authz.OAuth2AuthzEndpoint"/>
@@ -38,4 +41,5 @@
     <bean id="revokeEndpointBean" class="org.wso2.carbon.identity.oauth.endpoint.revoke.OAuthRevocationEndpoint"/>
     <bean id="userinfoEndpointBean" class="org.wso2.carbon.identity.oauth.endpoint.user.OpenIDConnectUserEndpoint"/>
     <bean id="oauthdcrEndpointBean" class="org.wso2.carbon.identity.oauth.endpoint.oauthdcr.OAuthDynamicClientRegistrationEndpoint"/>
+    <bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
 </beans>

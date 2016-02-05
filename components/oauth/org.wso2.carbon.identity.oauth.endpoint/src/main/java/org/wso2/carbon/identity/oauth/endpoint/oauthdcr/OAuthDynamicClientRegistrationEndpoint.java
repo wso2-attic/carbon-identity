@@ -34,14 +34,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Path("/oauthdcr")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class OAuthDynamicClientRegistrationEndpoint {
 
     private static final Log log = LogFactory.getLog(OAuthDynamicClientRegistrationEndpoint.class);
 
     @POST
-    @Path("/")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response register(RegistrationProfile profile) {
         /**
          * sample message to this method
@@ -60,6 +59,7 @@ public class OAuthDynamicClientRegistrationEndpoint {
             PrivilegedCarbonContext.getThreadLocalCarbonContext()
                     .setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            //Call the basic Auth method here
             DynamicClientRegistrationService dynamicClientRegistrationService = EndpointUtil
                     .getDynamicClientRegistrationService();
             if (dynamicClientRegistrationService != null) {
@@ -81,9 +81,6 @@ public class OAuthDynamicClientRegistrationEndpoint {
     }
 
     @DELETE
-    @Path("/")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response unRegister(@QueryParam("applicationName") String applicationName,
             @QueryParam("userId") String userId, @QueryParam("consumerKey") String consumerKey) {
         Response response;

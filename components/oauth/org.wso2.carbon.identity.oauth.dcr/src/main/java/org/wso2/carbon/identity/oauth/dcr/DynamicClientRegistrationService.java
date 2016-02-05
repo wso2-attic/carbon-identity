@@ -19,9 +19,6 @@ package org.wso2.carbon.identity.oauth.dcr;
 
 import org.wso2.carbon.identity.oauth.dcr.profile.RegistrationProfile;
 
-import javax.ws.rs.DELETE;
-import javax.ws.rs.POST;
-
 public interface DynamicClientRegistrationService {
 
     enum ErrorCode {
@@ -46,7 +43,6 @@ public interface DynamicClientRegistrationService {
      * @throws DynamicClientRegistrationException
      *
      */
-    @POST
     OAuthApplicationInfo registerOAuthApplication(
             RegistrationProfile profile) throws DynamicClientRegistrationException;
 
@@ -60,7 +56,6 @@ public interface DynamicClientRegistrationService {
      * @throws DynamicClientRegistrationException
      *
      */
-    @DELETE
     boolean unregisterOAuthApplication(String userName, String applicationName,
             String consumerKey) throws DynamicClientRegistrationException;
 

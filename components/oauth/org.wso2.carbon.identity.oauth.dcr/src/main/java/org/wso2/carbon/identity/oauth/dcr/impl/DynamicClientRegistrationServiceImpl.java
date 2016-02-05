@@ -43,11 +43,6 @@ import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.POST;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,9 +72,6 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
      * @throws DynamicClientRegistrationException
      *
      */
-    @POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     @Override
     public OAuthApplicationInfo registerOAuthApplication(
             RegistrationProfile profile) throws DynamicClientRegistrationException {
@@ -307,9 +299,6 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
      * @throws DynamicClientRegistrationException
      *
      */
-    @DELETE
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     @Override
     public boolean unregisterOAuthApplication(String userId, String applicationName, String consumerKey) throws
             DynamicClientRegistrationException {
