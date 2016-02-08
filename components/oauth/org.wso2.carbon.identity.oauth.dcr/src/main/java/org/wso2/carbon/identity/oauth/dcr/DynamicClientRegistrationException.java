@@ -23,39 +23,39 @@ package org.wso2.carbon.identity.oauth.dcr;
  */
 public class DynamicClientRegistrationException extends Exception {
 
-	private static final long serialVersionUID = -3151279311929070297L;
+    private static final long serialVersionUID = -3151279311929070297L;
 
-	private String errorMessage;
+    private String errorMessage;
 
-	public String getErrorMessage() {
-		return errorMessage;
-	}
+    public String getErrorMessage() {
+        return errorMessage;
+    }
 
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
-	}
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
 
-	public DynamicClientRegistrationException(String msg, Exception nestedEx) {
-		super(msg, nestedEx);
-		setErrorMessage(msg);
-	}
+    public DynamicClientRegistrationException(String msg, Exception nestedEx) {
+        super(msg, nestedEx);
+        setErrorMessage(msg);
+    }
 
-	public DynamicClientRegistrationException(String message, Throwable cause) {
-		super(message, cause);
-		setErrorMessage(message);
-	}
+    public DynamicClientRegistrationException(String message, Throwable cause) {
+        super(message, cause);
+        setErrorMessage(message);
+    }
 
-	public DynamicClientRegistrationException(String msg) {
-		super(msg);
-		setErrorMessage(msg);
-	}
+    public DynamicClientRegistrationException(String msg) {
+        super(msg);
+        setErrorMessage(msg);
+    }
 
-	public DynamicClientRegistrationException() {
-		super();
-	}
+    public DynamicClientRegistrationException() {
+        super();
+    }
 
-	public DynamicClientRegistrationException(Throwable cause) {
-		super(cause);
-	}
+    public DynamicClientRegistrationException(Throwable cause) {
+        super(cause);
+    }
 
 }

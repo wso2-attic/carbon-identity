@@ -47,19 +47,19 @@ public class FaultMessageBodyWriter implements MessageBodyWriter<FaultResponse> 
 
     @Override
     public long getSize(FaultResponse faultResponse, Class<?> aClass, Type type, Annotation[] annotations,
-                        MediaType mediaType) {
+            MediaType mediaType) {
         return -1;
     }
 
     @Override
     public void writeTo(FaultResponse faultResponse, Class<?> aClass, Type type, Annotation[] annotations,
-                        MediaType mediaType, MultivaluedMap<String, Object> stringObjectMultivaluedMap,
-                        OutputStream outputStream) throws IOException, WebApplicationException {
-            OutputStreamWriter writer = new OutputStreamWriter(outputStream, UTF_8);
-            JsonObject response = new JsonObject();
-            response.addProperty("error", faultResponse.getCode().getValue());
-            response.addProperty("error_description", faultResponse.getDescription());
-            getGson().toJson(response, type, writer);
+            MediaType mediaType, MultivaluedMap<String, Object> stringObjectMultivaluedMap, OutputStream outputStream)
+            throws IOException, WebApplicationException {
+        OutputStreamWriter writer = new OutputStreamWriter(outputStream, UTF_8);
+        JsonObject response = new JsonObject();
+        response.addProperty("error", faultResponse.getCode().getValue());
+        response.addProperty("error_description", faultResponse.getDescription());
+        getGson().toJson(response, type, writer);
 
     }
 

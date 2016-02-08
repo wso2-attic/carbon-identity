@@ -18,7 +18,7 @@
 package org.wso2.carbon.identity.oauth.dcr.util;
 
 /**
- * This class holds the util methods used by DCR component.
+ * This class holds the util methods used by the DCR component.
  */
 public class DynamicClientRegistrationUtil {
 

@@ -82,4 +82,16 @@
         </cookie-config>
     </session-config>
 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Secured Dynamic Client Registration</web-resource-name>
+            <url-pattern>/register</url-pattern>
+            <http-method>POST</http-method>
+            <http-method>DELETE</http-method>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
 </web-app>

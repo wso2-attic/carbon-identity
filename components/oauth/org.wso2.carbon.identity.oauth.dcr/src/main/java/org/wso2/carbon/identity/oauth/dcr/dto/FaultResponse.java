@@ -19,6 +19,9 @@ package org.wso2.carbon.identity.oauth.dcr.dto;
 
 import org.wso2.carbon.identity.oauth.dcr.DynamicClientRegistrationService;
 
+/**
+ * This class describes the response sent to the client if the registration was unsuccessful
+ */
 public class FaultResponse {
 
     private DynamicClientRegistrationService.ErrorCode code;

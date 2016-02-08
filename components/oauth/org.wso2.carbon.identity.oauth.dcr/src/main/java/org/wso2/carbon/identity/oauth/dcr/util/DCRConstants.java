@@ -27,7 +27,7 @@ public final class DCRConstants {
             throw new AssertionError();
         }
 
-        public static final String OAUTH_CLIENT_ID = "client_id"; //this means consumer key
+        public static final String OAUTH_CLIENT_ID = "client_id";
         public static final String OAUTH_CLIENT_SECRET = "client_secret";
         public static final String OAUTH_REDIRECT_URIS = "redirect_uris";
         public static final String OAUTH_CALLBACK_URIS = "callback_url";

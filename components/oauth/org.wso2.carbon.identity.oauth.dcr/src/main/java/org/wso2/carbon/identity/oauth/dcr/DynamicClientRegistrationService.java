@@ -25,6 +25,7 @@ public interface DynamicClientRegistrationService {
         INVALID_URI("invalid_redirect_uri"), INVALID_CLIENT_METADATA("invalid_client_metadata");
 
         private String value;
+
         ErrorCode(String value) {
             this.value = value;
         }
@@ -35,16 +36,15 @@ public interface DynamicClientRegistrationService {
     }
 
     /**
-     * This method will register a new OAuth application using the data provided by
+     * This method will register a new OAuth application using the data provided by the
      * RegistrationProfile.
      *
      * @param profile - RegistrationProfile of the OAuth application to be created.
      * @return OAuthApplicationInfo object which holds the necessary data of created OAuth app.
      * @throws DynamicClientRegistrationException
-     *
      */
-    OAuthApplicationInfo registerOAuthApplication(
-            RegistrationProfile profile) throws DynamicClientRegistrationException;
+    OAuthApplicationInfo registerOAuthApplication(RegistrationProfile profile)
+            throws DynamicClientRegistrationException;
 
     /**
      * This method will unregister a created OAuth application.
@@ -54,18 +54,16 @@ public interface DynamicClientRegistrationService {
      * @param consumerKey     - ConsumerKey of the OAuth application
      * @return The status of the operation
      * @throws DynamicClientRegistrationException
-     *
      */
-    boolean unregisterOAuthApplication(String userName, String applicationName,
-            String consumerKey) throws DynamicClientRegistrationException;
+    boolean unregisterOAuthApplication(String userName, String applicationName, String consumerKey)
+            throws DynamicClientRegistrationException;
 
     /**
-     * This method will check the existence of an OAuth application provided application-name.
+     * This method will check the existence of an OAuth application provided the application-name.
      *
      * @param applicationName - OAuth application name
      * @return The status of the operation
      * @throws DynamicClientRegistrationException
-     *
      */
     boolean isOAuthApplicationAvailable(String applicationName) throws DynamicClientRegistrationException;
 

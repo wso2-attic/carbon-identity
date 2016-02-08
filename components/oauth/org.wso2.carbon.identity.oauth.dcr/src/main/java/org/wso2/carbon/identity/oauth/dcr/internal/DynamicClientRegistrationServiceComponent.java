@@ -26,7 +26,7 @@ import org.wso2.carbon.identity.oauth.dcr.DynamicClientRegistrationService;
 import org.wso2.carbon.identity.oauth.dcr.impl.DynamicClientRegistrationServiceImpl;
 
 /**
- * @scr.component name="org.wso2.carbon.identity.oauth.dcr" immediate="true"
+ * @scr.component name="identity.oauth.dcr" immediate="true"
  * @scr.reference name="identity.application.management.service"
  * interface="org.wso2.carbon.identity.application.mgt.ApplicationManagementService"
  * cardinality="1..1"
@@ -40,16 +40,16 @@ public class DynamicClientRegistrationServiceComponent {
 
     @SuppressWarnings("unused")
     protected void activate(ComponentContext componentContext) {
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Starting DynamicClientRegistrationServiceComponent");
         }
-        componentContext.getBundleContext().registerService(
-                DynamicClientRegistrationService.class.getName(), new DynamicClientRegistrationServiceImpl(), null);
+        componentContext.getBundleContext().registerService(DynamicClientRegistrationService.class.getName(),
+                new DynamicClientRegistrationServiceImpl(), null);
     }
 
     @SuppressWarnings("unused")
     protected void deactivate(ComponentContext componentContext) {
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
             log.debug("Stopping DynamicClientRegistrationServiceComponent");
         }
     }
@@ -59,8 +59,7 @@ public class DynamicClientRegistrationServiceComponent {
      *
      * @param applicationManagementService An instance of ApplicationManagementService
      */
-    protected void setApplicationManagementService(ApplicationManagementService
-                                                           applicationManagementService) {
+    protected void setApplicationManagementService(ApplicationManagementService applicationManagementService) {
         if (log.isDebugEnabled()) {
             log.debug("Setting ApplicationManagement Service");
         }
@@ -73,8 +72,7 @@ public class DynamicClientRegistrationServiceComponent {
      *
      * @param applicationManagementService An instance of ApplicationManagementService
      */
-    protected void unsetApplicationManagementService(ApplicationManagementService
-                                                             applicationManagementService) {
+    protected void unsetApplicationManagementService(ApplicationManagementService applicationManagementService) {
         if (log.isDebugEnabled()) {
             log.debug("Unsetting ApplicationManagement Service");
         }
