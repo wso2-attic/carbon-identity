@@ -885,10 +885,10 @@ public class IdPManagementDAO {
             if (inputStream != null) {
                 prepStmt.setBinaryStream(index, inputStream, inputStream.available());
             } else {
-                prepStmt.setBinaryStream(index, new ByteArrayInputStream("".getBytes()), 0);
+                prepStmt.setBinaryStream(index, new ByteArrayInputStream(new byte[0]), 0);
             }
         } else {
-            prepStmt.setBinaryStream(index, new ByteArrayInputStream("".getBytes()), 0);
+            prepStmt.setBinaryStream(index, new ByteArrayInputStream(new byte[0]), 0);
         }
     }
 

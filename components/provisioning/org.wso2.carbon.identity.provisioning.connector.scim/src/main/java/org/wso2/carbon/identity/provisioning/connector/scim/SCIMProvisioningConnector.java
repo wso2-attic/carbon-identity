@@ -161,9 +161,9 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
 
             ProvisioningClient scimProvisioningClient = new ProvisioningClient(scimProvider, user,
                     httpMethod, null);
-            if (provisioningOperation.equals(ProvisioningOperation.PUT)) {
+            if (ProvisioningOperation.PUT.equals(provisioningOperation)) {
                 scimProvisioningClient.provisionUpdateUser();
-            } else if (provisioningOperation.equals(ProvisioningOperation.PATCH)) {
+            } else if (ProvisioningOperation.PATCH.equals(provisioningOperation)) {
                 scimProvisioningClient.provisionPatchUser();
             }
         } catch (Exception e) {

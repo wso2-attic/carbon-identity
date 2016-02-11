@@ -27,7 +27,13 @@
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.TenantDataManager" %>
 <%@ page import="java.util.ResourceBundle" %>
 
-<fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
+<%!
+    private static final String FIDO_AUTHENTICATOR = "FIDOAuthenticator";
+    private static final String IWA_AUTHENTICATOR = "IWAAuthenticator";
+    private static final String IS_SAAS_APP = "isSaaSApp";
+    private static final String BASIC_AUTHENTICATOR = "BasicAuthenticator";
+    private static final String OPEN_ID_AUTHENTICATOR = "OpenIDAuthenticator";
+%><fmt:bundle basename="org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources">
 
     <%
         String BUNDLE = "org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources";
@@ -116,19 +122,19 @@
                             <%
                                 if (localAuthenticatorNames.size() > 0) {
 
-                                    if (localAuthenticatorNames.size() > 0 && localAuthenticatorNames.contains("OpenIDAuthenticator")) {
+                                    if (localAuthenticatorNames.size() > 0 && localAuthenticatorNames.contains(OPEN_ID_AUTHENTICATOR)) {
                                         hasLocalLoginOptions = true;
                             %>
 
                             <%@ include file="openid.jsp" %>
 
                             <%
-                            } else if (localAuthenticatorNames.size() > 0 && localAuthenticatorNames.contains("BasicAuthenticator")) {
+                            } else if (localAuthenticatorNames.size() > 0 && localAuthenticatorNames.contains(BASIC_AUTHENTICATOR)) {
                                 hasLocalLoginOptions = true;
                             %>
 
                             <%
-                                if (TenantDataManager.isTenantListEnabled() && Boolean.parseBoolean(request.getParameter("isSaaSApp"))) {
+                                if (TenantDataManager.isTenantListEnabled() && Boolean.parseBoolean(request.getParameter(IS_SAAS_APP))) {
                             %>
 
                             <%@ include file="tenantauth.jsp" %>
@@ -210,7 +216,7 @@
                                 <%} %>
                                 <%
                                 } else if (localAuthenticatorNames.size() > 0) {
-                                    if (localAuthenticatorNames.contains("IWAAuthenticator")) {
+                                    if (localAuthenticatorNames.contains(IWA_AUTHENTICATOR)) {
                                 %>
                                 <div>
                                 <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(Encode.
@@ -223,7 +229,7 @@
                                 </div>
                                 <%
                                     }
-                                    if (localAuthenticatorNames.contains("FIDOAuthenticator")) {
+                                    if (localAuthenticatorNames.contains(FIDO_AUTHENTICATOR)) {
                                 %>
                                 <div>
                                 <a onclick="javascript: handleNoDomain('<%=Encode.forJavaScriptAttribute(Encode.

@@ -140,12 +140,10 @@ public class SPInitLogoutRequestProcessor implements SPInitSSOLogoutRequestProce
                     if (IdentityUtil.isBlank(SAMLSSOUtil.getTenantDomainFromThreadLocal())) {
                         SAMLSSOServiceProviderDO serviceProvider = sessionInfoData.getServiceProviderList().get(issuer);
                         if (serviceProvider != null) {
-                            SAMLSSOUtil.setTenantDomainInThreadLocal(
-                                    sessionInfoData.getServiceProviderList().get(issuer).getTenantDomain());
+                            SAMLSSOUtil.setTenantDomainInThreadLocal(serviceProvider.getTenantDomain());
                         } else {
                             throw IdentityException.error("Service provider :" + issuer + " does not exist in session " +
-                                    "info " +
-                                    "data.");
+                                    "info data.");
                         }
                     }
                 }

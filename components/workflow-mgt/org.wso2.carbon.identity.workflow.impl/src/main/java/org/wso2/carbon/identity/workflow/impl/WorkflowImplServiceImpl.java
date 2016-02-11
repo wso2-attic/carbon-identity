@@ -173,8 +173,6 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
                 workflowListener.doPostUpdateBPSProfile(bpsProfileDTO, tenantId);
             }
         }
-
-
     }
 
     @Override
@@ -198,54 +196,49 @@ public class WorkflowImplServiceImpl implements WorkflowImplService {
         TStatus readyState = new TStatus();
         readyState.setTStatus(WFImplConstant.HT_STATE_READY);
         input.addStatus(readyState);
-        input.setPageSize(100000);
-        input.setPageNumber(0);
+        input.setPageSize(WFImplConstant.DEFAULT_PAGE_SIZE_FOR_HT_LIST);
+        input.setPageNumber(WFImplConstant.PAGE_0);
         input.setSimpleQueryCategory(TSimpleQueryCategory.ALL_TASKS);
-        for (int i = 0; i < bpsProfiles.size(); i++) {
+        for (BPSProfile bpsProfile : bpsProfiles) {
             try {
-                String host = bpsProfiles.get(i).getWorkerHostURL();
+                String host = bpsProfile.getWorkerHostURL();
 
-                if (bpsProfiles.get(i).getProfileName().equals(WFImplConstant.DEFAULT_BPS_PROFILE_NAME)) {
+                if (bpsProfile.getProfileName().equals(WFImplConstant.DEFAULT_BPS_PROFILE_NAME)) {
 
-                    client = new HumanTaskClientAPIAdminClient(host, bpsProfiles.get(i).getUsername());
+                    client = new HumanTaskClientAPIAdminClient(host, bpsProfile.getUsername());
                 } else {
-                    client = new HumanTaskClientAPIAdminClient(host, bpsProfiles.get(i).getUsername(),
-                            bpsProfiles.get(i).getPassword());
+                    client = new HumanTaskClientAPIAdminClient(host, bpsProfile.getUsername(),
+                            bpsProfile.getPassword());
                 }
                 TTaskSimpleQueryResultSet results = client.simpleQuery(input);
-                TTaskSimpleQueryResultRow[] arr = results.getRow();
-                if (ArrayUtils.isNotEmpty(arr)) {
-                    for (int j = 0; j < arr.length; j++) {
+                TTaskSimpleQueryResultRow[] humanTasks = results.getRow();
+                if (ArrayUtils.isNotEmpty(humanTasks)) {
+                    for (int j = 0; j < humanTasks.length; j++) {
                         try {
-                            Object task = client.getInput(arr[j].getId());
+                            Object task = client.getInput(humanTasks[j].getId());
                             InputStream stream = new ByteArrayInputStream(task.toString().getBytes(StandardCharsets
                                     .UTF_8));
-
-
                             OMElement taskXML = new StAXOMBuilder(stream).getDocumentElement();
                             Iterator<OMElementImpl> iterator = taskXML.getChildElements();
                             while (iterator.hasNext()) {
                                 OMElementImpl child = iterator.next();
-                                checkMatchingTaskAndDelete(workflowRequest.getRequestId(), client, arr, j, child);
+                                checkMatchingTaskAndDelete(workflowRequest.getRequestId(), client, humanTasks, j, child);
                             }
                         } catch (IllegalStateFault | XMLStreamException | IllegalArgumentFault | RemoteException |
                                 IllegalOperationFault | IllegalAccessFault e) {
                             //If exception throws when retrieving and deleting a specific task, it will continue with
                             // other tasks without terminating.
-                            log.info("Failed to check human task.");
+                            log.warn("Failed to retrieve information of human task : " + humanTasks[j].getName() + ".");
                         }
-
                     }
                 }
-
             } catch (IllegalArgumentFault | RemoteException | IllegalStateFault e) {
                 //If exception throws at one iteration of loop, which is testing 1 BPS profile, it will continue with
                 // other profiles without terminating.
-                log.info("Failed to delete human task associated for this request in BPS profile : " + bpsProfiles.get
-                        (i).getProfileName());
+                log.warn("Failed to delete human task associated for this request in BPS profile : " + bpsProfile
+                        .getProfileName());
             }
         }
-
         for (WorkflowImplServiceListener workflowListener : workflowListenerList) {
             if (workflowListener.isEnable()) {
                 workflowListener.doPostDeleteHumanTask(workflowRequest);
