@@ -81,6 +81,9 @@ public final class OAuthConstants {
     public static final String ACCESS_TOKEN = "accessToken";
     public static final String ID_TOKEN = "id_token";
 
+    //oidc connect session management properties
+    public static final String STATUSCOOKIE = "statuscookie";
+
     //Response types
     public static final String NONE = "none";
 
@@ -229,4 +232,6 @@ public final class OAuthConstants {
     private OAuthConstants(){
 
     }
+
+    public static final String LOGOUT_HTML = "<html><head><script>window.open(\"*\")</script></head><body></body></html>";
 }
