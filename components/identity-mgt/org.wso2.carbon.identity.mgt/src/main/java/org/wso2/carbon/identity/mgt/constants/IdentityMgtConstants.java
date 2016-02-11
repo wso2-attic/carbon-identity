@@ -214,5 +214,7 @@ public class IdentityMgtConstants {
 
         public static final String USER_ACCOUNT = " No user account found for user ";
 
+        public static final String USER_ACCOUNT_DISABLED = " User account is disabled";
+
     }
 }

@@ -188,8 +188,12 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
                     UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
 
+                    if(userIdentityDTO == null){
+                        return true;
+                    }
+
                     // if the account is locked, should not be able to log in
-                    if (userIdentityDTO != null && userIdentityDTO.isAccountLocked()) {
+                    if (userIdentityDTO.isAccountLocked()) {
 
                         // If unlock time is specified then unlock the account.
                         if ((userIdentityDTO.getUnlockTime() != 0) && (System.currentTimeMillis() >= userIdentityDTO.getUnlockTime())) {
@@ -216,6 +220,15 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                             throw new UserStoreException(UserCoreConstants.ErrorCode.USER_IS_LOCKED + " "
                                     + errorMsg);
                         }
+                    }
+
+
+                    //If account is disabled, user should not be able to log in
+                    if(userIdentityDTO.getIsAccountDisabled()){
+                        String errorMsg = "User account is disabled for user : " + userName;
+                        log.warn(errorMsg);
+                        throw new UserStoreException(IdentityMgtConstants.ErrorHandling.USER_ACCOUNT_DISABLED + " "
+                                + errorMsg);
                     }
                 }
             }

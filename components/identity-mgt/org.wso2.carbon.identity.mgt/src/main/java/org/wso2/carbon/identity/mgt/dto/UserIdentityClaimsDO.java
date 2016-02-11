@@ -45,6 +45,7 @@ public class UserIdentityClaimsDO implements Serializable {
     private long lastFailAttemptTime;
     private int failedAttempts;
     private boolean accountLock;
+    private boolean isAccountDisabled;
     private boolean passwordChangeRequired;
     private boolean oneTimeLogin;
     private Map<String, String> userIdentityDataMap = new HashMap<String, String>();
@@ -97,6 +98,9 @@ public class UserIdentityClaimsDO implements Serializable {
         }
         if (userDataMap.get(UserIdentityDataStore.ACCOUNT_LOCK) != null) {
             setAccountLock(Boolean.parseBoolean(userDataMap.get(UserIdentityDataStore.ACCOUNT_LOCK)));
+        }
+        if (userDataMap.get(UserIdentityDataStore.ACCOUNT_DISABLED) != null) {
+            setAccountDisabled(Boolean.parseBoolean(userDataMap.get(UserIdentityDataStore.ACCOUNT_DISABLED)));
         }
     }
 
@@ -261,6 +265,14 @@ public class UserIdentityClaimsDO implements Serializable {
 
     public void setConfirmationCode(String confirmationCode) {
         this.confirmationCode = confirmationCode;
+    }
+
+    public Boolean getIsAccountDisabled(){
+        return isAccountDisabled;
+    }
+
+    public void setAccountDisabled(boolean isAccountDisabled) {
+        this.isAccountDisabled = isAccountDisabled;
     }
 
     /**
