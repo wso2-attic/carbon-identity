@@ -31,20 +31,13 @@
     <url>http://wso2.org</url>
 
     <modules>
-        <module>agents</module>
         <module>authorization</module>
-        <module>carbon-authenticators</module>
         <module>inbound-authentication</module>
-        <module>inbound-autheticators</module>
         <module>inbound-provisioning</module>
-        <module>inbound-provisioning-connectors</module>
         <module>keystore-mgt</module>
         <module>notification-mgt</module>
         <module>outbound-authentication</module>
-        <module>outbound-authenticators</module>
         <module>outbound-provisioning</module>
-        <module>outbound-provisioning-connectors</module>
-        <module>sts</module>
         <module>user-mgt</module>
         <module>workflow</module>
     </modules>

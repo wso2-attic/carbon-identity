@@ -67,19 +67,7 @@
                                     org.wso2.carbon.identity.mgt
                                 </importFeatureDef>
                                 <importFeatureDef>
-                                    org.wso2.carbon.um.ws.service
-                                </importFeatureDef>
-                                <importFeatureDef>
-                                    org.wso2.carbon.ldap.server
-                                </importFeatureDef>
-                                <importFeatureDef>
-                                    org.wso2.carbon.identity.user.registration
-                                </importFeatureDef>
-                                <importFeatureDef>
                                     org.wso2.carbon.identity.user.profile
-                                </importFeatureDef>
-                                <importFeatureDef>
-                                    org.wso2.carbon.identity.user.account.association
                                 </importFeatureDef>
                             </importFeatures>
                         </configuration>
