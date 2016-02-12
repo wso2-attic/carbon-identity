@@ -126,7 +126,7 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
         String callbackUrl = profile.getCallbackUrl();
         boolean isSaaSApp = profile.isSaasApp();
 
-        if (userId == null || userId.isEmpty()) {
+        if (StringUtils.isEmpty(userId)) {
             return null;
         }
 

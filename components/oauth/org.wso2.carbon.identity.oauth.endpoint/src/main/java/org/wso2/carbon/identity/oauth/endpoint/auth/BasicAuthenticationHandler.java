@@ -18,6 +18,7 @@
 package org.wso2.carbon.identity.oauth.endpoint.auth;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
@@ -102,7 +103,7 @@ public class BasicAuthenticationHandler implements OAuthAuthenticationHandler {
             String authHeader = new String(decodedAuthHeader, Charset.defaultCharset());
             String userName = authHeader.split(":")[0];
             String password = authHeader.split(":")[1];
-            if (userName != null && password != null) {
+            if (StringUtils.isNotEmpty(userName) && StringUtils.isNotEmpty(password)) {
                 String tenantDomain = MultitenantUtils.getTenantDomain(userName);
                 String tenantLessUserName = MultitenantUtils.getTenantAwareUsername(userName);
 
