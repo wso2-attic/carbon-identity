@@ -129,7 +129,9 @@ public class IdentitySAMLSSOServiceComponent {
                     + File.separator + "resources" + File.separator + "identity" + File.separator + "pages" + File.separator + "samlsso_response.html";
             fis = new FileInputStream(new File(redirectHtmlPath));
             ssoRedirectPage = new Scanner(fis, "UTF-8").useDelimiter("\\A").next();
-            log.debug("samlsso_response.html " + ssoRedirectPage);
+            if (log.isDebugEnabled()) {
+                log.debug("samlsso_response.html " + ssoRedirectPage);
+            }
 
             FileBasedConfigManager.getInstance().addServiceProviders();
 

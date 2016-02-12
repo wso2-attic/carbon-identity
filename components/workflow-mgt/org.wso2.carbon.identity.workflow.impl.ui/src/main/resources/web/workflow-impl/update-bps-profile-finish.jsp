@@ -99,7 +99,7 @@
             bpsProfile.setWorkerHostURL(workerHost);
             bpsProfile.setUsername(username);
 
-            if(password!=null && !password.isEmpty()) {
+            if(StringUtils.isNotBlank(password)) {
                 bpsProfile.setPassword(passwordAsArray);
             }
 

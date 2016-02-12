@@ -280,7 +280,6 @@
                          }else if(parameterMetaDataTmp.getInputType().equals(InputType.SELECT.value())){
 
             %>
-            //alert($("#<%=parameterMetaDataTmp.getName()%>").val());
             if($("#<%=parameterMetaDataTmp.getName()%>").val() == "<fmt:message key="select"/>"){
                 return false ;
             }
@@ -289,10 +288,6 @@
                         }else if(parameterMetaDataTmp.getInputType().equals(InputType.MULTIPLE_STEPS_USER_ROLE.value())){
 
             %>
-            //alert(stepOrder);
-            if(stepOrder > 0){
-                //alert($("#p-step-1-users").tokenizer('get'));
-            }
             if (stepOrder == 0 || ( $("#p-step-1-users").tokenizer('get') == "" && $("#p-step-1-roles").tokenizer('get') == "" )) {
                 return false;
             }
@@ -304,7 +299,6 @@
             }
 
             %>
-            //alert("out");
             return true ;
 
         }
@@ -626,7 +620,6 @@
 
                                         function cleanSteps(){
                                             for(var x = 1 ; x<= stepOrder ;  ){
-                                                //alert(x);
                                                 if ($("#p-step-" + x + "-users").tokenizer('get') == "" &&
                                                         $("#p-step-" + x + "-roles").tokenizer('get') == "") {
                                                     deleteStep(document.getElementById("delete-obj-"+x));
@@ -697,8 +690,6 @@
                     <jsp:param name="function-get-all-items" value="getSelectedItems"/>
                 </jsp:include>
             </div>
-            <!--div id="id-result-holder"></div>
-            <div id="id-navigator-holder"></div-->
         </div>
     </div>
 

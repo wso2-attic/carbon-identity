@@ -77,7 +77,8 @@ public class OAuthDynamicClientRegistrationEndpoint {
     @DELETE
     @Path("/{consumerKey}")
     public Response unRegister(@QueryParam("applicationName") String applicationName,
-            @QueryParam("userId") String userId, @PathParam("consumerKey") String consumerKey) {
+                               @QueryParam("userId") String userId,
+                               @PathParam("consumerKey") String consumerKey) {
         Response response;
         try {
             //Tenant flow starts when authorization happens in the basic auth handler

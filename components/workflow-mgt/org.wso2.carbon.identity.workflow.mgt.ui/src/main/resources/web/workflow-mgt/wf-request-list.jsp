@@ -21,7 +21,6 @@
            prefix="carbon" %>
 <%@ page import="org.apache.axis2.AxisFault" %>
 <%@ page import="org.apache.axis2.context.ConfigurationContext" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.wso2.carbon.CarbonConstants" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.WorkflowAdminServiceWorkflowException" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.ui.WorkflowAdminServiceClient" %>
@@ -38,6 +37,22 @@
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.bean.WorkflowRequest" %>
 <%@ page import="org.wso2.carbon.identity.workflow.mgt.stub.metadata.WorkflowEvent" %>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%! public static final String ADMIN_ERROR_PAGE = "../admin/error.jsp";
+    public static final String ALL_TASKS = "allTasks";
+    public static final String CREATED_AT = "createdAt";
+    private static final String FAILED_STATUS = "FAILED";
+    private static final String REJECTED_STATUS = "REJECTED";
+    private static final String APPROVED_STATUS = "APPROVED";
+    private static final String PENDING_STATUS = "PENDING";
+    private static final String REGION1_PAGINATION = "region=region1";
+    private static final String I18N_RESOURCDE_FILE = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    private static final String LOGGED_USER = "logged-user";
+    private static final String TIME_CATEGORY_TO_FILTER = "timeCategoryToFilter";
+    private static final String CREATED_AT_TO = "createdAtTo";
+    private static final String CREATED_AT_FROM = "createdAtFrom";
+    private static final String REQUEST_STATUS_FILTER = "requestStatusFilter";
+    private static final String REQUEST_TYPE_FILTER = "requestTypeFilter";
+%>
 <jsp:include page="../dialog/display_messages.jsp"/>
 
 <script type="text/javascript" src="extensions/js/vui.js"></script>
@@ -45,19 +60,19 @@
 <script type="text/javascript" src="../admin/js/main.js"></script>
 
 <%
-    String taskTypeFilter = request.getParameter("requestTypeFilter");
-    String statusToFilter = request.getParameter("requestStatusFilter");
-    String lowerBound = request.getParameter("createdAtFrom");
-    String upperBound = request.getParameter("createdAtTo");
-    String timeFilterCategory = request.getParameter("timeCategoryToFilter");
-    String loggedUser = (String) session.getAttribute("logged-user");
-    String bundle = "org.wso2.carbon.identity.workflow.mgt.ui.i18n.Resources";
+    String taskTypeFilter = request.getParameter(REQUEST_TYPE_FILTER);
+    String statusToFilter = request.getParameter(REQUEST_STATUS_FILTER);
+    String lowerBound = request.getParameter(CREATED_AT_FROM);
+    String upperBound = request.getParameter(CREATED_AT_TO);
+    String timeFilterCategory = request.getParameter(TIME_CATEGORY_TO_FILTER);
+    String loggedUser = (String) session.getAttribute(LOGGED_USER);
+    String bundle = I18N_RESOURCDE_FILE;
     ResourceBundle resourceBundle = ResourceBundle.getBundle(bundle, request.getLocale());
     WorkflowAdminServiceClient client;
     String forwardTo = null;
     WorkflowRequest[] associationToDisplay = new WorkflowRequest[0];
     WorkflowRequest[] requestList = null;
-    String paginationValue = "region=region1";
+    String paginationValue = REGION1_PAGINATION;
 
     String pageNumber = request.getParameter(WorkflowUIConstants.PARAM_PAGE_NUMBER);
     int pageNumberInt = 0;
@@ -93,11 +108,11 @@
             upperBound = "";
         }
         if (timeFilterCategory == null) {
-            timeFilterCategory = "createdAt";
+            timeFilterCategory = CREATED_AT;
         }
 
 
-        if (taskTypeFilter.equals("allTasks")) {
+        if (ALL_TASKS.equals(taskTypeFilter)) {
             requestList = client.getAllRequests(lowerBound, upperBound, timeFilterCategory, statusToFilter);
         } else {
             requestList = client.getRequestsCreatedByUser(loggedUser, lowerBound, upperBound, timeFilterCategory,
@@ -129,11 +144,11 @@
     } catch (WorkflowAdminServiceWorkflowException e) {
         String message = resourceBundle.getString("workflow.error.when.listing.services");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "../admin/error.jsp";
+        forwardTo = ADMIN_ERROR_PAGE;
     } catch (AxisFault e) {
         String message = resourceBundle.getString("workflow.error.when.initiating.service.client");
         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request);
-        forwardTo = "../admin/error.jsp";
+        forwardTo = ADMIN_ERROR_PAGE;
     }
 %>
 
@@ -266,7 +281,7 @@
                                         <fmt:message key="workflow.request.type"/>
                                         <select name="requestTypeFilter" id="requestTypeFilter"
                                                 onchange="getSelectedRequestType();">
-                                            <% if (taskTypeFilter.equals("allTasks")) { %>
+                                            <% if (ALL_TASKS.equals(taskTypeFilter)) { %>
                                             <option value="myTasks"><fmt:message key="myTasks"/></option>
                                             <option value="allTasks"
                                                     selected="selected"><fmt:message key="allTasks"/></option>
@@ -290,7 +305,7 @@
                                 <td style="border:0; !important">
                                     <nobr>
                                         <fmt:message key="workflow.request.status"/>
-                                        <% if (statusToFilter.equals("PENDING")) { %>
+                                        <% if (PENDING_STATUS.equals(statusToFilter)) { %>
 
                                         <select name="requestStatusFilter" id="requestStatusFilter"
                                                 onchange="getSelectedStatusType();">
@@ -302,7 +317,7 @@
                                             <option value="FAILED"><fmt:message key="failed"/></option>
                                         </select>
 
-                                        <%} else if (statusToFilter.equals("APPROVED")) { %>
+                                        <%} else if (APPROVED_STATUS.equals(statusToFilter)) { %>
 
                                         <select name="requestStatusFilter" id="requestStatusFilter"
                                                 onchange="getSelectedStatusType();">
@@ -314,7 +329,7 @@
                                             <option value="FAILED"><fmt:message key="failed"/></option>
                                         </select>
 
-                                        <%} else if (statusToFilter.equals("REJECTED")) { %>
+                                        <%} else if (REJECTED_STATUS.equals(statusToFilter)) { %>
 
                                         <select name="requestStatusFilter" id="requestStatusFilter"
                                                 onchange="getSelectedStatusType();">
@@ -326,7 +341,7 @@
                                             <option value="FAILED"><fmt:message key="failed"/></option>
                                         </select>
 
-                                        <%} else if (statusToFilter.equals("FAILED")) { %>
+                                        <%} else if (FAILED_STATUS.equals(statusToFilter)) { %>
 
                                         <select name="requestStatusFilter" id="requestStatusFilter"
                                                 onchange="getSelectedStatusType();">
@@ -362,7 +377,7 @@
                             <tr style="border:0; !important">
                                 <td style="border:0; !important">
                                     <nobr>
-                                        <% if (timeFilterCategory.equals("updatedAt")) { %>
+                                        <% if ("updatedAt".equals(timeFilterCategory)) { %>
                                         <select name="timeCategoryToFilter" id="timeCategoryToFilter"
                                                 onchange="getSelectedRequestType();">
                                             <option value="createdAt"><fmt:message key="createdAt"/></option>
@@ -426,7 +441,7 @@
                     if (requestList != null && requestList.length > 0) {
                         for (WorkflowRequest workflowReq : associationToDisplay) {
                             if (workflowReq != null && (statusToFilter == null || statusToFilter == ""
-                                    || statusToFilter.equals("allTasks") || workflowReq.getStatus().equals(statusToFilter))) {
+                                    || ALL_TASKS.equals(statusToFilter) || workflowReq.getStatus().equals(statusToFilter))) {
                 %>
                 <tr>
                     <td><%=Encode.forHtmlContent(workflowReq.getEventType())%>
@@ -445,9 +460,8 @@
                            onclick="listWorkflows('<%=workflowReq.getRequestId()%>');return false;"
                            href="#" style="background-image: url(images/list.png);"
                            class="icon-link"><fmt:message key='workflows'/></a>
-                        <% if ( workflowReq.getStatus().equals("PENDING") && CarbonUIUtil.isUserAuthorized(request,
-                                "/permission/admin/manage/identity/workflow/monitor/delete"))
-                        { %>
+                        <% if (PENDING_STATUS.equals(workflowReq.getStatus()) && CarbonUIUtil.isUserAuthorized(request,
+                                "/permission/admin/manage/identity/workflow/monitor/delete")) { %>
                         <a title="<fmt:message key='workflow.request.delete.title'/>"
                            onclick="removeRequest('<%=workflowReq.getRequestId()%>');return false;"
                            href="#" style="background-image: url(images/delete.gif);"
