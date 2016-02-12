@@ -15,49 +15,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.wso2.carbon.identity.oauth.endpoint.oauthdcr;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.dcr.DynamicClientRegistrationException;
 import org.wso2.carbon.identity.oauth.dcr.DynamicClientRegistrationService;
 import org.wso2.carbon.identity.oauth.dcr.OAuthApplicationInfo;
 import org.wso2.carbon.identity.oauth.dcr.dto.FaultResponse;
 import org.wso2.carbon.identity.oauth.dcr.profile.RegistrationProfile;
 import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
-import org.wso2.carbon.user.api.UserRealm;
-import org.wso2.carbon.user.api.UserStoreException;
-import org.wso2.carbon.user.core.service.RealmService;
-import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 
-@Path("/register")
-@Consumes(MediaType.APPLICATION_JSON)
-@Produces(MediaType.APPLICATION_JSON)
+@Path("/")
 public class OAuthDynamicClientRegistrationEndpoint {
 
     private static final Log log = LogFactory.getLog(OAuthDynamicClientRegistrationEndpoint.class);
-    private static final String BASIC_AUTH_HEADER = "Basic";
 
     @POST
-    public Response register(RegistrationProfile profile, @Context HttpServletRequest request) {
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response register(RegistrationProfile profile) {
         /**
          * sample message to this method
          * {
          * "callbackUrl": "www.google.lk",
-         * "clientName": "mdm",
+         * "clientName": "testApp1",
          * "tokenScope": "Production",
          * "owner": "admin",
          * "grantType": "password refresh_token",
@@ -65,15 +52,8 @@ public class OAuthDynamicClientRegistrationEndpoint {
          *}
          */
         Response response;
-        boolean isClientAuthenticated = isAuthenticated(request);
-        if (!isClientAuthenticated) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity("Unauthorized user").build();
-        }
         try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                    .setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            //Tenant flow starts when authorization happens in the basic auth handler
             DynamicClientRegistrationService dynamicClientRegistrationService = EndpointUtil
                     .getDynamicClientRegistrationService();
             if (dynamicClientRegistrationService != null) {
@@ -95,19 +75,12 @@ public class OAuthDynamicClientRegistrationEndpoint {
     }
 
     @DELETE
+    @Path("/{consumerKey}")
     public Response unRegister(@QueryParam("applicationName") String applicationName,
-            @QueryParam("userId") String userId, @QueryParam("consumerKey") String consumerKey,
-            @Context HttpServletRequest request) {
+            @QueryParam("userId") String userId, @PathParam("consumerKey") String consumerKey) {
         Response response;
-        boolean isClientAuthenticated = isAuthenticated(request);
-        if (!isClientAuthenticated) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity("Unauthorized user").build();
-        }
         try {
-            PrivilegedCarbonContext.startTenantFlow();
-            PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                    .setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            //Tenant flow starts when authorization happens in the basic auth handler
             DynamicClientRegistrationService dynamicClientRegistrationService = EndpointUtil.
                     getDynamicClientRegistrationService();
             if (dynamicClientRegistrationService != null) {
@@ -130,109 +103,5 @@ public class OAuthDynamicClientRegistrationEndpoint {
             PrivilegedCarbonContext.endTenantFlow();
         }
         return response;
-    }
-
-    /**
-     * This method checks whether the authorization header is present in the request, and if present, whether it is
-     * for Basic Authentication
-     *
-     * @param authorizationHeader - Authorization header sent in the request
-     * @return Whether the authorization header is present and can be handled
-     */
-    private static boolean canHandle(String authorizationHeader) {
-        if (authorizationHeader != null && authorizationHeader.contains(BASIC_AUTH_HEADER)) {
-            return true;
-        } else {
-            log.error("Authorization header is either not present in the request or cannot be handled");
-            return false;
-        }
-    }
-
-    /**
-     * This method will perform Basic Authentication for the user credentials supplied in the request
-     *
-     * @param request The HttpServletRequest
-     * @return Whether the user is authenticated or not
-     */
-    private static boolean isAuthenticated(@Context HttpServletRequest request) {
-        //get the authorization header from the request
-        String authorizationHeader = request.getHeader(OAuthConstants.HTTP_REQ_HEADER_AUTHZ);
-        if (canHandle(authorizationHeader)) {
-            //then decode the header and extract the username and the password
-            String[] tempArr = authorizationHeader.split(" ");
-            if (tempArr.length == 2) {
-                String decodedBasicAuthHeader = null;
-                String userName = null;
-                String password = null;
-                try {
-                    decodedBasicAuthHeader = new String(
-                            Base64.decodeBase64(tempArr[1].getBytes(Charset.forName("UTF-8"))), "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    String msg = "Unsupported Encoding";
-                    log.error(msg, e);
-                }
-                if (decodedBasicAuthHeader != null) {
-                    tempArr = decodedBasicAuthHeader.split(":");
-                    if (tempArr.length == 2) {
-                        userName = tempArr[0];
-                        password = tempArr[1];
-                    }
-                }
-                if (userName != null && password != null) {
-                    String tenantDomain = MultitenantUtils.getTenantDomain(userName);
-                    String tenantLessUserName = MultitenantUtils.getTenantAwareUsername(userName);
-
-                    try {
-                        // get super tenant context and get realm service which is an osgi service
-                        RealmService realmService = (RealmService) PrivilegedCarbonContext.getThreadLocalCarbonContext()
-                                .getOSGiService(RealmService.class, null);
-                        if (realmService != null) {
-                            int tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
-                            if (tenantId == -1) {
-                                log.error("Invalid tenant domain " + tenantDomain);
-                                return false;
-                            }
-                            // get tenant's user realm
-                            UserRealm userRealm = realmService.getTenantUserRealm(tenantId);
-                            boolean authenticated = userRealm.getUserStoreManager()
-                                    .authenticate(tenantLessUserName, password);
-                            if (authenticated) {
-                                return true;
-                            } else {
-                                DynamicClientRegistrationException unauthorizedException = new DynamicClientRegistrationException(
-                                        "Authentication failed for the user: " + tenantLessUserName + "@"
-                                                + tenantDomain);
-                                log.error(unauthorizedException.getErrorMessage());
-                                return false;
-                            }
-                        } else {
-                            log.error("Error in getting Realm Service for user: " + userName);
-                            DynamicClientRegistrationException internalServerException = new DynamicClientRegistrationException(
-                                    "Internal server error while authenticating the user: " + tenantLessUserName + "@"
-                                            + tenantDomain);
-                            log.error(internalServerException.getErrorMessage());
-                            return false;
-                        }
-
-                    } catch (UserStoreException e) {
-                        DynamicClientRegistrationException internalServerException = new DynamicClientRegistrationException(
-                                "Internal server error while authenticating the user.");
-                        log.error(internalServerException.getErrorMessage(), e);
-                        return false;
-                    }
-                } else {
-                    DynamicClientRegistrationException unauthorizedException = new DynamicClientRegistrationException(
-                            "Authentication required for this resource. Username or password not provided.");
-                    log.error(unauthorizedException.getErrorMessage());
-                    return false;
-                }
-            } else {
-                DynamicClientRegistrationException internalServerException = new DynamicClientRegistrationException(
-                        "Invalid Authorization Header in the request.");
-                log.error(internalServerException.getErrorMessage());
-                return false;
-            }
-        }
-        return false;
     }
 }

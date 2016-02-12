@@ -90,7 +90,6 @@ public class OAuthServerConfiguration {
     private long refreshTokenValidityPeriodInSeconds = 24L * 3600;
     private long timeStampSkewInSeconds = 300;
     private String tokenPersistenceProcessorClassName = "org.wso2.carbon.identity.oauth.tokenprocessor.PlainTextPersistenceProcessor";
-    //private String oauthDynamicClientRegistrationImplClass = "org.wso2.carbon.identity.oauth.dcr.impl.DynamicClientRegistrationServiceImpl";
     private String oauthTokenGeneratorClassName;
     private OAuthIssuer oauthTokenGenerator;
     private boolean cacheEnabled = true;
@@ -99,7 +98,6 @@ public class OAuthServerConfiguration {
     private boolean accessTokenPartitioningEnabled = false;
     private String accessTokenPartitioningDomains = null;
     private TokenPersistenceProcessor persistenceProcessor = null;
-    //private DynamicClientRegistrationService dynamicClientRegistrationService = null;
     private Set<OAuthCallbackHandlerMetaData> callbackHandlerMetaData = new HashSet<>();
     private Map<String, String> supportedGrantTypeClassNames = new HashMap<>();
     private Map<String, AuthorizationGrantHandler> supportedGrantTypes;
@@ -192,9 +190,6 @@ public class OAuthServerConfiguration {
 
         // read token persistence processor config
         parseTokenPersistenceProcessorConfig(oauthElem);
-
-        // read dynamic client registration service config
-       // parseOAuthDynamicClientRegistrationConfig(oauthElem);
 
         // read supported grant types
         parseSupportedGrantTypesConfig(oauthElem);
@@ -591,8 +586,6 @@ public class OAuthServerConfiguration {
         return authContextTTL;
     }
 
-    //public String getOauthDynamicClientRegistrationImplClass() { return oauthDynamicClientRegistrationImplClass; }
-
     public TokenPersistenceProcessor getPersistenceProcessor() throws IdentityOAuth2Exception {
         if (persistenceProcessor == null) {
             synchronized (this) {
@@ -620,34 +613,6 @@ public class OAuthServerConfiguration {
         }
         return persistenceProcessor;
     }
-
-    /*public DynamicClientRegistrationService getDynamicClientRegistrationService() throws IdentityOAuth2Exception {
-        if (dynamicClientRegistrationService == null) {
-            synchronized (this) {
-                if (dynamicClientRegistrationService == null) {
-                    try {
-                        Class clazz =
-                                this.getClass().getClassLoader()
-                                        .loadClass(oauthDynamicClientRegistrationImplClass);
-                        dynamicClientRegistrationService = (DynamicClientRegistrationService) clazz.newInstance();
-
-                        if (log.isDebugEnabled()) {
-                            log.debug("An instance of " + oauthDynamicClientRegistrationImplClass +
-                                    " is created for OAuthServerConfiguration.");
-                        }
-
-                    } catch (Exception e) {
-                        String errorMsg =
-                                "Error when instantiating the DynamicClientRegistrationService : " +
-                                        oauthDynamicClientRegistrationImplClass + ". Defaulting to DynamicClientRegistrationServiceImpl";
-                        log.error(errorMsg, e);
-                        dynamicClientRegistrationService = new DynamicClientRegistrationServiceImpl();
-                    }
-                }
-            }
-        }
-        return dynamicClientRegistrationService;
-    }*/
 
     /**
      * Return an instance of the IDToken builder
@@ -1086,20 +1051,6 @@ public class OAuthServerConfiguration {
 
     }
 
-    /*private void parseOAuthDynamicClientRegistrationConfig(OMElement oauthConfigElem) {
-
-        OMElement dynamicClientRegistrationConfigElem =
-                oauthConfigElem.getFirstChildWithName(getQNameWithIdentityNS(ConfigElements.OAUTH_DYNAMIC_CLIENT_REGISTRATION_IMPL_CLASS));
-        if (dynamicClientRegistrationConfigElem != null && !"".equals(dynamicClientRegistrationConfigElem.getText().trim())) {
-            oauthDynamicClientRegistrationImplClass = dynamicClientRegistrationConfigElem.getText().trim();
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("OAuth Dynamic Client Registration Impl class was set to : " + dynamicClientRegistrationConfigElem);
-        }
-
-    }*/
-
     /**
      * parse the configuration to load the class name of the OAuth 2.0 token generator.
      * this is a global configuration at the moment.
@@ -1503,8 +1454,6 @@ public class OAuthServerConfiguration {
         private static final String RENEW_REFRESH_TOKEN_FOR_REFRESH_GRANT = "RenewRefreshTokenForRefreshGrant";
         // TokenPersistenceProcessor
         private static final String TOKEN_PERSISTENCE_PROCESSOR = "TokenPersistenceProcessor";
-        // Dynamic Client Registration
-        private static final String OAUTH_DYNAMIC_CLIENT_REGISTRATION_IMPL_CLASS = "OAuthDynamicClientRegistrationImplClass";
         // Token issuer generator.
         private static final String OAUTH_TOKEN_GENERATOR = "OAuthTokenGenerator";
 

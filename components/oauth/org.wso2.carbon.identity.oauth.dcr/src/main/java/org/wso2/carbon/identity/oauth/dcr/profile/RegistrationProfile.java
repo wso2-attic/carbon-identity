@@ -17,8 +17,6 @@
  */
 package org.wso2.carbon.identity.oauth.dcr.profile;
 
-import java.util.Arrays;
-
 /**
  * DTO class to be used when registering an OAuth application.
  */
@@ -87,7 +85,7 @@ public class RegistrationProfile {
     }
 
     public String[] getRedirectUris() {
-        return Arrays.copyOf(redirectUris, redirectUris.length);
+        return redirectUris;
     }
 
     public void setRedirectUris(String[] redirectUris) {
@@ -159,7 +157,7 @@ public class RegistrationProfile {
     }
 
     public String[] getContacts() {
-        return Arrays.copyOf(contacts, contacts.length);
+        return contacts;
     }
 
     public void setContacts(String[] contacts) {
@@ -167,7 +165,7 @@ public class RegistrationProfile {
     }
 
     public String[] getRequestUris() {
-        return Arrays.copyOf(requestUris, requestUris.length);
+        return requestUris;
     }
 
     public void setRequestUris(String[] requestUris) {

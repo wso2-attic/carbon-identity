@@ -29,10 +29,16 @@
             <ref bean="tokenEndpointBean"/>
             <ref bean="revokeEndpointBean"/>
             <ref bean="userinfoEndpointBean"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+    <jaxrs:server id="DCRegistrationService" address="/register">
+        <jaxrs:serviceBeans>
             <ref bean="oauthdcrEndpointBean"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
             <ref bean="jsonProvider"/>
+            <ref bean="oauthAuthFilter"/>
         </jaxrs:providers>
     </jaxrs:server>
 
@@ -42,4 +48,5 @@
     <bean id="userinfoEndpointBean" class="org.wso2.carbon.identity.oauth.endpoint.user.OpenIDConnectUserEndpoint"/>
     <bean id="oauthdcrEndpointBean" class="org.wso2.carbon.identity.oauth.endpoint.oauthdcr.OAuthDynamicClientRegistrationEndpoint"/>
     <bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
+    <bean id="oauthAuthFilter" class="org.wso2.carbon.identity.oauth.endpoint.filter.OAuthAuthenticationFilter"/>
 </beans>

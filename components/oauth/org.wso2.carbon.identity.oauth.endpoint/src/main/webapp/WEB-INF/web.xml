@@ -85,7 +85,7 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Secured Dynamic Client Registration</web-resource-name>
-            <url-pattern>/register</url-pattern>
+            <url-pattern>/register/*</url-pattern>
             <http-method>POST</http-method>
             <http-method>DELETE</http-method>
         </web-resource-collection>
@@ -93,5 +93,9 @@
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
+
+    <listener>
+        <listener-class>org.wso2.carbon.identity.oauth.endpoint.impl.ApplicationInitializer</listener-class>
+    </listener>
 
 </web-app>

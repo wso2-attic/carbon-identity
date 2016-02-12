@@ -134,15 +134,6 @@ public class EndpointUtil {
     }
 
     /**
-     * Returns the OAuth Dynamic Client Registration Impl class name
-     *
-     * @return
-     */
-    /*public static String getOAuthDynamicClientRegistrationServiceImplClass() {
-        return getOAuthServerConfiguration().getOauthDynamicClientRegistrationImplClass();
-    }*/
-
-    /**
      * Return the claim dialect for the claim retriever
      *
      * @return

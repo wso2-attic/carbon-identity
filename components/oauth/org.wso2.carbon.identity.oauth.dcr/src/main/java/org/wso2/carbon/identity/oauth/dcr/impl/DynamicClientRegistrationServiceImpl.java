@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.identity.oauth.dcr.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
@@ -36,10 +37,7 @@ import org.wso2.carbon.identity.oauth.dcr.OAuthApplicationInfo;
 import org.wso2.carbon.identity.oauth.dcr.internal.DynamicClientRegistrationDataHolder;
 import org.wso2.carbon.identity.oauth.dcr.profile.RegistrationProfile;
 import org.wso2.carbon.identity.oauth.dcr.util.DCRConstants;
-import org.wso2.carbon.identity.oauth.dcr.util.DynamicClientRegistrationUtil;
 import org.wso2.carbon.identity.oauth.dto.OAuthConsumerAppDTO;
-import org.wso2.carbon.identity.sso.saml.admin.SAMLSSOConfigAdmin;
-import org.wso2.carbon.identity.sso.saml.dto.SAMLSSOServiceProviderDTO;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -52,16 +50,9 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
     private static final Log log = LogFactory.getLog(DynamicClientRegistrationServiceImpl.class);
 
     private static final String TOKEN_SCOPE = "tokenScope";
-    private static final String SAML_SSO = "samlsso";
-    private static final String BASIC_AUTHENTICATOR = "BasicAuthenticator";
-    private static final String BASIC = "basic";
-    private static final String LOCAL = "local";
     private static final String AUTH_TYPE_OAUTH_2 = "oauth2";
     private static final String OAUTH_CONSUMER_SECRET = "oauthConsumerSecret";
-    private static final int STEP_ORDER = 1;
     private static final String OAUTH_VERSION = "OAuth-2.0";
-
-    private static final String APPLICATION_TYPE_WEBAPP = "webapp";
 
     /**
      * This method will register a new OAuth application using the data provided by
@@ -222,37 +213,6 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
                 Property[] properties = { property };
                 inboundAuthenticationRequestConfig.setProperties(properties);
             }
-
-            if (APPLICATION_TYPE_WEBAPP.equals(profile.getApplicationType())) {
-                SAMLSSOServiceProviderDTO samlssoServiceProviderDTO = new SAMLSSOServiceProviderDTO();
-                samlssoServiceProviderDTO.setIssuer(applicationName);
-
-                SAMLSSOConfigAdmin configAdmin = new SAMLSSOConfigAdmin(getConfigSystemRegistry());
-                configAdmin.addRelyingPartyServiceProvider(samlssoServiceProviderDTO);
-
-                InboundAuthenticationRequestConfig samlAuthenticationRequest = new InboundAuthenticationRequestConfig();
-                samlAuthenticationRequest.setInboundAuthKey(applicationName);
-                samlAuthenticationRequest.setInboundAuthType(SAML_SSO);
-                inboundAuthenticationRequestConfigs.add(samlAuthenticationRequest);
-            }
-
-            LocalAuthenticatorConfig localAuth = new LocalAuthenticatorConfig();
-            localAuth.setName(BASIC_AUTHENTICATOR);
-            localAuth.setDisplayName(BASIC);
-            localAuth.setEnabled(true);
-
-            AuthenticationStep authStep = new AuthenticationStep();
-            authStep.setStepOrder(STEP_ORDER);
-            authStep.setSubjectStep(true);
-            authStep.setAttributeStep(true);
-
-            authStep.setLocalAuthenticatorConfigs(new LocalAuthenticatorConfig[] { localAuth });
-
-            LocalAndOutboundAuthenticationConfig localOutboundAuthConfig = new LocalAndOutboundAuthenticationConfig();
-            localOutboundAuthConfig.setAuthenticationType(LOCAL);
-            localOutboundAuthConfig.setAuthenticationSteps(new AuthenticationStep[] { authStep });
-            createdServiceProvider.setLocalAndOutBoundAuthenticationConfig(localOutboundAuthConfig);
-
             inboundAuthenticationRequestConfigs.add(inboundAuthenticationRequestConfig);
             inboundAuthenticationConfig.setInboundAuthenticationRequestConfigs(inboundAuthenticationRequestConfigs
                     .toArray(new InboundAuthenticationRequestConfig[inboundAuthenticationRequestConfigs.size()]));
@@ -297,9 +257,12 @@ public class DynamicClientRegistrationServiceImpl implements DynamicClientRegist
     @Override
     public boolean unregisterOAuthApplication(String userId, String applicationName, String consumerKey)
             throws DynamicClientRegistrationException {
-        DynamicClientRegistrationUtil.validateUsername(userId);
-        DynamicClientRegistrationUtil.validateApplicationName(applicationName);
-        DynamicClientRegistrationUtil.validateConsumerKey(consumerKey);
+
+        if (!StringUtils.isNotEmpty(userId) || !StringUtils.isNotEmpty(applicationName) || !StringUtils
+                .isNotEmpty(consumerKey)) {
+            throw new DynamicClientRegistrationException(
+                    "Username, Application Name and Consumer Key cannot be null or empty");
+        }
 
         boolean status = false;
         String tenantDomain = MultitenantUtils.getTenantDomain(userId);
