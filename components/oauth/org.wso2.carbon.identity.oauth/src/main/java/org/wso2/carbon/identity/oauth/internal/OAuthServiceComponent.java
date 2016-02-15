@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.identity.oauth.listener.CacheClearingUserOperationListener;
 import org.wso2.carbon.identity.oauth.cache.OAuthCache;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.listener.IdentityOathEventListener;
@@ -62,6 +63,9 @@ public class OAuthServiceComponent {
         listener = new IdentityOathEventListener();
         serviceRegistration = context.getBundleContext().registerService(UserOperationEventListener.class.getName(),
                 listener, null);
+
+        CacheClearingUserOperationListener userOperationListener = new CacheClearingUserOperationListener();
+        context.getBundleContext().registerService(UserOperationEventListener.class.getName(), userOperationListener, null);
         log.debug("Identity Oath Event Listener is enabled");
 
         if (log.isDebugEnabled()) {

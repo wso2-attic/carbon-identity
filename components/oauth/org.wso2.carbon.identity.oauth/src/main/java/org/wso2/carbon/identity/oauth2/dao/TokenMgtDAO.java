@@ -973,6 +973,53 @@ public class TokenMgtDAO {
     }
 
     /**
+     *
+     * @param tenantId
+     * @param userName
+     * @param userId
+     * @throws IdentityOAuth2Exception
+     */
+    public Set<String> getAccessTokenListForUserByTenant(String tenantId, String userName, String userId) throws IdentityOAuth2Exception {
+
+        String accessTokenStoreTable = OAuthConstants.ACCESS_TOKEN_STORE_TABLE;
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Set<String> accessTokenList = new HashSet<>();
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userId);
+        try {
+            if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
+                    OAuth2Util.checkUserNameAssertionEnabled()) {
+                accessTokenStoreTable = OAuth2Util.getAccessTokenStoreTableFromUserId(userId);
+            }
+            String sqlQuery = SQLQueries.GET_ACCESS_TOKEN_BY_AUTHZUSER_AND_TENANTID.replace(
+                    IDN_OAUTH2_ACCESS_TOKEN, accessTokenStoreTable);
+            if (!isUsernameCaseSensitive){
+                sqlQuery = sqlQuery.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
+            }
+            ps = connection.prepareStatement(sqlQuery);
+            if (isUsernameCaseSensitive) {
+                ps.setString(1, userName);
+            } else {
+                ps.setString(1, userName.toLowerCase());
+            }
+            ps.setString(2, tenantId);
+            rs = ps.executeQuery();
+            while (rs.next()){
+                accessTokenList.add(rs.getString(1));
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            IdentityDatabaseUtil.rollBack(connection);
+            throw new IdentityOAuth2Exception("Error occurred while revoking Access Token with user Name : " +
+                    userName + " tenant ID : " + tenantId, e);
+        }  finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
+        }
+        return accessTokenList;
+    }
+
+    /**
      * This method is to list the application authorized by OAuth resource owners
      *
      * @param authzUser username of the resource owner

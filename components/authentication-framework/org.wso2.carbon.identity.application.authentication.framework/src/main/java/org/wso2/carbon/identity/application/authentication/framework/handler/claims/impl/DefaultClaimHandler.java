@@ -362,8 +362,7 @@ public class DefaultClaimHandler implements ClaimHandler {
         // if standard dialect get all claim mappings from standard dialect to carbon dialect
         spToLocalClaimMappings = getStanderDialectToCarbonMapping(spStandardDialect, context, spToLocalClaimMappings,
                 tenantDomain);
-        if (StringUtils.isNotBlank(spStandardDialect) && (!StringUtils.equals(spStandardDialect, ApplicationConstants
-                .LOCAL_IDP_DEFAULT_CLAIM_DIALECT) || !isLocalClaimDialect)) {
+        if (StringUtils.isNotBlank(spStandardDialect) && (!StringUtils.equals(spStandardDialect, ApplicationConstants.LOCAL_IDP_DEFAULT_CLAIM_DIALECT))) {
             carbonToStandardClaimMapping = getCarbonToStandardDialectMapping(spStandardDialect, context,
                     spToLocalClaimMappings, tenantDomain);
             requestedClaimMappings = mapRequestClaimsInStandardDialect(requestedClaimMappings,
