@@ -63,10 +63,10 @@ public class OAuthServiceComponent {
         listener = new IdentityOathEventListener();
         serviceRegistration = context.getBundleContext().registerService(UserOperationEventListener.class.getName(),
                 listener, null);
-
+        log.debug("Identity Oath Event Listener is enabled");
         CacheClearingUserOperationListener userOperationListener = new CacheClearingUserOperationListener();
         context.getBundleContext().registerService(UserOperationEventListener.class.getName(), userOperationListener, null);
-        log.debug("Identity Oath Event Listener is enabled");
+        log.debug("Cache Clearing on user profile update Listener is enabled");
 
         if (log.isDebugEnabled()) {
             log.info("Identity OAuth bundle is activated");
