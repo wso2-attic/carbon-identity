@@ -641,7 +641,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
             if (reqValidationDTO.isPassive()) { //if passive
 
-                String destination = reqValidationDTO.getDestination();
+                String destination = reqValidationDTO.getAssertionConsumerURL();
 
                 if (SAMLSSOUtil.validateACS(sessionDTO.getTenantDomain(), sessionDTO.getIssuer(), reqValidationDTO
                         .getAssertionConsumerURL())) {
@@ -1028,7 +1028,11 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         if (object != null) {
             AuthenticatorFlowStatus status = (AuthenticatorFlowStatus) object;
             if (status == AuthenticatorFlowStatus.INCOMPLETE) {
-                response.sendRedirect(responseWrapper.getRedirectURL());
+                if (responseWrapper.isRedirect()) {
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+                } else {
+                    return;
+                }
             } else {
                 doGet(requestWrapper, response);
             }
