@@ -54,17 +54,18 @@ public class CacheClearingUserOperationListener extends AbstractUserOperationEve
         String userStoreDomain = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
-        Set<String> accessTokenList;
+        Set<String> accessTokenAndAuthorizationCodeList;
         AuthenticatedUser authenticatedUser = new AuthenticatedUser();
         authenticatedUser.setUserStoreDomain(userStoreDomain);
         authenticatedUser.setTenantDomain(tenantDomain);
         authenticatedUser.setUserName(userName);
         try {
-            accessTokenList = tokenMgtDAO.getAccessTokenListForUserByTenant(Integer.toString(userStoreManager
-                            .getTenantId()), userName,
-                    authenticatedUser.toString());
-            if (accessTokenList != null && accessTokenList.size() > 0) {
-                for (String accessToken : accessTokenList) {
+            accessTokenAndAuthorizationCodeList = tokenMgtDAO.getAccessTokenListForUserByTenant(Integer.toString
+                    (userStoreManager.getTenantId()), userName, authenticatedUser.toString());
+            accessTokenAndAuthorizationCodeList.addAll(tokenMgtDAO.getAuthorizationCodeListForUserByTenant(Integer
+                    .toString(userStoreManager.getTenantId()), userName, authenticatedUser.toString()));
+            if (accessTokenAndAuthorizationCodeList != null && accessTokenAndAuthorizationCodeList.size() > 0) {
+                for (String accessToken : accessTokenAndAuthorizationCodeList) {
                     AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
                     AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache
                             .getInstance().getValueFromCacheByToken(cacheKey);

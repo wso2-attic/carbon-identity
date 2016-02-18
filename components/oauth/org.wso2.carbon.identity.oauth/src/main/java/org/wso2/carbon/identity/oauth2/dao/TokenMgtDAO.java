@@ -1020,6 +1020,74 @@ public class TokenMgtDAO {
     }
 
     /**
+     *
+     * @param tenantId
+     * @param userName
+     * @param userId
+     * @throws IdentityOAuth2Exception
+     */
+    public Set<String> getAuthorizationCodeListForUserByTenant(String tenantId, String userName, String userId) throws IdentityOAuth2Exception {
+
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Set<String> authorizationCodeList = new HashSet<>();
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userId);
+        try {
+            String sqlQuery = SQLQueries.GET_AUTHORIZATION_CODE_BY_AUTHZUSER_AND_TENANTID;
+            if (!isUsernameCaseSensitive){
+                sqlQuery = sqlQuery.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
+            }
+            ps = connection.prepareStatement(sqlQuery);
+            if (isUsernameCaseSensitive) {
+                ps.setString(1, userName);
+            } else {
+                ps.setString(1, userName.toLowerCase());
+            }
+            ps.setString(2, tenantId);
+            rs = ps.executeQuery();
+            while (rs.next()){
+                authorizationCodeList.add(rs.getString(1));
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            IdentityDatabaseUtil.rollBack(connection);
+            throw new IdentityOAuth2Exception("Error occurred while revoking Access Token with user Name : " +
+                    userName + " tenant ID : " + tenantId, e);
+        }  finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
+        }
+        return authorizationCodeList;
+    }
+
+    public Set<String> getSessionIDsFromSessionStoreForConsumerKey(String consumerKey) throws IdentityOAuth2Exception {
+        Connection connection = IdentityDatabaseUtil.getDBConnection();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Set<String> sessionIdList = new HashSet<>();
+        try {
+            String sqlQuery = SQLQueries.GET_SESSION_IDS_FOR_CONSUMER_KEY;
+            ps = connection.prepareStatement(sqlQuery);
+            ps.setString(1, consumerKey);
+            ps.setString(2, consumerKey);
+            ps.setString(3, consumerKey);
+            ps.setString(4, consumerKey);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                sessionIdList.add(rs.getString(1));
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            IdentityDatabaseUtil.rollBack(connection);
+            throw new IdentityOAuth2Exception("Error occurred while getting sessionIDs from Session Store for the " +
+                    "application with consumer key : " + consumerKey, e);
+        } finally {
+            IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
+        }
+        return sessionIdList;
+    }
+
+    /**
      * This method is to list the application authorized by OAuth resource owners
      *
      * @param authzUser username of the resource owner

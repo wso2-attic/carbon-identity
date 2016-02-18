@@ -26,13 +26,21 @@ import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import org.wso2.carbon.identity.application.mgt.listener.AbstractApplicationMgtListener;
 import org.wso2.carbon.identity.oauth.IdentityOAuthAdminException;
+import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
+import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
+import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
 import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
 import org.wso2.carbon.identity.oauth.dao.OAuthConsumerDAO;
+import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
+import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener {
-
     public static final String OAUTH2 = "oauth2";
     public static final String OAUTH2_CONSUMER_SECRET = "oauthConsumerSecret";
+    private static final String OAUTH = "oauth";
 
     @Override
     public int getDefaultOrderId() {
@@ -66,6 +74,7 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
 
         addClientSecret(serviceProvider);
         updateAuthApplication(serviceProvider);
+        removeAccessTokensAndAuthCodeFromCache(serviceProvider,tenantDomain,userName);
         return true;
     }
 
@@ -181,5 +190,47 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
         OAuthAppDAO dao = new OAuthAppDAO();
         dao.updateOAuthConsumerApp(serviceProvider.getApplicationName(),
                 authenticationRequestConfigConfig.getInboundAuthKey());
+    }
+
+    private void removeAccessTokensAndAuthCodeFromCache(ServiceProvider serviceProvider, String tenantDomain, String
+            userName) throws IdentityApplicationManagementException {
+        TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
+        Set<String> accessTokenAndAuthorizationCodeList = new HashSet<>();
+        Set<String> oauthKeyList = new HashSet<>();
+        try {
+            InboundAuthenticationConfig inboundAuthenticationConfig = serviceProvider.getInboundAuthenticationConfig();
+            if (inboundAuthenticationConfig != null) {
+                InboundAuthenticationRequestConfig[] inboundRequestConfigs = inboundAuthenticationConfig.
+                        getInboundAuthenticationRequestConfigs();
+                if (inboundRequestConfigs != null) {
+                    for (InboundAuthenticationRequestConfig inboundRequestConfig : inboundRequestConfigs) {
+                        if (StringUtils.equals(OAUTH2, inboundRequestConfig.getInboundAuthType()) || StringUtils
+                                .equals(inboundRequestConfig.getInboundAuthType(), OAUTH)) {
+                            oauthKeyList.add(inboundRequestConfig.getInboundAuthKey());
+                        }
+                    }
+                }
+            }
+            if (oauthKeyList.size() > 0) {
+                for (String oauthKey : oauthKeyList) {
+                    accessTokenAndAuthorizationCodeList.addAll(tokenMgtDAO
+                            .getSessionIDsFromSessionStoreForConsumerKey(oauthKey));
+                }
+            }
+            if (accessTokenAndAuthorizationCodeList.size() > 0) {
+                for (String accessToken : accessTokenAndAuthorizationCodeList) {
+                    AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
+                    AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache
+                            .getInstance().getValueFromCacheByToken(cacheKey);
+                    if (cacheEntry != null) {
+                        AuthorizationGrantCache.getInstance().clearCacheEntryByToken(cacheKey);
+                    }
+                }
+            }
+        } catch (IdentityOAuth2Exception e) {
+            throw new IdentityApplicationManagementException("Error occurred when removing oauth cache entries upon " +
+                    "service provider update. ", e);
+        }
+
     }
 }
