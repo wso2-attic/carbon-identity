@@ -42,7 +42,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultAuthenticationRequestHandler implements AuthenticationRequestHandler {
@@ -287,22 +286,9 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
             if (authenticatedUserTenantDomain == null) {
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             }
-
-            String auditData = "\"" + "ContextIdentifier" + "\" : \"" + context.getContextIdentifier()
-                               + "\",\"" + "AuthenticatedUser" + "\" : \"" + sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier()
-                               + "\",\"" + "AuthenticatedUserTenantDomain" + "\" : \"" + authenticatedUserTenantDomain
-                               + "\",\"" + "ServiceProviderName" + "\" : \"" + context.getServiceProviderName()
-                               + "\",\"" + "RequestType" + "\" : \"" + context.getRequestType()
-                               + "\",\"" + "RelyingParty" + "\" : \"" + context.getRelyingParty()
-                               + "\",\"" + "AuthenticatedIdPs" + "\" : \"" + sequenceConfig.getAuthenticatedIdPs()
-                               + "\"";
-
-            AUDIT_LOG.info(String.format(
-                    FrameworkConstants.AUDIT_MESSAGE,
-                    sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier(),
-                    "Login",
-                    "ApplicationAuthenticationFramework", auditData, FrameworkConstants.AUDIT_SUCCESS));
         }
+
+        doPostAuthentication(request, response, context);
 
         // Checking weather inbound protocol is an already cache removed one, request come from federated or other
         // authenticator in multi steps scenario. Ex. Fido
@@ -325,6 +311,28 @@ public class DefaultAuthenticationRequestHandler implements AuthenticationReques
         }
 
         sendResponse(request, response, context);
+    }
+
+    protected void doPostAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                        AuthenticationContext context) {
+
+        SequenceConfig sequenceConfig = context.getSequenceConfig();
+        String authenticatedUserTenantDomain = getAuthenticatedUserTenantDomain(context, null);
+        String auditData = "\"" + "ContextIdentifier" + "\" : \"" + context.getContextIdentifier()
+                + "\",\"" + "AuthenticatedUser" + "\" : \"" +
+                sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier()
+                + "\",\"" + "AuthenticatedUserTenantDomain" + "\" : \"" + authenticatedUserTenantDomain
+                + "\",\"" + "ServiceProviderName" + "\" : \"" + context.getServiceProviderName()
+                + "\",\"" + "RequestType" + "\" : \"" + context.getRequestType()
+                + "\",\"" + "RelyingParty" + "\" : \"" + context.getRelyingParty()
+                + "\",\"" + "AuthenticatedIdPs" + "\" : \"" + sequenceConfig.getAuthenticatedIdPs()
+                + "\"";
+
+        AUDIT_LOG.info(String.format(
+                FrameworkConstants.AUDIT_MESSAGE,
+                sequenceConfig.getAuthenticatedUser().getAuthenticatedSubjectIdentifier(),
+                "Login",
+                "ApplicationAuthenticationFramework", auditData, FrameworkConstants.AUDIT_SUCCESS));
     }
 
 
