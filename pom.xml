@@ -1190,11 +1190,11 @@
                 <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
 
-            <!--<dependency>-->
-                <!--<groupId>org.wso2.carbon.identity</groupId>-->
-                <!--<artifactId>org.wso2.carbon.identity.user.registration</artifactId>-->
-                <!--<version>${identity.framework.version}</version>-->
-            <!--</dependency>-->
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.user.registration</artifactId>
+                <version>${identity.framework.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.profile</artifactId>
@@ -1340,18 +1340,18 @@
                 <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
-            <!--<dependency>-->
-                <!--<groupId>org.wso2.carbon.identity</groupId>-->
-                <!--<artifactId>org.wso2.carbon.identity.user.registration.server.feature</artifactId>-->
-                <!--<version>${identity.framework.version}</version>-->
-                <!--<type>zip</type>-->
-            <!--</dependency>-->
-            <!--<dependency>-->
-                <!--<groupId>org.wso2.carbon.identity</groupId>-->
-                <!--<artifactId>org.wso2.carbon.identity.user.registration.ui.feature</artifactId>-->
-                <!--<version>${identity.framework.version}</version>-->
-                <!--<type>zip</type>-->
-            <!--</dependency>-->
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.user.registration.server.feature</artifactId>
+                <version>${identity.framework.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.user.registration.ui.feature</artifactId>
+                <version>${identity.framework.version}</version>
+                <type>zip</type>
+            </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.directory.service.mgr.server.feature</artifactId>
@@ -1855,7 +1855,7 @@
         <carbon.commons.imp.pkg.version>[4.4.0, 5.0.0)</carbon.commons.imp.pkg.version>
 
         <!--Carbon identity version-->
-        <identity.framework.version>5.0.9-SNAPSHOT</identity.framework.version>
+        <identity.framework.version>5.0.8-SNAPSHOT</identity.framework.version>
         <carbon.identity.package.export.version>${identity.framework.version}</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[5.0.0, 6.0.0)</carbon.identity.package.import.version.range>
 
