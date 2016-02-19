@@ -341,78 +341,78 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.common</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sso.agent</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
 
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.sts</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.security.mgt</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.security.mgt.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.security.mgt.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.security.mgt.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.security.mgt.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
@@ -429,50 +429,50 @@
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.ui</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.oauth.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.oauth.ui.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.oauth.common.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.claim.mgt.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.claim.mgt.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
 
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.ui.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
 
@@ -518,7 +518,7 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.security.mgt.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -571,13 +571,13 @@
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.common</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
 
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.authenticator.saml2.sso.stub</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
 
             <dependency>
@@ -589,74 +589,74 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.directory.server.manager.common</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.directory.server.manager</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.directory.server.manager.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.directory.server.manager.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.base</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.core</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.core.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.core.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.idp.mgt</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.application.common</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.notification.mgt</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.notification.mgt.email</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.notification.mgt.json</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>kaptcha.wso2</groupId>
@@ -672,7 +672,7 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.provider</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.ws.commons.axiom</groupId>
@@ -698,37 +698,37 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.provisioning</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.provisioning.connector.google</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.provisioning.connector.salesforce</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.provisioning.connector.scim</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.provisioning.connector.spml</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.provisioning.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.provisioning.connector.spml.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
 
             <dependency>
@@ -814,101 +814,101 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.application.authentication.framework.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.application.authenticator.basicauth.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.social</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.passive.sts</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.requestpath.basicauth</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.oidc.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.requestpath.oauth</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.samlsso.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.requestpath.basicauth.server.feature-->
                 <!--</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.facebook.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.requestpath.oauth.server.feature-->
                 <!--</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.passive.sts.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.tools.saml.validator</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.tools.saml.validator.ui</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.tools.saml.validator.stub</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.tools.saml.validator.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.tools.saml.validator.ui.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openid4java</groupId>
@@ -941,24 +941,24 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.relying.party.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.entitlement.common</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.xacml.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.xacml.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
@@ -974,19 +974,19 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.application.mgt.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.application.mgt.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sso.saml.stub</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>
@@ -1027,12 +1027,12 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.store.configuration.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.store.configuration</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.commons</groupId>
@@ -1042,7 +1042,7 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.idp.mgt.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -1075,7 +1075,7 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.application.authentication.endpoint.util</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
@@ -1091,436 +1091,436 @@
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.authenticator.iwa</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.authenticator.iwa.ui</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.authenticator.iwa.stub</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.authenticator.saml2.sso</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sso.saml.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sso.saml.ui.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.authenticator.token</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.authenticator.token.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.authenticator.token.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.authenticator.webseal</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.authenticator.webseal.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.authenticator.webseal.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.claim.mgt</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.claim.mgt.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.claim.mgt.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.core.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sts.mgt</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sts.mgt.ui</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.provider.openid.ui</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
 
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.user.registration</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.profile</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.profile.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.entitlement</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.entitlement.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sso.saml</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sso.saml.ui</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.oauth</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.oauth.ui</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.scim.common.stub</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.scim.common</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.scim.provider</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>war</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.scim.ui</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.scim.provider.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.scim.common.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.scim.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.scim.ui.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.entitlement.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.provider.openid.stub</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.provider.stub</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.provider.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sts.mgt.stub</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sts.passive.stub</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.profile.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.profile.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.profile.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sts.passive.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sts.passive.ui.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.user.registration.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.user.registration.ui.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.directory.service.mgr.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.directory.service.mgr.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.authenticator.thrift</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.authenticator.mutualssl</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.oauth.common</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
 
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.basicauth</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.openid.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
 
 
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.iwa</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
 
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.oidc</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.openid</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.samlsso</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.application.mgt</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.application.mgt.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.application.mgt.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sts.mgt.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sts.mgt.ui.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.mgt.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.sts.store</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.sts.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.sts.ui.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.application.authentication.endpoint</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>war</type>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.oauth.stub</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sts.passive</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.sts.passive.ui</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.entitlement.filter</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.entitlement.proxy</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.policyeditor</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.policyeditor.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.balana</groupId>
@@ -1530,18 +1530,18 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.idp.mgt.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.idp.mgt.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.idp.mgt.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
@@ -1558,189 +1558,189 @@
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.ldap.server</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.ldap.server.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
 
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.authenticator.iwa.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.authenticator.iwa.ui.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.notification.mgt.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
 
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.um.ws.api</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.um.ws.api.stub</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.um.ws.service</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.um.ws.service.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.um.ws.service.client.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
 
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.user.store.remote</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
 
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.sts.ui</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.sts.stub</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.workflow</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.workflow.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.workflow.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.workflow.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.store.configuration.deployer</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.store.configuration.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.user.account.association</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.user.account.association.stub</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.user.account.association.server.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.user.account.association.ui.feature</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>zip</type>-->
             <!--</dependency>-->
 
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.workflow.mgt</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.workflow.template</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.workflow.impl</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.workflow.mgt.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.workflow.impl.ui</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.workflow.mgt.bps.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.workflow.mgt.server.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.workflow.mgt.ui.feature</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.workflow.mgt.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.workflow.impl.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.workflow.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
 
             <!--Feature Dependencies Ends-->
@@ -1760,7 +1760,7 @@
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.oauth.endpoint</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
                 <!--<type>war</type>-->
             <!--</dependency>-->
             <dependency>
@@ -1816,12 +1816,12 @@
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.user.registration.stub</artifactId>
-                <version>${carbon.identity.version}</version>
+                <version>${identity.framework.version}</version>
             </dependency>
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.fido</artifactId>-->
-                <!--<version>${carbon.identity.version}</version>-->
+                <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
             <dependency>
                 <groupId>org.apache.oltu.oauth2</groupId>
@@ -1855,8 +1855,8 @@
         <carbon.commons.imp.pkg.version>[4.4.0, 5.0.0)</carbon.commons.imp.pkg.version>
 
         <!--Carbon identity version-->
-        <carbon.identity.version>5.0.8-SNAPSHOT</carbon.identity.version>
-        <carbon.identity.package.export.version>${carbon.identity.version}</carbon.identity.package.export.version>
+        <identity.framework.version>5.0.9-SNAPSHOT</identity.framework.version>
+        <carbon.identity.package.export.version>${identity.framework.version}</carbon.identity.package.export.version>
         <carbon.identity.package.import.version.range>[5.0.0, 6.0.0)</carbon.identity.package.import.version.range>
 
         <!--Carbon component version-->
