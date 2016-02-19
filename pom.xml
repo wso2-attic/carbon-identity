@@ -53,6 +53,7 @@
         <module>components/directory-server-manager</module>
         <module>components/security-mgt</module>
         <module>components/workflow-mgt</module>
+        <module>components/policy-editor</module>
         <module>features/security-mgt</module>
         <module>features/claim-mgt</module>
         <module>features/identity-core</module>
