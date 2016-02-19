@@ -1502,16 +1502,16 @@
                 <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
 
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.entitlement.filter</artifactId>
-                <version>${identity.framework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.identity.entitlement.proxy</artifactId>
-                <version>${identity.framework.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.wso2.carbon.identity</groupId>-->
+                <!--<artifactId>org.wso2.carbon.identity.entitlement.filter</artifactId>-->
+                <!--<version>${identity.framework.version}</version>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+                <!--<groupId>org.wso2.carbon.identity</groupId>-->
+                <!--<artifactId>org.wso2.carbon.identity.entitlement.proxy</artifactId>-->
+                <!--<version>${identity.framework.version}</version>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.policyeditor</artifactId>
