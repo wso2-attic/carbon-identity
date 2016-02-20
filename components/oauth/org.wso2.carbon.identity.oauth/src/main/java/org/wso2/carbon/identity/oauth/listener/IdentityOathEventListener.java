@@ -79,7 +79,7 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
 
     @Override
     public boolean doPostSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
-                                            UserStoreManager userStoreManager) throws UserStoreException{
+                                            UserStoreManager userStoreManager) throws UserStoreException {
         removeAccessTokenFromCache(userName, userStoreManager);
         if (!isEnable()) {
             return true;
