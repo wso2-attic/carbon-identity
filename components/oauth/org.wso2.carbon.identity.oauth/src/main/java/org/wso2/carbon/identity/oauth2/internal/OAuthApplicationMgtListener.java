@@ -195,7 +195,8 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
     private void removeAccessTokensAndAuthCodeFromCache(ServiceProvider serviceProvider, String tenantDomain, String
             userName) throws IdentityApplicationManagementException {
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
-        Set<String> accessTokenAndAuthorizationCodeList = new HashSet<>();
+        Set<String> accessTokenList = new HashSet<>();
+        Set<String> authorizationCodeList = new HashSet<>();
         Set<String> oauthKeyList = new HashSet<>();
         try {
             InboundAuthenticationConfig inboundAuthenticationConfig = serviceProvider.getInboundAuthenticationConfig();
@@ -213,17 +214,27 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
             }
             if (oauthKeyList.size() > 0) {
                 for (String oauthKey : oauthKeyList) {
-                    accessTokenAndAuthorizationCodeList.addAll(tokenMgtDAO
-                            .getSessionIDsFromSessionStoreForConsumerKey(oauthKey));
+                    accessTokenList.addAll(tokenMgtDAO.getActiveTokenListForConsumerKey(oauthKey));
+                    authorizationCodeList.addAll(tokenMgtDAO.getAuthorizationCodeListForConsumerKey(oauthKey));
                 }
             }
-            if (accessTokenAndAuthorizationCodeList.size() > 0) {
-                for (String accessToken : accessTokenAndAuthorizationCodeList) {
+            if (accessTokenList.size() > 0) {
+                for (String accessToken : accessTokenList) {
                     AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
                     AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache
                             .getInstance().getValueFromCacheByToken(cacheKey);
                     if (cacheEntry != null) {
                         AuthorizationGrantCache.getInstance().clearCacheEntryByToken(cacheKey);
+                    }
+                }
+            }
+            if (authorizationCodeList.size() > 0) {
+                for (String accessToken : authorizationCodeList) {
+                    AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
+                    AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache
+                            .getInstance().getValueFromCacheByToken(cacheKey);
+                    if (cacheEntry != null) {
+                        AuthorizationGrantCache.getInstance().clearCacheEntryByCode(cacheKey);
                     }
                 }
             }
