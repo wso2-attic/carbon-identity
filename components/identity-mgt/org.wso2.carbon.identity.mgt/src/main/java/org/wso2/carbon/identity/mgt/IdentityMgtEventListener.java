@@ -225,6 +225,8 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
                     //If account is disabled, user should not be able to log in
                     if(userIdentityDTO.getIsAccountDisabled()){
+                        IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST);
+                        IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
                         String errorMsg = "User account is disabled for user : " + userName;
                         log.warn(errorMsg);
                         throw new UserStoreException(IdentityMgtConstants.ErrorHandling.USER_ACCOUNT_DISABLED + " "
