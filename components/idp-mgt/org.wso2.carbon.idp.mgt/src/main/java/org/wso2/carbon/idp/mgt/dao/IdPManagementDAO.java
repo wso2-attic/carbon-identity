@@ -1261,7 +1261,7 @@ public class IdPManagementDAO {
 
                 federatedIdp.setHomeRealmId(rs.getString("HOME_REALM_ID"));
                 federatedIdp.setCertificate(getBlobValue(rs.getBinaryStream("CERTIFICATE")));
-                federatedIdp.setAlias(rs.getString("idp.ALIAS"));
+                federatedIdp.setAlias(rs.getString("ALIAS"));
 
                 JustInTimeProvisioningConfig jitProConfig = new JustInTimeProvisioningConfig();
                 if (rs.getString("INBOUND_PROV_ENABLED").equals(IdPManagementConstants.IS_TRUE_VALUE)) {
@@ -1270,7 +1270,7 @@ public class IdPManagementDAO {
                     jitProConfig.setProvisioningEnabled(false);
                 }
 
-                jitProConfig.setProvisioningUserStore(rs.getString("idp.INBOUND_PROV_USER_STORE_ID"));
+                jitProConfig.setProvisioningUserStore(rs.getString("INBOUND_PROV_USER_STORE_ID"));
                 federatedIdp.setJustInTimeProvisioningConfig(jitProConfig);
 
                 String userClaimUri = rs.getString("USER_CLAIM_URI");
