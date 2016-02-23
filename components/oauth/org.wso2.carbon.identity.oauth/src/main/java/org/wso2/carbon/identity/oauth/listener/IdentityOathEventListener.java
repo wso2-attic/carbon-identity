@@ -108,7 +108,7 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
 
         IdentityErrorMsgContext errorContext = IdentityUtil.getIdentityErrorMsg();
 
-        if (errorContext != null && errorContext.getErrorCode() == IdentityMgtConstants.ErrorHandling.USER_ACCOUNT_DISABLED_ERROR_CODE){
+        if (errorContext != null && errorContext.getErrorCode() == IdentityCoreConstants.USER_ACCOUNT_DISABLED_ERROR_CODE){
             return revokeTokens(userName, userStoreManager);
         }
         return true;
