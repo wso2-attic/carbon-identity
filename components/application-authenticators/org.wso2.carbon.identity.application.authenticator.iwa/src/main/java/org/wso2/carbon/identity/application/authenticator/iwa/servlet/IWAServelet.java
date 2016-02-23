@@ -237,7 +237,7 @@ public class IWAServelet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             response.flushBuffer();
         } catch (IOException e) {
-            log.error("Error when sending unauthorized response." + e);
+            log.error("Error when sending unauthorized response.", e);
         }
     }
 
