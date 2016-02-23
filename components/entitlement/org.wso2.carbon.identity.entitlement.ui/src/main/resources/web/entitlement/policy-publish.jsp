@@ -241,7 +241,7 @@
                 document.policyForm.submit();
             });
         } else {
-            CARBON.showConfirmationDialog("<fmt:message key="delete.services.on.page.prompt"/>", function () {
+            CARBON.showConfirmationDialog("<fmt:message key="delete.subscribers.on.page.prompt"/>", function () {
                 document.policyForm.action = "remove-subscriber.jsp";
                 document.policyForm.submit();
             });
