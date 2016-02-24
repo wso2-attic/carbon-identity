@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.oauth2.token.handlers.grant;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -105,8 +106,8 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
             throw new IdentityOAuth2Exception(e.getMessage(), e);
         }
         if (authStatus) {
-            if (username.indexOf(CarbonConstants.DOMAIN_SEPARATOR) < 0 && UserCoreUtil.getDomainFromThreadLocal() !=
-                    null && !"".equals(UserCoreUtil.getDomainFromThreadLocal())) {
+            if (!username.contains(CarbonConstants.DOMAIN_SEPARATOR) && StringUtils.isNotBlank(UserCoreUtil
+                    .getDomainFromThreadLocal())) {
                 username = UserCoreUtil.getDomainFromThreadLocal() + CarbonConstants.DOMAIN_SEPARATOR + username;
             }
             tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(username));

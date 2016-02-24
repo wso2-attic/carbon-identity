@@ -61,6 +61,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+/**
+ * This class is used to access the data storage to retrieve and store identity provider configurations.
+ */
 public class IdPManagementDAO {
 
     private static final Log log = LogFactory.getLog(IdPManagementDAO.class);
@@ -1264,7 +1267,7 @@ public class IdPManagementDAO {
                 federatedIdp.setAlias(rs.getString("ALIAS"));
 
                 JustInTimeProvisioningConfig jitProConfig = new JustInTimeProvisioningConfig();
-                if (rs.getString("INBOUND_PROV_ENABLED").equals(IdPManagementConstants.IS_TRUE_VALUE)) {
+                if (IdPManagementConstants.IS_TRUE_VALUE.equals(rs.getString("INBOUND_PROV_ENABLED"))) {
                     jitProConfig.setProvisioningEnabled(true);
                 } else {
                     jitProConfig.setProvisioningEnabled(false);

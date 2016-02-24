@@ -91,7 +91,7 @@ public class OAuthTenantMgtListenerImpl implements TenantMgtListener {
                         OAuth2Util.buildScopeString(accessTokenDO.getScope());
                 AccessTokenDO accessTokenDOFromMap = latestAccessTokens.get(keyString);
                 if (accessTokenDOFromMap != null) {
-                    if (accessTokenDOFromMap.getIssuedTime().before(accessTokenDO.getIssuedTime())){
+                    if (accessTokenDOFromMap.getIssuedTime().before(accessTokenDO.getIssuedTime())) {
                         latestAccessTokens.put(keyString, accessTokenDO);
                     }
                 } else {
@@ -105,12 +105,12 @@ public class OAuthTenantMgtListenerImpl implements TenantMgtListener {
                 OAuthUtil.clearOAuthCache(accessTokenDO.getAccessToken());
             }
             ArrayList<String> tokensToRevoke = new ArrayList<>();
-            for (Map.Entry entry : latestAccessTokens.entrySet()){
+            for (Map.Entry entry : latestAccessTokens.entrySet()) {
                 tokensToRevoke.add(((AccessTokenDO) entry.getValue()).getAccessToken());
             }
             tokenMgtDAO.revokeTokens(tokensToRevoke.toArray(new String[tokensToRevoke.size()]));
             List<AuthzCodeDO> latestAuthzCodes = tokenMgtDAO.getLatestAuthorizationCodesOfTenant(tenantId);
-            for (AuthzCodeDO authzCodeDO : latestAuthzCodes){
+            for (AuthzCodeDO authzCodeDO : latestAuthzCodes) {
                 // remove the authorization code from the cache
                 OAuthUtil.clearOAuthCache(authzCodeDO.getConsumerKey() + ":" +
                         authzCodeDO.getAuthorizationCode());

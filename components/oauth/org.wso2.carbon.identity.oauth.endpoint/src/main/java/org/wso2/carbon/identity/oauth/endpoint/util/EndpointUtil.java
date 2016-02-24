@@ -19,6 +19,7 @@ package org.wso2.carbon.identity.oauth.endpoint.util;
 
 import org.apache.axiom.util.base64.Base64Utils;
 import org.apache.commons.io.Charsets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
@@ -164,7 +165,7 @@ public class EndpointUtil {
     public static String getErrorPageURL(String errorCode, String errorMessage, String appName, String redirectUri) {
 
         String errorPageUrl;
-        if (redirectUri != null && !"".equals(redirectUri)) {
+        if (StringUtils.isNotBlank(redirectUri)) {
             errorPageUrl = redirectUri;
         } else {
             errorPageUrl = OAuth2Util.OAuthURL.getOAuth2ErrorPageUrl();

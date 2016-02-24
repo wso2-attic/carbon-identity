@@ -25,6 +25,9 @@ import org.wso2.carbon.identity.application.common.model.ServiceProvider;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This interface access the data storage layer to store/update and delete application configurations.
+ */
 public interface ApplicationDAO {
 
     /**

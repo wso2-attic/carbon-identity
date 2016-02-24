@@ -33,7 +33,7 @@ public class OAuthUIUtil {
 
     private static final Log log = LogFactory.getLog(OAuthUIUtil.class);
 
-    private OAuthUIUtil(){
+    private OAuthUIUtil() {
 
     }
 

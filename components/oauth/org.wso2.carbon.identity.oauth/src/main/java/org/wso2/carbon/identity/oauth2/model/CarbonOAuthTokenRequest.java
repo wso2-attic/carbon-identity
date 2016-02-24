@@ -59,7 +59,7 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
         assertion = request.getParameter(OAuth.OAUTH_ASSERTION);
         windows_token = request.getParameter(OAuthConstants.WINDOWS_TOKEN);
         tenantDomain = request.getParameter(MultitenantConstants.TENANT_DOMAIN);
-        if (tenantDomain == null){
+        if (tenantDomain == null) {
             tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
 

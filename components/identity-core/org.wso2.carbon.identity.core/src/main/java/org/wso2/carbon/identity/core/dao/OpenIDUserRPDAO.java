@@ -377,7 +377,9 @@ public class OpenIDUserRPDAO {
 
         try {
             if (!results.next()) {
-                log.debug("RememberMe token not found for the user " + userName);
+                if (log.isDebugEnabled()) {
+                    log.debug("RememberMe token not found for the user " + userName);
+                }
                 return null;
             }
 
