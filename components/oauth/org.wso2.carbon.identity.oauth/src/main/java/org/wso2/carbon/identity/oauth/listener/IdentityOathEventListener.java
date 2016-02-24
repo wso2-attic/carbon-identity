@@ -78,9 +78,23 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
     }
 
     @Override
+    public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName,
+                                          UserStoreManager userStoreManager) throws UserStoreException {
+        removeTokensFromCache(userName, userStoreManager);
+        return true;
+    }
+
+    @Override
+    public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
+                                           UserStoreManager userStoreManager) throws UserStoreException {
+        removeTokensFromCache(userName, userStoreManager);
+        return true;
+    }
+
+    @Override
     public boolean doPostSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
                                             UserStoreManager userStoreManager) throws UserStoreException {
-        removeAccessTokenFromCache(userName, userStoreManager);
+
         if (!isEnable()) {
             return true;
         }
@@ -184,24 +198,22 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
         return true;
     }
 
-    private void removeAccessTokenFromCache(String userName, UserStoreManager userStoreManager) throws
+    private void removeTokensFromCache(String userName, UserStoreManager userStoreManager) throws
             UserStoreException {
         String userStoreDomain = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
         String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
-        Set<String> accessTokenList;
-        Set<String> authorizationCodeList;
+        Set<String> accessTokens;
+        Set<String> authorizationCodes;
         AuthenticatedUser authenticatedUser = new AuthenticatedUser();
         authenticatedUser.setUserStoreDomain(userStoreDomain);
         authenticatedUser.setTenantDomain(tenantDomain);
         authenticatedUser.setUserName(userName);
         try {
-            accessTokenList = tokenMgtDAO.getAccessTokenListForUserByTenant(Integer.toString(userStoreManager
-                    .getTenantId()), userName, authenticatedUser.toString());
-            authorizationCodeList = tokenMgtDAO.getAuthorizationCodeListForUserByTenant(Integer.toString
-                    (userStoreManager.getTenantId()), userName, authenticatedUser.toString());
-            if (accessTokenList != null && accessTokenList.size() > 0) {
-                for (String accessToken : accessTokenList) {
+            accessTokens = tokenMgtDAO.getAccessTokensForUser(authenticatedUser);
+            authorizationCodes = tokenMgtDAO.getAuthorizationCodesForUser(authenticatedUser);
+            if (accessTokens != null && accessTokens.size() > 0) {
+                for (String accessToken : accessTokens) {
                     AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
                     AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache
                             .getInstance().getValueFromCacheByToken(cacheKey);
@@ -210,8 +222,8 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
                     }
                 }
             }
-            if (authorizationCodeList != null && authorizationCodeList.size() > 0) {
-                for (String accessToken : authorizationCodeList) {
+            if (authorizationCodes != null && authorizationCodes.size() > 0) {
+                for (String accessToken : authorizationCodes) {
                     AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
                     AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache
                             .getInstance().getValueFromCacheByToken(cacheKey);

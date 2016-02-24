@@ -81,7 +81,6 @@ public class TokenMgtDAO {
 
     private static final String IDN_OAUTH2_ACCESS_TOKEN = "IDN_OAUTH2_ACCESS_TOKEN";
 
-    private static final String ACTIVE_STATE = "ACTIVE";
 
     static {
 
@@ -975,107 +974,109 @@ public class TokenMgtDAO {
     }
 
     /**
-     *
-     * @param tenantId
-     * @param userName
-     * @param userId
+     * @param authenticatedUser
+     * @return
      * @throws IdentityOAuth2Exception
      */
-    public Set<String> getAccessTokenListForUserByTenant(String tenantId, String userName, String userId) throws IdentityOAuth2Exception {
-
+    public Set<String> getAccessTokensForUser(AuthenticatedUser authenticatedUser) throws
+            IdentityOAuth2Exception {
         String accessTokenStoreTable = OAuthConstants.ACCESS_TOKEN_STORE_TABLE;
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Set<String> accessTokenList = new HashSet<>();
-        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userId);
+        Set<String> accessTokens = new HashSet<>();
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authenticatedUser.toString());
         try {
             if (OAuth2Util.checkAccessTokenPartitioningEnabled() &&
                     OAuth2Util.checkUserNameAssertionEnabled()) {
-                accessTokenStoreTable = OAuth2Util.getAccessTokenStoreTableFromUserId(userId);
+                accessTokenStoreTable = OAuth2Util.getAccessTokenStoreTableFromUserId(authenticatedUser.toString());
             }
-            String sqlQuery = SQLQueries.GET_ACCESS_TOKEN_BY_AUTHZUSER_AND_TENANTID_FOR_STATE.replace(
+            String sqlQuery = SQLQueries.GET_ACCESS_TOKEN_BY_AUTHZUSER.replace(
                     IDN_OAUTH2_ACCESS_TOKEN, accessTokenStoreTable);
             if (!isUsernameCaseSensitive){
                 sqlQuery = sqlQuery.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
             }
             ps = connection.prepareStatement(sqlQuery);
             if (isUsernameCaseSensitive) {
-                ps.setString(1, userName);
+                ps.setString(1, authenticatedUser.getUserName());
             } else {
-                ps.setString(1, userName.toLowerCase());
+                ps.setString(1, authenticatedUser.getUserName().toLowerCase());
             }
-            ps.setString(2, tenantId);
-            ps.setString(3, ACTIVE_STATE);
+            ps.setString(2, Integer.toString(OAuth2Util.getTenantId(authenticatedUser.getTenantDomain())));
+            ps.setString(3, OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
+            ps.setString(4, authenticatedUser.getUserStoreDomain());
             rs = ps.executeQuery();
             while (rs.next()){
-                accessTokenList.add(rs.getString(1));
+                accessTokens.add(rs.getString(1));
             }
             connection.commit();
         } catch (SQLException e) {
             IdentityDatabaseUtil.rollBack(connection);
             throw new IdentityOAuth2Exception("Error occurred while revoking Access Token with user Name : " +
-                    userName + " tenant ID : " + tenantId, e);
-        }  finally {
+                    authenticatedUser.getUserName() + " tenant ID : " + OAuth2Util.getTenantId(authenticatedUser
+                    .getTenantDomain()), e);
+        } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }
-        return accessTokenList;
+        return accessTokens;
     }
 
     /**
      *
-     * @param tenantId
-     * @param userName
-     * @param userId
+     * @param authenticatedUser
+     * @return
      * @throws IdentityOAuth2Exception
      */
-    public Set<String> getAuthorizationCodeListForUserByTenant(String tenantId, String userName, String userId) throws IdentityOAuth2Exception {
+    public Set<String> getAuthorizationCodesForUser(AuthenticatedUser authenticatedUser) throws
+            IdentityOAuth2Exception {
 
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Set<String> authorizationCodeList = new HashSet<>();
-        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(userId);
+        Set<String> authorizationCodes = new HashSet<>();
+        boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authenticatedUser.toString());
         try {
-            String sqlQuery = SQLQueries.GET_AUTHORIZATION_CODE_BY_AUTHZUSER_AND_TENANTID;
-            if (!isUsernameCaseSensitive){
+            String sqlQuery = SQLQueries.GET_AUTHORIZATION_CODES_BY_AUTHZUSER;
+            if (!isUsernameCaseSensitive) {
                 sqlQuery = sqlQuery.replace(AUTHZ_USER, LOWER_AUTHZ_USER);
             }
             ps = connection.prepareStatement(sqlQuery);
             if (isUsernameCaseSensitive) {
-                ps.setString(1, userName);
+                ps.setString(1, authenticatedUser.getUserName());
             } else {
-                ps.setString(1, userName.toLowerCase());
+                ps.setString(1, authenticatedUser.getUserName().toLowerCase());
             }
-            ps.setString(2, tenantId);
+            ps.setString(2,Integer.toString(OAuth2Util.getTenantId(authenticatedUser.getTenantDomain())));
+            ps.setString(3, authenticatedUser.getUserStoreDomain());
             rs = ps.executeQuery();
             while (rs.next()){
-                authorizationCodeList.add(rs.getString(1));
+                authorizationCodes.add(rs.getString(1));
             }
             connection.commit();
         } catch (SQLException e) {
             IdentityDatabaseUtil.rollBack(connection);
             throw new IdentityOAuth2Exception("Error occurred while revoking Access Token with user Name : " +
-                    userName + " tenant ID : " + tenantId, e);
-        }  finally {
+                    authenticatedUser.getUserName() + " tenant ID : " + OAuth2Util.getTenantId(authenticatedUser
+                    .getTenantDomain()), e);
+        } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }
-        return authorizationCodeList;
+        return authorizationCodes;
     }
 
-    public Set<String> getActiveTokenListForConsumerKey(String consumerKey) throws IdentityOAuth2Exception {
+    public Set<String> getActiveTokensForConsumerKey(String consumerKey) throws IdentityOAuth2Exception {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Set<String> accessTokenList = new HashSet<>();
+        Set<String> accessTokens = new HashSet<>();
         try {
             String sqlQuery = SQLQueries.GET_ACCESS_TOKENS_FOR_CONSUMER_KEY;
             ps = connection.prepareStatement(sqlQuery);
             ps.setString(1, consumerKey);
-            ps.setString(2, ACTIVE_STATE);
+            ps.setString(2, OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE);
             rs = ps.executeQuery();
             while (rs.next()) {
-                accessTokenList.add(rs.getString(1));
+                accessTokens.add(rs.getString(1));
             }
             connection.commit();
         } catch (SQLException e) {
@@ -1085,21 +1086,21 @@ public class TokenMgtDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }
-        return accessTokenList;
+        return accessTokens;
     }
 
-    public Set<String> getAuthorizationCodeListForConsumerKey(String consumerKey) throws IdentityOAuth2Exception {
+    public Set<String> getAuthorizationCodesForConsumerKey(String consumerKey) throws IdentityOAuth2Exception {
         Connection connection = IdentityDatabaseUtil.getDBConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Set<String> authorizationCodeList = new HashSet<>();
+        Set<String> authorizationCodes = new HashSet<>();
         try {
             String sqlQuery = SQLQueries.GET_AUTHORIZATION_CODES_FOR_CONSUMER_KEY;
             ps = connection.prepareStatement(sqlQuery);
             ps.setString(1, consumerKey);
             rs = ps.executeQuery();
             while (rs.next()) {
-                authorizationCodeList.add(rs.getString(1));
+                authorizationCodes.add(rs.getString(1));
             }
             connection.commit();
         } catch (SQLException e) {
@@ -1108,7 +1109,7 @@ public class TokenMgtDAO {
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, null, ps);
         }
-        return authorizationCodeList;
+        return authorizationCodes;
     }
 
     /**

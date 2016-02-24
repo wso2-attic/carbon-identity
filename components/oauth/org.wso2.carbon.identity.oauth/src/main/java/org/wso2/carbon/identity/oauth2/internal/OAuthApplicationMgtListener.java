@@ -74,7 +74,7 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
 
         addClientSecret(serviceProvider);
         updateAuthApplication(serviceProvider);
-        removeAccessTokensAndAuthCodeFromCache(serviceProvider,tenantDomain,userName);
+        removeAccessTokensAndAuthCodeFromCache(serviceProvider, tenantDomain, userName);
         return true;
     }
 
@@ -195,9 +195,9 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
     private void removeAccessTokensAndAuthCodeFromCache(ServiceProvider serviceProvider, String tenantDomain, String
             userName) throws IdentityApplicationManagementException {
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
-        Set<String> accessTokenList = new HashSet<>();
-        Set<String> authorizationCodeList = new HashSet<>();
-        Set<String> oauthKeyList = new HashSet<>();
+        Set<String> accessTokens = new HashSet<>();
+        Set<String> authorizationCodes = new HashSet<>();
+        Set<String> oauthKeys = new HashSet<>();
         try {
             InboundAuthenticationConfig inboundAuthenticationConfig = serviceProvider.getInboundAuthenticationConfig();
             if (inboundAuthenticationConfig != null) {
@@ -207,19 +207,19 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
                     for (InboundAuthenticationRequestConfig inboundRequestConfig : inboundRequestConfigs) {
                         if (StringUtils.equals(OAUTH2, inboundRequestConfig.getInboundAuthType()) || StringUtils
                                 .equals(inboundRequestConfig.getInboundAuthType(), OAUTH)) {
-                            oauthKeyList.add(inboundRequestConfig.getInboundAuthKey());
+                            oauthKeys.add(inboundRequestConfig.getInboundAuthKey());
                         }
                     }
                 }
             }
-            if (oauthKeyList.size() > 0) {
-                for (String oauthKey : oauthKeyList) {
-                    accessTokenList.addAll(tokenMgtDAO.getActiveTokenListForConsumerKey(oauthKey));
-                    authorizationCodeList.addAll(tokenMgtDAO.getAuthorizationCodeListForConsumerKey(oauthKey));
+            if (oauthKeys.size() > 0) {
+                for (String oauthKey : oauthKeys) {
+                    accessTokens.addAll(tokenMgtDAO.getActiveTokensForConsumerKey(oauthKey));
+                    authorizationCodes.addAll(tokenMgtDAO.getAuthorizationCodesForConsumerKey(oauthKey));
                 }
             }
-            if (accessTokenList.size() > 0) {
-                for (String accessToken : accessTokenList) {
+            if (accessTokens.size() > 0) {
+                for (String accessToken : accessTokens) {
                     AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
                     AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache
                             .getInstance().getValueFromCacheByToken(cacheKey);
@@ -228,8 +228,8 @@ public class OAuthApplicationMgtListener extends AbstractApplicationMgtListener 
                     }
                 }
             }
-            if (authorizationCodeList.size() > 0) {
-                for (String accessToken : authorizationCodeList) {
+            if (authorizationCodes.size() > 0) {
+                for (String accessToken : authorizationCodes) {
                     AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
                     AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache
                             .getInstance().getValueFromCacheByToken(cacheKey);
