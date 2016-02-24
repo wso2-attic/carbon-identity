@@ -308,10 +308,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
     }
 
-    /**
-     *
-     */
-
     @Override
     public void updateApplication(ServiceProvider serviceProvider, String tenantDomain)
             throws IdentityApplicationManagementException {
@@ -1167,10 +1163,6 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         }
     }
 
-    /**
-     *
-     */
-
     @Override
     public ServiceProvider getApplication(String applicationName, String tenantDomain)
             throws IdentityApplicationManagementException {
@@ -1565,7 +1557,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                 String authKey = resultSet.getString(1);
                 //this is done to handle empty string added to oracle database as null.
                 if (authKey == null){
-                    authKey = "";
+                    authKey = new String();
                 }
                 String authType = resultSet.getString(2);
                 String mapKey = authType + ":" + authKey;

@@ -899,8 +899,9 @@ public class UserRealmProxy {
             UserStoreManager usAdmin = realm.getUserStoreManager();
             UserStoreManager secManager = null;
 
-            if (roleName.contains("/")) {
-                secManager = usAdmin.getSecondaryUserStoreManager(roleName.substring(0, roleName.indexOf("/")));
+            if (roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                secManager = usAdmin.getSecondaryUserStoreManager(roleName.substring(0, roleName.indexOf
+                        (UserCoreConstants.DOMAIN_SEPARATOR)));
             } else {
                 secManager = usAdmin;
             }

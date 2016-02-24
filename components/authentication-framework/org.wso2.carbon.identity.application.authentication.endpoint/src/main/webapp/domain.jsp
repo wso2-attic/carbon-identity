@@ -16,25 +16,24 @@
   ~ under the License.
   --%>
 <%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="java.util.ResourceBundle" %>
 <%
+    String BUNDLE = "org.wso2.carbon.identity.application.authentication.endpoint.i18n.Resources";
+    ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
+    String domainUnknown = resourceBundle.getString("domain.unknown");
     String errorMessage = "Authentication Failed";
     boolean loginFailed = false;
-
     if (Boolean.parseBoolean(request.getParameter("authFailure"))) {
         loginFailed = true;
-
         if (request.getParameter("authFailureMsg") != null) {
             errorMessage = request.getParameter("authFailureMsg");
 
-            if (errorMessage.equalsIgnoreCase("domain.unknown")) {
+            if (domainUnknown.equalsIgnoreCase(errorMessage)) {
                 errorMessage = "Domain cannot be identified! Please retry.";
             }
         }
     }
 %>
-
-
-
 <script type="text/javascript">
 	function doLogin() {
 		var loginForm = document.getElementById('loginForm');

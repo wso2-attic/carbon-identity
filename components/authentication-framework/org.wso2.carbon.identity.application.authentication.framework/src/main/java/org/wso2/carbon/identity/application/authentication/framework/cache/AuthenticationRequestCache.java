@@ -40,6 +40,9 @@ public class AuthenticationRequestCache extends
     private static volatile AuthenticationRequestCache instance;
     private boolean isTemporarySessionDataPersistEnabled = false;
 
+    /**
+     * Private constructor which will not allow to create objects of this class from outside
+     */
     private AuthenticationRequestCache() {
         super(AUTHENTICATION_REQUEST_CACHE_NAME);
         if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
@@ -48,6 +51,11 @@ public class AuthenticationRequestCache extends
         }
     }
 
+    /**
+     * Singleton method
+     *
+     * @return AuthenticationRequestCache
+     */
     public static AuthenticationRequestCache getInstance() {
         if (instance == null) {
             synchronized (AuthenticationRequestCache.class) {
@@ -59,6 +67,12 @@ public class AuthenticationRequestCache extends
         return instance;
     }
 
+    /**
+     * Add a cache entry.
+     *
+     * @param key   Key which cache entry is indexed.
+     * @param entry Actual object where cache entry is placed.
+     */
     public void addToCache(AuthenticationRequestCacheKey key, AuthenticationRequestCacheEntry entry){
         super.addToCache(key,entry);
         if(isTemporarySessionDataPersistEnabled){
@@ -72,6 +86,12 @@ public class AuthenticationRequestCache extends
         }
     }
 
+    /**
+     * Retrieves a cache entry.
+     *
+     * @param key CacheKey
+     * @return Cached entry.
+     */
     public AuthenticationRequestCacheEntry getValueFromCache(AuthenticationRequestCacheKey key){
         AuthenticationRequestCacheEntry entry = super.getValueFromCache(key);
         if(entry == null && isTemporarySessionDataPersistEnabled){
@@ -81,6 +101,11 @@ public class AuthenticationRequestCache extends
         return entry;
     }
 
+    /**
+     * Clears a cache entry.
+     *
+     * @param key Key to clear cache.
+     */
     public void clearCacheEntry(AuthenticationRequestCacheKey key){
         super.clearCacheEntry(key);
         if (isTemporarySessionDataPersistEnabled) {

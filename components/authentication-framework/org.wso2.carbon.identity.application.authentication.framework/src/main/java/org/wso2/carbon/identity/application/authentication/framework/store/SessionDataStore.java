@@ -95,6 +95,13 @@ public class SessionDataStore {
 
     private static final String SQL_DELETE_EXPIRED_DATA_TASK =
             "DELETE FROM IDN_AUTH_SESSION_STORE WHERE TIME_CREATED<?";
+    private static final String MYSQL_DATABASE = "MySQL";
+    private static final String H2_DATABASE = "H2";
+    private static final String DB2_DATABASE = "DB2";
+    private static final String MS_SQL_DATABASE = "MS SQL";
+    private static final String MICROSOFT_DATABASE = "Microsoft";
+    private static final String POSTGRESQL_DATABASE = "PostgreSQL";
+    private static final String INFORMIX_DATABASE = "Informix";
 
     private static int maxPoolSize = 100;
     private long operationCleanUpPeriod = 720;
@@ -247,17 +254,17 @@ public class SessionDataStore {
         ResultSet resultSet = null;
         try {
             if (StringUtils.isBlank(sqlSelect)) {
-                if (connection.getMetaData().getDriverName().contains("MySQL")
-                        || connection.getMetaData().getDriverName().contains("H2")) {
+                if (connection.getMetaData().getDriverName().contains(MYSQL_DATABASE)
+                        || connection.getMetaData().getDriverName().contains(H2_DATABASE)) {
                     sqlSelect = SQL_DESERIALIZE_OBJECT_MYSQL;
-                } else if (connection.getMetaData().getDatabaseProductName().contains("DB2")) {
+                } else if (connection.getMetaData().getDatabaseProductName().contains(DB2_DATABASE)) {
                     sqlSelect = SQL_DESERIALIZE_OBJECT_DB2SQL;
-                } else if (connection.getMetaData().getDriverName().contains("MS SQL")
-                        || connection.getMetaData().getDriverName().contains("Microsoft")) {
+                } else if (connection.getMetaData().getDriverName().contains(MS_SQL_DATABASE)
+                        || connection.getMetaData().getDriverName().contains(MICROSOFT_DATABASE)) {
                     sqlSelect = SQL_DESERIALIZE_OBJECT_MSSQL;
-                } else if (connection.getMetaData().getDriverName().contains("PostgreSQL")) {
+                } else if (connection.getMetaData().getDriverName().contains(POSTGRESQL_DATABASE)) {
                     sqlSelect = SQL_DESERIALIZE_OBJECT_POSTGRESQL;
-                } else if (connection.getMetaData().getDriverName().contains("Informix")) {
+                } else if (connection.getMetaData().getDriverName().contains(INFORMIX_DATABASE)) {
                     // Driver name = "IBM Informix JDBC Driver for IBM Informix Dynamic Server"
                     sqlSelect = SQL_DESERIALIZE_OBJECT_INFORMIX;
                 } else {
@@ -457,7 +464,7 @@ public class SessionDataStore {
         }
         try {
             if (StringUtils.isBlank(sqlDeleteSTORETask)) {
-                if (connection.getMetaData().getDriverName().contains("MySQL")) {
+                if (connection.getMetaData().getDriverName().contains(MYSQL_DATABASE)) {
                     sqlDeleteSTORETask = SQL_DELETE_STORE_OPERATIONS_TASK_MYSQL;
                 } else {
                     sqlDeleteSTORETask = SQL_DELETE_STORE_OPERATIONS_TASK;

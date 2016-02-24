@@ -29,6 +29,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Utility class for database operations.
+ */
 public class IdentityDatabaseUtil {
 
     private static final Log log = LogFactory.getLog(IdentityDatabaseUtil.class);

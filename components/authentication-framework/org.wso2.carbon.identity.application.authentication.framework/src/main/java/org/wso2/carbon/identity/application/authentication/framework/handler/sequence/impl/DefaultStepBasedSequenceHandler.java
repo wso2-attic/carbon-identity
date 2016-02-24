@@ -475,7 +475,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                 }
             } else {
                 log.warn("Subject claim could not be found. Defaulting to Name Identifier.");
-                if (StringUtils.isNotBlank(sequenceConfig.getAuthenticatedUser().getUserName())){
+                if (StringUtils.isNotBlank(sequenceConfig.getAuthenticatedUser().getUserName())) {
                     sequenceConfig.getAuthenticatedUser().setAuthenticatedSubjectIdentifier(sequenceConfig
                             .getAuthenticatedUser().getUsernameAsSubjectIdentifier(sequenceConfig.getApplicationConfig()
                                     .isUseUserstoreDomainInLocalSubjectIdentifier(), sequenceConfig
@@ -484,7 +484,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
             }
 
         } else {
-            if (StringUtils.isNotBlank(sequenceConfig.getAuthenticatedUser().getUserName())){
+            if (StringUtils.isNotBlank(sequenceConfig.getAuthenticatedUser().getUserName())) {
                 sequenceConfig.getAuthenticatedUser().setAuthenticatedSubjectIdentifier(sequenceConfig
                         .getAuthenticatedUser().getUsernameAsSubjectIdentifier(sequenceConfig.getApplicationConfig()
                                 .isUseUserstoreDomainInLocalSubjectIdentifier(), sequenceConfig.getApplicationConfig

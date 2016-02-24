@@ -124,15 +124,15 @@ public class User implements Serializable {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         String username = null;
-        if(StringUtils.isNotBlank(this.userName)){
+        if (StringUtils.isNotBlank(this.userName)) {
             username = this.userName;
         }
-        if(StringUtils.isNotBlank(this.userStoreDomain)){
+        if (StringUtils.isNotBlank(this.userStoreDomain)) {
             username = UserCoreUtil.addDomainToName(username, userStoreDomain);
         }
-        if(StringUtils.isNotBlank(this.tenantDomain)){
+        if (StringUtils.isNotBlank(this.tenantDomain)) {
             username = UserCoreUtil.addTenantDomainToEntry(username, tenantDomain);
         }
         return username;

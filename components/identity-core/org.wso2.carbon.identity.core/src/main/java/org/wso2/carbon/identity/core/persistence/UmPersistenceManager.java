@@ -27,20 +27,36 @@ import org.wso2.carbon.user.core.util.DatabaseUtil;
 
 import javax.sql.DataSource;
 
+/**
+ * This class is used as a data holder for user management datasource
+ */
 public class UmPersistenceManager {
     private static DataSource dataSource;
     private static UmPersistenceManager umPersistenceManager = new UmPersistenceManager();
 
     private static Log log = LogFactory.getLog(UmPersistenceManager.class);
 
+    /**
+     * Private constructor which will not allow to create objects of this class from outside
+     */
     private UmPersistenceManager() {
         initDatasource();
     }
 
+    /**
+     * Singleton method
+     *
+     * @return UmPersistenceManager
+     */
     public static UmPersistenceManager getInstance() {
         return umPersistenceManager;
     }
 
+    /**
+     * Get user management datasource.
+     *
+     * @return user management datasource
+     */
     public DataSource getDataSource() {
         return dataSource;
     }

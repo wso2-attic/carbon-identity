@@ -116,78 +116,80 @@ public class IdentityProviderManager {
         String scimUserEndpoint = null;
         String scimGroupsEndpoint = null;
 
-        openIdUrl = IdentityUtil.getProperty("OpenID.OpenIDServerUrl");
-        samlSSOUrl = IdentityUtil.getProperty("SSOService.IdentityProviderURL");
+        openIdUrl = IdentityUtil.getProperty(IdentityConstants.ServerConfig.OPENID_SERVER_URL);
+        samlSSOUrl = IdentityUtil.getProperty(IdentityConstants.ServerConfig.SSO_IDP_URL);
         samlLogoutUrl = samlSSOUrl;
-        oauth1RequestTokenUrl = IdentityUtil.getProperty("OAuth.OAuth1RequestTokenUrl");
-        oauth1AuthorizeUrl = IdentityUtil.getProperty("OAuth.OAuth1AuthorizeUrl");
-        oauth1AccessTokenUrl = IdentityUtil.getProperty("OAuth.OAuth1AccessTokenUrl");
-        oauth2AuthzEPUrl = IdentityUtil.getProperty("OAuth.OAuth2AuthzEPUrl");
-        oauth2TokenEPUrl = IdentityUtil.getProperty("OAuth.OAuth2TokenEPUrl");
-        oauth2UserInfoEPUrl = IdentityUtil.getProperty("OAuth.OAuth2UserInfoEPUrl");
-        passiveStsUrl = IdentityUtil.getProperty("PassiveSTS.IdentityProviderURL");
-        stsUrl = IdentityUtil.getProperty("SecurityTokenService.IdentityProviderURL");
-        scimUserEndpoint = IdentityUtil.getProperty("SCIM.UserEPUrl");
-        scimGroupsEndpoint = IdentityUtil.getProperty("SCIM.GroupEPUrl");
-        oauth2RevokeEPUrl = IdentityUtil.getProperty("OAuth.OAuth2RevokeEPUrl");
+        oauth1RequestTokenUrl = IdentityUtil.getProperty(IdentityConstants.OAuth.OAUTH1_REQUEST_TOKEN_URL);
+        oauth1AuthorizeUrl = IdentityUtil.getProperty(IdentityConstants.OAuth.OAUTH1_AUTHORIZE_URL);
+        oauth1AccessTokenUrl = IdentityUtil.getProperty(IdentityConstants.OAuth.OAUTH1_ACCESSTOKEN_URL);
+        oauth2AuthzEPUrl = IdentityUtil.getProperty(IdentityConstants.OAuth.OAUTH2_AUTHZ_EP_URL);
+        oauth2TokenEPUrl = IdentityUtil.getProperty(IdentityConstants.OAuth.OAUTH2_TOKEN_EP_URL);
+        oauth2UserInfoEPUrl = IdentityUtil.getProperty(IdentityConstants.OAuth.OAUTH2_USERINFO_EP_URL);
+        passiveStsUrl = IdentityUtil.getProperty(IdentityConstants.STS.PSTS_IDENTITY_PROVIDER_URL);
+        stsUrl = IdentityUtil.getProperty(IdentityConstants.STS.STS_IDENTITY_PROVIDER_URL);
+        scimUserEndpoint = IdentityUtil.getProperty(IdentityConstants.SCIM.USER_EP_URL);
+        scimGroupsEndpoint = IdentityUtil.getProperty(IdentityConstants.SCIM.GROUP_EP_URL);
+        oauth2RevokeEPUrl = IdentityUtil.getProperty(IdentityConstants.OAuth.OAUTH2_REVOKE_EP_URL);
         
         if (StringUtils.isBlank(openIdUrl)) {
-            openIdUrl = IdentityUtil.getServerURL("openid", true, true);
+            openIdUrl = IdentityUtil.getServerURL(IdentityConstants.OpenId.OPENID, true, true);
         }
 
         if (StringUtils.isBlank(samlSSOUrl)) {
-            samlSSOUrl = IdentityUtil.getServerURL("samlsso", true, true);
+            samlSSOUrl = IdentityUtil.getServerURL(IdentityConstants.ServerConfig.SAMLSSO, true, true);
         }
 
         if (StringUtils.isBlank(samlLogoutUrl)) {
-            samlLogoutUrl = IdentityUtil.getServerURL("samlsso", true, true);
+            samlLogoutUrl = IdentityUtil.getServerURL(IdentityConstants.ServerConfig.SAMLSSO, true, true);
         }
 
         if (StringUtils.isBlank(oauth1RequestTokenUrl)) {
-            oauth1RequestTokenUrl = IdentityUtil.getServerURL("oauth/request-token", true, true);
+            oauth1RequestTokenUrl = IdentityUtil.getServerURL(IdentityConstants.OAuth.REQUEST_TOKEN, true, true);
         }
 
         if (StringUtils.isBlank(oauth1AuthorizeUrl)) {
-            oauth1AuthorizeUrl = IdentityUtil.getServerURL("oauth/authorize-url", true, true);
+            oauth1AuthorizeUrl = IdentityUtil.getServerURL(IdentityConstants.OAuth.AUTHORIZE_URL, true, true);
         }
 
         if (StringUtils.isBlank(oauth1AccessTokenUrl)) {
-            oauth1AccessTokenUrl = IdentityUtil.getServerURL("oauth/access-token", true, true);
+            oauth1AccessTokenUrl = IdentityUtil.getServerURL(IdentityConstants.OAuth.ACCESS_TOKEN, true, true);
         }
 
         if (StringUtils.isBlank(oauth2AuthzEPUrl)) {
-            oauth2AuthzEPUrl = IdentityUtil.getServerURL("oauth2/authorize", true, false);
+            oauth2AuthzEPUrl = IdentityUtil.getServerURL(IdentityConstants.OAuth.AUTHORIZE, true, false);
         }
 
         if (StringUtils.isBlank(oauth2TokenEPUrl)) {
-            oauth2TokenEPUrl = IdentityUtil.getServerURL("oauth2/token", true, false);
+            oauth2TokenEPUrl = IdentityUtil.getServerURL(IdentityConstants.OAuth.TOKEN, true, false);
         }
 
         if (StringUtils.isBlank(oauth2RevokeEPUrl)) {
-            oauth2RevokeEPUrl = IdentityUtil.getServerURL("oauth2/revoke", true, false);
+            oauth2RevokeEPUrl = IdentityUtil.getServerURL(IdentityConstants.OAuth.REVOKE, true, false);
         }
 
         if (StringUtils.isBlank(oauth2UserInfoEPUrl)) {
-            oauth2UserInfoEPUrl = IdentityUtil.getServerURL("oauth2/userinfo", true, false);
+            oauth2UserInfoEPUrl = IdentityUtil.getServerURL(IdentityConstants.OAuth.USERINFO, true, false);
         }
 
         if (StringUtils.isBlank(passiveStsUrl)) {
-            passiveStsUrl = IdentityUtil.getServerURL("passivests", true, true);
+            passiveStsUrl = IdentityUtil.getServerURL(IdentityConstants.STS.PASSIVE_STS, true, true);
         }
 
         // If sts url is configured in file, change it according to tenant domain. If not configured, add a default url
         if (StringUtils.isNotBlank(stsUrl)) {
-            stsUrl = stsUrl.replace("wso2carbon-sts", tenantContext + "wso2carbon-sts");
+            stsUrl = stsUrl.replace(IdentityConstants.STS.WSO2_CARBON_STS, tenantContext +
+                    IdentityConstants.STS.WSO2_CARBON_STS);
         } else {
-            stsUrl = IdentityUtil.getServerURL("services/" + tenantContext + "wso2carbon-sts", true, true);
+            stsUrl = IdentityUtil.getServerURL("services/" + tenantContext + IdentityConstants.STS.WSO2_CARBON_STS,
+                    true, true);
         }
 
         if (StringUtils.isBlank(scimUserEndpoint)) {
-            scimUserEndpoint = IdentityUtil.getServerURL("wso2/scim/Users", true, false);
+            scimUserEndpoint = IdentityUtil.getServerURL(IdentityConstants.SCIM.USER_EP, true, false);
         }
 
         if (StringUtils.isBlank(scimGroupsEndpoint)) {
-            scimGroupsEndpoint = IdentityUtil.getServerURL("wso2/scim/Groups", true, false);
+            scimGroupsEndpoint = IdentityUtil.getServerURL(IdentityConstants.SCIM.GROUP_EP, true, false);
         }
         IdentityProvider identityProvider = dao.getIdPByName(null,
                 IdentityApplicationConstants.RESIDENT_IDP_RESERVED_NAME,

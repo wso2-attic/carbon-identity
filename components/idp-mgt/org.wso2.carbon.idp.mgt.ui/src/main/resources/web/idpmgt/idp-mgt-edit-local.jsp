@@ -71,13 +71,13 @@
                     IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL).getValue();
             samlSLOUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.Authenticator.SAML2SSO.LOGOUT_REQ_URL).getValue();
-            destinationURLList = IdPManagementUIUtil.getPropertySetStartsWith(properties, IdentityApplicationConstants
-                    .Authenticator.SAML2SSO.DESTINATION_URL_PREFIX);
-            if (destinationURLList.size() == 0){
+            destinationURLList = IdPManagementUIUtil.getPropertySetStartsWith(properties,
+                    IdentityApplicationConstants.Authenticator.SAML2SSO.DESTINATION_URL_PREFIX);
+            if (destinationURLList.size() == 0) {
                 destinationURLList.add(IdPManagementUIUtil.getProperty(properties,
-                    IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL));
+                        IdentityApplicationConstants.Authenticator.SAML2SSO.SSO_URL));
             }
-        } else if(IdentityApplicationConstants.OAuth10A.NAME.equals(federatedAuthenticator.getName())){
+        } else if(IdentityApplicationConstants.OAuth10A.NAME.equals(federatedAuthenticator.getName())) {
             oauth1RequestTokenUrl = IdPManagementUIUtil.getProperty(properties,
                     IdentityApplicationConstants.OAuth10A.OAUTH1_REQUEST_TOKEN_URL).getValue();
             oauth1AuthorizeUrl = IdPManagementUIUtil.getProperty(properties,
