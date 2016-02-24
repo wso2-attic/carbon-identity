@@ -185,9 +185,9 @@ public class PassiveSTS extends HttpServlet {
         String htmlPage = stsRedirectPage;
         String pageWithReply = htmlPage.replace("$url", String.valueOf(respToken.getReplyTo()));
 
-        String pageWithReplyAction = pageWithReply.replace("$action", Encode.forHtml(String.valueOf(action)));
+        String pageWithReplyAction = pageWithReply.replace("$action", Encode.forHtmlAttribute(String.valueOf(action)));
         String pageWithReplyActionResult = pageWithReplyAction.replace("$result",
-                Encode.forHtml(String.valueOf(respToken.getResults())));
+                Encode.forHtmlAttribute(String.valueOf(respToken.getResults())));
         String pageWithReplyActionResultContext;
         if (respToken.getContext() != null) {
             pageWithReplyActionResultContext = pageWithReplyActionResult.replace(
