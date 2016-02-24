@@ -235,6 +235,8 @@ public class UserIdentityClaimsDO implements Serializable {
             setLastLogonTime(Long.parseLong(value));
         } else if (UserIdentityDataStore.ACCOUNT_LOCK.equalsIgnoreCase(claim)) {
             setAccountLock(Boolean.parseBoolean(value));
+        } else if (UserIdentityDataStore.ACCOUNT_DISABLED.equalsIgnoreCase(claim)) {
+            setAccountDisabled(Boolean.parseBoolean(value));
         }
     }
 
