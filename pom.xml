@@ -752,11 +752,11 @@
                 <artifactId>google-http-client-jackson2</artifactId>
                 <version>${com.google.client.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.google.oauth-client</groupId>
-                <artifactId>google-oauth-client</artifactId>
-                <version>${com.google.client.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>com.google.oauth-client</groupId>-->
+                <!--<artifactId>google-oauth-client</artifactId>-->
+                <!--<version>${com.google.client.version}</version>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
@@ -989,11 +989,11 @@
                 <!--<artifactId>org.wso2.carbon.identity.sso.saml.stub</artifactId>-->
                 <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
-            <dependency>
-                <groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>
-                <artifactId>oltu</artifactId>
-                <version>${oltu.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>-->
+                <!--<artifactId>oltu</artifactId>-->
+                <!--<version>${oltu.version}</version>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>com.thetransactioncompany.wso2</groupId>
                 <artifactId>cors-filter</artifactId>
@@ -1469,12 +1469,12 @@
                 <artifactId>org.wso2.carbon.identity.sts.store</artifactId>
                 <version>${identity.framework.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon.identity</groupId>
-                <artifactId>org.wso2.carbon.sts.server.feature</artifactId>
-                <version>${identity.framework.version}</version>
-                <type>zip</type>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.wso2.carbon.identity</groupId>-->
+                <!--<artifactId>org.wso2.carbon.sts.server.feature</artifactId>-->
+                <!--<version>${identity.framework.version}</version>-->
+                <!--<type>zip</type>-->
+            <!--</dependency>-->
             <!--<dependency>-->
                 <!--<groupId>org.wso2.carbon.identity</groupId>-->
                 <!--<artifactId>org.wso2.carbon.sts.ui.feature</artifactId>-->
@@ -1824,11 +1824,11 @@
                 <!--<artifactId>org.wso2.carbon.identity.application.authenticator.fido</artifactId>-->
                 <!--<version>${identity.framework.version}</version>-->
             <!--</dependency>-->
-            <dependency>
-                <groupId>org.apache.oltu.oauth2</groupId>
-                <artifactId>org.apache.oltu.oauth2.client</artifactId>
-                <version>${org.apache.oltu.oauth2.client.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.apache.oltu.oauth2</groupId>-->
+                <!--<artifactId>org.apache.oltu.oauth2.client</artifactId>-->
+                <!--<version>${org.apache.oltu.oauth2.client.version}</version>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>net.sf.ehcache.wso2</groupId>
                 <artifactId>ehcache</artifactId>
@@ -1920,7 +1920,7 @@
         <junit.version>4.11</junit.version>
         <version.javax.servlet>3.0.0.v201112011016</version.javax.servlet>
         <oltu.version>1.0.0.wso2v3</oltu.version>
-        <org.apache.oltu.oauth2.client.version>1.0.0</org.apache.oltu.oauth2.client.version>
+        <!--<org.apache.oltu.oauth2.client.version>1.0.0</org.apache.oltu.oauth2.client.version>-->
         <oltu.package.import.version.range>[1.0.0, 2.0.0)</oltu.package.import.version.range>
         <apacheds.core.version>1.5.7</apacheds.core.version>
         <apacheds.imp.pkg.version.range>[1.5.7,2.0.0)</apacheds.imp.pkg.version.range>
