@@ -909,8 +909,7 @@ function clearAll() {
             <%
                 if (aliasSet != null) {
                     for (String alias : aliasSet) {
-                        if (alias != null) {
-                            if (alias.equals(provider.getCertAlias())) {
+                        if (alias != null && alias.equals(provider.getCertAlias())) {
             %>
             <option selected="selected"
                     value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
@@ -921,43 +920,40 @@ function clearAll() {
             <option value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
             </option>
             <%
-                            }
                         }
                     }
                 }
             %>
         </select></td>
 </tr>
-<% } else {%>
-<tr>
-    <td>
-        <fmt:message key="sp.certAlias"/>
-    </td>
-    <td>
-        <select id="alias" name="alias" >
-            <%
-                if (aliasSet != null) {
-                    for (String alias : aliasSet) {
-                        if (alias != null) {
-                            if (alias.equals(samlSsoServuceProviderConfigBean.getCertificateAlias())) {
-            %>
-            <option selected="selected"
-                    value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
-            </option>
-            <%
-            } else {
-            %>
-            <option value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
-            </option>
-            <%
+    <% } else {%>
+    <tr>
+        <td>
+            <fmt:message key="sp.certAlias"/>
+        </td>
+        <td>
+            <select id="alias" name="alias">
+                <%
+                    if (aliasSet != null) {
+                        for (String alias : aliasSet) {
+                            if (alias != null && alias.equals(samlSsoServuceProviderConfigBean.getCertificateAlias())) {
+                %>
+                <option selected="selected"
+                        value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
+                </option>
+                <%
+                } else {
+                %>
+                <option value="<%=Encode.forHtmlAttribute(alias)%>"><%=Encode.forHtmlContent(alias)%>
+                </option>
+                <%
                             }
                         }
                     }
-                }
-            %>
-        </select></td>
-</tr>
-<%}%>
+                %>
+            </select></td>
+    </tr>
+    <%}%>
 
 
 <!--selectResponseSignAlgo-->

@@ -104,7 +104,8 @@ public class SAMLSSOConfigAdmin {
         } else {
             serviceProviderDO.setAttributeConsumingServiceIndex("");
             if (serviceProviderDO.isEnableAttributesByDefault()) {
-                log.warn("Enable Attribute Profile must be selected to activate it by default. EnableAttributesByDefault will be disabled.");
+                log.warn("Enable Attribute Profile must be selected to activate it by default. " +
+                        "EnableAttributesByDefault will be disabled.");
             }
             serviceProviderDO.setEnableAttributesByDefault(false);
         }

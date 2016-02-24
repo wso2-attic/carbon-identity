@@ -988,12 +988,9 @@ public class SAMLSSOUtil {
 
             if ( authnReqDTO.getAttributeConsumingServiceIndex() == 0) {
                 //SP has not provide a AttributeConsumingServiceIndex in the authnReqDTO
-                if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
-                    if (spDO.isEnableAttributesByDefault()) {
-                        index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
-                    } else {
-                        return null;
-                    }
+                if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex()) && spDO
+                        .isEnableAttributesByDefault()) {
+                    index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
                 } else {
                     return null;
                 }
@@ -1002,12 +999,9 @@ public class SAMLSSOUtil {
                 index = authnReqDTO.getAttributeConsumingServiceIndex();
             }
         } else {
-            if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
-                if (spDO.isEnableAttributesByDefault()) {
-                    index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
-                } else {
-                    return null;
-                }
+            if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex()) && spDO.isEnableAttributesByDefault
+                    ()) {
+                index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
             } else {
                 return null;
             }

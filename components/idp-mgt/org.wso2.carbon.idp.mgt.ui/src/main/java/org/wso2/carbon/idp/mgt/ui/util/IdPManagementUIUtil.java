@@ -1736,11 +1736,9 @@ public class IdPManagementUIUtil {
      * @param startWith  the peoperty list startswith the given name
      * @return
      */
-    public static List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> getPropertySetStartsWith(
-            org.wso2.carbon.identity.application.common.model.idp.xsd.Property[] properties,
-            String startWith) {
-        List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> propertySet = new ArrayList<>();
-        for (org.wso2.carbon.identity.application.common.model.idp.xsd.Property property : properties) {
+    public static List<Property> getPropertySetStartsWith(Property[] properties, String startWith) {
+        List<Property> propertySet = new ArrayList<>();
+        for (Property property : properties) {
             if (property.getName().startsWith(startWith)) {
                 propertySet.add(property);
             }

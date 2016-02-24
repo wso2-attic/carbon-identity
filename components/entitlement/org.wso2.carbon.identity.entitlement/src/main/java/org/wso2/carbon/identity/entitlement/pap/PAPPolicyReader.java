@@ -89,7 +89,7 @@ public class PAPPolicyReader implements ErrorHandler {
             builder.setEntityResolver(new CarbonEntityResolver());
             builder.setErrorHandler(this);
         } catch (ParserConfigurationException pce) {
-            throw new IllegalArgumentException("Filed to setup repository: ");
+            throw new IllegalArgumentException("Failed to create the DocumentBuilder. : ", pce);
         }
     }
 

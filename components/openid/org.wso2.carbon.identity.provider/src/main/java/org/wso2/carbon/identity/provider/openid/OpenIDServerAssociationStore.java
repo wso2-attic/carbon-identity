@@ -60,7 +60,7 @@ public class OpenIDServerAssociationStore extends InMemoryServerAssociationStore
             SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
             storeId = secureRandom.nextInt(9999);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA1PRNG algorithm could not be found.");
+            throw new RuntimeException("SHA1PRNG algorithm could not be found.", e);
         }
         timestamp = Long.toString(new Date().getTime());
         counter = 0;
