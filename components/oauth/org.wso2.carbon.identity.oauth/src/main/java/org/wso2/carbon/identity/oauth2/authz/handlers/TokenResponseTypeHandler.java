@@ -217,7 +217,7 @@ public class TokenResponseTypeHandler extends AbstractResponseTypeHandler {
                     if (OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE.equals(tokenState)) {
 
                         // Token is expired. If refresh token is still valid, use it.
-                        if(refreshTokenExpiryTime > 0 || refreshTokenExpiryTime < 0) {
+                        if (refreshTokenExpiryTime > 0 || refreshTokenExpiryTime < 0) {
                             if (log.isDebugEnabled()) {
                                 log.debug("Access token has expired, But refresh token is still valid. User existing " +
                                         "refresh token.");

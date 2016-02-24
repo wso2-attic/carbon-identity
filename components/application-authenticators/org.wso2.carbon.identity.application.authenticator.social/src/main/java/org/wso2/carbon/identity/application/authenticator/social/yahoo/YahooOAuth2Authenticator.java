@@ -57,7 +57,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
         oAuthEndpoint = getAuthenticatorConfig().getParameterMap()
                 .get(YahooOAuth2AuthenticatorConstants.YAHOO_OAUTHZ_ENDPOINT);
 
-        if(oAuthEndpoint == null) {
+        if (oAuthEndpoint == null) {
             oAuthEndpoint = IdentityApplicationConstants.YAHOO_OAUTH2_URL;
         }
     }
@@ -70,7 +70,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
         tokenEndpoint =  getAuthenticatorConfig().getParameterMap()
                 .get(YahooOAuth2AuthenticatorConstants.YAHOO_TOKEN_ENDPOINT);
 
-        if(tokenEndpoint == null) {
+        if (tokenEndpoint == null) {
             tokenEndpoint = IdentityApplicationConstants.YAHOO_TOKEN_URL;
         }
     }
@@ -83,66 +83,70 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
         userInfoURL = getAuthenticatorConfig().getParameterMap()
                 .get(YahooOAuth2AuthenticatorConstants.YAHOO_USERINFO_ENDPOINT);
 
-        if(userInfoURL == null) {
+        if (userInfoURL == null) {
             userInfoURL = IdentityApplicationConstants.YAHOO_USERINFO_URL;
         }
     }
 
     /**
      * Get authorization server endpoint.
+     *
      * @param authenticatorProperties Authenticator properties.
      * @return OAuth2 Endpoint
      */
     @Override
     protected String getAuthorizationServerEndpoint(Map<String, String> authenticatorProperties) {
 
-        if(oAuthEndpoint == null) {
+        if (oAuthEndpoint == null) {
             initOAuthEndpoint();
         }
-
         return oAuthEndpoint;
     }
 
     /**
      * Get token access endpoint.
+     *
      * @param authenticatorProperties Authenticator properties.
-     * @return
+     * @return Token endpoint
      */
     @Override
     protected String getTokenEndpoint(Map<String, String> authenticatorProperties) {
 
-        if(tokenEndpoint == null) {
+        if (tokenEndpoint == null) {
             initTokenEndpoint();
         }
-
         return tokenEndpoint;
     }
 
     /**
-     * We do not have a default claim dialect.
-     * @return
+     * Get the default claim dialect URI.
+     *
+     * @return Claim dialect URI.
      */
     @Override
     public String getClaimDialectURI() {
+
+        // We do not have a default claim dialect.
         return null;
     }
 
     /**
      * Get the user info endpoint url.
+     *
      * @return User info endpoint url.
      */
     private String getUserInfoURL() {
 
-        if(userInfoURL == null) {
+        if (userInfoURL == null) {
             initUserInfoURL();
         }
-
         return userInfoURL;
     }
 
     /**
      * Get OAuth2 Scope
-     * @param scope Scope
+     *
+     * @param scope                   Scope
      * @param authenticatorProperties Authentication properties.
      * @return OAuth2 Scope
      */
@@ -154,6 +158,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     /**
      * Get Authenticated User
+     *
      * @param token OAuth client response.
      * @return GUID of the authenticated user.
      */
@@ -165,6 +170,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     /**
      * Get the user info endpoint.
+     *
      * @param token OAuth client response.
      * @return User info endpoint.
      */
@@ -172,13 +178,12 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
     protected String getUserInfoEndpoint(OAuthClientResponse token, Map<String, String> authenticatorProperties) {
 
         String userGUID = token.getParam(YahooOAuth2AuthenticatorConstants.USER_GUID);
-        String url = getUserInfoURL() + userGUID + YahooOAuth2AuthenticatorConstants.YAHOO_USER_DETAILS_JSON;
-
-        return url;
+        return getUserInfoURL() + userGUID + YahooOAuth2AuthenticatorConstants.YAHOO_USER_DETAILS_JSON;
     }
 
     /**
      * Get Friendly Name.
+     *
      * @return Friendly name.
      */
     @Override
@@ -189,6 +194,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     /**
      * Get connector name.
+     *
      * @return Connector name.
      */
     @Override
@@ -199,17 +205,20 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     /**
      * Always return false as there is no ID token in Yahoo OAuth.
+     *
      * @param authenticatorProperties Authenticator properties.
      * @return False
      */
     @Override
     protected boolean requiredIDToken(Map<String, String> authenticatorProperties) {
+
         return false;
     }
 
     /**
      * Get subject attributes.
-     * @param token OAuthClientResponse
+     *
+     * @param token                   OAuthClientResponse
      * @param authenticatorProperties Map<String, String>
      * @return Map<ClaimMapping, String> Claim mappings.
      */
@@ -223,7 +232,7 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
             String url = getUserInfoEndpoint(token, authenticatorProperties);
             String json = sendRequest(url, accessToken);
 
-            if (!StringUtils.isNotBlank(json)) {
+            if (StringUtils.isBlank(json)) {
                 if (log.isDebugEnabled()) {
                     log.debug("Unable to fetch user claims. Proceeding without user claims");
                 }
@@ -231,10 +240,13 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
             }
 
             Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
+            Map<String, Object> profile = null;
 
-            // Extract the inner profile JSON object.
-            Map<String, Object> profile = JSONUtils.parseJSON(
-                    jsonObject.entrySet().iterator().next().getValue().toString());
+            if (!jsonObject.isEmpty()) {
+
+                // Extract the inner profile JSON object.
+                profile = JSONUtils.parseJSON(jsonObject.entrySet().iterator().next().getValue().toString());
+            }
 
             if (profile == null) {
                 if (log.isDebugEnabled()) {
@@ -256,18 +268,18 @@ public class YahooOAuth2Authenticator extends OpenIDConnectAuthenticator {
         } catch (IOException e) {
             log.error("Communication error occurred while accessing user info endpoint", e);
         }
-
         return claims;
     }
 
     /**
      * Get configuration properties.
+     *
      * @return Properties list.
      */
     @Override
     public List<Property> getConfigurationProperties() {
 
-        List<Property> configProperties = new ArrayList<Property>();
+        List<Property> configProperties = new ArrayList<>();
 
         Property clientId = new Property();
         clientId.setName(OIDCAuthenticatorConstants.CLIENT_ID);

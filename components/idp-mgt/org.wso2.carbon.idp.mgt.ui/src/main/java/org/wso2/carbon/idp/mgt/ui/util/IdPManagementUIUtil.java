@@ -106,19 +106,16 @@ public class IdPManagementUIUtil {
 
             Map<String, List<Property>> customAuthenticatorProperties = new HashMap<String, List<Property>>();
             Map<String, List<Property>> customProProperties = new HashMap<String, List<Property>>();
-
             String idpUUID = StringUtils.EMPTY;
 
             for (Object item : items) {
-
                 DiskFileItem diskFileItem = (DiskFileItem) item;
 
                 if (diskFileItem != null) {
-
                     byte[] value = diskFileItem.get();
                     String key = diskFileItem.getFieldName();
 
-                    if(StringUtils.equals(key, "idpUUID")) {
+                    if (StringUtils.equals(key, "idpUUID")) {
                         idpUUID = diskFileItem.getString();
                     }
 
@@ -199,8 +196,8 @@ public class IdPManagementUIUtil {
 
             IdentityProvider oldIdentityProvider = (IdentityProvider) request.getSession().getAttribute(idpUUID);
 
-            if(oldIdentityProvider != null) {
-                if(oldIdpName == null) {
+            if (oldIdentityProvider != null) {
+                if (oldIdpName == null) {
                     oldIdpName = new StringBuilder();
                 }
                 oldIdpName.append(oldIdentityProvider.getIdentityProviderName());

@@ -27,6 +27,8 @@ import java.util.UUID;
 
 public class ApplicationMgtUIUtil {
 
+    private static final String SP_UNIQUE_ID_MAP = "spUniqueIdMap";
+
     /**
      * Get related application bean from the session.
      *
@@ -38,21 +40,19 @@ public class ApplicationMgtUIUtil {
 
         Map<String, UUID> spUniqueIdMap;
 
-        if (session.getAttribute("spUniqueIdMap") == null) {
+        if (session.getAttribute(SP_UNIQUE_ID_MAP) == null) {
             spUniqueIdMap = new HashMap<>();
-            session.setAttribute("spUniqueIdMap", spUniqueIdMap);
+            session.setAttribute(SP_UNIQUE_ID_MAP, spUniqueIdMap);
         } else {
-            spUniqueIdMap = (HashMap<String, UUID>) session.getAttribute("spUniqueIdMap");
+            spUniqueIdMap = (HashMap<String, UUID>)session.getAttribute(SP_UNIQUE_ID_MAP);
         }
 
         if (spUniqueIdMap.get(spName) == null) {
             ApplicationBean applicationBean = new ApplicationBean();
             UUID uuid = UUID.randomUUID();
-
             spUniqueIdMap.put(spName, uuid);
             session.setAttribute(uuid.toString(), applicationBean);
         }
-
         return (ApplicationBean) session.getAttribute(spUniqueIdMap.get(spName).toString());
     }
 
@@ -64,16 +64,14 @@ public class ApplicationMgtUIUtil {
      */
     public static void removeApplicationBeanFromSession(HttpSession session, String spName) {
 
-        if(session.getAttribute("spUniqueIdMap") == null) {
+        if (session.getAttribute(SP_UNIQUE_ID_MAP) == null) {
             return;
         }
-
-        Map<String, UUID> spUniqueIdMap = (HashMap<String, UUID>) session.getAttribute("spUniqueIdMap");
+        Map<String, UUID> spUniqueIdMap = (HashMap<String, UUID>)session.getAttribute(SP_UNIQUE_ID_MAP);
 
         if (spUniqueIdMap.get(spName) == null) {
             return;
         }
-
         session.removeAttribute(spUniqueIdMap.get(spName).toString());
         spUniqueIdMap.remove(spName);
     }

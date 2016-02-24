@@ -373,16 +373,13 @@ public class OAuthAppDAO {
         Connection connection = null;
 
         try {
-
             connection = IdentityDatabaseUtil.getDBConnection();
             statement = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.UPDATE_OAUTH_INFO);
-
             statement.setString(1, appName);
             statement.setString(2, consumerKey);
-
             statement.execute();
+            connection.setAutoCommit(false);
             connection.commit();
-
         } catch (SQLException e) {
             throw new IdentityApplicationManagementException("Error while executing the SQL statement.", e);
         } finally {
