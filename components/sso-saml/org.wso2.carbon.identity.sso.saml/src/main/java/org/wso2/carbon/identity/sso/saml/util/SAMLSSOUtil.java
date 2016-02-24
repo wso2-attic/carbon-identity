@@ -1345,6 +1345,7 @@ public class SAMLSSOUtil {
             privilegedCarbonContext.setTenantId(tenantId);
             privilegedCarbonContext.setTenantDomain(tenantDomain);
 
+            IdentityTenantUtil.initializeRegistry(tenantId, tenantDomain);
             IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
             Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry
                     (RegistryType.SYSTEM_CONFIGURATION);
