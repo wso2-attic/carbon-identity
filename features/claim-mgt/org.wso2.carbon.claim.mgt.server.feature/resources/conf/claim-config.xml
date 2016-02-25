@@ -213,7 +213,6 @@
 				<!-- Proper attribute Id in your user store must be configured for this -->
 				<AttributeID>disable</AttributeID>
 				<Description>Account Disabled</Description>
-				<SupportedByDefault />
 			</Claim>
 			<Claim>
 				<ClaimURI>http://wso2.org/claims/identity/failedLoginAttempts</ClaimURI>
