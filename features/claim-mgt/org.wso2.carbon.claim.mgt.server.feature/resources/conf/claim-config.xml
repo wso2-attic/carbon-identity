@@ -211,7 +211,7 @@
 				<ClaimURI>http://wso2.org/claims/identity/accountDisabled</ClaimURI>
 				<DisplayName>Account Disabled</DisplayName>
 				<!-- Proper attribute Id in your user store must be configured for this -->
-				<AttributeID>disable</AttributeID>
+				<AttributeID>ref</AttributeID>
 				<Description>Account Disabled</Description>
 			</Claim>
 			<Claim>
