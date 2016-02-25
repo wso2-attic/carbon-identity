@@ -87,7 +87,7 @@ public class OAuthAppDAO {
 
             } catch (SQLException e) {
                 throw new IdentityOAuthAdminException("Error when executing the SQL : " +
-                        SQLQueries.OAuthAppDAOSQLQueries.ADD_OAUTH_APP);
+                        SQLQueries.OAuthAppDAOSQLQueries.ADD_OAUTH_APP, e);
             } catch (IdentityOAuth2Exception e) {
                 throw new IdentityOAuthAdminException("Error occurred while processing the client id and client " +
                         "secret by TokenPersistenceProcessor");
@@ -148,14 +148,14 @@ public class OAuthAppDAO {
             boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(tenantUnawareUserName);
 
             String sql = SQLQueries.OAuthAppDAOSQLQueries.GET_APPS_OF_USER_WITH_TENANTAWARE_OR_TENANTUNAWARE_USERNAME;
-            if (!isUsernameCaseSensitive){
+            if (!isUsernameCaseSensitive) {
                 sql = sql.replace("USERNAME", "LOWER(USERNAME)");
             }
             prepStmt = connection.prepareStatement(sql);
-            if (isUsernameCaseSensitive){
+            if (isUsernameCaseSensitive) {
                 prepStmt.setString(1, tenantAwareUserName);
                 prepStmt.setString(2, tenantUnawareUserName);
-            }else {
+            } else {
                 prepStmt.setString(1, tenantAwareUserName.toLowerCase());
                 prepStmt.setString(2, tenantUnawareUserName.toLowerCase());
             }
@@ -373,16 +373,13 @@ public class OAuthAppDAO {
         Connection connection = null;
 
         try {
-
             connection = IdentityDatabaseUtil.getDBConnection();
             statement = connection.prepareStatement(SQLQueries.OAuthAppDAOSQLQueries.UPDATE_OAUTH_INFO);
-
             statement.setString(1, appName);
             statement.setString(2, consumerKey);
-
             statement.execute();
+            connection.setAutoCommit(false);
             connection.commit();
-
         } catch (SQLException e) {
             throw new IdentityApplicationManagementException("Error while executing the SQL statement.", e);
         } finally {
@@ -401,13 +398,13 @@ public class OAuthAppDAO {
 
         try {
             String sql = SQLQueries.OAuthAppDAOSQLQueries.CHECK_EXISTING_APPLICATION;
-            if (!isUsernameCaseSensitive){
+            if (!isUsernameCaseSensitive) {
                 sql = sql.replace("USERNAME", "LOWER(USERNAME)");
             }
             prepStmt = connection.prepareStatement(sql);
-            if (isUsernameCaseSensitive){
+            if (isUsernameCaseSensitive) {
                 prepStmt.setString(1, username);
-            }else {
+            } else {
                 prepStmt.setString(1, username.toLowerCase());
             }
             prepStmt.setInt(2, tenantId);
@@ -446,7 +443,8 @@ public class OAuthAppDAO {
         } catch (IdentityOAuth2Exception e) {
             throw new IdentityOAuthAdminException("Error occurred while processing the client id by TokenPersistenceProcessor");
         } catch (SQLException e) {
-            throw new IdentityOAuthAdminException("Error when executing the SQL : " + SQLQueries.OAuthAppDAOSQLQueries.CHECK_EXISTING_CONSUMER);
+            throw new IdentityOAuthAdminException("Error when executing the SQL : " + SQLQueries
+                    .OAuthAppDAOSQLQueries.CHECK_EXISTING_CONSUMER, e);
         } finally {
             IdentityDatabaseUtil.closeAllConnections(connection, rSet, prepStmt);
         }

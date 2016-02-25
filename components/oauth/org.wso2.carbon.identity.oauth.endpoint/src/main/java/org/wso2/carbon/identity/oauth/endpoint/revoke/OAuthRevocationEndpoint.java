@@ -53,6 +53,9 @@ import java.util.Enumeration;
 public class OAuthRevocationEndpoint {
 
     private static final Log log = LogFactory.getLog(OAuthRevocationEndpoint.class);
+    private static final String TOKEN_PARAM = "token";
+    private static final String TOKEN_TYPE_HINT_PARAM = "token_type_hint";
+    private static final String CALLBACK_PARAM = "callback";
 
     @POST
     @Path("/")
@@ -69,19 +72,20 @@ public class OAuthRevocationEndpoint {
 
             HttpServletRequestWrapper httpRequest = new OAuthRequestWrapper(request, paramMap);
 
-            String token = httpRequest.getParameter("token");
-            if (StringUtils.isBlank(token) && paramMap.get("token") != null && !paramMap.isEmpty()) {
-                token = paramMap.get("token").get(0);
+            String token = httpRequest.getParameter(TOKEN_PARAM);
+            if (StringUtils.isBlank(token) && paramMap.get(TOKEN_PARAM) != null &&
+                    !paramMap.get(TOKEN_PARAM).isEmpty()) {
+                token = paramMap.get(TOKEN_PARAM).get(0);
             }
-            String tokenType = httpRequest.getParameter("token_type_hint");
-            if (StringUtils.isBlank(tokenType) && paramMap.get("token_type_hint") != null && !paramMap
-                    .get("token_type_hint").isEmpty()) {
-                tokenType = paramMap.get("token_type_hint").get(0);
+            String tokenType = httpRequest.getParameter(TOKEN_TYPE_HINT_PARAM);
+            if (StringUtils.isBlank(tokenType) && paramMap.get(TOKEN_TYPE_HINT_PARAM) != null && !paramMap
+                    .get(TOKEN_TYPE_HINT_PARAM).isEmpty()) {
+                tokenType = paramMap.get(TOKEN_TYPE_HINT_PARAM).get(0);
             }
-            String callback = httpRequest.getParameter("callback");
-            if (StringUtils.isBlank(callback) && paramMap.get("callback") != null && !paramMap.get
-                    ("callback").isEmpty()) {
-                callback = paramMap.get("callback").get(0);
+            String callback = httpRequest.getParameter(CALLBACK_PARAM);
+            if (StringUtils.isBlank(callback) && paramMap.get(CALLBACK_PARAM) != null && !paramMap.get
+                    (CALLBACK_PARAM).isEmpty()) {
+                callback = paramMap.get(CALLBACK_PARAM).get(0);
             }
 
             // extract the basic auth credentials if present in the request and use for

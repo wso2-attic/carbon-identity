@@ -37,7 +37,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     private String userInfoURL;
 
     /**
-     * initiate tokenEndpoint
+     * Initiate tokenEndpoint
      */
     private void initTokenEndpoint() {
         this.tokenEndpoint = getAuthenticatorConfig().getParameterMap().get(GoogleOAuth2AuthenticationConstant
@@ -48,7 +48,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * initiate authorization server endpoint
+     * Initiate authorization server endpoint
      */
     private void initOAuthEndpoint() {
         this.oAuthEndpoint = getAuthenticatorConfig().getParameterMap().get(GoogleOAuth2AuthenticationConstant

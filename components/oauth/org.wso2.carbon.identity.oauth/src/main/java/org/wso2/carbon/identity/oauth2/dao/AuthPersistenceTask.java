@@ -39,18 +39,24 @@ public class AuthPersistenceTask implements Runnable {
     @Override
     public void run() {
 
-        log.debug("Auth Token context persist consumer is started");
+        if (log.isDebugEnabled()) {
+            log.debug("Auth Token context persist consumer is started");
+        }
 
         while (true) {
             try {
                 AuthContextTokenDO authContextTokenDO = authContextTokenQueue.take();
                 if (authContextTokenDO != null) {
                     if (authContextTokenDO.getAuthzCodeDO() == null) {
-                        log.debug("Auth Token Data removing Task is started to run");
+                        if (log.isDebugEnabled()) {
+                            log.debug("Auth Token Data removing Task is started to run");
+                        }
                         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
                         tokenMgtDAO.doExpireAuthzCode(authContextTokenDO.getAuthzCode());
                     } else {
-                        log.debug("Auth Token Data persisting Task is started to run");
+                        if (log.isDebugEnabled()) {
+                            log.debug("Auth Token Data persisting Task is started to run");
+                        }
                         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
                         tokenMgtDAO.persistAuthorizationCode(authContextTokenDO.getAuthzCode(),
                                 authContextTokenDO.getConsumerKey(), authContextTokenDO.getCallbackUrl(),

@@ -106,19 +106,16 @@ public class IdPManagementUIUtil {
 
             Map<String, List<Property>> customAuthenticatorProperties = new HashMap<String, List<Property>>();
             Map<String, List<Property>> customProProperties = new HashMap<String, List<Property>>();
-
             String idpUUID = StringUtils.EMPTY;
 
             for (Object item : items) {
-
                 DiskFileItem diskFileItem = (DiskFileItem) item;
 
                 if (diskFileItem != null) {
-
                     byte[] value = diskFileItem.get();
                     String key = diskFileItem.getFieldName();
 
-                    if(StringUtils.equals(key, "idpUUID")) {
+                    if (StringUtils.equals(key, "idpUUID")) {
                         idpUUID = diskFileItem.getString();
                     }
 
@@ -199,8 +196,8 @@ public class IdPManagementUIUtil {
 
             IdentityProvider oldIdentityProvider = (IdentityProvider) request.getSession().getAttribute(idpUUID);
 
-            if(oldIdentityProvider != null) {
-                if(oldIdpName == null) {
+            if (oldIdentityProvider != null) {
+                if (oldIdpName == null) {
                     oldIdpName = new StringBuilder();
                 }
                 oldIdpName.append(oldIdentityProvider.getIdentityProviderName());
@@ -1736,11 +1733,9 @@ public class IdPManagementUIUtil {
      * @param startWith  the peoperty list startswith the given name
      * @return
      */
-    public static List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> getPropertySetStartsWith(
-            org.wso2.carbon.identity.application.common.model.idp.xsd.Property[] properties,
-            String startWith) {
-        List<org.wso2.carbon.identity.application.common.model.idp.xsd.Property> propertySet = new ArrayList<>();
-        for (org.wso2.carbon.identity.application.common.model.idp.xsd.Property property : properties) {
+    public static List<Property> getPropertySetStartsWith(Property[] properties, String startWith) {
+        List<Property> propertySet = new ArrayList<>();
+        for (Property property : properties) {
             if (property.getName().startsWith(startWith)) {
                 propertySet.add(property);
             }

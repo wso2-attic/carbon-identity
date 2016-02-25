@@ -207,9 +207,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
                     .append("Current time ").append(curTimeInMillis / 1000).append("\n")
                     .append("Nonce Value ").append(nonceValue).append("\n")
                     .append("Signature Algorithm ").append(signatureAlgorithm).append("\n");
-            if (log.isDebugEnabled()) {
-                log.debug(stringBuilder.toString());
-            }
+            log.debug(stringBuilder.toString());
         }
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet();
@@ -439,7 +437,7 @@ public class DefaultIDTokenBuilder implements org.wso2.carbon.identity.openidcon
         OAuthCache oauthCache = OAuthCache.getInstance();
         String authorizedUser = request.getAuthorizedUser().toString();
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
-        if (!isUsernameCaseSensitive){
+        if (!isUsernameCaseSensitive) {
             authorizedUser = authorizedUser.toLowerCase();
         }
 

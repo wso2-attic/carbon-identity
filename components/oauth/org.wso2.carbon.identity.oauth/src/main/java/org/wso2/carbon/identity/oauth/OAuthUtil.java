@@ -36,6 +36,7 @@ import javax.crypto.spec.SecretKeySpec;
 public final class OAuthUtil {
 
     public static final Log log = LogFactory.getLog(OAuthUtil.class);
+    private static final String ALGORITHM = "HmacSHA1";
 
     private OAuthUtil(){
 
@@ -52,8 +53,8 @@ public final class OAuthUtil {
             String secretKey = UUIDGenerator.generateUUID();
             String baseString = UUIDGenerator.generateUUID();
 
-            SecretKeySpec key = new SecretKeySpec(secretKey.getBytes(Charsets.UTF_8), "HmacSHA1");
-            Mac mac = Mac.getInstance("HmacSHA1");
+            SecretKeySpec key = new SecretKeySpec(secretKey.getBytes(Charsets.UTF_8), ALGORITHM);
+            Mac mac = Mac.getInstance(ALGORITHM);
             mac.init(key);
             byte[] rawHmac = mac.doFinal(baseString.getBytes(Charsets.UTF_8));
             String random = Base64.encode(rawHmac);
@@ -83,7 +84,7 @@ public final class OAuthUtil {
 
     public static void clearOAuthCache(String consumerKey, String authorizedUser) {
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
-        if (!isUsernameCaseSensitive){
+        if (!isUsernameCaseSensitive) {
             authorizedUser = authorizedUser.toLowerCase();
         }
         clearOAuthCache(consumerKey + ":" + authorizedUser);
@@ -91,7 +92,7 @@ public final class OAuthUtil {
 
     public static void clearOAuthCache(String consumerKey, String authorizedUser, String scope) {
         boolean isUsernameCaseSensitive = IdentityUtil.isUserStoreInUsernameCaseSensitive(authorizedUser);
-        if (!isUsernameCaseSensitive){
+        if (!isUsernameCaseSensitive) {
             authorizedUser = authorizedUser.toLowerCase();
         }
         clearOAuthCache(consumerKey + ":" + authorizedUser + ":" + scope);

@@ -398,6 +398,8 @@ public class IdentityUtil {
     }
 
     /**
+     * Check the case sensitivity of the user store in which the user is in.
+     *
      * @param username Full qualified username
      * @return
      */
@@ -418,6 +420,8 @@ public class IdentityUtil {
     }
 
     /**
+     * Check the case sensitivity of the user store in which the user is in.
+     *
      * @param username user name with user store domain
      * @param tenantId tenant id of the user
      * @return
@@ -428,6 +432,8 @@ public class IdentityUtil {
     }
 
     /**
+     * Check the case sensitivity of the user store.
+     *
      * @param userStoreDomain user store domain
      * @param tenantId        tenant id of the user store
      * @return
@@ -456,6 +462,8 @@ public class IdentityUtil {
     }
 
     /**
+     * Check the case sensitivity of the user store.
+     *
      * @param userStoreManager
      * @return
      */
@@ -707,6 +715,14 @@ public class IdentityUtil {
      */
     public static String getHostName() {
 
-        return ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
+        String hostName = ServerConfiguration.getInstance().getFirstProperty(IdentityCoreConstants.HOST_NAME);
+        if (hostName == null) {
+            try {
+                hostName = NetworkUtils.getLocalHostname();
+            } catch (SocketException e) {
+                throw IdentityRuntimeException.error("Error while trying to read hostname.", e);
+            }
+        }
+        return hostName;
     }
 }

@@ -119,7 +119,7 @@ public class Util {
                 secureRandom.nextBytes(bytes);
                 saltValue = Base64.encode(bytes);
             } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("SHA1PRNG algorithm could not be found.");
+                throw new RuntimeException("SHA1PRNG algorithm could not be found.", e);
             }
 
         }

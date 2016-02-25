@@ -73,7 +73,6 @@ class IdentityLogTokenParser {
      * @return Map{String String}
      */
     Map<String, String> getLogTokenMap() {
-
         return logTokenMap;
     }
 
@@ -86,10 +85,10 @@ class IdentityLogTokenParser {
         }
 
         FileInputStream fileInput = null;
+
         try {
             File file = new File(filePath);
             fileInput = new FileInputStream(file);
-
             Properties properties = new Properties();
             properties.load(fileInput);
 
