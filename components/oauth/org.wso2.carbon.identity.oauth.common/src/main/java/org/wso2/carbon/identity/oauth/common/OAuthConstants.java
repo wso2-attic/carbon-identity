@@ -80,6 +80,7 @@ public final class OAuthConstants {
     public static final String CLIENT_AUTH_CREDENTIAL_VALIDATION = "StrictClientCredentialValidation";
     public static final String ACCESS_TOKEN = "accessToken";
     public static final String ID_TOKEN = "id_token";
+    public static final String AUTHZ_CODE = "AuthorizationCode";
 
     //Response types
     public static final String NONE = "none";
