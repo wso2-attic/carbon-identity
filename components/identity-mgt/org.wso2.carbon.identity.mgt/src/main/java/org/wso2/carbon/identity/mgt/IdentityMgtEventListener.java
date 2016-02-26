@@ -193,6 +193,16 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                         return true;
                     }
 
+                    //If account is disabled, user should not be able to log in
+                    if(userIdentityDTO.getIsAccountDisabled()){
+                        IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(IdentityCoreConstants.USER_ACCOUNT_DISABLED);
+                        IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
+                        String errorMsg = "User account is disabled for user : " + userName;
+                        log.warn(errorMsg);
+                        throw new UserStoreException(IdentityCoreConstants.USER_ACCOUNT_DISABLED_ERROR_CODE + " "
+                                + errorMsg);
+                    }
+
                     // if the account is locked, should not be able to log in
                     if (userIdentityDTO.isAccountLocked()) {
 
@@ -221,17 +231,6 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
                             throw new UserStoreException(UserCoreConstants.ErrorCode.USER_IS_LOCKED + " "
                                     + errorMsg);
                         }
-                    }
-
-
-                    //If account is disabled, user should not be able to log in
-                    if(userIdentityDTO.getIsAccountDisabled()){
-                        IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(IdentityCoreConstants.USER_ACCOUNT_DISABLED);
-                        IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
-                        String errorMsg = "User account is disabled for user : " + userName;
-                        log.warn(errorMsg);
-                        throw new UserStoreException(IdentityCoreConstants.USER_ACCOUNT_DISABLED_ERROR_CODE + " "
-                                + errorMsg);
                     }
                 }
             }
