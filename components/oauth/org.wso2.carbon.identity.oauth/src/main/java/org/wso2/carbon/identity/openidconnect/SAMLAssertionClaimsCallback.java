@@ -188,6 +188,11 @@ public class SAMLAssertionClaimsCallback implements CustomClaimsCallbackHandler 
                 getUserAttributesFromCache(requestMsgCtx.getProperty(OAuthConstants.ACCESS_TOKEN).toString());
         Map<String, Object> claims = Collections.emptyMap();
 
+        if (userAttributes.isEmpty() && requestMsgCtx.getProperty(OAuthConstants.AUTHZ_CODE) != null) {
+            userAttributes =
+                    getUserAttributesFromCache(requestMsgCtx.getProperty(OAuthConstants.AUTHZ_CODE).toString());
+        }
+
         // If subject claim uri is null, we get the actual user name of the logged in user.
         if (MapUtils.isEmpty(userAttributes) && (getSubjectClaimUri(requestMsgCtx) == null)) {
             if (log.isDebugEnabled()) {

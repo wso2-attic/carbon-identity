@@ -132,11 +132,16 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
 
         /* Initializing the OpenSAML library */
         if (!bootStrapped) {
+            Thread thread = Thread.currentThread();
+            ClassLoader loader = thread.getContextClassLoader();
+            thread.setContextClassLoader(new DefaultSAML2SSOManager().getClass().getClassLoader());
             try {
                 DefaultBootstrap.bootstrap();
                 bootStrapped = true;
             } catch (ConfigurationException e) {
                 log.error("Error in bootstrapping the OpenSAML2 library", e);
+            } finally {
+                thread.setContextClassLoader(loader);
             }
         }
     }

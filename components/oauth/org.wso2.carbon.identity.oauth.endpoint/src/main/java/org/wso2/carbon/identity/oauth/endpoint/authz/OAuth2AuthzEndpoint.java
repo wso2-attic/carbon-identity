@@ -836,11 +836,10 @@ public class OAuth2AuthzEndpoint {
         Object attribute = request.getAttribute(FrameworkConstants.RequestParams.FLOW_STATUS);
         if (attribute != null) {
             if (attribute == AuthenticatorFlowStatus.INCOMPLETE) {
-                if (responseWrapper.getRedirectURL()
-                        .contains(ConfigurationFacade.getInstance().getAuthenticationEndpointURL())) {
+                if (responseWrapper.isRedirect()) {
                     response.sendRedirect(responseWrapper.getRedirectURL());
                 } else {
-                    response.sendRedirect(responseWrapper.getRedirectURL());
+                    return Response.status(HttpServletResponse.SC_OK).entity(responseWrapper.getResponseBody()).build();
                 }
             } else {
                 return authorize(request, response);
@@ -881,11 +880,10 @@ public class OAuth2AuthzEndpoint {
         if (attribute != null) {
             if (attribute == AuthenticatorFlowStatus.INCOMPLETE) {
 
-                if (responseWrapper.getRedirectURL()
-                        .contains(ConfigurationFacade.getInstance().getAuthenticationEndpointURL())) {
+                if (responseWrapper.isRedirect()) {
                     response.sendRedirect(responseWrapper.getRedirectURL());
                 } else {
-                    response.sendRedirect(responseWrapper.getRedirectURL());
+                    return Response.status(HttpServletResponse.SC_OK).entity(responseWrapper.getResponseBody()).build();
                 }
             } else {
                 return authorize(requestWrapper, responseWrapper);
