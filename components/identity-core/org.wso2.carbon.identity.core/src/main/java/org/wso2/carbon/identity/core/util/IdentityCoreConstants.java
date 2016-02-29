@@ -43,12 +43,6 @@ public class IdentityCoreConstants {
 
     public static final String WEB_CONTEXT_ROOT = "WebContextRoot";
 
-    public static final String USER_ACCOUNT_DISABLED = " User account is disabled";
-
-    //UserCoreConstants class define the rest of the relevant error codes.
-    public static final String USER_ACCOUNT_DISABLED_ERROR_CODE = "17004";
-
-    
     private IdentityCoreConstants(){
     }
 }
