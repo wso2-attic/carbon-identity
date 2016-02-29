@@ -113,7 +113,7 @@
             <artifactId>wsdl4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.org.apache.neethi</groupId>
+            <groupId>org.apache.neethi.wso2</groupId>
             <artifactId>neethi</artifactId>
             <exclusions>
                 <exclusion>

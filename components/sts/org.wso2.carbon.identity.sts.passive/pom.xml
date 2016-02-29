@@ -66,7 +66,11 @@
             <artifactId>org.wso2.carbon.security.mgt</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.org.opensaml</groupId>
+            <groupId>opensaml.wso2</groupId>
+            <artifactId>opensaml2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>opensaml.wso2</groupId>
             <artifactId>opensaml</artifactId>
         </dependency>
         <dependency>

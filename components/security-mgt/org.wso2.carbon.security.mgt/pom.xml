@@ -34,7 +34,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.orbit.org.apache.neethi</groupId>
+            <groupId>org.apache.neethi.wso2</groupId>
             <artifactId>neethi</artifactId>
         </dependency>
         <dependency>

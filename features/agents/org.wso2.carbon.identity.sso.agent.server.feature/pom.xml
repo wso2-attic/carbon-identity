@@ -38,8 +38,8 @@
             <artifactId>org.wso2.carbon.identity.sso.agent</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.org.opensaml</groupId>
-            <artifactId>opensaml</artifactId>
+            <groupId>opensaml.wso2</groupId>
+            <artifactId>opensaml2</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.org.openid4java</groupId>
@@ -81,7 +81,7 @@
                             </adviceFile>
                             <bundles>
                                 <bundleDef>org.wso2.carbon.identity:org.wso2.carbon.identity.sso.agent</bundleDef>
-                                <bundleDef>org.wso2.orbit.org.opensaml:opensaml</bundleDef>
+                                <bundleDef>opensaml.wso2:opensaml2</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.openid4java:openid4java</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.oltu.oauth2:oltu</bundleDef>
                                 <bundleDef>org.wso2.orbit.org.apache.httpcomponents:httpclient</bundleDef>
