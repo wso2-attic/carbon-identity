@@ -91,6 +91,7 @@ public class PassiveSTS extends HttpServlet {
      *
      */
     private static final long serialVersionUID = 1927253892844132565L;
+    private static final String SESSION_DATA_KEY = "sessionDataKey";
 
     private String stsRedirectPage = null;
     private String redirectHtmlFilePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
@@ -164,8 +165,11 @@ public class PassiveSTS extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        if (req.getParameter("sessionDataKey") != null) {
+
+        String sessionDataKey = req.getParameter(SESSION_DATA_KEY);
+        if (sessionDataKey != null) {
             handleResponseFromAuthenticationFramework(req, resp);
+            FrameworkUtils.removeAuthenticationResultFromCache(sessionDataKey);
         } else if ("wsignout1.0".equals(getAttribute(req.getParameterMap(), PassiveRequestorConstants.ACTION))) {
             handleLogoutRequest(req, resp);
         } else {
