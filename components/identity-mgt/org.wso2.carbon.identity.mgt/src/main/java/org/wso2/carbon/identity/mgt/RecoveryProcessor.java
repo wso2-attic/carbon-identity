@@ -213,7 +213,7 @@ public class RecoveryProcessor {
             } else if (IdentityMgtConstants.Notification.ACCOUNT_UNLOCK.equals(notification)) {
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_UNLOCK);
                 persistData = false;
-            }else if(IdentityMgtConstants.Notification.ACCOUNT_ENABLE.equals(notification)){
+            } else if(IdentityMgtConstants.Notification.ACCOUNT_ENABLE.equals(notification)) {
                 emailTemplate = config.getProperty(IdentityMgtConstants.Notification.ACCOUNT_ENABLE);
                 persistData = false;
             } else if (IdentityMgtConstants.Notification.ACCOUNT_ID_RECOVERY.equals(notification)) {
@@ -401,7 +401,7 @@ public class RecoveryProcessor {
                     if (!Boolean.parseBoolean(accountDisable)) {
                         success = true;
                     }
-                } else{
+                } else {
                     success = true;
                 }
             } else {

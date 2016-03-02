@@ -143,7 +143,7 @@ public class UserIdentityManagementAdminService {
 
     /**
      * Admin disables the user account. Only the admin can enable the account using
-     * the {@literal unlockUserAccount} method.
+     * the {@literal enableUserAccount} method.
      *
      * @param userName
      * @throws IdentityMgtServiceException
@@ -155,14 +155,14 @@ public class UserIdentityManagementAdminService {
             String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
             UserIdentityManagementUtil.disableUserAccount(userNameWithoutDomain, userStoreManager);
             log.info("User account disabled: " + userName);
-        } catch (UserStoreException|IdentityException e) {
+        } catch (UserStoreException | IdentityException e) {
             log.error("Error occurred while trying to disable the account " + userName, e);
             throw new IdentityMgtServiceException("Error occurred while trying to disable the account " + userName, e);
         }
     }
 
     /**
-     * Admin unlocks the user account.
+     * Admin enables the user account.
      *
      * @param userName
      * @throws IdentityMgtServiceException
@@ -171,7 +171,7 @@ public class UserIdentityManagementAdminService {
         try {
             UserStoreManager userStoreManager = getUserStore(userName);
             String userNameWithoutDomain = UserCoreUtil.removeDomainFromName(userName);
-            UserIdentityManagementUtil.unlockUserAccount(userNameWithoutDomain, userStoreManager);
+            UserIdentityManagementUtil.enableUserAccount(userNameWithoutDomain, userStoreManager);
             int tenantID = userStoreManager.getTenantId();
             String tenantDomain = IdentityMgtServiceComponent.getRealmService().getTenantManager().getDomain(tenantID);
             boolean isNotificationSending = IdentityMgtConfig.getInstance().isNotificationSending();
@@ -189,7 +189,7 @@ public class UserIdentityManagementAdminService {
                 IdentityMgtServiceComponent.getRecoveryProcessor().recoverWithNotification(dto);
             }
             log.info("Account enabled for: " + userName);
-        } catch (UserStoreException|IdentityException e) {
+        } catch (UserStoreException | IdentityException e) {
             String message = "Error occurred while enabling account for: " + userName;
             log.error(message, e);
             throw new IdentityMgtServiceException(message, e);

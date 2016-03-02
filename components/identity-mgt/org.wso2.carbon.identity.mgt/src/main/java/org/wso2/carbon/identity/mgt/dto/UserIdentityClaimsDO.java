@@ -269,7 +269,7 @@ public class UserIdentityClaimsDO implements Serializable {
         this.confirmationCode = confirmationCode;
     }
 
-    public Boolean getIsAccountDisabled(){
+    public Boolean getIsAccountDisabled() {
         return isAccountDisabled;
     }
 

@@ -189,12 +189,12 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
 
                     UserIdentityClaimsDO userIdentityDTO = module.load(userName, userStoreManager);
 
-                    if(userIdentityDTO == null){
+                    if (userIdentityDTO == null) {
                         return true;
                     }
 
                     //If account is disabled, user should not be able to log in
-                    if(userIdentityDTO.getIsAccountDisabled()){
+                    if (userIdentityDTO.getIsAccountDisabled()) {
                         IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(
                                 IdentityCoreConstants.USER_ACCOUNT_DISABLED);
                         IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
@@ -808,14 +808,11 @@ public class IdentityMgtEventListener extends AbstractIdentityUserOperationEvent
             IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(UserCoreConstants
                     .ErrorCode.USER_IS_LOCKED);
             IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
-        }
-
-        else if (accountDisabled) {
+        } else if (accountDisabled) {
             IdentityErrorMsgContext customErrorMessageContext = new IdentityErrorMsgContext(
                     IdentityCoreConstants.USER_ACCOUNT_DISABLED_ERROR_CODE);
             IdentityUtil.setIdentityErrorMsg(customErrorMessageContext);
-        }
-        else{
+        } else {
             // do nothing
         }
 
