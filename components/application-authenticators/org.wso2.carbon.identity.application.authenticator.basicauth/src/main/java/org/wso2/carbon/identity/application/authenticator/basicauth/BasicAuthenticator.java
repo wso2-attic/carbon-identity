@@ -32,6 +32,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authenticator.basicauth.internal.BasicAuthenticatorServiceComponent;
 import org.wso2.carbon.identity.base.IdentityRuntimeException;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
+import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.api.UserRealm;
@@ -153,6 +154,11 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
                                 + BasicAuthenticatorConstants.FAILED_USERNAME + URLEncoder.encode(request.getParameter(BasicAuthenticatorConstants.USER_NAME), BasicAuthenticatorConstants.UTF_8);
                         response.sendRedirect(response.encodeRedirectURL(loginPage + ("?" + queryParams))
                                 + BasicAuthenticatorConstants.AUTHENTICATORS + getName() + ":" + BasicAuthenticatorConstants.LOCAL + retryParam);
+                    } else if (errorCode.equals(IdentityCoreConstants.USER_ACCOUNT_DISABLED_ERROR_CODE)) {
+                        retryParam = retryParam + BasicAuthenticatorConstants.ERROR_CODE + errorCode
+                                + BasicAuthenticatorConstants.FAILED_USERNAME + URLEncoder.encode(request.getParameter(BasicAuthenticatorConstants.USER_NAME), BasicAuthenticatorConstants.UTF_8);
+                        response.sendRedirect(response.encodeRedirectURL(loginPage + ("?" + queryParams))
+                            + BasicAuthenticatorConstants.AUTHENTICATORS + getName() + ":" + BasicAuthenticatorConstants.LOCAL + retryParam);
                     }
                 } else {
                     response.sendRedirect(response.encodeRedirectURL(loginPage + ("?" + queryParams))

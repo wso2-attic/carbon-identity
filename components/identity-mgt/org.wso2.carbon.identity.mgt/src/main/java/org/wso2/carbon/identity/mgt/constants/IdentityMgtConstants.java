@@ -141,6 +141,8 @@ public class IdentityMgtConstants {
 
         public static final String AUTH_POLICY_ACCOUNT_LOCK = "Authentication.Policy.Check.Account.Lock";
 
+        public static final String AUTH_POLICY_ACCOUNT_DISABLE = "Authentication.Policy.Check.Account.Disable";
+
         public static final String AUTH_POLICY_ACCOUNT_EXIST = "Authentication.Policy.Check.Account.Exist";
 
         public static final String AUTH_POLICY_ACCOUNT_LOCKING_TIME = "Authentication.Policy.Account.Lock.Time";
@@ -194,6 +196,8 @@ public class IdentityMgtConstants {
 
         public static final String ASK_PASSWORD = "askPassword";
 
+        public static final String ACCOUNT_ENABLE = "accountEnable";
+
         private Notification(){
         }
 
@@ -213,11 +217,6 @@ public class IdentityMgtConstants {
         public static final String INVALID_CONFIRMATION_CODE = " Invalid confirmation code ";
 
         public static final String USER_ACCOUNT = " No user account found for user ";
-
-        public static final String USER_ACCOUNT_DISABLED = " User account is disabled";
-
-        //UserCoreConstants class define the rest of the relevant error codes.
-        public static final String USER_ACCOUNT_DISABLED_ERROR_CODE = "17004";
 
     }
 }

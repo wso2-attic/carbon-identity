@@ -26,7 +26,6 @@ import org.wso2.carbon.identity.core.AbstractIdentityUserOperationEventListener;
 import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.oauth.OAuthUtil;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
@@ -126,7 +125,7 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
 
         IdentityErrorMsgContext errorContext = IdentityUtil.getIdentityErrorMsg();
 
-        if (errorContext != null && errorContext.getErrorCode() == IdentityMgtConstants.ErrorHandling.USER_ACCOUNT_DISABLED_ERROR_CODE){
+        if (errorContext != null && errorContext.getErrorCode() == IdentityCoreConstants.USER_ACCOUNT_DISABLED_ERROR_CODE){
             return revokeTokens(userName, userStoreManager);
         }
         return true;
