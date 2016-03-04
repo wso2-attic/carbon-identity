@@ -166,7 +166,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
         String tenantDomain = OAuth2Util.getTenantDomain(tenantID);
         boolean isExistingUser = false;
 
-        RealmService realmService = OAuthComponentServiceHolder.getRealmService();
+        RealmService realmService = OAuthComponentServiceHolder.getInstance().getRealmService();
         // TODO : Need to handle situation where federated user name is similar to a one we have in our user store
         if (realmService != null && tenantID != MultitenantConstants.INVALID_TENANT_ID ) {
             try {
@@ -531,7 +531,7 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
         try {
             RealmConfiguration realmConfiguration = null;
-            RealmService realmService = OAuthComponentServiceHolder.getRealmService();
+            RealmService realmService = OAuthComponentServiceHolder.getInstance().getRealmService();
 
             if (realmService != null && tenantId != MultitenantConstants.INVALID_TENANT_ID) {
                 UserStoreManager userStoreManager = (UserStoreManager) realmService.getTenantUserRealm(tenantId)

@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
@@ -32,6 +31,9 @@ import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
+import org.wso2.carbon.identity.oauth.event.OauthEventListener;
+import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.ResponseHeader;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
@@ -77,6 +79,7 @@ public class AccessTokenIssuer {
         }
 
     }
+
     /**
      * Singleton method
      *
@@ -109,10 +112,26 @@ public class AccessTokenIssuer {
 
         String grantType = tokenReqDTO.getGrantType();
         OAuth2AccessTokenRespDTO tokenRespDTO;
+        List<OauthEventListener> oauthEventListeners =
+                OAuthComponentServiceHolder.getInstance().getOauthEventListeners();
 
         AuthorizationGrantHandler authzGrantHandler = authzGrantHandlers.get(grantType);
 
         OAuthTokenReqMessageContext tokReqMsgCtx = new OAuthTokenReqMessageContext(tokenReqDTO);
+        boolean isRefreshRequest = GrantType.REFRESH_TOKEN.toString().equals(grantType);
+
+        if (isRefreshRequest) {
+            for (OauthEventListener eventListener : oauthEventListeners) {
+                //If listener fail, it will throw an exception and stop the token issue process
+                eventListener.onPreTokenRenewal(tokenReqDTO, tokReqMsgCtx);
+            }
+        } else {
+            for (OauthEventListener eventListener : oauthEventListeners) {
+                //If listener fail, it will throw an exception and stop the token issue process
+                eventListener.onPreTokenIssue(tokenReqDTO, tokReqMsgCtx);
+            }
+        }
+
 
         // If multiple client authentication methods have been used the authorization server must reject the request
         int authenticatorHandlerIndex = -1;
@@ -125,6 +144,8 @@ public class AccessTokenIssuer {
                             OAuthConstants.OAuthError.TokenResponse.UNSUPPORTED_CLIENT_AUTHENTICATION_METHOD,
                             "Unsupported Client Authentication Method!", tokenReqDTO);
                     setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
+                    triggerPostListeners(oauthEventListeners, tokenReqDTO, tokenRespDTO, tokReqMsgCtx,
+                            isRefreshRequest);
                     return tokenRespDTO;
                 }
                 authenticatorHandlerIndex = i;
@@ -137,6 +158,8 @@ public class AccessTokenIssuer {
                     OAuthConstants.OAuthError.TokenResponse.UNSUPPORTED_CLIENT_AUTHENTICATION_METHOD,
                     "Unsupported Client Authentication Method!", tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
+            triggerPostListeners(oauthEventListeners, tokenReqDTO, tokenRespDTO, tokReqMsgCtx,
+                    isRefreshRequest);
             return tokenRespDTO;
         }
 
@@ -151,12 +174,14 @@ public class AccessTokenIssuer {
             isAuthenticated = true;
         }
         if (!isAuthenticated) {
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Client Authentication failed for client Id: " + tokenReqDTO.getClientId());
             }
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_CLIENT,
                     "Client credentials are invalid.", tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
+            triggerPostListeners(oauthEventListeners, tokenReqDTO, tokenRespDTO, tokReqMsgCtx,
+                    isRefreshRequest);
             return tokenRespDTO;
         }
 
@@ -171,7 +196,7 @@ public class AccessTokenIssuer {
         try {
             isValidGrant = authzGrantHandler.validateGrant(tokReqMsgCtx);
         } catch (IdentityOAuth2Exception e) {
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("Error occurred while validating grant", e);
             }
             error = e.getMessage();
@@ -183,40 +208,48 @@ public class AccessTokenIssuer {
             }
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_GRANT, error, tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
+            triggerPostListeners(oauthEventListeners, tokenReqDTO, tokenRespDTO, tokReqMsgCtx,
+                    isRefreshRequest);
             return tokenRespDTO;
         }
 
         boolean isAuthorized = authzGrantHandler.authorizeAccessDelegation(tokReqMsgCtx);
         if (!isAuthorized) {
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Invalid authorization for client Id = " + tokenReqDTO.getClientId());
             }
             tokenRespDTO = handleError(OAuthError.TokenResponse.UNAUTHORIZED_CLIENT,
                     "Unauthorized Client!", tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
+            triggerPostListeners(oauthEventListeners, tokenReqDTO, tokenRespDTO, tokReqMsgCtx,
+                    isRefreshRequest);
             return tokenRespDTO;
         }
 
         boolean isValidScope = authzGrantHandler.validateScope(tokReqMsgCtx);
         if (!isValidScope) {
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Invalid scope provided by client Id: " + tokenReqDTO.getClientId());
             }
             tokenRespDTO = handleError(OAuthError.TokenResponse.INVALID_SCOPE, "Invalid Scope!", tokenReqDTO);
             setResponseHeaders(tokReqMsgCtx, tokenRespDTO);
+            triggerPostListeners(oauthEventListeners, tokenReqDTO, tokenRespDTO, tokReqMsgCtx,
+                    isRefreshRequest);
             return tokenRespDTO;
         }
 
-	try {
-	    // set the token request context to be used by downstream handlers. This is introduced as a fix for
-	    // IDENTITY-4111.
-	    OAuth2Util.setTokenRequestContext(tokReqMsgCtx);
-	    tokenRespDTO = authzGrantHandler.issue(tokReqMsgCtx);
-	} finally {
-	    // clears the token request context.
-	    OAuth2Util.clearTokenRequestContext();
-	}
-	
+        try {
+            // set the token request context to be used by downstream handlers. This is introduced as a fix for
+            // IDENTITY-4111.
+            OAuth2Util.setTokenRequestContext(tokReqMsgCtx);
+            tokenRespDTO = authzGrantHandler.issue(tokReqMsgCtx);
+            triggerPostListeners(oauthEventListeners, tokenReqDTO, tokenRespDTO, tokReqMsgCtx,
+                    isRefreshRequest);
+        } finally {
+            // clears the token request context.
+            OAuth2Util.clearTokenRequestContext();
+        }
+
         tokenRespDTO.setCallbackURI(oAuthAppDO.getCallbackUrl());
 
         String[] scopes = tokReqMsgCtx.getScope();
@@ -249,6 +282,29 @@ public class AccessTokenIssuer {
         return tokenRespDTO;
     }
 
+    private void triggerPostListeners(List<OauthEventListener> listeners, OAuth2AccessTokenReqDTO tokenReqDTO,
+                                      OAuth2AccessTokenRespDTO tokenRespDTO, OAuthTokenReqMessageContext tokReqMsgCtx,
+                                      boolean isRefresh) {
+
+        if (isRefresh) {
+            for (OauthEventListener listener : listeners) {
+                try {
+                    listener.onPostTokenRenewal(tokenReqDTO, tokenRespDTO, tokReqMsgCtx);
+                } catch (IdentityOAuth2Exception e) {
+                    log.error("Oauth post renewal listener " + listener.getClass().getName() + " failed.", e);
+                }
+            }
+        } else {
+            for (OauthEventListener listener : listeners) {
+                try {
+                    listener.onPostTokenIssue(tokenReqDTO, tokenRespDTO, tokReqMsgCtx);
+                } catch (IdentityOAuth2Exception e) {
+                    log.error("Oauth post issuer listener " + listener.getClass().getName() + " failed.", e);
+                }
+            }
+        }
+    }
+
     /**
      * Add user attributes to cache.
      *
@@ -256,20 +312,23 @@ public class AccessTokenIssuer {
      * @param tokenRespDTO
      */
     private void addUserAttributesToCache(OAuth2AccessTokenReqDTO tokenReqDTO, OAuth2AccessTokenRespDTO tokenRespDTO) {
+
         AuthorizationGrantCacheKey oldCacheKey = new AuthorizationGrantCacheKey(tokenReqDTO.getAuthorizationCode());
         //checking getUserAttributesId value of cacheKey before retrieve entry from cache as it causes to NPE
         if (oldCacheKey.getUserAttributesId() != null) {
-            AuthorizationGrantCacheEntry authorizationGrantCacheEntry = AuthorizationGrantCache.getInstance().getValueFromCacheByCode(oldCacheKey);
+            AuthorizationGrantCacheEntry authorizationGrantCacheEntry =
+                    AuthorizationGrantCache.getInstance().getValueFromCacheByCode(oldCacheKey);
             AuthorizationGrantCacheKey newCacheKey = new AuthorizationGrantCacheKey(tokenRespDTO.getAccessToken());
             authorizationGrantCacheEntry.setTokenId(tokenRespDTO.getTokenId());
             if (AuthorizationGrantCache.getInstance().getValueFromCacheByToken(newCacheKey) == null) {
-                if(log.isDebugEnabled()){
-                   log.debug("No AuthorizationGrantCache entry found for the access token:"+ newCacheKey.getUserAttributesId()+
-                   ", hence adding to cache");
+                if (log.isDebugEnabled()) {
+                    log.debug("No AuthorizationGrantCache entry found for the access token:" +
+                            newCacheKey.getUserAttributesId() +
+                            ", hence adding to cache");
                 }
                 AuthorizationGrantCache.getInstance().addToCacheByToken(newCacheKey, authorizationGrantCacheEntry);
                 AuthorizationGrantCache.getInstance().clearCacheEntryByCode(oldCacheKey);
-            } else{
+            } else {
                 //if the user attributes are already saved for access token, no need to add again.
             }
         }
@@ -283,7 +342,9 @@ public class AccessTokenIssuer {
      * @throws IdentityOAuth2Exception
      * @throws InvalidOAuthClientException
      */
-    private OAuthAppDO getAppInformation(OAuth2AccessTokenReqDTO tokenReqDTO) throws IdentityOAuth2Exception, InvalidOAuthClientException {
+    private OAuthAppDO getAppInformation(OAuth2AccessTokenReqDTO tokenReqDTO)
+            throws IdentityOAuth2Exception, InvalidOAuthClientException {
+
         OAuthAppDO oAuthAppDO = appInfoCache.getValueFromCache(tokenReqDTO.getClientId());
         if (oAuthAppDO != null) {
             return oAuthAppDO;
@@ -305,6 +366,7 @@ public class AccessTokenIssuer {
     private OAuth2AccessTokenRespDTO handleError(String errorCode,
                                                  String errorMsg,
                                                  OAuth2AccessTokenReqDTO tokenReqDTO) {
+
         if (log.isDebugEnabled()) {
             log.debug("OAuth-Error-Code=" + errorCode + " client-id=" + tokenReqDTO.getClientId()
                     + " grant-type=" + tokenReqDTO.getGrantType()
@@ -320,11 +382,13 @@ public class AccessTokenIssuer {
 
     /**
      * Set headers in OAuth2AccessTokenRespDTO
+     *
      * @param tokReqMsgCtx
      * @param tokenRespDTO
      */
     private void setResponseHeaders(OAuthTokenReqMessageContext tokReqMsgCtx,
                                     OAuth2AccessTokenRespDTO tokenRespDTO) {
+
         if (tokReqMsgCtx.getProperty("RESPONSE_HEADERS") != null) {
             tokenRespDTO.setResponseHeaders((ResponseHeader[]) tokReqMsgCtx.getProperty("RESPONSE_HEADERS"));
         }

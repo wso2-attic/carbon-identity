@@ -134,7 +134,7 @@ public class JDBCScopeValidator extends OAuth2ScopeValidator {
             }
 
             User authzUser = accessTokenDO.getAuthzUser();
-            RealmService realmService = OAuthComponentServiceHolder.getRealmService();
+            RealmService realmService = OAuthComponentServiceHolder.getInstance().getRealmService();
 
             int tenantId = realmService.getTenantManager().
                     getTenantId(authzUser.getTenantDomain());

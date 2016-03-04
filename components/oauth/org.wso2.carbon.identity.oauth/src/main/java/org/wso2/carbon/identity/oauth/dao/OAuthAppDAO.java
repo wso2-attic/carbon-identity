@@ -141,7 +141,7 @@ public class OAuthAppDAO {
         OAuthAppDO[] oauthAppsOfUser;
 
         try {
-            RealmService realmService = OAuthComponentServiceHolder.getRealmService();
+            RealmService realmService = OAuthComponentServiceHolder.getInstance().getRealmService();
             String tenantDomain = realmService.getTenantManager().getDomain(tenantId);
             String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(username);
             String tenantUnawareUserName = tenantAwareUserName + "@" + tenantDomain;
