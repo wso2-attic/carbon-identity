@@ -26,6 +26,9 @@ import org.wso2.carbon.identity.application.common.cache.BaseCache;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
+/**
+ * This cache keeps the information about the authentication result from the framework.
+ */
 public class AuthenticationResultCache extends
         BaseCache<AuthenticationResultCacheKey, AuthenticationResultCacheEntry> {
 
@@ -37,6 +40,9 @@ public class AuthenticationResultCache extends
 
     private boolean isTemporarySessionDataPersistEnabled = false;
 
+    /**
+     * Private constructor which will not allow to create objects of this class from outside
+     */
     private AuthenticationResultCache() {
         super(CACHE_NAME);
         if (IdentityUtil.getProperty("JDBCPersistenceManager.SessionDataPersist.Temporary") != null) {
@@ -45,6 +51,11 @@ public class AuthenticationResultCache extends
         }
     }
 
+    /**
+     * Singleton method
+     *
+     * @return AuthenticationResultCache
+     */
     public static AuthenticationResultCache getInstance() {
         if (instance == null) {
             synchronized (AuthenticationResultCache.class) {
@@ -56,6 +67,12 @@ public class AuthenticationResultCache extends
         return instance;
     }
 
+    /**
+     * Add a cache entry.
+     *
+     * @param key   Key which cache entry is indexed.
+     * @param entry Actual object where cache entry is placed.
+     */
     public void addToCache(AuthenticationResultCacheKey key, AuthenticationResultCacheEntry entry) {
         super.addToCache(key, entry);
         if (isTemporarySessionDataPersistEnabled) {
@@ -70,6 +87,12 @@ public class AuthenticationResultCache extends
         }
     }
 
+    /**
+     * Retrieves a cache entry.
+     *
+     * @param key CacheKey
+     * @return Cached entry.
+     */
     public AuthenticationResultCacheEntry getValueFromCache(AuthenticationResultCacheKey key) {
         AuthenticationResultCacheEntry entry = super.getValueFromCache(key);
         if (entry == null && isTemporarySessionDataPersistEnabled) {
@@ -79,6 +102,11 @@ public class AuthenticationResultCache extends
         return entry;
     }
 
+    /**
+     * Clears a cache entry.
+     *
+     * @param key Key to clear cache.
+     */
     public void clearCacheEntry(AuthenticationResultCacheKey key) {
         super.clearCacheEntry(key);
         if (isTemporarySessionDataPersistEnabled) {

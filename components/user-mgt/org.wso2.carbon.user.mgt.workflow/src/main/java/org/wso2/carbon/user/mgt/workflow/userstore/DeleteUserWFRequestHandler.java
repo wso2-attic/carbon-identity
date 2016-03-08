@@ -168,11 +168,11 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
 
     @Override
     public boolean isValidOperation(Entity[] entities) throws WorkflowException {
+        UserRealm userRealm;
+        AbstractUserStoreManager userStoreManager;
 
         WorkflowManagementService workflowService = IdentityWorkflowDataHolder.getInstance().getWorkflowService();
         RealmService realmService = IdentityWorkflowDataHolder.getInstance().getRealmService();
-        UserRealm userRealm;
-        AbstractUserStoreManager userStoreManager;
         try {
             userRealm = realmService.getTenantUserRealm(PrivilegedCarbonContext.getThreadLocalCarbonContext()
                     .getTenantId());
@@ -182,12 +182,11 @@ public class DeleteUserWFRequestHandler extends AbstractWorkflowRequestHandler {
         }
         for (int i = 0; i < entities.length; i++) {
             try {
-                if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && workflowService
+                if (UserStoreWFConstants.ENTITY_TYPE_USER.equals(entities[i].getEntityType()) && workflowService
                         .entityHasPendingWorkflows(entities[i])) {
                     throw new WorkflowException("User has pending workflows which blocks this operation.");
-                } else if (entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_USER && !userStoreManager
-                        .isExistingUser(entities[i].getEntityId())) {
-
+                } else if (UserStoreWFConstants.ENTITY_TYPE_USER.equals(entities[i].getEntityType()) &&
+                        !userStoreManager.isExistingUser(entities[i].getEntityId())) {
                     throw new WorkflowException("User does not exist.");
                 }
             } catch (InternalWorkflowException | org.wso2.carbon.user.core.UserStoreException e) {

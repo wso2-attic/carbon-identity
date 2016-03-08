@@ -386,7 +386,7 @@ public class UserResource extends AbstractResource {
             return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
                     .encodeSCIMException(encoder, e));
         } catch (FormatNotSupportedException e) {
-            logger.debug("Request format is not supported.", e);
+            logger.error("Request format is not supported.", e);
             return new JAXRSResponseBuilder().buildResponse(AbstractResourceEndpoint
                     .encodeSCIMException(encoder, e));
         }
@@ -401,7 +401,7 @@ public class UserResource extends AbstractResource {
         Encoder encoder = null;
         try {
             IdentitySCIMManager identitySCIMManager = IdentitySCIMManager.getInstance();
-            String filter = "userNameEq" + MultitenantUtils.getTenantAwareUsername(authorization);
+            String filter = "userName Eq " + MultitenantUtils.getTenantAwareUsername(authorization);
 
             // defaults to application/json.
             format = identifyOutputFormat(format);

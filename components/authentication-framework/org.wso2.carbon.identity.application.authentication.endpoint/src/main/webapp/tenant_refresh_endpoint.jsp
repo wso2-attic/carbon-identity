@@ -22,14 +22,14 @@
     /**
      * Parameter name for tenant list
      */
-    private static final String TENANT_LIST = "tenantList";
+    private static final String IS_TENANT_LIST_MODIFIED = "isTenantListModified";
 %>
 
 <%
-    String tenantList = request.getParameter(TENANT_LIST);
+    String isTenantListModified = request.getParameter(IS_TENANT_LIST_MODIFIED);
 
-    if (StringUtils.isNotEmpty(tenantList)) {
-        TenantDataManager.setTenantDataList(tenantList);
+    if (Boolean.parseBoolean(isTenantListModified)) {
+        TenantDataManager.resetTenantDataList();
     }
 %>
 

@@ -31,7 +31,6 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class WorkflowImplServiceDataHolder {
 
     private static WorkflowImplServiceDataHolder instance = new WorkflowImplServiceDataHolder();

@@ -48,7 +48,7 @@
         FederatedAuthenticatorConfig samlFedAuthn = new FederatedAuthenticatorConfig();
         samlFedAuthn.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.NAME);
         String[] destinationUrls = request.getParameter("destinationURLs").split(",");
-        Property[] properties = new Property[1+destinationUrls.length];
+        Property[] properties = new Property[1 + destinationUrls.length];
         Property property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
         property.setValue(request.getParameter("idPEntityId"));
@@ -56,8 +56,9 @@
         if (destinationUrls != null && destinationUrls.length > 0) {
             for (int destinationCount = 1; destinationCount <= destinationUrls.length; destinationCount++) {
                 property = new Property();
-                property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.DESTINATION_URL_PREFIX + IdentityApplicationConstants.MULTIVALUED_PROPERTY_CHARACTER + destinationCount);
-                property.setValue(destinationUrls[destinationCount-1]);
+                property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.DESTINATION_URL_PREFIX +
+                        IdentityApplicationConstants.MULTIVALUED_PROPERTY_CHARACTER + destinationCount);
+                property.setValue(destinationUrls[destinationCount - 1]);
                 properties[destinationCount] = property;
             }
 

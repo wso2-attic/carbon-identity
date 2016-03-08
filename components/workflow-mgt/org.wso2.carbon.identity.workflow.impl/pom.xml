@@ -21,7 +21,7 @@
     <parent>
         <artifactId>identity-workflow-mgt</artifactId>
         <groupId>org.wso2.carbon.identity</groupId>
-        <version>5.0.8-SNAPSHOT</version>
+        <version>5.0.9-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -133,7 +133,7 @@
                             org.wso2.carbon.identity.workflow.mgt.*; version="${carbon.identity.package.import.version.range}",
                             org.wso2.carbon.humantask.deployer; resolution:=optional,
                             org.wso2.carbon; version="${carbon.kernel.package.import.version.range}",
-                            org.apache.axiom.om.util
+                            org.apache.axiom.om.util; version="${axiom.osgi.version.range}"
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.workflow.impl.internal,

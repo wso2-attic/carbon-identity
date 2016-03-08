@@ -1,5 +1,3 @@
-package org.wso2.carbon.identity.entitlement.common.util;
-
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -18,9 +16,12 @@ package org.wso2.carbon.identity.entitlement.common.util;
  * under the License.
  */
 
+package org.wso2.carbon.identity.entitlement.common.util;
+
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
 
 import java.io.IOException;
 

@@ -27,6 +27,9 @@ import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.OAuthUtil;
+import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
+import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
+import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
@@ -75,8 +78,22 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
     }
 
     @Override
+    public boolean doPreSetUserClaimValue(String userName, String claimURI, String claimValue, String profileName,
+                                          UserStoreManager userStoreManager) throws UserStoreException {
+        removeTokensFromCache(userName, userStoreManager);
+        return true;
+    }
+
+    @Override
+    public boolean doPreSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
+                                           UserStoreManager userStoreManager) throws UserStoreException {
+        removeTokensFromCache(userName, userStoreManager);
+        return true;
+    }
+
+    @Override
     public boolean doPostSetUserClaimValues(String userName, Map<String, String> claims, String profileName,
-                                            UserStoreManager userStoreManager) {
+                                            UserStoreManager userStoreManager) throws UserStoreException {
 
         if (!isEnable()) {
             return true;
@@ -179,5 +196,46 @@ public class IdentityOathEventListener extends AbstractIdentityUserOperationEven
             }
         }
         return true;
+    }
+
+    private void removeTokensFromCache(String userName, UserStoreManager userStoreManager) throws
+            UserStoreException {
+        String userStoreDomain = UserCoreUtil.getDomainName(userStoreManager.getRealmConfiguration());
+        String tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
+        Set<String> accessTokens;
+        Set<String> authorizationCodes;
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser();
+        authenticatedUser.setUserStoreDomain(userStoreDomain);
+        authenticatedUser.setTenantDomain(tenantDomain);
+        authenticatedUser.setUserName(userName);
+        try {
+            accessTokens = tokenMgtDAO.getAccessTokensForUser(authenticatedUser);
+            authorizationCodes = tokenMgtDAO.getAuthorizationCodesForUser(authenticatedUser);
+            if (accessTokens != null && accessTokens.size() > 0) {
+                for (String accessToken : accessTokens) {
+                    AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
+                    AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache
+                            .getInstance().getValueFromCacheByToken(cacheKey);
+                    if (cacheEntry != null) {
+                        AuthorizationGrantCache.getInstance().clearCacheEntryByToken(cacheKey);
+                    }
+                }
+            }
+            if (authorizationCodes != null && authorizationCodes.size() > 0) {
+                for (String accessToken : authorizationCodes) {
+                    AuthorizationGrantCacheKey cacheKey = new AuthorizationGrantCacheKey(accessToken);
+                    AuthorizationGrantCacheEntry cacheEntry = (AuthorizationGrantCacheEntry) AuthorizationGrantCache
+                            .getInstance().getValueFromCacheByToken(cacheKey);
+                    if (cacheEntry != null) {
+                        AuthorizationGrantCache.getInstance().clearCacheEntryByCode(cacheKey);
+                    }
+                }
+            }
+        } catch (IdentityOAuth2Exception e) {
+            String errorMsg = "Error occurred while retrieving access tokens issued for user : " + userName;
+            log.error(errorMsg, e);
+        }
+
     }
 }

@@ -403,7 +403,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
 
         String fidp = request.getParameter("domain");
         if (fidp != null) {
-            reqParamMap.put("fidp", fidp);
+            reqParamMap.put("fidp", Encode.forHtmlAttribute(fidp));
         }
 
         return reqParamMap;
@@ -416,7 +416,7 @@ public class SAMLSSOAuthenticator extends AbstractApplicationAuthenticator imple
             String postPage = SAMLSSOAuthenticatorServiceComponent.getPostPage();
 
             if (postPage != null) {
-                String pageWithURL = postPage.replace("$url", url);
+                String pageWithURL = postPage.replace("$url", Encode.forHtmlAttribute(url));
                 String finalPage = pageWithURL.replace("<!--$params-->", postPageInputs);
                 PrintWriter out = response.getWriter();
                 out.print(finalPage);

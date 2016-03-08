@@ -988,12 +988,9 @@ public class SAMLSSOUtil {
 
             if ( authnReqDTO.getAttributeConsumingServiceIndex() == 0) {
                 //SP has not provide a AttributeConsumingServiceIndex in the authnReqDTO
-                if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
-                    if (spDO.isEnableAttributesByDefault()) {
-                        index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
-                    } else {
-                        return null;
-                    }
+                if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex()) && spDO
+                        .isEnableAttributesByDefault()) {
+                    index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
                 } else {
                     return null;
                 }
@@ -1002,12 +999,9 @@ public class SAMLSSOUtil {
                 index = authnReqDTO.getAttributeConsumingServiceIndex();
             }
         } else {
-            if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex())) {
-                if (spDO.isEnableAttributesByDefault()) {
-                    index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
-                } else {
-                    return null;
-                }
+            if (StringUtils.isNotBlank(spDO.getAttributeConsumingServiceIndex()) && spDO.isEnableAttributesByDefault
+                    ()) {
+                index = Integer.parseInt(spDO.getAttributeConsumingServiceIndex());
             } else {
                 return null;
             }
@@ -1345,6 +1339,7 @@ public class SAMLSSOUtil {
             privilegedCarbonContext.setTenantId(tenantId);
             privilegedCarbonContext.setTenantDomain(tenantDomain);
 
+            IdentityTenantUtil.initializeRegistry(tenantId, tenantDomain);
             IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
             Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry
                     (RegistryType.SYSTEM_CONFIGURATION);
@@ -1357,6 +1352,55 @@ public class SAMLSSOUtil {
         }
     }
 
+    public static boolean validateACS(String tenantDomain, String issuerName, String requestedACSUrl) throws
+            IdentityException {
+        SSOServiceProviderConfigManager stratosIdpConfigManager = SSOServiceProviderConfigManager.getInstance();
+        SAMLSSOServiceProviderDO serviceProvider = stratosIdpConfigManager.getServiceProvider(issuerName);
+        if (serviceProvider != null) {
+            return true;
+        }
+
+        int tenantId;
+        if (StringUtils.isBlank(tenantDomain)) {
+            tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+            tenantId = MultitenantConstants.SUPER_TENANT_ID;
+        } else {
+            try {
+                tenantId = realmService.getTenantManager().getTenantId(tenantDomain);
+            } catch (UserStoreException e) {
+                throw new IdentitySAML2SSOException("Error occurred while retrieving tenant id for the domain : " +
+                        tenantDomain, e);
+            }
+        }
+
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            privilegedCarbonContext.setTenantId(tenantId);
+            privilegedCarbonContext.setTenantDomain(tenantDomain);
+
+            IdentityPersistenceManager persistenceManager = IdentityPersistenceManager.getPersistanceManager();
+            Registry registry = (Registry) PrivilegedCarbonContext.getThreadLocalCarbonContext().getRegistry
+                    (RegistryType.SYSTEM_CONFIGURATION);
+            SAMLSSOServiceProviderDO spDO = persistenceManager.getServiceProvider(registry, issuerName);
+            if (StringUtils.isBlank(requestedACSUrl) || !spDO.getAssertionConsumerUrlList().contains
+                    (requestedACSUrl)) {
+                String msg = "ALERT: Invalid Assertion Consumer URL value '" + requestedACSUrl + "' in the " +
+                        "AuthnRequest message from  the issuer '" + spDO.getIssuer() +
+                        "'. Possibly " + "an attempt for a spoofing attack";
+                log.error(msg);
+                return false;
+            } else {
+                return true;
+            }
+        } catch (IdentityException e) {
+            throw new IdentitySAML2SSOException("Error occurred while validating existence of SAML service provider " +
+                    "'" + issuerName + "' in the tenant domain '" + tenantDomain + "'");
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
+        }
+
+    }
     public static SSOAuthnRequestValidator getSPInitSSOAuthnRequestValidator(AuthnRequest authnRequest)  {
         if (sPInitSSOAuthnRequestValidatorClassName == null || "".equals(sPInitSSOAuthnRequestValidatorClassName)) {
             try {

@@ -155,7 +155,7 @@ public class OAuthService {
                     .authenticate(tenantUser, params.getAuthorizedbyUserPassword());
         } catch (UserStoreException e) {
             log.error("Error while authenticating the user", e);
-            throw IdentityException.error("Error while authenticating the user", e);
+            throw IdentityException.error("Error while authenticating the user");
         }
         if (isAuthenticated) {
             OAuthConsumerDAO dao = new OAuthConsumerDAO();

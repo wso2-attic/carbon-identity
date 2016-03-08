@@ -61,6 +61,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+/**
+ * This class is used to access the data storage to retrieve and store identity provider configurations.
+ */
 public class IdPManagementDAO {
 
     private static final Log log = LogFactory.getLog(IdPManagementDAO.class);
@@ -885,10 +888,10 @@ public class IdPManagementDAO {
             if (inputStream != null) {
                 prepStmt.setBinaryStream(index, inputStream, inputStream.available());
             } else {
-                prepStmt.setBinaryStream(index, new ByteArrayInputStream("".getBytes()), 0);
+                prepStmt.setBinaryStream(index, new ByteArrayInputStream(new byte[0]), 0);
             }
         } else {
-            prepStmt.setBinaryStream(index, new ByteArrayInputStream("".getBytes()), 0);
+            prepStmt.setBinaryStream(index, new ByteArrayInputStream(new byte[0]), 0);
         }
     }
 
@@ -1261,16 +1264,16 @@ public class IdPManagementDAO {
 
                 federatedIdp.setHomeRealmId(rs.getString("HOME_REALM_ID"));
                 federatedIdp.setCertificate(getBlobValue(rs.getBinaryStream("CERTIFICATE")));
-                federatedIdp.setAlias(rs.getString("idp.ALIAS"));
+                federatedIdp.setAlias(rs.getString("ALIAS"));
 
                 JustInTimeProvisioningConfig jitProConfig = new JustInTimeProvisioningConfig();
-                if (rs.getString("INBOUND_PROV_ENABLED").equals(IdPManagementConstants.IS_TRUE_VALUE)) {
+                if (IdPManagementConstants.IS_TRUE_VALUE.equals(rs.getString("INBOUND_PROV_ENABLED"))) {
                     jitProConfig.setProvisioningEnabled(true);
                 } else {
                     jitProConfig.setProvisioningEnabled(false);
                 }
 
-                jitProConfig.setProvisioningUserStore(rs.getString("idp.INBOUND_PROV_USER_STORE_ID"));
+                jitProConfig.setProvisioningUserStore(rs.getString("INBOUND_PROV_USER_STORE_ID"));
                 federatedIdp.setJustInTimeProvisioningConfig(jitProConfig);
 
                 String userClaimUri = rs.getString("USER_CLAIM_URI");

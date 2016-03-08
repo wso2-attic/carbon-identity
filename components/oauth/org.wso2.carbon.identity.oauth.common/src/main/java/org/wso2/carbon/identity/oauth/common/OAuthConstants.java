@@ -80,6 +80,7 @@ public final class OAuthConstants {
     public static final String CLIENT_AUTH_CREDENTIAL_VALIDATION = "StrictClientCredentialValidation";
     public static final String ACCESS_TOKEN = "accessToken";
     public static final String ID_TOKEN = "id_token";
+    public static final String AUTHZ_CODE = "AuthorizationCode";
 
     //OAuth PKCE request parameters
     public static final String OAUTH_PKCE_CODE_VERIFIER = "code_verifier";

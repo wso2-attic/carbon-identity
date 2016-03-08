@@ -20,6 +20,7 @@
 
 package org.wso2.carbon.identity.sso.agent.openid;
 
+import org.apache.commons.collections.MapUtils;
 import org.openid4java.association.AssociationException;
 import org.openid4java.consumer.ConsumerException;
 import org.openid4java.consumer.ConsumerManager;
@@ -133,7 +134,7 @@ public class OpenIDManager {
             SSOAgentDataHolder.getInstance().setConsumerManager(manager);
             StringBuilder destinationUrl = new StringBuilder(authReq.getDestinationUrl(true));
 
-            if (ssoAgentConfig.getQueryParams() != null && !ssoAgentConfig.getQueryParams().isEmpty()) {
+            if (MapUtils.isNotEmpty(ssoAgentConfig.getQueryParams())) {
                 StringBuilder builder = new StringBuilder();
                 for (Map.Entry<String, String[]> entry : ssoAgentConfig.getQueryParams().entrySet()) {
                     if (entry.getKey() != null && entry.getValue() != null && entry.getValue().length > 0) {

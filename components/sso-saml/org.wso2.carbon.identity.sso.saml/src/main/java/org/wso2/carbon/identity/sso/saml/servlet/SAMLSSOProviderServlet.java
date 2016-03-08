@@ -584,7 +584,7 @@ public class SAMLSSOProviderServlet extends HttpServlet {
             out.println("<body>");
             out.println("<p>You are now redirected back to " + Encode.forHtmlContent(acUrl));
             out.println(" If the redirection fails, please click the post button.</p>");
-            out.println("<form method='post' action='" + acUrl + "'>");
+            out.println("<form method='post' action='" + Encode.forHtmlAttribute(acUrl) + "'>");
             out.println("<p>");
             out.println("<input type='hidden' name='SAMLResponse' value='" + Encode.forHtmlAttribute(response) + "'>");
 
@@ -641,19 +641,31 @@ public class SAMLSSOProviderServlet extends HttpServlet {
 
             if (reqValidationDTO.isPassive()) { //if passive
 
-                List<String> statusCodes = new ArrayList<String>();
-                statusCodes.add(SAMLSSOConstants.StatusCodes.NO_PASSIVE);
-                statusCodes.add(SAMLSSOConstants.StatusCodes.IDENTITY_PROVIDER_ERROR);
-                String destination = reqValidationDTO.getDestination();
-                reqValidationDTO.setResponse(SAMLSSOUtil.buildErrorResponse(
-                        reqValidationDTO.getId(), statusCodes,
-                        "Cannot authenticate Subject in Passive Mode",
-                        destination));
+                String destination = reqValidationDTO.getAssertionConsumerURL();
 
-                sendResponse(req, resp, sessionDTO.getRelayState(), reqValidationDTO.getResponse(),
-                        reqValidationDTO.getAssertionConsumerURL(), reqValidationDTO.getSubject(),
-                        null, sessionDTO.getTenantDomain());
-                return;
+                if (SAMLSSOUtil.validateACS(sessionDTO.getTenantDomain(), sessionDTO.getIssuer(), reqValidationDTO
+                        .getAssertionConsumerURL())) {
+                    List<String> statusCodes = new ArrayList<String>();
+                    statusCodes.add(SAMLSSOConstants.StatusCodes.NO_PASSIVE);
+                    statusCodes.add(SAMLSSOConstants.StatusCodes.IDENTITY_PROVIDER_ERROR);
+                    reqValidationDTO.setResponse(SAMLSSOUtil.buildErrorResponse(
+                            reqValidationDTO.getId(), statusCodes,
+                            "Cannot authenticate Subject in Passive Mode",
+                            destination));
+
+                    sendResponse(req, resp, sessionDTO.getRelayState(), reqValidationDTO.getResponse(),
+                            reqValidationDTO.getAssertionConsumerURL(), reqValidationDTO.getSubject(),
+                            null, sessionDTO.getTenantDomain());
+                    return;
+                } else {
+                    String errorResp = SAMLSSOUtil.buildErrorResponse(
+                            SAMLSSOConstants.StatusCodes.AUTHN_FAILURE,
+                            "User authentication failed", destination);
+                    sendNotification(errorResp, SAMLSSOConstants.Notification.EXCEPTION_STATUS,
+                            SAMLSSOConstants.Notification.EXCEPTION_MESSAGE,
+                            reqValidationDTO.getAssertionConsumerURL(), req, resp);
+                    return;
+                }
 
             } else { // if forceAuthn or normal flow
                 //TODO send a saml response with a status message.
@@ -1016,7 +1028,11 @@ public class SAMLSSOProviderServlet extends HttpServlet {
         if (object != null) {
             AuthenticatorFlowStatus status = (AuthenticatorFlowStatus) object;
             if (status == AuthenticatorFlowStatus.INCOMPLETE) {
-                response.sendRedirect(responseWrapper.getRedirectURL());
+                if (responseWrapper.isRedirect()) {
+                    response.sendRedirect(responseWrapper.getRedirectURL());
+                } else {
+                    return;
+                }
             } else {
                 doGet(requestWrapper, response);
             }

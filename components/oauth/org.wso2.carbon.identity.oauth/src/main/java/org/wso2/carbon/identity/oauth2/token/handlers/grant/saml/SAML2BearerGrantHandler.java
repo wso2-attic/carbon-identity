@@ -166,12 +166,16 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             }
             tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(resourceOwnerUserName));
         } else {
-            log.debug("Cannot find a Subject in the Assertion");
+            if (log.isDebugEnabled()) {
+                log.debug("Cannot find a Subject in the Assertion");
+            }
             return false;
         }
 
         if (assertion.getIssuer() == null || "".equals(assertion.getIssuer().getValue())) {
-            log.debug("Issuer is empty in the SAML assertion");
+            if (log.isDebugEnabled()) {
+                log.debug("Issuer is empty in the SAML assertion");
+            }
             return false;
         } else {
             try {
@@ -440,9 +444,8 @@ public class SAML2BearerGrantHandler extends AbstractAuthorizationGrantHandler {
             x509Certificate = (X509Certificate) IdentityApplicationManagementUtil
                     .decodeCertificate(identityProvider.getCertificate());
         } catch (CertificateException e) {
-            log.error("Error while decoding the certificate.");
             throw new IdentityOAuth2Exception("Error occurred while decoding public certificate of Identity Provider "
-                    + identityProvider.getIdentityProviderName() + " for tenant domain " + tenantDomain);
+                    + identityProvider.getIdentityProviderName() + " for tenant domain " + tenantDomain, e);
         }
 
         try {

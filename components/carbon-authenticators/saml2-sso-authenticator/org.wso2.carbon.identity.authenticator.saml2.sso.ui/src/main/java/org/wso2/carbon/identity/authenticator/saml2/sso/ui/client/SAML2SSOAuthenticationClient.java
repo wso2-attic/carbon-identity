@@ -29,6 +29,7 @@ import org.wso2.carbon.utils.ServerConstants;
 
 import javax.servlet.http.HttpSession;
 import java.rmi.RemoteException;
+import java.util.UUID;
 
 public class SAML2SSOAuthenticationClient {
     private  SAML2SSOAuthenticationClient(){
@@ -83,6 +84,12 @@ public class SAML2SSOAuthenticationClient {
         if (result) {
             String cookie = (String) stub._getServiceClient().getServiceContext().getProperty(
                     HTTPConstants.COOKIE_STRING);
+            if (cookie == null) {
+                // For local transport - the cookie will be null.
+                // This generated cookie cannot be used for any form authentication with the backend.
+                // This is done to be backward compatible.
+                cookie = UUID.randomUUID().toString();
+            }
             session.setAttribute(ServerConstants.ADMIN_SERVICE_AUTH_TOKEN, cookie);
         }
     }
