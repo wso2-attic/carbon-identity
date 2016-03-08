@@ -27,6 +27,8 @@ public class OAuthConsumerAppDTO {
     private String oauthVersion;
     private String username;
     private String grantTypes = "";
+    private boolean pkceSupportPlain;
+    private boolean pkceMandatory;
 
     public String getApplicationName() {
         return applicationName;
@@ -86,4 +88,20 @@ public class OAuthConsumerAppDTO {
         }
     }
 
+    public boolean getPkceSupportPlain() {
+        return pkceSupportPlain;
+    }
+
+    public void setPkceSupportPlain(boolean pkceSupportPlain) {
+        this.pkceSupportPlain = pkceSupportPlain;
+    }
+
+    public boolean getPkceMandatory() {
+        return pkceMandatory;
+    }
+
+    public void setPkceMandatory(boolean pkceMandatory) {
+        this.pkceMandatory = pkceMandatory;
+    }
 }
+

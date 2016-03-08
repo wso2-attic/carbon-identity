@@ -40,6 +40,8 @@ public class OAuth2Parameters implements Serializable {
     private String prompt;
     private String id_token_hint;
     private String login_hint;
+    private String pkceCodeChallenge;
+    private String pkceCodeChallengeMethod;
     private LinkedHashSet acrValues;
 
     public String getApplicationName() {
@@ -166,5 +168,21 @@ public class OAuth2Parameters implements Serializable {
 
     public void setACRValues(LinkedHashSet acrValues) {
         this.acrValues = acrValues;
+    }
+
+    public String getPkceCodeChallenge() {
+        return pkceCodeChallenge;
+    }
+
+    public void setPkceCodeChallenge(String pkceCodeChallenge) {
+        this.pkceCodeChallenge = pkceCodeChallenge;
+    }
+
+    public String getPkceCodeChallengeMethod() {
+        return pkceCodeChallengeMethod;
+    }
+
+    public void setPkceCodeChallengeMethod(String pkceCodeChallengeMethod) {
+        this.pkceCodeChallengeMethod = pkceCodeChallengeMethod;
     }
 }

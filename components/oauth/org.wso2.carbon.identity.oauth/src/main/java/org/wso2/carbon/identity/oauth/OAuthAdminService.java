@@ -122,6 +122,8 @@ public class OAuthAdminService extends AbstractAdmin {
                 dto.setOAuthVersion(app.getOauthVersion());
                 dto.setGrantTypes(app.getGrantTypes());
                 dto.setUsername(app.getUser().toString());
+                dto.setPkceMandatory(app.isPkceMandatory());
+                dto.setPkceSupportPlain(app.isPkceSupportPlain());
                 dtos[i] = dto;
             }
         }
@@ -147,6 +149,8 @@ public class OAuthAdminService extends AbstractAdmin {
                 dto.setOauthConsumerSecret(app.getOauthConsumerSecret());
                 dto.setOAuthVersion(app.getOauthVersion());
                 dto.setGrantTypes(app.getGrantTypes());
+                dto.setPkceMandatory(app.isPkceMandatory());
+                dto.setPkceSupportPlain(app.isPkceSupportPlain());
             }
             return dto;
         } catch (InvalidOAuthClientException | IdentityOAuth2Exception e) {
@@ -174,6 +178,8 @@ public class OAuthAdminService extends AbstractAdmin {
                 dto.setOauthConsumerSecret(app.getOauthConsumerSecret());
                 dto.setOAuthVersion(app.getOauthVersion());
                 dto.setGrantTypes(app.getGrantTypes());
+                dto.setPkceMandatory(app.isPkceMandatory());
+                dto.setPkceSupportPlain(app.isPkceSupportPlain());
             }
             return dto;
         }catch (InvalidOAuthClientException | IdentityOAuth2Exception e){
@@ -248,6 +254,8 @@ public class OAuthAdminService extends AbstractAdmin {
                         }
                     }
                     app.setGrantTypes(application.getGrantTypes());
+                    app.setPkceMandatory(application.getPkceMandatory());
+                    app.setPkceSupportPlain(application.getPkceSupportPlain());
                 }
                 dao.addOAuthApplication(app);
                 if (OAuthServerConfiguration.getInstance().isCacheEnabled()) {
@@ -279,6 +287,8 @@ public class OAuthAdminService extends AbstractAdmin {
         oauthappdo.setOauthConsumerSecret(consumerAppDTO.getOauthConsumerSecret());
         oauthappdo.setCallbackUrl(consumerAppDTO.getCallbackUrl());
         oauthappdo.setApplicationName(consumerAppDTO.getApplicationName());
+        oauthappdo.setPkceMandatory(consumerAppDTO.getPkceMandatory());
+        oauthappdo.setPkceSupportPlain(consumerAppDTO.getPkceSupportPlain());
         if (OAuthConstants.OAuthVersions.VERSION_2.equals(consumerAppDTO.getOAuthVersion())) {
             List<String> allowedGrants = new ArrayList<>(Arrays.asList(getAllowedGrantTypes()));
             String[] requestGrants = consumerAppDTO.getGrantTypes().split("\\s");
@@ -382,6 +392,8 @@ public class OAuthAdminService extends AbstractAdmin {
                                 appDTO.setApplicationName(appDO.getApplicationName());
                                 appDTO.setUsername(appDO.getUser().toString());
                                 appDTO.setGrantTypes(appDO.getGrantTypes());
+                                appDTO.setPkceMandatory(appDO.isPkceMandatory());
+                                appDTO.setPkceSupportPlain(appDO.isPkceSupportPlain());
                                 appDTOs.add(appDTO);
                             } catch (InvalidOAuthClientException e) {
                                 String errorMsg = "Invalid Client ID : " + scopedToken.getConsumerKey();

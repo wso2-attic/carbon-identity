@@ -82,6 +82,8 @@ public class OAuthAppDAO {
                 prepStmt.setString(7, consumerAppDO.getOauthVersion());
                 prepStmt.setString(8, consumerAppDO.getCallbackUrl());
                 prepStmt.setString(9, consumerAppDO.getGrantTypes());
+                prepStmt.setBoolean(10, consumerAppDO.isPkceMandatory());
+                prepStmt.setBoolean(11, consumerAppDO.isPkceSupportPlain());
                 prepStmt.execute();
                 connection.commit();
 
@@ -178,6 +180,8 @@ public class OAuthAppDAO {
                     authenticatedUser.setUserName(rSet.getString(8));
                     authenticatedUser.setTenantDomain(IdentityTenantUtil.getTenantDomain(rSet.getInt(9)));
                     authenticatedUser.setUserStoreDomain(rSet.getString(10));
+                    oauthApp.setPkceMandatory(rSet.getBoolean(11));
+                    oauthApp.setPkceSupportPlain(rSet.getBoolean(12));
                     oauthApp.setUser(authenticatedUser);
                     oauthApps.add(oauthApp);
                 }
@@ -232,6 +236,8 @@ public class OAuthAppDAO {
                     oauthApp.setUser(authenticatedUser);
                     oauthApp.setGrantTypes(rSet.getString(8));
                     oauthApp.setId(rSet.getInt(9));
+                    oauthApp.setPkceMandatory(rSet.getBoolean(10));
+                    oauthApp.setPkceSupportPlain(rSet.getBoolean(11));
                     oauthApps.add(oauthApp);
                 }
             }
@@ -290,6 +296,8 @@ public class OAuthAppDAO {
                     oauthApp.setCallbackUrl(rSet.getString(6));
                     oauthApp.setGrantTypes(rSet.getString(7));
                     oauthApp.setId(rSet.getInt(8));
+                    oauthApp.setPkceMandatory(rSet.getBoolean(9));
+                    oauthApp.setPkceSupportPlain(rSet.getBoolean(10));
                     oauthApps.add(oauthApp);
                 }
             }
@@ -323,8 +331,10 @@ public class OAuthAppDAO {
             prepStmt.setString(1, oauthAppDO.getApplicationName());
             prepStmt.setString(2, oauthAppDO.getCallbackUrl());
             prepStmt.setString(3, oauthAppDO.getGrantTypes());
-            prepStmt.setString(4, persistenceProcessor.getProcessedClientId(oauthAppDO.getOauthConsumerKey()));
-            prepStmt.setString(5, persistenceProcessor.getProcessedClientSecret(oauthAppDO.getOauthConsumerSecret()));
+            prepStmt.setBoolean(4, oauthAppDO.isPkceMandatory());
+            prepStmt.setBoolean(5, oauthAppDO.isPkceSupportPlain());
+            prepStmt.setString(6, persistenceProcessor.getProcessedClientId(oauthAppDO.getOauthConsumerKey()));
+            prepStmt.setString(7, persistenceProcessor.getProcessedClientSecret(oauthAppDO.getOauthConsumerSecret()));
 
             int count = prepStmt.executeUpdate();
             if (log.isDebugEnabled()) {

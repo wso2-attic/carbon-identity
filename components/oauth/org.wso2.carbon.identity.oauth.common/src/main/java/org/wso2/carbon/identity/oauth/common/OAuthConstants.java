@@ -81,6 +81,12 @@ public final class OAuthConstants {
     public static final String ACCESS_TOKEN = "accessToken";
     public static final String ID_TOKEN = "id_token";
 
+    //OAuth PKCE request parameters
+    public static final String OAUTH_PKCE_CODE_VERIFIER = "code_verifier";
+    public static final String OAUTH_PKCE_CODE_CHALLENGE = "code_challenge";
+    public static final String OAUTH_PKCE_CODE_CHALLENGE_METHOD = "code_challenge_method";
+    public static final String OAUTH_PKCE_S256_CHALLENGE = "S256";
+    public static final String OAUTH_PKCE_PLAIN_CHALLENGE = "plain";
     //Response types
     public static final String NONE = "none";
 

@@ -33,6 +33,8 @@ public class OAuth2AuthorizeRespDTO {
     private String idToken;
     private Properties properties = new Properties();
     private String codeId;
+    private String pkceCodeChallenge;
+    private String pkceCodeChallengeMethod;
 
     public String getAuthorizationCode() {
         return authorizationCode;
@@ -120,5 +122,20 @@ public class OAuth2AuthorizeRespDTO {
 
     public void setCodeId(String codeId) {
         this.codeId = codeId;
+    }
+
+    public String getPkceCodeChallenge() {
+        return pkceCodeChallenge;
+    }
+    public void setPkceCodeChallenge(String pkceCodeChallenge) {
+        this.pkceCodeChallenge = pkceCodeChallenge;
+    }
+
+    public String getPkceCodeChallengeMethod() {
+        return pkceCodeChallengeMethod;
+    }
+
+    public void setPkceCodeChallengeMethod(String pkceCodeChallengeMethod) {
+        this.pkceCodeChallengeMethod = pkceCodeChallengeMethod;
     }
 }

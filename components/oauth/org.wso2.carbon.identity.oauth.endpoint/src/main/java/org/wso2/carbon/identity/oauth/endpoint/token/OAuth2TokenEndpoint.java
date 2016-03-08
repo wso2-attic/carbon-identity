@@ -50,7 +50,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import java.util.Enumeration;
 
 @Path("/token")
 public class OAuth2TokenEndpoint {
@@ -224,10 +223,12 @@ public class OAuth2TokenEndpoint {
         tokenReqDTO.setCallbackURI(oauthRequest.getRedirectURI());
         tokenReqDTO.setScope(oauthRequest.getScopes().toArray(new String[oauthRequest.getScopes().size()]));
         tokenReqDTO.setTenantDomain(oauthRequest.getTenantDomain());
+        tokenReqDTO.setPkceCodeVerifier(oauthRequest.getPkceCodeVerifier());
 
         // Check the grant type and set the corresponding parameters
         if (GrantType.AUTHORIZATION_CODE.toString().equals(grantType)) {
             tokenReqDTO.setAuthorizationCode(oauthRequest.getCode());
+            tokenReqDTO.setPkceCodeVerifier(oauthRequest.getPkceCodeVerifier());
         } else if (GrantType.PASSWORD.toString().equals(grantType)) {
             tokenReqDTO.setResourceOwnerUsername(oauthRequest.getUsername());
             tokenReqDTO.setResourceOwnerPassword(oauthRequest.getPassword());

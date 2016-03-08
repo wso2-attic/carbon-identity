@@ -37,6 +37,8 @@ public class AuthorizationGrantCacheEntry extends CacheEntry {
 
     private String nonceValue;
 
+    private String pkceCodeChallenge;
+
     public AuthorizationGrantCacheEntry(Map<ClaimMapping, String> userAttributes) {
         this.userAttributes = userAttributes;
     }
@@ -71,5 +73,13 @@ public class AuthorizationGrantCacheEntry extends CacheEntry {
 
     public void setTokenId(String tokenId){
         this.tokenId = tokenId;
+    }
+
+    public String getPkceCodeChallenge() {
+        return pkceCodeChallenge;
+    }
+
+    public void setPkceCodeChallenge(String pkceCodeChallenge) {
+        this.pkceCodeChallenge = pkceCodeChallenge;
     }
 }

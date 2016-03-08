@@ -32,6 +32,9 @@ public class OAuth2AuthorizeReqDTO {
     private String password;
     private LinkedHashSet acrValues;
     private String nonce;
+    private String pkceCodeChallenge;
+    private String pkceCodeChallengeMethod;
+
     private Properties properties = new Properties();
 
     public AuthenticatedUser getUser() {
@@ -107,4 +110,19 @@ public class OAuth2AuthorizeReqDTO {
         return properties.get(propName);
     }
 
+    public String getPkceCodeChallenge() {
+        return pkceCodeChallenge;
+    }
+
+    public void setPkceCodeChallenge(String pkceCodeChallenge) {
+        this.pkceCodeChallenge = pkceCodeChallenge;
+    }
+
+    public String getPkceCodeChallengeMethod() {
+        return pkceCodeChallengeMethod;
+    }
+
+    public void setPkceCodeChallengeMethod(String pkceCodeChallengeMethod) {
+        this.pkceCodeChallengeMethod = pkceCodeChallengeMethod;
+    }
 }

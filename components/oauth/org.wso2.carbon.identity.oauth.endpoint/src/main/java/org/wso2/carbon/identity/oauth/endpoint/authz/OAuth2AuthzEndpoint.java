@@ -480,8 +480,16 @@ public class OAuth2AuthzEndpoint {
             claimMapping.setRemoteClaim(claim);
             sessionDataCacheEntry.getLoggedInUser().getUserAttributes().put(claimMapping, sub);
         }
+        //PKCE
+        String[] pkceCodeChallengeArray = sessionDataCacheEntry.getParamMap().get(OAuthConstants.OAUTH_PKCE_CODE_CHALLENGE);
+        String pkceCodeChallenge = null;
+        if(pkceCodeChallengeArray != null && pkceCodeChallengeArray.length > 0){
+            pkceCodeChallenge = pkceCodeChallengeArray[0];
+        }
+
         authorizationGrantCacheEntry.setNonceValue(sessionDataCacheEntry.getoAuth2Parameters().getNonce());
         authorizationGrantCacheEntry.setCodeId(codeId);
+        authorizationGrantCacheEntry.setPkceCodeChallenge(pkceCodeChallenge);
         AuthorizationGrantCache.getInstance().addToCacheByCode(authorizationGrantCacheKey, authorizationGrantCacheEntry);
     }
 
@@ -548,6 +556,8 @@ public class OAuth2AuthzEndpoint {
         }
         params.setState(oauthRequest.getState());
         params.setApplicationName(clientDTO.getApplicationName());
+        params.setPkceCodeChallenge(req.getParameter(OAuthConstants.OAUTH_PKCE_CODE_CHALLENGE));
+        params.setPkceCodeChallengeMethod(req.getParameter(OAuthConstants.OAUTH_PKCE_CODE_CHALLENGE_METHOD));
 
         // OpenID Connect specific request parameters
         params.setNonce(oauthRequest.getParam(OAuthConstants.OAuth20Params.NONCE));
@@ -760,6 +770,8 @@ public class OAuth2AuthzEndpoint {
         authzReqDTO.setUser(sessionDataCacheEntry.getLoggedInUser());
         authzReqDTO.setACRValues(oauth2Params.getACRValues());
         authzReqDTO.setNonce(oauth2Params.getNonce());
+        authzReqDTO.setPkceCodeChallenge(oauth2Params.getPkceCodeChallenge());
+        authzReqDTO.setPkceCodeChallengeMethod(oauth2Params.getPkceCodeChallengeMethod());
         return EndpointUtil.getOAuth2Service().authorize(authzReqDTO);
     }
 

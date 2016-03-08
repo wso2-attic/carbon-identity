@@ -121,33 +121,44 @@
                     }
                     document.addAppform.submit();
                 }
-                jQuery(document).ready(function(){
-                    jQuery('#oauthVersion10a').click(function(){
-                        $(jQuery('#grant_row')).toggle();
-                    })
-                })
-                jQuery(document).ready(function(){
-                    jQuery('#oauthVersion20').click(function(){
-                        $(jQuery('#grant_row')).toggle();
-                    })
-                })
-                function toggleCallback(){
-                    if(!$(jQuery("#grant_code"))[0].checked && !$(jQuery("#grant_implicit"))[0].checked){
-                        $(jQuery('#callback_row')).attr('style','display:none');
-                    } else {
-                        $(jQuery('#callback_row')).attr('style','');
+                function adjustForm() {
+                    var oauthVersion = $('input[name=oauthVersion]:checked').val();
+                    var supportGrantCode = $('input[name=grant_code]:checked').val() != null;
+                    var supportImplicit = $('input[name=grant_implicit]:checked').val() != null;
+
+                    if(oauthVersion == "<%=OAuthConstants.OAuthVersions.VERSION_1A%>") {
+                        $(jQuery('#grant_row')).hide();
+                        $(jQuery("#pkce_enable").hide());
+                        $(jQuery("#pkce_support_plain").hide());
+                    } else if(oauthVersion == "<%=OAuthConstants.OAuthVersions.VERSION_2%>") {
+                        $(jQuery('#grant_row')).show();
+                        $(jQuery("#pkce_enable").show());
+                        $(jQuery("#pkce_support_plain").show());
+
+                        if(!supportGrantCode && !supportImplicit){
+                            $(jQuery('#callback_row')).hide();
+                        } else {
+                            $(jQuery('#callback_row')).show();
+                        }
+                        if(supportGrantCode) {
+                            $(jQuery("#pkce_enable").show());
+                            $(jQuery("#pkce_support_plain").show());
+                        } else {
+                            $(jQuery("#pkce_enable").hide());
+                            $(jQuery("#pkce_support_plain").hide());
+                        }
                     }
+
                 }
-                function toggleVersion(){
-                    if($(jQuery("#oauthVersion10a"))[0].checked){
-                        $(jQuery('#callback_row')).attr('style','');
-                    } else {
-                        toggleCallback();
-                    }
-                }
+                jQuery(document).ready(function() {
+                    //on load adjust the form based on the current settings
+                    adjustForm();
+                    $(jQuery("#addAppForm input")).change(adjustForm);
+                })
+
             </script>
 
-            <form method="post" name="addAppform" action="add-finish.jsp"
+            <form id="addAppForm" method="post" name="addAppform" action="add-finish.jsp"
                   target="_self">
                 <table style="width: 100%" class="styledLeft">
                     <thead>
@@ -161,8 +172,8 @@
 				<table class="normal" >
                             <tr>
                                 <td class="leftCol-small"><fmt:message key='oauth.version'/><span class="required">*</span> </td>
-                                <td><input id="oauthVersion10a" name="oauthVersion" type="radio" value="<%=OAuthConstants.OAuthVersions.VERSION_1A%>" onclick="toggleVersion()"/>1.0a
-                                    <input id="oauthVersion20" name="oauthVersion" type="radio" value="<%=OAuthConstants.OAuthVersions.VERSION_2%>" CHECKED onclick="toggleVersion()"/>2.0</td>
+                                <td><input id="oauthVersion10a" name="oauthVersion" type="radio" value="<%=OAuthConstants.OAuthVersions.VERSION_1A%>" />1.0a
+                                    <input id="oauthVersion20" name="oauthVersion" type="radio" value="<%=OAuthConstants.OAuthVersions.VERSION_2%>" CHECKED />2.0</td>
                             </tr>
                             <%if  (applicationSPName!= null) {%>
                              <tr style="display: none;">
@@ -239,6 +250,28 @@
 		                        </table>   
 		                        </td>
 		                    </tr>
+                            <tr id="pkce_enable">
+                                <td class="leftcol-small">
+                                    <fmt:message key='pkce.mandatory'/>
+                                </td>
+                                <td>
+                                    <input type="checkbox" name="pkce" value="mandatory"/>Mandatory
+                                    <div class="sectionHelp">
+                                        Only allow applications that
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr id="pkce_support_plain">
+                                <td>
+                                    <fmt:message key='pkce.support.plain'/>
+                                </td>
+                                <td>
+                                    <input type="checkbox" name="pkce_plain" value="yes" checked>Yes
+                                    <div class="sectionHelp">
+                                        Server supports 'S256' PKCE tranformation algorithm by default.
+                                    </div>
+                                </td>
+                            </tr>
 				</table>
 			</td>
 		    </tr>

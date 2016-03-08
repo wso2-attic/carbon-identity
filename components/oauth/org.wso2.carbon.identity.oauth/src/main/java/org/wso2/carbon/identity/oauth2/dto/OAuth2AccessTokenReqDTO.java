@@ -35,6 +35,7 @@ public class OAuth2AccessTokenReqDTO {
     private String clientAssertion;
     private String tenantDomain;
     private String windows_token;
+    private String pkceCodeVerifier;
     private RequestParameter[] requestParameters;
 
     public String getClientId() {
@@ -155,5 +156,13 @@ public class OAuth2AccessTokenReqDTO {
 
     public void setRequestParameters(RequestParameter[] requestParameters) {
         this.requestParameters = requestParameters;
+    }
+
+    public String getPkceCodeVerifier() {
+        return pkceCodeVerifier;
+    }
+
+    public void setPkceCodeVerifier(String pkceCodeVerifier) {
+        this.pkceCodeVerifier = pkceCodeVerifier;
     }
 }

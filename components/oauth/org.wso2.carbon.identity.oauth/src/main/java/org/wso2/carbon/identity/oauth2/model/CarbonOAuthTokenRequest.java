@@ -43,6 +43,7 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
     private String assertion;
     private String windows_token;
     private String tenantDomain;
+    private String pkceCodeVerifier;
     private RequestParameter[] requestParameters;
 
     /**
@@ -59,6 +60,8 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
         assertion = request.getParameter(OAuth.OAUTH_ASSERTION);
         windows_token = request.getParameter(OAuthConstants.WINDOWS_TOKEN);
         tenantDomain = request.getParameter(MultitenantConstants.TENANT_DOMAIN);
+        pkceCodeVerifier = request.getParameter(OAuthConstants.OAUTH_PKCE_CODE_VERIFIER);
+
         if (tenantDomain == null){
             tenantDomain = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
         }
@@ -150,4 +153,15 @@ public class CarbonOAuthTokenRequest extends OAuthTokenRequest {
     public RequestParameter[] getRequestParameters() {
         return requestParameters;
     }
+
+    /**
+     * Return code_verifier String from the OAuth2 request. Note that code_verifier is expected only for
+     * OAuth requests with "Authorization Code" grant type.
+     *
+     * @return the OAuth PKCE code_verifier parameter.
+     */
+    public String getPkceCodeVerifier() {
+        return pkceCodeVerifier;
+    }
+
 }
