@@ -184,7 +184,7 @@ public class TenantDataManager {
      * @return Property value
      */
     protected static String getPropertyValue(String key) {
-        if (key == Constants.SERVICES_URL && identityAvailable) {
+        if (Constants.SERVICES_URL.equals(key) && identityAvailable) {
             return IdentityUtil.getServerURL(prop.getProperty(key),true, true);
         } else {
             return prop.getProperty(key);
