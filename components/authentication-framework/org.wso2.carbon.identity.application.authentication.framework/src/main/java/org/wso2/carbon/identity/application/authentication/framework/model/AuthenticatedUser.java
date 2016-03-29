@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.application.authentication.framework.model;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.User;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -90,15 +91,15 @@ public class AuthenticatedUser extends User {
         AuthenticatedUser authenticatedUser = new AuthenticatedUser();
 
         if (authenticatedSubjectIdentifier.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
-            if (UserCoreUtil.getDomainFromThreadLocal() != null && !UserCoreUtil.getDomainFromThreadLocal().isEmpty()) {
-                String[] subjectIdentifierSplits =
-                        authenticatedSubjectIdentifier.split(CarbonConstants.DOMAIN_SEPARATOR, 2);
-                authenticatedUser.setUserStoreDomain(subjectIdentifierSplits[0]);
-                authenticatedUser.setUserName(MultitenantUtils.getTenantAwareUsername(subjectIdentifierSplits[1]));
-            } else {
-                authenticatedUser.setUserName(MultitenantUtils.getTenantAwareUsername(authenticatedSubjectIdentifier));
-            }
+            String[] subjectIdentifierSplits =
+                    authenticatedSubjectIdentifier.split(CarbonConstants.DOMAIN_SEPARATOR, 2);
+            authenticatedUser.setUserStoreDomain(subjectIdentifierSplits[0]);
+            authenticatedUser.setUserName(MultitenantUtils.getTenantAwareUsername(subjectIdentifierSplits[1]));
+        } else if (UserCoreUtil.getDomainFromThreadLocal() != null && !UserCoreUtil.getDomainFromThreadLocal().isEmpty()) {
+            authenticatedUser.setUserStoreDomain(UserCoreUtil.getDomainFromThreadLocal());
+            authenticatedUser.setUserName(MultitenantUtils.getTenantAwareUsername(authenticatedSubjectIdentifier));
         } else {
+            authenticatedUser.setUserStoreDomain(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME);
             authenticatedUser.setUserName(MultitenantUtils.getTenantAwareUsername(authenticatedSubjectIdentifier));
         }
 
