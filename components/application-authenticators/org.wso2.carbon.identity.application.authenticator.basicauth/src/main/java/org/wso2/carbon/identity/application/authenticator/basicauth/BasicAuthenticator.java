@@ -160,7 +160,7 @@ public class BasicAuthenticator extends AbstractApplicationAuthenticator
                 }
             } else {
                 String errorCode = errorContext != null ? errorContext.getErrorCode() : null;
-                if (errorCode != null && errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED)) {
+                if (errorCode != null && errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED) && (request.getParameter(BasicAuthenticatorConstants.USER_NAME) != null)) {
                     String redirectURL = retryPage;
                     redirectURL = response.encodeRedirectURL(redirectURL + ("?" + queryParams)) + BasicAuthenticatorConstants.FAILED_USERNAME + URLEncoder.encode(request.getParameter(BasicAuthenticatorConstants.USER_NAME), BasicAuthenticatorConstants.UTF_8);
                     response.sendRedirect(redirectURL);
