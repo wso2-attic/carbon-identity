@@ -169,8 +169,8 @@ public class IdentityUtil {
 
     public static void populateProperties() {
         configuration = IdentityConfigParser.getInstance().getConfiguration();
-        eventListenerConfiguration = IdentityConfigParser.getInstance().getEventListenerConfiguration();
-        identityCacheConfigurationHolder = IdentityConfigParser.getInstance().getIdentityCacheConfigurationHolder();
+        eventListenerConfiguration = IdentityConfigParser.getEventListenerConfiguration();
+        identityCacheConfigurationHolder = IdentityConfigParser.getIdentityCacheConfigurationHolder();
     }
 
     public static String getPPIDDisplayValue(String value) throws Exception {
