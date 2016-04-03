@@ -37,6 +37,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.ThreadLocalProvisioningServiceProvider;
+import org.wso2.carbon.identity.application.common.model.User;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationManagementUtil;
 import org.wso2.carbon.identity.application.mgt.ApplicationConstants;
 import org.wso2.carbon.identity.user.profile.mgt.UserProfileAdmin;
@@ -274,7 +275,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                     // there can be only step for subject attributes.
 
                     subjectFoundInStep = true;
-                    String associatedID = null;
+                    AuthenticatedUser associatedID = null;
 
                     // now we know the value of the subject - from the external identity provider.
 
@@ -287,11 +288,17 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                         try {
                             // start tenant flow
                             FrameworkUtils.startTenantFlow(context.getTenantDomain());
-                            associatedID = userProfileAdmin.getNameAssociatedWith(stepConfig.getAuthenticatedIdP(),
-                                                                                  originalExternalIdpSubjectValueForThisStep);
-                            stepConfig.getAuthenticatedUser().setUserName(associatedID);
-                            stepConfig.getAuthenticatedUser().setTenantDomain(context.getTenantDomain());
-                            stepConfig.setAuthenticatedUser(stepConfig.getAuthenticatedUser());
+                            User localUser = userProfileAdmin.getNameAssociatedWith(stepConfig.getAuthenticatedIdP(),
+                                    originalExternalIdpSubjectValueForThisStep);
+                            if(localUser != null) {
+                                // we found an associated user identifier
+                                // build the full qualified user id for the associated user
+                                associatedID.setUserName(localUser.getUserName());
+                                associatedID.setUserStoreDomain(localUser.getUserStoreDomain());
+                                associatedID.setTenantDomain(localUser.getTenantDomain());
+                                associatedID.setAuthenticatedSubjectIdentifier(originalExternalIdpSubjectValueForThisStep);
+                                stepConfig.setAuthenticatedUser(associatedID);
+                            }
                         } catch (UserProfileException e) {
                             throw new FrameworkException("Error while getting associated local user ID for "
                                     + originalExternalIdpSubjectValueForThisStep, e);
@@ -302,7 +309,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                     }
 
 
-                    if (associatedID != null && associatedID.trim().length() > 0) {
+                    if (associatedID != null) {
 
                         handleClaimMappings(stepConfig, context, extAttibutesValueMap, true);
                         localClaimValues = (Map<String, String>) context
@@ -310,13 +317,8 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
 
                         idpClaimValues = (Map<String, String>) context
                                 .getProperty(FrameworkConstants.UNFILTERED_IDP_CLAIM_VALUES);
-                        // we found an associated user identifier
-                        // build the full qualified user id for the associated user
-                        String fullQualifiedAssociatedUserId = FrameworkUtils.prependUserStoreDomainToName(
-                                associatedID + UserCoreConstants.TENANT_DOMAIN_COMBINER + context.getTenantDomain());
-                        sequenceConfig.setAuthenticatedUser(AuthenticatedUser
-                                                                    .createLocalAuthenticatedUserFromSubjectIdentifier(
-                                                                            fullQualifiedAssociatedUserId));
+
+                        sequenceConfig.setAuthenticatedUser(associatedID);
 
                         sequenceConfig.getApplicationConfig().setMappedSubjectIDSelected(true);
 
@@ -339,7 +341,7 @@ public class DefaultStepBasedSequenceHandler implements StepBasedSequenceHandler
                         authenticatedUserAttributes = FrameworkUtils.buildClaimMappings(mappedAttrs);
 
                         // in this case associatedID is a local user name - belongs to a tenant in IS.
-                        String tenantDomain = MultitenantUtils.getTenantDomain(associatedID);
+                        String tenantDomain = associatedID.getTenantDomain();
                         Map<String, Object> authProperties = context.getProperties();
 
                         if (authProperties == null) {
