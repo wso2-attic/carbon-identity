@@ -21,9 +21,13 @@ package org.wso2.carbon.identity.oauth2.token.handlers.grant;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.oauth.cache.CacheKey;
+import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
+import org.wso2.carbon.identity.oauth.common.OAuthConstants;
+import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenRespDTO;
@@ -31,6 +35,11 @@ import org.wso2.carbon.identity.oauth2.model.AccessTokenDO;
 import org.wso2.carbon.identity.oauth2.model.AuthzCodeDO;
 import org.wso2.carbon.identity.oauth2.token.OAuthTokenReqMessageContext;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 /**
  * Implements the AuthorizationGrantHandler for the Grant Type : authorization_code.
@@ -41,11 +50,16 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
     private static final String AUTHZ_CODE = "AuthorizationCode";
 
     private static Log log = LogFactory.getLog(AuthorizationCodeGrantHandler.class);
+    private static AppInfoCache appInfoCache;
+
+    public AuthorizationCodeGrantHandler() {
+        appInfoCache = AppInfoCache.getInstance();
+    }
 
     @Override
     public boolean validateGrant(OAuthTokenReqMessageContext tokReqMsgCtx) throws IdentityOAuth2Exception {
 
-        if(!super.validateGrant(tokReqMsgCtx)){
+        if (!super.validateGrant(tokReqMsgCtx)) {
             return false;
         }
 
@@ -55,13 +69,22 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
         String clientId = oAuth2AccessTokenReqDTO.getClientId();
 
         AuthzCodeDO authzCodeDO = null;
+        OAuthAppDO oAuthAppDO = null;
         // if cache is enabled, check in the cache first.
         if (cacheEnabled) {
             OAuthCacheKey cacheKey = new OAuthCacheKey(OAuth2Util.buildCacheKeyStringForAuthzCode(
                     clientId, authorizationCode));
             authzCodeDO = (AuthzCodeDO) oauthCache.getValueFromCache(cacheKey);
         }
-
+        oAuthAppDO = appInfoCache.getValueFromCache(clientId);
+        if (oAuthAppDO != null) {
+            try {
+                oAuthAppDO = new OAuthAppDAO().getAppInformation(clientId);
+            } catch (InvalidOAuthClientException e) {
+                throw new IdentityOAuth2Exception("Invalid OAuth client", e);
+            }
+            appInfoCache.addToCache(clientId, oAuthAppDO);
+        }
         if (log.isDebugEnabled()) {
             if (authzCodeDO != null) {
                 log.debug("Authorization Code Info was available in cache for client id : "
@@ -144,6 +167,17 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
             return false;
         }
 
+
+        //Perform PKCE Validation for "Authorization Code" Grant Type
+        String PKCECodeChallenge = authzCodeDO.getPkceCodeChallenge();
+        String PKCECodeChallengeMethod = authzCodeDO.getPkceCodeChallengeMethod();
+        String codeVerifier = tokReqMsgCtx.getOauth2AccessTokenReqDTO().getPkceCodeVerifier();
+        if(!doPKCEValidation(PKCECodeChallenge,codeVerifier,PKCECodeChallengeMethod,oAuthAppDO)) {
+            //possible malicious oAuthRequest
+            log.warn("Failed PKCE Verification for oAuth 2.0 request");
+            return false;
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("Found an Authorization Code, " +
                     "Client : " + clientId +
@@ -197,16 +231,60 @@ public class AuthorizationCodeGrantHandler extends AbstractAuthorizationGrantHan
     @Override
     protected void storeAccessToken(OAuth2AccessTokenReqDTO oAuth2AccessTokenReqDTO, String userStoreDomain,
                                     AccessTokenDO newAccessTokenDO, String newAccessToken, AccessTokenDO
-                                                existingAccessTokenDO)
+                                            existingAccessTokenDO)
             throws IdentityOAuth2Exception {
         try {
             newAccessTokenDO.setAuthorizationCode(oAuth2AccessTokenReqDTO.getAuthorizationCode());
             tokenMgtDAO.storeAccessToken(newAccessToken, oAuth2AccessTokenReqDTO.getClientId(),
-                                         newAccessTokenDO, existingAccessTokenDO, userStoreDomain);
+                    newAccessTokenDO, existingAccessTokenDO, userStoreDomain);
         } catch (IdentityException e) {
             throw new IdentityOAuth2Exception(
                     "Error occurred while storing new access token", e);
         }
     }
+    private boolean doPKCEValidation(String referenceCodeChallenge, String codeVerifier, String challenge_method, OAuthAppDO oAuthAppDO) throws IdentityOAuth2Exception {
+        if(oAuthAppDO.isPkceMandatory() || referenceCodeChallenge != null){
 
+            //As per RFC 7636 Fallback to 'plain' if no code_challenge_method parameter is sent
+            if(challenge_method == null || challenge_method.trim().length() == 0) {
+                challenge_method = "plain";
+            }
+
+            //verify that the code verifier is upto spec as per RFC 7636
+            if(!codeVerifier.matches("[\\w\\-\\._~]+") || (codeVerifier.length() < 43 || codeVerifier.length() > 128)) {
+                throw new IdentityOAuth2Exception("Code verifier used is not up to RFC 7636 specifications.");
+            }
+            if (OAuthConstants.OAUTH_PKCE_PLAIN_CHALLENGE.equals(challenge_method)) {
+                //if the current applicatoin explicitly doesn't support plain, throw exception
+                if(!oAuthAppDO.isPkceSupportPlain()) {
+                    throw new IdentityOAuth2Exception("This application does not allow 'plain' transformation algorithm.");
+                }
+                if (!referenceCodeChallenge.equals(codeVerifier)) {
+                    return false;
+                }
+            } else if (OAuthConstants.OAUTH_PKCE_S256_CHALLENGE.equals(challenge_method)) {
+
+                try {
+                    MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+
+                    byte[] hash = messageDigest.digest(codeVerifier.getBytes(StandardCharsets.US_ASCII));
+                    String referencePKCECodeChallenge = new String(Base64.getEncoder().encode(hash));
+                    if (!referencePKCECodeChallenge.equals(referenceCodeChallenge)) {
+                        return false;
+                    }
+                } catch (NoSuchAlgorithmException e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Failed to create SHA256 Message Digest.");
+                    }
+                    return false;
+                }
+            } else {
+                //Invalid OAuth2 token response
+                throw new IdentityOAuth2Exception("Invalid OAuth2 Token Response. Invalid PKCE Code Challenge Method '"
+                        + challenge_method + "'. Server only supports plain, S256 transformation algorithms.");
+            }
+        }
+        //pkce validation sucessfull
+        return true;
+    }
 }

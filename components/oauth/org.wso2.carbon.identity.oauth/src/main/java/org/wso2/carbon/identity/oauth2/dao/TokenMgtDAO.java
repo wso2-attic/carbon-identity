@@ -168,7 +168,10 @@ public class TokenMgtDAO {
                                   Calendar.getInstance(TimeZone.getTimeZone(UTC)));
             prepStmt.setLong(9, authzCodeDO.getValidityPeriod());
             prepStmt.setString(10, authzCodeDO.getAuthorizedUser().getAuthenticatedSubjectIdentifier());
-            prepStmt.setString(11, persistenceProcessor.getProcessedClientId(consumerKey));
+            prepStmt.setString(11, authzCodeDO.getPkceCodeChallenge());
+            prepStmt.setString(12, authzCodeDO.getPkceCodeChallengeMethod());
+            prepStmt.setString(13, persistenceProcessor.getProcessedClientId(consumerKey));
+
             prepStmt.execute();
             connection.commit();
         } catch (SQLException e) {
@@ -546,7 +549,8 @@ public class TokenMgtDAO {
                     long validityPeriod = resultSet.getLong(7);
                     String codeId = resultSet.getString(11);
                     String subjectIdentifier = resultSet.getString(12);
-
+                    String pkceCodeChallenge = resultSet.getString(13);
+                    String pkceCodeChallengeMethod = resultSet.getString(14);
                     AuthenticatedUser user = new AuthenticatedUser();
                     user.setUserName(authorizedUser);
                     user.setTenantDomain(tenantDomain);
@@ -554,7 +558,7 @@ public class TokenMgtDAO {
                     user.setAuthenticatedSubjectIdentifier(subjectIdentifier);
 
                     return new AuthzCodeDO(user, OAuth2Util.buildScopeArray(scopeString), issuedTime, validityPeriod,
-                            callbackUrl, consumerKey, authorizationKey, codeId);
+                            callbackUrl, consumerKey, authorizationKey, codeId,pkceCodeChallenge,pkceCodeChallengeMethod);
                 } else {
                     String authorizedUser = resultSet.getString(1);
                     String userStoreDomain = resultSet.getString(2);

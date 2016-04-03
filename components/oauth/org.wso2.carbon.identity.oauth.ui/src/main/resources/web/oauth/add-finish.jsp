@@ -50,6 +50,9 @@
     String grantSAML1 = request.getParameter("grant_saml1");
     String grantSAML2 = request.getParameter("grant_saml2");
     String grantNTLM = request.getParameter("grant_ntlm");
+	boolean pkceMandatory = false;
+	boolean pkceSupportPlain = false;
+
     String grants = null;
    	StringBuffer buff = new StringBuffer();
 	if (grantCode != null) {
@@ -78,6 +81,16 @@
 	}
 	grants = buff.toString();
 	// -- end setting grants
+	if(request.getParameter("pkce") != null) {
+		pkceMandatory = true;
+	}
+	if(request.getParameter("pkce_plain") != null) {
+		pkceSupportPlain = true;
+	}
+
+
+
+
 	String forwardTo = "index.jsp";
 	String BUNDLE = "org.wso2.carbon.identity.oauth.ui.i18n.Resources";
 	ResourceBundle resourceBundle = ResourceBundle.getBundle(BUNDLE, request.getLocale());
@@ -102,6 +115,9 @@
         if(OAuthConstants.OAuthVersions.VERSION_2.equals(oauthVersion)){
             app.setGrantTypes(grants);
         }
+		app.setPkceMandatory(pkceMandatory);
+		app.setPkceSupportPlain(pkceSupportPlain);
+
 		client.registerOAuthApplicationData(app);
 		
 		consumerApp = client.getOAuthApplicationDataByAppName(applicationName);

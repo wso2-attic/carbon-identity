@@ -21,9 +21,13 @@ package org.wso2.carbon.identity.oauth2.authz.handlers;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.wso2.carbon.identity.oauth.cache.AppInfoCache;
 import org.wso2.carbon.identity.oauth.cache.OAuthCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
+import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.authz.OAuthAuthzReqMessageContext;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AuthorizeReqDTO;
@@ -38,15 +42,26 @@ import java.util.UUID;
 public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
 
     private static Log log = LogFactory.getLog(CodeResponseTypeHandler.class);
-
+    private AppInfoCache appInfoCache;
     @Override
     public OAuth2AuthorizeRespDTO issue(OAuthAuthzReqMessageContext oauthAuthzMsgCtx)
             throws IdentityOAuth2Exception {
         OAuth2AuthorizeRespDTO respDTO = new OAuth2AuthorizeRespDTO();
         String authorizationCode;
         String codeId;
+        appInfoCache = AppInfoCache.getInstance();
 
         OAuth2AuthorizeReqDTO authorizationReqDTO = oauthAuthzMsgCtx.getAuthorizationReqDTO();
+
+        OAuthAppDO oAuthAppDO = appInfoCache.getValueFromCache(authorizationReqDTO.getConsumerKey());
+        if (oAuthAppDO == null) {
+            try {
+                oAuthAppDO = new OAuthAppDAO().getAppInformation(authorizationReqDTO.getConsumerKey());
+            } catch (InvalidOAuthClientException e) {
+                throw new IdentityOAuth2Exception("Invalid consumer application. Failed to issue Grant token.", e);
+            }
+            appInfoCache.addToCache(oAuthAppDO.getOauthConsumerKey(), oAuthAppDO);
+        }
 
         Timestamp timestamp = new Timestamp(new Date().getTime());
 
@@ -80,7 +95,8 @@ public class CodeResponseTypeHandler extends AbstractResponseTypeHandler {
 
         AuthzCodeDO authzCodeDO = new AuthzCodeDO(authorizationReqDTO.getUser(),
                 oauthAuthzMsgCtx.getApprovedScope(),timestamp, validityPeriod, authorizationReqDTO.getCallbackUrl(),
-                authorizationReqDTO.getConsumerKey(), authorizationCode, codeId);
+                authorizationReqDTO.getConsumerKey(), authorizationCode, codeId,
+                authorizationReqDTO.getPkceCodeChallenge(), authorizationReqDTO.getPkceCodeChallengeMethod());
 
         tokenMgtDAO.storeAuthorizationCode(authorizationCode, authorizationReqDTO.getConsumerKey(),
                 authorizationReqDTO.getCallbackUrl(), authzCodeDO);

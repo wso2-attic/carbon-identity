@@ -63,9 +63,8 @@
 	boolean ntlmGrant = false;
     List<String> allowedGrants = null;
     String applicationSPName = null;
-
     try {
-    	
+
     	applicationSPName = request.getParameter("appName");
     	session.setAttribute("application-sp-name", applicationSPName);
 
@@ -75,13 +74,13 @@
 		                                     (ConfigurationContext) config.getServletContext()
 		                                                                  .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
 		OAuthAdminClient client = new OAuthAdminClient(cookie, backendServerURL, configContext);
-		
+
 		if (appName!=null){
 			app = client.getOAuthApplicationDataByAppName(appName);
 		}else{
 			app = client.getOAuthApplicationData(consumerkey);
 		}
-		
+
         if(app.getCallbackUrl() == null){
             app.setCallbackUrl("");
         }
@@ -197,13 +196,31 @@
                     }
                     document.editAppform.submit();
                 }
-                function toggleCallback(){
-                    if(!$(jQuery("#grant_code"))[0].checked && !$(jQuery("#grant_implicit"))[0].checked){
-                        $(jQuery('#callback_row')).attr('style','display:none');
+
+                function adjustForm() {
+                    var oauthVersion = $('input[name=oauthVersion]:checked').val();
+                    var supportGrantCode = $('input[name=grant_code]:checked').val() != null;
+                    var supportImplicit = $('input[name=grant_implicit]:checked').val() != null;
+
+                    if(!supportGrantCode && !supportImplicit){
+                        $(jQuery('#callback_row')).hide();
                     } else {
-                        $(jQuery('#callback_row')).attr('style','');
+                        $(jQuery('#callback_row')).show();
                     }
+                    if(supportGrantCode) {
+                        $(jQuery("#pkce_enable").show());
+                        $(jQuery("#pkce_support_plain").show());
+                    } else {
+                        $(jQuery("#pkce_enable").hide());
+                        $(jQuery("#pkce_support_plain").hide());
+                    }
+
                 }
+                jQuery(document).ready(function() {
+                    //on load adjust the form based on the current settings
+                    adjustForm();
+                    $("form[name='editAppform']").change(adjustForm);
+                })
             </script>
 
             <form method="post" name="editAppform"  action="edit-finish.jsp"  target="_self">
@@ -257,10 +274,10 @@
                                     <%
                                         try{
                                             if(allowedGrants.contains("authorization_code")){
-                                                %><tr><label><input type="checkbox" id="grant_code" name="grant_code" value="authorization_code" onclick="toggleCallback()" <%=(codeGrant ? "checked=\"checked\"" : "")%>/>Code</label></tr><%
+                                                %><tr><label><input type="checkbox" id="grant_code" name="grant_code" value="authorization_code"  <%=(codeGrant ? "checked=\"checked\"" : "")%>/>Code</label></tr><%
                                             }
                                             if(allowedGrants.contains("implicit")){
-                                                %><tr><label><input type="checkbox" id="grant_implicit" name="grant_implicit" value="implicit" onclick="toggleCallback()" <%=(implicitGrant ? "checked=\"checked\"" : "")%>/>Implicit</label></tr><%
+                                                %><tr><label><input type="checkbox" id="grant_implicit" name="grant_implicit" value="implicit"  <%=(implicitGrant ? "checked=\"checked\"" : "")%>/>Implicit</label></tr><%
                                             }
                                             if(allowedGrants.contains("password")){
                                                 %><tr><lable><input type="checkbox" id="grant_password" name="grant_password" value="password"  <%=(passowrdGrant ? "checked=\"checked\"" : "")%>/>Password</lable></tr><%
@@ -284,6 +301,7 @@
                                         String message = resourceBundle.getString("error.while.getting.allowed.grants") + " : " + e.getMessage();
                                         CarbonUIMessage.sendCarbonUIMessage(message, CarbonUIMessage.ERROR, request, e);
                                     %>
+
                                         <script type="text/javascript">
                                             function forward() {
                                                 location.href = "<%=forwardTo%>";
@@ -299,6 +317,28 @@
                                     </table>
                                     </td>
                                 </tr>
+                                <tr id="pkce_enable">
+                                    <td class="leftcol-small">
+                                        <fmt:message key='pkce.mandatory'/>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" name="pkce" value="mandatory" <%=(app.getPkceMandatory() ? "checked" : "")%>  />Mandatory
+                                        <div class="sectionHelp">
+                                            Only allow applications that
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr id="pkce_support_plain">
+                                    <td>
+                                        <fmt:message key='pkce.support.plain'/>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" name="pkce_plain" value="yes" <%=(app.getPkceSupportPlain() ? "checked" : "")%>>Yes
+                                        <div class="sectionHelp">
+                                            Server supports 'S256' PKCE tranformation algorithm by default.
+                                        </div>
+                                    </td>
+                                </tr>
                             <% } %>
 				</table>
 			</td>
@@ -307,20 +347,20 @@
                         <td class="buttonRow">
                            <input name="update"
                                    type="button" class="button" value="<fmt:message key='update'/>" onclick="onClickUpdate();"/>
-                             <%                           
+                             <%
                             boolean applicationComponentFound = CarbonUIUtil.isContextRegistered(config, "/application/");
-                            if (applicationComponentFound) {                            
+                            if (applicationComponentFound) {
                             %>
                             <input type="button" class="button"
                                        onclick="javascript:location.href='../application/configure-service-provider.jsp?spName=<%=Encode.forUriComponent(applicationSPName)%>'"
                                    value="<fmt:message key='cancel'/>"/>
                             <% } else { %>
-                                   
+
                             <input type="button" class="button"
                                        onclick="javascript:location.href='index.jsp?region=region1&item=oauth_menu&ordinal=0'"
                                    value="<fmt:message key='cancel'/>"/>
                             <%} %>
-                                          
+
                         </td>
                     </tr>
                     </tbody>
