@@ -596,7 +596,7 @@ public class OAuth2Util {
     }
 
     public static int getTenantId(String tenantDomain) throws IdentityOAuth2Exception {
-        RealmService realmService = OAuthComponentServiceHolder.getRealmService();
+        RealmService realmService = OAuthComponentServiceHolder.getInstance().getRealmService();
         try {
             return realmService.getTenantManager().getTenantId(tenantDomain);
         } catch (UserStoreException e) {
@@ -606,7 +606,7 @@ public class OAuth2Util {
     }
 
     public static String getTenantDomain(int tenantId) throws IdentityOAuth2Exception {
-        RealmService realmService = OAuthComponentServiceHolder.getRealmService();
+        RealmService realmService = OAuthComponentServiceHolder.getInstance().getRealmService();
         try {
             return realmService.getTenantManager().getDomain(tenantId);
         } catch (UserStoreException e) {

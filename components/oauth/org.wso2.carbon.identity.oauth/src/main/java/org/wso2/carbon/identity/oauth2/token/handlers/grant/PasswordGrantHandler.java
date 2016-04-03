@@ -88,7 +88,7 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
             return false;
         }
 
-        RealmService realmService = OAuthComponentServiceHolder.getRealmService();
+        RealmService realmService = OAuthComponentServiceHolder.getInstance().getRealmService();
         UserStoreManager userStoreManager = null;
         boolean authStatus;
         try {

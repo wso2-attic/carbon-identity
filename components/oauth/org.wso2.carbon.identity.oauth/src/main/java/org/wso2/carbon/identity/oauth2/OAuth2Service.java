@@ -24,14 +24,16 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.wso2.carbon.core.AbstractAdmin;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.oauth.OAuthUtil;
-import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
+import org.wso2.carbon.identity.oauth.OAuthUtil;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.InvalidOAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
 import org.wso2.carbon.identity.oauth.dao.OAuthAppDAO;
+import org.wso2.carbon.identity.oauth.dao.OAuthAppDO;
+import org.wso2.carbon.identity.oauth.event.OauthEventListener;
+import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.authz.AuthorizationHandlerManager;
 import org.wso2.carbon.identity.oauth2.dao.TokenMgtDAO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2AccessTokenReqDTO;
@@ -111,6 +113,7 @@ public class OAuth2Service extends AbstractAdmin {
      * callback, App Name, Error Code and Error Message when appropriate.
      */
     public OAuth2ClientValidationResponseDTO validateClientInfo(String clientId, String callbackURI) {
+
         OAuth2ClientValidationResponseDTO validationResponseDTO =
                 new OAuth2ClientValidationResponseDTO();
 
@@ -123,8 +126,8 @@ public class OAuth2Service extends AbstractAdmin {
             OAuthAppDAO oAuthAppDAO = new OAuthAppDAO();
             OAuthAppDO appDO = oAuthAppDAO.getAppInformation(clientId);
 
-            if(StringUtils.isEmpty(appDO.getGrantTypes()) || StringUtils.isEmpty(appDO.getCallbackUrl())){
-                if(log.isDebugEnabled()) {
+            if (StringUtils.isEmpty(appDO.getGrantTypes()) || StringUtils.isEmpty(appDO.getCallbackUrl())) {
+                if (log.isDebugEnabled()) {
                     log.debug("Registered App found for the given Client Id : " + clientId + " ,App Name : " + appDO
                             .getApplicationName() + ", does not support the requested grant type.");
                 }
@@ -189,7 +192,8 @@ public class OAuth2Service extends AbstractAdmin {
         if (log.isDebugEnabled()) {
             log.debug("Access Token request received for Client ID " +
                     tokenReqDTO.getClientId() + ", User ID " + tokenReqDTO.getResourceOwnerUsername() +
-                    ", Scope : " + Arrays.toString(tokenReqDTO.getScope()) + " and Grant Type : " + tokenReqDTO.getGrantType());
+                    ", Scope : " + Arrays.toString(tokenReqDTO.getScope()) + " and Grant Type : " +
+                    tokenReqDTO.getGrantType());
         }
 
         try {
@@ -199,7 +203,8 @@ public class OAuth2Service extends AbstractAdmin {
             if (log.isDebugEnabled()) {
                 log.debug("Error occurred while issuing access token for Client ID : " +
                         tokenReqDTO.getClientId() + ", User ID: " + tokenReqDTO.getResourceOwnerUsername() +
-                        ", Scope : " + Arrays.toString(tokenReqDTO.getScope()) + " and Grant Type : " + tokenReqDTO.getGrantType(), e);
+                        ", Scope : " + Arrays.toString(tokenReqDTO.getScope()) + " and Grant Type : " +
+                        tokenReqDTO.getGrantType(), e);
             }
             OAuth2AccessTokenRespDTO tokenRespDTO = new OAuth2AccessTokenRespDTO();
             tokenRespDTO.setError(true);
@@ -209,10 +214,11 @@ public class OAuth2Service extends AbstractAdmin {
         } catch (Exception e) { // in case of an error, consider it as a system error
             log.error("Error occurred while issuing the access token for Client ID : " +
                     tokenReqDTO.getClientId() + ", User ID " + tokenReqDTO.getResourceOwnerUsername() +
-                    ", Scope : " + Arrays.toString(tokenReqDTO.getScope()) + " and Grant Type : " + tokenReqDTO.getGrantType(), e);
+                    ", Scope : " + Arrays.toString(tokenReqDTO.getScope()) + " and Grant Type : " +
+                    tokenReqDTO.getGrantType(), e);
             OAuth2AccessTokenRespDTO tokenRespDTO = new OAuth2AccessTokenRespDTO();
             tokenRespDTO.setError(true);
-            if (e.getCause().getCause() instanceof SQLIntegrityConstraintViolationException){
+            if (e.getCause().getCause() instanceof SQLIntegrityConstraintViolationException) {
                 tokenRespDTO.setErrorCode("sql_error");
             } else {
                 tokenRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
@@ -233,6 +239,21 @@ public class OAuth2Service extends AbstractAdmin {
         //fix here remove associated cache entry
         TokenMgtDAO tokenMgtDAO = new TokenMgtDAO();
         OAuthRevocationResponseDTO revokeResponseDTO = new OAuthRevocationResponseDTO();
+        List<OauthEventListener> oauthListeners = OAuthComponentServiceHolder.getInstance().getOauthEventListeners();
+
+        //Invoke pre listeners
+        for (OauthEventListener listener : oauthListeners) {
+            try {
+                listener.onPreTokenRevocation(revokeRequestDTO);
+            } catch (IdentityOAuth2Exception e) {
+                log.error("Error occurred while invoking pre-revoke listener: " + listener.getClass().getName(), e);
+                revokeResponseDTO.setError(true);
+                revokeResponseDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
+                revokeResponseDTO.setErrorMsg("Error occurred while revoking authorization grant for applications");
+                return revokeResponseDTO;
+            }
+        }
+
 
         try {
             if (StringUtils.isNotEmpty(revokeRequestDTO.getConsumerKey()) &&
@@ -252,10 +273,10 @@ public class OAuth2Service extends AbstractAdmin {
 
                     if (refreshTokenDO == null ||
                             StringUtils.isEmpty(refreshTokenDO.getRefreshTokenState()) ||
-                                    !(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE
-                                            .equals(refreshTokenDO.getRefreshTokenState()) ||
-                                      OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED
-                                              .equals(refreshTokenDO.getRefreshTokenState()))) {
+                            !(OAuthConstants.TokenStates.TOKEN_STATE_ACTIVE
+                                    .equals(refreshTokenDO.getRefreshTokenState()) ||
+                                    OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED
+                                            .equals(refreshTokenDO.getRefreshTokenState()))) {
 
                         accessTokenDO = tokenMgtDAO.retrieveAccessToken(revokeRequestDTO.getToken(), true);
                         refreshTokenDO = null;
@@ -274,6 +295,7 @@ public class OAuth2Service extends AbstractAdmin {
                                         .equals(refreshTokenDO.getRefreshTokenState()) ||
                                         OAuthConstants.TokenStates.TOKEN_STATE_EXPIRED
                                                 .equals(refreshTokenDO.getRefreshTokenState()))) {
+                            invokePostRevocationListeners(oauthListeners, revokeRequestDTO, revokeResponseDTO);
                             return revokeResponseDTO;
                         }
                     }
@@ -296,39 +318,41 @@ public class OAuth2Service extends AbstractAdmin {
                     revokeRespDTO.setErrorCode(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT);
                     revokeRespDTO.setErrorMsg("Unauthorized Client");
 
+                    invokePostRevocationListeners(oauthListeners, revokeRequestDTO, revokeResponseDTO);
                     return revokeRespDTO;
                 }
 
                 if (refreshTokenDO != null) {
 
                     OAuthUtil.clearOAuthCache(revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser(),
-                                    OAuth2Util.buildScopeString(refreshTokenDO.getScope()));
+                            OAuth2Util.buildScopeString(refreshTokenDO.getScope()));
                     OAuthUtil.clearOAuthCache(revokeRequestDTO.getConsumerKey(), refreshTokenDO.getAuthorizedUser());
                     OAuthUtil.clearOAuthCache(refreshTokenDO.getAccessToken());
-                    tokenMgtDAO.revokeTokens(new String[] { refreshTokenDO.getAccessToken() });
+                    tokenMgtDAO.revokeTokens(new String[]{refreshTokenDO.getAccessToken()});
                     addRevokeResponseHeaders(revokeResponseDTO,
                             refreshTokenDO.getAccessToken(),
                             revokeRequestDTO.getToken(),
                             refreshTokenDO.getAuthorizedUser().toString());
 
                 } else if (accessTokenDO != null) {
-                        OAuthUtil.clearOAuthCache(revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser(),
-                                        OAuth2Util.buildScopeString(accessTokenDO.getScope()));
-                        OAuthUtil.clearOAuthCache(revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser());
-                        OAuthUtil.clearOAuthCache(revokeRequestDTO.getToken());
-                        tokenMgtDAO.revokeTokens(new String[] { revokeRequestDTO.getToken() });
-                        addRevokeResponseHeaders(revokeResponseDTO,
-                                revokeRequestDTO.getToken(),
-                                accessTokenDO.getRefreshToken(),
-                                accessTokenDO.getAuthzUser().toString());
+                    OAuthUtil.clearOAuthCache(revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser(),
+                            OAuth2Util.buildScopeString(accessTokenDO.getScope()));
+                    OAuthUtil.clearOAuthCache(revokeRequestDTO.getConsumerKey(), accessTokenDO.getAuthzUser());
+                    OAuthUtil.clearOAuthCache(revokeRequestDTO.getToken());
+                    tokenMgtDAO.revokeTokens(new String[]{revokeRequestDTO.getToken()});
+                    addRevokeResponseHeaders(revokeResponseDTO,
+                            revokeRequestDTO.getToken(),
+                            accessTokenDO.getRefreshToken(),
+                            accessTokenDO.getAuthzUser().toString());
                 }
-
+                invokePostRevocationListeners(oauthListeners, revokeRequestDTO, revokeResponseDTO);
                 return revokeResponseDTO;
 
             } else {
                 revokeResponseDTO.setError(true);
                 revokeResponseDTO.setErrorCode(OAuth2ErrorCodes.INVALID_REQUEST);
                 revokeResponseDTO.setErrorMsg("Invalid revocation request");
+                invokePostRevocationListeners(oauthListeners, revokeRequestDTO, revokeResponseDTO);
                 return revokeResponseDTO;
             }
 
@@ -338,6 +362,7 @@ public class OAuth2Service extends AbstractAdmin {
             revokeRespDTO.setError(true);
             revokeRespDTO.setErrorCode(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT);
             revokeRespDTO.setErrorMsg("Unauthorized Client");
+            invokePostRevocationListeners(oauthListeners, revokeRequestDTO, revokeResponseDTO);
             return revokeRespDTO;
         } catch (IdentityException e) {
             log.error("Error occurred while revoking authorization grant for applications", e);
@@ -345,8 +370,22 @@ public class OAuth2Service extends AbstractAdmin {
             revokeRespDTO.setError(true);
             revokeRespDTO.setErrorCode(OAuth2ErrorCodes.SERVER_ERROR);
             revokeRespDTO.setErrorMsg("Error occurred while revoking authorization grant for applications");
+            invokePostRevocationListeners(oauthListeners, revokeRequestDTO, revokeResponseDTO);
             return revokeRespDTO;
         }
+    }
+
+    private void invokePostRevocationListeners(List<OauthEventListener> listeners, OAuthRevocationRequestDTO
+            revokeRequestDTO, OAuthRevocationResponseDTO revokeResponseDTO) {
+
+        for (OauthEventListener listener : listeners) {
+            try {
+                listener.onPostTokenRevocation(revokeRequestDTO, revokeResponseDTO);
+            } catch (IdentityOAuth2Exception e) {
+                log.error("Error occured when invoking post token revoke listner " + listener.getClass().getName(), e);
+            }
+        }
+
     }
 
     /**
@@ -411,7 +450,7 @@ public class OAuth2Service extends AbstractAdmin {
                 Map<String, String> extClaimsMap =
                         userStore.getUserClaimValues(username, claims,
                                 profileName);
-                for (Map.Entry<String, String> entry : extClaimsMap.entrySet()){
+                for (Map.Entry<String, String> entry : extClaimsMap.entrySet()) {
                     Claim curClaim = new Claim();
                     curClaim.setClaimUri(entry.getKey());
                     curClaim.setValue(entry.getValue());
@@ -473,7 +512,8 @@ public class OAuth2Service extends AbstractAdmin {
         return allClaims;
     }
 
-    private void addRevokeResponseHeaders(OAuthRevocationResponseDTO revokeResponseDTP, String accessToken, String refreshToken, String authorizedUser) {
+    private void addRevokeResponseHeaders(OAuthRevocationResponseDTO revokeResponseDTP, String accessToken,
+                                          String refreshToken, String authorizedUser) {
 
         List<ResponseHeader> respHeaders = new ArrayList<>();
         ResponseHeader header = new ResponseHeader();

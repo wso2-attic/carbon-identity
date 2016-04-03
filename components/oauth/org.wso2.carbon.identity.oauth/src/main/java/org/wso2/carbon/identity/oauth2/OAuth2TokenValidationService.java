@@ -21,11 +21,15 @@ package org.wso2.carbon.identity.oauth2;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.core.AbstractAdmin;
+import org.wso2.carbon.identity.oauth.event.OauthEventListener;
+import org.wso2.carbon.identity.oauth.internal.OAuthComponentServiceHolder;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2ClientApplicationDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2IntrospectionResponseDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationRequestDTO;
 import org.wso2.carbon.identity.oauth2.dto.OAuth2TokenValidationResponseDTO;
 import org.wso2.carbon.identity.oauth2.validators.TokenValidationHandler;
+
+import java.util.List;
 
 /**
  * This is the SOAP version of the OAuth validation service which will be used by the resource server.
@@ -40,57 +44,80 @@ public class OAuth2TokenValidationService extends AbstractAdmin {
      */
     public OAuth2TokenValidationResponseDTO validate(OAuth2TokenValidationRequestDTO validationReqDTO) {
 
-	TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
+        TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
+        List<OauthEventListener> oauthEventListeners =
+                OAuthComponentServiceHolder.getInstance().getOauthEventListeners();
+        for (OauthEventListener oauthEventListener : oauthEventListeners) {
+            try {
+                oauthEventListener.onPreTokenValidation(validationReqDTO);
+            } catch (IdentityOAuth2Exception e) {
+                OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
+                errRespDTO.setValid(false);
+                errRespDTO.setErrorMsg(e.getMessage());
+                return errRespDTO;
+            }
+        }
+        OAuth2TokenValidationResponseDTO responseDTO = null;
+        try {
+            responseDTO = validationHandler.validate(validationReqDTO);
+        } catch (IdentityOAuth2Exception e) {
+            log.error("Error occurred while validating the OAuth2 access token", e);
+            OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
+            errRespDTO.setValid(false);
+            errRespDTO.setErrorMsg("Server error occurred while validating the OAuth2 access token");
+            return errRespDTO;
+        }
 
-	try {
-	    return validationHandler.validate(validationReqDTO);
-	} catch (IdentityOAuth2Exception e) {
-	    log.error("Error occurred while validating the OAuth2 access token", e);
-	    OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
-	    errRespDTO.setValid(false);
-	    errRespDTO.setErrorMsg("Server error occurred while validating the OAuth2 access token");
-	    return errRespDTO;
-	}
+        for (OauthEventListener oauthEventListener : oauthEventListeners) {
+            try {
+                oauthEventListener.onPostTokenValidation(validationReqDTO, responseDTO);
+            } catch (IdentityOAuth2Exception e) {
+                log.error("Oauth post listener " + oauthEventListener.getClass().getName() + " failed.", e);
+            }
+        }
+        return responseDTO;
     }
 
     /**
      * @param validationReqDTO
      * @return
      */
-    public OAuth2ClientApplicationDTO findOAuthConsumerIfTokenIsValid(OAuth2TokenValidationRequestDTO validationReqDTO) {
+    public OAuth2ClientApplicationDTO findOAuthConsumerIfTokenIsValid(
+            OAuth2TokenValidationRequestDTO validationReqDTO) {
 
-	TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
+        TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
 
-	try {
-	    return validationHandler.findOAuthConsumerIfTokenIsValid(validationReqDTO);
-	} catch (IdentityOAuth2Exception e) {
-	    log.error("Error occurred while validating the OAuth2 access token", e);
-	    OAuth2ClientApplicationDTO appDTO = new OAuth2ClientApplicationDTO();
-	    OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
-	    errRespDTO.setValid(false);
-	    errRespDTO.setErrorMsg(e.getMessage());
-	    appDTO.setAccessTokenValidationResponse(errRespDTO);
-	    return appDTO;
-	}
+        try {
+            return validationHandler.findOAuthConsumerIfTokenIsValid(validationReqDTO);
+        } catch (IdentityOAuth2Exception e) {
+            log.error("Error occurred while validating the OAuth2 access token", e);
+            OAuth2ClientApplicationDTO appDTO = new OAuth2ClientApplicationDTO();
+            OAuth2TokenValidationResponseDTO errRespDTO = new OAuth2TokenValidationResponseDTO();
+            errRespDTO.setValid(false);
+            errRespDTO.setErrorMsg(e.getMessage());
+            appDTO.setAccessTokenValidationResponse(errRespDTO);
+            return appDTO;
+        }
     }
 
     /**
      * returns back the introspection response, which is compatible with RFC 7662.
+     *
      * @param validationReq
      * @return
      */
     public OAuth2IntrospectionResponseDTO buildIntrospectionResponse(OAuth2TokenValidationRequestDTO validationReq) {
 
-	TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
+        TokenValidationHandler validationHandler = TokenValidationHandler.getInstance();
 
-	try {
-	    return validationHandler.buildIntrospectionResponse(validationReq);
-	} catch (IdentityOAuth2Exception e) {
-	    log.error("Error occurred while building the introspection response", e);
-	    OAuth2IntrospectionResponseDTO response = new OAuth2IntrospectionResponseDTO();
-	    response.setActive(false);
-	    response.setError(e.getMessage());
-	    return response;
-	}
+        try {
+            return validationHandler.buildIntrospectionResponse(validationReq);
+        } catch (IdentityOAuth2Exception e) {
+            log.error("Error occurred while building the introspection response", e);
+            OAuth2IntrospectionResponseDTO response = new OAuth2IntrospectionResponseDTO();
+            response.setActive(false);
+            response.setError(e.getMessage());
+            return response;
+        }
     }
 }

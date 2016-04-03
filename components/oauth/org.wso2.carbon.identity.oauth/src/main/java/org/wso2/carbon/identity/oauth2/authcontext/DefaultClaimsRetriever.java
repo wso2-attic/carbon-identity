@@ -56,6 +56,7 @@ public class DefaultClaimsRetriever implements ClaimsRetriever {
      */
     @Override
     public void init() {
+
         dialectURI = OAuthServerConfiguration.getInstance().getConsumerDialectURI();
         if (dialectURI == null) {
             dialectURI = DEFAULT_DIALECT_URI;
@@ -63,14 +64,15 @@ public class DefaultClaimsRetriever implements ClaimsRetriever {
     }
 
     @Override
-    public SortedMap<String, String> getClaims(String endUserName, String[] requestedClaims) throws IdentityOAuth2Exception {
+    public SortedMap<String, String> getClaims(String endUserName, String[] requestedClaims)
+            throws IdentityOAuth2Exception {
 
         SortedMap<String, String> claimValues;
         int tenantId = MultitenantConstants.SUPER_TENANT_ID;
         try {
             tenantId = OAuth2Util.getTenantIdFromUserName(endUserName);
             String tenantAwareUsername = MultitenantUtils.getTenantAwareUsername(endUserName);
-            UserStoreManager userStoreManager = OAuthComponentServiceHolder.getRealmService().
+            UserStoreManager userStoreManager = OAuthComponentServiceHolder.getInstance().getRealmService().
                     getTenantUserRealm(tenantId).getUserStoreManager();
             claimValues = new TreeMap(userStoreManager.getUserClaimValues(tenantAwareUsername, requestedClaims, null));
         } catch (UserStoreException e) {
@@ -86,11 +88,12 @@ public class DefaultClaimsRetriever implements ClaimsRetriever {
         try {
             tenantId = OAuth2Util.getTenantIdFromUserName(endUserName);
             // if no claims were requested, return all
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug("No claims set requested. Returning all claims in the dialect");
             }
             ClaimManager claimManager =
-                    OAuthComponentServiceHolder.getRealmService().getTenantUserRealm(tenantId).getClaimManager();
+                    OAuthComponentServiceHolder.getInstance().getRealmService().getTenantUserRealm(tenantId)
+                            .getClaimManager();
             ClaimMapping[] claims = claimManager.getAllClaimMappings(dialectURI);
             return claimToString(claims);
         } catch (UserStoreException e) {
@@ -103,6 +106,7 @@ public class DefaultClaimsRetriever implements ClaimsRetriever {
      * array of <code>String</code> objects corresponding to the ClaimURI values.
      */
     private String[] claimToString(ClaimMapping[] claims) {
+
         String[] temp = new String[claims.length];
         for (int i = 0; i < claims.length; i++) {
             temp[i] = claims[i].getClaim().getClaimUri();
