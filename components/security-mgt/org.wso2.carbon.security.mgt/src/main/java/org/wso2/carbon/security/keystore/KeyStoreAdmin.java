@@ -20,14 +20,16 @@ package org.wso2.carbon.security.keystore;
 
 import org.apache.axiom.om.util.Base64;
 import org.apache.axis2.context.MessageContext;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.core.util.KeyStoreManager;
 import org.wso2.carbon.core.util.KeyStoreUtil;
+import org.wso2.carbon.identity.core.util.DynamicX509TrustManager;
 import org.wso2.carbon.registry.core.Association;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
@@ -35,21 +37,15 @@ import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.security.SecurityConfigException;
 import org.wso2.carbon.security.SecurityConstants;
-import org.wso2.carbon.security.keystore.service.CertData;
-import org.wso2.carbon.security.keystore.service.CertDataDetail;
-import org.wso2.carbon.security.keystore.service.KeyStoreData;
-import org.wso2.carbon.security.keystore.service.PaginatedCertData;
-import org.wso2.carbon.security.keystore.service.PaginatedKeyStoreData;
+import org.wso2.carbon.security.keystore.service.*;
 import org.wso2.carbon.security.util.KeyStoreMgtUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+
+import java.io.*;
 import java.security.Key;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -69,7 +65,13 @@ public class KeyStoreAdmin {
     private int tenantId;
     private boolean includeCert = false;
 
+    private static String TRUST_STORE_LOCATION;
+    private static String TRUST_STORE_PASSWORD;
     public KeyStoreAdmin(int tenantId, Registry registry) {
+        ServerConfiguration config = ServerConfiguration.getInstance();
+        TRUST_STORE_LOCATION = config.getFirstProperty("Security.TrustStore.Location");
+        TRUST_STORE_PASSWORD = config.getFirstProperty("Security.TrustStore.Password");
+
         this.registry = registry;
         this.tenantId = tenantId;
     }
@@ -139,11 +141,13 @@ public class KeyStoreAdmin {
                         }
                     }
                     lst.add(data);
-
                 }
-                names = new KeyStoreData[lst.size() + 1];
+
+                names = new KeyStoreData[lst.size() + 2]; //two additional slots for keystore and trust store.
                 Iterator<KeyStoreData> ite = lst.iterator();
+
                 int count = 0;
+
                 while (ite.hasNext()) {
                     names[count] = ite.next();
                     count++;
@@ -159,10 +163,22 @@ public class KeyStoreAdmin {
                     String name = KeyStoreUtil.getKeyStoreFileName(fileName);
                     data.setKeyStoreName(name);
                     data.setKeyStoreType(type);
+                    data.setKeyStoreType(type);
                     data.setProvider(" ");
                     data.setPrivateStore(true);
 
-                    names[count] = data;
+                    names[count++] = data;
+
+                    KeyStoreData clientTrustStore = new KeyStoreData();
+                    String trustStoreFileName = (config.getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_FILE));
+                    String trustStoreName = getKeyStoreFileName(trustStoreFileName);
+
+                    clientTrustStore.setKeyStoreName(trustStoreName);
+                    clientTrustStore.setKeyStoreType(config
+                            .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_TYPE));
+                    clientTrustStore.setProvider(" ");
+                    clientTrustStore.setPrivateStore(false);
+                    names[count] = clientTrustStore;
                 }
 
             }
@@ -265,7 +281,9 @@ public class KeyStoreAdmin {
             if (KeyStoreUtil.isPrimaryStore(filename)) {
                 throw new SecurityConfigException("Key store " + filename + " already available");
             }
-
+            if (isTrustStore(filename)) {
+                throw new SecurityConfigException("Key store " + filename + " already available");
+            }
             String path = SecurityConstants.KEY_STORES + "/" + filename;
             if (registry.resourceExists(path)) {
                 throw new SecurityConfigException("Key store " + filename + " already available");
@@ -301,7 +319,10 @@ public class KeyStoreAdmin {
                 throw new SecurityConfigException("Not allowed to delete the primary key store : "
                         + keyStoreName);
             }
-
+            if (isTrustStore(keyStoreName)) {
+                throw new SecurityConfigException("Not allowed to delete the trust store : "
+                        + keyStoreName);
+            }
             String path = SecurityConstants.KEY_STORES + "/" + keyStoreName;
             boolean isFound = false;
             Association[] assocs = registry.getAllAssociations(path);
@@ -327,9 +348,9 @@ public class KeyStoreAdmin {
             if (keyStoreName == null) {
                 throw new SecurityConfigException("Key Store name can't be null");
             }
-
-            KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
-            KeyStore ks = keyMan.getKeyStore(keyStoreName);
+            //TODO:re use keyman when truststore support is added to org.wso2.carbon.core.util.KeyStoreManager
+            //KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
+            KeyStore ks = getKeyStore(keyStoreName);
 
             byte[] bytes = Base64.decode(certData);
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
@@ -350,8 +371,11 @@ public class KeyStoreAdmin {
 
             ks.setCertificateEntry(fileName, cert);
 
-            keyMan.updateKeyStore(keyStoreName, ks);
+            updateKeyStore(keyStoreName, ks);
 
+            if(isTrustStore(keyStoreName)) {
+                System.setProperty(DynamicX509TrustManager.PROP_TRUST_STORE_UPDATE_REQUIRED, "true");
+            }
         } catch (SecurityConfigException e) {
             throw e;
         } catch (Exception e) {
@@ -370,9 +394,9 @@ public class KeyStoreAdmin {
             if (keyStoreName == null) {
                 throw new SecurityConfigException("Key Store name can't be null");
             }
-
-            KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
-            KeyStore ks = keyMan.getKeyStore(keyStoreName);
+            //TODO:re use keyman when truststore support is added to org.wso2.carbon.core.util.KeyStoreManager
+            //KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
+            KeyStore ks = getKeyStore(keyStoreName);
 
             byte[] bytes = Base64.decode(certData);
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
@@ -392,7 +416,11 @@ public class KeyStoreAdmin {
             alias = cert.getSubjectDN().getName();
             ks.setCertificateEntry(alias, cert);
 
-            keyMan.updateKeyStore(keyStoreName, ks);
+            updateKeyStore(keyStoreName, ks);
+
+            if(isTrustStore(keyStoreName)) {
+                System.setProperty(DynamicX509TrustManager.PROP_TRUST_STORE_UPDATE_REQUIRED, "true");
+            }
 
             return alias;
 
@@ -411,16 +439,20 @@ public class KeyStoreAdmin {
             if (keyStoreName == null) {
                 throw new SecurityConfigException("Key Store name can't be null");
             }
-
-            KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
-            KeyStore ks = keyMan.getKeyStore(keyStoreName);
+            //TODO:re use keyman when truststore support is added to org.wso2.carbon.core.util.KeyStoreManager
+            //KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
+            KeyStore ks = getKeyStore(keyStoreName);
 
             if (ks.getCertificate(alias) == null) {
                 return;
             }
 
             ks.deleteEntry(alias);
-            keyMan.updateKeyStore(keyStoreName, ks);
+            updateKeyStore(keyStoreName, ks);
+
+            if(isTrustStore(keyStoreName)) {
+                System.setProperty(DynamicX509TrustManager.PROP_TRUST_STORE_UPDATE_REQUIRED, "true");
+            }
         } catch (SecurityConfigException e) {
             throw e;
         } catch (Exception e) {
@@ -436,9 +468,9 @@ public class KeyStoreAdmin {
             if (keyStoreName == null) {
                 throw new Exception("keystore name cannot be null");
             }
-
-            KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
-            KeyStore ks = keyMan.getKeyStore(keyStoreName);
+            //TODO:re use keyman when truststore support is added to org.wso2.carbon.core.util.KeyStoreManager
+            //KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
+            KeyStore ks = getKeyStore(keyStoreName);
 
             Enumeration<String> enm = ks.aliases();
             List<String> lst = new ArrayList<>();
@@ -475,29 +507,39 @@ public class KeyStoreAdmin {
 
             KeyStore keyStore;
             String keyStoreType;
-            String privateKeyPassowrd = null;
+            String privateKeyPassword = null;
             if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
                 KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
                 keyStore = keyMan.getPrimaryKeyStore();
                 ServerConfiguration serverConfig = ServerConfiguration.getInstance();
                 keyStoreType = serverConfig
                         .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE);
-                privateKeyPassowrd = serverConfig
+                privateKeyPassword = serverConfig
                         .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIVATE_KEY_PASSWORD);
-            } else {
+            } else if (isTrustStore(keyStoreName)) {
+                //TODO:re use keyman when truststore support is added to org.wso2.carbon.core.util.KeyStoreManager
+                //KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
+                keyStore = getTrustStore();
+                ServerConfiguration serverConfig = ServerConfiguration.getInstance();
+                keyStoreType = serverConfig
+                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_TYPE);
+                privateKeyPassword = serverConfig
+                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_PASSWORD);
+            }else {
                 String path = SecurityConstants.KEY_STORES + "/" + keyStoreName;
                 if (!registry.resourceExists(path)) {
                     throw new SecurityConfigException("Key Store not found");
                 }
                 Resource resource = registry.get(path);
-                KeyStoreManager manager = KeyStoreManager.getInstance(tenantId);
-                keyStore = manager.getKeyStore(keyStoreName);
+                //TODO:re use keyman when truststore support is added to org.wso2.carbon.core.util.KeyStoreManager
+                //KeyStoreManager manager = KeyStoreManager.getInstance(tenantId);
+                keyStore = getKeyStore(keyStoreName);
                 keyStoreType = resource.getProperty(SecurityConstants.PROP_TYPE);
 
                 String encpass = resource.getProperty(SecurityConstants.PROP_PRIVATE_KEY_PASS);
                 if (encpass != null) {
                     CryptoUtil util = CryptoUtil.getDefaultCryptoUtil();
-                    privateKeyPassowrd = new String(util.base64DecodeAndDecrypt(encpass));
+                    privateKeyPassword = new String(util.base64DecodeAndDecrypt(encpass));
                 }
             }
             // Fill the information about the certificates
@@ -529,11 +571,8 @@ public class KeyStoreAdmin {
                 if (keyStore.isKeyEntry(alias)) {
                     X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
                     keyStoreData.setKey(fillCertData(cert, alias, formatter));
-                    if (StringUtils.isBlank(privateKeyPassowrd)) {
-                        throw new SecurityConfigException(
-                                "Cannot Read Private Key Password from Server Configurations");
-                    }
-                    PrivateKey key = (PrivateKey) keyStore.getKey(alias, privateKeyPassowrd
+
+                    PrivateKey key = (PrivateKey) keyStore.getKey(alias, privateKeyPassword
                             .toCharArray());
                     String pemKey;
                     pemKey = "-----BEGIN PRIVATE KEY-----\n";
@@ -579,7 +618,7 @@ public class KeyStoreAdmin {
         return null;
     }
 
-    private CertData fillCertData(X509Certificate cert, String alise, Format formatter)
+    private CertData fillCertData(X509Certificate cert, String alias, Format formatter)
             throws CertificateEncodingException {
         CertData certData = null;
 
@@ -588,7 +627,7 @@ public class KeyStoreAdmin {
         } else {
             certData = new CertData();
         }
-        certData.setAlias(alise);
+        certData.setAlias(alias);
         certData.setSubjectDN(cert.getSubjectDN().getName());
         certData.setIssuerDN(cert.getIssuerDN().getName());
         certData.setSerialNumber(cert.getSerialNumber());
@@ -698,15 +737,24 @@ public class KeyStoreAdmin {
 
             KeyStore keyStore;
             String keyStoreType;
-            String privateKeyPassowrd = null;
+            String keyStorePassword = null;
+
             if (KeyStoreUtil.isPrimaryStore(keyStoreName)) {
                 KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
                 keyStore = keyMan.getPrimaryKeyStore();
                 ServerConfiguration serverConfig = ServerConfiguration.getInstance();
                 keyStoreType = serverConfig
                         .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIMARY_KEYSTORE_TYPE);
-                privateKeyPassowrd = serverConfig
+                keyStorePassword = serverConfig
                         .getFirstProperty(RegistryResources.SecurityManagement.SERVER_PRIVATE_KEY_PASSWORD);
+            } else if (isTrustStore(keyStoreName)) {
+                KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
+                keyStore = getTrustStore();
+                ServerConfiguration serverConfig = ServerConfiguration.getInstance();
+                keyStoreType = serverConfig
+                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_TYPE);
+                keyStorePassword = serverConfig
+                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_PASSWORD);
             } else {
                 String path = SecurityConstants.KEY_STORES + "/" + keyStoreName;
                 if (!registry.resourceExists(path)) {
@@ -714,13 +762,13 @@ public class KeyStoreAdmin {
                 }
                 Resource resource = registry.get(path);
                 KeyStoreManager manager = KeyStoreManager.getInstance(tenantId);
-                keyStore = manager.getKeyStore(keyStoreName);
+                keyStore = getKeyStore(keyStoreName);
                 keyStoreType = resource.getProperty(SecurityConstants.PROP_TYPE);
 
                 String encpass = resource.getProperty(SecurityConstants.PROP_PRIVATE_KEY_PASS);
                 if (encpass != null) {
                     CryptoUtil util = CryptoUtil.getDefaultCryptoUtil();
-                    privateKeyPassowrd = new String(util.base64DecodeAndDecrypt(encpass));
+                    keyStorePassword = new String(util.base64DecodeAndDecrypt(encpass));
                 }
             }
             // Fill the information about the certificates
@@ -752,11 +800,8 @@ public class KeyStoreAdmin {
                 if (keyStore.isKeyEntry(alias)) {
                     X509Certificate cert = (X509Certificate) keyStore.getCertificate(alias);
                     keyStoreData.setKey(fillCertData(cert, alias, formatter));
-                    if (StringUtils.isBlank(privateKeyPassowrd)) {
-                        throw new SecurityConfigException(
-                                "Cannot Read Private Key Password from Server Configurations");
-                    }
-                    PrivateKey key = (PrivateKey) keyStore.getKey(alias, privateKeyPassowrd
+
+                    PrivateKey key = (PrivateKey) keyStore.getKey(alias, keyStorePassword
                             .toCharArray());
                     String pemKey;
                     pemKey = "-----BEGIN PRIVATE KEY-----\n";
@@ -777,4 +822,132 @@ public class KeyStoreAdmin {
 
     }
 
+    /**
+     * Load the default trust store (allowed only for super tennant)
+     *
+     * @return trust store object
+     * @throws KeyStoreException
+     */
+    public KeyStore getTrustStore() throws Exception {
+        //Allow only the super tennant to access the default trust store.
+        if(tenantId != MultitenantConstants.SUPER_TENANT_ID)
+            throw new CarbonException("Permission denied for accessing trust store");
+
+        KeyStore trustStore = null;
+        ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
+        String file =
+                new File(serverConfiguration
+                        .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_FILE))
+                        .getAbsolutePath();
+
+        KeyStore store = KeyStore.getInstance(serverConfiguration
+                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_TYPE));
+
+        String password = serverConfiguration
+                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_PASSWORD);
+
+        FileInputStream in = null;
+        try {
+            in = new FileInputStream(file);
+            store.load(in, password.toCharArray());
+            trustStore = store;
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    throw e;
+                }
+            }
+        }
+        return trustStore;
+    }
+
+    /**
+     * Check if the supplied id is the system configured trust store
+     * @param id id (file name) of the keystore
+     * @return boolean true if supplied id is the configured trust store
+     */
+    public boolean isTrustStore(String id){
+
+        ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
+        String fileName = serverConfiguration
+                .getFirstProperty(RegistryResources.SecurityManagement.SERVER_TRUSTSTORE_FILE);
+        int index = fileName.lastIndexOf('/');
+        if (index != -1) {
+            String name = fileName.substring(index + 1);
+            if (name.equals(id)) {
+                return true;
+            }
+        } else {
+            index = fileName.lastIndexOf(File.separatorChar);
+            String name = null;
+            if (index != -1) {
+                name = fileName.substring(fileName.lastIndexOf(File.separatorChar));
+            } else {
+                name = fileName;
+            }
+
+            if (name.equals(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //TODO: Update getKeyStoreFileName funcationality to support trust store to on org.wso2.carbon.core.util.KeyStoreUtil
+    private String getKeyStoreFileName(String fullName) {
+        String name = null;
+        int index = fullName.lastIndexOf(47);
+        if(index != -1) {
+            name = fullName.substring(index + 1);
+        } else {
+            index = fullName.lastIndexOf(File.separatorChar);
+            if(index != -1) {
+                name = fullName.substring(fullName.lastIndexOf(File.separatorChar));
+            } else {
+                name = fullName;
+            }
+        }
+
+        return name;
+    }
+
+    private  KeyStore getKeyStore(String keyStoreName) throws Exception {
+        //TODO: Move trust store update functionality to org.wso2.carbon.core.util.KeyStoreManager
+        if(isTrustStore(keyStoreName)) {
+            return getTrustStore();
+        } else {
+            KeyStoreManager keyMan = KeyStoreManager.getInstance(tenantId);
+            return keyMan.getKeyStore(keyStoreName);
+        }
+
+    }
+    private void updateKeyStore(String name, KeyStore keyStore) throws Exception  {
+
+        FileOutputStream resource1;
+        String outputStream1;
+        String path;
+        //TODO: Move trust store update functionality to org.wso2.carbon.core.util.KeyStoreManager
+        if(isTrustStore(name)) {
+            path = (new File(TRUST_STORE_LOCATION)).getAbsolutePath();
+            resource1 = null;
+
+            try {
+                resource1 = new FileOutputStream(path);
+                outputStream1 = TRUST_STORE_PASSWORD;
+                keyStore.store(resource1, outputStream1.toCharArray());
+            } finally {
+                if(resource1 != null) {
+                    resource1.close();
+                }
+
+            }
+        } else {
+            KeyStoreManager keyStoreManager = KeyStoreManager.getInstance(tenantId);
+            keyStoreManager.updateKeyStore(name, keyStore);
+        }
+    }
 }
