@@ -537,6 +537,8 @@ public class IdPManagementUIUtil {
         Property scimEnablePwdProvisioning = null;
         Property defaultPwdProp = null;
         Property uniqueID = null;
+        Property provisioningPattern = null;
+        Property provisioningSeparator = null;
 
         if (paramMap.get("scimProvEnabled") != null && "on".equals(paramMap.get("scimProvEnabled"))) {
             proConnector.setEnabled(true);
@@ -598,8 +600,20 @@ public class IdPManagementUIUtil {
             uniqueID.setValue(paramMap.get("scim-unique-id"));
         }
 
+        if (paramMap.get("scim-prov-pattern") != null) {
+            provisioningPattern = new Property();
+            provisioningPattern.setName("scim-prov-pattern");
+            provisioningPattern.setValue(paramMap.get("scim-prov-pattern"));
+        }
+
+        if (paramMap.get("scim-prov-separator") != null) {
+            provisioningSeparator = new Property();
+            provisioningSeparator.setName("scim-prov-separator");
+            provisioningSeparator.setValue(paramMap.get("scim-prov-separator"));
+        }
+
         Property[] proProperties = new Property[]{userNameProp, passwordProp, userEpProp,
-                groupEpProp, scimUserStoreDomain, scimEnablePwdProvisioning, defaultPwdProp, uniqueID};
+                groupEpProp, scimUserStoreDomain, scimEnablePwdProvisioning, defaultPwdProp, uniqueID, provisioningPattern, provisioningSeparator};
 
         proConnector.setProvisioningProperties(proProperties);
 

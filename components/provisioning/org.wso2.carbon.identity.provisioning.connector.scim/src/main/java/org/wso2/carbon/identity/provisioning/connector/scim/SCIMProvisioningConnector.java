@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConnector {
 
@@ -47,14 +48,18 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
     private static Log log = LogFactory.getLog(SCIMProvisioningConnector.class);
     private SCIMProvider scimProvider;
     private String userStoreDomainName;
+    private SCIMProvisioningConnectorConfig configHolder;
 
     @Override
     public void init(Property[] provisioningProperties) throws IdentityProvisioningException {
         scimProvider = new SCIMProvider();
+        Properties configs = new Properties();
 
         if (provisioningProperties != null && provisioningProperties.length > 0) {
 
             for (Property property : provisioningProperties) {
+
+                configs.put(property.getName(), property.getValue());
 
                 if (SCIMProvisioningConnectorConstants.SCIM_USER_EP.equals(property.getName())) {
                     populateSCIMProvider(property, SCIMConfigConstants.ELEMENT_NAME_USER_ENDPOINT);
@@ -78,6 +83,7 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
                     jitProvisioningEnabled = true;
                 }
             }
+            configHolder = new SCIMProvisioningConnectorConfig(configs);
         }
     }
 
@@ -185,6 +191,22 @@ public class SCIMProvisioningConnector extends AbstractOutboundProvisioningConne
             if (CollectionUtils.isNotEmpty(userNames)) {
                 userName = userNames.get(0);
             }
+
+            String provisioningPattern = this.configHolder.getValue(SCIMConnectorConstants.PropertyConfig.PROVISIONING_PATTERN_KEY);
+            if (StringUtils.isBlank(provisioningPattern)) {
+                log.info("Provisioning pattern is not defined, hence using default provisioning pattern");
+                provisioningPattern = SCIMConnectorConstants.PropertyConfig.DEFAULT_PROVISIONING_PATTERN;
+            }
+            String provisioningSeparator = this.configHolder.getValue(SCIMConnectorConstants.PropertyConfig.PROVISIONING_SEPERATOR_KEY);
+            if (StringUtils.isBlank(provisioningSeparator)) {
+                log.info("Provisioning separator is not defined, hence using default provisioning separator");
+                provisioningSeparator = SCIMConnectorConstants.PropertyConfig.DEFAULT_PROVISIONING_SEPERATOR;
+            }
+
+            String idpName = this.configHolder.getValue(SCIMConnectorConstants.PropertyConfig.IDP_NAME_KEY);
+
+            userName = buildUserId(userEntity, provisioningPattern,
+                    provisioningSeparator, idpName);
 
             int httpMethod = SCIMConstants.POST;
             User user = null;

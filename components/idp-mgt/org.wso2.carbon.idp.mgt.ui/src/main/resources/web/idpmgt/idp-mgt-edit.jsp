@@ -190,6 +190,8 @@
     String scimDefaultPwd = null;
     String disableDefaultPwd = "";
     String scimUniqueID = null;
+    String scimProvPattern = null;
+    String scimProvSeparator = null;
 
     boolean isSpmlProvEnabled = false;
     boolean isSpmlProvDefault = false;
@@ -729,6 +731,10 @@
                         scimDefaultPwd = scimProperty.getValue();
                     } else if ("UniqueID".equals(scimProperty.getName())){
                         scimUniqueID = scimProperty.getValue();
+                    } else if ("scim-prov-pattern".equals(scimProperty.getName())){
+                        scimProvPattern = scimProperty.getValue();
+                    } else if ("scim-prov-separator".equals(scimProperty.getName())){
+                        scimProvSeparator = scimProperty.getValue();
                     }
                 }
             }
@@ -1269,6 +1275,13 @@
     }
     if (scimDefaultPwd == null){
         scimDefaultPwd = "";
+    }
+    if (scimProvPattern == null) {
+        scimProvPattern = "";
+    }
+
+    if (scimProvSeparator == null) {
+        scimProvSeparator = "";
     }
 
     String sfProvEnabledChecked = "";
@@ -5258,6 +5271,38 @@ function doValidation() {
                             <input type="hidden" id="scim-unique-id" name="scim-unique-id" value=<%=Encode.forHtmlAttribute(scimUniqueID)%>>
                         <%}%>
         </tr>
+        <tr>
+            <td class="leftCol-med labelField"><fmt:message
+                    key='scim.provisioning.pattern'/>:
+            </td>
+            <td>
+                <div>
+                    <input id="scim-prov-pattern"
+                           name="scim-prov-pattern" type="text"
+                           value="<%=Encode.forHtmlAttribute(scimProvPattern)%>"/>
+                </div>
+                <div class="sectionHelp">
+                    <fmt:message key='scim_prov_pattern.help'/>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="leftCol-med labelField"><fmt:message
+                    key='scim.provisioning.separator'/>:
+            </td>
+            <td>
+                <div>
+                    <input id="scim-prov-separator"
+                           name="scim-prov-separator" type="text"
+                           value="<%=Encode.forHtmlAttribute(scimProvSeparator)%>"/>
+                </div>
+                <div class="sectionHelp">
+                    <fmt:message key='scim.provisioning.separator.help'/>
+                </div>
+            </td>
+        </tr>
+
     </table>
 
 </div>
