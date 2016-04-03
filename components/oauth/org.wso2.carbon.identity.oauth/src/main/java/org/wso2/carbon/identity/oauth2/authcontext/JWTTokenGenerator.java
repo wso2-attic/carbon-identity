@@ -89,8 +89,6 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
 
     private static final String NONE = "NONE";
 
-    private static final Base64 base64Url = new Base64(0, null, true);
-
     private static volatile long ttl = -1L;
 
     private ClaimsRetriever claimsRetriever;
@@ -420,7 +418,8 @@ public class JWTTokenGenerator implements AuthorizationContextTokenGenerator {
             byte[] digestInBytes = digestValue.digest();
 
             String publicCertThumbprint = hexify(digestInBytes);
-            String base64EncodedThumbPrint = new String(base64Url.encode(publicCertThumbprint.getBytes(Charsets.UTF_8)), Charsets.UTF_8);
+            String base64EncodedThumbPrint = new String(new Base64(0, null, true).encode(publicCertThumbprint
+                    .getBytes(Charsets.UTF_8)), Charsets.UTF_8);
             return base64EncodedThumbPrint;
 
         } catch (Exception e) {
