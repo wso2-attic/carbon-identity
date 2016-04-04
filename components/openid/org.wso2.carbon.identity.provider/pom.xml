@@ -83,11 +83,7 @@
             <artifactId>openid4java</artifactId>
         </dependency>
         <dependency>
-            <groupId>opensaml.wso2</groupId>
-            <artifactId>opensaml2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>opensaml.wso2</groupId>
+            <groupId>org.wso2.orbit.org.opensaml</groupId>
             <artifactId>opensaml</artifactId>
         </dependency>
         <dependency>
