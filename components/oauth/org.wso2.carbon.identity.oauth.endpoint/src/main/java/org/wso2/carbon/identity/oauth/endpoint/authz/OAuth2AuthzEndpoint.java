@@ -48,6 +48,7 @@ import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuth2ErrorCodes;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.endpoint.OAuthRequestWrapper;
+import org.wso2.carbon.identity.oauth.endpoint.session.OIDCSessionMgtEndpoint;
 import org.wso2.carbon.identity.oauth.endpoint.util.EndpointUtil;
 import org.wso2.carbon.identity.oauth.endpoint.util.OpenIDConnectUserRPStore;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
@@ -60,15 +61,14 @@ import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.ws.rs.*;
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.NewCookie;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -93,7 +93,8 @@ public class OAuth2AuthzEndpoint {
     @Path("/")
     @Consumes("application/x-www-form-urlencoded")
     @Produces("text/html")
-    public Response authorize(@Context HttpServletRequest request, @Context HttpServletResponse response)
+    public Response authorize(@Context HttpServletRequest request, @Context HttpServletResponse response,
+                              @CookieParam("statusCookie") Cookie statCookie)
             throws URISyntaxException {
 
         // Setting super-tenant carbon context
@@ -115,7 +116,7 @@ public class OAuth2AuthzEndpoint {
 
         if ("true".equals(isToCommonOauth) && flowStatus == null) {
             try {
-                return sendRequestToFramework(request, response);
+                return sendRequestToFramework(request, response, statCookie);
             } catch (ServletException | IOException e) {
                 log.error("Error occurred while sending request to authentication framework.");
                 return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build();
@@ -190,13 +191,23 @@ public class OAuth2AuthzEndpoint {
                     try {
                         return sendRequestToFramework(request, response,
                                 (String) request.getAttribute(FrameworkConstants.SESSION_DATA_KEY),
-                                type);
+                                type, statCookie);
                     } catch (ServletException | IOException e ) {
                        log.error("Error occurred while sending request to authentication framework.");
                     }
                     return Response.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR).build();
                 } else {
-                    return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
+                    String sessionKey = UUIDGenerator.generateUUID();
+                    if (statCookie == null) {
+                        Cookie cookie = new Cookie(OAuthConstants.STATUSCOOKIE, sessionKey);
+                        return Response.status(HttpServletResponse.SC_FOUND).
+                                cookie(new NewCookie(cookie)).location(new URI(redirectURL + "&session=" + cookie.
+                                getValue())).build();
+                    } else {
+                        return Response.status(HttpServletResponse.SC_FOUND).
+                                cookie(new NewCookie(statCookie)).location(new URI(redirectURL + "&session=" + statCookie
+                                .getValue())).build();
+                    }
                 }
 
             } else if (resultFromLogin != null) { // Authentication response
@@ -218,7 +229,17 @@ public class OAuth2AuthzEndpoint {
                         sessionDataCacheEntry.setAuthenticatedIdPs(authnResult.getAuthenticatedIdPs());
                         SessionDataCache.getInstance().addToCache(cacheKey, sessionDataCacheEntry);
                         redirectURL = doUserAuthz(request, sessionDataKeyFromLogin, sessionDataCacheEntry);
-                        return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
+                        String sessionKey = UUIDGenerator.generateUUID();
+                        if (statCookie == null) {
+                            Cookie cookie = new Cookie(OAuthConstants.STATUSCOOKIE, sessionKey);
+                            return Response.status(HttpServletResponse.SC_FOUND).
+                                    cookie(new NewCookie(cookie)).location(new URI(redirectURL + "&session=" + cookie.
+                                    getValue())).build();
+                        } else {
+                            return Response.status(HttpServletResponse.SC_FOUND).
+                                    cookie(new NewCookie(statCookie)).location(new URI(redirectURL + "&session=" + statCookie
+                                    .getValue())).build();
+                        }
 
                     } else {
 
@@ -230,7 +251,17 @@ public class OAuth2AuthzEndpoint {
                                 .getLocationUri();
 
                     }
-                    return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
+                    String sessionKey = UUIDGenerator.generateUUID();
+                    if (statCookie == null) {
+                        Cookie cookie = new Cookie(OAuthConstants.STATUSCOOKIE, sessionKey);
+                        return Response.status(HttpServletResponse.SC_FOUND).
+                                cookie(new NewCookie(cookie)).location(new URI(redirectURL + "&session=" + cookie.
+                                getValue())).build();
+                    } else {
+                        return Response.status(HttpServletResponse.SC_FOUND).
+                                cookie(new NewCookie(statCookie)).location(new URI(redirectURL + "&session=" + statCookie
+                                .getValue())).build();
+                    }
 
                 } else {
 
@@ -277,8 +308,17 @@ public class OAuth2AuthzEndpoint {
                             log.error("Error while encoding the url", e);
                         }
                     }
-
-                    return Response.status(HttpServletResponse.SC_FOUND).location(new URI(redirectURL)).build();
+                    String sessionKey = UUIDGenerator.generateUUID();
+                    if (statCookie == null) {
+                        Cookie cookie = new Cookie(OAuthConstants.STATUSCOOKIE, sessionKey);
+                        return Response.status(HttpServletResponse.SC_FOUND).
+                                cookie(new NewCookie(cookie)).location(new URI(redirectURL + "&session=" + cookie.
+                                getValue())).build();
+                    } else {
+                        return Response.status(HttpServletResponse.SC_FOUND).
+                                cookie(new NewCookie(statCookie)).location(new URI(redirectURL + "&session=" + statCookie
+                                .getValue())).build();
+                    }
                 } else {
                     String appName = sessionDataCacheEntry.getoAuth2Parameters().getApplicationName();
 
@@ -379,10 +419,11 @@ public class OAuth2AuthzEndpoint {
     @Path("/")
     @Consumes("application/x-www-form-urlencoded")
     @Produces("text/html")
-    public Response authorizePost(@Context HttpServletRequest request,@Context HttpServletResponse response,  MultivaluedMap paramMap)
+    public Response authorizePost(@Context HttpServletRequest request, @Context HttpServletResponse response, MultivaluedMap paramMap
+            , @CookieParam("statusCookie") Cookie statusCookie)
             throws URISyntaxException {
         HttpServletRequestWrapper httpRequest = new OAuthRequestWrapper(request, paramMap);
-        return authorize(httpRequest, response);
+        return authorize(httpRequest, response, statusCookie);
     }
 
     /**
@@ -760,6 +801,7 @@ public class OAuth2AuthzEndpoint {
         authzReqDTO.setUser(sessionDataCacheEntry.getLoggedInUser());
         authzReqDTO.setACRValues(oauth2Params.getACRValues());
         authzReqDTO.setNonce(oauth2Params.getNonce());
+        OIDCSessionMgtEndpoint.setCallBackUrl(authzReqDTO);
         return EndpointUtil.getOAuth2Service().authorize(authzReqDTO);
     }
 
@@ -826,7 +868,7 @@ public class OAuth2AuthzEndpoint {
      * @throws IOException
      */
     private Response sendRequestToFramework(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException,IOException,URISyntaxException {
+            HttpServletResponse response,Cookie statCookie) throws ServletException,IOException,URISyntaxException {
 
         CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
 
@@ -842,11 +884,11 @@ public class OAuth2AuthzEndpoint {
                     return Response.status(HttpServletResponse.SC_OK).entity(responseWrapper.getResponseBody()).build();
                 }
             } else {
-                return authorize(request, response);
+                return authorize(request, response, statCookie);
             }
         } else {
             request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
-            return authorize(request, response);
+            return authorize(request, response, statCookie);
         }
         return null;
     }
@@ -865,7 +907,7 @@ public class OAuth2AuthzEndpoint {
      * @throws IOException
      */
     private Response sendRequestToFramework(HttpServletRequest request, HttpServletResponse response,
-            String sessionDataKey, String type) throws ServletException, IOException, URISyntaxException {
+            String sessionDataKey, String type, Cookie statCookie) throws ServletException, IOException, URISyntaxException {
 
         CommonAuthenticationHandler commonAuthenticationHandler = new CommonAuthenticationHandler();
 
@@ -886,11 +928,11 @@ public class OAuth2AuthzEndpoint {
                     return Response.status(HttpServletResponse.SC_OK).entity(responseWrapper.getResponseBody()).build();
                 }
             } else {
-                return authorize(requestWrapper, responseWrapper);
+                return authorize(requestWrapper, responseWrapper, statCookie);
             }
         } else {
             requestWrapper.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.UNKNOWN);
-            return authorize(requestWrapper, responseWrapper);
+            return authorize(requestWrapper, responseWrapper, statCookie);
         }
         return null;
     }
