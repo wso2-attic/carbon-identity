@@ -32,6 +32,7 @@ public class OAuth2AuthorizeReqDTO {
     private String password;
     private LinkedHashSet acrValues;
     private String nonce;
+    private String tenantDomain;
     private Properties properties = new Properties();
 
     public AuthenticatedUser getUser() {
@@ -97,6 +98,14 @@ public class OAuth2AuthorizeReqDTO {
 
     public String getNonce() {
         return this.nonce;
+    }
+
+    public String getTenantDomain() {
+        return tenantDomain;
+    }
+
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
     }
 
     public void addProperty(Object propName, Object propValue) {
