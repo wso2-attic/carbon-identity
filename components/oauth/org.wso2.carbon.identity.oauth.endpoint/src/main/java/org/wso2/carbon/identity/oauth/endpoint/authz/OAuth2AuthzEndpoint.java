@@ -39,6 +39,7 @@ import org.wso2.carbon.identity.application.authentication.framework.util.Framew
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.common.model.Claim;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCache;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheEntry;
 import org.wso2.carbon.identity.oauth.cache.AuthorizationGrantCacheKey;
@@ -58,6 +59,7 @@ import org.wso2.carbon.identity.oauth2.model.CarbonOAuthAuthzRequest;
 import org.wso2.carbon.identity.oauth2.model.OAuth2Parameters;
 import org.wso2.carbon.identity.oauth2.util.OAuth2Util;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.ServletException;
@@ -554,6 +556,11 @@ public class OAuth2AuthzEndpoint {
         params.setDisplay(oauthRequest.getParam(OAuthConstants.OAuth20Params.DISPLAY));
         params.setIDTokenHint(oauthRequest.getParam(OAuthConstants.OAuth20Params.ID_TOKEN_HINT));
         params.setLoginHint(oauthRequest.getParam(OAuthConstants.OAuth20Params.LOGIN_HINT));
+        if(oauthRequest.getParam(OAuthConstants.OAuth20Params.TENANT_DOMAIN) != null) {
+            params.setTenantDomain(oauthRequest.getParam(OAuthConstants.OAuth20Params.TENANT_DOMAIN));
+        } else {
+            params.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+        }
         if (StringUtils.isNotBlank(oauthRequest.getParam("acr_values")) && !"null".equals(oauthRequest.getParam
                 ("acr_values"))) {
             String[] acrValues = oauthRequest.getParam("acr_values").split(" ");
@@ -760,6 +767,7 @@ public class OAuth2AuthzEndpoint {
         authzReqDTO.setUser(sessionDataCacheEntry.getLoggedInUser());
         authzReqDTO.setACRValues(oauth2Params.getACRValues());
         authzReqDTO.setNonce(oauth2Params.getNonce());
+        authzReqDTO.setTenantDomain(oauth2Params.getTenantDomain());
         return EndpointUtil.getOAuth2Service().authorize(authzReqDTO);
     }
 

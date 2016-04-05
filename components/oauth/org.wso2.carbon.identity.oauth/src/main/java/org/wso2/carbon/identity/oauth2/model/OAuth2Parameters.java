@@ -40,6 +40,7 @@ public class OAuth2Parameters implements Serializable {
     private String prompt;
     private String id_token_hint;
     private String login_hint;
+    private String tenantDomain;
     private LinkedHashSet acrValues;
 
     public String getApplicationName() {
@@ -151,6 +152,14 @@ public class OAuth2Parameters implements Serializable {
      */
     public String getLoginHint() {
         return login_hint;
+    }
+
+    public String getTenantDomain() {
+        return tenantDomain;
+    }
+
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
     }
 
     /**
