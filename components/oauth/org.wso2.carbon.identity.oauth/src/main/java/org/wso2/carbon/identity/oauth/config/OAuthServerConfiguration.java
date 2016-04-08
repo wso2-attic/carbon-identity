@@ -26,12 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.as.issuer.MD5Generator;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuer;
 import org.apache.oltu.oauth2.as.issuer.OAuthIssuerImpl;
-import org.apache.oltu.oauth2.as.validator.AuthorizationCodeValidator;
-import org.apache.oltu.oauth2.as.validator.ClientCredentialValidator;
-import org.apache.oltu.oauth2.as.validator.CodeValidator;
-import org.apache.oltu.oauth2.as.validator.PasswordValidator;
-import org.apache.oltu.oauth2.as.validator.RefreshTokenValidator;
-import org.apache.oltu.oauth2.as.validator.TokenValidator;
+import org.apache.oltu.oauth2.as.validator.*;
 import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.apache.oltu.oauth2.common.validators.OAuthValidator;
@@ -56,17 +51,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Runtime representation of the OAuth Configuration as configured through
@@ -1066,7 +1051,7 @@ public class OAuthServerConfiguration {
         }
 
     }
-    
+
     /**
      * parse the configuration to load the class name of the OAuth 2.0 token generator.
      * this is a global configuration at the moment.

@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.oauth.cache.SessionDataCacheKey;
 import org.wso2.carbon.identity.oauth.common.OAuthConstants;
 import org.wso2.carbon.identity.oauth.common.exception.OAuthClientException;
 import org.wso2.carbon.identity.oauth.config.OAuthServerConfiguration;
+import org.wso2.carbon.identity.oauth.dcr.DynamicClientRegistrationService;
 import org.wso2.carbon.identity.oauth2.IdentityOAuth2Exception;
 import org.wso2.carbon.identity.oauth2.OAuth2Service;
 import org.wso2.carbon.identity.oauth2.OAuth2TokenValidationService;
@@ -84,6 +85,16 @@ public class EndpointUtil {
     public static OAuth2TokenValidationService getOAuth2TokenValidationService() {
         return (OAuth2TokenValidationService) PrivilegedCarbonContext.getThreadLocalCarbonContext()
                 .getOSGiService(OAuth2TokenValidationService.class);
+    }
+
+    /**
+     * Returns the {@code DynamicClientRegistrationService} instance
+     *
+     * @return
+     */
+    public static DynamicClientRegistrationService getDynamicClientRegistrationService() {
+        return (DynamicClientRegistrationService) PrivilegedCarbonContext.getThreadLocalCarbonContext()
+                .getOSGiService(DynamicClientRegistrationService.class, null);
     }
 
     /**

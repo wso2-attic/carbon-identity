@@ -276,6 +276,12 @@ public class AddUserWFRequestHandler extends AbstractWorkflowRequestHandler {
                     throw new WorkflowException(IdentityCoreConstants.EXISTING_USER + ":" + "Username already exists" +
                             " in the system. Please pick another username.");
 
+                } else if (eventEngaged &&
+                        entities[i].getEntityType() == UserStoreWFConstants.ENTITY_TYPE_ROLE && (workflowService
+                        .entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_ROLE_EVENT) ||
+                        workflowService.entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants
+                                .UPDATE_ROLE_NAME_EVENT))) {
+
                 } else if (eventEngaged && UserStoreWFConstants.ENTITY_TYPE_ROLE.equals(entities[i].getEntityType())
                         && (workflowService.entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.DELETE_ROLE_EVENT) ||
                         workflowService.entityHasPendingWorkflowsOfType(entities[i], UserStoreWFConstants.UPDATE_ROLE_NAME_EVENT))) {

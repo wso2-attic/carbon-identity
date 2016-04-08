@@ -85,5 +85,4 @@ public class OAuthConsumerAppDTO {
             this.grantTypes = grantTypes;
         }
     }
-
 }
