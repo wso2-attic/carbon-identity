@@ -62,6 +62,10 @@
         <module>components/policy-editor</module>
         <module>components/security-mgt</module>
         <module>components/sts</module>
+        <!-- Compoments for User Managed Access -->
+        <module>components/uma</module>
+        <module>components/tomcat-valve</module>
+
         <module>components/workflow-mgt</module>
         <module>features/security-mgt</module>
         <module>features/carbon-authenticators</module>
@@ -1096,6 +1100,13 @@
                 <artifactId>org.wso2.carbon.captcha.mgt</artifactId>
                 <version>${carbon.captcha.mgt.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.uma</artifactId>
+                <version>${carbon.identity.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.wso2.carbon.identity</groupId>
                 <artifactId>org.wso2.carbon.identity.application.authentication.endpoint.util</artifactId>
