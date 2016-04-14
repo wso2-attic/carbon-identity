@@ -17,74 +17,99 @@
  */
 package org.wso2.carbon.identity.application.authenticator.iwa;
 
-import waffle.servlet.spi.SecurityFilterProviderCollection;
-import waffle.windows.auth.IWindowsAuthProvider;
-import waffle.windows.auth.PrincipalFormat;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.ietf.jgss.GSSCredential;
+import org.ietf.jgss.GSSException;
+import org.ietf.jgss.GSSManager;
+import org.ietf.jgss.Oid;
+import org.wso2.carbon.user.core.service.RealmService;
 
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+
+//todo handle exceptions and logs
 public class IWAServiceDataHolder {
-    private IWAServiceDataHolder() {
-        setPrincipalFormat(PrincipalFormat.both.fqn);
-        setRoleFormat(PrincipalFormat.fqn);
-    }
-    private static IWAServiceDataHolder instance = new IWAServiceDataHolder();
-    private SecurityFilterProviderCollection providers;
-    private IWindowsAuthProvider auth;
-    private boolean allowGuestLogin;
-    private boolean impersonate;
-    private PrincipalFormat principalFormat;
-    private PrincipalFormat roleFormat;
 
+    private static final Oid SPNEGO_OID = IWAServiceDataHolder.getOid();
+    public static final GSSManager MANAGER = GSSManager.getInstance();
+    private static RealmService realmService;
+    private static Log log = LogFactory.getLog(IWAServiceDataHolder.class);
 
-    public static IWAServiceDataHolder getInstance() {
-        return instance;
-    }
+    /**
+     * Create call back handler using given username and password
+     *
+     * @param username
+     * @param password
+     * @return CallbackHandler
+     */
+    public static CallbackHandler getUsernamePasswordHandler(final String username, final String password) {
+        final CallbackHandler handler = new CallbackHandler() {
+            public void handle(final Callback[] callback) {
+                for (int i = 0; i < callback.length; i++) {
+                    if (callback[i] instanceof NameCallback) {
+                        final NameCallback nameCallback = (NameCallback) callback[i];
+                        nameCallback.setName(username);
+                    } else if (callback[i] instanceof PasswordCallback) {
+                        final PasswordCallback passCallback = (PasswordCallback) callback[i];
+                        passCallback.setPassword(password.toCharArray());
+                    } else {
+                        log.error("Unsupported Callback i = " + i + "; class = " + callback[i].getClass().getName());
+                    }
+                }
+            }
+        };
 
-    public PrincipalFormat getPrincipalFormat() {
-        return principalFormat;
-    }
+        return handler;
 
-    public void setPrincipalFormat(PrincipalFormat principalFormat) {
-        this.principalFormat = principalFormat;
-    }
-
-    public PrincipalFormat getRoleFormat() {
-        return roleFormat;
-    }
-
-    public void setRoleFormat(PrincipalFormat roleFormat) {
-        this.roleFormat = roleFormat;
-    }
-
-    public IWindowsAuthProvider getAuth() {
-        return auth;
     }
 
-    public void setAuth(IWindowsAuthProvider auth) {
-        this.auth = auth;
+    /**
+     * Create GSSCredential
+     *
+     * @param subject login context subject
+     * @return GSSCredential
+     * @throws PrivilegedActionException
+     */
+    public static GSSCredential getServerCredential(final Subject subject) throws PrivilegedActionException {
+        final PrivilegedExceptionAction<GSSCredential> action =
+                new PrivilegedExceptionAction<GSSCredential>() {
+                    public GSSCredential run() throws GSSException {
+                        return MANAGER.createCredential(
+                                null
+                                , GSSCredential.INDEFINITE_LIFETIME
+                                , IWAServiceDataHolder.SPNEGO_OID
+                                , GSSCredential.ACCEPT_ONLY);
+                    }
+                };
+        return Subject.doAs(subject, action);
     }
 
-    public boolean isAllowGuestLogin() {
-        return allowGuestLogin;
+    /**
+     * Create mech OID for GSS token
+     *
+     * @return Oid
+     */
+    private static Oid getOid() {
+        Oid oid = null;
+        try {
+            oid = new Oid(IWAConstants.OID);
+        } catch (GSSException gsse) {
+            log.error("Unable to create OID " + IWAConstants.OID + " !" + gsse.toString());
+        }
+        return oid;
     }
 
-    public void setAllowGuestLogin(boolean allowGuestLogin) {
-        this.allowGuestLogin = allowGuestLogin;
+    public static void setRealmService(RealmService realmService) {
+        IWAServiceDataHolder.realmService = realmService;
     }
 
-    public boolean isImpersonate() {
-        return impersonate;
+    public static RealmService getRealmService() {
+        return realmService;
     }
-
-    public void setImpersonate(boolean impersonate) {
-        this.impersonate = impersonate;
-    }
-
-    public SecurityFilterProviderCollection getProviders() {
-        return providers;
-    }
-
-    public void setProviders(SecurityFilterProviderCollection providers) {
-        this.providers = providers;
-    }
-
 }

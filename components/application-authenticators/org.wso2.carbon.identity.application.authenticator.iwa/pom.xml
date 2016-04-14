@@ -32,10 +32,6 @@
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.orbit.com.github.dblock.waffle</groupId>
-            <artifactId>waffle-jna</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.common</artifactId>
         </dependency>
@@ -79,12 +75,6 @@
 
                             org.wso2.carbon.identity.application.authentication.framework.*;
                             version="${carbon.identity.package.import.version.range}",
-
-                            waffle.servlet; version="${waffle.imp.pkg.version.range}",
-                            waffle.servlet.spi; version="${waffle.imp.pkg.version.range}",
-                            waffle.util; version="${waffle.imp.pkg.version.range}",
-                            waffle.windows.auth; version="${waffle.imp.pkg.version.range}",
-                            waffle.windows.auth.impl; version="${waffle.imp.pkg.version.range}"
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.application.authenticator.iwa.internal,

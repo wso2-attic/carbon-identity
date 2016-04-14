@@ -28,7 +28,6 @@ import org.wso2.carbon.identity.application.authentication.framework.context.Aut
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
-import org.wso2.carbon.identity.application.authenticator.iwa.servlet.IWAServelet;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -38,7 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.security.Principal;
+import java.util.StringTokenizer;
 
 /**
  * Username Password based Authenticator
@@ -56,6 +55,7 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
     @Override
     public boolean canHandle(HttpServletRequest request) {
         //check whether the OS is windows. IWA works only with windows
+        // todo no need of windows now no waffle
         String osName = System.getProperty(IWAConstants.OS_NAME_PROPERTY);
         return StringUtils.isNotEmpty(osName) && osName.toLowerCase().contains(IWAConstants.WINDOWS_OS_MATCH_STRING) &&
                 request.getParameter(IWA_PROCESSED) != null;
@@ -70,25 +70,18 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
     @Override
     protected void processAuthenticationResponse(HttpServletRequest request, HttpServletResponse response,
                                                  AuthenticationContext context) throws AuthenticationFailedException {
-        //Get the authenticated user principle
-        Principal principal = request.getUserPrincipal();
-        if (principal == null) {
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                principal = (Principal) session
-                        .getAttribute(IWAServelet.PRINCIPAL_SESSION_KEY);
-            }
-        }
 
-        if (principal == null || principal.getName() == null) {
+        HttpSession session = request.getSession(false);
+        if (session.getAttribute(IWAConstants.SUBJECT_ATTRIBUTE) == null) {
             if (log.isDebugEnabled()) {
-                log.debug("Authenticated principal is null. Therefore authentication is failed.");
+                log.debug("Subject attribute not set. Therefore authentication is failed.");
             }
             throw new AuthenticationFailedException("Authentication Failed");
         }
-
-        String username = principal.getName();
-        username = username.substring(username.indexOf("\\") + 1);
+        String username = (String)session.getAttribute(IWAConstants.SUBJECT_ATTRIBUTE);
+        //todo if user name has a @
+        StringTokenizer stringTokenizer = new StringTokenizer(username, "@");
+        username = stringTokenizer.nextToken();
 
         if (log.isDebugEnabled()) {
             log.debug("Authenticate request received : AuthType - " + request.getAuthType() + ", User - " + username);
@@ -119,7 +112,7 @@ public class IWAAuthenticator extends AbstractApplicationAuthenticator implement
         String iwaURL = null;
         try {
             iwaURL = IdentityUtil.getServerURL(IWAConstants.IWA_AUTH_EP, false, true) +
-                    "?" + IWAConstants.IWA_PARAM_STATE + "=" +URLEncoder.encode(ctx, IWAConstants.UTF_8);
+                    "?" + IWAConstants.IWA_PARAM_STATE + "=" + URLEncoder.encode(ctx, IWAConstants.UTF_8);
             response.sendRedirect(response.encodeRedirectURL(iwaURL));
         } catch (IOException e) {
             log.error("Error when sending to the login page :" + iwaURL, e);
