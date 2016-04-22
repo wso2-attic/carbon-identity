@@ -662,7 +662,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             }
 
         } finally {
-            IdentityApplicationManagementUtil.closeStatement(inboundProConfigPrepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, inboundProConfigPrepStmt);
         }
         return inBoundProvisioningConfig;
     }
@@ -721,7 +721,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                     .toArray(new IdentityProvider[idpProConnectors.size()]));
 
         } finally {
-            IdentityApplicationManagementUtil.closeStatement(outboundProConfigPrepStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, outboundProConfigPrepStmt);
         }
         return outBoundProvisioningConfig;
     }
@@ -1323,8 +1323,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             return serviceProvider;
         } finally {
-            IdentityApplicationManagementUtil.closeResultSet(basicAppDataResultSet);
-            IdentityApplicationManagementUtil.closeStatement(loadBasicAppInfoStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, basicAppDataResultSet, loadBasicAppInfoStmt);
         }
 
     }
@@ -1356,8 +1355,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             return ApplicationConstants.AUTH_TYPE_DEFAULT;
 
         } finally {
-            IdentityApplicationManagementUtil.closeResultSet(authTypeResultSet);
-            IdentityApplicationManagementUtil.closeStatement(authTypeStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, authTypeResultSet, authTypeStmt);
         }
 
     }
@@ -1474,8 +1472,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             return applicationName;
 
         } finally {
-            IdentityApplicationManagementUtil.closeResultSet(appNameResultSet);
-            IdentityApplicationManagementUtil.closeStatement(loadBasicAppInfoStmt);
+            IdentityDatabaseUtil.closeAllConnections(connection, appNameResultSet, loadBasicAppInfoStmt);
         }
     }
 
@@ -1614,8 +1611,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             }
 
         } finally {
-            IdentityApplicationManagementUtil.closeStatement(getClientInfo);
-            IdentityApplicationManagementUtil.closeResultSet(resultSet);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, getClientInfo);
         }
 
         Map<String, AbstractInboundAuthenticatorConfig> allCustomAuthenticators = ApplicationManagementServiceComponentHolder
@@ -1812,8 +1808,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                            .getString(4));
                 }
             } finally {
-                IdentityApplicationManagementUtil.closeStatement(localAndOutboundConfigPrepStmt);
-                IdentityApplicationManagementUtil.closeResultSet(localAndOutboundConfigResultSet);
+                IdentityDatabaseUtil.closeAllConnections(connection, stepInfoResultSet, localAndOutboundConfigPrepStmt);
             }
 
             return localAndOutboundConfiguration;
@@ -1842,8 +1837,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
             return false;
         } finally {
-            IdentityApplicationManagementUtil.closeStatement(get);
-            IdentityApplicationManagementUtil.closeResultSet(resultSet);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, get);
         }
 
     }
@@ -1941,8 +1935,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
         } catch (SQLException e) {
             throw new IdentityApplicationManagementException("Error while retrieving all application");
         } finally {
-            IdentityApplicationManagementUtil.closeStatement(loadClaimConfigsPrepStmt);
-            IdentityApplicationManagementUtil.closeResultSet(loadClaimConfigsResultSet);
+            IdentityDatabaseUtil.closeAllConnections(connection, loadClaimConfigsResultSet, loadClaimConfigsPrepStmt);
         }
 
         return claimConfig;
@@ -1977,8 +1970,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             throw new IdentityApplicationManagementException(
                     "Error while retrieving all application");
         } finally {
-            IdentityApplicationManagementUtil.closeStatement(loadReqPathAuthenticators);
-            IdentityApplicationManagementUtil.closeResultSet(authResultSet);
+            IdentityDatabaseUtil.closeAllConnections(connection, authResultSet, loadReqPathAuthenticators);
         }
 
         return authenticators.toArray(new RequestPathAuthenticatorConfig[authenticators.size()]);
@@ -2090,8 +2082,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
             throw new IdentityApplicationManagementException(
                     "Error while retrieving all application");
         } finally {
-            IdentityApplicationManagementUtil.closeStatement(getClientInfo);
-            IdentityApplicationManagementUtil.closeResultSet(resultSet);
+            IdentityDatabaseUtil.closeAllConnections(connection, resultSet, getClientInfo);
         }
         return roleMappingList;
     }
@@ -2683,6 +2674,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
                         .put(ApplicationConstants.IDP_AUTHENTICATOR_DISPLAY_NAME, rs.getString(3));
             }
         } finally {
+        	IdentityApplicationManagementUtil.closeResultSet(rs);
             IdentityApplicationManagementUtil.closeStatement(prepStmt);
         }
         return returnData;

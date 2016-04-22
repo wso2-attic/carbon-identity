@@ -183,14 +183,15 @@ public class OpenIDUserRPDAO {
         OpenIDUserRPDO rpdo = new OpenIDUserRPDO();
         rpdo.setUserName(userName);
         rpdo.setRpUrl(rpUrl);
-
+        ResultSet resultSet = null;
         try {
             if (isUserRPExist(connection, rpdo, tenantId)) {
                 prepStmt = connection.prepareStatement(OpenIDSQLQueries.LOAD_USER_RP);
                 prepStmt.setString(1, userName);
                 prepStmt.setInt(2, tenantId);
                 prepStmt.setString(3, rpUrl);
-                OpenIDUserRPDO openIDUserRPDO = buildUserRPDO(prepStmt.executeQuery(), userName);
+                resultSet = prepStmt.executeQuery();
+                OpenIDUserRPDO openIDUserRPDO = buildUserRPDO(resultSet, userName);
                 connection.commit();
                 return openIDUserRPDO;
             } else {
@@ -201,6 +202,7 @@ public class OpenIDUserRPDAO {
         } catch (SQLException e) {
             log.error("Failed to load RP: " + rpUrl + " for user: " + userName, e);
         } finally {
+            IdentityDatabaseUtil.closeResultSet(resultSet);
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
         }
@@ -308,6 +310,7 @@ public class OpenIDUserRPDAO {
         OpenIDUserRPDO rpdo = new OpenIDUserRPDO();
         rpdo.setUserName(userName);
         rpdo.setRpUrl(rpUrl);
+        ResultSet resultSet = null;
 
         try {
 
@@ -316,7 +319,8 @@ public class OpenIDUserRPDAO {
                 prepStmt.setString(1, userName);
                 prepStmt.setInt(2, tenantId);
                 prepStmt.setString(3, rpUrl);
-                return prepStmt.executeQuery().getString(7);
+                resultSet = prepStmt.executeQuery();
+                return resultSet.getString(7);
             } else {
                 if(log.isDebugEnabled()) {
                     log.debug("RP: " + rpUrl + " of user: " + userName + " not found in the database");
@@ -325,6 +329,7 @@ public class OpenIDUserRPDAO {
         } catch (SQLException e) {
             log.error("Failed to load RP: " + rpUrl + " for user: " + userName, e);
         } finally {
+            IdentityDatabaseUtil.closeResultSet(resultSet);
             IdentityDatabaseUtil.closeStatement(prepStmt);
             IdentityDatabaseUtil.closeConnection(connection);
         }
