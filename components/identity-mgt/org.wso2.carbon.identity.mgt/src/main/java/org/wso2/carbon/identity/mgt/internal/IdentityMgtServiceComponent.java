@@ -30,6 +30,7 @@ import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.identity.mgt.IdentityMgtConfig;
 import org.wso2.carbon.identity.mgt.IdentityMgtEventListener;
 import org.wso2.carbon.identity.mgt.RecoveryProcessor;
+import org.wso2.carbon.identity.mgt.UserRenameOperationEventListener;
 import org.wso2.carbon.identity.mgt.constants.IdentityMgtConstants;
 import org.wso2.carbon.identity.mgt.dto.ChallengeQuestionDTO;
 import org.wso2.carbon.identity.mgt.listener.UserOperationsNotificationListener;
@@ -164,6 +165,8 @@ public class IdentityMgtServiceComponent {
         props.put(CarbonConstants.AXIS2_CONFIG_SERVICE, AxisObserver.class.getName());
         context.getBundleContext().registerService(AxisObserver.class.getName(),
                 new IdentityMgtDeploymentInterceptor(), props);
+        context.getBundleContext().registerService(UserOperationEventListener.class.getName(), new
+                UserRenameOperationEventListener(),null);
         init();
 
         if (log.isDebugEnabled()) {
