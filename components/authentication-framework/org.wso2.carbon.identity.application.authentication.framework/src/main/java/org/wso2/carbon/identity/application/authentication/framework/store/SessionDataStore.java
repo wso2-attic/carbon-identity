@@ -365,10 +365,6 @@ public class SessionDataStore {
 
         // create a nano time stamp relative to Unix Epoch
         long currentStandardNano = timestamp.getTime() * 1000000;
-        long currentSystemNano = System.nanoTime();
-
-        currentStandardNano = currentStandardNano + (currentSystemNano - FrameworkServiceDataHolder.getInstance()
-                .getNanoTimeReference());
 
         try {
             preparedStatement = connection.prepareStatement(sqlInsertSTORE);
