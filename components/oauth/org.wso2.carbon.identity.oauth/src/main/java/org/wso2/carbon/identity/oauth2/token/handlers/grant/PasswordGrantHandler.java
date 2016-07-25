@@ -110,6 +110,7 @@ public class PasswordGrantHandler extends AbstractAuthorizationGrantHandler {
                 username = UserCoreUtil.getDomainFromThreadLocal() + CarbonConstants.DOMAIN_SEPARATOR + username;
             }
             tokReqMsgCtx.setAuthorizedUser(OAuth2Util.getUserFromUserName(username));
+            tokReqMsgCtx.getAuthorizedUser().setAuthenticatedSubjectIdentifier(username);
             tokReqMsgCtx.setScope(oAuth2AccessTokenReqDTO.getScope());
         } else {
             throw new IdentityOAuth2Exception("Authentication failed for " + username);
