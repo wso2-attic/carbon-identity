@@ -75,6 +75,16 @@ public class SSOAgentConfig {
     private InputStream keyStoreStream;
     private String keyStorePassword;
     private KeyStore keyStore;
+    private int timeStampSkewInSeconds = 300;
+    private boolean isVerifyAssertionValidity = false;
+
+    public boolean isVerifyAssertionValidityPeriod() {
+        return isVerifyAssertionValidity;
+    }
+
+    public int getTimeStampSkewInSeconds() {
+        return timeStampSkewInSeconds;
+    }
 
     public Boolean getEnableHostNameVerification() {
         return enableHostNameVerification;
@@ -324,7 +334,7 @@ public class SSOAgentConfig {
             saml2.isResponseSigned = false;
         }
 
-        if (saml2.isResponseSigned()) {
+        if (saml2.isResponseSigned() || saml2.isAssertionSigned()) {
             String signatureValidatorImplClass = properties.getProperty(
                     SSOAgentConstants.SSOAgentConfig.SAML2.SIGNATURE_VALIDATOR);
             if (signatureValidatorImplClass != null) {
