@@ -58,6 +58,7 @@ import org.opensaml.saml2.core.impl.RequestedAuthnContextBuilder;
 import org.opensaml.saml2.core.impl.SessionIndexBuilder;
 import org.opensaml.saml2.ecp.RelayState;
 import org.opensaml.saml2.encryption.Decrypter;
+import org.opensaml.security.SAMLSignatureProfileValidator;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.encryption.EncryptedKey;
 import org.opensaml.xml.io.Marshaller;
@@ -68,14 +69,17 @@ import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xml.security.keyinfo.StaticKeyInfoCredentialResolver;
 import org.opensaml.xml.signature.SignatureValidator;
+import org.opensaml.xml.signature.impl.SignatureImpl;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.identity.sso.agent.SSOAgentConstants;
 import org.wso2.carbon.identity.sso.agent.SSOAgentDataHolder;
 import org.wso2.carbon.identity.sso.agent.SSOAgentException;
@@ -114,6 +118,7 @@ public class SAML2SSOManager {
 
     private static final Logger LOGGER = Logger.getLogger(SSOAgentConstants.LOGGER_NAME);
     private SSOAgentConfig ssoAgentConfig = null;
+    private static Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
 
     public SAML2SSOManager(SSOAgentConfig ssoAgentConfig) throws SSOAgentException {
 
@@ -375,7 +380,23 @@ public class SAML2SSOManager {
         String saml2ResponseString =
                 new String(Base64.decode(request.getParameter(
                         SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP)), Charset.forName("UTF-8"));
-        Response saml2Response = (Response) SSOAgentUtils.unmarshall(saml2ResponseString);
+        XMLObject response = SSOAgentUtils.unmarshall(saml2ResponseString);
+
+        // Check for duplicate samlp:Response
+        NodeList list = response.getDOM().getElementsByTagNameNS(SAMLConstants.SAML20P_NS, "Response");
+        if (list.getLength() > 0) {
+            log.error("Invalid schema for the SAML2 response. Multiple Response elements found.");
+            throw new SSOAgentException("Error occurred while processing SAML2 response.");
+        }
+
+        // Checking for multiple Assertions
+        NodeList assertionList = response.getDOM().getElementsByTagNameNS(SAMLConstants.SAML20_NS, "Assertion");
+        if (assertionList.getLength() > 1) {
+            log.error("Invalid schema for the SAML2 response. Multiple Assertion elements found.");
+            throw new SSOAgentException("Error occurred while processing SAML2 response.");
+        }
+
+        Response saml2Response = (Response) response;
         sessionBean.getSAML2SSO().setResponseString(saml2ResponseString);
         sessionBean.getSAML2SSO().setSAMLResponse(saml2Response);
 
@@ -417,6 +438,17 @@ public class SAML2SSOManager {
         sessionBean.getSAML2SSO().setAssertion(assertion);
         // Cannot marshall SAML assertion here, before signature validation due to a weird issue in OpenSAML
 
+        // validate the assertion validity period
+        if(ssoAgentConfig.isVerifyAssertionValidityPeriod()) {
+            validateAssertionValidityPeriod(assertion);
+        }
+
+        // validate audience restriction
+        validateAudienceRestriction(assertion);
+
+        // validate signature
+        validateSignature(saml2Response, assertion);
+
         // Get the subject name from the Response Object and forward it to login_action.jsp
         String subject = null;
         if (assertion.getSubject() != null && assertion.getSubject().getNameID() != null) {
@@ -430,12 +462,6 @@ public class SAML2SSOManager {
 
         sessionBean.getSAML2SSO().setSubjectId(subject); // set the subject
         request.getSession().setAttribute(SSOAgentConstants.SESSION_BEAN_NAME, sessionBean);
-
-        // validate audience restriction
-        validateAudienceRestriction(assertion);
-
-        // validate signature
-        validateSignature(saml2Response, assertion);
 
         // Marshalling SAML2 assertion after signature validation due to a weird issue in OpenSAML
         sessionBean.getSAML2SSO().setAssertionString(marshall(assertion));
@@ -459,6 +485,67 @@ public class SAML2SSOManager {
 
     }
 
+    /**
+     * Validates the 'Not Before' and 'Not On Or After' conditions of the SAML Assertion
+     *
+     * @param assertion SAML Assertion element
+     * @throws SSOAgentException
+     */
+    private void validateAssertionValidityPeriod(Assertion assertion) throws SSOAgentException {
+
+        int timeStampSkewInSeconds = ssoAgentConfig.getTimeStampSkewInSeconds();
+
+        DateTime validFrom = assertion.getConditions().getNotBefore();
+        DateTime validTill = assertion.getConditions().getNotOnOrAfter();
+
+        if (validFrom != null &&  validFrom.minusSeconds(timeStampSkewInSeconds).isAfterNow()) {
+            throw new SSOAgentException("Failed to meet SAML Assertion Condition 'Not Before'");
+        }
+
+        if (validTill != null && validTill.plusSeconds(timeStampSkewInSeconds).isBeforeNow()) {
+            throw new SSOAgentException("Failed to meet SAML Assertion Condition 'Not On Or After'");
+        }
+
+        if (validFrom != null && validTill != null && validFrom.isAfter(validTill)) {
+            throw new SSOAgentException(
+                    "SAML Assertion Condition 'Not Before' must be less than the value of 'Not On Or After'");
+        }
+    }
+
+    /**
+     * Validates the XML Signature object
+     *
+     * @param signature XMLObject
+     * @throws SSOAgentException
+     */
+
+    private void validateSignature(XMLObject signature) throws SSOAgentException{
+
+        SignatureImpl signImpl = (SignatureImpl) signature;
+        try {
+            SAMLSignatureProfileValidator signatureProfileValidator = new SAMLSignatureProfileValidator();
+            signatureProfileValidator.validate(signImpl);
+        } catch (ValidationException ex) {
+            String logMsg = "Signature do not confirm to SAML signature profile. Possible XML Signature " +
+                            "Wrapping  Attack!";
+            AUDIT_LOG.warn(logMsg);
+            if (log.isDebugEnabled()) {
+                log.debug(logMsg, ex);
+            }
+            throw new SSOAgentException(logMsg, ex);
+        }
+
+        try {
+            SignatureValidator validator = new SignatureValidator(
+                    new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
+            validator.validate(signImpl);
+        } catch (ValidationException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Validation exception : ", e);
+            }
+            throw new SSOAgentException("Signature validation failed for SAML2 Element");
+        }
+    }
     protected LogoutRequest buildLogoutRequest(String user, String sessionIdx) throws SSOAgentException {
 
         LogoutRequest logoutReq = new LogoutRequestBuilder().buildObject();
@@ -676,32 +763,14 @@ public class SAML2SSOManager {
                 if (response.getSignature() == null) {
                     throw new SSOAgentException("SAML2 Response signing is enabled, but signature element not found in SAML2 Response element");
                 } else {
-                    try {
-                        SignatureValidator validator = new SignatureValidator(
-                                new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
-                        validator.validate(response.getSignature());
-                    } catch (ValidationException e) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Validation exception : ", e);
-                        }
-                        throw new SSOAgentException("Signature validation failed for SAML2 Response");
-                    }
+                    validateSignature(response.getSignature());
                 }
             }
             if (ssoAgentConfig.getSAML2().isAssertionSigned()) {
                 if (assertion.getSignature() == null) {
                     throw new SSOAgentException("SAML2 Assertion signing is enabled, but signature element not found in SAML2 Assertion element");
                 } else {
-                    try {
-                        SignatureValidator validator = new SignatureValidator(
-                                new X509CredentialImpl(ssoAgentConfig.getSAML2().getSSOAgentX509Credential()));
-                        validator.validate(assertion.getSignature());
-                    } catch (ValidationException e) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Validation exception : ", e);
-                        }
-                        throw new SSOAgentException("Signature validation failed for SAML2 Assertion");
-                    }
+                    validateSignature(assertion.getSignature());
                 }
             }
         }
