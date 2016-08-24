@@ -100,12 +100,24 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
                 userStoreDomain, OAuth2Util.buildScopeString(validationDataDO.getScope()), true);
 
         if(accessTokenDO == null || !refreshToken.equals(accessTokenDO.getRefreshToken())){
-            String message = "Refresh token : " + refreshToken + " is not the latest. Latest refresh token is : " +
-                    accessTokenDO.getRefreshToken();
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
+                String message = "Refresh token : " + refreshToken + " is not the latest. Latest refresh token is : " +
+                        (accessTokenDO != null ? accessTokenDO.getRefreshToken() : "");
                 log.debug(message);
-
             }
+
+            if (cacheEnabled) {
+                // Remove the old access token from the OAuthCache
+                CacheKey oauthCacheKey = new OAuthCacheKey(tokenReqDTO.getClientId() + ":" +
+                        validationDataDO.getAuthorizedUser() + ":" + OAuth2Util.buildScopeString(validationDataDO
+                        .getScope()));
+                oauthCache.clearCacheEntry(oauthCacheKey);
+
+                // Remove the old access token from the AccessTokenCache
+                CacheKey accessTokenCacheKey = new OAuthCacheKey(validationDataDO.getAccessToken());
+                oauthCache.clearCacheEntry(accessTokenCacheKey);
+            }
+
             return false;
         }
 
@@ -214,6 +226,11 @@ public class RefreshGrantHandler extends AbstractAuthorizationGrantHandler {
         // store the new access token
         try {
             tokenMgtDAO.storeAccessToken(accessToken, clientId, accessTokenDO, userStoreDomain);
+            if (!accessToken.equals(accessTokenDO.getAccessToken())) {
+                // Access token has been updated to avoid constraint violation.
+                accessToken = accessTokenDO.getAccessToken();
+                refreshToken = accessTokenDO.getRefreshToken();
+            }
         } catch (IdentityException e) {
             throw new IdentityOAuth2Exception(
                     "Error occurred while storing new access token : " + accessToken, e);
