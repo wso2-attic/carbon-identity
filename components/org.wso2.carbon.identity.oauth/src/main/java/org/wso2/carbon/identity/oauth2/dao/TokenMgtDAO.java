@@ -22,7 +22,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.base.IdentityException;
-import org.wso2.carbon.identity.core.model.OAuthAppDO;
 import org.wso2.carbon.identity.core.persistence.JDBCPersistenceManager;
 import org.wso2.carbon.identity.core.util.IdentityDatabaseUtil;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
@@ -216,14 +215,8 @@ public class TokenMgtDAO {
             }
 
             IdentityDatabaseUtil.closeAllConnections(null, null, prepStmt);
-            boolean recovered = recoverFromConAppKeyConstraintViolation(accessToken, consumerKey, accessTokenDO,
+            recoverFromConAppKeyConstraintViolation(accessToken, consumerKey, accessTokenDO,
                     connection, userStoreDomain, retryAttempt + 1);
-            if (!recovered) {
-                String errorMsg = "Access Token for consumer key : " + consumerKey + ", user : " +
-                        accessTokenDO.getAuthzUser().toLowerCase() + " and scope : " +
-                        OAuth2Util.buildScopeString(accessTokenDO.getScope()) + "already exists";
-                throw new IdentityOAuth2Exception(errorMsg, e);
-            }
         } catch (DataTruncation e) {
             throw new IdentityOAuth2Exception("Invalid request",e);
         } catch (SQLException e) {
@@ -881,7 +874,7 @@ public class TokenMgtDAO {
         }
     }
 
-    private boolean recoverFromConAppKeyConstraintViolation(String accessToken, String consumerKey, AccessTokenDO
+    private void recoverFromConAppKeyConstraintViolation(String accessToken, String consumerKey, AccessTokenDO
             accessTokenDO, Connection connection, String userStoreDomain, int retryAttempt)
             throws IdentityOAuth2Exception {
 
@@ -927,11 +920,12 @@ public class TokenMgtDAO {
                 accessTokenDO.setIssuedTime(new Timestamp(new Date().getTime()));
                 storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain, retryAttempt);
             }
-            return true;
         } else {
-            // This scenario can't happen.
-            log.error("Can't recover from the constraint violation. Active token not available.");
-            return false;
+            // In this case another process already updated the latest active token to inactive.
+
+            // Update token issued time & try to store it again.
+            accessTokenDO.setIssuedTime(new Timestamp(new Date().getTime()));
+            storeAccessToken(accessToken, consumerKey, accessTokenDO, connection, userStoreDomain, retryAttempt);
         }
     }
 
