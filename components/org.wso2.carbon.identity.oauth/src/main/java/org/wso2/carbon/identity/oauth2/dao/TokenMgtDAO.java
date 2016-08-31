@@ -878,7 +878,7 @@ public class TokenMgtDAO {
             accessTokenDO, Connection connection, String userStoreDomain, int retryAttempt)
             throws IdentityOAuth2Exception {
 
-        log.info("Retry attempt to recover 'CON_APP_KEY' constraint violation : " + retryAttempt);
+        log.warn("Retry attempt to recover 'CON_APP_KEY' constraint violation : " + retryAttempt);
 
         AccessTokenDO latestNonActiveToken = retrieveLatestToken(consumerKey, accessTokenDO.getAuthzUser(),
                 userStoreDomain, OAuth2Util.buildScopeString(accessTokenDO.getScope()), false, connection);

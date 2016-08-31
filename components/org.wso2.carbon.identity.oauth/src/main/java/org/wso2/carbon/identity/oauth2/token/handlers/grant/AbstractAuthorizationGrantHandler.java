@@ -319,6 +319,11 @@ public abstract class AbstractAuthorizationGrantHandler implements Authorization
             try {
                 tokenMgtDAO.storeAccessToken(accessToken, oAuth2AccessTokenReqDTO.getClientId(),
                         accessTokenDO, userStoreDomain);
+                if (!accessToken.equals(accessTokenDO.getAccessToken())) {
+                    // Using latest active token.
+                    accessToken = accessTokenDO.getAccessToken();
+                    refreshToken = accessTokenDO.getRefreshToken();
+                }
             } catch (IdentityException e) {
                 throw new IdentityOAuth2Exception(
                         "Error occurred while storing new access token : " + accessToken, e);
