@@ -57,6 +57,7 @@ import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.TenantManager;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.user.mgt.UserMgtConstants;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
