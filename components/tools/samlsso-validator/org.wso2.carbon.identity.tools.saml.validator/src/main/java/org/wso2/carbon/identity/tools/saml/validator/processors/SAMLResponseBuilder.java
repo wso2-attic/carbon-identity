@@ -101,7 +101,7 @@ public class SAMLResponseBuilder {
                         SAMLSSOUtil.getSAMLResponseValidityPeriod() * 60 *
                                 1000);
         response.setIssueInstant(issueInstant);
-        Assertion assertion = buildSAMLAssertion(ssoIdPConfigs, notOnOrAfter, userName);
+        Assertion assertion = buildSAMLAssertion(ssoIdPConfigs, issueInstant, notOnOrAfter, userName);
         if (ssoIdPConfigs.isDoEnableEncryptedAssertion()) {
             String domainName = MultitenantUtils.getTenantDomain(userName);
             String alias = ssoIdPConfigs.getCertAlias();
@@ -127,20 +127,21 @@ public class SAMLResponseBuilder {
      * Build SAML assertion
      *
      * @param ssoIdPConfigs
+     * @param issueInstant
      * @param notOnOrAfter
      * @param userName
      * @return Assertion object
      * @throws IdentityException
      */
-    private Assertion buildSAMLAssertion(SAMLSSOServiceProviderDO ssoIdPConfigs,
+    private Assertion buildSAMLAssertion(SAMLSSOServiceProviderDO ssoIdPConfigs, DateTime issueInstant,
                                          DateTime notOnOrAfter, String userName)
             throws IdentityException {
-        DateTime currentTime = new DateTime();
+
         Assertion samlAssertion = new AssertionBuilder().buildObject();
         samlAssertion.setID(SAMLSSOUtil.createID());
         samlAssertion.setVersion(SAMLVersion.VERSION_20);
         samlAssertion.setIssuer(SAMLSSOUtil.getIssuer());
-        samlAssertion.setIssueInstant(currentTime);
+        samlAssertion.setIssueInstant(issueInstant);
         Subject subject = new SubjectBuilder().buildObject();
         NameID nameId = new NameIDBuilder().buildObject();
         String claimValue = null;
@@ -206,7 +207,7 @@ public class SAMLResponseBuilder {
         }
 
         Conditions conditions = new ConditionsBuilder().buildObject();
-        conditions.setNotBefore(currentTime);
+        conditions.setNotBefore(issueInstant);
         conditions.setNotOnOrAfter(notOnOrAfter);
         conditions.getAudienceRestrictions().add(audienceRestriction);
         samlAssertion.setConditions(conditions);

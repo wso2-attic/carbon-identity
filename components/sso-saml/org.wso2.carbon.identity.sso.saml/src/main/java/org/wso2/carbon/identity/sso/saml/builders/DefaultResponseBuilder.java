@@ -65,7 +65,7 @@ public class DefaultResponseBuilder implements ResponseBuilder {
         DateTime notOnOrAfter = new DateTime(issueInstant.getMillis()
                 + SAMLSSOUtil.getSAMLResponseValidityPeriod() * 60 * 1000L);
         response.setIssueInstant(issueInstant);
-        Assertion assertion = SAMLSSOUtil.buildSAMLAssertion(authReqDTO, notOnOrAfter, sessionId);
+        Assertion assertion = SAMLSSOUtil.buildSAMLAssertion(authReqDTO, issueInstant, notOnOrAfter, sessionId);
 
         if (authReqDTO.isDoEnableEncryptedAssertion()) {
 

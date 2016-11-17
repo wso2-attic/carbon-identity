@@ -76,14 +76,14 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
     }
 
     @Override
-    public Assertion buildAssertion(SAMLSSOAuthnReqDTO authReqDTO, DateTime notOnOrAfter, String sessionId) throws IdentityException {
+    public Assertion buildAssertion(SAMLSSOAuthnReqDTO authReqDTO, DateTime issueInstant, DateTime notOnOrAfter, String sessionId) throws IdentityException {
         try {
-            DateTime currentTime = new DateTime();
+            
             Assertion samlAssertion = new AssertionBuilder().buildObject();
             samlAssertion.setID(SAMLSSOUtil.createID());
             samlAssertion.setVersion(SAMLVersion.VERSION_20);
             samlAssertion.setIssuer(SAMLSSOUtil.getIssuer());
-            samlAssertion.setIssueInstant(currentTime);
+            samlAssertion.setIssueInstant(issueInstant);
             Subject subject = new SubjectBuilder().buildObject();
 
             NameID nameId = new NameIDBuilder().buildObject();
@@ -165,7 +165,7 @@ public class DefaultSAMLAssertionBuilder implements SAMLAssertionBuilder {
                 }
             }
             Conditions conditions = new ConditionsBuilder().buildObject();
-            conditions.setNotBefore(currentTime);
+            conditions.setNotBefore(issueInstant);
             conditions.setNotOnOrAfter(notOnOrAfter);
             conditions.getAudienceRestrictions().add(audienceRestriction);
             samlAssertion.setConditions(conditions);

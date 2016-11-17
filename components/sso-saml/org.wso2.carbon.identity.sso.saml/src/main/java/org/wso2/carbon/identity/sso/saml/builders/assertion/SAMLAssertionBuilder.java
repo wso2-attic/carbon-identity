@@ -30,13 +30,14 @@ public interface SAMLAssertionBuilder {
      * Encrypt the SAML assertion
      *
      * @param authReqDTO   SAML assertion to be encrypted
-     * @param notOnOrAfter Encrypting credential
+     * @param issueInstant Issue Instan date
+     * @param notOnOrAfter NotOnOrAfter assertion date
      * @param sessionId    Certificate alias against which use to Encrypt the assertion.
      * @return Assertion
      * @throws IdentityException
      */
 
-    public Assertion buildAssertion(SAMLSSOAuthnReqDTO authReqDTO, DateTime notOnOrAfter,
+    public Assertion buildAssertion(SAMLSSOAuthnReqDTO authReqDTO, DateTime issueInstant, DateTime notOnOrAfter,
                                     String sessionId) throws IdentityException;
 
 }

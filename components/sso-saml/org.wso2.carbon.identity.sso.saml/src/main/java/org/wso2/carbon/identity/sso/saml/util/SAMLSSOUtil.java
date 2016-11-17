@@ -677,7 +677,7 @@ public class SAMLSSOUtil {
         }
     }
 
-    public static Assertion buildSAMLAssertion(SAMLSSOAuthnReqDTO authReqDTO, DateTime notOnOrAfter,
+    public static Assertion buildSAMLAssertion(SAMLSSOAuthnReqDTO authReqDTO, DateTime issueInstant, DateTime notOnOrAfter,
                                                String sessionId) throws IdentityException {
 
         doBootstrap();
@@ -700,7 +700,7 @@ public class SAMLSSOUtil {
                 samlAssertionBuilder = (SAMLAssertionBuilder) Class.forName(assertionBuilderClass).newInstance();
                 samlAssertionBuilder.init();
             }
-            return samlAssertionBuilder.buildAssertion(authReqDTO, notOnOrAfter, sessionId);
+            return samlAssertionBuilder.buildAssertion(authReqDTO, issueInstant, notOnOrAfter, sessionId);
 
         } catch (ClassNotFoundException e) {
             throw IdentityException.error("Class not found: "
