@@ -57,6 +57,10 @@ public class IdPManagementUIUtil {
 
     private static final Log log = LogFactory.getLog(IdPManagementUIUtil.class);
 
+    //This constants are added as a fix for IDENTITY-4542
+    private static final String ATTRIBUTE_CUSTOM_AUTHENTICATION_CONTEXT_CLASS = "CustomAuthnContextClassRef";
+    public static final String CUSTOM_AUTHENTICATION_CONTEXT_CLASS_OPTION = "Custom Authentication Context Class";
+
     /**
      * Validates an URI.
      *
@@ -1387,7 +1391,7 @@ public class IdPManagementUIUtil {
             fedIdp.setDefaultAuthenticatorConfig(saml2SSOAuthnConfig);
         }
 
-        Property[] properties = new Property[24];
+        Property[] properties = new Property[26];
         Property property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID);
         property.setValue(paramMap.get("idPEntityId"));
@@ -1527,10 +1531,14 @@ public class IdPManagementUIUtil {
                 .get(IdentityApplicationConstants.Authenticator.SAML2SSO.SIGNATURE_ALGORITHM_POST));
         properties[18] = property;
 
+
+        String authenticationContextClass = paramMap.get(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_CLASS);
+        if(CUSTOM_AUTHENTICATION_CONTEXT_CLASS_OPTION.equals(authenticationContextClass)){
+            authenticationContextClass = paramMap.get(ATTRIBUTE_CUSTOM_AUTHENTICATION_CONTEXT_CLASS);
+        }
         property = new Property();
         property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_CLASS);
-        property.setValue(paramMap
-                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_CLASS));
+        property.setValue(authenticationContextClass);
         properties[19] = property;
         
         property = new Property();
@@ -1564,7 +1572,19 @@ public class IdPManagementUIUtil {
             property.setValue("false");
         }
         properties[23] = property;
-        
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.ARTIFACT_RESOLVE_URL);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.ARTIFACT_RESOLVE_URL));
+        properties[24] = property;
+
+        property = new Property();
+        property.setName(IdentityApplicationConstants.Authenticator.SAML2SSO.ARTIFACT_RESOLVE_ISSUER);
+        property.setValue(paramMap
+                .get(IdentityApplicationConstants.Authenticator.SAML2SSO.ARTIFACT_RESOLVE_ISSUER));
+        properties[25] = property;
+
         saml2SSOAuthnConfig.setProperties(properties);
 
         FederatedAuthenticatorConfig[] authenticators = fedIdp.getFederatedAuthenticatorConfigs();

@@ -25,6 +25,8 @@ public class SSOConstants {
 
     public static final String HTTP_POST_PARAM_SAML2_AUTH_REQ = "SAMLRequest";
     public static final String HTTP_POST_PARAM_SAML2_RESP = "SAMLResponse";
+    public static final String HTTP_POST_PARAM_SAML2_ARTIFACT_ID = "SAMLart";
+
     public static final String IDP_SESSION = "IdPSession";
 
     public static final String HTTP_POST = "POST";
@@ -56,5 +58,10 @@ public class SSOConstants {
         public static final String KEY_PASSWORD = "Security.KeyStore.KeyPassword";
         public static final String SAML2_SSO_MANAGER = "SAML2SSOManager";
         public static final String SAML_SSO_ACS_URL = "SAMLSSOAssertionConsumerUrl";
+
+        //extra parameters defined in  <CARBON_HOME>/repository/conf/identity/application-authentication.xml
+        public static final String ARTIFACT_RESOLVE_PROXY_HOST = "ArtifactResolve.Proxy.Host";
+        public static final String ARTIFACT_RESOLVE_PROXY_PORT = "ArtifactResolve.Proxy.Port";
+
     }
 }
