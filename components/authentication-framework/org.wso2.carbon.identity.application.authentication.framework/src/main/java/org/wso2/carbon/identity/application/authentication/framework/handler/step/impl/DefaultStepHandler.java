@@ -24,27 +24,29 @@ import org.wso2.carbon.identity.application.authentication.framework.Application
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
+import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
-import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
-import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
-import org.wso2.carbon.identity.application.authentication.framework.exception.InvalidCredentialsException;
-import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.exception.*;
 import org.wso2.carbon.identity.application.authentication.framework.handler.step.StepHandler;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedIdPData;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
+import org.wso2.carbon.identity.core.model.IdentityErrorMsgContext;
+import org.wso2.carbon.identity.core.util.IdentityUtil;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
+import org.wso2.carbon.user.core.UserCoreConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -77,7 +79,7 @@ public class DefaultStepHandler implements StepHandler {
 
         String authenticatorNames = FrameworkUtils.getAuthenticatorIdPMappingString(authConfigList);
 
-        String redirectURL = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
+        String loginPage = ConfigurationFacade.getInstance().getAuthenticationEndpointURL();
 
         String fidp = request.getParameter(FrameworkConstants.RequestParams.FEDERATED_IDP);
 
@@ -127,7 +129,7 @@ public class DefaultStepHandler implements StepHandler {
 
             try {
                 request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
-                response.sendRedirect(redirectURL
+                response.sendRedirect(loginPage
                         + ("?" + context.getContextIdIncludedQueryParams()) + "&authenticators="
                         + URLEncoder.encode(authenticatorNames, "UTF-8") + "&hrd=true");
             } catch (IOException e) {
@@ -210,19 +212,34 @@ public class DefaultStepHandler implements StepHandler {
                     if (log.isDebugEnabled()) {
                         log.debug("Sending to the Multi Option page");
                     }
-
+                    Map<String, String> parameterMap = getAuthenticatorConfig().getParameterMap();
+                    String showAuthFailureReason = null;
+                    if (parameterMap != null) {
+                        showAuthFailureReason = parameterMap.get(FrameworkConstants.SHOW_AUTHFAILURE_RESON_CONFIG);
+                        if (log.isDebugEnabled()) {
+                            log.debug("showAuthFailureReason has been set as : " + showAuthFailureReason);
+                        }
+                    }
                     String retryParam = "";
 
                     if (stepConfig.isRetrying()) {
                         context.setCurrentAuthenticator(null);
-                        retryParam = "&authFailure=true&authFailureMsg=login.fail.message";
+                        if (request.getSession().getAttribute("auth_canceled") !=null && request.getSession().getAttribute("auth_canceled").equals(Boolean.TRUE.toString())) {
+                            retryParam= "&authCanceled=true";
+                            request.getSession().removeAttribute("auth_canceled");
+                        } else if (request.getSession().getAttribute("idp") !=null) {
+                            String idp = (String)request.getSession().getAttribute("idp");
+                            retryParam = "&authFailure=true&authFailureMsg=login.fail.message&idp="+idp;
+                        } else {
+                            retryParam = "&authFailure=true&authFailureMsg=login.fail.message";
+                        }
                     }
 
                     try {
-                        request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus.INCOMPLETE);
-                        response.sendRedirect(redirectURL
-                                + ("?" + context.getContextIdIncludedQueryParams())
-                                + "&authenticators=" + URLEncoder.encode(authenticatorNames, "UTF-8") + retryParam);
+                        request.setAttribute(FrameworkConstants.RequestParams.FLOW_STATUS, AuthenticatorFlowStatus
+                                .INCOMPLETE);
+                        response.sendRedirect(getRedirectUrl(request, response, context, authenticatorNames,
+                                showAuthFailureReason, retryParam, loginPage));
                     } catch (IOException e) {
                         throw new FrameworkException(e.getMessage(), e);
                     }
@@ -492,6 +509,10 @@ public class DefaultStepHandler implements StepHandler {
             }
             log.warn("A login attempt was failed due to invalid credentials");
             context.setRequestAuthenticated(false);
+        } catch (AuthenticationCanceledException e) {
+            //handle functional error and continue
+            log.info("User Canceled login");
+            context.setRequestAuthenticated(false);
         } catch (AuthenticationFailedException e) {
             log.error(e.getMessage(), e);
             context.setRequestAuthenticated(false);
@@ -508,5 +529,84 @@ public class DefaultStepHandler implements StepHandler {
         stepConfig.setAuthenticatedUser(authenticatedIdPData.getUser());
         stepConfig.setAuthenticatedIdP(authenticatedIdPData.getIdpName());
         stepConfig.setAuthenticatedAutenticator(authenticatedIdPData.getAuthenticator());
+    }
+
+    private String getRedirectUrl(HttpServletRequest request, HttpServletResponse response, AuthenticationContext
+            context, String authenticatorNames, String showAuthFailureReason, String retryParam, String loginPage)
+            throws IOException {
+
+        IdentityErrorMsgContext errorContext = IdentityUtil.getIdentityErrorMsg();
+        IdentityUtil.clearIdentityErrorMsg();
+
+        if (showAuthFailureReason != null && "true".equals(showAuthFailureReason)) {
+            if (errorContext != null) {
+                String errorCode = errorContext.getErrorCode();
+                int remainingAttempts = errorContext.getMaximumLoginAttempts() - errorContext.getFailedLoginAttempts();
+
+                if (log.isDebugEnabled()) {
+                    StringBuilder debugString = new StringBuilder();
+                    debugString.append("Identity error message context is not null. Error details are as follows.");
+                    debugString.append("errorCode : " + errorCode + "\n");
+                    debugString.append("username : " + request.getParameter("username") + "\n");
+                    debugString.append("remainingAttempts : " + remainingAttempts);
+                    log.debug(debugString.toString());
+                }
+
+                if (errorCode.equals(UserCoreConstants.ErrorCode.INVALID_CREDENTIAL)) {
+                    retryParam = retryParam + "&errorCode=" + errorCode + "&failedUsername=" + URLEncoder.encode
+                            (request.getParameter("username"), "UTF-8") + "&remainingAttempts=" + remainingAttempts;
+                    return response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams()))
+                            + "&authenticators=" + authenticatorNames + ":" + FrameworkConstants.LOCAL + retryParam;
+                } else if (errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED)) {
+                    String redirectURL;
+                    if (remainingAttempts == 0) {
+                        redirectURL = response.encodeRedirectURL(loginPage + ("?" + context
+                                .getContextIdIncludedQueryParams())) + "&errorCode=" + errorCode + "&failedUsername="
+                                + URLEncoder.encode(request.getParameter("username"), "UTF-8") +
+                                "&remainingAttempts=0" + "&authenticators=" + URLEncoder.encode(authenticatorNames,
+                                "UTF-8") + retryParam;
+                    } else {
+                        redirectURL = response.encodeRedirectURL(loginPage + ("?" + context
+                                .getContextIdIncludedQueryParams())) + "&errorCode=" + errorCode + "&failedUsername="
+                                + URLEncoder.encode(request.getParameter("username"), "UTF-8") + "&authenticators=" +
+                                URLEncoder.encode(authenticatorNames, "UTF-8") + retryParam;
+                    }
+                    return redirectURL;
+                } else if (errorCode.equals(UserCoreConstants.ErrorCode.USER_DOES_NOT_EXIST)) {
+                    retryParam = retryParam + "&errorCode=" + errorCode + "&failedUsername=" + URLEncoder.encode
+                            (request.getParameter("username"), "UTF-8");
+                    return response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams()))
+                            + "&authenticators=" + authenticatorNames + ":" + FrameworkConstants.LOCAL + retryParam;
+                }
+            } else {
+                return response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams())) +
+                        "&authenticators=" + authenticatorNames + ":" + FrameworkConstants.LOCAL + retryParam;
+            }
+        } else {
+            String errorCode = errorContext != null ? errorContext.getErrorCode() : null;
+            if (errorCode != null && errorCode.equals(UserCoreConstants.ErrorCode.USER_IS_LOCKED)) {
+                String redirectURL;
+                redirectURL = response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams()
+                )) + "&failedUsername=" + URLEncoder.encode(request.getParameter("username"), "UTF-8") +
+                        "&authenticators=" + authenticatorNames + ":" + FrameworkConstants.LOCAL + retryParam;
+                return redirectURL;
+
+            } else {
+                return response.encodeRedirectURL(loginPage + ("?" + context.getContextIdIncludedQueryParams())) +
+                        "&authenticators=" + authenticatorNames + ":" + FrameworkConstants.LOCAL + retryParam;
+            }
+        }
+        return loginPage + ("?" + context.getContextIdIncludedQueryParams() + "&authenticators=" + URLEncoder.encode
+                (authenticatorNames, "UTF-8") + retryParam);
+    }
+
+    private AuthenticatorConfig getAuthenticatorConfig() {
+        AuthenticatorConfig authConfig = FileBasedConfigurationBuilder.getInstance().getAuthenticatorBean
+                (FrameworkConstants.BASIC_AUTHENTICATOR_CLASS);
+        if (authConfig == null) {
+            authConfig = new AuthenticatorConfig();
+            authConfig.setParameterMap(new HashMap());
+        }
+        return authConfig;
     }
 }

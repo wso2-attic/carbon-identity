@@ -20,9 +20,12 @@ package org.wso2.carbon.identity.application.authenticator.samlsso.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.opensaml.DefaultBootstrap;
+import org.opensaml.xml.ConfigurationException;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.samlsso.SAMLSSOAuthenticator;
+import org.wso2.carbon.identity.application.authenticator.samlsso.manager.DefaultSAML2SSOManager;
 import org.wso2.carbon.identity.core.util.IdentityIOStreamUtils;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -87,6 +90,17 @@ public class SAMLSSOAuthenticatorServiceComponent {
             IdentityIOStreamUtils.closeInputStream(fis);
         }
 
+        // Bootstrap the OpenSAML library
+        Thread thread = Thread.currentThread();
+        ClassLoader loader = thread.getContextClassLoader();
+        thread.setContextClassLoader(new DefaultSAML2SSOManager().getClass().getClassLoader());
+        try {
+            DefaultBootstrap.bootstrap();
+        } catch (ConfigurationException e) {
+            log.error("Error in bootstrapping the OpenSAML2 library", e);
+        } finally {
+            thread.setContextClassLoader(loader);
+        }
 
     }
 

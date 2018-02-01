@@ -26,10 +26,7 @@ import org.wso2.carbon.identity.application.authentication.framework.config.mode
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
-import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
-import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
-import org.wso2.carbon.identity.application.authentication.framework.exception.InvalidCredentialsException;
-import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.exception.*;
 import org.wso2.carbon.identity.application.authentication.framework.handler.sequence.RequestPathBasedSequenceHandler;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedIdPData;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
@@ -128,13 +125,15 @@ public class DefaultRequestPathBasedSequenceHandler implements RequestPathBasedS
                     if(log.isDebugEnabled()){
                         log.debug("InvalidCredentialsException stack trace : ", e);
                     }
-                    log.warn("A login attempt was failed due to invalid credentials");
                     context.setRequestAuthenticated(false);
                 } catch (AuthenticationFailedException e) {
                     log.error(e.getMessage(), e);
                     context.setRequestAuthenticated(false);
                 } catch (LogoutFailedException e) {
                     throw new FrameworkException(e.getMessage(), e);
+                } catch (AuthenticationCanceledException e) {
+                    log.warn("Login attempt was canceled by user");
+                    context.setRequestAuthenticated(false);
                 }
 
                 context.getSequenceConfig().setCompleted(true);

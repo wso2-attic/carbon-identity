@@ -24,69 +24,48 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.Constants;
 import org.apache.xerces.util.SecurityManager;
+import org.apache.xml.security.exceptions.XMLSecurityException;
+import org.apache.xml.security.signature.Reference;
+import org.apache.xml.security.signature.XMLSignature;
+import org.apache.xml.security.utils.IdResolver;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
-import org.opensaml.DefaultBootstrap;
 import org.opensaml.common.SAMLVersion;
+import org.opensaml.common.SignableSAMLObject;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.common.Extensions;
 import org.opensaml.saml2.common.impl.ExtensionsBuilder;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Attribute;
-import org.opensaml.saml2.core.AttributeStatement;
-import org.opensaml.saml2.core.Audience;
-import org.opensaml.saml2.core.AudienceRestriction;
-import org.opensaml.saml2.core.AuthnContext;
-import org.opensaml.saml2.core.AuthnContextClassRef;
-import org.opensaml.saml2.core.AuthnContextComparisonTypeEnumeration;
-import org.opensaml.saml2.core.AuthnRequest;
-import org.opensaml.saml2.core.Conditions;
-import org.opensaml.saml2.core.EncryptedAssertion;
-import org.opensaml.saml2.core.Issuer;
-import org.opensaml.saml2.core.LogoutRequest;
-import org.opensaml.saml2.core.LogoutResponse;
-import org.opensaml.saml2.core.NameID;
-import org.opensaml.saml2.core.NameIDPolicy;
-import org.opensaml.saml2.core.NameIDType;
-import org.opensaml.saml2.core.RequestAbstractType;
-import org.opensaml.saml2.core.RequestedAuthnContext;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.core.SessionIndex;
-import org.opensaml.saml2.core.impl.AuthnContextClassRefBuilder;
-import org.opensaml.saml2.core.impl.AuthnRequestBuilder;
-import org.opensaml.saml2.core.impl.IssuerBuilder;
-import org.opensaml.saml2.core.impl.LogoutRequestBuilder;
-import org.opensaml.saml2.core.impl.NameIDBuilder;
-import org.opensaml.saml2.core.impl.NameIDPolicyBuilder;
-import org.opensaml.saml2.core.impl.RequestedAuthnContextBuilder;
-import org.opensaml.saml2.core.impl.SessionIndexBuilder;
+import org.opensaml.saml2.core.*;
+import org.opensaml.saml2.core.impl.*;
 import org.opensaml.saml2.encryption.Decrypter;
-import org.opensaml.xml.ConfigurationException;
+import org.opensaml.security.SAMLSignatureProfileValidator;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.encryption.EncryptedKey;
-import org.opensaml.xml.io.Marshaller;
-import org.opensaml.xml.io.MarshallingException;
-import org.opensaml.xml.io.Unmarshaller;
-import org.opensaml.xml.io.UnmarshallerFactory;
-import org.opensaml.xml.io.UnmarshallingException;
+import org.opensaml.xml.io.*;
 import org.opensaml.xml.security.SecurityHelper;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.keyinfo.KeyInfoCredentialResolver;
 import org.opensaml.xml.security.keyinfo.StaticKeyInfoCredentialResolver;
 import org.opensaml.xml.security.x509.X509Credential;
 import org.opensaml.xml.signature.SignatureValidator;
+import org.opensaml.xml.signature.impl.SignatureImpl;
 import org.opensaml.xml.util.Base64;
+import org.opensaml.xml.util.DatatypeHelper;
 import org.opensaml.xml.util.XMLHelper;
 import org.opensaml.xml.validation.ValidationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationCanceledException;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticationRequest;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authenticator.samlsso.exception.SAMLSSOException;
+import org.wso2.carbon.identity.application.authenticator.samlsso.handler.ArtifactResolveHandler;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.CarbonEntityResolver;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOConstants;
 import org.wso2.carbon.identity.application.authenticator.samlsso.util.SSOUtils;
@@ -103,11 +82,7 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
@@ -116,6 +91,9 @@ import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
+import static org.opensaml.saml2.core.StatusCode.AUTHN_FAILED_URI;
+import static org.opensaml.saml2.core.StatusCode.SUCCESS_URI;
+
 public class DefaultSAML2SSOManager implements SAML2SSOManager {
 
     private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
@@ -123,23 +101,17 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
     private static final int ENTITY_EXPANSION_LIMIT = 0;
     private static final String SIGN_AUTH2_SAML_USING_SUPER_TENANT = "SignAuth2SAMLUsingSuperTenant";
     private static Log log = LogFactory.getLog(DefaultSAML2SSOManager.class);
+    private static Log AUDIT_LOG = CarbonConstants.AUDIT_LOG;
     private static boolean bootStrapped = false;
     private IdentityProvider identityProvider = null;
     private Map<String, String> properties;
     private String tenantDomain;
 
-    public static void doBootstrap() {
-
-        /* Initializing the OpenSAML library */
-        if (!bootStrapped) {
-            try {
-                DefaultBootstrap.bootstrap();
-                bootStrapped = true;
-            } catch (ConfigurationException e) {
-                log.error("Error in bootstrapping the OpenSAML2 library", e);
-            }
-        }
-    }
+    // Parameter constants introduced for Assertion Validity Period Verification
+    private static final String VERIFY_ASSERTION_VALIDITY_PERIOD = "VerifyAssertionValidityPeriod";
+    private static final String TIME_STAMP_SKEW = "TimestampSkew";
+    // Instance variable that defines default Time Stamp Skew Value
+    private int timeStampSkewInSeconds = 300;
 
     @Override
     public void init(String tenantDomain, Map<String, String> properties, IdentityProvider idp)
@@ -162,7 +134,6 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                                String loginPage, AuthenticationContext context)
             throws SAMLSSOException {
 
-        doBootstrap();
         String contextIdentifier = context.getContextIdentifier();
         RequestAbstractType requestMessage;
 
@@ -245,7 +216,6 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
     public String buildPostRequest(HttpServletRequest request, boolean isLogout,
                                    boolean isPassive, String loginPage, AuthenticationContext context) throws SAMLSSOException {
 
-        doBootstrap();
         RequestAbstractType requestMessage;
         String signatureAlgoProp = null;
         String digestAlgoProp = null;
@@ -301,15 +271,62 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
     @Override
     public void processResponse(HttpServletRequest request) throws SAMLSSOException {
 
-        doBootstrap();
-        String decodedResponse = new String(Base64.decode(request.getParameter(
-                SSOConstants.HTTP_POST_PARAM_SAML2_RESP)));
-        XMLObject samlObject = unmarshall(decodedResponse);
-        if (samlObject instanceof LogoutResponse) {
-            //This is a SAML response for a single logout request from the SP
-            doSLO(request);
+        String samlArt = request.getParameter(SSOConstants.HTTP_POST_PARAM_SAML2_ARTIFACT_ID);
+        String artifactResolveUrl = this.properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.ARTIFACT_RESOLVE_URL);
+        String artifactResolveIssuer = this.properties.get(IdentityApplicationConstants.Authenticator.SAML2SSO.ARTIFACT_RESOLVE_ISSUER);
+
+        if (samlArt != null) {
+
+            if (StringUtils.isEmpty(artifactResolveUrl)) {
+                throw new SAMLSSOException("Mandatory property artifactResolveUrl is empty");
+            } else if (StringUtils.isEmpty(artifactResolveIssuer)) {
+                throw new SAMLSSOException("Mandatory property artifactResolveIssuer is empty");
+            }
+
+            ArtifactResolveHandler handler = new ArtifactResolveHandler(artifactResolveUrl, artifactResolveIssuer);
+            String samlResponse = handler.getSAMLArtifactResolveResponse(samlArt, artifactResolveUrl, artifactResolveIssuer);
+            ArtifactResponse artifactResponse = (ArtifactResponse) unmarshall(samlResponse);
+            String code;
+
+            for (XMLObject child : artifactResponse.getOrderedChildren()) {
+                if (child instanceof Response) {
+
+                    for (XMLObject status : child.getOrderedChildren()) {
+                        if (status instanceof Status) {
+                            for (XMLObject statusCode : status.getOrderedChildren()) {
+
+                                if (statusCode.hasChildren()) {
+                                    code = ((StatusCodeImpl) statusCode.getOrderedChildren().get(0)).getValue();
+                                } else {
+                                    code = ((StatusCode) statusCode).getValue();
+                                }
+
+                                if (SUCCESS_URI.equals(code)) {
+                                    processSSOResponse(request, (Response) child);
+                                    return;
+                                } else if (AUTHN_FAILED_URI.equals(code)) {
+                                    request.getSession().setAttribute("auth_canceled", Boolean.TRUE.toString());
+                                    throw new SAMLSSOException("User canceled Login", new AuthenticationCanceledException("User Canceled Login"));
+                                } else {
+                                    request.getSession().setAttribute("idp", identityProvider.getIdentityProviderName());
+                                    throw new SAMLSSOException("Invalid statusCode user login failed.");
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
         } else {
-            processSSOResponse(request);
+            String decodedResponse = new String(Base64.decode(request.getParameter(
+                    SSOConstants.HTTP_POST_PARAM_SAML2_RESP)));
+            XMLObject samlObject = unmarshall(decodedResponse);
+            if (samlObject instanceof LogoutResponse) {
+                //This is a SAML response for a single logout request from the SP
+                doSLO(request);
+            } else {
+                processSSOResponse(request, (Response) samlObject);
+            }
         }
     }
     
@@ -392,8 +409,6 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
      * @throws IOException
      */
     public void doSLO(HttpServletRequest request) throws SAMLSSOException {
-
-        doBootstrap();
         XMLObject samlObject = null;
         if (request.getParameter(SSOConstants.HTTP_POST_PARAM_SAML2_AUTH_REQ) != null) {
             samlObject = unmarshall(new String(Base64.decode(request.getParameter(
@@ -413,10 +428,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         }
     }
 
-    private void processSSOResponse(HttpServletRequest request) throws SAMLSSOException {
-
-        Response samlResponse = (Response) unmarshall(new String(Base64.decode(request.getParameter(
-                SSOConstants.HTTP_POST_PARAM_SAML2_RESP))));
+    private void processSSOResponse(HttpServletRequest request, Response samlResponse) throws SAMLSSOException {
 
         Assertion assertion = null;
 
@@ -451,6 +463,15 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
             throw new SAMLSSOException("SAML Assertion not found in the Response");
         }
 
+        // validate the assertion validity period
+        validateAssertionValidityPeriod(assertion);
+
+        // validate audience restriction
+        validateAudienceRestriction(assertion);
+
+        // validate signature this SP only looking for assertion signature
+        validateSignature(samlResponse, assertion);
+
         // Get the subject name from the Response Object and forward it to login_action.jsp
         String subject = null;
         String nameQualifier = null;
@@ -466,12 +487,6 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         request.getSession().setAttribute("username", subject); // get the subject
         nameQualifier = assertion.getSubject().getNameID().getNameQualifier();
         spNameQualifier = assertion.getSubject().getNameID().getSPNameQualifier();
-
-        // validate audience restriction
-        validateAudienceRestriction(assertion);
-
-        // validate signature this SP only looking for assertion signature
-        validateSignature(samlResponse, assertion);
 
         request.getSession(false).setAttribute("samlssoAttributes", getAssertionStatements(assertion));
 
@@ -653,12 +668,21 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
                             AuthnContextClassRef.DEFAULT_ELEMENT_LOCAL_NAME,
                             SAMLConstants.SAML20_PREFIX);
 
-            String authnContextClassProp = properties
+            String authnContextClass = properties
                     .get(IdentityApplicationConstants.Authenticator.SAML2SSO.AUTHENTICATION_CONTEXT_CLASS);
 
-            if (StringUtils.isNotEmpty(authnContextClassProp)) {
-                authnContextClassRef.setAuthnContextClassRef(IdentityApplicationManagementUtil
-                        .getSAMLAuthnContextClasses().get(authnContextClassProp));
+            if (StringUtils.isNotEmpty(authnContextClass)) {
+                String samlAuthnContextURN = IdentityApplicationManagementUtil
+                        .getSAMLAuthnContextClasses().get(authnContextClass);
+                if (!StringUtils.isBlank(samlAuthnContextURN)) {
+                    //There was one matched URN for give authnContextClass.
+                    authnContextClassRef.setAuthnContextClassRef(samlAuthnContextURN);
+                } else {
+                    //There are no any matched URN for given authnContextClass, so added authnContextClass name to the
+                    // AuthnContextClassRef.
+                    authnContextClassRef.setAuthnContextClassRef(authnContextClass);
+                }
+
             } else {
                 authnContextClassRef.setAuthnContextClassRef(AuthnContext.PPT_AUTHN_CTX);
             }
@@ -743,6 +767,7 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
 
     private XMLObject unmarshall(String samlString) throws SAMLSSOException {
 
+        XMLObject response;
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -759,7 +784,21 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
             Element element = document.getDocumentElement();
             UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
             Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
-            return unmarshaller.unmarshall(element);
+            response = unmarshaller.unmarshall(element);
+            // Check for duplicate samlp:Response
+            NodeList list = response.getDOM().getElementsByTagNameNS(SAMLConstants.SAML20P_NS, "Response");
+            if (list.getLength() > 1) {
+                log.error("Invalid schema for the SAML2 response. Multiple Response elements found.");
+                throw new SAMLSSOException("Error occurred while processing SAML2 response.");
+            }
+
+            // Checking for multiple Assertions
+            NodeList assertionList = response.getDOM().getElementsByTagNameNS(SAMLConstants.SAML20_NS, "Assertion");
+            if (assertionList.getLength() > 1) {
+                log.error("Invalid schema for the SAML2 response. Multiple Assertion elements found.");
+                throw new SAMLSSOException("Error occurred while processing SAML2 response.");
+            }
+            return response;
         } catch (ParserConfigurationException e) {
             throw new SAMLSSOException("Error in unmarshalling SAML Request from the encoded String", e);
         } catch (UnmarshallingException e) {
@@ -850,47 +889,164 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
 
         if (SSOUtils.isAuthnResponseSigned(properties)) {
 
-            if (identityProvider.getCertificate() == null
-                    || identityProvider.getCertificate().isEmpty()) {
-                throw new SAMLSSOException(
-                        "SAMLResponse signing is enabled, but IdP doesn't have a certificate");
-            }
-
-            if (response.getSignature() == null) {
+            XMLObject signature = response.getSignature();
+            if (signature == null) {
                 throw new SAMLSSOException("SAMLResponse signing is enabled, but signature element " +
                         "not found in SAML Response element.");
             } else {
-                try {
-                    X509Credential credential =
-                            new X509CredentialImpl(tenantDomain, identityProvider.getCertificate());
-                    SignatureValidator validator = new SignatureValidator(credential);
-                    validator.validate(response.getSignature());
-                } catch (ValidationException e) {
-                    throw new SAMLSSOException("Signature validation failed for SAML Response", e);
-                }
+                validateSignature(signature);
             }
         }
         if (SSOUtils.isAssertionSigningEnabled(properties)) {
 
-            if (identityProvider.getCertificate() == null
-                    || identityProvider.getCertificate().isEmpty()) {
-                throw new SAMLSSOException(
-                        "SAMLAssertion signing is enabled, but IdP doesn't have a certificate");
-            }
-
-            if (assertion.getSignature() == null) {
+            XMLObject signature = assertion.getSignature();
+            if (signature == null) {
                 throw new SAMLSSOException("SAMLAssertion signing is enabled, but signature element " +
                         "not found in SAML Assertion element.");
             } else {
-                try {
-                    X509Credential credential =
-                            new X509CredentialImpl(tenantDomain, identityProvider.getCertificate());
-                    SignatureValidator validator = new SignatureValidator(credential);
-                    validator.validate(assertion.getSignature());
-                } catch (ValidationException e) {
-                    throw new SAMLSSOException("Signature validation failed for SAML Assertion", e);
-                }
+                validateSignature(signature);
             }
+        }
+    }
+
+    /**
+     * Validates the XML Signature object
+     *
+     * @param signature XMLObject
+     * @throws SAMLSSOException
+     */
+    private void validateSignature(XMLObject signature) throws SAMLSSOException {
+        SignatureImpl signImpl = (SignatureImpl) signature;
+        try {
+            SAMLSignatureProfileValidator signatureProfileValidator = new SAMLSignatureProfileValidator();
+            signatureProfileValidator.validate(signImpl);
+
+            // Following code segment is taken from org.opensaml.security.SAMLSignatureProfileValidator
+            // of OpenSAML 2.6.4. This is done to get the latest XSW related fixes.
+            XMLSignature apacheSig = signImpl.getXMLSignature();
+            SignableSAMLObject signableObject = (SignableSAMLObject) signature.getParent();
+
+            Reference ref = null;
+            try {
+                ref = apacheSig.getSignedInfo().item(0);
+            } catch (XMLSecurityException e) {
+                // This exception should never occur, because it's already checked
+                // from the previous call to signatureProfileValidator#validate
+                log.error("Apache XML Security exception obtaining Reference", e);
+                throw new ValidationException("Could not obtain Reference from Signature/SignedInfo", e);
+            }
+
+            String uri = ref.getURI();
+
+            validateReferenceURI(uri, signableObject);
+            validateObjectChildren(apacheSig);
+
+            // End of OpenSAML 2.6.4 logic
+            // -----------------------------------------------------------------------------
+
+        } catch (ValidationException ex) {
+            String logMsg = "Signature do not confirm to SAML signature profile. Possible XML Signature " +
+                    "Wrapping  Attack!";
+            AUDIT_LOG.warn(logMsg);
+            if (log.isDebugEnabled()) {
+                log.debug(logMsg, ex);
+            }
+            throw new SAMLSSOException(logMsg, ex);
+        }
+
+        if (identityProvider.getCertificate() == null || identityProvider.getCertificate().isEmpty()) {
+            throw new SAMLSSOException("Signature validation is enabled, but IdP doesn't have a certificate");
+        }
+
+        try {
+            X509Credential credential = new X509CredentialImpl(tenantDomain, identityProvider.getCertificate());
+            SignatureValidator validator = new SignatureValidator(credential);
+            validator.validate(signImpl);
+        } catch (ValidationException e) {
+            throw new SAMLSSOException("Signature validation failed for SAML Response", e);
+        }
+    }
+
+    /**
+     * Validates the 'Not Before' and 'Not On Or After' conditions of the SAML Assertion
+     *
+     * @param assertion SAML Assertion element
+     * @throws SAMLSSOException
+     */
+    private void validateAssertionValidityPeriod(Assertion assertion) throws SAMLSSOException {
+
+        if (isVerifyAssertionValidityPeriod()) {
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "Assertion validity period verification is enabled. Verifying 'Not Before' and " +
+                                "'Not On Or After' conditions.");
+            }
+            DateTime validFrom = assertion.getConditions().getNotBefore();
+            DateTime validTill = assertion.getConditions().getNotOnOrAfter();
+            int timeStampSkewInSeconds = getTimeStampSkewInSeconds();
+
+            if (validFrom != null && validFrom.minusSeconds(timeStampSkewInSeconds).isAfterNow()) {
+                throw new SAMLSSOException("Failed to meet SAML Assertion Condition 'Not Before'");
+            }
+
+            if (validTill != null && validTill.plusSeconds(timeStampSkewInSeconds).isBeforeNow()) {
+                throw new SAMLSSOException("Failed to meet SAML Assertion Condition 'Not On Or After'");
+            }
+
+            if (validFrom != null && validTill != null && validFrom.isAfter(validTill)) {
+                throw new SAMLSSOException(
+                        "SAML Assertion Condition 'Not Before' must be less than the value of 'Not On Or After'");
+            }
+        }
+    }
+
+    /**
+     * Validate the Signature's Reference URI.
+     * <p>
+     * First validate the Reference URI against the parent's ID itself.  Then validate that the
+     * URI (if non-empty) resolves to the same Element node as is cached by the SignableSAMLObject.
+     *
+     * @param uri            the Signature Reference URI attribute value
+     * @param signableObject the SignableSAMLObject whose signature is being validated
+     * @throws ValidationException if the URI is invalid or doesn't resolve to the expected DOM node
+     */
+    private void validateReferenceURI(String uri, SignableSAMLObject signableObject) throws ValidationException {
+        if (DatatypeHelper.isEmpty(uri)) {
+            return;
+        }
+
+        String uriID = uri.substring(1);
+
+        Element expected = signableObject.getDOM();
+        if (expected == null) {
+            log.error("SignableSAMLObject does not have a cached DOM Element.");
+            throw new ValidationException("SignableSAMLObject does not have a cached DOM Element.");
+        }
+        Document doc = expected.getOwnerDocument();
+
+        Element resolved = IdResolver.getElementById(doc, uriID);
+        if (resolved == null) {
+            log.error("Apache xmlsec IdResolver could not resolve the Element for id reference: " + uriID);
+            throw new ValidationException("Apache xmlsec IdResolver could not resolve the Element for id reference: "
+                    + uriID);
+        }
+
+        if (!expected.isSameNode(resolved)) {
+            log.error("Signature Reference URI " + uri + " did not resolve to the expected parent Element");
+            throw new ValidationException("Signature Reference URI did not resolve to the expected parent Element");
+        }
+    }
+
+    /**
+     * Validate that the Signature instance does not contain any ds:Object children.
+     *
+     * @param apacheSig the Apache XML Signature instance
+     * @throws ValidationException if the signature contains ds:Object children
+     */
+    private void validateObjectChildren(XMLSignature apacheSig) throws ValidationException {
+        if (apacheSig.getObjectLength() > 0) {
+            log.error("Signature contained " + apacheSig.getObjectLength() + " ds:Object child element(s)");
+            throw new ValidationException("Signature contained illegal ds:Object children");
         }
     }
 
@@ -915,4 +1071,53 @@ public class DefaultSAML2SSOManager implements SAML2SSOManager {
         return decrypter.decrypt(encryptedAssertion);
     }
 
+    /**
+     * Check whether the Assertion validity period validation is enabled or disabled in the
+     * application-authentication.xml configuration file.
+     *
+     * @return true only if SAMLSSOAuthenticator configuration has the configuration
+     * <Parameter name="VerifyAssertionValidityPeriod">true</Parameter>
+     * Otherwise returns false
+     */
+    private boolean isVerifyAssertionValidityPeriod() {
+
+        AuthenticatorConfig authenticatorConfig =
+                FileBasedConfigurationBuilder.getInstance().getAuthenticatorConfigMap().get(
+                        SSOConstants.AUTHENTICATOR_NAME);
+        if (authenticatorConfig != null) {
+            String verifyAssertionValidityPeriod =
+                    authenticatorConfig.getParameterMap().get(VERIFY_ASSERTION_VALIDITY_PERIOD);
+            if (StringUtils.isNotBlank(verifyAssertionValidityPeriod)) {
+                return Boolean.parseBoolean(verifyAssertionValidityPeriod);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns the assertion validity time stamp skew configured in application-authentication.xml configuration file.
+     *
+     * @return the value configured under the SAMLSSOAuthenticator configuration with below parameter
+     * <Parameter name="TimestampSkew">300</Parameter>
+     * If the configuration is not available returns 300 s by default
+     */
+    private int getTimeStampSkewInSeconds() {
+
+        AuthenticatorConfig authenticatorConfig =
+                FileBasedConfigurationBuilder.getInstance().getAuthenticatorConfigMap().get(
+                        SSOConstants.AUTHENTICATOR_NAME);
+        if (authenticatorConfig != null) {
+            String timeStampSkew = authenticatorConfig.getParameterMap().get(TIME_STAMP_SKEW);
+            if (timeStampSkew != null) {
+                timeStampSkewInSeconds = Integer.parseInt(timeStampSkew);
+            }
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("TimestampSkew is set to " + timeStampSkewInSeconds + " s.");
+        }
+
+        return timeStampSkewInSeconds;
+    }
 }

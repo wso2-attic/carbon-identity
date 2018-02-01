@@ -26,6 +26,7 @@ import org.wso2.carbon.identity.application.authentication.framework.config.buil
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationCanceledException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
@@ -51,7 +52,7 @@ public abstract class AbstractApplicationAuthenticator implements ApplicationAut
     @Override
     public AuthenticatorFlowStatus process(HttpServletRequest request,
                                            HttpServletResponse response, AuthenticationContext context)
-            throws AuthenticationFailedException, LogoutFailedException {
+            throws AuthenticationFailedException, LogoutFailedException, AuthenticationCanceledException {
 
         // if an authentication flow
         if (!context.isLogoutRequest()) {
@@ -126,7 +127,7 @@ public abstract class AbstractApplicationAuthenticator implements ApplicationAut
 
     protected abstract void processAuthenticationResponse(HttpServletRequest request,
                                                           HttpServletResponse response, AuthenticationContext context)
-            throws AuthenticationFailedException;
+            throws AuthenticationFailedException, AuthenticationCanceledException;
 
     protected void initiateLogoutRequest(HttpServletRequest request, HttpServletResponse response,
                                          AuthenticationContext context) throws LogoutFailedException {

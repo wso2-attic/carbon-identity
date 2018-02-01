@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.application.authentication.framework.config.mode
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationCanceledException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
@@ -122,7 +123,7 @@ public class DefaultLogoutRequestHandler implements LogoutRequestHandler {
                     // sends the logout request to the external IdP
                     FrameworkUtils.addAuthenticationContextToCache(context.getContextIdentifier(), context);
                     return;
-                } catch (AuthenticationFailedException | LogoutFailedException e) {
+                } catch (AuthenticationFailedException | LogoutFailedException | AuthenticationCanceledException e) {
                     throw new FrameworkException("Exception while handling logout request", e);
                 } catch (IdentityProviderManagementException e) {
                     log.error("Exception while getting IdP by name", e);

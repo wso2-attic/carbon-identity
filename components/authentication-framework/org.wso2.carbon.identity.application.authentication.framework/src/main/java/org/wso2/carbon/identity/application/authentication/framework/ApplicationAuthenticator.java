@@ -19,6 +19,7 @@
 package org.wso2.carbon.identity.application.authentication.framework;
 
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationCanceledException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.common.model.Property;
@@ -51,10 +52,11 @@ public interface ApplicationAuthenticator extends Serializable {
      * @return the status of the flow
      * @throws AuthenticationFailedException
      * @throws LogoutFailedException
+     * @throws AuthenticationCanceledException
      */
     public AuthenticatorFlowStatus process(HttpServletRequest request,
                                            HttpServletResponse response, AuthenticationContext context)
-            throws AuthenticationFailedException, LogoutFailedException;
+            throws AuthenticationFailedException, LogoutFailedException, AuthenticationCanceledException;
 
     /**
      * Get the Context identifier sent with the request. This identifier is used

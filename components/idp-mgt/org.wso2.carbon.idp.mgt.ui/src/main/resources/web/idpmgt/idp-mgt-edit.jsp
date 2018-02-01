@@ -97,6 +97,8 @@
     String authenticationContextComparisonLevel = IdentityApplicationConstants.SAML2.AuthnContextComparison.EXACT;
     String forceAuthentication = "as_request";
     String attributeConsumingServiceIndex = null;
+    String artifactResolveUrl = null;
+    String artifactResolveIssuer = null;
     String includeAuthenticationContext = "yes";
     boolean includeNameIdPolicy = true;
     boolean includeProtocolBinding = true;
@@ -537,6 +539,18 @@
                             IdentityApplicationConstants.Authenticator.SAML2SSO.ATTRIBUTE_CONSUMING_SERVICE_INDEX);
                     if (attributeConsumingServiceIndexProp != null) {
                         attributeConsumingServiceIndex = attributeConsumingServiceIndexProp.getValue();
+                    }
+
+                    Property artifactResolveUrlProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.ARTIFACT_RESOLVE_URL);
+                    if (artifactResolveUrlProp !=null) {
+                        artifactResolveUrl = artifactResolveUrlProp.getValue();
+                    }
+
+                    Property artifactResolveIssuerProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
+                            IdentityApplicationConstants.Authenticator.SAML2SSO.ARTIFACT_RESOLVE_ISSUER);
+                    if (artifactResolveIssuerProp !=null) {
+                        artifactResolveIssuer = artifactResolveIssuerProp.getValue();
                     }
 
                     Property requestMethodProp = IdPManagementUIUtil.getProperty(fedAuthnConfig.getProperties(),
@@ -1804,6 +1818,16 @@ jQuery(document).ready(function () {
     jQuery('#includeAuthnCtxYes').click(function(){
    		jQuery('#authentication_context_class_dropdown').removeAttr('disabled');
         jQuery('#auth_context_comparison_level_dropdown').removeAttr('disabled');
+    });
+
+    jQuery('#authentication_context_class_dropdown').change(function(){
+        var selectedClass = $("#authentication_context_class_dropdown" ).val();
+        if(selectedClass=='<%=IdPManagementUIUtil.CUSTOM_AUTHENTICATION_CONTEXT_CLASS_OPTION%>'){
+            jQuery('#custom_authentication_context_class').removeAttr('disabled');
+        }else{
+            jQuery('#custom_authentication_context_class').val("");
+            jQuery('#custom_authentication_context_class').attr('disabled',true);
+        }
     });
 
     jQuery('#includeAuthnCtxReq').click(function(){
@@ -4008,7 +4032,35 @@ function doValidation() {
 	          </td>
 	      </tr>
 
-	      <!-- Force Authentication -->
+        <!-- Attribute Artifact Resolve Url -->
+
+        <tr>
+            <td class="leftCol-med labelField"><fmt:message key='attr.artifact.resolve.url'/>:</td>
+            <td>
+                <input id="artifactResolveUrl" name="ArtifactResolveUrl" type="text"
+                       value=<%=Encode.forHtmlAttribute(artifactResolveUrl)%>>
+
+                <div class="sectionHelp">
+                    <fmt:message key='attr.artifact.resolve.url.help'/>
+                </div>
+            </td>
+        </tr>
+
+        <!-- Attribute Resolve Issuer -->
+
+        <tr>
+            <td class="leftCol-med labelField"><fmt:message key='attr.artifact.resolve.issuer'/>:</td>
+            <td>
+                <input id="artifactResolveIssuer" name="ArtifactResolveIssuer" type="text"
+                       value=<%=Encode.forHtmlAttribute(artifactResolveIssuer)%>>
+
+                <div class="sectionHelp">
+                    <fmt:message key='attr.artifact.resolve.issuer.help'/>
+                </div>
+            </td>
+        </tr>
+
+        <!-- Force Authentication -->
 
 	      <tr>
 	          <td class="leftCol-med labelField">
@@ -4109,14 +4161,17 @@ function doValidation() {
 	<tr>
 	                   <td class="leftCol-med labelField"><fmt:message key='authentication.context.class'/>:</td>
 	          <td>
-
+                  <%
+                      boolean isNotCustom = false ;
+                  %>
 	              <select id="authentication_context_class_dropdown" name="AuthnContextClassRef" <%=authnContextClassRefDropdownDisabled%>>
 	                  <%
-	                  for(String authnContextClass : authenticationContextClasses){
+	                    for(String authnContextClass : authenticationContextClasses){
 	                      if( authnContextClass != null && authnContextClass.equalsIgnoreCase(authenticationContextClass)){
-	                    %>
-	                    <option selected="selected"><%=Encode.forHtmlContent(authenticationContextClass)%></option>
-	                    <%
+                              isNotCustom = true ;
+                      %>
+	                        <option selected="selected"><%=Encode.forHtmlContent(authenticationContextClass)%></option>
+                      <%
 	                  	} else {
 	                  %>
 	                  		<option><%=Encode.forHtmlContent(authnContextClass)%></option>
@@ -4124,11 +4179,36 @@ function doValidation() {
 	                      }
 	                  }
 	                  %>
-	              </select>
 
+                      <%
+                          if(isNotCustom){
+                      %>
+                        <option><%=IdPManagementUIUtil.CUSTOM_AUTHENTICATION_CONTEXT_CLASS_OPTION %></option>
+                      <%
+                          }else{
+                      %>
+                        <option selected="selected"><%=IdPManagementUIUtil.CUSTOM_AUTHENTICATION_CONTEXT_CLASS_OPTION %></option>
+                      <%
+                          }
+                      %>
+	              </select>
 	              <div class="sectionHelp" style="margin-top: 5px">
 	                  <fmt:message key='authentication.context.class.help'/>
 	              </div>
+                  <%
+                        if(isNotCustom){
+                  %>
+                            <input id="custom_authentication_context_class" name="CustomAuthnContextClassRef" type="text" value="" disabled="true">
+                  <%
+                        }else{
+                  %>
+                            <input id="custom_authentication_context_class" name="CustomAuthnContextClassRef" type="text" value="<%=Encode.forHtmlContent(authenticationContextClass)%>">
+                  <%
+                        }
+                  %>
+                  <div class="sectionHelp" style="margin-top: 5px">
+                      <fmt:message key='authentication.context.class.custom.help'/>
+                  </div>
 	          </td>
 	      </tr>
 

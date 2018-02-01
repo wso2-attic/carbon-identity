@@ -78,6 +78,13 @@ public class SAML2SSOFederatedAuthenticatorConfig extends FederatedAuthenticator
      */
     private boolean isUserIdInClaims;
 
+    /**
+     *
+     * @param federatedAuthenticatorConfig
+     */
+    private String artifactResolveUrl;
+    private String artifactResolveIssuer;
+
     public SAML2SSOFederatedAuthenticatorConfig(FederatedAuthenticatorConfig federatedAuthenticatorConfig) {
         for (Property property : federatedAuthenticatorConfig.getProperties()) {
             if (IdentityApplicationConstants.Authenticator.SAML2SSO.IDP_ENTITY_ID.equals(property.getName())) {
@@ -103,6 +110,10 @@ public class SAML2SSOFederatedAuthenticatorConfig extends FederatedAuthenticator
             } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.IS_ENABLE_ASSERTION_ENCRYPTION.equals(
                     property.getName())) {
                 isAuthnResponseEncrypted = Boolean.parseBoolean(property.getValue());
+            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.ARTIFACT_RESOLVE_URL.equals(property.getName())) {
+                artifactResolveUrl = property.getValue();
+            } else if (IdentityApplicationConstants.Authenticator.SAML2SSO.ARTIFACT_RESOLVE_ISSUER.equals(property.getName())) {
+                artifactResolveIssuer = property.getValue();
             }
         }
     }
@@ -173,4 +184,8 @@ public class SAML2SSOFederatedAuthenticatorConfig extends FederatedAuthenticator
     public boolean isAuthnResponseEncrypted() {
         return isAuthnResponseEncrypted;
     }
+
+    public String getArtifactResolveUrl() { return artifactResolveUrl; }
+
+    public String getArtifactResolveIssuer() { return artifactResolveIssuer; }
 }
