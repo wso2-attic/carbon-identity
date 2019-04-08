@@ -22,11 +22,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
+import org.wso2.carbon.identity.application.authentication.framework.config.builder.IdentityMgtConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.UIBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.SequenceConfig;
 import org.wso2.carbon.identity.application.authentication.framework.exception.FrameworkException;
-import org.wso2.carbon.identity.application.common.IdentityApplicationManagementException;
 import org.wso2.carbon.identity.application.common.model.IdentityProvider;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
@@ -43,6 +43,9 @@ public class ConfigurationFacade {
     public ConfigurationFacade() {
         // Read the default config from the files
         FileBasedConfigurationBuilder.getInstance();
+
+        // Read the identity-mgt properties from file.
+        IdentityMgtConfigurationBuilder.getInstance();
     }
 
     public static ConfigurationFacade getInstance() {
@@ -186,5 +189,25 @@ public class ConfigurationFacade {
 
     public int getMaxLoginAttemptCount() {
         return FileBasedConfigurationBuilder.getInstance().getMaxLoginAttemptCount();
+    }
+
+    /**
+     * Get the value for account disable checked property.
+     *
+     * @return Returns true if account disabling is enabled.
+     */
+    public boolean isAuthPolicyAccountDisableCheck() {
+
+        return IdentityMgtConfigurationBuilder.getInstance().isAuthPolicyAccountDisableCheck();
+    }
+
+    /**
+     * Get the value for account locking checked property.
+     *
+     * @return Returns true if account locking is enabled.
+     */
+    public boolean isAuthPolicyAccountLockCheck() {
+
+        return IdentityMgtConfigurationBuilder.getInstance().isAuthPolicyAccountLockCheck();
     }
 }

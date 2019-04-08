@@ -51,6 +51,9 @@ public abstract class FrameworkConstants {
     public static final String OIDC = "oidc";
     public static final String AUTH_ENDPOINT_QUERY_PARAMS_ACTION_INCLUDE = "include";
     public static final String AUTH_ENDPOINT_QUERY_PARAMS_ACTION_EXCLUDE = "exclude";
+    public static final String ACCOUNT_LOCKED_CLAIM_URI = "http://wso2.org/claims/identity/accountLocked";
+    public static final String ACCOUNT_DISABLED_CLAIM_URI = "http://wso2.org/claims/identity/accountDisabled";
+    public static final String ACCOUNT_UNLOCK_TIME_CLAIM_URI = "http://wso2.org/claims/identity/unlockTime";
 
     public static final String AUDIT_MESSAGE = "Initiator : %s | Action : %s | Target : %s | Data : { %s } | Result : %s ";
     public static final String AUDIT_SUCCESS = "Success";
