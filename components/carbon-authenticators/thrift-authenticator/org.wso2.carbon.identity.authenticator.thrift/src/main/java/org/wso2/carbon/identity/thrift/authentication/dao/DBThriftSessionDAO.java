@@ -39,6 +39,7 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
     public static final String ERROR_WHEN_EXECUTING_THE_SQL = "Error when executing the SQL :";
     public static final String THE_PERSISTENCE_STORE = "the persistence store.";
     public static final String THRIFT_SESSION_WITH_GIVEN_SESSION_ID_ALREADY_EXISTS = "Thrift session with given Session Id already exists.";
+    public static final String THRIFT_SESSION_WITH_GIVEN_SESSION_ID_DOES_NOT_EXIST = "Thrift session with given Session Id does not exist.";
     private static Log log = LogFactory.getLog(DBThriftSessionDAO.class);
 
     @Override
@@ -178,7 +179,7 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
             }
 
         } else {
-            String errorMessage = THRIFT_SESSION_WITH_GIVEN_SESSION_ID_ALREADY_EXISTS;
+            String errorMessage = THRIFT_SESSION_WITH_GIVEN_SESSION_ID_DOES_NOT_EXIST;
             log.error(errorMessage);
             throw IdentityException.error(errorMessage);
         }
@@ -216,7 +217,7 @@ public class DBThriftSessionDAO implements ThriftSessionDAO {
                 ThriftAuthenticationDatabaseUtil.closeAllConnections(connection, null, prepStmt);
             }
         } else {
-            String errorMessage = THRIFT_SESSION_WITH_GIVEN_SESSION_ID_ALREADY_EXISTS;
+            String errorMessage = THRIFT_SESSION_WITH_GIVEN_SESSION_ID_DOES_NOT_EXIST;
             log.error(errorMessage);
             throw IdentityException.error(errorMessage);
         }
